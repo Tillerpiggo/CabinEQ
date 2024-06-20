@@ -382,7 +382,6 @@ void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)
         // TODO - generate sound
     }
     selectedSliderIndex = sliderIndex;
-        
 }
 
 void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)

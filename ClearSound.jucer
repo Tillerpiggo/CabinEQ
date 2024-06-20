@@ -4,6 +4,13 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="tB8nJa" name="ClearSound">
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
+      <FILE id="T3Y0LW" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="ZcW2ES" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="RaTQso" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="AQoyPD" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
@@ -11,10 +18,15 @@
               file="Source/CurveComponent.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="OD2zUy" name="Sequencer.cpp" compile="1" resource="0" file="Source/Sequencer.cpp"/>
+        <FILE id="yZqYvI" name="Sequencer.h" compile="0" resource="0" file="Source/Sequencer.h"/>
         <FILE id="u9ZaeK" name="SineWaveGenerator.cpp" compile="1" resource="0"
               file="Source/SineWaveGenerator.cpp"/>
         <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
               file="Source/SineWaveGenerator.h"/>
+        <FILE id="V3X9ka" name="Melody.cpp" compile="1" resource="0" file="Source/Melody.cpp"/>
+        <FILE id="QFzlQJ" name="Melody.h" compile="0" resource="0" file="Source/Melody.h"/>
+        <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{BBD4AE00-CC92-9DE7-D5E8-A037D1509C11}" name="Audio Processing">
         <FILE id="a7IuV6" name="ArbitraryResponseFilter.cpp" compile="1" resource="0"
@@ -30,13 +42,6 @@
         <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
         <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
       </GROUP>
-      <FILE id="T3Y0LW" name="PluginProcessor.cpp" compile="1" resource="0"
-            file="Source/PluginProcessor.cpp"/>
-      <FILE id="ZcW2ES" name="PluginProcessor.h" compile="0" resource="0"
-            file="Source/PluginProcessor.h"/>
-      <FILE id="RaTQso" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="AQoyPD" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="zkn2FD" name="SetPointManager.cpp" compile="1" resource="0"
             file="Source/SetPointManager.cpp"/>
       <FILE id="mkmPs2" name="SetPointManager.h" compile="0" resource="0"

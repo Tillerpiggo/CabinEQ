@@ -15,7 +15,7 @@
 class SineWaveGenerator : juce::Timer
 {
 public:
-    SineWaveGenerator ();
+    SineWaveGenerator();
     
     void setSampleRate (double newSampleRate);
     void setFrequency (double frequency);
