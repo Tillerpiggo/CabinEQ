@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "SetPointManager.h"
 #include "Curve.h"
-#include "SineWaveGenerator.h"
+#include "Sequencer.h"
 #include "ArbitraryResponseFilter.h"
 #include "BalanceArbitraryResponseFilter.h"
 
@@ -78,7 +78,7 @@ public:
 private:
     std::vector<std::pair<juce::String, double>> noteData;
     
-    SineWaveGenerator sineWaveGenerator;
+    Sequencer sequencer;
     
     int selectedSliderIndex;
     bool isSlidingGainSlider;

@@ -43,13 +43,6 @@ void ArbitraryResponseFilter::update()
         std::swap(impulseData[i], impulseData[i + quarterLength]);
     }
     
-    for (int i = 0; i < 2 * numPoints; i++)
-    {
-        std::cout << impulseData[i] << " ";
-    }
-    
-    std::cout << std::endl;
-    
     // Load the IR into the convolution
     int numChannels = 2;
     int numSamples = numPoints;

@@ -22,12 +22,16 @@ public:
     {
         Note referenceNote (DEFAULT_GAIN, REFERENCE_FREQ, 0, 0);
         Note controlledNote (DEFAULT_GAIN, DEFAULT_FREQ, 0, 0);
+        Note note3 (DEFAULT_GAIN, 1200, 0, 0);
         
         melody.addNote (referenceNote);
+        melody.addNote (controlledNote);
+        melody.addNote (note3);
         melody.addNote (controlledNote);
     }
     
     double getNextSample();
+    void setSampleRate (float newSampleRate);
     
 private:
     static constexpr double DEFAULT_GAIN = 12.f;

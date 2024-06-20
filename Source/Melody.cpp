@@ -13,6 +13,7 @@
 Note Melody::getNextNote()
 {
     Note nextNote = notes.at (noteIdx);
+    noteIdx++;
     
     // Wrap around melody to loop it
     if (noteIdx >= notes.size())

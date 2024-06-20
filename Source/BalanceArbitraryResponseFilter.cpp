@@ -35,8 +35,6 @@ void BalanceArbitraryResponseFilter::update()
             leftFreqResponse[i] = val.imag();
             rightFreqResponse[i] = 0;//val.imag();
         }
-        
-        //std::cout << "val: " << val << std::endl;
     }
     
     fft.performRealOnlyInverseTransform (leftFreqResponse);

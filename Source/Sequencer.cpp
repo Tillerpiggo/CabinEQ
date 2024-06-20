@@ -17,8 +17,14 @@ double Sequencer::getNextSample()
     {
         numSamplesNoteHasBeenPlaying = 0;
         sineWaveGenerator.setNote (melody.getNextNote());
+        std::cout << "changed note" << std::endl;
     }
     
     numSamplesNoteHasBeenPlaying++;
     return sineWaveGenerator.getNextSample();
+}
+
+void Sequencer::setSampleRate (float newSampleRate)
+{
+    sineWaveGenerator.setSampleRate (newSampleRate);
 }

@@ -105,7 +105,7 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    sineWaveGenerator.setSampleRate (sampleRate);
+    sequencer.setSampleRate (sampleRate);
     
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -167,46 +167,46 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     
     if (isSlidingGainSlider)
     {
-        double leftGain = parameters.getRawParameterValue("balance_" + std::to_string(selectedSliderIndex))->load();
-        // Figure out note gain
-        double gain = parameters.getRawParameterValue("gain_" + std::to_string(selectedSliderIndex))->load(); // TODO: This is inefficient
-        leftGain = juce::Decibels::decibelsToGain (leftGain);
-        gain = juce::Decibels::decibelsToGain (gain);
-        
-        if (!sineWaveGenerator.getIsPlayingReferenceFrequency())
-        {
-            leftGain = 1.0;
-            gain = 1.0;
-        }
+//        double leftGain = parameters.getRawParameterValue("balance_" + std::to_string(selectedSliderIndex))->load();
+//        // Figure out note gain
+//        double gain = parameters.getRawParameterValue("gain_" + std::to_string(selectedSliderIndex))->load(); // TODO: This is inefficient
+//        leftGain = juce::Decibels::decibelsToGain (leftGain);
+//        gain = juce::Decibels::decibelsToGain (gain);
+//        
+//        if (!sineWaveGenerator.getIsPlayingReferenceFrequency())
+//        {
+//            leftGain = 1.0;
+//            gain = 1.0;
+//        }
         
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            const float value = sineWaveGenerator.getNextSample();
-            leftChannel[sample] = value * 0.05 * gain * leftGain;
+            const float value = sequencer.getNextSample();
+            leftChannel[sample] = value * 0.05 * 0.5;
             
             if (rightChannel)
-                rightChannel[sample] = value * 0.05 * gain;
+                rightChannel[sample] = value * 0.05 * 0.5;
         }
     }
     
     else if (isSlidingPanSlider)
     {
-        double leftGain = parameters.getRawParameterValue("balance_" + std::to_string(selectedSliderIndex - numPoints))->load(); // TODO: This is inefficient
-        leftGain = juce::Decibels::decibelsToGain(leftGain);
-        
-        if (!sineWaveGenerator.getIsPlayingReferenceFrequency())
-        {
-            leftGain = 1.0;
-        }
-        
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-        {
-            const float value = sineWaveGenerator.getNextSample();
-            leftChannel[sample] = value * 0.05 * leftGain;
-            
-            if (rightChannel)
-                rightChannel[sample] = value * 0.05;
-        }
+//        double leftGain = parameters.getRawParameterValue("balance_" + std::to_string(selectedSliderIndex - numPoints))->load(); // TODO: This is inefficient
+//        leftGain = juce::Decibels::decibelsToGain(leftGain);
+//        
+//        if (!sineWaveGenerator.getIsPlayingReferenceFrequency())
+//        {
+//            leftGain = 1.0;
+//        }
+//        
+//        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+//        {
+//            const float value = sineWaveGenerator.getNextSample();
+//            leftChannel[sample] = value * 0.05 * leftGain;
+//            
+//            if (rightChannel)
+//                rightChannel[sample] = value * 0.05;
+//        }
     }
     
     else if (isSlidingPhaseSlider)
@@ -367,14 +367,14 @@ void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)
     if (sliderIndex < numSetPoints)
     {
         isSlidingGainSlider = true;
-        sineWaveGenerator.setFrequency(setPointLayout.getFrequencyForIndex(sliderIndex));
+        //sineWaveGenerator.setFrequency(setPointLayout.getFrequencyForIndex(sliderIndex));
     }
     else if (sliderIndex < 2 * numSetPoints)
     {
         //isSlidingPanSlider = true;
         // TODO - generate sound
         isSlidingPanSlider = true;
-        sineWaveGenerator.setFrequency(setPointLayout.getFrequencyForIndex(sliderIndex - numSetPoints));
+        //sineWaveGenerator.setFrequency(setPointLayout.getFrequencyForIndex(sliderIndex - numSetPoints));
     }
     else
     {
@@ -386,16 +386,12 @@ void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)
 
 void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
 {
-    std::cout << "slider drag ended" << std::endl;
     isSlidingGainSlider = false;
     isSlidingPanSlider = false;
     isSlidingPhaseSlider = false;
     
     int sliderIndex = slider->getProperties().getValueAt(0);
     int numSetPoints = setPointLayout.getSetPoints().size();
-    
-    std::cout << "sliderIndex: " << sliderIndex << std::endl;
-    std::cout << "numSetPoints: " << numSetPoints << std::endl;
     
     if (sliderIndex < numSetPoints)
     {

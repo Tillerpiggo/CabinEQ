@@ -42,6 +42,8 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
         throw std::runtime_error("updatePhaseIncrementAndAmplitudeCompensation() called in SineWaveGenerator before setting the note to be played");
     }
     
+    std::cout << "Note frequency: " << note->frequency << std::endl;
+    
     phaseIncrement = 2.0 * juce::MathConstants<double>::pi * note->frequency / sampleRate;
     amplitudeCompensation = std::pow(TILT, std::log2(note->frequency / REFERENCE_FREQ));
 }
