@@ -27,7 +27,7 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept 
     {
-        //convolution.process (context);
+        convolution.process (context);
         
 //        if (!hasLoadedImpulse)
 //        {

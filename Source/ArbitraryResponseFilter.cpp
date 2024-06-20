@@ -13,7 +13,7 @@
 void ArbitraryResponseFilter::update()
 {
     // Perform an IFFT on the desired frequency response
-    juce::dsp::FFT fft (8);
+    juce::dsp::FFT fft (12);
     int numPoints = fft.getSize();
     
     float* freqResponse = new float[2 * numPoints];
