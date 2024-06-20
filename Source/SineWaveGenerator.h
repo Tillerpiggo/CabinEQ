@@ -16,7 +16,7 @@
 class SineWaveGenerator
 {
 public:
-    SineWaveGenerator (Note note) : note (note) {};
+    SineWaveGenerator () {};
     
     void setSampleRate (double newSampleRate);
     double getNextSample();
@@ -30,7 +30,7 @@ private:
     void updatePhaseIncrementAndAmplitudeCompensation();
     
     double sampleRate = 0; // so it crashes if we try to run before setting sample rate
-    Note note;
+    std::optional<Note> note;
     
     double phase; // where we are in the sine wave
     

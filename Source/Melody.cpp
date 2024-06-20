@@ -22,3 +22,8 @@ Note Melody::getNextNote()
     
     return nextNote;
 }
+
+void Melody::addNote (Note note)
+{
+    notes.push_back (note);
+}

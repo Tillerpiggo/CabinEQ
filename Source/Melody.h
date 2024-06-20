@@ -22,6 +22,8 @@ public:
     Note getNextNote ();
     std::vector<Note> notes;
     
+    void addNote (Note note);
+    
 private:
     int noteIdx; // index of the next note to be played
 };
