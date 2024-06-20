@@ -153,16 +153,6 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-//    std::vector<float> setPointGains;
-//    for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
-//    {
-//        double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load(); // TODO: This is inefficient
-//        
-//        // Adjust to have 0 as the floor
-//        setPointGains.push_back(gain + 24.f);
-//    }
-//    curve.setSetPointGains(setPointGains);
-    
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
