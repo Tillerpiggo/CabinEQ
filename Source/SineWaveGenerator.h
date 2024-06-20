@@ -11,40 +11,33 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Note.h"
 
-class SineWaveGenerator : juce::Timer
+class SineWaveGenerator
 {
 public:
-    SineWaveGenerator();
+    SineWaveGenerator (Note note) : note (note) {};
     
     void setSampleRate (double newSampleRate);
-    void setFrequency (double frequency);
-    double getNextSample ();
-    double getFrequency () { return frequency; }
-    double getIsPlayingReferenceFrequency () { return isPlayingReferenceFrequency; }
+    double getNextSample();
     
-    void timerCallback() override;
-    
+    void setNote (Note note);
     
 private:
-    void startNote();
-    void updatePhaseAndAmplitude();
+    static constexpr double TILT = 0.6; // 0.5 ~ pink noise, 0.6 ~ equal loudness, 0.4 ~ bassier
+    static constexpr double REFERENCE_FREQ = 1000; // freq in hz where amplitudeCompensation = 0
     
-    double tilt = 0.6; // 0.5 ~ pink noise, 0.6 ~ equal loudness, 0.4 ~ bassier
+    void updatePhaseIncrementAndAmplitudeCompensation();
     
-    double sampleRate = 44100;
-    double currentFrequency = 1000;
-    double nextFrequency = -1;
-    double frequency = 1000;
-    double referenceFrequency = 1000;
-    double phase = 0;
+    double sampleRate = 0; // so it crashes if we try to run before setting sample rate
+    Note note;
+    
+    double phase; // where we are in the sine wave
+    
+    // == Constants for efficiency ==
     double phaseIncrement = 0;
-    double amplitudeScale = 0;
+    double amplitudeCompensation = 0;
     
-    bool isPlayingReferenceFrequency = false;
-    
+    // == Variables to prevent clicking ==
     int gainRamp = 0;
-    
-    juce::ADSR adsr;
-    juce::ADSR::Parameters adsrParams;
 };

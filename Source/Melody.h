@@ -16,9 +16,9 @@
 class Melody
 {
 public:
-    Melody() : noteIdx (0), notes (std::vector<Note>()) {}
+    Melody() : notes (std::vector<Note>()), noteIdx (0)  {}
     
-    Note getCurrentNote () { return notes.at (noteIdx) };
+    Note getCurrentNote () { return notes.at (noteIdx); }
     Note getNextNote ();
     std::vector<Note> notes;
     

@@ -15,11 +15,11 @@
 class Note
 {
 public:
-    Note (float gain, float frequency, float pan, float phase)
+    Note (double gain, double frequency, double pan, double phase)
     : gain (gain), frequency (frequency), pan (pan), phase (phase) {}
     
-    float gain; // in dB; 0 dB = silent
-    float frequency; // hz
-    float pan; // from -1 (hard left) to 1 (hard right)
-    float phase; // from 0 to 360, phase shift of left side
+    double gain; // in dB; 0 dB = silent
+    double frequency; // hz
+    double pan; // from -1 (hard left) to 1 (hard right)
+    double phase; // from 0 to 360, phase shift of left side
 };
