@@ -33,7 +33,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     isSlidingPhaseSlider = false;
     
     parameters.state = juce::ValueTree("savedParams");
-    gainProcessor.setGainDecibels(-46.3f); // Note: was 60. We should make the sine waves this much quieter.
+    gainProcessor.setGainDecibels(-47.6f); // Note: was 60. We should make the sine waves this much quieter.
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()

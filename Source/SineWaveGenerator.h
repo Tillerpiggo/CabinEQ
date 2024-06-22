@@ -24,7 +24,7 @@ public:
     void setNote (Note note);
     
 private:
-    static constexpr double TILT = 0.6; // 0.5 ~ pink noise, 0.6 ~ equal loudness, 0.4 ~ bassier
+    static constexpr double TILT = 0.62; // 0.5 ~ pink noise, 0.6 ~ equal loudness, 0.4 ~ bassier
     static constexpr double REFERENCE_FREQ = 1000; // freq in hz where amplitudeCompensation = 0
     
     void updatePhaseIncrementAndAmplitudeCompensation();
