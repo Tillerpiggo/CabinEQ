@@ -15,7 +15,7 @@
 class NoteSequence
 {
 public:
-    NoteSequence() : notes (std::vector<Note>()), noteIdx (0)  {}
+    NoteSequence() : noteIdx (0)  {}
     
     Note getCurrentNote() { return notes.at (noteIdx); }
     Note getNextNote();

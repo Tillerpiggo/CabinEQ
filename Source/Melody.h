@@ -11,19 +11,23 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Note.h"
 
 class Melody
 {
 public:
-    Melody() : notes (std::vector<Note>()), noteIdx (0)  {}
+    Melody() {}
+    const std::vector<int>& getNotes() const { return notes; }
+    const double getControlledFrequency() const { return freqForNote (controlledNote); }
     
-    Note getCurrentNote () { return notes.at (noteIdx); }
-    Note getNextNote ();
-    std::vector<Note> notes;
-    
-    void addNote (Note note);
+    void addNote (int note);
+    void setControlledNote (int controlledNote) { this->controlledNote = controlledNote; }
     
 private:
-    int noteIdx; // index of the next note to be played
+    double freqForNote(int note) const
+    {
+        return 440.0 * std::pow(2.0, (note - 69) / 12.0);
+    }
+    
+    std::vector<int> notes; // like MIDI notes, but with arbitrary range
+    int controlledNote = -1.0;
 };

@@ -10,21 +10,9 @@
 
 #include "Melody.h"
 
-Note Melody::getNextNote()
-{
-    Note nextNote = notes.at (noteIdx);
-    noteIdx++;
-    
-    // Wrap around melody to loop it
-    if (noteIdx >= notes.size())
-    {
-        noteIdx = 0;
-    }
-    
-    return nextNote;
-}
-
-void Melody::addNote (Note note)
+void Melody::addNote (int note)
 {
     notes.push_back (note);
 }
+
+

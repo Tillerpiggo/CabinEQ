@@ -44,10 +44,6 @@
               file="Source/CalibrationSequence.cpp"/>
         <FILE id="zulu2e" name="CalibrationSequence.h" compile="0" resource="0"
               file="Source/CalibrationSequence.h"/>
-        <FILE id="mRcTf3" name="CalibrationManagerDelegate.cpp" compile="1"
-              resource="0" file="Source/CalibrationManagerDelegate.cpp"/>
-        <FILE id="yez5OW" name="CalibrationManagerDelegate.h" compile="0" resource="0"
-              file="Source/CalibrationManagerDelegate.h"/>
         <FILE id="c5JD8R" name="CalibrationManager.cpp" compile="1" resource="0"
               file="Source/CalibrationManager.cpp"/>
         <FILE id="oxin8m" name="CalibrationManager.h" compile="0" resource="0"

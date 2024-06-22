@@ -9,3 +9,18 @@
 */
 
 #pragma once
+
+#include "Melody.h"
+
+class CalibrationSequence
+{
+public:
+    CalibrationSequence();
+    
+    const Melody& getNextMelody() const;
+    
+    // TODO: Hardcode a list of melodies to return here
+private:
+    Melody happyBirthdayMelody;
+    void createHappyBirthdayMelody();
+};
