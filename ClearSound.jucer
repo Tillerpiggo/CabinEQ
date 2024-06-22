@@ -24,8 +24,9 @@
               file="Source/SineWaveGenerator.cpp"/>
         <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
               file="Source/SineWaveGenerator.h"/>
-        <FILE id="V3X9ka" name="Melody.cpp" compile="1" resource="0" file="Source/Melody.cpp"/>
-        <FILE id="QFzlQJ" name="Melody.h" compile="0" resource="0" file="Source/Melody.h"/>
+        <FILE id="fkcCM6" name="NoteSequence.cpp" compile="1" resource="0"
+              file="Source/NoteSequence.cpp"/>
+        <FILE id="C1ImtJ" name="NoteSequence.h" compile="0" resource="0" file="Source/NoteSequence.h"/>
         <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{BBD4AE00-CC92-9DE7-D5E8-A037D1509C11}" name="Audio Processing">
@@ -38,10 +39,24 @@
         <FILE id="Wmyw0S" name="BalanceArbitraryResponseFilter.h" compile="0"
               resource="0" file="Source/BalanceArbitraryResponseFilter.h"/>
       </GROUP>
-      <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Math Stuff">
-        <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
-        <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
+      <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration">
+        <FILE id="ZRxtvx" name="CalibrationSequence.cpp" compile="1" resource="0"
+              file="Source/CalibrationSequence.cpp"/>
+        <FILE id="zulu2e" name="CalibrationSequence.h" compile="0" resource="0"
+              file="Source/CalibrationSequence.h"/>
+        <FILE id="mRcTf3" name="CalibrationManagerDelegate.cpp" compile="1"
+              resource="0" file="Source/CalibrationManagerDelegate.cpp"/>
+        <FILE id="yez5OW" name="CalibrationManagerDelegate.h" compile="0" resource="0"
+              file="Source/CalibrationManagerDelegate.h"/>
+        <FILE id="c5JD8R" name="CalibrationManager.cpp" compile="1" resource="0"
+              file="Source/CalibrationManager.cpp"/>
+        <FILE id="oxin8m" name="CalibrationManager.h" compile="0" resource="0"
+              file="Source/CalibrationManager.h"/>
+        <FILE id="V3X9ka" name="Melody.cpp" compile="1" resource="0" file="Source/Melody.cpp"/>
+        <FILE id="QFzlQJ" name="Melody.h" compile="0" resource="0" file="Source/Melody.h"/>
       </GROUP>
+      <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
+      <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
       <FILE id="zkn2FD" name="SetPointManager.cpp" compile="1" resource="0"
             file="Source/SetPointManager.cpp"/>
       <FILE id="mkmPs2" name="SetPointManager.h" compile="0" resource="0"
