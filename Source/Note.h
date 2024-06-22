@@ -16,10 +16,9 @@ class Note
 {
 public:
     Note (double gain, double frequency, double pan, double phase)
-    : gain (gain), frequency (frequency), pan (pan), phase (phase) {}
+        : gain (gain), frequency (frequency), pan (pan) {}
     
     double gain; // in dB; 0 dB = silent
     double frequency; // hz
     double pan; // from -1 (hard left) to 1 (hard right)
-    double phase; // from 0 to 360, phase shift of left side
 };

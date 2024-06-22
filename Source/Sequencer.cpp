@@ -16,8 +16,15 @@ double Sequencer::getNextSample()
     if (numSamplesNoteHasBeenPlaying >= noteDurationInSamples)
     {
         numSamplesNoteHasBeenPlaying = 0;
-        sineWaveGenerator.setNote (melody.getNextNote());
-        std::cout << "changed note" << std::endl;
+        
+        // Change to next note sequence if we're at the start of a new cycle
+        if (noteSequence.getNoteIdx() == 0 && nextNoteSequence)
+        {
+            noteSequence = nextNoteSequence.value();
+            nextNoteSequence.reset();
+        }
+        
+        sineWaveGenerator.setNote (noteSequence.getNextNote());
     }
     
     numSamplesNoteHasBeenPlaying++;
@@ -27,4 +34,9 @@ double Sequencer::getNextSample()
 void Sequencer::setSampleRate (float newSampleRate)
 {
     sineWaveGenerator.setSampleRate (newSampleRate);
+}
+
+void Sequencer::queueNextNoteSequence (NoteSequence nextNoteSequence)
+{
+    this->nextNoteSequence = nextNoteSequence;
 }

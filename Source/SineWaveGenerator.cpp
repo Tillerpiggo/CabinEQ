@@ -27,7 +27,7 @@ double SineWaveGenerator::getNextSample()
 }
 
 // Sets the note to the newNote, and also "plays" it by ending the last note
-// and starting the new note with a gain rample
+// and starting the new note with a gain ramp
 void SineWaveGenerator::setNote (Note newNote)
 {
     // TODO: Fancy gain ramp stuff. RN this is just a hard switch

@@ -9,3 +9,21 @@
 */
 
 #pragma once
+
+#include "Note.h"
+
+class NoteSequence
+{
+public:
+    NoteSequence() : notes (std::vector<Note>()), noteIdx (0)  {}
+    
+    Note getCurrentNote() { return notes.at (noteIdx); }
+    Note getNextNote();
+    int getNoteIdx() { return noteIdx; }
+    std::vector<Note> notes;
+    
+    void addNote (Note note);
+    
+private:
+    int noteIdx; // index of the next note to be played
+};
