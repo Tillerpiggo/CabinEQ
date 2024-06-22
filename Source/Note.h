@@ -15,7 +15,7 @@
 class Note
 {
 public:
-    Note (double gain, double frequency, double pan, double phase)
+    Note (double gain, double frequency, double pan)
         : gain (gain), frequency (frequency), pan (pan) {}
     
     double gain; // in dB; 0 dB = silent

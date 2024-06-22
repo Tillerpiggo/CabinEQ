@@ -12,6 +12,9 @@
 
 #include "Curve.h"
 #include "Sequencer.h"
+#include "CalibratedSetPoint.h"
+#include "CalibrationSequence.h"
+#include "CalibratedSetPoint.h"
 
 class CalibrationManagerDelegate;
 
@@ -27,13 +30,19 @@ public:
     CalibrationManager() {}
     
     void setDelegate (CalibrationManagerDelegate* delegate);
-    void calibrateWith (Choice choice);
+    void chooseOption (Choice choice);
     double getNextSample();
     
 private:
     CalibrationManagerDelegate* delegate;
     Sequencer sequencer;
-    //Curve curve;
+    
+    CalibrationSequence calibrationSequence;
+    std::map<double, CalibratedSetPoint> setPoints;
+    double currentSetPointFreq = -1; // not in the map by default; should crash if accessed early
+    Curve curve;
+    
+    void changeMelodyTo (const Melody& melody);
 };
 
 class CalibrationManagerDelegate

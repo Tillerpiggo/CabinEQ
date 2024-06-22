@@ -48,6 +48,10 @@
               file="Source/CalibrationManager.cpp"/>
         <FILE id="oxin8m" name="CalibrationManager.h" compile="0" resource="0"
               file="Source/CalibrationManager.h"/>
+        <FILE id="ENsrXq" name="CalibratedSetPoint.cpp" compile="1" resource="0"
+              file="Source/CalibratedSetPoint.cpp"/>
+        <FILE id="dhHXCH" name="CalibratedSetPoint.h" compile="0" resource="0"
+              file="Source/CalibratedSetPoint.h"/>
         <FILE id="V3X9ka" name="Melody.cpp" compile="1" resource="0" file="Source/Melody.cpp"/>
         <FILE id="QFzlQJ" name="Melody.h" compile="0" resource="0" file="Source/Melody.h"/>
       </GROUP>

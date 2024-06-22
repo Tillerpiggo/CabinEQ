@@ -22,11 +22,13 @@ public:
     void addNote (int note);
     void setControlledNote (int controlledNote) { this->controlledNote = controlledNote; }
     
-private:
-    double freqForNote(int note) const
+    static double freqForNote (int note)
     {
-        return 440.0 * std::pow(2.0, (note - 69) / 12.0);
+        return 440.0 * std::pow (2.0, (note - 69) / 12.0);
     }
+    
+private:
+    
     
     std::vector<int> notes; // like MIDI notes, but with arbitrary range
     int controlledNote = -1.0;
