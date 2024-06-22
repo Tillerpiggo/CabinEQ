@@ -10,14 +10,14 @@
 
 #include "CalibratedSetPoint.h"
 
-const double CalibratedSetPoint::estimatedValue() const
+const float CalibratedSetPoint::estimatedValue() const
 {
     return (upperBound + lowerBound) / 2.0;
 }
 
-void CalibratedSetPoint::calibrateWith (CalibrationManager::Choice choice)
+void CalibratedSetPoint::calibrateWith (CalibrationChoice choice)
 {
-    if (choice == CalibrationManager::Choice::LowerPreferred)
+    if (choice == CalibrationChoice::LowerPreferred)
     {
         upperBound = estimatedValue();
     }

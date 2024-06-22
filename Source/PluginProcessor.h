@@ -14,6 +14,7 @@
 #include "Sequencer.h"
 #include "ArbitraryResponseFilter.h"
 #include "BalanceArbitraryResponseFilter.h"
+#include "CalibratedSetPoint.h"
 
 //==============================================================================
 /**

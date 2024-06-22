@@ -10,18 +10,19 @@
 
 #pragma once
 
-#include "CalibrationManager.h"
+#include "CalibrationChoice.h"
 
 class CalibratedSetPoint
 {
 public:
-    CalibratedSetPoint (double lowerBound, double upperBound)
-    : upperBound (upperBound), lowerBound (lowerBound) {}
+    CalibratedSetPoint() : lowerBound (-24.0f), upperBound (-48.0f) {}
+    CalibratedSetPoint (float lowerBound, float upperBound)
+    : lowerBound (lowerBound), upperBound (upperBound) {}
     
-    const double estimatedValue() const;
-    void calibrateWith (CalibrationManager::Choice choice);
+    const float estimatedValue() const;
+    void calibrateWith (CalibrationChoice choice);
     
 private:
-    double upperBound; // in dB; 0 = no compensation
-    double lowerBound; // in dB; 0 = no compensation
+    float lowerBound; // in dB; 0 = no compensation
+    float upperBound; // in dB; 0 = no compensation
 };

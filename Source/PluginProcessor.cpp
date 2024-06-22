@@ -22,8 +22,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), parameters (*this, nullptr, "Parameters", createParameterLayout(NUM_SET_POINTS)),
-                        setPointLayout (NUM_SET_POINTS), curve (std::vector<float> (10, 0.2f), setPointLayout),
-                        balanceCurve (std::vector<float> (10, 0.2f), setPointLayout),
+                        setPointLayout (NUM_SET_POINTS),
                         gainFilter (curve), balanceFilter (balanceCurve)
 
 #endif
@@ -262,25 +261,26 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         {
             parameters.state = juce::ValueTree::fromXml(*savedParams);
             
-            std::vector<float> setPointGains;
-            for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
-            {
-                double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load(); // TODO: This is inefficient
-                
-                // Adjust to have 0 as the floor
-                setPointGains.push_back(gain + 24.f);
-            }
-            curve.setSetPointGains (setPointGains);
+//            std::vector<float> setPointGains;
+//            for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
+//            {
+//                double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load(); // TODO: This is inefficient
+//                
+//                // Adjust to have 0 as the floor
+//                setPointGains.push_back(gain + 24.f);
+//            }
+//            curve.setSetPointGains (setPointGains);
+//            
+//            std::vector<float> balanceSetPointGains;
+//            for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
+//            {
+//                double gain = parameters.getRawParameterValue("balance_" + std::to_string(i))->load();
+//                
+//                balanceSetPointGains.push_back(gain + 24.f);
+//            }
+//            balanceCurve.setSetPointGains (balanceSetPointGains);
             
-            std::vector<float> balanceSetPointGains;
-            for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
-            {
-                double gain = parameters.getRawParameterValue("balance_" + std::to_string(i))->load();
-                
-                balanceSetPointGains.push_back(gain + 24.f);
-            }
-            balanceCurve.setSetPointGains (balanceSetPointGains);
-            
+            // Update the filters to apply their current settings
             gainFilter.update();
             balanceFilter.update();
         }
@@ -337,25 +337,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 
 void StartupMVPAudioProcessor::timerCallback()
 {
-    std::vector<float> setPointGains;
-    for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
-    {
-        double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load(); // TODO: This is inefficient
-        
-        // Adjust to have 0 as the floor
-        setPointGains.push_back(gain + 24.f);
-    }
-    curve.setSetPointGains(setPointGains);
-    
-    std::vector<float> balanceSetPointGains;
-    for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
-    {
-        double gain = parameters.getRawParameterValue("balance_" + std::to_string(i))->load(); // TODO: This is inefficient
-        
-        // Adjust to have 0 as the floor
-        balanceSetPointGains.push_back(gain + 24.f);
-    }
-    balanceCurve.setSetPointGains (balanceSetPointGains);
+    // Curves should be updated implicitly
+//    std::vector<float> setPointGains;
+//    for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
+//    {
+//        double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load(); // TODO: This is inefficient
+//        
+//        // Adjust to have 0 as the floor
+//        setPointGains.push_back(gain + 24.f);
+//    }
+//    curve.setSetPointGains(setPointGains);
+//    
+//    std::vector<float> balanceSetPointGains;
+//    for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
+//    {
+//        double gain = parameters.getRawParameterValue("balance_" + std::to_string(i))->load(); // TODO: This is inefficient
+//        
+//        // Adjust to have 0 as the floor
+//        balanceSetPointGains.push_back(gain + 24.f);
+//    }
+//    balanceCurve.setSetPointGains (balanceSetPointGains);
 }
 
 void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)

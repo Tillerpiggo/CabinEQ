@@ -18,6 +18,8 @@ class ArbitraryResponseFilter
 public:
     ArbitraryResponseFilter (const Curve& curve)
     : curve (curve), convolution (latency), latency { static_cast<int>(pow (2, 12))} {}
+    virtual ~ArbitraryResponseFilter() = default;
+    
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
         convolution.reset();
@@ -25,20 +27,7 @@ public:
         convolution.prepare (spec);
     }
     template <typename ProcessContext>
-    void process (const ProcessContext &context) noexcept 
-    {
-        convolution.process (context);
-        
-//        if (!hasLoadedImpulse)
-//        {
-//            juce::File file ("/Users/tylergee/Desktop/Coding/StartupMVP/Resources/cathedral.wav");
-//            convolution.loadImpulseResponse (file,
-//                                             juce::dsp::Convolution::Stereo::yes,
-//                                             juce::dsp::Convolution::Trim::no,
-//                                             0);
-//            hasLoadedImpulse = true;
-//        }
-    };
+    void process (const ProcessContext &context) noexcept { convolution.process (context); }
     
     virtual void update(); // update the filter to match the curve
     

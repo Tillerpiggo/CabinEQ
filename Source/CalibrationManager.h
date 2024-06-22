@@ -10,43 +10,35 @@
 
 #pragma once
 
-#include "Curve.h"
 #include "Sequencer.h"
 #include "CalibratedSetPoint.h"
 #include "CalibrationSequence.h"
-#include "CalibratedSetPoint.h"
+#include "Curve.h"
 
-class CalibrationManagerDelegate;
+class CalibrationManagerDelegate
+{
+    virtual ~CalibrationManagerDelegate() = default;
+    virtual void choseOption (CalibrationChoice choice) = 0;
+};
 
 class CalibrationManager
 {
 public:
-    enum class Choice
-    {
-        LowerPreferred,
-        HigherPreferred,
-    };
-    
     CalibrationManager() {}
     
     void setDelegate (CalibrationManagerDelegate* delegate);
-    void chooseOption (Choice choice);
-    double getNextSample();
+    void chooseOption (CalibrationChoice choice);
+    float getNextSample();
     
 private:
     CalibrationManagerDelegate* delegate;
     Sequencer sequencer;
     
     CalibrationSequence calibrationSequence;
-    std::map<double, CalibratedSetPoint> setPoints;
-    double currentSetPointFreq = -1; // not in the map by default; should crash if accessed early
+    std::map<float, CalibratedSetPoint> setPoints;
+    float currentSetPointFreq = -1.0; // not in the map by default; should crash if accessed early
     Curve curve;
     
     void changeMelodyTo (const Melody& melody);
 };
 
-class CalibrationManagerDelegate
-{
-    virtual ~CalibrationManagerDelegate() = default;
-    virtual void choseOption (CalibrationManager::Choice choice) = 0;
-};

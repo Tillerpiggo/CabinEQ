@@ -13,21 +13,26 @@
 const std::complex<float> Curve::valueAtFrequency (float frequency) const
 {
     
+    if (setPointMap->empty())
+    {
+        std::cout << "WARNING: GETTING VALUE FROM CURVE BEFORE SETTING SETPOINTMAP" << std::endl;
+        return 0.0f;
+    }
+    
     // Windowing (kinda poorly tho)
     
     if (frequency < 10.f)
     {
-        return setPointGains.at(0);
+        return setPointMap->begin()->second.estimatedValue();
     }
     
     if (frequency > 20000.f)
     {
-        return (22050.f - frequency) / 2050.f;
+        return setPointMap->end()->second.estimatedValue();
     }
     
     // Find the two set points this frequency lies between
     // (return the set point if it hits a set point exactly)
-    auto setPoints = setPointLayout.getSetPoints();
     float setPointFreq1;
     float setPointGain1;
     float setPointFreq2;
@@ -36,41 +41,52 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
     float setPointGain0;
     float setPointGain3;
     
-    for (int i = 0; i < setPoints.size(); i++)
-    {
+    auto it = setPointMap->begin();
+    auto prev_it = setPointMap->end();
+
+    for (; it != setPointMap->end(); ++it) {
+        const auto& [freq, gain] = *it;
+
         // If the frequency is the same, return the value of the set point
-        if (frequency == setPoints.at(i)) 
+        if (frequency == freq) 
         {
-            return setPointGains.at(i);
+            return gain.estimatedValue();
         }
-        
-        if (frequency < setPoints.at(i))
+
+        if (frequency < freq) 
         {
-            setPointFreq1 = setPoints.at(i-1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at(0), but we already check those cases.
-            setPointFreq2 = setPoints.at(i);
-            setPointGain1 = setPointGains.at(i-1); // Same reasoning as above.
-            setPointGain2 = setPointGains.at(i);
-            
-            if (i > 1)
+            if (prev_it != setPointMap->end())
             {
-                setPointGain0 = setPointGains.at(i-2);
+                setPointFreq1 = prev_it->first;
+                setPointGain1 = prev_it->second.estimatedValue();
             }
+            setPointFreq2 = it->first;
+            setPointGain2 = it->second.estimatedValue();
+
+            if (prev_it != setPointMap->begin() && prev_it != setPointMap->end()) 
+            {
+                auto prev_prev_it = std::prev(prev_it);
+                setPointGain0 = prev_prev_it->second.estimatedValue();
+            } 
             else
             {
                 setPointGain0 = setPointGain1;
             }
-            
-            if (i < setPoints.size() - 1)
+
+            auto next_it = std::next(it);
+            if (next_it != setPointMap->end()) 
             {
-                setPointGain3 = setPointGains.at(i+1);
-            }
+                setPointGain3 = next_it->second.estimatedValue();
+            } 
             else
             {
                 setPointGain3 = setPointGain2;
             }
-            
+
             break;
         }
+
+        prev_it = it;
     }
     
     // Interpolate using catmull-rom
@@ -84,9 +100,13 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
 // mapping across frequencies. E.g. t=0 would be 20hz, t=0.5 would be ~10khz, and t=1 would be ~20khz.
 const std::complex<float> Curve::valueAtTime (float t) const
 {
-    auto setPointFreqs = setPointLayout.getSetPoints();
-    float minFreq = setPointFreqs.at(0);
-    float maxFreq = setPointFreqs.at(setPointFreqs.size() - 1);
+    if (setPointMap->empty()) {
+        std::cout << "WARNING: TRYING TO ACCESS VALUE IN CURVE BEFORE SETTING SET POINTS" << std::endl;
+        return std::complex<float>(0.0f, 0.0f);
+    }
+    
+    float minFreq = setPointMap->begin()->first;
+    float maxFreq = setPointMap->rbegin()->first;
     
     // Scale linearly
     float freq = t * (maxFreq - minFreq) + minFreq;
@@ -99,9 +119,13 @@ const std::complex<float> Curve::valueAtTime (float t) const
 // NOTE: it's debatable whether this scaling logic really belongs in Curve or should stay in CurveComponent.
 const std::complex<float> Curve::valueAtNormalizedTime (float t) const
 {
-    auto setPointFreqs = setPointLayout.getSetPoints();
-    float minFreq = setPointFreqs.at(0);
-    float maxFreq = setPointFreqs.at(setPointFreqs.size() - 1);
+    if (setPointMap->empty()) {
+        std::cout << "WARNING: TRYING TO ACCESS VALUE IN CURVE BEFORE SETTING SET POINTS" << std::endl;
+        return std::complex<float>(0.0f, 0.0f);
+    }
+    
+    float minFreq = setPointMap->begin()->first;
+    float maxFreq = setPointMap->rbegin()->first;
     
     // Scale logarithmically (should this be here?)
     float logMinFreq = std::log(minFreq);
@@ -125,45 +149,100 @@ const float Curve::cubicBezierWithHorizontalDerivative (float t, float y0, float
     return y;
 }
 
-const std::complex<float> LinearCurve::valueAtFrequency (float frequency) const
+//const std::complex<float> LinearCurve::valueAtFrequency (float frequency) const
+//{
+//    // Return 1 if the frequency is out of the 20hz-20000hz range
+//    if (frequency < 20.f || frequency > 20000.f)
+//    {
+//        return 1;
+//    }
+//    
+//    // Find the two set points this frequency lies between
+//    // (return the set point if it hits a set point exactly)
+//    auto setPoints = setPointLayout.getSetPoints();
+//    float setPointFreq1;
+//    float setPointGain1;
+//    float setPointFreq2;
+//    float setPointGain2;
+//    
+//    for (int i = 0; i < setPoints.size(); i++)
+//    {
+//        // If the frequency is the same, return the value of the set point
+//        if (frequency == setPoints.at(i))
+//        {
+//            return setPointGains.at(i);
+//        }
+//        
+//        if (frequency < setPoints.at(i))
+//        {
+//            setPointFreq1 = setPoints.at(i-1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at(0), but we already check those cases.
+//            setPointFreq2 = setPoints.at(i);
+//            setPointGain1 = setPointGains.at(i-1); // Same reasoning as above.
+//            setPointGain2 = setPointGains.at(i);
+//            break;
+//        }
+//    }
+//    
+//    // Interpolate using linear curve
+//    float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
+//    float gainAtFrequency = t * (setPointGain2 - setPointGain1) + setPointGain1;
+//    
+//    
+//    
+//    return gainAtFrequency;
+//}
+
+const std::complex<float> LinearCurve::valueAtFrequency(float frequency) const 
 {
-    // Return 1 if the frequency is out of the 20hz-20000hz range
-    if (frequency < 20.f || frequency > 20000.f)
+    // Return 1 if the frequency is out of the 20Hz-20000Hz range
+    if (frequency < 20.0f || frequency > 20000.0f) 
     {
-        return 1;
+        return 1.0f;
     }
     
-    // Find the two set points this frequency lies between
-    // (return the set point if it hits a set point exactly)
-    auto setPoints = setPointLayout.getSetPoints();
-    float setPointFreq1;
-    float setPointGain1;
-    float setPointFreq2;
-    float setPointGain2;
-    
-    for (int i = 0; i < setPoints.size(); i++)
+    float setPointFreq1 = 0.0f;
+    float setPointGain1 = 0.0f;
+    float setPointFreq2 = 0.0f;
+    float setPointGain2 = 0.0f;
+
+    auto it = setPointMap->begin();
+    auto prev_it = setPointMap->end();
+
+    for (; it != setPointMap->end(); ++it) 
     {
+        float freq = it->first;
+        float gain = it->second.estimatedValue();
+
         // If the frequency is the same, return the value of the set point
-        if (frequency == setPoints.at(i))
+        if (frequency == freq) 
         {
-            return setPointGains.at(i);
+            return gain;
         }
-        
-        if (frequency < setPoints.at(i))
+
+        if (frequency < freq) 
         {
-            setPointFreq1 = setPoints.at(i-1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at(0), but we already check those cases.
-            setPointFreq2 = setPoints.at(i);
-            setPointGain1 = setPointGains.at(i-1); // Same reasoning as above.
-            setPointGain2 = setPointGains.at(i);
+            if (prev_it != setPointMap->end()) 
+            {
+                setPointFreq1 = prev_it->first;
+                setPointGain1 = prev_it->second.estimatedValue();
+            }
+            setPointFreq2 = it->first;
+            setPointGain2 = it->second.estimatedValue();
             break;
         }
+
+        prev_it = it;
     }
-    
-    // Interpolate using linear curve
+
+    // If we haven't found a range, return 1.0f
+    if (setPointFreq1 == 0.0f && setPointGain1 == 0.0f && setPointFreq2 == 0.0f && setPointGain2 == 0.0f) 
+    {
+        return 1.0f;
+    }
+
+    // Interpolate using a linear curve
     float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
     float gainAtFrequency = t * (setPointGain2 - setPointGain1) + setPointGain1;
-    
-    
-    
+
     return gainAtFrequency;
 }

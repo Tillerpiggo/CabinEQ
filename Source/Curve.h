@@ -12,13 +12,14 @@
 
 #include <JuceHeader.h>
 #include "SetPointManager.h"
+#include "CalibratedSetPoint.h"
 
 // This manages a curve interpolated between a list of set points, with an arbitrary resolution.
 class Curve
 {
 public:
-    Curve (std::vector<float> setPointGains, SetPointManager& setPointLayout)
-    : setPointGains (setPointGains), setPointLayout (setPointLayout) {}
+    Curve () : setPointMap () {}
+    Curve (std::shared_ptr<std::map<float, CalibratedSetPoint>> setPointMap) : setPointMap (setPointMap) {}
     virtual ~Curve() {}
     
     virtual const std::complex<float> valueAtFrequency (float frequency) const;
@@ -26,24 +27,21 @@ public:
     const std::complex<float> valueAtNormalizedTime (float time) const;
     const float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     const float cubicBezierWithHorizontalDerivative (float t, float y0, float y1) const;
-    void setSetPointGains (const std::vector<float>& setPointGains) { 
-        this->setPointGains = setPointGains;
-    }
+    
     void setFactor (const float factor)
     {
         this->factor = factor;
     }
     
 protected:
-    std::vector<float> setPointGains;
-    SetPointManager setPointLayout;
+    std::shared_ptr<std::map<float, CalibratedSetPoint>> setPointMap;
     float factor = 1.f;
 };
 
 class FlatCurve : public Curve 
 {
 public:
-    FlatCurve(SetPointManager& manager) : Curve(std::vector<float>(10, 1.0f), manager) {}
+    using Curve::Curve;
 
     // Return a flat curve
     const std::complex<float> valueAtFrequency(float frequency) const override {
