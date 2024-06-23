@@ -27,7 +27,7 @@ public:
         convolution.prepare (spec);
     }
     template <typename ProcessContext>
-    void process (const ProcessContext &context) noexcept { convolution.process (context); }
+    void process (const ProcessContext &context) noexcept { }//convolution.process (context); }
     
     virtual void update(); // update the filter to match the curve
     

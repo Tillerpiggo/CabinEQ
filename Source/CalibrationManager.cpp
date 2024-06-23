@@ -15,6 +15,11 @@ void CalibrationManager::setDelegate (CalibrationManagerDelegate* delegate)
     this->delegate = delegate;
 }
 
+void CalibrationManager::setSampleRate (float newSampleRate)
+{
+    sequencer.setSampleRate (newSampleRate);
+}
+
 void CalibrationManager::chooseOption (CalibrationChoice choice)
 {
     // Calibrate the relevant (current) choice

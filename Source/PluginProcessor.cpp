@@ -22,17 +22,19 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), parameters (*this, nullptr, "Parameters", createParameterLayout(NUM_SET_POINTS)),
-                        setPointLayout (NUM_SET_POINTS),
-                        gainFilter (curve), balanceFilter (balanceCurve)
+                        setPointLayout (NUM_SET_POINTS)//,
+                        //gainFilter (curve), balanceFilter (balanceCurve)
 
 #endif
 {
-    isSlidingGainSlider = false;
-    isSlidingPanSlider = false;
-    isSlidingPhaseSlider = false;
-    
-    parameters.state = juce::ValueTree("savedParams");
-    gainProcessor.setGainDecibels(-47.6f); // Note: was 60. We should make the sine waves this much quieter.
+    std::cout << "initialized audio processor" << std::endl;
+//    
+//    isSlidingGainSlider = false;
+//    isSlidingPanSlider = false;
+//    isSlidingPhaseSlider = false;
+//    
+//    parameters.state = juce::ValueTree("savedParams");
+    //gainProcessor.setGainDecibels(-47.6f); // Note: was 60. We should make the sine waves this much quieter.
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -42,6 +44,7 @@ StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
 //==============================================================================
 const juce::String StartupMVPAudioProcessor::getName() const
 {
+    std::cout << "got name" << std::endl;
     return JucePlugin_Name;
 }
 
@@ -104,17 +107,19 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    sequencer.setSampleRate (sampleRate);
-    
-    juce::dsp::ProcessSpec spec;
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = 2;
-    
-    gainFilter.prepare (spec);
-    balanceFilter.prepare (spec);
-    
-    startTimer(16.67);
+//    calibrationManager.setSampleRate (sampleRate);
+//    
+//    juce::dsp::ProcessSpec spec;
+//    spec.sampleRate = sampleRate;
+//    spec.maximumBlockSize = samplesPerBlock;
+//    spec.numChannels = 2;
+//    
+////    gainFilter.prepare (spec);
+////    balanceFilter.prepare (spec);
+//    
+//    startTimer(16.67);
+//    
+//    std::cout << "prepared to play" << std::endl;
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -152,6 +157,7 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    /*
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -180,7 +186,8 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            const float value = sequencer.getNextSample();
+            //const float value = sequencer.getNextSample();
+            const float value = calibrationManager.getNextSample();
             leftChannel[sample] = value * 0.05 * 0.5;
             
             if (rightChannel)
@@ -219,12 +226,12 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         juce::dsp::AudioBlock<float> block (buffer);
         juce::dsp::ProcessContextReplacing<float> context (block);
         
-        gainProcessor.process (context);
-        gainFilter.process (context);
-        balanceFilter.process (context);
+//        gainProcessor.process (context);
+//        gainFilter.process (context);
+//        balanceFilter.process (context);
     }
-    
-    
+    std::cout << "processed block" << std::endl;
+    */
 }
 
 //==============================================================================
@@ -235,7 +242,7 @@ bool StartupMVPAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* StartupMVPAudioProcessor::createEditor()
 {
-    return new StartupMVPAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor (*this);//StartupMVPAudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -245,21 +252,23 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     
-    std::unique_ptr <juce::XmlElement> xml (parameters.state.createXml());
-    copyXmlToBinary(*xml, destData);
+//    std::unique_ptr <juce::XmlElement> xml (parameters.state.createXml());
+//    copyXmlToBinary(*xml, destData);
 }
 
 void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    return;
+    
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
-    std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
-    if (savedParams != nullptr)
-    {
-        if (savedParams->hasTagName(parameters.state.getType()))
-        {
-            parameters.state = juce::ValueTree::fromXml(*savedParams);
+//    std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
+//    if (savedParams != nullptr)
+//    {
+//        if (savedParams->hasTagName(parameters.state.getType()))
+//        {
+//            parameters.state = juce::ValueTree::fromXml(*savedParams);
             
 //            std::vector<float> setPointGains;
 //            for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
@@ -281,10 +290,10 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
 //            balanceCurve.setSetPointGains (balanceSetPointGains);
             
             // Update the filters to apply their current settings
-            gainFilter.update();
-            balanceFilter.update();
-        }
-    }
+//            gainFilter.update();
+//            balanceFilter.update();
+//        }
+//    }
     
 }
 
@@ -361,6 +370,7 @@ void StartupMVPAudioProcessor::timerCallback()
 
 void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)
 {
+    return;
     // Switch to the selected note
     
     int sliderIndex = slider->getProperties().getValueAt(0);
@@ -387,19 +397,20 @@ void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)
 
 void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
 {
+    return;
     isSlidingGainSlider = false;
     isSlidingPanSlider = false;
     isSlidingPhaseSlider = false;
     
-    int sliderIndex = slider->getProperties().getValueAt(0);
-    int numSetPoints = setPointLayout.getSetPoints().size();
-    
-    if (sliderIndex < numSetPoints)
-    {
-        gainFilter.update();
-    }
-    else
-    {
-        balanceFilter.update();
-    }
+//    int sliderIndex = slider->getProperties().getValueAt(0);
+//    int numSetPoints = setPointLayout.getSetPoints().size();
+//    
+//    if (sliderIndex < numSetPoints)
+//    {
+//        gainFilter.update();
+//    }
+//    else
+//    {
+//        balanceFilter.update();
+//    }
 }

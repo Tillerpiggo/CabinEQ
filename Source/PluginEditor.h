@@ -38,8 +38,8 @@ private:
     std::vector<std::unique_ptr<juce::Slider>> sliders;
     std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>> sliderAttachments;
     
-    CurveComponent curveComponent;
-    CurveComponent balanceCurveComponent;
+//    CurveComponent curveComponent;
+//    CurveComponent balanceCurveComponent;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
 };

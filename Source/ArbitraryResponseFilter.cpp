@@ -12,6 +12,8 @@
 
 void ArbitraryResponseFilter::update()
 {
+    return; // TODO: Remove; for the sake of testing
+    
     // Perform an IFFT on the desired frequency response
     juce::dsp::FFT fft (12);
     int numPoints = fft.getSize();

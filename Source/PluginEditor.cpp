@@ -13,7 +13,7 @@
 
 //==============================================================================
 StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), curveComponent (p.getCurve()), balanceCurveComponent (p.getBalanceCurve())
+    : AudioProcessorEditor (&p), audioProcessor (p)//, curveComponent (p.getCurve()), balanceCurveComponent (p.getBalanceCurve())
 {
     setSize (800, 600);
     
@@ -47,14 +47,14 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     addAndMakeVisible(viewport);
     
     // Initialize curve component
-    Curve curve = p.getCurve();
-    curveComponent = CurveComponent (curve);
-    
-    Curve balanceCurve = p.getBalanceCurve();
-    balanceCurveComponent = CurveComponent (balanceCurve);
-    
-    addAndMakeVisible(curveComponent);
-    addAndMakeVisible(balanceCurveComponent);
+//    Curve curve = p.getCurve();
+//    curveComponent = CurveComponent (curve);
+//    
+//    Curve balanceCurve = p.getBalanceCurve();
+//    balanceCurveComponent = CurveComponent (balanceCurve);
+//    
+//    addAndMakeVisible(curveComponent);
+//    addAndMakeVisible(balanceCurveComponent);
     
     resized();
 }
@@ -72,9 +72,10 @@ void StartupMVPAudioProcessorEditor::paint (juce::Graphics& g)
 
 void StartupMVPAudioProcessorEditor::resized()
 {
-    curveComponent.setBounds(getLocalBounds().withBottom(200));
-    balanceCurveComponent.setBounds(getLocalBounds().withTop(200).withBottom(400));
-    viewport.setBounds(getLocalBounds().withTop(400));
+//    curveComponent.setBounds(getLocalBounds().withBottom(200));
+//    balanceCurveComponent.setBounds(getLocalBounds().withTop(200).withBottom(400));
+//    viewport.setBounds(getLocalBounds().withTop(400));
+    viewport.setBounds (getLocalBounds());
     
     // Constants for adjustment
     const int padding = 10;

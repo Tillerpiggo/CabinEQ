@@ -27,6 +27,7 @@ public:
     CalibrationManager() {}
     
     void setDelegate (CalibrationManagerDelegate* delegate);
+    void setSampleRate (float newSampleRate);
     void chooseOption (CalibrationChoice choice);
     float getNextSample();
     
