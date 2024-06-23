@@ -12,6 +12,11 @@
 
 const std::complex<float> Curve::valueAtFrequency (float frequency) const
 {
+    if (setPointMap == nullptr)
+    {
+        std::cout << "setPointMap is null" << std::endl;
+        return 0.0f;
+    }
     
     if (setPointMap->empty())
     {

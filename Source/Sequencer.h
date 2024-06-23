@@ -39,7 +39,7 @@ private:
     static constexpr float DEFAULT_FREQ = 720;
     static constexpr float REFERENCE_FREQ = 1000;
     
-    const int noteDurationInSamples = 25000;
+    const int noteDurationInSamples = 15000;
     int numSamplesNoteHasBeenPlaying = 0;
     NoteSequence noteSequence;
     std::optional<NoteSequence> nextNoteSequence;

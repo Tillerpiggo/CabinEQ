@@ -23,8 +23,8 @@ public:
     virtual ~Curve() {}
     
     virtual const std::complex<float> valueAtFrequency (float frequency) const;
-    const std::complex<float> valueAtTime (float time) const;
-    const std::complex<float> valueAtNormalizedTime (float time) const;
+    virtual const std::complex<float> valueAtTime (float time) const;
+    virtual const std::complex<float> valueAtNormalizedTime (float time) const;
     const float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     const float cubicBezierWithHorizontalDerivative (float t, float y0, float y1) const;
     
@@ -48,7 +48,18 @@ public:
     using Curve::Curve;
 
     // Return a flat curve
-    const std::complex<float> valueAtFrequency(float frequency) const override {
+    const std::complex<float> valueAtFrequency(float frequency) const override 
+    {
+        return std::complex<float>(0.5, 0);
+    }
+    
+    const std::complex<float> valueAtTime(float time) const override
+    {
+        return std::complex<float>(0.5, 0);
+    }
+    
+    const std::complex<float> valueAtNormalizedTime(float time) const override
+    {
         return std::complex<float>(0.5, 0);
     }
 };

@@ -17,7 +17,7 @@ class Melody
 public:
     Melody() {}
     const std::vector<int>& getNotes() const { return notes; }
-    const double getControlledFrequency() const { return freqForNote (controlledNote); }
+    const float getControlledFrequency() const { return freqForNote (controlledNote); }
     
     void addNote (int note);
     void setControlledNote (int controlledNote) { this->controlledNote = controlledNote; }

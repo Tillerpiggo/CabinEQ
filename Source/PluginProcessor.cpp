@@ -22,8 +22,8 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), parameters (*this, nullptr, "Parameters", createParameterLayout(NUM_SET_POINTS)),
-                        setPointLayout (NUM_SET_POINTS)//,
-                        //gainFilter (curve), balanceFilter (balanceCurve)
+                        setPointLayout (NUM_SET_POINTS),
+                        gainFilter (curve)//, balanceFilter (balanceCurve)
 
 #endif
 {
@@ -114,7 +114,7 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 2;
     
-//    gainFilter.prepare (spec);
+    gainFilter.prepare (spec);
 //    balanceFilter.prepare (spec);
     
     startTimer(16.67);
@@ -257,6 +257,7 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 
 void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    gainFilter.update();
     return;
     
     // You should use this method to restore your parameters from this memory block,
@@ -289,7 +290,7 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
 //            balanceCurve.setSetPointGains (balanceSetPointGains);
 //            
 //             Update the filters to apply their current settings
-//            gainFilter.update();
+            gainFilter.update();
 //            balanceFilter.update();
         }
     }

@@ -21,6 +21,8 @@ public:
     
     const float estimatedValue() const;
     void calibrateWith (CalibrationChoice choice);
+    float getLowerBound() { return lowerBound; }
+    float getUpperBound() { return upperBound; }
     
 private:
     float lowerBound; // in dB; 0 = no compensation

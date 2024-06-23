@@ -30,6 +30,7 @@ public:
     void setSampleRate (float newSampleRate);
     void chooseOption (CalibrationChoice choice);
     float getNextSample();
+    const Curve& getCurve() const { return curve; }
     
 private:
     CalibrationManagerDelegate* delegate;

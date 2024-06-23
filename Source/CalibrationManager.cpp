@@ -51,17 +51,44 @@ void CalibrationManager::changeMelodyTo (const Melody& melody)
     {
         float variance = 12.0; // dB range to binary search under for new set point
         float estimatedGain = curve.valueAtFrequency (melody.getControlledFrequency()).real();
-        //CalibratedSetPoint newSetPoint (estimatedGain - variance, estimatedGain + variance);
-        //setPoints[melody.getControlledFrequency()] = newSetPoint;
+        CalibratedSetPoint newSetPoint (estimatedGain - variance, estimatedGain + variance);
+        setPoints[melody.getControlledFrequency()] = newSetPoint;
     }
+    
+    std::cout << "Melody controlled freq: " << melody.getControlledFrequency() << std::endl;
     
     // Create a NoteSequence from the melody
     NoteSequence noteSequence;
     
+    // First play the lower bound
     for (int noteVal : melody.getNotes())
     {
         float freq = melody.freqForNote (noteVal);
         float gain = curve.valueAtFrequency (melody.freqForNote (noteVal)).real();
+        
+        std::cout << "controlled freq: " << freq << std::endl;
+        std::cout << "freq: " << melody.getControlledFrequency() << std::endl;
+        if (freq == melody.getControlledFrequency())
+        {
+            gain = setPoints[melody.getControlledFrequency()].getLowerBound();
+            std::cout << "lower bound: " << gain << std::endl;
+        }
+        
+        Note note (gain, freq, 0.0);
+        noteSequence.addNote (note);
+    }
+    
+    // Then play the higher bound
+    for (int noteVal : melody.getNotes())
+    {
+        float freq = melody.freqForNote (noteVal);
+        float gain = curve.valueAtFrequency (melody.freqForNote (noteVal)).real();
+        
+        if (freq == melody.getControlledFrequency())
+        {
+            gain = setPoints[melody.getControlledFrequency()].getUpperBound();
+            std::cout << "upper bound: " << gain << std::endl;
+        }
         
         Note note (gain, freq, 0.0);
         noteSequence.addNote (note);

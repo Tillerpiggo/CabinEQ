@@ -12,10 +12,8 @@
 
 void ArbitraryResponseFilter::update()
 {
-    return; // TODO: Remove; for the sake of testing
-    
     // Perform an IFFT on the desired frequency response
-    juce::dsp::FFT fft (12);
+    juce::dsp::FFT fft (8);
     int numPoints = fft.getSize();
     
     float* freqResponse = new float[2 * numPoints];
@@ -24,10 +22,12 @@ void ArbitraryResponseFilter::update()
         float t = static_cast<float>(i) / (2 * numPoints);
         if (i % 2 == 0)
         {
+            std::cout << "even: " << std::endl;
             freqResponse[i] = curve.valueAtTime(t).real();
         }
         else
         {
+            std::cout << "odd: " << std::endl;
             freqResponse[i] = curve.valueAtTime(t).imag();
         }
     }
@@ -35,6 +35,13 @@ void ArbitraryResponseFilter::update()
     fft.performRealOnlyInverseTransform (freqResponse);
 
     float* impulseData = freqResponse;
+    
+//    std::cout << "Impulse response before: ";
+//    for (int i = 0; i < numPoints; ++i)
+//    {
+//        std::cout << impulseData[i] << " ";
+//    }
+//    std::cout << std::endl;
     
     // Transform post-ringing into pre-ringing
     int quarterLength = numPoints / 2;
@@ -44,6 +51,14 @@ void ArbitraryResponseFilter::update()
     {
         std::swap(impulseData[i], impulseData[i + quarterLength]);
     }
+    
+//    std::cout << "Impulse response after: ";
+//    for (int i = 0; i < numPoints; ++i)
+//    {
+//        std::cout << impulseData[i] << " ";
+//    }
+//    std::cout << std::endl;
+
     
     // Load the IR into the convolution
     int numChannels = 2;

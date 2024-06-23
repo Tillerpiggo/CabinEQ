@@ -17,7 +17,7 @@ float Sequencer::getNextSample()
     {
         numSamplesNoteHasBeenPlaying = 0;
         
-        std::cout << "nextNoteSequence: " << nextNoteSequence.has_value() << ", noteIdx: " << noteSequence.getNoteIdx() << std::endl;
+        std::cout << "nextNoteSequence: " << nextNoteSequence.has_value() << ", noteIdx: " << noteSequence.getNoteIdx();
         
         // Change to next note sequence if we're at the start of a new cycle
         if (noteSequence.getNoteIdx() == 0 && nextNoteSequence)
@@ -26,7 +26,9 @@ float Sequencer::getNextSample()
             nextNoteSequence.reset();
         }
         
-        sineWaveGenerator.setNote (noteSequence.getNextNote());
+        Note nextNote = noteSequence.getNextNote();
+        std::cout << ", nextNote volume: " << nextNote.gain << std::endl;
+        sineWaveGenerator.setNote (nextNote);
     }
     
     numSamplesNoteHasBeenPlaying++;
