@@ -28,6 +28,10 @@ public:
     const float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     const float cubicBezierWithHorizontalDerivative (float t, float y0, float y1) const;
     
+    void setSetPointMap (std::shared_ptr<std::map<float, CalibratedSetPoint>> setPointMap)
+    {
+        this->setPointMap = setPointMap;
+    }
     void setFactor (const float factor)
     {
         this->factor = factor;

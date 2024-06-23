@@ -24,7 +24,7 @@ class CalibrationManagerDelegate
 class CalibrationManager
 {
 public:
-    CalibrationManager() {}
+    CalibrationManager();
     
     void setDelegate (CalibrationManagerDelegate* delegate);
     void setSampleRate (float newSampleRate);

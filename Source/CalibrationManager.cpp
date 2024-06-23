@@ -10,6 +10,11 @@
 
 #include "CalibrationManager.h"
 
+CalibrationManager::CalibrationManager ()
+{
+    curve.setSetPointMap (std::make_unique<std::map<float, CalibratedSetPoint>> (setPoints));
+}
+
 void CalibrationManager::setDelegate (CalibrationManagerDelegate* delegate) 
 {
     this->delegate = delegate;
@@ -18,6 +23,10 @@ void CalibrationManager::setDelegate (CalibrationManagerDelegate* delegate)
 void CalibrationManager::setSampleRate (float newSampleRate)
 {
     sequencer.setSampleRate (newSampleRate);
+    
+    // Might as well prepare here, but this is kinda a bad idea
+    Melody melody = calibrationSequence.getNextMelody();
+    changeMelodyTo (melody);
 }
 
 void CalibrationManager::chooseOption (CalibrationChoice choice)

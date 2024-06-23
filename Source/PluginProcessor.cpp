@@ -107,19 +107,19 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-//    calibrationManager.setSampleRate (sampleRate);
-//    
-//    juce::dsp::ProcessSpec spec;
-//    spec.sampleRate = sampleRate;
-//    spec.maximumBlockSize = samplesPerBlock;
-//    spec.numChannels = 2;
-//    
-////    gainFilter.prepare (spec);
-////    balanceFilter.prepare (spec);
-//    
-//    startTimer(16.67);
-//    
-//    std::cout << "prepared to play" << std::endl;
+    calibrationManager.setSampleRate (sampleRate);
+    
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = 2;
+    
+//    gainFilter.prepare (spec);
+//    balanceFilter.prepare (spec);
+    
+    startTimer(16.67);
+    
+    std::cout << "prepared to play" << std::endl;
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -157,7 +157,7 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    /*
+    
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -170,7 +170,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
     int numPoints = setPointLayout.getSetPoints().size();
     
-    if (isSlidingGainSlider)
+    if (true)//isSlidingGainSlider)
     {
 //        double leftGain = parameters.getRawParameterValue("balance_" + std::to_string(selectedSliderIndex))->load();
 //        // Figure out note gain
@@ -230,8 +230,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 //        gainFilter.process (context);
 //        balanceFilter.process (context);
     }
-    std::cout << "processed block" << std::endl;
-    */
+    
 }
 
 //==============================================================================
@@ -252,8 +251,8 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     
-//    std::unique_ptr <juce::XmlElement> xml (parameters.state.createXml());
-//    copyXmlToBinary(*xml, destData);
+    std::unique_ptr <juce::XmlElement> xml (parameters.state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -263,12 +262,12 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
-//    std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
-//    if (savedParams != nullptr)
-//    {
-//        if (savedParams->hasTagName(parameters.state.getType()))
-//        {
-//            parameters.state = juce::ValueTree::fromXml(*savedParams);
+    std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
+    if (savedParams != nullptr)
+    {
+        if (savedParams->hasTagName(parameters.state.getType()))
+        {
+            parameters.state = juce::ValueTree::fromXml(*savedParams);
             
 //            std::vector<float> setPointGains;
 //            for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
@@ -288,12 +287,12 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
 //                balanceSetPointGains.push_back(gain + 24.f);
 //            }
 //            balanceCurve.setSetPointGains (balanceSetPointGains);
-            
-            // Update the filters to apply their current settings
+//            
+//             Update the filters to apply their current settings
 //            gainFilter.update();
 //            balanceFilter.update();
-//        }
-//    }
+        }
+    }
     
 }
 
