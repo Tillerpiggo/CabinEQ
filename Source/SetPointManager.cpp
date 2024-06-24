@@ -59,3 +59,14 @@ std::vector<float> SetPointManager::initializeSetPointFreqs (int numPoints)
 
     return setPoints;
 }
+
+void SetPointManager::updateGainAtIdx (int idx, float gain)
+{
+    if (idx < 0 || idx >= NUM_SET_POINTS)
+    {
+        std::cerr << "ERROR: Index is out of range in SetPointManager::updateGainAtIdx" << std::endl;
+        return;
+    }
+    
+    setPointGains[idx] = gain;
+}

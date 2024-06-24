@@ -18,6 +18,10 @@
               file="Source/CurveComponent.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="iUkFYz" name="IntervalSequencer.cpp" compile="1" resource="0"
+              file="Source/IntervalSequencer.cpp"/>
+        <FILE id="pm8Baz" name="IntervalSequencer.h" compile="0" resource="0"
+              file="Source/IntervalSequencer.h"/>
         <FILE id="OD2zUy" name="Sequencer.cpp" compile="1" resource="0" file="Source/Sequencer.cpp"/>
         <FILE id="yZqYvI" name="Sequencer.h" compile="0" resource="0" file="Source/Sequencer.h"/>
         <FILE id="u9ZaeK" name="SineWaveGenerator.cpp" compile="1" resource="0"
@@ -40,10 +44,6 @@
               resource="0" file="Source/BalanceArbitraryResponseFilter.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration">
-        <FILE id="ZRxtvx" name="CalibrationSequence.cpp" compile="1" resource="0"
-              file="Source/CalibrationSequence.cpp"/>
-        <FILE id="zulu2e" name="CalibrationSequence.h" compile="0" resource="0"
-              file="Source/CalibrationSequence.h"/>
         <FILE id="ZAHYy5" name="RandomCalibrationManager.cpp" compile="1" resource="0"
               file="Source/RandomCalibrationManager.cpp"/>
         <FILE id="Bt74nF" name="RandomCalibrationManager.h" compile="0" resource="0"
@@ -58,6 +58,10 @@
       <FILE id="mkmPs2" name="SetPointManager.h" compile="0" resource="0"
             file="Source/SetPointManager.h"/>
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Old">
+        <FILE id="ZRxtvx" name="CalibrationSequence.cpp" compile="1" resource="0"
+              file="Source/CalibrationSequence.cpp"/>
+        <FILE id="zulu2e" name="CalibrationSequence.h" compile="0" resource="0"
+              file="Source/CalibrationSequence.h"/>
         <FILE id="Eo9SfV" name="CalibrationChoice.h" compile="0" resource="0"
               file="Source/CalibrationChoice.h"/>
         <FILE id="ENsrXq" name="CalibratedSetPoint.cpp" compile="1" resource="0"

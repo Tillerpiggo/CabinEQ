@@ -22,6 +22,7 @@ public:
     float getNextSample();
     
     void setNote (Note note);
+    void setVolume (float gainInDecibels); // changes the volume of the currently playing note
     
 private:
     static constexpr float TILT = 0.62; // 0.5 ~ pink noise, 0.6 ~ equal loudness, 0.4 ~ bassier

@@ -41,6 +41,14 @@ void SineWaveGenerator::setNote (Note newNote)
     //currentGain.setTargetValue (note->gain);
 }
 
+void SineWaveGenerator::setVolume (float gainInDecibels)
+{
+    // TODO: create gain ramp
+    note->gain = gainInDecibels;
+    updatePhaseIncrementAndAmplitudeCompensation();
+}
+
+// ============================================
 void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
 {
     if (!note)
