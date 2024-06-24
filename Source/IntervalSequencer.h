@@ -25,8 +25,8 @@ public:
     
 private:
     static constexpr float REFERENCE_FREQ = 1000;
-    static constexpr float REFERENCE_GAIN = 12.0;
-    static const int NOTE_DURATION_IN_SAMPLES = 15000;
+    static constexpr float REFERENCE_GAIN = 0.0;
+    static const int NOTE_DURATION_IN_SAMPLES = 25000;
     
     float currFreq = 440;
     float currGain = 12.0;

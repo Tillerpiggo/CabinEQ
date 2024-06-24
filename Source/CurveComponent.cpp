@@ -28,10 +28,10 @@ void CurveComponent::paint (juce::Graphics& g)
         float endX = width * normalizedTime;
         
         // Get value at time (val from 0 to 1)
-        float val = std::abs(curve.valueAtNormalizedTime (normalizedTime));
+        float val = curve.valueAtNormalizedTime (normalizedTime).real();
         
         // Transform to be in the height dimension
-        float endY = height * (1.f - val / 48.f);
+        float endY = height * (1.f - (val + 24.f) / 72.f);
         
         path.lineTo (endX, endY);
     }

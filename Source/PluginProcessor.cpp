@@ -257,31 +257,10 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         {
             parameters.state = juce::ValueTree::fromXml(*savedParams);
             
-//            std::vector<float> setPointGains;
-//            for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
-//            {
-//                double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load(); // TODO: This is inefficient
-//                
-//                // Adjust to have 0 as the floor
-//                setPointGains.push_back(gain + 24.f);
-//            }
-//            curve.setSetPointGains (setPointGains);
-//            
-//            std::vector<float> balanceSetPointGains;
-//            for (int i = 0; i < setPointLayout.getSetPoints().size(); i++)
-//            {
-//                double gain = parameters.getRawParameterValue("balance_" + std::to_string(i))->load();
-//                
-//                balanceSetPointGains.push_back(gain + 24.f);
-//            }
-//            balanceCurve.setSetPointGains (balanceSetPointGains);
-//            
-//             Update the filters to apply their current settings
-            
             for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
             {
                 double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load();
-                calibrationManager.setGainAtIdx (i, gain + 24.f);
+                calibrationManager.setGainAtIdx (i, gain);
             }
             
             gainFilter.update (calibrationManager.getCurve());

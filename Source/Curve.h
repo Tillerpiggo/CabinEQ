@@ -17,7 +17,7 @@
 class Curve
 {
 public:
-    Curve () : setPointManager (nullptr) {}
+    Curve (SetPointManager& setPointManager) : setPointManager (setPointManager) {}
     virtual ~Curve() {}
     
     virtual const std::complex<float> valueAtFrequency (float frequency) const;
@@ -26,17 +26,13 @@ public:
     const float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     const float cubicBezierWithHorizontalDerivative (float t, float y0, float y1) const;
     
-    void configure (std::shared_ptr<SetPointManager> setPointManager);
-    
     void setFactor (const float factor)
     {
         this->factor = factor;
     }
     
-    std::shared_ptr<SetPointManager> setPointManager;
-    
 protected:
-    
+    const SetPointManager& setPointManager;
     float factor = 1.f;
 };
 
