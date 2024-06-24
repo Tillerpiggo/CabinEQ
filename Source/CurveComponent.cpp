@@ -12,7 +12,7 @@
 
 void CurveComponent::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::cornsilk);
+    g.fillAll (juce::Colours::azure);
     // Draw a path with 1000 points using this->curve
     juce::Path path;
     path.startNewSubPath(0, 0);

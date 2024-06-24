@@ -17,12 +17,12 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
     
     // Windowing (kinda poorly tho)
     
-    if (frequency < 10.f)
+    if (frequency < setPointFreqs.at(0))
     {
         return setPointGains.at(0);
     }
     
-    if (frequency > 20000.f)
+    if (frequency > setPointFreqs.at(SetPointManager::NUM_SET_POINTS - 1))
     {
         return (22050.f - frequency) / 2050.f;
     }
@@ -72,6 +72,9 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
         }
     }
     
+    std::cout << "setPointFreq1: " << setPointFreq1 << std::endl;
+    std::cout << "setPointFreq2: " << setPointFreq2 << std::endl;
+    
     // Interpolate using catmull-rom
     float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
     float gainAtFrequency = catmullRom (t, setPointGain0, setPointGain1, setPointGain2, setPointGain3);
@@ -106,6 +109,8 @@ const std::complex<float> Curve::valueAtNormalizedTime (float t) const
     float logMinFreq = std::log(minFreq);
     float logMaxFreq = std::log(maxFreq);
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
+    
+    std::cout << "freq: " << freq << std::endl;
     
     return valueAtFrequency(freq);
 }
@@ -142,7 +147,7 @@ const std::complex<float> LinearCurve::valueAtFrequency (float frequency) const
     float setPointGain1;
     float setPointFreq2;
     float setPointGain2;
-    
+
     for (int i = 0; i < SetPointManager::NUM_SET_POINTS; i++)
     {
         // If the frequency is the same, return the value of the set point
@@ -164,8 +169,6 @@ const std::complex<float> LinearCurve::valueAtFrequency (float frequency) const
     // Interpolate using linear curve
     float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
     float gainAtFrequency = t * (setPointGain2 - setPointGain1) + setPointGain1;
-    
-    
     
     return gainAtFrequency;
 }

@@ -80,7 +80,7 @@ void StartupMVPAudioProcessorEditor::paint (juce::Graphics& g)
 
 void StartupMVPAudioProcessorEditor::resized()
 {
-    curveComponent.setBounds(getLocalBounds().withBottom(200));
+    curveComponent.setBounds(getLocalBounds());
 //    balanceCurveComponent.setBounds(getLocalBounds().withTop(200).withBottom(400));
 //    viewport.setBounds(getLocalBounds().withTop(400));
     //viewport.setBounds (getLocalBounds().withTop(200));
