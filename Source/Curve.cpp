@@ -20,7 +20,7 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
     
     if (setPointMap->empty())
     {
-        std::cout << "WARNING: GETTING VALUE FROM CURVE BEFORE SETTING SETPOINTMAP" << std::endl;
+        //std::cout << "WARNING: GETTING VALUE FROM CURVE BEFORE SETTING SETPOINTMAP" << std::endl;
         return 0.0f;
     }
     
@@ -106,7 +106,7 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
 const std::complex<float> Curve::valueAtTime (float t) const
 {
     if (setPointMap->empty()) {
-        std::cout << "WARNING: TRYING TO ACCESS VALUE IN CURVE BEFORE SETTING SET POINTS" << std::endl;
+        //std::cout << "WARNING: TRYING TO ACCESS VALUE IN CURVE BEFORE SETTING SET POINTS" << std::endl;
         return std::complex<float>(0.0f, 0.0f);
     }
     
@@ -125,7 +125,7 @@ const std::complex<float> Curve::valueAtTime (float t) const
 const std::complex<float> Curve::valueAtNormalizedTime (float t) const
 {
     if (setPointMap->empty()) {
-        std::cout << "WARNING: TRYING TO ACCESS VALUE IN CURVE BEFORE SETTING SET POINTS" << std::endl;
+        //std::cout << "WARNING: TRYING TO ACCESS VALUE IN CURVE BEFORE SETTING SET POINTS" << std::endl;
         return std::complex<float>(0.0f, 0.0f);
     }
     

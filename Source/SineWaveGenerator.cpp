@@ -10,18 +10,23 @@
 
 #include "SineWaveGenerator.h"
 
-void SineWaveGenerator::setSampleRate (double newSampleRate)
+SineWaveGenerator::SineWaveGenerator ()
+{
+   // currentGain.reset (rampLengthInSamples);
+}
+
+void SineWaveGenerator::setSampleRate (float newSampleRate)
 {
     sampleRate = newSampleRate;
 }
 
-double SineWaveGenerator::getNextSample()
+float SineWaveGenerator::getNextSample()
 {
-    double sample = std::sin(phase) * amplitudeCompensation;
+    float sample = std::sin(phase) * amplitudeCompensation;// * currentGain.getNextValue();
     
     phase += phaseIncrement;
-    if (phase > 2.0 * juce::MathConstants<double>::pi)
-        phase -= 2.0 * juce::MathConstants<double>::pi;
+    if (phase > 2.0 * juce::MathConstants<float>::pi)
+        phase -= 2.0 * juce::MathConstants<float>::pi;
     
     return sample;
 }
@@ -33,6 +38,7 @@ void SineWaveGenerator::setNote (Note newNote)
     // TODO: Fancy gain ramp stuff. RN this is just a hard switch
     note = newNote;
     updatePhaseIncrementAndAmplitudeCompensation();
+    //currentGain.setTargetValue (note->gain);
 }
 
 void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
@@ -42,7 +48,7 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
         throw std::runtime_error("updatePhaseIncrementAndAmplitudeCompensation() called in SineWaveGenerator before setting the note to be played");
     }
     
-    phaseIncrement = 2.0 * juce::MathConstants<double>::pi * note->frequency / sampleRate;
+    phaseIncrement = 2.0 * juce::MathConstants<float>::pi * note->frequency / sampleRate;
     amplitudeCompensation = std::pow(TILT, std::log2(note->frequency / REFERENCE_FREQ));
     amplitudeCompensation *= juce::Decibels::decibelsToGain (note->gain);
 }

@@ -50,17 +50,17 @@ public:
     // Return a flat curve
     const std::complex<float> valueAtFrequency(float frequency) const override 
     {
-        return std::complex<float>(0.5, 0);
+        return std::complex<float>(10.0, 0);
     }
     
     const std::complex<float> valueAtTime(float time) const override
     {
-        return std::complex<float>(0.5, 0);
+        return valueAtFrequency(1000.0);
     }
     
     const std::complex<float> valueAtNormalizedTime(float time) const override
     {
-        return std::complex<float>(0.5, 0);
+        return valueAtFrequency(1000.0);
     }
 };
 

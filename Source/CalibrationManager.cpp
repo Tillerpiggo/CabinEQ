@@ -9,6 +9,7 @@
 */
 
 #include "CalibrationManager.h"
+#include <random>
 
 CalibrationManager::CalibrationManager ()
 {
@@ -31,12 +32,21 @@ void CalibrationManager::setSampleRate (float newSampleRate)
 
 void CalibrationManager::chooseOption (CalibrationChoice choice)
 {
+//    std::cout << "CHOOSING OPTION: " << std::endl;
+//    std::cout << "curr val: " << setPoints[currentSetPointFreq].estimatedValue() << std::endl;;
     // Calibrate the relevant (current) choice
     setPoints[currentSetPointFreq].calibrateWith (choice);
+//    std::cout << "curr val after: " << setPoints[currentSetPointFreq].estimatedValue() << std::endl;
     
     // Move to the next melody
     Melody melody = calibrationSequence.getNextMelody();
     changeMelodyTo (melody);
+    
+    // Print out all set points
+    for (const auto& pair : setPoints) {
+        std::cout << "Set Point (" << pair.first << "): Estimated Value = " << pair.second.estimatedValue() << '\n';
+    }
+    
 }
 
 float CalibrationManager::getNextSample()
@@ -57,8 +67,17 @@ void CalibrationManager::changeMelodyTo (const Melody& melody)
     
     std::cout << "Melody controlled freq: " << melody.getControlledFrequency() << std::endl;
     
+    currentSetPointFreq = melody.getControlledFrequency();
+    
     // Create a NoteSequence from the melody
     NoteSequence noteSequence;
+    
+    // Randomize order
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 1);
+    int flip = dis(gen);
+    flip = 1; // hard code it to be non-random for testing purposes
     
     // First play the lower bound
     for (int noteVal : melody.getNotes())
@@ -66,12 +85,19 @@ void CalibrationManager::changeMelodyTo (const Melody& melody)
         float freq = melody.freqForNote (noteVal);
         float gain = curve.valueAtFrequency (melody.freqForNote (noteVal)).real();
         
-        std::cout << "controlled freq: " << freq << std::endl;
-        std::cout << "freq: " << melody.getControlledFrequency() << std::endl;
+//        std::cout << "controlled freq: " << freq << std::endl;
+//        std::cout << "freq: " << melody.getControlledFrequency() << std::endl;
         if (freq == melody.getControlledFrequency())
         {
-            gain = setPoints[melody.getControlledFrequency()].getLowerBound();
-            std::cout << "lower bound: " << gain << std::endl;
+            if (flip)
+            {
+                gain = setPoints[melody.getControlledFrequency()].getLowerBound();
+            }
+            else
+            {
+                gain = setPoints[melody.getControlledFrequency()].getUpperBound();
+            }
+//            std::cout << "lower bound: " << gain << std::endl;
         }
         
         Note note (gain, freq, 0.0);
@@ -86,8 +112,15 @@ void CalibrationManager::changeMelodyTo (const Melody& melody)
         
         if (freq == melody.getControlledFrequency())
         {
-            gain = setPoints[melody.getControlledFrequency()].getUpperBound();
-            std::cout << "upper bound: " << gain << std::endl;
+            if (flip)
+            {
+                gain = setPoints[melody.getControlledFrequency()].getUpperBound();
+            }
+            else
+            {
+                gain = setPoints[melody.getControlledFrequency()].getLowerBound();
+            }
+//            std::cout << "upper bound: " << gain << std::endl;
         }
         
         Note note (gain, freq, 0.0);

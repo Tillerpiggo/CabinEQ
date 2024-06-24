@@ -241,7 +241,7 @@ bool StartupMVPAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* StartupMVPAudioProcessor::createEditor()
 {
-    return new juce::GenericAudioProcessorEditor (*this);//StartupMVPAudioProcessorEditor (*this);
+    return new StartupMVPAudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -413,4 +413,9 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
 //    {
 //        balanceFilter.update();
 //    }
+}
+
+void StartupMVPAudioProcessor::makeChoice (CalibrationChoice choice)
+{
+    calibrationManager.chooseOption (choice);
 }

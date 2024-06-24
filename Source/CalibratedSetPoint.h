@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CalibrationChoice.h"
+#include <JuceHeader.h>
 
 class CalibratedSetPoint
 {

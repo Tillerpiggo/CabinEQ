@@ -63,4 +63,6 @@ void CalibrationSequence::createHappyBirthdayMelody() {
     happyBirthdayMelody.addNote (60);
     
     happyBirthdayMelody.setControlledNote (60); // C4
+    
+    //std::cout << "happybirthdayMelody CONTROLLED NOTE: " << happyBirthdayMelody.controlledNote << std::endl;
 }

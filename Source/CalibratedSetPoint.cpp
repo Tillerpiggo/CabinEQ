@@ -17,6 +17,7 @@ const float CalibratedSetPoint::estimatedValue() const
 
 void CalibratedSetPoint::calibrateWith (CalibrationChoice choice)
 {
+    std::cout << "lower bound: " << lowerBound << ", upper bound: " << upperBound << std::endl;
     if (choice == CalibrationChoice::LowerPreferred)
     {
         upperBound = estimatedValue();
@@ -25,4 +26,5 @@ void CalibratedSetPoint::calibrateWith (CalibrationChoice choice)
     {
         lowerBound = estimatedValue();
     }
+    std::cout << "lower bound after: " << lowerBound << ", upper bound after: " << upperBound << std::endl;
 }
