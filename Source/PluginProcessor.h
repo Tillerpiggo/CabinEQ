@@ -92,7 +92,7 @@ private:
 //    Curve balanceCurve;
     ArbitraryResponseFilter gainFilter;
 //    BalanceArbitraryResponseFilter balanceFilter;
-//    juce::dsp::Gain<float> gainProcessor;
+    juce::dsp::Gain<float> gainProcessor;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)

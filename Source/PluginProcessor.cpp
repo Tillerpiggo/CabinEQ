@@ -29,6 +29,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     
     parameters.state = juce::ValueTree("savedParams");
     //stdgainProcessor.setGainDecibels(-47.6f); // Note: was 60. We should make the sine waves this much quieter.
+    gainProcessor.setGainDecibels(-12.f);
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -216,8 +217,8 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         juce::dsp::AudioBlock<float> block (buffer);
         juce::dsp::ProcessContextReplacing<float> context (block);
         
-//        gainProcessor.process (context);
-//        gainFilter.process (context);
+        gainProcessor.process (context);
+        gainFilter.process (context);
 //        balanceFilter.process (context);
     }
     
@@ -377,12 +378,14 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
     isSlidingPanSlider = false;
     isSlidingPhaseSlider = false;
     
+    gainFilter.update (calibrationManager.getCurve());
+    
 //    int sliderIndex = slider->getProperties().getValueAt(0);
 //    int numSetPoints = setPointLayout.getSetPoints().size();
 //    
 //    if (sliderIndex < numSetPoints)
 //    {
-//        gainFilter.update();
+//        
 //    }
 //    else
 //    {
