@@ -28,20 +28,22 @@ RandomCalibrationManager::RandomCalibrationManager() : curve (setPointManager)
     updateSequencer();
 }
 
-const float RandomCalibrationManager::getNextSample() const
+const float RandomCalibrationManager::getNextSample()
 {
-    return 0.0f;
+    float nextSample = intervalSequencer.getNextSample();
+//    std::cout << "Sample: " << nextSample << std::endl;
+    return nextSample;
 }
 
 void RandomCalibrationManager::setSampleRate (float newSampleRate)
 {
-    sequencer.setSampleRate (newSampleRate);
+    intervalSequencer.setSampleRate (newSampleRate);
 }
 
 void RandomCalibrationManager::setCurrGain (float gainInDecibels)
 {
     setPointManager.updateGainAtIdx (currIntervalIdx, gainInDecibels);
-    sequencer.setGain (gainInDecibels);
+    intervalSequencer.setGain (gainInDecibels);
 }
 
 void RandomCalibrationManager::setGainAtIdx (int i, float gainInDecibels)
@@ -86,6 +88,9 @@ void RandomCalibrationManager::updateSequencer()
     
     float currFreq = setPointManager.getSetPointFreqs().at (currSetPointIdx);
     float currGain = setPointManager.getSetPointGains().at (currSetPointIdx);
-    sequencer.setFreq (currFreq);
-    sequencer.setGain (currGain);
+    intervalSequencer.setFreq (currFreq);
+    intervalSequencer.setGain (currGain);
+    
+    std::cout << "changed freq to " << currFreq << std::endl;
+    std::cout << "changed gain to " << currGain << std::endl;
 }

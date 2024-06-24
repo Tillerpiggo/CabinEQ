@@ -56,11 +56,11 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     addAndMakeVisible(curveComponent);
 //    addAndMakeVisible(balanceCurveComponent);
     
-    addAndMakeVisible (buttonA);
-    addAndMakeVisible (buttonB);
-    
-    buttonA.addListener (this);
-    buttonB.addListener (this);
+//    addAndMakeVisible (buttonA);
+//    addAndMakeVisible (buttonB);
+//    
+//    buttonA.addListener (this);
+//    buttonB.addListener (this);
     
     resized();
 }
@@ -101,21 +101,21 @@ void StartupMVPAudioProcessorEditor::resized()
 //    }
     
     // Add the A and B buttons
-    const int buttonHeight = 40; // Height of the buttons
-    const int spacing = 20;      // Spacing between the buttons
-    const int bottomMargin = 80; // Margin from the bottom of the view
-
-    // Calculate the width and position of each button
-    const int buttonWidth = (getWidth() - spacing) / 2;
-    const int buttonY = getHeight() - buttonHeight - bottomMargin;
-
-    // Center the buttons horizontally
-    const int buttonAX = (getWidth() / 2) - buttonWidth - (spacing / 2);
-    const int buttonBX = (getWidth() / 2) + (spacing / 2);
-
-    // Set bounds for the buttons
-    buttonA.setBounds(buttonAX, buttonY, buttonWidth, buttonHeight);
-    buttonB.setBounds(buttonBX, buttonY, buttonWidth, buttonHeight);
+//    const int buttonHeight = 40; // Height of the buttons
+//    const int spacing = 20;      // Spacing between the buttons
+//    const int bottomMargin = 80; // Margin from the bottom of the view
+//
+//    // Calculate the width and position of each button
+//    const int buttonWidth = (getWidth() - spacing) / 2;
+//    const int buttonY = getHeight() - buttonHeight - bottomMargin;
+//
+//    // Center the buttons horizontally
+//    const int buttonAX = (getWidth() / 2) - buttonWidth - (spacing / 2);
+//    const int buttonBX = (getWidth() / 2) + (spacing / 2);
+//
+//    // Set bounds for the buttons
+//    buttonA.setBounds(buttonAX, buttonY, buttonWidth, buttonHeight);
+//    buttonB.setBounds(buttonBX, buttonY, buttonWidth, buttonHeight);
 }
 
 // Creates a slider and label with the given name, for the given parameter, at the given index,

@@ -20,7 +20,7 @@ class RandomCalibrationManager
 public:
     RandomCalibrationManager ();
     
-    const float getNextSample() const;
+    const float getNextSample();
     void setSampleRate (float newSampleRate);
     void setCurrGain (float gainInDecibels);
     void setGainAtIdx (int i, float gainInDecibels);
@@ -32,7 +32,7 @@ public:
     int goToPrevInterval(); // returns the corresponding idx used by SetPointManager, -1 if no prev
     
 private:
-    IntervalSequencer sequencer;
+    IntervalSequencer intervalSequencer;
     SetPointManager setPointManager;
     Curve curve;
     

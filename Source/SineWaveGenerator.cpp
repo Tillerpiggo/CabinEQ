@@ -22,7 +22,7 @@ void SineWaveGenerator::setSampleRate (float newSampleRate)
 
 float SineWaveGenerator::getNextSample()
 {
-    float sample = std::sin(phase) * amplitudeCompensation;// * currentGain.getNextValue();
+    float sample = std::sin(phase) * amplitudeCompensation;
     
     phase += phaseIncrement;
     if (phase > 2.0 * juce::MathConstants<float>::pi)

@@ -22,12 +22,10 @@ void ArbitraryResponseFilter::update (const Curve& curve)
         float t = static_cast<float>(i) / (2 * numPoints);
         if (i % 2 == 0)
         {
-            std::cout << "even: " << std::endl;
             freqResponse[i] = curve.valueAtTime(t).real();
         }
         else
         {
-            std::cout << "odd: " << std::endl;
             freqResponse[i] = curve.valueAtTime(t).imag();
         }
     }

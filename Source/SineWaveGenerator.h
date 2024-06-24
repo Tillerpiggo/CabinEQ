@@ -30,7 +30,7 @@ private:
     
     void updatePhaseIncrementAndAmplitudeCompensation();
     
-    float sampleRate = 0; // so it crashes if we try to run before setting sample rate
+    float sampleRate = 44100; // so it crashes if we try to run before setting sample rate
     std::optional<Note> note;
     
     float phase; // where we are in the sine wave
