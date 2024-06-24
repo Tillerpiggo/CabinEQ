@@ -44,3 +44,9 @@ void Sequencer::queueNextNoteSequence (NoteSequence nextNoteSequence)
 {
     this->nextNoteSequence = nextNoteSequence;
 }
+
+void Sequencer::setNoteSequence (NoteSequence noteSequence)
+{
+    this->noteSequence = noteSequence;
+    numSamplesNoteHasBeenPlaying = noteDurationInSamples + 1; // so it immediately resets and starts
+}

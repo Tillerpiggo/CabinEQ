@@ -16,8 +16,8 @@
 class ArbitraryResponseFilter
 {
 public:
-    ArbitraryResponseFilter (const Curve& curve)
-    : curve (curve), convolution (latency), latency { static_cast<int>(pow (2, 12))} {}
+    ArbitraryResponseFilter ()
+    : convolution (latency), latency { static_cast<int>(pow (2, 12))} {}
     virtual ~ArbitraryResponseFilter() = default;
     
     void prepare (const juce::dsp::ProcessSpec& spec)
@@ -29,10 +29,9 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept { }//convolution.process (context); }
     
-    virtual void update(); // update the filter to match the curve
+    virtual void update (const Curve& curve); // update the filter to match the curve
     
 protected:
-    const Curve& curve;
     juce::dsp::Convolution convolution;
     juce::dsp::Convolution::Latency latency;
     double sampleRate = 44100;

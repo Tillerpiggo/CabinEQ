@@ -46,6 +46,10 @@
               file="Source/CalibrationSequence.cpp"/>
         <FILE id="zulu2e" name="CalibrationSequence.h" compile="0" resource="0"
               file="Source/CalibrationSequence.h"/>
+        <FILE id="ZAHYy5" name="RandomCalibrationManager.cpp" compile="1" resource="0"
+              file="Source/RandomCalibrationManager.cpp"/>
+        <FILE id="Bt74nF" name="RandomCalibrationManager.h" compile="0" resource="0"
+              file="Source/RandomCalibrationManager.h"/>
         <FILE id="c5JD8R" name="CalibrationManager.cpp" compile="1" resource="0"
               file="Source/CalibrationManager.cpp"/>
         <FILE id="oxin8m" name="CalibrationManager.h" compile="0" resource="0"

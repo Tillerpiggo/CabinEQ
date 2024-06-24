@@ -147,15 +147,15 @@ void StartupMVPAudioProcessorEditor::addSlider(std::string name, std::string par
 
 void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
 {
-    std::cout << "button clicked" << std::endl;
-    if (button == &buttonA)
-    {
-        std::cout << "chose smaller" << std::endl;
-        audioProcessor.makeChoice (CalibrationChoice::LowerPreferred);
-    }
-    else if (button == &buttonB)
-    {
-        std::cout << "chose bigger" << std::endl;
-        audioProcessor.makeChoice (CalibrationChoice::HigherPreferred);
-    }
+//    std::cout << "button clicked" << std::endl;
+//    if (button == &buttonA)
+//    {
+//        std::cout << "chose smaller" << std::endl;
+//        audioProcessor.makeChoice (CalibrationChoice::LowerPreferred);
+//    }
+//    else if (button == &buttonB)
+//    {
+//        std::cout << "chose bigger" << std::endl;
+//        audioProcessor.makeChoice (CalibrationChoice::HigherPreferred);
+//    }
 }

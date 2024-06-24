@@ -33,6 +33,7 @@ public:
     float getNextSample();
     void setSampleRate (float newSampleRate);
     void queueNextNoteSequence (NoteSequence nextNoteSequence);
+    void setNoteSequence (NoteSequence noteSequence);
     
 private:
     static constexpr float DEFAULT_GAIN = 12.f;

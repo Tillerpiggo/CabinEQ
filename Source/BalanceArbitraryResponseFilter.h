@@ -19,5 +19,5 @@ class BalanceArbitraryResponseFilter : public ArbitraryResponseFilter
 public:
     using ArbitraryResponseFilter::ArbitraryResponseFilter;
     
-    void update() override;
+    void update (const Curve& curve) override;
 };

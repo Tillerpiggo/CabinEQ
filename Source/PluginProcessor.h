@@ -14,7 +14,7 @@
 #include "Sequencer.h"
 #include "ArbitraryResponseFilter.h"
 #include "BalanceArbitraryResponseFilter.h"
-#include "CalibrationManager.h"
+#include "RandomCalibrationManager.h"
 
 //==============================================================================
 /**
@@ -74,14 +74,11 @@ public:
     
     const SetPointManager& getSetPointManager() const { return setPointLayout; } // TODO: Is this correct reference semantics for C++? I feel like I'm doing something wrong
     const Curve& getCurve() const { return calibrationManager.getCurve(); }
-//    const Curve& getBalanceCurve() const { return FlatCurve(); }
-    
-    void makeChoice (CalibrationChoice choice);
 
 private:
     std::vector<std::pair<juce::String, double>> noteData;
     
-    CalibrationManager calibrationManager;
+    RandomCalibrationManager calibrationManager;
     
     int selectedSliderIndex;
     bool isSlidingGainSlider;
@@ -89,7 +86,6 @@ private:
     bool isSlidingPhaseSlider;
     
     SetPointManager setPointLayout;
-    FlatCurve curve;
 //    Curve curve;
 //    Curve balanceCurve;
     ArbitraryResponseFilter gainFilter;

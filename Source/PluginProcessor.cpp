@@ -21,9 +21,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout(NUM_SET_POINTS)),
-                        setPointLayout (NUM_SET_POINTS),
-                        gainFilter (curve)//, balanceFilter (balanceCurve)
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (100))
 
 #endif
 {
@@ -168,7 +166,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
-    int numPoints = setPointLayout.getSetPoints().size();
+    int numPoints = SetPointManager::NUM_SET_POINTS;
     
     if (true)//isSlidingGainSlider)
     {
@@ -257,9 +255,6 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 
 void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    gainFilter.update();
-    return;
-    
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
@@ -290,7 +285,14 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
 //            balanceCurve.setSetPointGains (balanceSetPointGains);
 //            
 //             Update the filters to apply their current settings
-            gainFilter.update();
+            
+            for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
+            {
+                double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load();
+                calibrationManager.setGainAtIdx (i, gain + 24.f);
+            }
+            
+            gainFilter.update (calibrationManager.getCurve());
 //            balanceFilter.update();
         }
     }
@@ -374,13 +376,12 @@ void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)
     // Switch to the selected note
     
     int sliderIndex = slider->getProperties().getValueAt(0);
-    int numSetPoints = setPointLayout.getSetPoints().size();
-    if (sliderIndex < numSetPoints)
+    if (sliderIndex < SetPointManager::NUM_SET_POINTS)
     {
         isSlidingGainSlider = true;
         //sineWaveGenerator.setFrequency(setPointLayout.getFrequencyForIndex(sliderIndex));
     }
-    else if (sliderIndex < 2 * numSetPoints)
+    else if (sliderIndex < SetPointManager::NUM_SET_POINTS * 2)
     {
         //isSlidingPanSlider = true;
         // TODO - generate sound
@@ -415,7 +416,7 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
 //    }
 }
 
-void StartupMVPAudioProcessor::makeChoice (CalibrationChoice choice)
-{
-    calibrationManager.chooseOption (choice);
-}
+//void StartupMVPAudioProcessor::makeChoice (CalibrationChoice choice)
+//{
+//    calibrationManager.chooseOption (choice);
+//}

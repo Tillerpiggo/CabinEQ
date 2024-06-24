@@ -10,7 +10,7 @@
 
 #include "ArbitraryResponseFilter.h"
 
-void ArbitraryResponseFilter::update()
+void ArbitraryResponseFilter::update (const Curve& curve)
 {
     // Perform an IFFT on the desired frequency response
     juce::dsp::FFT fft (8);

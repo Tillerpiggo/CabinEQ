@@ -13,7 +13,7 @@
 
 #include <cmath>
 
-std::vector<float> SetPointManager::initializeSetPoints(int numPoints)
+std::vector<float> SetPointManager::initializeSetPointFreqs (int numPoints)
 {
     // Initialize constants
     float minFreq = 10.f;
