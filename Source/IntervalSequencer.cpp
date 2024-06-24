@@ -19,10 +19,12 @@ float IntervalSequencer::getNextSample()
         if (isPlayingReferenceFreq)
         {
             sineWaveGenerator.setNote (Note (currGain, currFreq, 0));
+            isPlayingReferenceFreq = false;
         }
         else
         {
             sineWaveGenerator.setNote (Note (REFERENCE_GAIN, REFERENCE_FREQ, 0));
+            isPlayingReferenceFreq = true;
         }
     }
     
