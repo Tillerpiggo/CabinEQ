@@ -35,17 +35,15 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     StartupMVPAudioProcessor& audioProcessor;
-    juce::Viewport viewport;
-    juce::Component sliderContainer;
     
+    juce::TabbedComponent tabbedComponent;
     std::vector<std::unique_ptr<juce::Slider>> sliders;
     std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>> sliderAttachments;
     
-    juce::TextButton buttonA { "A is more even" };
-    juce::TextButton buttonB { "B is more even" };
+    juce::TextButton prevButton { "< PREV" };
+    juce::TextButton nextButton { "NEXT >" };
     
     CurveComponent curveComponent;
-//    CurveComponent balanceCurveComponent;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
 };

@@ -64,7 +64,7 @@ public:
     
     //==============================================================================
     void timerCallback() override;
-    void sliderValueChanged (juce::Slider *slider) override {}
+    void sliderValueChanged (juce::Slider *slider) override;
     void sliderDragStarted (juce::Slider *slider) override;
     void sliderDragEnded (juce::Slider *slider) override;
     
@@ -74,6 +74,8 @@ public:
     
     const SetPointManager& getSetPointManager() const { return setPointLayout; } // TODO: Is this correct reference semantics for C++? I feel like I'm doing something wrong
     const Curve& getCurve() const { return calibrationManager.getCurve(); }
+    int goToPrevInterval() { return calibrationManager.goToPrevInterval(); }
+    int goToNextInterval() { return calibrationManager.goToNextInterval(); }
 
 private:
     std::vector<std::pair<juce::String, double>> noteData;

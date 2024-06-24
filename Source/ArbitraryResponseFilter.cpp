@@ -13,7 +13,7 @@
 void ArbitraryResponseFilter::update (const Curve& curve)
 {
     // Perform an IFFT on the desired frequency response
-    juce::dsp::FFT fft (8);
+    juce::dsp::FFT fft (4);
     int numPoints = fft.getSize();
     
     float* freqResponse = new float[2 * numPoints];

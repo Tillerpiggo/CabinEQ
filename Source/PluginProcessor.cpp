@@ -25,14 +25,12 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 
 #endif
 {
-    std::cout << "initialized audio processor" << std::endl;
-//    
-//    isSlidingGainSlider = false;
-//    isSlidingPanSlider = false;
-//    isSlidingPhaseSlider = false;
-//    
-//    parameters.state = juce::ValueTree("savedParams");
-    //gainProcessor.setGainDecibels(-47.6f); // Note: was 60. We should make the sine waves this much quieter.
+    isSlidingGainSlider = false;
+    isSlidingPanSlider = false;
+    isSlidingPhaseSlider = false;
+    
+    parameters.state = juce::ValueTree("savedParams");
+    //stdgainProcessor.setGainDecibels(-47.6f); // Note: was 60. We should make the sine waves this much quieter.
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -42,7 +40,6 @@ StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
 //==============================================================================
 const juce::String StartupMVPAudioProcessor::getName() const
 {
-    std::cout << "got name" << std::endl;
     return JucePlugin_Name;
 }
 
@@ -113,11 +110,8 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.numChannels = 2;
     
     gainFilter.prepare (spec);
-//    balanceFilter.prepare (spec);
     
     startTimer(16.67);
-    
-    std::cout << "prepared to play" << std::endl;
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -168,7 +162,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
     int numPoints = SetPointManager::NUM_SET_POINTS;
     
-    if (true)//isSlidingGainSlider)
+    if (isSlidingGainSlider)
     {
 //        double leftGain = parameters.getRawParameterValue("balance_" + std::to_string(selectedSliderIndex))->load();
 //        // Figure out note gain
@@ -372,7 +366,6 @@ void StartupMVPAudioProcessor::timerCallback()
 
 void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)
 {
-    return;
     // Switch to the selected note
     
     int sliderIndex = slider->getProperties().getValueAt(0);
@@ -396,9 +389,13 @@ void StartupMVPAudioProcessor::sliderDragStarted(juce::Slider *slider)
     selectedSliderIndex = sliderIndex;
 }
 
+void StartupMVPAudioProcessor::sliderValueChanged (juce::Slider *slider)
+{
+    calibrationManager.setCurrGain (slider->getValue());
+}
+
 void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
 {
-    return;
     isSlidingGainSlider = false;
     isSlidingPanSlider = false;
     isSlidingPhaseSlider = false;

@@ -31,7 +31,6 @@ RandomCalibrationManager::RandomCalibrationManager() : curve (setPointManager)
 const float RandomCalibrationManager::getNextSample()
 {
     float nextSample = intervalSequencer.getNextSample();
-//    std::cout << "Sample: " << nextSample << std::endl;
     return nextSample;
 }
 
@@ -90,7 +89,4 @@ void RandomCalibrationManager::updateSequencer()
     float currGain = setPointManager.getSetPointGains().at (currSetPointIdx);
     intervalSequencer.setFreq (currFreq);
     intervalSequencer.setGain (currGain);
-    
-    std::cout << "changed freq to " << currFreq << std::endl;
-    std::cout << "changed gain to " << currGain << std::endl;
 }

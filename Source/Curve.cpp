@@ -72,9 +72,6 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
         }
     }
     
-    std::cout << "setPointFreq1: " << setPointFreq1 << std::endl;
-    std::cout << "setPointFreq2: " << setPointFreq2 << std::endl;
-    
     // Interpolate using catmull-rom
     float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
     float gainAtFrequency = catmullRom (t, setPointGain0, setPointGain1, setPointGain2, setPointGain3);
@@ -110,14 +107,12 @@ const std::complex<float> Curve::valueAtNormalizedTime (float t) const
     float logMaxFreq = std::log(maxFreq);
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
     
-    std::cout << "freq: " << freq << std::endl;
-    
     return valueAtFrequency(freq);
 }
 
 const float Curve::catmullRom (float t, float y0, float y1, float y2, float y3) const
 {
-    float y = 0.5 * ((2.f*y1) + (-y0 + y2) * t + (2.f*y0 - 5.f*y1 + 4.f*y2 - y3) * pow(t, 2) + (-y0 + 3*y1 - 3*y2 + y3) * pow(t, 3));
+    float y = 0.5 * ((2.f * y1) + (-y0 + y2) * t + (2.f * y0 - 5.f * y1 + 4.f * y2 - y3) * pow(t, 2) + (-y0 + 3 * y1 - 3 * y2 + y3) * pow(t, 3));
     
     return y;
 }
@@ -125,7 +120,7 @@ const float Curve::catmullRom (float t, float y0, float y1, float y2, float y3) 
 const float Curve::cubicBezierWithHorizontalDerivative (float t, float y0, float y1) const
 {
     // We only need to calculate y
-    float y = (pow(1.f-t, 3) * y0) + (3*pow(1.f-t, 2) * t * y0) + (3*(1-t)*pow(t, 2) * y1) + (pow(t, 3.f) * y1);
+    float y = (pow(1.f - t, 3) * y0) + (3 * pow(1.f - t, 2) * t * y0) + (3*(1 - t)*pow(t, 2) * y1) + (pow(t, 3.f) * y1);
     return y;
 }
 
