@@ -18,7 +18,7 @@ class SetPointManager
 public:
     SetPointManager ()
     : setPointFreqs (initializeSetPointFreqs(NUM_SET_POINTS)),
-      setPointGains (std::vector<float> (0.0f, NUM_SET_POINTS)) {}
+      setPointGains (std::vector<float> (NUM_SET_POINTS, 0.0f)) {}
     
     const std::vector<float>& getSetPointFreqs() const { return setPointFreqs; }
     const std::vector<float>& getSetPointGains() const { return setPointGains; }
