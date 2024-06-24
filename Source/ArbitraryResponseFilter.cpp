@@ -35,14 +35,7 @@ void ArbitraryResponseFilter::update (const Curve& curve)
     fft.performRealOnlyInverseTransform (freqResponse);
 
     float* impulseData = freqResponse;
-    
-//    std::cout << "Impulse response before: ";
-//    for (int i = 0; i < numPoints; ++i)
-//    {
-//        std::cout << impulseData[i] << " ";
-//    }
-//    std::cout << std::endl;
-    
+
     // Transform post-ringing into pre-ringing
     int quarterLength = numPoints / 2;
 
@@ -51,14 +44,6 @@ void ArbitraryResponseFilter::update (const Curve& curve)
     {
         std::swap(impulseData[i], impulseData[i + quarterLength]);
     }
-    
-//    std::cout << "Impulse response after: ";
-//    for (int i = 0; i < numPoints; ++i)
-//    {
-//        std::cout << impulseData[i] << " ";
-//    }
-//    std::cout << std::endl;
-
     
     // Load the IR into the convolution
     int numChannels = 2;

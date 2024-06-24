@@ -20,14 +20,14 @@ class Sequencer
 public:
     Sequencer()
     {
-        Note referenceNote (DEFAULT_GAIN, REFERENCE_FREQ, 0);
-        Note controlledNote (DEFAULT_GAIN, DEFAULT_FREQ, 0);
-        Note note3 (DEFAULT_GAIN, 1200, 0);
-        
-        noteSequence.addNote (referenceNote);
-        noteSequence.addNote (controlledNote);
-        noteSequence.addNote (note3);
-        noteSequence.addNote (controlledNote);
+//        Note referenceNote (DEFAULT_GAIN, REFERENCE_FREQ, 0);
+//        Note controlledNote (DEFAULT_GAIN, DEFAULT_FREQ, 0);
+//        Note note3 (DEFAULT_GAIN, 1200, 0);
+//        
+//        noteSequence.addNote (referenceNote);
+//        noteSequence.addNote (controlledNote);
+//        noteSequence.addNote (note3);
+//        noteSequence.addNote (controlledNote);
     }
     
     float getNextSample();

@@ -13,11 +13,12 @@
 #include <JuceHeader.h>
 #include "SetPointManager.h"
 #include "Curve.h"
+#include "Sequencer.h"
 
 class RandomCalibrationManager
 {
 public:
-    RandomCalibrationManager () : curve (setPointManager) {}
+    RandomCalibrationManager ();
     
     const float getNextSample() const;
     void setSampleRate (float newSampleRate);
@@ -25,10 +26,13 @@ public:
     void setGainAtIdx (int idx, float gainInDecibels);
     const Curve& getCurve() const;
     
-    void goToNextInterval();
-    void goToPrevInterval();
+    int goToNextInterval(); // returns the corresponding idx used by SetPointManager, -1 if no next
+    int goToPrevInterval(); // returns the corresponding idx used by SetPointManager, -1 if no prev
     
 private:
+    Sequencer sequencer;
     SetPointManager setPointManager;
     Curve curve;
+    
+    std::vector<int> intervalOrder; // idx -> SetPointManager idx
 };
