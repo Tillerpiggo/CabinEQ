@@ -101,7 +101,7 @@ void StartupMVPAudioProcessorEditor::addSlider(std::string name, std::string par
     auto attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
                                                                                              audioProcessor.parameters, paramName, *slider);
     
-    tabbedComponent.addTab (name, juce::Colours::coral, slider, true);
+    tabbedComponent.addTab (name, juce::Colours::transparentWhite, slider, true);
     
     sliderAttachments.push_back(std::move(attachment));
 }

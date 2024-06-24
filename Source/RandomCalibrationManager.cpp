@@ -11,8 +11,10 @@
 #include "RandomCalibrationManager.h"
 #include <random>
 
-RandomCalibrationManager::RandomCalibrationManager() : curve (setPointManager)
+RandomCalibrationManager::RandomCalibrationManager()
 {
+    curve.configure (std::make_shared<SetPointManager>(setPointManager));
+    
     // Initialize intervalOrder
     for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
     {
@@ -41,13 +43,16 @@ void RandomCalibrationManager::setSampleRate (float newSampleRate)
 
 void RandomCalibrationManager::setCurrGain (float gainInDecibels)
 {
-    setPointManager.updateGainAtIdx (currIntervalIdx, gainInDecibels);
+    setPointManager.updateGainAtIdx (intervalOrder.at (currIntervalIdx), gainInDecibels);
     intervalSequencer.setGain (gainInDecibels);
+    
+    std::cout << "Curve setPointManager: " << curve.setPointManager.get() << std::endl;
+    std::cout << "setPointManager: " << &setPointManager << std::endl;
 }
 
 void RandomCalibrationManager::setGainAtIdx (int i, float gainInDecibels)
 {
-    setPointManager.updateGainAtIdx (i, gainInDecibels);
+    setPointManager.updateGainAtIdx (intervalOrder.at (i), gainInDecibels);
 }
 
 const Curve& RandomCalibrationManager::getCurve() const

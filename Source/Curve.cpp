@@ -12,8 +12,8 @@
 
 const std::complex<float> Curve::valueAtFrequency (float frequency) const
 {
-    auto setPointFreqs = setPointManager.getSetPointFreqs();
-    auto setPointGains = setPointManager.getSetPointGains();
+    auto setPointFreqs = setPointManager->getSetPointFreqs();
+    auto setPointGains = setPointManager->getSetPointGains();
     
     // Windowing (kinda poorly tho)
     
@@ -35,7 +35,7 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
     float setPointGain0;
     float setPointGain3;
     
-    for (int i = 0; i < SetPointManager::NUM_SET_POINTS; i++)
+    for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
     {
         // If the frequency is the same, return the value of the set point
         if (frequency == setPointFreqs.at(i))
@@ -83,7 +83,7 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
 // mapping across frequencies. E.g. t=0 would be 20hz, t=0.5 would be ~10khz, and t=1 would be ~20khz.
 const std::complex<float> Curve::valueAtTime (float t) const
 {
-    auto setPointFreqs = setPointManager.getSetPointFreqs();
+    auto setPointFreqs = setPointManager->getSetPointFreqs();
     float minFreq = setPointFreqs.at(0);
     float maxFreq = setPointFreqs.at(setPointFreqs.size() - 1);
     
@@ -98,7 +98,7 @@ const std::complex<float> Curve::valueAtTime (float t) const
 // NOTE: it's debatable whether this scaling logic really belongs in Curve or should stay in CurveComponent.
 const std::complex<float> Curve::valueAtNormalizedTime (float t) const
 {
-    auto setPointFreqs = setPointManager.getSetPointFreqs();
+    auto setPointFreqs = setPointManager->getSetPointFreqs();
     float minFreq = setPointFreqs.at(0);
     float maxFreq = setPointFreqs.at(setPointFreqs.size() - 1);
     
@@ -126,8 +126,8 @@ const float Curve::cubicBezierWithHorizontalDerivative (float t, float y0, float
 
 const std::complex<float> LinearCurve::valueAtFrequency (float frequency) const
 {
-    auto setPointGains = setPointManager.getSetPointGains();
-    auto setPointFreqs = setPointManager.getSetPointFreqs();
+    auto setPointGains = setPointManager->getSetPointGains();
+    auto setPointFreqs = setPointManager->getSetPointFreqs();
     
     // Return 1 if the frequency is out of the 20hz-20000hz range
     if (frequency < 20.f || frequency > 20000.f)
@@ -166,4 +166,9 @@ const std::complex<float> LinearCurve::valueAtFrequency (float frequency) const
     float gainAtFrequency = t * (setPointGain2 - setPointGain1) + setPointGain1;
     
     return gainAtFrequency;
+}
+
+void Curve::configure (std::shared_ptr<SetPointManager> setPointManager)
+{
+    this->setPointManager = setPointManager;
 }

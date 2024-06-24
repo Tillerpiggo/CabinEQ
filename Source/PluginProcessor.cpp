@@ -9,8 +9,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-int NUM_SET_POINTS = 150;
-
 //==============================================================================
 StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -21,7 +19,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (100))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (SetPointManager::NUM_SET_POINTS))
 
 #endif
 {

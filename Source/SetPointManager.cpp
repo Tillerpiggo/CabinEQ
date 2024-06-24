@@ -89,4 +89,6 @@ void SetPointManager::updateGainAtIdx (int idx, float gain)
     }
     
     setPointGains[idx] = gain;
+    
+    std::cout << "gain at idx " << idx << ": " << gain << std::endl;
 }
