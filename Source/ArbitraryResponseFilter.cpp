@@ -27,7 +27,7 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     juce::dsp::FFT fft (fft_size);
     int numPoints = fft.getSize();
     
-    std::cout << "desired response: " << std::endl;
+//    std::cout << "desired response: " << std::endl;
     
     float* freqResponse = new float[2 * numPoints];
     for (int i = 0; i < 2 * numPoints; i++)
@@ -36,14 +36,14 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
         if (i % 2 == 0)
         {
             freqResponse[i] = juce::Decibels::decibelsToGain (curve.valueAtTime(t).real());
-            std::cout << freqResponse[i] << " ";
+//            std::cout << freqResponse[i] << " ";
         }
         else
         {
             freqResponse[i] = curve.valueAtTime(t).imag();
         }
     }
-    std::cout << std::endl;
+//    std::cout << std::endl;
     
     fft.performRealOnlyInverseTransform (freqResponse);
     
@@ -76,15 +76,15 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 //    std::cout << std::endl;
     
     // Window the filter
-    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::flatTop, true);
-    window.multiplyWithWindowingTable(impulseData, numPoints);
+//    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::hann, true);
+//    window.multiplyWithWindowingTable(impulseData, numPoints);
     
-    std::cout << "Impulse after: " << std::endl;
-    for (int i = 0; i < numPoints * 2; ++i)
-    {
-        std::cout << impulseData[i] << " ";
-    }
-    std::cout << std::endl;
+//    std::cout << "Impulse after: " << std::endl;
+//    for (int i = 0; i < numPoints * 2; ++i)
+//    {
+//        std::cout << impulseData[i] << " ";
+//    }
+//    std::cout << std::endl;
     
     // Load the IR into the convolution
     int numChannels = 2;

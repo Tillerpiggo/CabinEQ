@@ -31,7 +31,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     
     parameters.state = juce::ValueTree("savedParams");
     //stdgainProcessor.setGainDecibels(-47.6f); // Note: was 60. We should make the sine waves this much quieter.
-    gainProcessor.setGainDecibels(17.f);
+    gainProcessor.setGainDecibels(0.f);
     
 //    // Test code:
 //    std::vector<float> f = {
@@ -291,7 +291,7 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
                 calibrationManager.setGainAtIdx (i, gain);
             }
             
-            gainFilter.update (calibrationManager.getCurve(), 14);
+            gainFilter.update (calibrationManager.getCurve(), 16);
             //gainFilter2.update (calibrationManager.getCurve(), gainFilter2Size);
 //            balanceFilter.update();
         }
@@ -406,7 +406,7 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
     isSlidingPanSlider = false;
     isSlidingPhaseSlider = false;
     
-    gainFilter.update (calibrationManager.getCurve(), 14);
+    gainFilter.update (calibrationManager.getCurve(), 16);
     //gainFilter2.update (calibrationManager.getCurve(), gainFilter2Size);
     
 //    int sliderIndex = slider->getProperties().getValueAt(0);
