@@ -10,10 +10,10 @@
 
 #include "BalanceArbitraryResponseFilter.h"
 
-void BalanceArbitraryResponseFilter::update (const Curve& curve)
+void BalanceArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 {
     // Perform an IFFT on the desired frequency response
-    juce::dsp::FFT fft (8);
+    juce::dsp::FFT fft (14);
     int numPoints = fft.getSize();
     
     // Get both left and right frequency responses separately

@@ -36,9 +36,11 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     
     addAndMakeVisible (prevButton);
     addAndMakeVisible (nextButton);
+    addAndMakeVisible (bypassButton);
 
     prevButton.addListener (this);
     nextButton.addListener (this);
+    bypassButton.addListener (this);
     
     resized();
 }
@@ -76,7 +78,16 @@ void StartupMVPAudioProcessorEditor::resized()
     // Set bounds for the buttons
     prevButton.setBounds(buttonAX, buttonY, buttonWidth, buttonHeight);
     nextButton.setBounds(buttonBX, buttonY, buttonWidth, buttonHeight);
-    
+
+    // Calculate position for the bypassButton
+    const int bypassButtonY = buttonY + buttonHeight + spacing; // Place it below the previous buttons
+
+    // Center the bypassButton horizontally
+    const int bypassButtonX = (getWidth() - buttonWidth) / 2;
+
+    // Set bounds for the bypassButton
+    bypassButton.setBounds(bypassButtonX, bypassButtonY, buttonWidth, buttonHeight);
+
     tabbedComponent.setBounds (getLocalBounds().withTop (200).withBottom (400));
 }
 
@@ -117,5 +128,9 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
     {
         int idx = audioProcessor.goToNextInterval();
         tabbedComponent.setCurrentTabIndex (idx);
+    }
+    else if (button == &bypassButton)
+    {
+        audioProcessor.toggleBypass();
     }
 }

@@ -21,9 +21,9 @@ RandomCalibrationManager::RandomCalibrationManager() : curve (setPointManager)
         intervalOrder.push_back (i);
     }
     
-    std::random_device rd;
-    std::mt19937 g (rd());
-    std::shuffle (intervalOrder.begin(), intervalOrder.end(), g);
+//    std::random_device rd;
+//    std::mt19937 g (rd());
+//    std::shuffle (intervalOrder.begin(), intervalOrder.end(), g);
     
     // Create and play the first interval
     currIntervalIdx = 0;

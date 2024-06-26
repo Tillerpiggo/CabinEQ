@@ -76,6 +76,7 @@ public:
     const Curve& getCurve() const { return calibrationManager.getCurve(); }
     int goToPrevInterval() { return calibrationManager.goToPrevInterval(); }
     int goToNextInterval() { return calibrationManager.goToNextInterval(); }
+    void toggleBypass();
 
 private:
     std::vector<std::pair<juce::String, double>> noteData;
@@ -87,10 +88,13 @@ private:
     bool isSlidingPanSlider;
     bool isSlidingPhaseSlider;
     
+    bool isBypassed;
+    
     SetPointManager setPointLayout;
 //    Curve curve;
 //    Curve balanceCurve;
     ArbitraryResponseFilter gainFilter;
+    ArbitraryResponseFilter gainFilter2;
 //    BalanceArbitraryResponseFilter balanceFilter;
     juce::dsp::Gain<float> gainProcessor;
     

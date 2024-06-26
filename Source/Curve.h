@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "SetPointManager.h"
+#include "InverseFletcherMunsonCurve.h"
 
 // This manages a curve interpolated between a list of set points, with an arbitrary resolution.
 class Curve
@@ -34,18 +35,10 @@ public:
 protected:
     const SetPointManager& setPointManager;
     float factor = 1.f;
+    
+private:
+    const InverseFletcherMunsonCurve inverseFM;
 };
-
-//class FlatCurve : public Curve
-//{
-//public:
-//    FlatCurve(SetPointManager& manager) : Curve(std::vector<float>(10, 1.0f), manager) {}
-//
-//    // Return a flat curve
-//    const std::complex<float> valueAtFrequency(float frequency) const override {
-//        return std::complex<float>(0.5, 0);
-//    }
-//};
 
 class LinearCurve : public Curve
 {

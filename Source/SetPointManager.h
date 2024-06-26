@@ -30,7 +30,7 @@ public:
     
     // Static funcs
     static std::vector<float> initializeSetPointFreqs (int numPoints);
-    static const int NUM_SET_POINTS = 20;
+    static const int NUM_SET_POINTS = 70;
     
 private:
     std::vector<float> setPointFreqs;

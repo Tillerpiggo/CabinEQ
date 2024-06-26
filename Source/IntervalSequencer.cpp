@@ -49,5 +49,8 @@ void IntervalSequencer::setFreq (float freq)
 void IntervalSequencer::setGain (float gain)
 {
     this->currGain = gain;
-    sineWaveGenerator.setVolume (gain);
+    if (! isPlayingReferenceFreq)
+    {
+        sineWaveGenerator.setVolume (gain);
+    }
 }

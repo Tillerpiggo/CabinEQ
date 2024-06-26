@@ -31,7 +31,7 @@ void CurveComponent::paint (juce::Graphics& g)
         float val = curve.valueAtNormalizedTime (normalizedTime).real();
         
         // Transform to be in the height dimension
-        float endY = height * (1.f - (val + 24.f) / 72.f);
+        float endY = height * (1.f - (val + 24.f) / 48.f);
         
         path.lineTo (endX, endY);
     }

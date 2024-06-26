@@ -17,9 +17,9 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
     
     // Windowing (kinda poorly tho)
     
-    if (frequency < setPointFreqs.at(0))
+    if (frequency < 20)
     {
-        return setPointGains.at(0);
+        return setPointGains.at (0) * (frequency / 20.0);
     }
     
     if (frequency > setPointFreqs.at(SetPointManager::NUM_SET_POINTS - 1))
@@ -76,7 +76,9 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
     float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
     float gainAtFrequency = catmullRom (t, setPointGain0, setPointGain1, setPointGain2, setPointGain3);
     
-    return gainAtFrequency * factor;
+    // I tried the inverseFM, it sounds like shit... :(
+//    std::cout << "gain at freq: " << gainAtFrequency << ", inverseFM: " << inverseFM.valueAtFrequency (frequency).real();
+    return gainAtFrequency;// + std::complex<float>(0.2) * inverseFM.valueAtFrequency(frequency);//* factor;
 }
 
 // Returns the value along the curve in time (0 < t < 1), such that t is a linear
