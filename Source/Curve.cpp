@@ -19,7 +19,7 @@ const std::complex<float> Curve::valueAtFrequency (float frequency) const
     
     if (frequency < 20)
     {
-        return setPointGains.at (0) * (frequency / 20.0);
+        return setPointGains.at (0);// * (frequency / 20.0);
     }
     
     if (frequency > setPointFreqs.at(SetPointManager::NUM_SET_POINTS - 1))
