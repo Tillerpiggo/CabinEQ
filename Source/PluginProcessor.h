@@ -79,6 +79,8 @@ public:
     void toggleBypass();
 
 private:
+    static const int FFT_SIZE = 18;
+    
     std::vector<std::pair<juce::String, double>> noteData;
     
     RandomCalibrationManager calibrationManager;

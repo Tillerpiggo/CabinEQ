@@ -165,7 +165,6 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -249,6 +248,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 //        gainFilter.process (context);
     }
     
+    
 }
 
 //==============================================================================
@@ -291,12 +291,11 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
                 calibrationManager.setGainAtIdx (i, gain);
             }
             
-            gainFilter.update (calibrationManager.getCurve(), 16);
+            gainFilter.update (calibrationManager.getCurve(), FFT_SIZE);
             //gainFilter2.update (calibrationManager.getCurve(), gainFilter2Size);
 //            balanceFilter.update();
         }
     }
-    
 }
 
 //==============================================================================
@@ -406,7 +405,7 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
     isSlidingPanSlider = false;
     isSlidingPhaseSlider = false;
     
-    gainFilter.update (calibrationManager.getCurve(), 16);
+    gainFilter.update (calibrationManager.getCurve(), FFT_SIZE);
     //gainFilter2.update (calibrationManager.getCurve(), gainFilter2Size);
     
 //    int sliderIndex = slider->getProperties().getValueAt(0);
