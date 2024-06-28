@@ -126,6 +126,7 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.numChannels = 2;
     
     gainFilter.prepare (spec);
+    panFilter.prepare (spec);
     
     startTimer(16.67);
 }
@@ -179,18 +180,6 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     
     if (isSlidingGainSlider || isSlidingPanSlider)
     {
-//        double leftGain = parameters.getRawParameterValue("balance_" + std::to_string(selectedSliderIndex))->load();
-//        // Figure out note gain
-//        double gain = parameters.getRawParameterValue("gain_" + std::to_string(selectedSliderIndex))->load(); // TODO: This is inefficient
-//        leftGain = juce::Decibels::decibelsToGain (leftGain);
-//        gain = juce::Decibels::decibelsToGain (gain);
-//        
-//        if (!sineWaveGenerator.getIsPlayingReferenceFrequency())
-//        {
-//            leftGain = 1.0;
-//            gain = 1.0;
-//        }
-        
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             //const float value = sequencer.getNextSample();
@@ -202,31 +191,6 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         }
     }
     
-    else if (isSlidingPanSlider)
-    {
-//        double leftGain = parameters.getRawParameterValue("balance_" + std::to_string(selectedSliderIndex - numPoints))->load(); // TODO: This is inefficient
-//        leftGain = juce::Decibels::decibelsToGain(leftGain);
-//        
-//        if (!sineWaveGenerator.getIsPlayingReferenceFrequency())
-//        {
-//            leftGain = 1.0;
-//        }
-//        
-//        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-//        {
-//            const float value = sineWaveGenerator.getNextSample();
-//            leftChannel[sample] = value * 0.05 * leftGain;
-//            
-//            if (rightChannel)
-//                rightChannel[sample] = value * 0.05;
-//        }
-    }
-    
-    else if (isSlidingPhaseSlider)
-    {
-        // TODO: Phase slider...
-    }
-    
     else
     {
         // process audio through the filter
@@ -235,17 +199,13 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         
         if (isBypassed)
         {
-            gainFilter.process (context);
+            //gainFilter.process (context);
+            panFilter.process (context);
         }
         else
         {
             gainProcessor.process (context);
-            //gainFilter2.process (context);
         }
-            
-//        balanceFilter.process (context);
-//        gainProcessor.process (context);
-//        gainFilter.process (context);
     }
     
     
@@ -288,12 +248,13 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
             for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
             {
                 double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load();
+                double pan = parameters.getRawParameterValue("pan_" + std::to_string(i))->load();
                 calibrationManager.setGainAtIdx (i, gain);
+                calibrationManager.setPanAtIdx (i + SetPointManager::NUM_SET_POINTS, pan);
             }
             
             gainFilter.update (calibrationManager.getGainCurve(), FFT_SIZE);
-            //gainFilter2.update (calibrationManager.getCurve(), gainFilter2Size);
-//            balanceFilter.update();
+            panFilter.update (calibrationManager.getPanCurve(), FFT_SIZE);
         }
     }
 }
@@ -331,7 +292,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
     
     // Add numPoints balance parameters to match
     for ( int i = 0; i < numPoints; i++ ) {
-        juce::String paramID = "balance_" + std::to_string(i);
+        juce::String paramID = "pan_" + std::to_string(i);
 
         layout.add(std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID(paramID, 1),
@@ -411,19 +372,7 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
     isSlidingPhaseSlider = false;
     
     gainFilter.update (calibrationManager.getGainCurve(), FFT_SIZE);
-    //gainFilter2.update (calibrationManager.getCurve(), gainFilter2Size);
-    
-//    int sliderIndex = slider->getProperties().getValueAt(0);
-//    int numSetPoints = setPointLayout.getSetPoints().size();
-//    
-//    if (sliderIndex < numSetPoints)
-//    {
-//        
-//    }
-//    else
-//    {
-//        balanceFilter.update();
-//    }
+    panFilter.update (calibrationManager.getPanCurve(), FFT_SIZE);
 }
 
 //void StartupMVPAudioProcessor::makeChoice (CalibrationChoice choice)

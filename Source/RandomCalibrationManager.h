@@ -25,9 +25,9 @@ public:
     void setCurrGain (float gainInDecibels);
     void setCurrPan (float balanceGainInDecibels);
     void setGainAtIdx (int i, float gainInDecibels);
-    void setBalanceAtIdx (int i, float gainInDecibels);
+    void setPanAtIdx (int i, float gainInDecibels);
     const Curve& getGainCurve() const;
-    const Curve& getBalanceCurve() const;
+    const Curve& getPanCurve() const;
     
     void updateSequencer();
     
@@ -37,9 +37,9 @@ public:
 private:
     IntervalSequencer intervalSequencer;
     SetPointManager gainSetPointManager;
-    SetPointManager balanceSetPointManager;
+    SetPointManager panSetPointManager;
     Curve gainCurve;
-    Curve balanceCurve;
+    Curve panCurve;
     
     std::vector<int> intervalOrder; // idx -> SetPointManager idx
     int currIntervalIdx;

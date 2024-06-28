@@ -11,7 +11,7 @@
 #include "RandomCalibrationManager.h"
 #include <random>
 
-RandomCalibrationManager::RandomCalibrationManager() : gainCurve (gainSetPointManager), balanceCurve (balanceSetPointManager)
+RandomCalibrationManager::RandomCalibrationManager() : gainCurve (gainSetPointManager), panCurve (panSetPointManager)
 {
     // Initialize intervalOrder
     for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
@@ -44,10 +44,10 @@ void RandomCalibrationManager::setCurrGain (float gainInDecibels)
     intervalSequencer.setGain (gainInDecibels);
 }
 
-void RandomCalibrationManager::setCurrPan (float balanceGainInDecibels)
+void RandomCalibrationManager::setCurrPan (float panGainInDecibels)
 {
-    balanceSetPointManager.updateValueAtIdx (intervalOrder.at (currIntervalIdx), balanceGainInDecibels);
-    intervalSequencer.setPan (balanceGainInDecibels);
+    panSetPointManager.updateValueAtIdx (intervalOrder.at (currIntervalIdx), panGainInDecibels);
+    intervalSequencer.setPan (panGainInDecibels);
 }
 
 void RandomCalibrationManager::setGainAtIdx (int i, float gainInDecibels)
@@ -55,9 +55,9 @@ void RandomCalibrationManager::setGainAtIdx (int i, float gainInDecibels)
     gainSetPointManager.updateValueAtIdx (i, gainInDecibels);
 }
 
-void RandomCalibrationManager::setBalanceAtIdx (int i, float balanceGainInDecibels)
+void RandomCalibrationManager::setPanAtIdx (int i, float balanceGainInDecibels)
 {
-    gainSetPointManager.updateValueAtIdx (i, balanceGainInDecibels);
+    panSetPointManager.updateValueAtIdx (i, balanceGainInDecibels);
 }
 
 const Curve& RandomCalibrationManager::getGainCurve() const
@@ -65,9 +65,9 @@ const Curve& RandomCalibrationManager::getGainCurve() const
     return gainCurve;
 }
 
-const Curve& RandomCalibrationManager::getBalanceCurve() const
+const Curve& RandomCalibrationManager::getPanCurve() const
 {
-    return balanceCurve;
+    return panCurve;
 }
 
 int RandomCalibrationManager::goToNextInterval()
@@ -102,6 +102,8 @@ void RandomCalibrationManager::updateSequencer()
     
     float currFreq = gainSetPointManager.getSetPointFreqs().at (currSetPointIdx);
     float currGain = gainSetPointManager.getSetPointGains().at (currSetPointIdx);
+    float currPan = panSetPointManager.getSetPointFreqs().at (currSetPointIdx);
     intervalSequencer.setFreq (currFreq);
     intervalSequencer.setGain (currGain);
+    intervalSequencer.setPan (currPan);
 }

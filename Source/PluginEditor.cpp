@@ -98,7 +98,7 @@ void StartupMVPAudioProcessorEditor::addSliderPair (int i)
 
     auto sliderPair = std::make_unique<SliderPair>(
         "Gain Slider " + idx, "Balance Slider " + idx,
-        "gain_" + idx, "balance_" + idx,
+        "gain_" + idx, "pan_" + idx,
         audioProcessor.parameters, i);
     sliderPair->addSliderListener (&audioProcessor);
 

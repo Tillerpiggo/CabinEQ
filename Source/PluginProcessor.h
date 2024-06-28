@@ -79,7 +79,7 @@ public:
     void toggleBypass();
 
 private:
-    static const int FFT_SIZE = 16;
+    static const int FFT_SIZE = 10;
     
     std::vector<std::pair<juce::String, double>> noteData;
     
@@ -93,11 +93,8 @@ private:
     bool isBypassed;
     
     SetPointManager setPointLayout;
-//    Curve curve;
-//    Curve balanceCurve;
     ArbitraryResponseFilter gainFilter;
-    ArbitraryResponseFilter gainFilter2;
-//    BalanceArbitraryResponseFilter balanceFilter;
+    BalanceArbitraryResponseFilter panFilter;
     juce::dsp::Gain<float> gainProcessor;
     
     //==============================================================================

@@ -19,5 +19,29 @@ class BalanceArbitraryResponseFilter : public ArbitraryResponseFilter
 public:
     using ArbitraryResponseFilter::ArbitraryResponseFilter;
     
-    void update (const Curve& curve, int fft_size) override;
+    std::pair<float*, float*> frequencyResponse (const Curve& curve, int numPoints) override
+    {
+        float* leftFreqResponse = new float[2 * numPoints];
+        float* rightFreqResponse = new float[2 * numPoints];
+        for (int i = 0; i < 2 * numPoints; i++)
+        {
+            float t = static_cast<float>(i) / (2 * numPoints);
+            
+            std::complex val = curve.valueAtTime (t);
+            
+            if (i % 2 == 0)
+            {
+                std::cout << "freq resp: " << i << std::endl;
+                leftFreqResponse[i] = juce::Decibels::decibelsToGain (val.real());
+                rightFreqResponse[i] = juce::Decibels::decibelsToGain (val.real());
+            }
+            else
+            {
+                leftFreqResponse[i] = val.imag();
+                rightFreqResponse[i] = val.imag();
+            }
+        }
+        
+        return { leftFreqResponse, rightFreqResponse };
+    }
 };

@@ -39,8 +39,6 @@
               file="Source/ArbitraryResponseFilter.cpp"/>
         <FILE id="PAcIbm" name="ArbitraryResponseFilter.h" compile="0" resource="0"
               file="Source/ArbitraryResponseFilter.h"/>
-        <FILE id="ppURcN" name="BalanceArbitraryResponseFilter.cpp" compile="1"
-              resource="0" file="Source/BalanceArbitraryResponseFilter.cpp"/>
         <FILE id="Wmyw0S" name="BalanceArbitraryResponseFilter.h" compile="0"
               resource="0" file="Source/BalanceArbitraryResponseFilter.h"/>
       </GROUP>

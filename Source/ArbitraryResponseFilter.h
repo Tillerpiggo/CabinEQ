@@ -29,7 +29,8 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept { convolution.process (context); }
     
-    virtual void update (const Curve& curve, int fft_size = 4); // update the filter to match the curve
+    virtual std::pair<float*, float*> frequencyResponse (const Curve& curve, int numPoints);
+    void update (const Curve& curve, int fft_size = 4); // update the filter to match the curve
     
 protected:
     juce::dsp::Convolution convolution;
