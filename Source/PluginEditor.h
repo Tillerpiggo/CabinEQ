@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "CurveComponent.h"
-
+#include "SliderPair.h"
 
 //==============================================================================
 /**
@@ -30,15 +30,15 @@ public:
     void buttonClicked (juce::Button *button) override;
     
 private:
-    void addSlider(std::string name, std::string paramName, int idx);
+    void addSliderPair (int i);
+    juce::Slider& addSlider (std::string name, std::string paramName, int idx);
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     StartupMVPAudioProcessor& audioProcessor;
     
     juce::TabbedComponent tabbedComponent;
-    std::vector<std::unique_ptr<juce::Slider>> sliders;
-    std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>> sliderAttachments;
+    std::vector<std::unique_ptr<SliderPair>> sliderPairs;
     
     juce::TextButton prevButton { "< PREV" };
     juce::TextButton nextButton { "NEXT >" };

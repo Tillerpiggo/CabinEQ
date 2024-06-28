@@ -10,7 +10,7 @@
 
 #include "Sequencer.h"
 
-float Sequencer::getNextSample()
+const std::pair<float, float> Sequencer::getNextSample()
 {
     // If we finished the note, switch to the next note
     if (numSamplesNoteHasBeenPlaying >= noteDurationInSamples)

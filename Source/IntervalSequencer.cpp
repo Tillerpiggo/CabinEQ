@@ -10,7 +10,7 @@
 
 #include "IntervalSequencer.h"
 
-float IntervalSequencer::getNextSample()
+const std::pair<float, float> IntervalSequencer::getNextSample()
 {
     if (numSamplesNoteHasBeenPlaying >= NOTE_DURATION_IN_SAMPLES)
     {
@@ -18,7 +18,7 @@ float IntervalSequencer::getNextSample()
         
         if (isPlayingReferenceFreq)
         {
-            sineWaveGenerator.setNote (Note (currGain, currFreq, 0));
+            sineWaveGenerator.setNote (Note (currGain, currFreq, currPan));
             isPlayingReferenceFreq = false;
         }
         else
@@ -52,5 +52,14 @@ void IntervalSequencer::setGain (float gain)
     if (! isPlayingReferenceFreq)
     {
         sineWaveGenerator.setVolume (gain);
+    }
+}
+
+void IntervalSequencer::setPan (float pan)
+{
+    this->currPan = pan;
+    if (! isPlayingReferenceFreq)
+    {
+        sineWaveGenerator.setPan (pan);
     }
 }

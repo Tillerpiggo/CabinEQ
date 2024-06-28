@@ -30,7 +30,7 @@ public:
 //        noteSequence.addNote (controlledNote);
     }
     
-    float getNextSample();
+    const std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
     void queueNextNoteSequence (NoteSequence nextNoteSequence);
     void setNoteSequence (NoteSequence noteSequence);

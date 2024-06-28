@@ -20,11 +20,14 @@ class RandomCalibrationManager
 public:
     RandomCalibrationManager ();
     
-    const float getNextSample();
+    const std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
     void setCurrGain (float gainInDecibels);
+    void setCurrPan (float balanceGainInDecibels);
     void setGainAtIdx (int i, float gainInDecibels);
-    const Curve& getCurve() const;
+    void setBalanceAtIdx (int i, float gainInDecibels);
+    const Curve& getGainCurve() const;
+    const Curve& getBalanceCurve() const;
     
     void updateSequencer();
     
@@ -33,8 +36,10 @@ public:
     
 private:
     IntervalSequencer intervalSequencer;
-    SetPointManager setPointManager;
-    Curve curve;
+    SetPointManager gainSetPointManager;
+    SetPointManager balanceSetPointManager;
+    Curve gainCurve;
+    Curve balanceCurve;
     
     std::vector<int> intervalOrder; // idx -> SetPointManager idx
     int currIntervalIdx;

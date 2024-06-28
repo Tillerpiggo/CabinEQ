@@ -18,10 +18,11 @@ class IntervalSequencer
 public:
     IntervalSequencer() {}
     
-    float getNextSample();
+    const std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
     void setFreq (float freq);
     void setGain (float gain);
+    void setPan (float pan);
     
 private:
     static constexpr float REFERENCE_FREQ = 1000;
@@ -30,6 +31,7 @@ private:
     
     float currFreq = 440;
     float currGain = 12.0;
+    float currPan = 0.0;
     int numSamplesNoteHasBeenPlaying = 0;
     SineWaveGenerator sineWaveGenerator;
     

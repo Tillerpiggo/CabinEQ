@@ -73,13 +73,13 @@ public:
     juce::AudioProcessorValueTreeState parameters;
     
     const SetPointManager& getSetPointManager() const { return setPointLayout; } // TODO: Is this correct reference semantics for C++? I feel like I'm doing something wrong
-    const Curve& getCurve() const { return calibrationManager.getCurve(); }
+    const Curve& getCurve() const { return calibrationManager.getGainCurve(); }
     int goToPrevInterval() { return calibrationManager.goToPrevInterval(); }
     int goToNextInterval() { return calibrationManager.goToNextInterval(); }
     void toggleBypass();
 
 private:
-    static const int FFT_SIZE = 18;
+    static const int FFT_SIZE = 16;
     
     std::vector<std::pair<juce::String, double>> noteData;
     

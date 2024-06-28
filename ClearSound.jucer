@@ -16,6 +16,7 @@
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
               file="Source/CurveComponent.h"/>
+        <FILE id="KOXvNE" name="SliderPair.h" compile="0" resource="0" file="Source/SliderPair.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
         <FILE id="iUkFYz" name="IntervalSequencer.cpp" compile="1" resource="0"
@@ -53,6 +54,8 @@
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
+      <FILE id="h2i2oh" name="HarmanCurve.cpp" compile="1" resource="0" file="Source/HarmanCurve.cpp"/>
+      <FILE id="O6DafT" name="HarmanCurve.h" compile="0" resource="0" file="Source/HarmanCurve.h"/>
       <FILE id="uSotg0" name="InverseFletcherMunsonCurve.cpp" compile="1"
             resource="0" file="Source/InverseFletcherMunsonCurve.cpp"/>
       <FILE id="Ci5k0m" name="InverseFletcherMunsonCurve.h" compile="0" resource="0"

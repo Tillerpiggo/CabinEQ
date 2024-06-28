@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "SetPointManager.h"
 #include "InverseFletcherMunsonCurve.h"
+#include "HarmanCurve.h"
 
 // This manages a curve interpolated between a list of set points, with an arbitrary resolution.
 class Curve
@@ -37,7 +38,7 @@ protected:
     float factor = 1.f;
     
 private:
-    const InverseFletcherMunsonCurve inverseFM;
+    const HarmanCurve harmanCurve;
 };
 
 class LinearCurve : public Curve

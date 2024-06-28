@@ -22,7 +22,7 @@ public:
     
     const std::vector<float>& getSetPointFreqs() const { return setPointFreqs; }
     const std::vector<float>& getSetPointGains() const { return setPointGains; }
-    void updateGainAtIdx (int idx, float gain);
+    void updateValueAtIdx (int idx, float gain);
     const float getFrequencyForIndex (int index) const
     {
         return setPointFreqs.at(index);
@@ -30,7 +30,7 @@ public:
     
     // Static funcs
     static std::vector<float> initializeSetPointFreqs (int numPoints);
-    static const int NUM_SET_POINTS = 70;
+    static const int NUM_SET_POINTS = 73;
     
 private:
     std::vector<float> setPointFreqs;

@@ -20,7 +20,7 @@ void SineWaveGenerator::setSampleRate (float newSampleRate)
     sampleRate = newSampleRate;
 }
 
-float SineWaveGenerator::getNextSample()
+const std::pair<float, float> SineWaveGenerator::getNextSample()
 {
     float gainRampCompensation = 1.0f;
     if (endNoteGainRamp > 0)
@@ -43,13 +43,15 @@ float SineWaveGenerator::getNextSample()
         endNoteGainRamp--;
     }
     
-    float sample = std::sin(phase) * amplitudeCompensation * gainRampCompensation;
+    float sineVal = std::sin (phase);
+    float leftSample = sineVal * leftAmplitudeCompensation * gainRampCompensation;
+    float rightSample = sineVal * rightAmplitudeCompensation * gainRampCompensation;
     
     phase += phaseIncrement;
     if (phase > 2.0 * juce::MathConstants<float>::pi)
         phase -= 2.0 * juce::MathConstants<float>::pi;
     
-    return sample;
+    return { leftSample, rightSample };
 }
 
 // Sets the note to the newNote, and also "plays" it by ending the last note
@@ -77,6 +79,13 @@ void SineWaveGenerator::setVolume (float gainInDecibels)
     updatePhaseIncrementAndAmplitudeCompensation();
 }
 
+void SineWaveGenerator::setPan (float panInDecibels)
+{
+    // TODO: create gain ramp
+    note->pan = panInDecibels;
+    updatePhaseIncrementAndAmplitudeCompensation();
+}
+
 // ============================================
 void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
 {
@@ -86,6 +95,14 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     }
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * note->frequency / sampleRate;
-    amplitudeCompensation = std::pow(TILT, std::log2(note->frequency / REFERENCE_FREQ));
-    amplitudeCompensation *= juce::Decibels::decibelsToGain (note->gain);
+    float amplitudeCompensation = std::pow (TILT, std::log2(note->frequency / REFERENCE_FREQ));
+    float noteGain = juce::Decibels::decibelsToGain (note->gain);
+    amplitudeCompensation *= noteGain;
+    
+    leftAmplitudeCompensation = amplitudeCompensation;
+    rightAmplitudeCompensation = amplitudeCompensation;
+    
+    // Apply panning
+    leftAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / -2.0);
+    rightAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / 2.0);
 }

@@ -20,5 +20,5 @@ public:
     
     float gain; // in dB; 0 dB = silent
     float frequency; // hz
-    float pan; // from -1 (hard left) to 1 (hard right)
+    float pan; // in dB; - is left, + is right (ex. -4 would mean +2 dB on the left, -2 dB on the right)
 };

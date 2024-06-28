@@ -11,10 +11,8 @@
 #include "RandomCalibrationManager.h"
 #include <random>
 
-RandomCalibrationManager::RandomCalibrationManager() : curve (setPointManager)
+RandomCalibrationManager::RandomCalibrationManager() : gainCurve (gainSetPointManager), balanceCurve (balanceSetPointManager)
 {
-    //curve.configure (std::make_shared<SetPointManager>(setPointManager));
-    
     // Initialize intervalOrder
     for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
     {
@@ -30,10 +28,9 @@ RandomCalibrationManager::RandomCalibrationManager() : curve (setPointManager)
     updateSequencer();
 }
 
-const float RandomCalibrationManager::getNextSample()
+const std::pair<float, float> RandomCalibrationManager::getNextSample()
 {
-    float nextSample = intervalSequencer.getNextSample();
-    return nextSample;
+    return intervalSequencer.getNextSample();
 }
 
 void RandomCalibrationManager::setSampleRate (float newSampleRate)
@@ -43,18 +40,34 @@ void RandomCalibrationManager::setSampleRate (float newSampleRate)
 
 void RandomCalibrationManager::setCurrGain (float gainInDecibels)
 {
-    setPointManager.updateGainAtIdx (intervalOrder.at (currIntervalIdx), gainInDecibels);
+    gainSetPointManager.updateValueAtIdx (intervalOrder.at (currIntervalIdx), gainInDecibels);
     intervalSequencer.setGain (gainInDecibels);
+}
+
+void RandomCalibrationManager::setCurrPan (float balanceGainInDecibels)
+{
+    balanceSetPointManager.updateValueAtIdx (intervalOrder.at (currIntervalIdx), balanceGainInDecibels);
+    intervalSequencer.setPan (balanceGainInDecibels);
 }
 
 void RandomCalibrationManager::setGainAtIdx (int i, float gainInDecibels)
 {
-    setPointManager.updateGainAtIdx (i, gainInDecibels);
+    gainSetPointManager.updateValueAtIdx (i, gainInDecibels);
 }
 
-const Curve& RandomCalibrationManager::getCurve() const
+void RandomCalibrationManager::setBalanceAtIdx (int i, float balanceGainInDecibels)
 {
-    return curve;
+    gainSetPointManager.updateValueAtIdx (i, balanceGainInDecibels);
+}
+
+const Curve& RandomCalibrationManager::getGainCurve() const
+{
+    return gainCurve;
+}
+
+const Curve& RandomCalibrationManager::getBalanceCurve() const
+{
+    return balanceCurve;
 }
 
 int RandomCalibrationManager::goToNextInterval()
@@ -87,8 +100,8 @@ void RandomCalibrationManager::updateSequencer()
 {
     int currSetPointIdx = intervalOrder.at (currIntervalIdx);
     
-    float currFreq = setPointManager.getSetPointFreqs().at (currSetPointIdx);
-    float currGain = setPointManager.getSetPointGains().at (currSetPointIdx);
+    float currFreq = gainSetPointManager.getSetPointFreqs().at (currSetPointIdx);
+    float currGain = gainSetPointManager.getSetPointGains().at (currSetPointIdx);
     intervalSequencer.setFreq (currFreq);
     intervalSequencer.setGain (currGain);
 }

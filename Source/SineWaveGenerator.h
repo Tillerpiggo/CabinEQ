@@ -19,10 +19,11 @@ public:
     SineWaveGenerator ();
     
     void setSampleRate (float newSampleRate);
-    float getNextSample();
+    const std::pair<float, float> getNextSample();
     
     void setNote (Note note);
     void setVolume (float gainInDecibels); // changes the volume of the currently playing note
+    void setPan (float panInDecibels); // changes the pan of the currently playing note
     
 private:
     static constexpr float TILT = 0.59566214; // 4.5 db/oct slope
@@ -39,7 +40,8 @@ private:
     
     // == Constants for efficiency ==
     float phaseIncrement = 0;
-    float amplitudeCompensation = 0;
+    float leftAmplitudeCompensation = 0;
+    float rightAmplitudeCompensation = 0;
     
     // == Variables to prevent clicking ==
     int endNoteGainRamp = -1;
