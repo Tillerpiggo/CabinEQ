@@ -55,9 +55,9 @@ void RandomCalibrationManager::setGainAtIdx (int i, float gainInDecibels)
     gainSetPointManager.updateValueAtIdx (i, gainInDecibels);
 }
 
-void RandomCalibrationManager::setPanAtIdx (int i, float balanceGainInDecibels)
+void RandomCalibrationManager::setPanAtIdx (int i, float panGainInDecibels)
 {
-    panSetPointManager.updateValueAtIdx (i, balanceGainInDecibels);
+    panSetPointManager.updateValueAtIdx (i, panGainInDecibels);
 }
 
 const Curve& RandomCalibrationManager::getGainCurve() const
@@ -106,4 +106,5 @@ void RandomCalibrationManager::updateSequencer()
     intervalSequencer.setFreq (currFreq);
     intervalSequencer.setGain (currGain);
     intervalSequencer.setPan (currPan);
+    intervalSequencer.setReferencePan (panSetPointManager.getSetPointFreqs().at (23));
 }

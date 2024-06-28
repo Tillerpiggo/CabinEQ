@@ -30,23 +30,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     isSlidingPhaseSlider = false;
     
     parameters.state = juce::ValueTree("savedParams");
-    //stdgainProcessor.setGainDecibels(-47.6f); // Note: was 60. We should make the sine waves this much quieter.
     gainProcessor.setGainDecibels(0.f);
-    
-//    // Test code:
-//    std::vector<float> f = {
-//        20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500,
-//        630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000,
-//        10000, 12500
-//    };
-//    
-//    InverseFletcherMunsonCurve c;
-//    
-//    std::cout << "Fletcher munson curve" << std::endl;
-//    for (float freq : f)
-//    {
-//        std::cout << "Val at " << freq << ": " << c.valueAtFrequency (freq) << std::endl;
-//    }
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -199,7 +183,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         
         if (isBypassed)
         {
-            //gainFilter.process (context);
+            gainFilter.process (context);
             panFilter.process (context);
         }
         else
@@ -250,11 +234,11 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
                 double gain = parameters.getRawParameterValue("gain_" + std::to_string(i))->load();
                 double pan = parameters.getRawParameterValue("pan_" + std::to_string(i))->load();
                 calibrationManager.setGainAtIdx (i, gain);
-                calibrationManager.setPanAtIdx (i + SetPointManager::NUM_SET_POINTS, pan);
+                calibrationManager.setPanAtIdx (i, pan);
             }
             
             gainFilter.update (calibrationManager.getGainCurve(), FFT_SIZE);
-            panFilter.update (calibrationManager.getPanCurve(), FFT_SIZE);
+            //panFilter.update (calibrationManager.getPanCurve(), FFT_SIZE);
         }
     }
 }
@@ -357,10 +341,12 @@ void StartupMVPAudioProcessor::sliderValueChanged (juce::Slider *slider)
     int sliderIndex = slider->getProperties().getValueAt (0);
     if (sliderIndex < SetPointManager::NUM_SET_POINTS)
     {
+        std::cout << "set curr gain to " << slider->getValue() << std::endl;
         calibrationManager.setCurrGain (slider->getValue());
     }
     else
     {
+        std::cout << "set curr pan to " << slider->getValue() << std::endl;
         calibrationManager.setCurrPan (slider->getValue());
     }
 }
@@ -375,13 +361,7 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
     panFilter.update (calibrationManager.getPanCurve(), FFT_SIZE);
 }
 
-//void StartupMVPAudioProcessor::makeChoice (CalibrationChoice choice)
-//{
-//    calibrationManager.chooseOption (choice);
-//}
-
 void StartupMVPAudioProcessor::toggleBypass()
 {
     isBypassed = ! isBypassed;
-    std::cout << "isBypassed: " << isBypassed << std::endl;
 }

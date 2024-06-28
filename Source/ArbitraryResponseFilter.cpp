@@ -46,17 +46,17 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     auto leftFreqResponse = freqResponse.first;
     auto rightFreqResponse = freqResponse.second;
     
-    std::cout << "Left Frequency Response:" << std::endl;
-    for (int i = 0; i < numPoints * 2; ++i) {
-        std::cout << leftFreqResponse[i] << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Right Frequency Response:" << std::endl;
-    for (int i = 0; i < numPoints * 2; ++i) {
-        std::cout << rightFreqResponse[i] << " ";
-    }
-    std::cout << std::endl;
+//    std::cout << "Left Frequency Response:" << std::endl;
+//    for (int i = 0; i < numPoints * 2; ++i) {
+//        std::cout << leftFreqResponse[i] << " ";
+//    }
+//    std::cout << std::endl;
+//
+//    std::cout << "Right Frequency Response:" << std::endl;
+//    for (int i = 0; i < numPoints * 2; ++i) {
+//        std::cout << rightFreqResponse[i] << " ";
+//    }
+//    std::cout << std::endl;
     
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);
@@ -64,17 +64,17 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     float* leftImpulseData = leftFreqResponse;
     float* rightImpulseData = rightFreqResponse;
     
-    std::cout << "Left Impulse Data:" << std::endl;
-    for (int i = 0; i < numPoints * 2; ++i) {
-        std::cout << leftImpulseData[i] << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Right Impulse Data:" << std::endl;
-    for (int i = 0; i < numPoints * 2; ++i) {
-        std::cout << rightImpulseData[i] << " ";
-    }
-    std::cout << std::endl;
+//    std::cout << "Left Impulse Data:" << std::endl;
+//    for (int i = 0; i < numPoints * 2; ++i) {
+//        std::cout << leftImpulseData[i] << " ";
+//    }
+//    std::cout << std::endl;
+//
+//    std::cout << "Right Impulse Data:" << std::endl;
+//    for (int i = 0; i < numPoints * 2; ++i) {
+//        std::cout << rightImpulseData[i] << " ";
+//    }
+//    std::cout << std::endl;
 
     // Transform post-ringing into pre-ringing
     int quarterLength = numPoints / 2;

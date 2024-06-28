@@ -31,9 +31,8 @@ public:
             
             if (i % 2 == 0)
             {
-                std::cout << "freq resp: " << i << std::endl;
-                leftFreqResponse[i] = juce::Decibels::decibelsToGain (val.real());
-                rightFreqResponse[i] = juce::Decibels::decibelsToGain (val.real());
+                leftFreqResponse[i] = juce::Decibels::decibelsToGain (-0.5 * val.real());
+                rightFreqResponse[i] = juce::Decibels::decibelsToGain (0.5 * val.real());
             }
             else
             {

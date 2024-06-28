@@ -23,7 +23,7 @@ const std::pair<float, float> IntervalSequencer::getNextSample()
         }
         else
         {
-            sineWaveGenerator.setNote (Note (REFERENCE_GAIN, REFERENCE_FREQ, 0));
+            sineWaveGenerator.setNote (Note (REFERENCE_GAIN, REFERENCE_FREQ, referencePan));
             isPlayingReferenceFreq = true;
         }
     }
@@ -41,7 +41,7 @@ void IntervalSequencer::setFreq (float freq)
 {
     // Also reset interval
     this->currFreq = freq;
-    sineWaveGenerator.setNote (Note (currGain, currFreq, 0));
+    sineWaveGenerator.setNote (Note (currGain, currFreq, currPan));
     numSamplesNoteHasBeenPlaying = 0;
     isPlayingReferenceFreq = false;
 }
@@ -62,4 +62,18 @@ void IntervalSequencer::setPan (float pan)
     {
         sineWaveGenerator.setPan (pan);
     }
+    
+    std::cout << "setting pan w/ currFreq = " << currFreq << std::endl;
+    
+    if (currFreq == REFERENCE_FREQ)
+    {
+        std::cout << "setting reference pan" << std::endl;
+        referencePan = pan;
+        sineWaveGenerator.setPan (pan);
+    }
+}
+
+void IntervalSequencer::setReferencePan (float pan)
+{
+    
 }
