@@ -11,7 +11,7 @@
 #include "RandomCalibrationManager.h"
 #include <random>
 
-RandomCalibrationManager::RandomCalibrationManager() : gainCurve (gainSetPointManager), panCurve (panSetPointManager), phaseCurve (phaseSetPointManager)
+RandomCalibrationManager::RandomCalibrationManager() : gainCurve (gainSetPointManager), balanceCurve (panSetPointManager, phaseSetPointManager)
 {
     // Initialize intervalOrder
     for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)

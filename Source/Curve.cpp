@@ -13,7 +13,7 @@
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequency (float frequency) const
 {
     float gainAtFrequency = valueAtFrequencyForSetPointManager (frequency, setPointManager);
-    std::complex<float> valueAtFrequency (juce::Decibels::gainToDecibels (gainAtFrequency), 0);
+    std::complex<float> valueAtFrequency (juce::Decibels::decibelsToGain (gainAtFrequency), 0);
     return { valueAtFrequency, valueAtFrequency };
 }
 
@@ -127,4 +127,6 @@ const float Curve::valueAtFrequencyForSetPointManager (const float frequency, co
     // Interpolate using catmull-rom
     float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
     float gainAtFrequency = catmullRom (t, setPointGain0, setPointGain1, setPointGain2, setPointGain3);
+    
+    return gainAtFrequency;
 }

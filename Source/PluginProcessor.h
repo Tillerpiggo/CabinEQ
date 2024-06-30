@@ -94,7 +94,7 @@ private:
     
     SetPointManager setPointLayout;
     ArbitraryResponseFilter gainFilter;
-    BalanceArbitraryResponseFilter panFilter;
+    BalanceArbitraryResponseFilter balanceFilter;
     juce::dsp::Gain<float> gainProcessor;
     
     //==============================================================================

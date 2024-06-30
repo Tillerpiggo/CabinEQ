@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "CurveComponent.h"
-#include "SliderPair.h"
+#include "SliderGroup.h"
 
 //==============================================================================
 /**
@@ -38,7 +38,7 @@ private:
     StartupMVPAudioProcessor& audioProcessor;
     
     juce::TabbedComponent tabbedComponent;
-    std::vector<std::unique_ptr<SliderPair>> sliderPairs;
+    std::vector<std::unique_ptr<SliderGroup>> sliderGroups;
     
     juce::TextButton prevButton { "< PREV" };
     juce::TextButton nextButton { "NEXT >" };

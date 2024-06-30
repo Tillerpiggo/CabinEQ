@@ -41,7 +41,7 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
 
 StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
 {
-    for (auto& sliderPair : sliderPairs)
+    for (auto& sliderPair : sliderGroups)
     {
         sliderPair->removeSliderListener (&audioProcessor);
     }
@@ -60,7 +60,7 @@ void StartupMVPAudioProcessorEditor::paint (juce::Graphics& g)
 
 void StartupMVPAudioProcessorEditor::resized()
 {
-    curveComponent.setBounds (getLocalBounds().withBottom (200));
+    curveComponent.setBounds (getLocalBounds().withBottom (100));
     
     // Add the PREV and NEXT buttons
     const int buttonHeight = 40; // Height of the buttons
@@ -88,7 +88,7 @@ void StartupMVPAudioProcessorEditor::resized()
     // Set bounds for the bypassButton
     bypassButton.setBounds(bypassButtonX, bypassButtonY, buttonWidth, buttonHeight);
 
-    tabbedComponent.setBounds (getLocalBounds().withTop (200).withBottom (400));
+    tabbedComponent.setBounds (getLocalBounds().withTop (100).withBottom (400));
 }
 
 // Creates a pair of sliders - one for gain, and one for balance
@@ -96,41 +96,12 @@ void StartupMVPAudioProcessorEditor::addSliderPair (int i)
 {
     std::string idx = std::to_string(i);
 
-    auto sliderPair = std::make_unique<SliderPair>(
-        "Gain Slider " + idx, "Balance Slider " + idx,
-        "gain_" + idx, "pan_" + idx,
-        audioProcessor.parameters, i);
-    sliderPair->addSliderListener (&audioProcessor);
+    auto sliderGroup = std::make_unique<SliderGroup> (audioProcessor.parameters, i);
+    sliderGroup->addSliderListener (&audioProcessor);
 
-    tabbedComponent.addTab("Set Point " + idx, juce::Colours::transparentWhite, sliderPair.get(), true);
-    sliderPairs.push_back(std::move(sliderPair));
+    tabbedComponent.addTab("Set Point " + idx, juce::Colours::transparentWhite, sliderGroup.get(), true);
+    sliderGroups.push_back(std::move(sliderGroup));
 }
-
-//// Creates a slider and label with the given name, for the given parameter, at the given index,
-//// and connects that slider to the parameter via attachment
-//juce::Slider& StartupMVPAudioProcessorEditor::addSlider (std::string name, std::string paramName, int idx)
-//{
-//    // Create the slider and label
-//    auto slider = std::make_unique<juce::Slider>();
-//    auto label = std::make_unique<juce::Label>();
-//    
-//    // Configure the slider and label
-//    slider->setSliderStyle (juce::Slider::LinearHorizontal);
-//    slider->setRange (-24.f, 48.f, 0.1f);
-//    slider->getProperties().set ("index", idx);
-//    slider->addListener (&audioProcessor);
-//    label->setText (name, juce::dontSendNotification);
-//    label->attachToComponent (slider.get(), true);
-//    
-//    sliders.push_back (std::move (slider));
-//
-//    // Create the slider attachment
-//    auto attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
-//                                                                                             audioProcessor.parameters, paramName, *slider);
-//    sliderAttachments.push_back (std::move (attachment));
-//    
-//    return *sliders.back();
-//}
 
 void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
 {
