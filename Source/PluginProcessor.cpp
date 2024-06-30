@@ -9,8 +9,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-#include "InverseFletcherMunsonCurve.h"
-
 //==============================================================================
 StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -238,7 +236,7 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
             }
             
             gainFilter.update (calibrationManager.getGainCurve(), FFT_SIZE);
-            //panFilter.update (calibrationManager.getPanCurve(), FFT_SIZE);
+            panFilter.update (calibrationManager.getPanCurve(), FFT_SIZE);
         }
     }
 }
@@ -277,6 +275,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
     // Add numPoints balance parameters to match
     for ( int i = 0; i < numPoints; i++ ) {
         juce::String paramID = "pan_" + std::to_string(i);
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID(paramID, 1),
+            paramID,
+            range,
+            defaultGain
+        ));
+    }
+    
+    // Add numPoints phase parameters as well
+    for ( int i = 0; i < numPoints; i++ ) {
+        juce::String paramID = "phase_" + std::to_string(i);
 
         layout.add(std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID(paramID, 1),

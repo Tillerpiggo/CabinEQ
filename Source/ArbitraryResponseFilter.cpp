@@ -12,24 +12,39 @@
 
 std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curve& curve, int numPoints)
 {
+//    float* leftFreqResponse = new float[2 * numPoints];
+//    float* rightFreqResponse = new float[2 * numPoints];
+//    for (int i = 0; i < 2 * numPoints; i++)
+//    {
+//        float t = static_cast<float>(i) / (2 * numPoints);
+//        
+//        std::complex val = curve.valueAtTime (t);
+//        
+//        if (i % 2 == 0)
+//        {
+//            leftFreqResponse[i] = juce::Decibels::decibelsToGain (val.real());
+//            rightFreqResponse[i] = juce::Decibels::decibelsToGain (val.real());
+//        }
+//        else
+//        {
+//            leftFreqResponse[i] = val.imag();
+//            rightFreqResponse[i] = val.imag();
+//        }
+//    }
+//    
+//    return { leftFreqResponse, rightFreqResponse };
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];
-    for (int i = 0; i < 2 * numPoints; i++)
+    for (int i = 0; i < numPoints; i += 2)
     {
-        float t = static_cast<float>(i) / (2 * numPoints);
+        float t = static_cast<float> (i) / static_cast<float> (numPoints);
         
-        std::complex val = curve.valueAtTime (t);
+        auto [leftVal, rightVal] = curve.valueAtTime (t);
         
-        if (i % 2 == 0)
-        {
-            leftFreqResponse[i] = juce::Decibels::decibelsToGain (val.real());
-            rightFreqResponse[i] = juce::Decibels::decibelsToGain (val.real());
-        }
-        else
-        {
-            leftFreqResponse[i] = val.imag();
-            rightFreqResponse[i] = val.imag();
-        }
+        leftFreqResponse[i] = leftVal.real();
+        rightFreqResponse[i] = rightVal.real();
+        leftFreqResponse[i + 1] = leftVal.imag();
+        rightFreqResponse[i + 1] = rightVal.imag();
     }
     
     return { leftFreqResponse, rightFreqResponse };
@@ -45,18 +60,6 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     auto freqResponse = frequencyResponse (curve, numPoints);
     auto leftFreqResponse = freqResponse.first;
     auto rightFreqResponse = freqResponse.second;
-    
-//    std::cout << "Left Frequency Response:" << std::endl;
-//    for (int i = 0; i < numPoints * 2; ++i) {
-//        std::cout << leftFreqResponse[i] << " ";
-//    }
-//    std::cout << std::endl;
-//
-//    std::cout << "Right Frequency Response:" << std::endl;
-//    for (int i = 0; i < numPoints * 2; ++i) {
-//        std::cout << rightFreqResponse[i] << " ";
-//    }
-//    std::cout << std::endl;
     
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);

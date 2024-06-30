@@ -23,6 +23,7 @@ public:
     void setFreq (float freq);
     void setGain (float gain);
     void setPan (float pan);
+    void setPhase (float phase);
     void setReferencePan (float pan);
     
 private:
@@ -33,6 +34,7 @@ private:
     float currFreq = 440;
     float currGain = 12.0;
     float currPan = 0.0;
+    float currPhase = 0.0;
     float referencePan = 0.0;
     int numSamplesNoteHasBeenPlaying = 0;
     SineWaveGenerator sineWaveGenerator;

@@ -11,7 +11,7 @@
 #include "RandomCalibrationManager.h"
 #include <random>
 
-RandomCalibrationManager::RandomCalibrationManager() : gainCurve (gainSetPointManager), panCurve (panSetPointManager)
+RandomCalibrationManager::RandomCalibrationManager() : gainCurve (gainSetPointManager), panCurve (panSetPointManager), phaseCurve (phaseSetPointManager)
 {
     // Initialize intervalOrder
     for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
@@ -50,6 +50,12 @@ void RandomCalibrationManager::setCurrPan (float panGainInDecibels)
     intervalSequencer.setPan (panGainInDecibels);
 }
 
+void RandomCalibrationManager::setCurrPhase (float phaseInRadians)
+{
+    phaseSetPointManager.updateValueAtIdx (intervalOrder.at (currIntervalIdx), phaseInRadians);
+    intervalSequencer.setPhase (phaseInRadians);
+}
+
 void RandomCalibrationManager::setGainAtIdx (int i, float gainInDecibels)
 {
     gainSetPointManager.updateValueAtIdx (i, gainInDecibels);
@@ -60,14 +66,9 @@ void RandomCalibrationManager::setPanAtIdx (int i, float panGainInDecibels)
     panSetPointManager.updateValueAtIdx (i, panGainInDecibels);
 }
 
-const Curve& RandomCalibrationManager::getGainCurve() const
+void RandomCalibrationManager::setPhaseAtIdx (int i, float phaseInRadians)
 {
-    return gainCurve;
-}
-
-const Curve& RandomCalibrationManager::getPanCurve() const
-{
-    return panCurve;
+    phaseSetPointManager.updateValueAtIdx (i, phaseInRadians);
 }
 
 int RandomCalibrationManager::goToNextInterval()

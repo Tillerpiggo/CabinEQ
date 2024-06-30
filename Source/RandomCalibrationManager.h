@@ -24,10 +24,14 @@ public:
     void setSampleRate (float newSampleRate);
     void setCurrGain (float gainInDecibels);
     void setCurrPan (float balanceGainInDecibels);
+    void setCurrPhase (float phaseInRadians);
     void setGainAtIdx (int i, float gainInDecibels);
     void setPanAtIdx (int i, float gainInDecibels);
-    const Curve& getGainCurve() const;
-    const Curve& getPanCurve() const;
+    void setPhaseAtIdx (int i, float phaseInRadians);
+    
+    const Curve& getGainCurve() const { return gainCurve; }
+    const Curve& getPanCurve() const { return panCurve; }
+    const Curve& getPhaseCurve() const { return phaseCurve; }
     
     void updateSequencer();
     
@@ -38,8 +42,10 @@ private:
     IntervalSequencer intervalSequencer;
     SetPointManager gainSetPointManager;
     SetPointManager panSetPointManager;
+    SetPointManager phaseSetPointManager;
     Curve gainCurve;
     Curve panCurve;
+    Curve phaseCurve; // right phase offset in radians
     
     std::vector<int> intervalOrder; // idx -> SetPointManager idx
     int currIntervalIdx;

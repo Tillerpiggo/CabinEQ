@@ -43,9 +43,8 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
         endNoteGainRamp--;
     }
     
-    float sineVal = std::sin (phase);
-    float leftSample = sineVal * leftAmplitudeCompensation * gainRampCompensation;
-    float rightSample = sineVal * rightAmplitudeCompensation * gainRampCompensation;
+    float leftSample = std::sin (phase) * leftAmplitudeCompensation * gainRampCompensation;
+    float rightSample = std::sin (phase + note->phase) * rightAmplitudeCompensation * gainRampCompensation;
     
     phase += phaseIncrement;
     if (phase > 2.0 * juce::MathConstants<float>::pi)
@@ -82,6 +81,12 @@ void SineWaveGenerator::setPan (float panInDecibels)
 {
     // TODO: create gain ramp
     note->pan = panInDecibels;
+    updatePhaseIncrementAndAmplitudeCompensation();
+}
+
+void SineWaveGenerator::setPhase (float phaseInRadians)
+{
+    note->phase = phase;
     updatePhaseIncrementAndAmplitudeCompensation();
 }
 

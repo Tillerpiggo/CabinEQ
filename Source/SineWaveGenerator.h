@@ -24,6 +24,7 @@ public:
     void setNote (Note note);
     void setVolume (float gainInDecibels); // changes the volume of the currently playing note
     void setPan (float panInDecibels); // changes the pan of the currently playing note
+    void setPhase (float phaseInRadians); // changes left/right phase relationship of current playing note
     
 private:
     static constexpr float TILT = 0.59566214; // 4.5 db/oct slope

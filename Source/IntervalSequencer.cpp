@@ -73,6 +73,15 @@ void IntervalSequencer::setPan (float pan)
     }
 }
 
+void IntervalSequencer::setPhase (float phase)
+{
+    this->currPhase = phase;
+    if (! isPlayingReferenceFreq)
+    {
+        sineWaveGenerator.setPhase (phase);
+    }
+}
+
 void IntervalSequencer::setReferencePan (float pan)
 {
     

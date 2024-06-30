@@ -52,12 +52,9 @@
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
-      <FILE id="h2i2oh" name="HarmanCurve.cpp" compile="1" resource="0" file="Source/HarmanCurve.cpp"/>
-      <FILE id="O6DafT" name="HarmanCurve.h" compile="0" resource="0" file="Source/HarmanCurve.h"/>
-      <FILE id="uSotg0" name="InverseFletcherMunsonCurve.cpp" compile="1"
-            resource="0" file="Source/InverseFletcherMunsonCurve.cpp"/>
-      <FILE id="Ci5k0m" name="InverseFletcherMunsonCurve.h" compile="0" resource="0"
-            file="Source/InverseFletcherMunsonCurve.h"/>
+      <FILE id="qhiv2d" name="BalanceCurve.cpp" compile="1" resource="0"
+            file="Source/BalanceCurve.cpp"/>
+      <FILE id="ELJAev" name="BalanceCurve.h" compile="0" resource="0" file="Source/BalanceCurve.h"/>
       <FILE id="zkn2FD" name="SetPointManager.cpp" compile="1" resource="0"
             file="Source/SetPointManager.cpp"/>
       <FILE id="mkmPs2" name="SetPointManager.h" compile="0" resource="0"

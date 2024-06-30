@@ -23,22 +23,16 @@ public:
     {
         float* leftFreqResponse = new float[2 * numPoints];
         float* rightFreqResponse = new float[2 * numPoints];
-        for (int i = 0; i < 2 * numPoints; i++)
+        for (int i = 0; i < numPoints; i += 2)
         {
-            float t = static_cast<float>(i) / (2 * numPoints);
+            float t = static_cast<float> (i) / static_cast<float> (numPoints);
             
-            std::complex val = curve.valueAtTime (t);
+            auto [leftVal, rightVal] = curve.valueAtTime (t);
             
-            if (i % 2 == 0)
-            {
-                leftFreqResponse[i] = juce::Decibels::decibelsToGain (-0.5 * val.real());
-                rightFreqResponse[i] = juce::Decibels::decibelsToGain (0.5 * val.real());
-            }
-            else
-            {
-                leftFreqResponse[i] = val.imag();
-                rightFreqResponse[i] = val.imag();
-            }
+            leftFreqResponse[i] = leftVal.real();
+            rightFreqResponse[i] = rightVal.real();
+            leftFreqResponse[i + 1] = leftVal.imag();
+            rightFreqResponse[i + 1] = rightVal.imag();
         }
         
         return { leftFreqResponse, rightFreqResponse };
