@@ -77,9 +77,10 @@ public:
     int goToPrevInterval() { return calibrationManager.goToPrevInterval(); }
     int goToNextInterval() { return calibrationManager.goToNextInterval(); }
     void toggleBypass();
+    void toggleBalance();
 
 private:
-    static const int FFT_SIZE = 18;
+    static const int FFT_SIZE = 17;
     
     std::vector<std::pair<juce::String, double>> noteData;
     
@@ -91,6 +92,7 @@ private:
     bool isSlidingPhaseSlider;
     
     bool isBypassed;
+    bool isBalancing;
     
     SetPointManager setPointLayout;
     ArbitraryResponseFilter gainFilter;

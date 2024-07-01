@@ -43,6 +43,7 @@ private:
     juce::TextButton prevButton { "< PREV" };
     juce::TextButton nextButton { "NEXT >" };
     juce::TextButton bypassButton { "BYPASS" };
+    juce::TextButton bypassBalanceButton { "BYPASS BALANCE" };
     
     CurveComponent curveComponent;
     

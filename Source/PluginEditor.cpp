@@ -32,9 +32,11 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     addAndMakeVisible (prevButton);
     addAndMakeVisible (nextButton);
     addAndMakeVisible (bypassButton);
+    addAndMakeVisible (bypassBalanceButton);
     prevButton.addListener (this);
     nextButton.addListener (this);
     bypassButton.addListener (this);
+    bypassBalanceButton.addListener (this);
     
     resized(); // to update UI to be correct
 }
@@ -49,6 +51,7 @@ StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
     prevButton.removeListener (this);
     nextButton.removeListener (this);
     bypassButton.removeListener (this);
+    bypassBalanceButton.removeListener (this);
 }
 
 //==============================================================================
@@ -79,16 +82,27 @@ void StartupMVPAudioProcessorEditor::resized()
     prevButton.setBounds(buttonAX, buttonY, buttonWidth, buttonHeight);
     nextButton.setBounds(buttonBX, buttonY, buttonWidth, buttonHeight);
 
-    // Calculate position for the bypassButton
-    const int bypassButtonY = buttonY + buttonHeight + spacing; // Place it below the previous buttons
+    // Constants for button dimensions and spacing
+    const int bypassButtonWidth = 100;
+    const int bypassButtonHeight = 30;
+    const int bypassSpacing = 10;
 
-    // Center the bypassButton horizontally
-    const int bypassButtonX = (getWidth() - buttonWidth) / 2;
+    // Calculate position for the first button (bypassButton)
+    const int bypassButtonY = getHeight() - bypassButtonHeight - bypassSpacing;
+    const int halfButtonWidth = (bypassButtonWidth + bypassSpacing) / 2;
+
+    // Center the buttons horizontally
+    const int bypassButtonX = (getWidth() / 2) - halfButtonWidth;
+    const int balanceBypassButtonX = bypassButtonX + bypassButtonWidth + spacing;
 
     // Set bounds for the bypassButton
-    bypassButton.setBounds(bypassButtonX, bypassButtonY, buttonWidth, buttonHeight);
+    bypassButton.setBounds(bypassButtonX, bypassButtonY, bypassButtonWidth, bypassButtonHeight);
 
-    tabbedComponent.setBounds (getLocalBounds().withTop (100).withBottom (400));
+    // Set bounds for the balanceBypassButton
+    bypassBalanceButton.setBounds(balanceBypassButtonX, bypassButtonY, bypassButtonWidth, bypassButtonHeight);
+
+    // Set bounds for the tabbedComponent
+    tabbedComponent.setBounds(getLocalBounds().withTop(100).withBottom(400));
 }
 
 // Creates a pair of sliders - one for gain, and one for balance
@@ -118,5 +132,9 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
     else if (button == &bypassButton)
     {
         audioProcessor.toggleBypass();
+    }
+    else if (button == &bypassBalanceButton)
+    {
+        audioProcessor.toggleBalance();
     }
 }

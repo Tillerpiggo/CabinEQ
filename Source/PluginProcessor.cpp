@@ -28,7 +28,6 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     isSlidingPhaseSlider = false;
     
     parameters.state = juce::ValueTree("savedParams");
-    gainProcessor.setGainDecibels(0.f);
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -182,11 +181,12 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         if (isBypassed)
         {
             gainFilter.process (context);
-            balanceFilter.process (context);
+            //balanceFilter.process (context);
         }
-        else
+        
+        if (isBalancing)
         {
-            gainProcessor.process (context);
+            balanceFilter.process (context);
         }
     }
     
@@ -383,4 +383,9 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
 void StartupMVPAudioProcessor::toggleBypass()
 {
     isBypassed = ! isBypassed;
+}
+
+void StartupMVPAudioProcessor::toggleBalance()
+{
+    isBalancing = ! isBalancing;
 }
