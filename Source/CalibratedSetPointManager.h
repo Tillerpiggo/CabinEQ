@@ -1,18 +1,11 @@
 /*
   ==============================================================================
 
-    Melody.cpp
-    Created: 20 Jun 2024 12:31:31pm
+    CalibratedSetPointManager.h
+    Created: 1 Jul 2024 3:34:15pm
     Author:  Tyler Gee
 
   ==============================================================================
 */
 
-#include "Melody.h"
-
-void Melody::addNote (int note)
-{
-    notes.push_back (note);
-}
-
-
+#pragma once

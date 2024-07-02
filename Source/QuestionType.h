@@ -1,8 +1,8 @@
 /*
   ==============================================================================
 
-    CalibrationChoice.h
-    Created: 22 Jun 2024 3:39:36pm
+    QuestionType.h
+    Created: 1 Jul 2024 3:35:29pm
     Author:  Tyler Gee
 
   ==============================================================================
@@ -10,8 +10,9 @@
 
 #pragma once
 
-enum class CalibrationChoice
+enum class QuestionType
 {
-    LowerPreferred, 
-    HigherPreferred
-};
+    Level,
+    Pan,
+    Phase
+}

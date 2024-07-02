@@ -19,6 +19,10 @@
         <FILE id="KOXvNE" name="SliderPair.h" compile="0" resource="0" file="Source/SliderPair.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="tux1Bk" name="CalibrationIntervalSequencer.cpp" compile="1"
+              resource="0" file="Source/CalibrationIntervalSequencer.cpp"/>
+        <FILE id="iVeprk" name="CalibrationIntervalSequencer.h" compile="0"
+              resource="0" file="Source/CalibrationIntervalSequencer.h"/>
         <FILE id="iUkFYz" name="IntervalSequencer.cpp" compile="1" resource="0"
               file="Source/IntervalSequencer.cpp"/>
         <FILE id="pm8Baz" name="IntervalSequencer.h" compile="0" resource="0"
@@ -43,12 +47,23 @@
               resource="0" file="Source/BalanceArbitraryResponseFilter.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration">
-        <FILE id="ZAHYy5" name="RandomCalibrationManager.cpp" compile="1" resource="0"
-              file="Source/RandomCalibrationManager.cpp"/>
-        <FILE id="Bt74nF" name="RandomCalibrationManager.h" compile="0" resource="0"
-              file="Source/RandomCalibrationManager.h"/>
-        <FILE id="V3X9ka" name="Melody.cpp" compile="1" resource="0" file="Source/Melody.cpp"/>
-        <FILE id="QFzlQJ" name="Melody.h" compile="0" resource="0" file="Source/Melody.h"/>
+        <FILE id="eKsN3S" name="QuestionType.h" compile="0" resource="0" file="Source/QuestionType.h"/>
+        <FILE id="ENsrXq" name="CalibratedSetPoint.cpp" compile="1" resource="0"
+              file="Source/CalibratedSetPoint.cpp"/>
+        <FILE id="dhHXCH" name="CalibratedSetPoint.h" compile="0" resource="0"
+              file="Source/CalibratedSetPoint.h"/>
+        <FILE id="noJ5wR" name="CalibratedSetPointManager.cpp" compile="1"
+              resource="0" file="Source/CalibratedSetPointManager.cpp"/>
+        <FILE id="srTuKz" name="CalibratedSetPointManager.h" compile="0" resource="0"
+              file="Source/CalibratedSetPointManager.h"/>
+        <FILE id="ie3EVa" name="CalibrationSequencer.cpp" compile="1" resource="0"
+              file="Source/CalibrationSequencer.cpp"/>
+        <FILE id="tnTJwR" name="CalibrationSequencer.h" compile="0" resource="0"
+              file="Source/CalibrationSequencer.h"/>
+        <FILE id="axJbH0" name="CalibrationManager.cpp" compile="1" resource="0"
+              file="Source/CalibrationManager.cpp"/>
+        <FILE id="BHGMxG" name="CalibrationManager.h" compile="0" resource="0"
+              file="Source/CalibrationManager.h"/>
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
@@ -57,22 +72,10 @@
             file="Source/SetPointManager.cpp"/>
       <FILE id="mkmPs2" name="SetPointManager.h" compile="0" resource="0"
             file="Source/SetPointManager.h"/>
-      <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Old">
-        <FILE id="ZRxtvx" name="CalibrationSequence.cpp" compile="1" resource="0"
-              file="Source/CalibrationSequence.cpp"/>
-        <FILE id="zulu2e" name="CalibrationSequence.h" compile="0" resource="0"
-              file="Source/CalibrationSequence.h"/>
-        <FILE id="Eo9SfV" name="CalibrationChoice.h" compile="0" resource="0"
-              file="Source/CalibrationChoice.h"/>
-        <FILE id="ENsrXq" name="CalibratedSetPoint.cpp" compile="1" resource="0"
-              file="Source/CalibratedSetPoint.cpp"/>
-        <FILE id="dhHXCH" name="CalibratedSetPoint.h" compile="0" resource="0"
-              file="Source/CalibratedSetPoint.h"/>
-        <FILE id="c5JD8R" name="CalibrationManager.cpp" compile="1" resource="0"
-              file="Source/CalibrationManager.cpp"/>
-        <FILE id="oxin8m" name="CalibrationManager.h" compile="0" resource="0"
-              file="Source/CalibrationManager.h"/>
-      </GROUP>
+      <FILE id="ZAHYy5" name="RandomCalibrationManager.cpp" compile="1" resource="0"
+            file="Source/RandomCalibrationManager.cpp"/>
+      <FILE id="Bt74nF" name="RandomCalibrationManager.h" compile="0" resource="0"
+            file="Source/RandomCalibrationManager.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
