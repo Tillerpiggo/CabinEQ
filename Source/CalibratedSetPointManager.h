@@ -11,18 +11,21 @@
 #pragma once
 
 #include "Curve.h"
+#include "CalibratedSetPoint.h"
 
 class CalibratedSetPointManager
 {
 public:
     CalibratedSetPointManager();
     
-    
-    const Curve& getCurve() { return curve; }
+    const Curve& getCurve() const { return curve; }
     
 private:
+    std::vector<float> frequencies;
+    std::vector<CalibratedSetPoint> amplitudes;
+    std::vector<CalibratedSetPoint> pans;
+    std::vector<CalibratedSetPoint> phases;
+    
     Curve curve;
-    
-    
 };
 

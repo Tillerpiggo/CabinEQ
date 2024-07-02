@@ -30,22 +30,14 @@ public:
     void buttonClicked (juce::Button *button) override;
     
 private:
-    void addSliderPair (int i);
     juce::Slider& addSlider (std::string name, std::string paramName, int idx);
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     StartupMVPAudioProcessor& audioProcessor;
     
-    juce::TabbedComponent tabbedComponent;
-    std::vector<std::unique_ptr<SliderGroup>> sliderGroups;
-    
-    juce::TextButton prevButton { "< PREV" };
-    juce::TextButton nextButton { "NEXT >" };
-    juce::TextButton bypassButton { "BYPASS" };
-    juce::TextButton bypassBalanceButton { "BYPASS BALANCE" };
-    
     CurveComponent curveComponent;
+    juce::TextButton bypassButton { "BYPASS" };
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
 };

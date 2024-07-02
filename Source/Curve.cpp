@@ -81,14 +81,14 @@ const float Curve::cubicBezierWithHorizontalDerivative (float t, float y0, float
 const float Curve::interpolateValueAtFrequency (const float frequency, 
                                                 const std::vector<CalibratedSetPoint>& values) const
 {
-    
+    size_t numPoints = frequencies.size();
     
     if (frequency < 10)
     {
         return values.at (0).estimatedValue();
     }
     
-    if (frequency > frequencies.at(SetPointManager::NUM_SET_POINTS - 1))
+    if (frequency > frequencies.at(numPoints - 1))
     {
         return values.at (values.size() - 1).estimatedValue();
     }
@@ -96,7 +96,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
     float freq1, freq2;
     float gain0, gain1, gain2, gain3;
     
-    for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
+    for (int i = 0; i < numPoints; ++i)
     {
         // If the frequency is the same, return the value of the set point
         if (frequency == frequencies.at(i))
@@ -120,7 +120,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
                 gain0 = gain1;
             }
             
-            if (i < SetPointManager::NUM_SET_POINTS - 1)
+            if (i < numPoints - 1)
             {
                 gain3 = values.at(i + 1).estimatedValue();
             }

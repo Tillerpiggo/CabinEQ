@@ -16,7 +16,6 @@
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
               file="Source/CurveComponent.h"/>
-        <FILE id="KOXvNE" name="SliderPair.h" compile="0" resource="0" file="Source/SliderPair.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
         <FILE id="tux1Bk" name="CalibrationIntervalSequencer.cpp" compile="1"
@@ -64,6 +63,8 @@
               file="Source/CalibrationManager.cpp"/>
         <FILE id="BHGMxG" name="CalibrationManager.h" compile="0" resource="0"
               file="Source/CalibrationManager.h"/>
+        <FILE id="iJTgDM" name="CalibrationChoice.h" compile="0" resource="0"
+              file="Source/CalibrationChoice.h"/>
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>

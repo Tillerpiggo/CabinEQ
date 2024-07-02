@@ -12,12 +12,12 @@
 #include "Curve.h"
 #include "Sequencer.h"
 #include "ArbitraryResponseFilter.h"
-#include "BalanceArbitraryResponseFilter.h"
+#include "CalibrationManager.h"
 
 //==============================================================================
 /**
 */
-class StartupMVPAudioProcessor  : public juce::AudioProcessor, juce::Timer, public juce::Slider::Listener
+class StartupMVPAudioProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
@@ -59,12 +59,6 @@ public:
     
     const std::pair<juce::String, double>& getNoteData(int index) const;
     int getNoteDataSize() const;
-    
-    //==============================================================================
-    void timerCallback() override;
-    void sliderValueChanged (juce::Slider *slider) override;
-    void sliderDragStarted (juce::Slider *slider) override;
-    void sliderDragEnded (juce::Slider *slider) override;
     
     //==============================================================================
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout (int numPoints);
