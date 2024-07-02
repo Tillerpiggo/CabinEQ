@@ -9,3 +9,23 @@
 */
 
 #pragma once
+
+#include <JuceHeader.h>
+#include "CalibrationManager.h"
+
+class CalibratedSetPoint
+{
+public:
+    CalibratedSetPoint (float windowSize) : windowSize (windowSize) {}
+    
+    void calibrateWith (const float value, const CalibrationChoice choice);
+    bool hasEstablishedWindow(); // if it has set a definitive upper and lower bound yet
+    float estimatedValue();
+    float precision();
+    
+private:
+    std::optional<float> lowerBound;
+    std::optional<float> upperBound;
+    
+    float windowSize;
+};

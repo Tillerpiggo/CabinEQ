@@ -9,3 +9,9 @@
 */
 
 #pragma once
+
+enum class CalibrationChoice
+{
+    LowerPreferred,
+    HigherPreferred
+};
