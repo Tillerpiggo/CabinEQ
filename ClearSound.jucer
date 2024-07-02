@@ -22,12 +22,6 @@
               resource="0" file="Source/CalibrationIntervalSequencer.cpp"/>
         <FILE id="iVeprk" name="CalibrationIntervalSequencer.h" compile="0"
               resource="0" file="Source/CalibrationIntervalSequencer.h"/>
-        <FILE id="iUkFYz" name="IntervalSequencer.cpp" compile="1" resource="0"
-              file="Source/IntervalSequencer.cpp"/>
-        <FILE id="pm8Baz" name="IntervalSequencer.h" compile="0" resource="0"
-              file="Source/IntervalSequencer.h"/>
-        <FILE id="OD2zUy" name="Sequencer.cpp" compile="1" resource="0" file="Source/Sequencer.cpp"/>
-        <FILE id="yZqYvI" name="Sequencer.h" compile="0" resource="0" file="Source/Sequencer.h"/>
         <FILE id="u9ZaeK" name="SineWaveGenerator.cpp" compile="1" resource="0"
               file="Source/SineWaveGenerator.cpp"/>
         <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
