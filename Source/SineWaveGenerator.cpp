@@ -112,8 +112,4 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
         leftAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / -2.0);
         rightAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / 2.0);
     }
-    
-    std::cout << "note pan: " << note->pan << std::endl;
-    std::cout << "changed left gain to " << leftAmplitudeCompensation << std::endl;
-    std::cout << "changed right gain to " << rightAmplitudeCompensation << std::endl;
 }

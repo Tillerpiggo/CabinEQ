@@ -11,11 +11,7 @@
 #include "CalibratedSetPointManager.h"
 #include <random>
 
-CalibratedSetPointManager::CalibratedSetPointManager() 
-: curve(frequencies, 
-        amplitudes,
-        std::make_shared<std::vector<CalibratedSetPoint>> (pans),
-        std::make_shared<std::vector<CalibratedSetPoint>> (phases))
+CalibratedSetPointManager::CalibratedSetPointManager() : curve(frequencies, amplitudes, pans, phases)
 {
     // TODO: Construct the first batch of set points...
     frequencies = { 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240 };

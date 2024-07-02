@@ -16,15 +16,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float panAtFrequency = 0;
     float phaseAtFrequency = 0;
     
-    if (pans.has_value())
-    {
-        panAtFrequency = interpolateValueAtFrequency (frequency, *pans.value());
-    }
-    
-    if (phases.has_value())
-    {
-        phaseAtFrequency = interpolateValueAtFrequency (frequency, *phases.value());
-    }
+    panAtFrequency = interpolateValueAtFrequency (frequency, pans);
+    phaseAtFrequency = interpolateValueAtFrequency (frequency, phases);
     
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency);
     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency);
@@ -61,7 +54,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormaliz
     float logMaxFreq = std::log(maxFreq);
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
     
-    return valueAtFrequency(freq);
+    return valueAtFrequency (freq);
 }
 
 const float Curve::catmullRom (float t, float y0, float y1, float y2, float y3) const
@@ -83,7 +76,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
 {
     size_t numPoints = frequencies.size();
     
-    if (frequency < 10)
+    if (frequency < frequencies.at (0))
     {
         return values.at (0).estimatedValue();
     }
@@ -95,6 +88,11 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
     
     float freq1, freq2;
     float gain0, gain1, gain2, gain3;
+    
+    for (const CalibratedSetPoint& value : values)
+    {
+        std::cout << value.estimatedValue();
+    }
     
     for (int i = 0; i < numPoints; ++i)
     {

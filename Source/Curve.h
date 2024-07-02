@@ -18,19 +18,39 @@ class Curve
 {
 public:
     Curve (const std::vector<float>& frequencies, 
-           const std::vector<CalibratedSetPoint>& amplitudes)
-    : frequencies (frequencies), amplitudes (amplitudes) {}
-    
-    Curve (const std::vector<float>& frequencies, 
            const std::vector<CalibratedSetPoint>& amplitudes,
-           const std::shared_ptr<std::vector<CalibratedSetPoint>> phases)
-    : frequencies (frequencies), amplitudes (amplitudes), phases (phases) {}
-    
-    Curve (const std::vector<float>& frequencies, 
-           const std::vector<CalibratedSetPoint>& amplitudes,
-           const std::shared_ptr<std::vector<CalibratedSetPoint>> phases,
-           const std::shared_ptr<std::vector<CalibratedSetPoint>> pans)
-    : frequencies (frequencies), amplitudes (amplitudes), phases (phases), pans(pans) {}
+           const std::vector<CalibratedSetPoint>& phases,
+           const std::vector<CalibratedSetPoint>& pans)
+    : frequencies (frequencies), amplitudes (amplitudes), phases (phases), pans(pans)
+    {
+//        std::cout << "Frequencies: ";
+//        for (const auto& frequency : frequencies) {
+//            std::cout << frequency << " ";
+//        }
+//        std::cout << std::endl;
+//
+//        std::cout << "Amplitudes: ";
+//        for (const auto& amplitude : amplitudes) {
+//            std::cout << amplitude.estimatedValue() << " ";
+//        }
+//        std::cout << std::endl;
+//
+//        std::cout << "Phases: ";
+//        if (phases) {
+//            for (const auto& phase : *phases) {
+//                std::cout << phase.estimatedValue() << " ";
+//            }
+//        }
+//        std::cout << std::endl;
+//
+//        std::cout << "Pans: ";
+//        if (pans) {
+//            for (const auto& pan : *pans) {
+//                std::cout << pan.estimatedValue() << " ";
+//            }
+//        }
+//        std::cout << std::endl;
+    }
     
     virtual ~Curve() {}
     
@@ -50,7 +70,7 @@ protected:
                                              const std::vector<CalibratedSetPoint>& values) const;
     const std::vector<float>& frequencies;
     const std::vector<CalibratedSetPoint>& amplitudes;
-    const std::optional<std::shared_ptr<std::vector<CalibratedSetPoint>>> phases;
-    const std::optional<std::shared_ptr<std::vector<CalibratedSetPoint>>> pans;
+    const std::vector<CalibratedSetPoint>& phases;
+    const std::vector<CalibratedSetPoint>& pans;
     float factor = 1.f;
 };
