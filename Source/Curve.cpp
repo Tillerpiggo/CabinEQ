@@ -12,18 +12,35 @@
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequency (float frequency) const
 {
-    float gainAtFrequency = valueAtFrequencyForSetPointManager (frequency, setPointManager);
-    std::complex<float> valueAtFrequency (juce::Decibels::decibelsToGain (gainAtFrequency), 0);
-    return { valueAtFrequency, valueAtFrequency };
+    float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
+    float panAtFrequency = 0;
+    float phaseAtFrequency = 0;
+    
+    if (pans.has_value())
+    {
+        panAtFrequency = interpolateValueAtFrequency (frequency, *pans.value());
+    }
+    
+    if (phases.has_value())
+    {
+        phaseAtFrequency = interpolateValueAtFrequency (frequency, *phases.value());
+    }
+    
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency);
+    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency);
+    
+    std::complex<float> leftVal = std::polar (leftGain, 0.0f);
+    std::complex<float> rightVal = std::polar (rightGain, phaseAtFrequency);
+    
+    return { leftVal, rightVal };
 }
 
 // Returns the value along the curve in time (0 < t < 1), such that t is a linear
 // mapping across frequencies. E.g. t=0 would be 20hz, t=0.5 would be ~10khz, and t=1 would be ~20khz.
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t) const
 {
-    auto setPointFreqs = setPointManager.getSetPointFreqs();
-    float minFreq = setPointFreqs.at(0);
-    float maxFreq = setPointFreqs.at(setPointFreqs.size() - 1);
+    float minFreq = frequencies.at(0);
+    float maxFreq = frequencies.at(frequencies.size() - 1);
     
     // Scale linearly
     float freq = t * (maxFreq - minFreq) + minFreq;
@@ -36,9 +53,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 // NOTE: it's debatable whether this scaling logic really belongs in Curve or should stay in CurveComponent.
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t) const
 {
-    auto setPointFreqs = setPointManager.getSetPointFreqs();
-    float minFreq = setPointFreqs.at(0);
-    float maxFreq = setPointFreqs.at(setPointFreqs.size() - 1);
+    float minFreq = frequencies.at(0);
+    float maxFreq = frequencies.at(frequencies.size() - 1);
     
     // Scale logarithmically (should this be here?)
     float logMinFreq = std::log(minFreq);
@@ -62,62 +78,54 @@ const float Curve::cubicBezierWithHorizontalDerivative (float t, float y0, float
     return y;
 }
 
-const float Curve::valueAtFrequencyForSetPointManager (const float frequency, const SetPointManager& setPointManager) const
+const float Curve::interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const
 {
-    auto setPointFreqs = setPointManager.getSetPointFreqs();
-    auto setPointGains = setPointManager.getSetPointGains();
     
-    // Windowing (kinda poorly tho)
     
     if (frequency < 10)
     {
-        return setPointGains.at (0);
+        return values.at (0);
     }
     
-    if (frequency > setPointFreqs.at(SetPointManager::NUM_SET_POINTS - 1))
+    if (frequency > frequencies.at(SetPointManager::NUM_SET_POINTS - 1))
     {
-        return setPointGains.at (setPointGains.size() - 1);
+        return values.at (values.size() - 1);
     }
     
-    float setPointFreq1;
-    float setPointGain1;
-    float setPointFreq2;
-    float setPointGain2;
-    
-    float setPointGain0;
-    float setPointGain3;
+    float freq1, freq2;
+    float gain0, gain1, gain2, gain3;
     
     for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
     {
         // If the frequency is the same, return the value of the set point
-        if (frequency == setPointFreqs.at(i))
+        if (frequency == frequencies.at(i))
         {
-            return setPointGains.at(i);
+            return values.at(i);
         }
         
-        if (frequency < setPointFreqs.at(i))
+        if (frequency < frequencies.at(i))
         {
-            setPointFreq1 = setPointFreqs.at(i-1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at(0), but we already check those cases.
-            setPointFreq2 = setPointFreqs.at(i);
-            setPointGain1 = setPointGains.at(i-1); // Same reasoning as above.
-            setPointGain2 = setPointGains.at(i);
+            freq1 = frequencies.at(i-1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at(0), but we already check those cases.
+            freq2 = frequencies.at(i);
+            gain1 = values.at(i-1); // Same reasoning as above.
+            gain2 = values.at(i);
             
             if (i > 1)
             {
-                setPointGain0 = setPointGains.at(i-2);
+                gain0 = values.at(i-2);
             }
             else
             {
-                setPointGain0 = setPointGain1;
+                gain0 = gain1;
             }
             
             if (i < SetPointManager::NUM_SET_POINTS - 1)
             {
-                setPointGain3 = setPointGains.at(i+1);
+                gain3 = values.at(i+1);
             }
             else
             {
-                setPointGain3 = setPointGain2;
+                gain3 = gain2;
             }
             
             break;
@@ -125,8 +133,8 @@ const float Curve::valueAtFrequencyForSetPointManager (const float frequency, co
     }
     
     // Interpolate using catmull-rom
-    float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
-    float gainAtFrequency = catmullRom (t, setPointGain0, setPointGain1, setPointGain2, setPointGain3);
+    float t = (frequency - freq1) / (freq2 - freq1);
+    float gainAtFrequency = catmullRom (t, gain0, gain1, gain2, gain3);
     
     return gainAtFrequency;
 }

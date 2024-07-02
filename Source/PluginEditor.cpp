@@ -133,8 +133,4 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
     {
         audioProcessor.toggleBypass();
     }
-    else if (button == &bypassBalanceButton)
-    {
-        audioProcessor.toggleBalance();
-    }
 }

@@ -11,17 +11,16 @@
 #include "RandomCalibrationManager.h"
 #include <random>
 
-RandomCalibrationManager::RandomCalibrationManager() : gainCurve (gainSetPointManager), balanceCurve (panSetPointManager, phaseSetPointManager)
+RandomCalibrationManager::RandomCalibrationManager()
+: frCurve (gainSetPointManager.getSetPointFreqs(), gainSetPointManager.getSetPointGains(),
+           std::make_shared<std::vector<float>>(panSetPointManager.getSetPointGains()),
+           std::make_shared<std::vector<float>>(phaseSetPointManager.getSetPointGains()))
 {
     // Initialize intervalOrder
     for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
     {
         intervalOrder.push_back (i);
     }
-    
-//    std::random_device rd;
-//    std::mt19937 g (rd());
-//    std::shuffle (intervalOrder.begin(), intervalOrder.end(), g);
     
     // Create and play the first interval
     currIntervalIdx = 0;

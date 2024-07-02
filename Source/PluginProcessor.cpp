@@ -107,7 +107,7 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.numChannels = 2;
     
     gainFilter.prepare (spec);
-    balanceFilter.prepare (spec);
+//    balanceFilter.prepare (spec);
     
     startTimer(16.67);
 }
@@ -184,10 +184,10 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             //balanceFilter.process (context);
         }
         
-        if (isBalancing)
-        {
-            balanceFilter.process (context);
-        }
+//        if (isBalancing)
+//        {
+////            balanceFilter.process (context);
+//        }
     }
     
     
@@ -239,8 +239,8 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
                 calibrationManager.setPhaseAtIdx (i, phase);
             }
             
-            gainFilter.update (calibrationManager.getGainCurve(), FFT_SIZE);
-            balanceFilter.update (calibrationManager.getBalanceCurve(), FFT_SIZE);
+            gainFilter.update (calibrationManager.getCurve(), FFT_SIZE);
+//            balanceFilter.update (calibrationManager.getBalanceCurve(), FFT_SIZE);
         }
     }
 }
@@ -376,16 +376,10 @@ void StartupMVPAudioProcessor::sliderDragEnded(juce::Slider *slider)
     isSlidingPanSlider = false;
     isSlidingPhaseSlider = false;
     
-    gainFilter.update (calibrationManager.getGainCurve(), FFT_SIZE);
-    balanceFilter.update (calibrationManager.getBalanceCurve(), FFT_SIZE);
+    gainFilter.update (calibrationManager.getCurve(), FFT_SIZE);
 }
 
 void StartupMVPAudioProcessor::toggleBypass()
 {
     isBypassed = ! isBypassed;
-}
-
-void StartupMVPAudioProcessor::toggleBalance()
-{
-    isBalancing = ! isBalancing;
 }

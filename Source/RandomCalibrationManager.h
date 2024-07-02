@@ -13,7 +13,6 @@
 #include <JuceHeader.h>
 #include "SetPointManager.h"
 #include "Curve.h"
-#include "BalanceCurve.h"
 #include "IntervalSequencer.h"
 
 class RandomCalibrationManager
@@ -30,8 +29,7 @@ public:
     void setPanAtIdx (int i, float gainInDecibels);
     void setPhaseAtIdx (int i, float phaseInRadians);
     
-    const Curve& getGainCurve() const { return gainCurve; }
-    const Curve& getBalanceCurve() const { return balanceCurve; }
+    const Curve& getCurve() const { return frCurve; }
     
     void updateSequencer();
     
@@ -43,8 +41,7 @@ private:
     SetPointManager gainSetPointManager;
     SetPointManager panSetPointManager;
     SetPointManager phaseSetPointManager;
-    Curve gainCurve;
-    BalanceCurve balanceCurve;
+    Curve frCurve; // frequency response curve
     
     std::vector<int> intervalOrder; // idx -> SetPointManager idx
     int currIntervalIdx;
