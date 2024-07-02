@@ -19,15 +19,12 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (0))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (10))
 
 #endif
 {
-    isSlidingGainSlider = false;
-    isSlidingPanSlider = false;
-    isSlidingPhaseSlider = false;
-    
     parameters.state = juce::ValueTree("savedParams");
+    isCalibrating = false;
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -154,7 +151,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
     
-    if (isSlidingGainSlider || isSlidingPanSlider || isSlidingPhaseSlider)
+    if (isCalibrating)
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {

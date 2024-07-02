@@ -52,5 +52,8 @@ bool CalibrationSequencer::amplitudesHaveBeenCalibratedPrecisely() const
 
 Note CalibrationSequencer::referenceNote()
 {
-    
+    return Note (REFERENCE_FREQ, 
+                 REFERENCE_GAIN_DB,
+                 referencePan.estimatedValue(), 
+                 referencePhase.estimatedValue());
 }

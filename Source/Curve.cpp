@@ -39,8 +39,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 // mapping across frequencies. E.g. t=0 would be 20hz, t=0.5 would be ~10khz, and t=1 would be ~20khz.
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t) const
 {
-    float minFreq = frequencies.at(0);
-    float maxFreq = frequencies.at(frequencies.size() - 1);
+    float minFreq = frequencies.at (0);
+    float maxFreq = frequencies.at (frequencies.size() - 1);
     
     // Scale linearly
     float freq = t * (maxFreq - minFreq) + minFreq;
@@ -53,8 +53,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 // NOTE: it's debatable whether this scaling logic really belongs in Curve or should stay in CurveComponent.
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t) const
 {
-    float minFreq = frequencies.at(0);
-    float maxFreq = frequencies.at(frequencies.size() - 1);
+    float minFreq = frequencies.at (0);
+    float maxFreq = frequencies.at (frequencies.size() - 1);
     
     // Scale logarithmically (should this be here?)
     float logMinFreq = std::log(minFreq);
@@ -88,7 +88,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
         return values.at (0).estimatedValue();
     }
     
-    if (frequency > frequencies.at(numPoints - 1))
+    if (frequency > frequencies.at (numPoints - 1))
     {
         return values.at (values.size() - 1).estimatedValue();
     }
@@ -99,21 +99,21 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
     for (int i = 0; i < numPoints; ++i)
     {
         // If the frequency is the same, return the value of the set point
-        if (frequency == frequencies.at(i))
+        if (frequency == frequencies.at (i))
         {
-            return values.at(i).estimatedValue();
+            return values.at (i).estimatedValue();
         }
         
-        if (frequency < frequencies.at(i))
+        if (frequency < frequencies.at (i))
         {
-            freq1 = frequencies.at(i - 1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at(0), but we already check those cases.
-            freq2 = frequencies.at(i);
-            gain1 = values.at(i - 1).estimatedValue(); // Same reasoning as above.
-            gain2 = values.at(i).estimatedValue();
+            freq1 = frequencies.at (i - 1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at (0), but we already check those cases.
+            freq2 = frequencies.at (i);
+            gain1 = values.at (i - 1).estimatedValue(); // Same reasoning as above.
+            gain2 = values.at (i).estimatedValue();
             
             if (i > 1)
             {
-                gain0 = values.at(i - 2).estimatedValue();
+                gain0 = values.at (i - 2).estimatedValue();
             }
             else
             {
@@ -122,7 +122,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
             
             if (i < numPoints - 1)
             {
-                gain3 = values.at(i + 1).estimatedValue();
+                gain3 = values.at (i + 1).estimatedValue();
             }
             else
             {

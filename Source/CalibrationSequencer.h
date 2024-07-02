@@ -21,8 +21,11 @@ public:
     Question getNextQuestion();
     
 private:
+    static constexpr float REFERENCE_FREQ = 1000.0;
+    static constexpr float REFERENCE_GAIN_DB = 0.0;
     static constexpr float REFERENCE_PAN_WINDOW = 3.0;
     static constexpr float REFERENCE_PHASE_WINDOW = 3.14;
+    
     static constexpr float AMPLITUDE_PRECISION = 0.05;
     static constexpr float PAN_PRECISION = 0.01;
     static constexpr float PHASE_PRECISION = 0.01;

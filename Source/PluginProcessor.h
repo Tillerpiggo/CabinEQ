@@ -10,7 +10,6 @@
 
 #include <JuceHeader.h>
 #include "Curve.h"
-#include "Sequencer.h"
 #include "ArbitraryResponseFilter.h"
 #include "CalibrationManager.h"
 
@@ -70,12 +69,8 @@ public:
 private:
     static const int FFT_SIZE = 18;
     
-    int selectedSliderIndex;
-    bool isSlidingGainSlider;
-    bool isSlidingPanSlider;
-    bool isSlidingPhaseSlider;
-    
     bool isBypassed;
+    bool isCalibrating;
 
     ArbitraryResponseFilter gainFilter;
     CalibrationManager calibrationManager;
