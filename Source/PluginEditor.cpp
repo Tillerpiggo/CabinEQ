@@ -50,7 +50,6 @@ void StartupMVPAudioProcessorEditor::resized()
     const int halfButtonWidth = (bypassButtonWidth + spacing) / 2;
 
     const int bypassButtonX = (getWidth() / 2) - halfButtonWidth;
-    const int balanceBypassButtonX = bypassButtonX + bypassButtonWidth + spacing;
     bypassButton.setBounds(bypassButtonX, bypassButtonY, bypassButtonWidth, bypassButtonHeight);
 }
 

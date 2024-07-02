@@ -20,7 +20,23 @@ public:
     
     const Curve& getCurve() const { return curve; }
     
+    bool amplitudesHaveBeenWindowed() const;
+    bool pansHaveBeenWindowed() const;
+    bool phasesHaveBeenWindowed() const;
+    bool amplitudesHaveBeenCalibratedWithPrecision (float precision) const;
+    bool pansHaveBeenCalibratedWithPrecision (float precision) const;
+    bool phasesHaveBeenCalibratedWithPrecision (float precision) const;
+    
+    std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionAmplitude() const;
+    std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPan() const;
+    std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPhase() const;
+    
 private:
+    bool calibratedSetPointsHaveBeenWindowed (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const;
+    bool calibratedSetPointsHaveBeenCalibratedWithPrecision (const std::vector<CalibratedSetPoint>& calibratedSetPoints,
+                                                             float precision) const;
+    std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionCalibratedSetPoint (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const; // returns (frequency, calibratedSetPoint)
+    
     std::vector<float> frequencies;
     std::vector<CalibratedSetPoint> amplitudes;
     std::vector<CalibratedSetPoint> pans;

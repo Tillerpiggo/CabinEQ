@@ -15,7 +15,7 @@
 class Note
 {
 public:
-    Note (float gain, float frequency, float pan)
+    Note (float gain, float frequency, float pan, float phase)
         : gain (gain), frequency (frequency), pan (pan), phase (phase) {}
     
     float gain; // in dB; 0 dB = silent

@@ -17,17 +17,23 @@
 class CalibrationSequencer
 {
 public:
-    CalibrationSequencer (const CalibratedSetPointManager& calibrationSetPointManager);
+    CalibrationSequencer (const CalibratedSetPointManager& calibratedSetPointManager);
     Question getNextQuestion();
     
 private:
-    const CalibratedSetPointManager& calibrationSetPointManager;
+    static constexpr float REFERENCE_PAN_WINDOW = 3.0;
+    static constexpr float REFERENCE_PHASE_WINDOW = 3.14;
+    static constexpr float AMPLITUDE_PRECISION = 0.05;
+    static constexpr float PAN_PRECISION = 0.01;
+    static constexpr float PHASE_PRECISION = 0.01;
     
-    const bool referenceNoteHasBeenCalibrated() const;
-    const bool amplitudesHaveBeenWindowed() const;
-    const bool phasesHaveBeenCalibratedPrecisely() const;
-    const bool pansHaveBeenCalibratedPrecisely() const;
-    const bool amplitudesHaveBeenCalibratedPrecisely() const;
+    const CalibratedSetPointManager& calibratedSetPointManager;
+    
+    bool referenceNoteHasBeenCalibrated() const;
+    bool amplitudesHaveBeenWindowed() const;
+    bool phasesHaveBeenCalibratedPrecisely() const;
+    bool pansHaveBeenCalibratedPrecisely() const;
+    bool amplitudesHaveBeenCalibratedPrecisely() const;
     
     CalibratedSetPoint getRandomLowPrecisionSetPoint (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const; // gets random set point of all those w/ least precision
     
