@@ -12,7 +12,7 @@
 
 #include "CalibratedSetPointManager.h"
 #include "CalibrationIntervalSequencer.h"
-#include "QuestionType.h"
+#include "Question.h"
 #include "Curve.h"
 #include "CalibrationChoice.h"
 

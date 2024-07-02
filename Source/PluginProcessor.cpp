@@ -176,13 +176,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         if (isBypassed)
         {
             gainFilter.process (context);
-            //balanceFilter.process (context);
         }
-        
-//        if (isBalancing)
-//        {
-////            balanceFilter.process (context);
-//        }
     }
     
     
