@@ -67,15 +67,6 @@
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
-      <FILE id="ELJAev" name="BalanceCurve.h" compile="0" resource="0" file="Source/BalanceCurve.h"/>
-      <FILE id="zkn2FD" name="SetPointManager.cpp" compile="1" resource="0"
-            file="Source/SetPointManager.cpp"/>
-      <FILE id="mkmPs2" name="SetPointManager.h" compile="0" resource="0"
-            file="Source/SetPointManager.h"/>
-      <FILE id="ZAHYy5" name="RandomCalibrationManager.cpp" compile="1" resource="0"
-            file="Source/RandomCalibrationManager.cpp"/>
-      <FILE id="Bt74nF" name="RandomCalibrationManager.h" compile="0" resource="0"
-            file="Source/RandomCalibrationManager.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

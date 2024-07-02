@@ -19,7 +19,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (SetPointManager::NUM_SET_POINTS))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (0))
 
 #endif
 {

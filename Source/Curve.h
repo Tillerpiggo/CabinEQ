@@ -11,33 +11,26 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SetPointManager.h"
+#include "CalibratedSetPoint.h"
 
 // This manages a curve interpolated between a list of set points, with an arbitrary resolution.
 class Curve
 {
 public:
-    Curve (SetPointManager& setPointManager)
-    : frequencies (setPointManager.getSetPointFreqs()), amplitudes (setPointManager.getSetPointGains()) {}
-    
-    Curve (const std::vector<float>& frequencies, const std::vector<float>& amplitudes)
+    Curve (const std::vector<float>& frequencies, 
+           const std::vector<CalibratedSetPoint>& amplitudes)
     : frequencies (frequencies), amplitudes (amplitudes) {}
     
-    Curve (const std::vector<float>& frequencies, const std::vector<float>& amplitudes,
-           const std::shared_ptr<std::vector<float>> phases)
+    Curve (const std::vector<float>& frequencies, 
+           const std::vector<CalibratedSetPoint>& amplitudes,
+           const std::shared_ptr<std::vector<CalibratedSetPoint>> phases)
     : frequencies (frequencies), amplitudes (amplitudes), phases (phases) {}
     
-    Curve (const std::vector<float>& frequencies, const std::vector<float>& amplitudes, 
-           const std::shared_ptr<std::vector<float>> phases, const std::shared_ptr<std::vector<float>> pans)
-    : frequencies (frequencies), amplitudes (amplitudes), phases (phases), pans(pans) 
-    {
-        std::cout << "CURVE set point gains: ";
-        for (float gain : amplitudes)
-        {
-            std::cout << gain << " ";
-        }
-        std::cout << std::endl;
-    }
+    Curve (const std::vector<float>& frequencies, 
+           const std::vector<CalibratedSetPoint>& amplitudes,
+           const std::shared_ptr<std::vector<CalibratedSetPoint>> phases,
+           const std::shared_ptr<std::vector<CalibratedSetPoint>> pans)
+    : frequencies (frequencies), amplitudes (amplitudes), phases (phases), pans(pans) {}
     
     virtual ~Curve() {}
     
@@ -53,10 +46,11 @@ public:
     }
     
 protected:
-    const float interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const;
+    const float interpolateValueAtFrequency (const float frequency, 
+                                             const std::vector<CalibratedSetPoint>& values) const;
     const std::vector<float>& frequencies;
-    const std::vector<float>& amplitudes;
-    const std::optional<std::shared_ptr<std::vector<float>>> phases;
-    const std::optional<std::shared_ptr<std::vector<float>>> pans;
+    const std::vector<CalibratedSetPoint>& amplitudes;
+    const std::optional<std::shared_ptr<std::vector<CalibratedSetPoint>>> phases;
+    const std::optional<std::shared_ptr<std::vector<CalibratedSetPoint>>> pans;
     float factor = 1.f;
 };

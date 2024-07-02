@@ -78,18 +78,19 @@ const float Curve::cubicBezierWithHorizontalDerivative (float t, float y0, float
     return y;
 }
 
-const float Curve::interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const
+const float Curve::interpolateValueAtFrequency (const float frequency, 
+                                                const std::vector<CalibratedSetPoint>& values) const
 {
     
     
     if (frequency < 10)
     {
-        return values.at (0);
+        return values.at (0).estimatedValue();
     }
     
     if (frequency > frequencies.at(SetPointManager::NUM_SET_POINTS - 1))
     {
-        return values.at (values.size() - 1);
+        return values.at (values.size() - 1).estimatedValue();
     }
     
     float freq1, freq2;
@@ -100,19 +101,19 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
         // If the frequency is the same, return the value of the set point
         if (frequency == frequencies.at(i))
         {
-            return values.at(i);
+            return values.at(i).estimatedValue();
         }
         
         if (frequency < frequencies.at(i))
         {
-            freq1 = frequencies.at(i-1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at(0), but we already check those cases.
+            freq1 = frequencies.at(i - 1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at(0), but we already check those cases.
             freq2 = frequencies.at(i);
-            gain1 = values.at(i-1); // Same reasoning as above.
-            gain2 = values.at(i);
+            gain1 = values.at(i - 1).estimatedValue(); // Same reasoning as above.
+            gain2 = values.at(i).estimatedValue();
             
             if (i > 1)
             {
-                gain0 = values.at(i-2);
+                gain0 = values.at(i - 2).estimatedValue();
             }
             else
             {
@@ -121,7 +122,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
             
             if (i < SetPointManager::NUM_SET_POINTS - 1)
             {
-                gain3 = values.at(i+1);
+                gain3 = values.at(i + 1).estimatedValue();
             }
             else
             {

@@ -9,12 +9,10 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SetPointManager.h"
 #include "Curve.h"
 #include "Sequencer.h"
 #include "ArbitraryResponseFilter.h"
 #include "BalanceArbitraryResponseFilter.h"
-#include "RandomCalibrationManager.h"
 
 //==============================================================================
 /**
@@ -72,18 +70,11 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout (int numPoints);
     juce::AudioProcessorValueTreeState parameters;
     
-    const SetPointManager& getSetPointManager() const { return setPointLayout; } // TODO: Is this correct reference semantics for C++? I feel like I'm doing something wrong
-    const Curve& getCurve() const { return calibrationManager.getCurve(); }
-    int goToPrevInterval() { return calibrationManager.goToPrevInterval(); }
-    int goToNextInterval() { return calibrationManager.goToNextInterval(); }
     void toggleBypass();
+    const Curve& getCurve() const { return calibrationManager.getCurve(); }
 
 private:
     static const int FFT_SIZE = 18;
-    
-    std::vector<std::pair<juce::String, double>> noteData;
-    
-    RandomCalibrationManager calibrationManager;
     
     int selectedSliderIndex;
     bool isSlidingGainSlider;
@@ -91,10 +82,9 @@ private:
     bool isSlidingPhaseSlider;
     
     bool isBypassed;
-    
-    SetPointManager setPointLayout;
+
     ArbitraryResponseFilter gainFilter;
-    juce::dsp::Gain<float> gainProcessor;
+    CalibrationManager calibrationManager;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)

@@ -10,4 +10,19 @@
 
 #pragma once
 
+#include "Curve.h"
+
+class CalibratedSetPointManager
+{
+public:
+    CalibratedSetPointManager();
+    
+    
+    const Curve& getCurve() { return curve; }
+    
+private:
+    Curve curve;
+    
+    
+};
 

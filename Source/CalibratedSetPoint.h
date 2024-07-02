@@ -19,9 +19,9 @@ public:
     CalibratedSetPoint (float windowSize) : windowSize (windowSize) {}
     
     void calibrateWith (const float value, const CalibrationChoice choice);
-    bool hasEstablishedWindow(); // if it has set a definitive upper and lower bound yet
-    float estimatedValue();
-    float precision();
+    const bool hasEstablishedWindow() const; // if it has set a definitive upper and lower bound yet
+    const float estimatedValue() const;
+    const float precision() const;
     
 private:
     std::optional<float> lowerBound;

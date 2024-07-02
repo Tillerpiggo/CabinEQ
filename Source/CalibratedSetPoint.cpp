@@ -34,7 +34,7 @@ void CalibratedSetPoint::calibrateWith (const float value, const CalibrationChoi
     }
 }
 
-float CalibratedSetPoint::estimatedValue()
+const float CalibratedSetPoint::estimatedValue() const
 {
     if (hasEstablishedWindow())
     {
@@ -55,12 +55,12 @@ float CalibratedSetPoint::estimatedValue()
     
 }
 
-bool CalibratedSetPoint::hasEstablishedWindow()
+const bool CalibratedSetPoint::hasEstablishedWindow() const
 {
     return lowerBound.has_value() && upperBound.has_value();
 }
 
-float CalibratedSetPoint::precision()
+const float CalibratedSetPoint::precision() const
 {
     if (hasEstablishedWindow())
     {

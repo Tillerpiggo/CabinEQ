@@ -15,3 +15,11 @@ enum class CalibrationChoice
     LowerPreferred,
     HigherPreferred
 };
+
+class CalibrationManager
+{
+public:
+    CalibrationManager() {}
+    
+    
+};
