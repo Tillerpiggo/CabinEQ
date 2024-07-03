@@ -29,3 +29,35 @@ Question Question::defaultQuestion()
     
     return Question (QuestionType::Level, note1, note2);
 }
+
+const std::string Question::lowerText() const
+{
+    switch (type)
+    {
+        case QuestionType::Level:
+            return "Quieter";
+            break;
+        case QuestionType::Pan:
+            return "Left";
+            break;
+        case QuestionType::Phase:
+            return "Less Diffuse"; // ?? might need to change
+            break;
+    }
+}
+
+const std::string Question::higherText() const
+{
+    switch (type)
+    {
+        case QuestionType::Level:
+            return "Louder";
+            break;
+        case QuestionType::Pan:
+            return "Right";
+            break;
+        case QuestionType::Phase:
+            return "More Diffuse"; // ?? same as above, might need to change
+            break;
+    }
+}

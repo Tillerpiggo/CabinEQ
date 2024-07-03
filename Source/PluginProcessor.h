@@ -63,9 +63,13 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout (int numPoints);
     juce::AudioProcessorValueTreeState parameters;
     
+    const Curve& getCurve() const;
+    
     void toggleBypass();
-    const Curve& getCurve() const { return calibrationManager.getCurve(); }
-
+    void toggleCalibration();
+    void calibrateWith (CalibrationChoice choice);
+    
+    
 private:
     static const int FFT_SIZE = 18;
     

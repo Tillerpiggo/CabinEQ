@@ -290,8 +290,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
+const Curve& StartupMVPAudioProcessor::getCurve() const
+{
+    return calibrationManager.getCurve();
+}
 
 void StartupMVPAudioProcessor::toggleBypass()
 {
     isBypassed = ! isBypassed;
 }
+
+void StartupMVPAudioProcessor::toggleCalibration()
+{
+    isCalibrating = ! isCalibrating;
+}
+
+void StartupMVPAudioProcessor::calibrateWith (CalibrationChoice choice)
+{
+    calibrationManager.calibrateWith (choice);
+}
+
+

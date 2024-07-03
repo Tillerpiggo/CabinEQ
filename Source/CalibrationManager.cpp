@@ -37,9 +37,9 @@ const Curve& CalibrationManager::getCurve() const
     return calibratedSetPointManager.getCurve();
 }
 
-const QuestionType CalibrationManager::currentQuestionType()
+const Question CalibrationManager::getCurrentQuestion()
 {
-    return currentQuestion.getType();
+    return currentQuestion;
 }
 
 const bool CalibrationManager::isPlayingFirstNote()

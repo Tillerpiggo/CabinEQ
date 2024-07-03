@@ -28,6 +28,9 @@ public:
     const float controlledFrequency() const; // return the frequency the user is calibrating/controlling w/ this questi
     static Question defaultQuestion(); // placeholder question because C++ is annoying with initialization
     
+    const std::string lowerText() const; // text for the lowerPreferred button based on QuestionType
+    const std::string higherText() const; // text for the higherPreferred button based on QuestionType
+    
 private:
     QuestionType type;
     Note note1;

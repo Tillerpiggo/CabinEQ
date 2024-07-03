@@ -37,6 +37,9 @@ private:
     StartupMVPAudioProcessor& audioProcessor;
     
     CurveComponent curveComponent;
+    juce::ToggleButton toggleCalibrationButton { "TOGGLE CALIBRATION" };
+    juce::TextButton lowerPreferredButton { "Lower Preferred" };
+    juce::TextButton higherPreferredButton { "Higher Preferred" };
     juce::TextButton bypassButton { "BYPASS" };
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)

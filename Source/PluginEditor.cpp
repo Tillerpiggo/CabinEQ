@@ -15,11 +15,15 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
 {
     setSize (800, 600);
 
-    // Add curve and container for sliders
     addAndMakeVisible (curveComponent);
-    
-    // Add buttons
+    addAndMakeVisible (toggleCalibrationButton);
+    addAndMakeVisible (lowerPreferredButton);
+    addAndMakeVisible (higherPreferredButton);
     addAndMakeVisible (bypassButton);
+    
+    toggleCalibrationButton.addListener (this);
+    lowerPreferredButton.addListener (this);
+    higherPreferredButton.addListener (this);
     bypassButton.addListener (this);
     
     resized(); // to update UI to be correct
@@ -27,6 +31,9 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
 
 StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
 {
+    toggleCalibrationButton.removeListener (this);
+    lowerPreferredButton.removeListener (this);
+    higherPreferredButton.removeListener (this);
     bypassButton.removeListener (this);
 }
 
@@ -55,7 +62,19 @@ void StartupMVPAudioProcessorEditor::resized()
 
 void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
 {
-    if (button == &bypassButton)
+    if (button = &toggleCalibrationButton)
+    {
+        audioProcessor.toggleCalibration();
+    }
+    else if (button == &lowerPreferredButton)
+    {
+        audioProcessor.calibrateWith (CalibrationChoice::LowerPreferred);
+    }
+    else if (button == &higherPreferredButton)
+    {
+        audioProcessor.calibrateWith (CalibrationChoice::HigherPreferred);
+    }
+    else if (button == &bypassButton)
     {
         audioProcessor.toggleBypass();
     }
