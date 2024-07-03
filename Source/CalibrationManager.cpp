@@ -13,7 +13,7 @@
 CalibrationManager::CalibrationManager() 
 : calibrationSequencer (calibratedSetPointManager), currentQuestion (Question::defaultQuestion()) 
 {
-    currentQuestion = calibrationSequencer.getNextQuestion();
+    goToNextQuestion();
 }
 
 const std::pair<float, float> CalibrationManager::getNextSample()
@@ -29,7 +29,7 @@ void CalibrationManager::setSampleRate (float newSampleRate)
 void CalibrationManager::calibrateWith (const CalibrationChoice choice)
 {
     calibratedSetPointManager.calibrateWith (currentQuestion, choice);
-    currentQuestion = calibrationSequencer.getNextQuestion();
+    goToNextQuestion();
 }
 
 const Curve& CalibrationManager::getCurve() const
@@ -45,4 +45,10 @@ const Question CalibrationManager::getCurrentQuestion()
 const bool CalibrationManager::isPlayingFirstNote()
 {
     return calibrationIntervalSequencer.isPlayingFirstNote();
+}
+
+void CalibrationManager::goToNextQuestion()
+{
+    currentQuestion = calibrationSequencer.getNextQuestion();
+    calibrationIntervalSequencer.setNotes (currentQuestion.getNote1(), currentQuestion.getNote2());
 }

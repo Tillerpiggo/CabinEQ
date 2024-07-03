@@ -30,6 +30,16 @@ Question Question::defaultQuestion()
     return Question (QuestionType::Level, note1, note2);
 }
 
+const Note& Question::getNote1() const
+{
+    return note1;
+}
+
+const Note& Question::getNote2() const
+{
+    return note2;
+}
+
 const std::string Question::lowerText() const
 {
     switch (type)

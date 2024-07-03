@@ -154,9 +154,9 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     
     if (isCalibrating)
     {
+        std::cout << "is calibrating" << std::endl;
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            //const float value = sequencer.getNextSample();
             const std::pair<float, float> value = calibrationManager.getNextSample();
             leftChannel[sample] = value.first * 0.05 * 0.5;
             

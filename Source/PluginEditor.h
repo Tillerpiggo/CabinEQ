@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "CurveComponent.h"
 #include "SliderGroup.h"
+#include "ClearSoundLookAndFeel.h"
 
 //==============================================================================
 /**
@@ -41,6 +42,8 @@ private:
     juce::TextButton lowerPreferredButton { "Lower Preferred" };
     juce::TextButton higherPreferredButton { "Higher Preferred" };
     juce::TextButton bypassButton { "BYPASS" };
+    
+//    std::unique_ptr<ClearSoundLookAndFeel> clearSoundLookAndFeel;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
 };

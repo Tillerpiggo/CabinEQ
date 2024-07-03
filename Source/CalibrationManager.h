@@ -31,6 +31,8 @@ public:
     const bool isPlayingFirstNote();
     
 private:
+    void goToNextQuestion();
+    
     CalibratedSetPointManager calibratedSetPointManager;
     CalibrationIntervalSequencer calibrationIntervalSequencer;
     CalibrationSequencer calibrationSequencer;
