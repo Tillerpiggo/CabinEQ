@@ -28,16 +28,8 @@ void CalibrationManager::setSampleRate (float newSampleRate)
 
 void CalibrationManager::calibrateWith (const CalibrationChoice choice)
 {
-    switch (currentQuestionType())
-    {
-        case QuestionType::Level:
-            
-            break;
-        case QuestionType::Pan:
-            break;
-        case QuestionType::Phase:
-            break;
-    }
+    calibratedSetPointManager.calibrateWith (currentQuestion, choice);
+    currentQuestion = calibrationSequencer.getNextQuestion();
 }
 
 const Curve& CalibrationManager::getCurve() const
