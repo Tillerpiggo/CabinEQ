@@ -21,36 +21,7 @@ public:
            const std::vector<CalibratedSetPoint>& amplitudes,
            const std::vector<CalibratedSetPoint>& phases,
            const std::vector<CalibratedSetPoint>& pans)
-    : frequencies (frequencies), amplitudes (amplitudes), phases (phases), pans(pans)
-    {
-//        std::cout << "Frequencies: ";
-//        for (const auto& frequency : frequencies) {
-//            std::cout << frequency << " ";
-//        }
-//        std::cout << std::endl;
-//
-//        std::cout << "Amplitudes: ";
-//        for (const auto& amplitude : amplitudes) {
-//            std::cout << amplitude.estimatedValue() << " ";
-//        }
-//        std::cout << std::endl;
-//
-//        std::cout << "Phases: ";
-//        if (phases) {
-//            for (const auto& phase : *phases) {
-//                std::cout << phase.estimatedValue() << " ";
-//            }
-//        }
-//        std::cout << std::endl;
-//
-//        std::cout << "Pans: ";
-//        if (pans) {
-//            for (const auto& pan : *pans) {
-//                std::cout << pan.estimatedValue() << " ";
-//            }
-//        }
-//        std::cout << std::endl;
-    }
+    : frequencies (frequencies), amplitudes (amplitudes), phases (phases), pans(pans) {}
     
     virtual ~Curve() {}
     

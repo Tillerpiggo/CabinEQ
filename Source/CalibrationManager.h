@@ -12,6 +12,7 @@
 
 #include "CalibratedSetPointManager.h"
 #include "CalibrationIntervalSequencer.h"
+#include "CalibrationSequencer.h"
 #include "Question.h"
 #include "Curve.h"
 #include "CalibrationChoice.h"
@@ -19,7 +20,7 @@
 class CalibrationManager
 {
 public:
-    CalibrationManager() {}
+    CalibrationManager();
     
     const std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
@@ -32,4 +33,7 @@ public:
 private:
     CalibratedSetPointManager calibratedSetPointManager;
     CalibrationIntervalSequencer calibrationIntervalSequencer;
+    CalibrationSequencer calibrationSequencer;
+    
+    Question currentQuestion;
 };

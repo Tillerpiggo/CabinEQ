@@ -16,12 +16,14 @@
 class CalibratedSetPoint
 {
 public:
-    CalibratedSetPoint (float windowSize) : windowSize (windowSize) {}
+    CalibratedSetPoint (float windowSize);
+    CalibratedSetPoint (float lowerBound, float upperBound);
     
-    void calibrateWith (const float value, const CalibrationChoice choice);
+    void calibrateWith (const CalibrationChoice choice);
     const bool hasEstablishedWindow() const; // if it has set a definitive upper and lower bound yet
     const float estimatedValue() const;
     const float precision() const;
+    const float getWindowSize() const;
     
 private:
     std::optional<float> lowerBound;

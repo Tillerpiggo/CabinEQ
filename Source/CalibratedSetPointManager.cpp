@@ -20,8 +20,48 @@ CalibratedSetPointManager::CalibratedSetPointManager() : curve(frequencies, ampl
     {
         amplitudes.push_back (CalibratedSetPoint (12.0f));
         pans.push_back (CalibratedSetPoint (3.0f));
-        phases.push_back (CalibratedSetPoint (3.14f));
+        phases.push_back (CalibratedSetPoint (-3.14f, 3.14f));
     }
+}
+
+const Curve& CalibratedSetPointManager::getCurve() const
+{
+    return curve;
+}
+
+void CalibratedSetPointManager::calibrateWith (Question question, CalibrationChoice choice)
+{
+    // Get the idx for the question and update the corresponding set point
+    float freq = question.controlledFrequency();
+    int idx = indexForFrequency (freq);
+    
+    switch (question.getType())
+    {
+        case QuestionType::Level:
+            amplitudes.at (idx).calibrateWith (choice);
+            break;
+        case QuestionType::Pan:
+            pans.at (idx).calibrateWith (choice);
+            break;
+        case QuestionType::Phase:
+            phases.at (idx).calibrateWith (choice);
+            break;
+    }
+}
+
+const float CalibratedSetPointManager::amplitudeAt (const float frequency) const
+{
+    return amplitudes.at (indexForFrequency (frequency)).estimatedValue();
+}
+
+const float CalibratedSetPointManager::panAt (const float frequency) const
+{
+    return pans.at (indexForFrequency (frequency)).estimatedValue();
+}
+
+const float CalibratedSetPointManager::phaseAt (const float frequency) const
+{
+    return phases.at (indexForFrequency (frequency)).estimatedValue();
 }
 
 bool CalibratedSetPointManager::amplitudesHaveBeenWindowed() const
@@ -125,4 +165,17 @@ std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestP
     float chosenFrequency = frequencies[chosenIndex];
 
     return { chosenFrequency, chosenSetPoint };
+}
+
+int CalibratedSetPointManager::indexForFrequency (float frequency) const
+{
+    for (int i = 0; i < frequencies.size(); ++i)
+    {
+        if (frequency == frequencies.at (i))
+        {
+            return i;
+        }
+    }
+    
+    return -1;
 }

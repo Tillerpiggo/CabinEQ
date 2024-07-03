@@ -22,10 +22,12 @@ enum class QuestionType
 class Question
 {
 public:
-    Question (QuestionType type, Note note1, Note note2)
-    : type (type), note1 (note1), note2 (note2) {}
+    Question (QuestionType type, Note note1, Note note2);
     
     const QuestionType getType() const;
+    const float controlledFrequency() const; // return the frequency the user is calibrating/controlling w/ this questi
+    static Question defaultQuestion(); // placeholder question because C++ is annoying with initialization
+    
 private:
     QuestionType type;
     Note note1;

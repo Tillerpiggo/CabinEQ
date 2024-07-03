@@ -12,13 +12,20 @@
 
 #include "Curve.h"
 #include "CalibratedSetPoint.h"
+#include "Question.h"
 
 class CalibratedSetPointManager
 {
 public:
     CalibratedSetPointManager();
     
-    const Curve& getCurve() const { return curve; }
+    const Curve& getCurve() const;
+    
+    void calibrateWith (Question question, CalibrationChoice choice);
+    
+    const float amplitudeAt (const float frequency) const;
+    const float panAt (const float frequency) const;
+    const float phaseAt (const float frequency) const;
     
     bool amplitudesHaveBeenWindowed() const;
     bool pansHaveBeenWindowed() const;
@@ -36,6 +43,8 @@ private:
     bool calibratedSetPointsHaveBeenCalibratedWithPrecision (const std::vector<CalibratedSetPoint>& calibratedSetPoints,
                                                              float precision) const;
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionCalibratedSetPoint (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const; // returns (frequency, calibratedSetPoint)
+    
+    int indexForFrequency (float frequency) const;
     
     std::vector<float> frequencies;
     std::vector<CalibratedSetPoint> amplitudes;

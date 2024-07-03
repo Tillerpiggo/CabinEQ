@@ -32,6 +32,8 @@ private:
     
     const CalibratedSetPointManager& calibratedSetPointManager;
     
+    Question phaseQuestion (const float frequency, const float gain, const CalibratedSetPoint phase) const;
+    
     bool referenceNoteHasBeenCalibrated() const;
     bool amplitudesHaveBeenWindowed() const;
     bool phasesHaveBeenCalibratedPrecisely() const;
@@ -43,5 +45,4 @@ private:
     Note referenceNote();
     CalibratedSetPoint referencePan;
     CalibratedSetPoint referencePhase;
-    
 };

@@ -10,8 +10,19 @@
 
 #include "CalibratedSetPoint.h"
 
-void CalibratedSetPoint::calibrateWith (const float value, const CalibrationChoice choice)
+CalibratedSetPoint::CalibratedSetPoint (float windowSize) : windowSize (windowSize)
 {
+}
+
+CalibratedSetPoint::CalibratedSetPoint (float lowerBound, float upperBound) : windowSize ((upperBound - lowerBound) / 2.0f)
+{
+    lowerBound = lowerBound;
+    upperBound = upperBound;
+}
+
+void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
+{
+    float value = estimatedValue();
     if (choice == CalibrationChoice::LowerPreferred)
     {
         upperBound = value;
@@ -64,10 +75,18 @@ const float CalibratedSetPoint::precision() const
 {
     if (hasEstablishedWindow())
     {
-        return (upperBound.value() - lowerBound.value()) / 2.0f;
+        return getWindowSize() / 2.0f;
     }
-    else
+    
+    return -1;
+}
+
+const float CalibratedSetPoint::getWindowSize() const
+{
+    if (! hasEstablishedWindow())
     {
-        return -1; // no window has been established
+        return upperBound.value() - lowerBound.value();
     }
+    
+    return -1;
 }

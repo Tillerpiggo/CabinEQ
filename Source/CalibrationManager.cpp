@@ -10,6 +10,12 @@
 
 #include "CalibrationManager.h"
 
+CalibrationManager::CalibrationManager() 
+: calibrationSequencer (calibratedSetPointManager), currentQuestion (Question::defaultQuestion()) 
+{
+    currentQuestion = calibrationSequencer.getNextQuestion();
+}
+
 const std::pair<float, float> CalibrationManager::getNextSample()
 {
     return calibrationIntervalSequencer.getNextSample();
@@ -22,7 +28,16 @@ void CalibrationManager::setSampleRate (float newSampleRate)
 
 void CalibrationManager::calibrateWith (const CalibrationChoice choice)
 {
-    // TODO: Add logic to calibrate a point
+    switch (currentQuestionType())
+    {
+        case QuestionType::Level:
+            
+            break;
+        case QuestionType::Pan:
+            break;
+        case QuestionType::Phase:
+            break;
+    }
 }
 
 const Curve& CalibrationManager::getCurve() const
@@ -32,8 +47,7 @@ const Curve& CalibrationManager::getCurve() const
 
 const QuestionType CalibrationManager::currentQuestionType()
 {
-    // TODO: Replace with actual logic not placeholder
-    return QuestionType::Level;
+    return currentQuestion.getType();
 }
 
 const bool CalibrationManager::isPlayingFirstNote()
