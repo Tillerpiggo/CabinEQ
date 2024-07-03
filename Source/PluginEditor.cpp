@@ -13,11 +13,7 @@
 StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), curveComponent (p.getCurve())
 {
-    setSize (800, 420);
-
-    // Create and apply the custom look-and-feel
-//    clearSoundLookAndFeel = std::make_unique<ClearSoundLookAndFeel>();
-//    setLookAndFeel(clearSoundLookAndFeel.get());
+    setSize (800, 620);
 
     addAndMakeVisible (curveComponent);
     addAndMakeVisible (toggleCalibrationButton);
@@ -29,8 +25,13 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     lowerPreferredButton.addListener (this);
     higherPreferredButton.addListener (this);
     bypassButton.addListener (this);
+    
+    lowerPreferredButton.setEnabled (false);
+    higherPreferredButton.setEnabled (false);
 
     resized(); // to update UI to be correct
+    
+    startTimer(16); // 60+ times/s
 }
 
 StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
@@ -41,6 +42,8 @@ StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
     bypassButton.removeListener (this);
     
     setLookAndFeel(nullptr);
+    
+    stopTimer();
 }
 
 //==============================================================================
@@ -54,7 +57,11 @@ void StartupMVPAudioProcessorEditor::resized()
 {
     auto area = getLocalBounds();
     int padding = 10;
-    
+    int curveComponentHeight = 200;
+
+    // Reserve the top 200 points for the curve component
+    curveComponent.setBounds(area.removeFromTop(curveComponentHeight).reduced(padding));
+
     // Calculate the height for the switch and bypass button
     int switchHeight = 30;
     int bypassButtonHeight = 80; // Making the bypass button taller
@@ -83,6 +90,10 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
     if (button == &toggleCalibrationButton)
     {
         audioProcessor.toggleCalibration();
+        
+        bool isEnabled = toggleCalibrationButton.getToggleState();
+        lowerPreferredButton.setEnabled (isEnabled);
+        higherPreferredButton.setEnabled (isEnabled);
     }
     else if (button == &lowerPreferredButton)
     {
@@ -96,4 +107,11 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
     {
         audioProcessor.toggleBypass();
     }
+}
+
+void StartupMVPAudioProcessorEditor::timerCallback()
+{
+    Question currentQuestion = audioProcessor.getCurrentQuestion();
+    lowerPreferredButton.setButtonText (currentQuestion.lowerText());
+    higherPreferredButton.setButtonText (currentQuestion.higherText());
 }

@@ -27,7 +27,7 @@ public:
     void calibrateWith (const CalibrationChoice choice);
     
     const Curve& getCurve() const;
-    const Question getCurrentQuestion();
+    const Question& getCurrentQuestion();
     const bool isPlayingFirstNote();
     
 private:

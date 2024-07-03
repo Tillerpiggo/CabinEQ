@@ -18,7 +18,8 @@
 /**
 */
 class StartupMVPAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                        public juce::Button::Listener
+                                        public juce::Button::Listener,
+                                        public juce::Timer
 {
 public:
     StartupMVPAudioProcessorEditor (StartupMVPAudioProcessor&);
@@ -32,6 +33,7 @@ public:
     
 private:
     juce::Slider& addSlider (std::string name, std::string paramName, int idx);
+    void timerCallback() override;
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
@@ -42,8 +44,6 @@ private:
     juce::TextButton lowerPreferredButton { "Lower Preferred" };
     juce::TextButton higherPreferredButton { "Higher Preferred" };
     juce::TextButton bypassButton { "BYPASS" };
-    
-//    std::unique_ptr<ClearSoundLookAndFeel> clearSoundLookAndFeel;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
 };

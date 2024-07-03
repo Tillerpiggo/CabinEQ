@@ -25,6 +25,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 {
     parameters.state = juce::ValueTree("savedParams");
     isCalibrating = false;
+    isBypassed = false;
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -310,4 +311,7 @@ void StartupMVPAudioProcessor::calibrateWith (CalibrationChoice choice)
     calibrationManager.calibrateWith (choice);
 }
 
-
+const Question& StartupMVPAudioProcessor::getCurrentQuestion()
+{
+    return calibrationManager.getCurrentQuestion();
+}

@@ -68,7 +68,7 @@ public:
     void toggleBypass();
     void toggleCalibration();
     void calibrateWith (CalibrationChoice choice);
-    
+    const Question& getCurrentQuestion();
     
 private:
     static const int FFT_SIZE = 18;

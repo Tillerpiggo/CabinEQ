@@ -37,7 +37,7 @@ const Curve& CalibrationManager::getCurve() const
     return calibratedSetPointManager.getCurve();
 }
 
-const Question CalibrationManager::getCurrentQuestion()
+const Question& CalibrationManager::getCurrentQuestion()
 {
     return currentQuestion;
 }
