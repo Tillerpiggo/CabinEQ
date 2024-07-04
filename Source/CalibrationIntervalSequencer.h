@@ -21,7 +21,7 @@ public:
     const std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
     void setNotes (Note note1, Note note2);
-    bool isPlayingFirstNote() { return isFirstNotePlaying; }
+    bool isPlayingFirstNote() const;
     
 private:
     static const int NOTE_DURATION_IN_SAMPLES = 60000;

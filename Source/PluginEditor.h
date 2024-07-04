@@ -13,6 +13,7 @@
 #include "CurveComponent.h"
 #include "SliderGroup.h"
 #include "ClearSoundLookAndFeel.h"
+#include "CircleComponent.h"
 
 //==============================================================================
 /**
@@ -44,6 +45,9 @@ private:
     juce::TextButton lowerPreferredButton { "Lower Preferred" };
     juce::TextButton higherPreferredButton { "Higher Preferred" };
     juce::TextButton bypassButton { "BYPASS" };
+    
+    CircleComponent redCircle;
+    CircleComponent blueCircle;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
 };

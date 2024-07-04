@@ -23,7 +23,7 @@ CalibratedSetPoint::CalibratedSetPoint (float lowerBound, float upperBound) : wi
 void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
 {
     float value = estimatedValue();
-    if (choice == CalibrationChoice::LowerPreferred)
+    if (choice == CalibrationChoice::HigherPreferred)
     {
         upperBound = value;
         

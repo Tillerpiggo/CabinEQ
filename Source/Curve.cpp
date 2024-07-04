@@ -89,11 +89,6 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
     float freq1, freq2;
     float gain0, gain1, gain2, gain3;
     
-    for (const CalibratedSetPoint& value : values)
-    {
-        std::cout << value.estimatedValue();
-    }
-    
     for (int i = 0; i < numPoints; ++i)
     {
         // If the frequency is the same, return the value of the set point

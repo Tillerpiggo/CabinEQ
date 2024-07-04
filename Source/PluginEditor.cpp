@@ -14,12 +14,17 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     : AudioProcessorEditor (&p), audioProcessor (p), curveComponent (p.getCurve())
 {
     setSize (800, 620);
-
+    
     addAndMakeVisible (curveComponent);
     addAndMakeVisible (toggleCalibrationButton);
     addAndMakeVisible (lowerPreferredButton);
     addAndMakeVisible (higherPreferredButton);
     addAndMakeVisible (bypassButton);
+    addAndMakeVisible (redCircle);
+    addAndMakeVisible (blueCircle);
+    
+    redCircle.setColor(juce::Colours::lightcoral.withAlpha (0.7f));
+    blueCircle.setColor(juce::Colours::lightskyblue.withAlpha (0.7f));
     
     toggleCalibrationButton.addListener (this);
     lowerPreferredButton.addListener (this);
@@ -83,6 +88,21 @@ void StartupMVPAudioProcessorEditor::resized()
     // Place the bypass button at the bottom right corner, thinner and taller
     auto bypassButtonArea = getLocalBounds().removeFromBottom(bypassButtonHeight).removeFromRight(buttonWidth / 2).reduced(padding);
     bypassButton.setBounds(bypassButtonArea);
+
+    // Calculate the size and position for the circles
+    int circleDiameter = 20;
+    int margin = 5;
+    int circleSpacing = 4;
+    int leftOffset = 3;
+
+    // Calculate individual circle bounds
+    auto redCircleBounds = getLocalBounds().removeFromBottom(circleDiameter + margin).removeFromLeft(circleDiameter + margin).withSizeKeepingCentre(circleDiameter, circleDiameter);
+    redCircleBounds.translate(leftOffset + (margin / 2), -margin / 2);
+    
+    auto blueCircleBounds = redCircleBounds.translated(circleDiameter + circleSpacing, 0);
+
+    redCircle.setBounds(redCircleBounds);
+    blueCircle.setBounds(blueCircleBounds);
 }
 
 void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
@@ -111,7 +131,26 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
 
 void StartupMVPAudioProcessorEditor::timerCallback()
 {
+    // Update button text to match question
     Question currentQuestion = audioProcessor.getCurrentQuestion();
     lowerPreferredButton.setButtonText (currentQuestion.lowerText());
     higherPreferredButton.setButtonText (currentQuestion.higherText());
+    
+    // Update lights to match which tone is playing
+    if (! toggleCalibrationButton.getToggleState())
+    {
+        redCircle.setColor(juce::Colours::lightcoral.withAlpha (0.7f));
+        blueCircle.setColor(juce::Colours::lightskyblue.withAlpha (0.7f));
+    }
+    else if (audioProcessor.isPlayingFirstNote())
+    {
+        redCircle.setColor(juce::Colours::lightcoral.withSaturation (1.0f));
+        blueCircle.setColor(juce::Colours::lightskyblue.withAlpha (0.7f));
+    }
+    else
+    {
+        redCircle.setColor(juce::Colours::lightcoral.withAlpha (0.7f));
+        blueCircle.setColor(juce::Colours::lightskyblue.withSaturation (1.0f));
+    }
+    
 }

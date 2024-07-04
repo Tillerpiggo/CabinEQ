@@ -54,3 +54,7 @@ void CalibrationIntervalSequencer::setNotes (Note note1, Note note2)
     isFirstNotePlaying = true;
 }
  
+bool CalibrationIntervalSequencer::isPlayingFirstNote() const
+{
+    return isFirstNotePlaying;
+}

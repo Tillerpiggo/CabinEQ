@@ -37,12 +37,12 @@ const Curve& CalibrationManager::getCurve() const
     return calibratedSetPointManager.getCurve();
 }
 
-const Question& CalibrationManager::getCurrentQuestion()
+const Question& CalibrationManager::getCurrentQuestion() const
 {
     return currentQuestion;
 }
 
-const bool CalibrationManager::isPlayingFirstNote()
+const bool CalibrationManager::isPlayingFirstNote() const
 {
     return calibrationIntervalSequencer.isPlayingFirstNote();
 }
