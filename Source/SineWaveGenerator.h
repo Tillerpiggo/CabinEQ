@@ -29,7 +29,7 @@ public:
 private:
     static constexpr float TILT = 0.59566214; // 4.5 db/oct slope
     static constexpr float REFERENCE_FREQ = 1000; // freq in hz whexsre amplitudeCompensation = 0
-    static const int GAIN_RAMP_LEN_IN_SAMPLES = 3000;
+    static const int GAIN_RAMP_LEN_IN_SAMPLES = 5000;
     
     void updatePhaseIncrementAndAmplitudeCompensation();
     

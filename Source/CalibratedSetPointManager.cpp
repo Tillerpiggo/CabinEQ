@@ -46,6 +46,10 @@ void CalibratedSetPointManager::calibrateWith (Question question, CalibrationCho
         case QuestionType::Phase:
             phases.at (idx).calibrateWith (choice);
             break;
+        case QuestionType::HigherThan:
+            float gain = question.getNote2().gain;
+            amplitudes.at (idx).setWindow (gain - 6.0f, gain);
+            break;
     }
 }
 

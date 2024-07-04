@@ -79,8 +79,10 @@ void StartupMVPAudioProcessorEditor::resized()
 
     // Layout the lower and higher preferred buttons side by side, taking up available height
     auto buttonsArea = area.removeFromTop(availableHeight).reduced(padding);
-    lowerPreferredButton.setBounds(buttonsArea.removeFromLeft(buttonWidth).reduced(padding / 2));
-    higherPreferredButton.setBounds(buttonsArea.reduced(padding / 2));
+    auto lowerButtonBounds = buttonsArea.removeFromLeft(buttonWidth).reduced(padding / 2);
+    lowerPreferredButton.setBounds(lowerButtonBounds);
+    auto higherButtonBounds = buttonsArea.reduced(padding / 2);
+    higherPreferredButton.setBounds(higherButtonBounds);
 
     // Place the calibration switch below the buttons
     toggleCalibrationButton.setBounds(area.removeFromTop(switchHeight).reduced(padding / 2));

@@ -53,6 +53,9 @@ const std::string Question::lowerText() const
         case QuestionType::Phase:
             return "Less Diffuse"; // ?? might need to change
             break;
+        case QuestionType::HigherThan:
+            return "Increase Volume";
+            break;
     }
 }
 
@@ -69,5 +72,13 @@ const std::string Question::higherText() const
         case QuestionType::Phase:
             return "More Diffuse"; // ?? same as above, might need to change
             break;
+        case QuestionType::HigherThan:
+            return "Submit";
+            break;
     }
+}
+
+void Question::increaseControlledNoteVolume()
+{
+    note2.gain += 3.0f;
 }

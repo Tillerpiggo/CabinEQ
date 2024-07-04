@@ -57,7 +57,7 @@ Question CalibrationSequencer::getNextQuestion()
         Note note1 = referenceNote();
         Note note2 (freq, amplitudeCalibratedSetPoint.estimatedValue(), 0.0f, 0.0f);
         
-        return Question (QuestionType::Level, note1, note2);
+        return Question (QuestionType::HigherThan, note1, note2);
     }
     else if (! phasesHaveBeenCalibratedPrecisely())
     {

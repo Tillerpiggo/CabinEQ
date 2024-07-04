@@ -43,15 +43,18 @@ void CalibrationIntervalSequencer::setSampleRate (float newSampleRate)
     sineWaveGenerator.setSampleRate (newSampleRate);
 }
 
-void CalibrationIntervalSequencer::setNotes (Note note1, Note note2)
+void CalibrationIntervalSequencer::setNotes (Note note1, Note note2, bool reset)
 {
     this->note1 = note1;
     this->note2 = note2;
     
     // Instantly switch to the new note sequence
-    numSamplesNoteHasBeenPlaying = 0;
-    sineWaveGenerator.setNote (note1);
-    isFirstNotePlaying = true;
+    if (reset)
+    {
+        numSamplesNoteHasBeenPlaying = 0;
+        sineWaveGenerator.setNote (note1);
+        isFirstNotePlaying = true;
+    }
 }
  
 bool CalibrationIntervalSequencer::isPlayingFirstNote() const

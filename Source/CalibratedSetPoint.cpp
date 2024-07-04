@@ -22,7 +22,30 @@ CalibratedSetPoint::CalibratedSetPoint (float lowerBound, float upperBound) : wi
 
 void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
 {
-    float value = estimatedValue();
+    std::cout << "estimatedValue before: " << estimatedValue() << std::endl;
+    float value;
+    
+    std::cout << "lowerBound before: " << lowerBound.value_or (-1) << ", upperBound before: " << upperBound.value_or (-1) << std::endl;
+    
+    if (hasEstablishedWindow())
+    {
+        value = estimatedValue();
+    }
+    else if (lowerBound.has_value())
+    {
+        value = lowerBound.value() + windowSize;
+    }
+    else if (upperBound.has_value())
+    {
+        value = upperBound.value() - windowSize;
+    }
+    else
+    {
+        value = 0.0f;
+    }
+    
+    std::cout << "value: " << estimatedValue() << ", windowSize: " << windowSize << std::endl;
+    
     if (choice == CalibrationChoice::HigherPreferred)
     {
         upperBound = value;
@@ -33,7 +56,7 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
             lowerBound = value - windowSize;
         }
     }
-    else if (choice == CalibrationChoice::HigherPreferred)
+    else if (choice == CalibrationChoice::LowerPreferred)
     {
         lowerBound = value;
         
@@ -43,6 +66,17 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
             upperBound = value + windowSize;
         }
     }
+    
+    std::cout << "lowerBound after: " << lowerBound.value_or (-1) << ", upperBound after: " << upperBound.value_or (-1) << std::endl;
+    
+    std::cout << "estimatedValue after: " << estimatedValue() << std::endl;
+}
+
+void CalibratedSetPoint::setWindow (float lowerBound, float upperBound) 
+{
+    this->lowerBound = lowerBound;
+    this->upperBound = upperBound;
+    windowSize = upperBound - lowerBound;
 }
 
 const float CalibratedSetPoint::estimatedValue() const
