@@ -20,6 +20,7 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     addAndMakeVisible (lowerPreferredButton);
     addAndMakeVisible (higherPreferredButton);
     addAndMakeVisible (bypassButton);
+    addAndMakeVisible (applyCurveButton);
     addAndMakeVisible (redCircle);
     addAndMakeVisible (blueCircle);
     
@@ -30,6 +31,7 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     lowerPreferredButton.addListener (this);
     higherPreferredButton.addListener (this);
     bypassButton.addListener (this);
+    applyCurveButton.addListener (this);
     
     lowerPreferredButton.setEnabled (false);
     higherPreferredButton.setEnabled (false);
@@ -45,6 +47,7 @@ StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
     lowerPreferredButton.removeListener (this);
     higherPreferredButton.removeListener (this);
     bypassButton.removeListener (this);
+    applyCurveButton.removeListener (this);
     
     setLookAndFeel(nullptr);
     
@@ -69,10 +72,10 @@ void StartupMVPAudioProcessorEditor::resized()
 
     // Calculate the height for the switch and bypass button
     int switchHeight = 30;
-    int bypassButtonHeight = 80; // Making the bypass button taller
+    int buttonHeight = 80; // Making both buttons taller
 
     // Calculate the remaining height for the lower and higher preferred buttons
-    int availableHeight = area.getHeight() - switchHeight - bypassButtonHeight - (3 * padding);
+    int availableHeight = area.getHeight() - switchHeight - buttonHeight - (3 * padding);
 
     // Calculate the width for each button
     int buttonWidth = (area.getWidth() - (3 * padding)) / 2;
@@ -87,8 +90,16 @@ void StartupMVPAudioProcessorEditor::resized()
     // Place the calibration switch below the buttons
     toggleCalibrationButton.setBounds(area.removeFromTop(switchHeight).reduced(padding / 2));
 
-    // Place the bypass button at the bottom right corner, thinner and taller
-    auto bypassButtonArea = getLocalBounds().removeFromBottom(bypassButtonHeight).removeFromRight(buttonWidth / 2).reduced(padding);
+    // Calculate the area for the bypass and apply curve buttons, but only on the right half
+    auto bottomButtonArea = area.removeFromBottom(buttonHeight).reduced(padding);
+    auto rightHalfArea = bottomButtonArea.removeFromRight(bottomButtonArea.getWidth() / 2);
+    int buttonSpacing = 5; // Small spacing between buttons
+
+    // Calculate bounds for applyCurveButton and bypassButton
+    auto applyCurveButtonArea = rightHalfArea.removeFromLeft((rightHalfArea.getWidth() / 2) - (buttonSpacing / 2));
+    auto bypassButtonArea = rightHalfArea.reduced(buttonSpacing / 2);
+
+    applyCurveButton.setBounds(applyCurveButtonArea);
     bypassButton.setBounds(bypassButtonArea);
 
     // Calculate the size and position for the circles
@@ -128,6 +139,10 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
     else if (button == &bypassButton)
     {
         audioProcessor.toggleBypass();
+    }
+    else if (button == &applyCurveButton)
+    {
+        audioProcessor.applyCurve();
     }
 }
 

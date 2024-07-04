@@ -117,7 +117,7 @@ const float CalibratedSetPoint::precision() const
 
 const float CalibratedSetPoint::getWindowSize() const
 {
-    if (! hasEstablishedWindow())
+    if (hasEstablishedWindow())
     {
         return upperBound.value() - lowerBound.value();
     }

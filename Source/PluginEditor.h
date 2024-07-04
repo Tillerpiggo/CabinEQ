@@ -45,6 +45,7 @@ private:
     juce::TextButton lowerPreferredButton { "Lower Preferred" };
     juce::TextButton higherPreferredButton { "Higher Preferred" };
     juce::TextButton bypassButton { "BYPASS" };
+    juce::TextButton applyCurveButton { "APPLY CURVE" };
     
     CircleComponent redCircle;
     CircleComponent blueCircle;

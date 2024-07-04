@@ -12,21 +12,6 @@
 
 std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curve& curve, int numPoints)
 {
-//    float* leftFreqResponse = new float[2 * numPoints];
-//    float* rightFreqResponse = new float[2 * numPoints];
-//    for (int i = 0; i < numPoints; i += 2)
-//    {
-//        float t = static_cast<float> (i) / static_cast<float> (2 * numPoints);
-//        
-//        auto [leftVal, rightVal] = curve.valueAtTime (t);
-//        
-//        leftFreqResponse[i] = leftVal.real();
-//        rightFreqResponse[i] = rightVal.real();
-//        leftFreqResponse[i + 1] = leftVal.imag();
-//        rightFreqResponse[i + 1] = rightVal.imag();
-//    }
-//    
-//    return { leftFreqResponse, rightFreqResponse };
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];
     for (int i = 0; i < 2 * numPoints; i++)
@@ -66,18 +51,6 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     
     float* leftImpulseData = leftFreqResponse;
     float* rightImpulseData = rightFreqResponse;
-    
-//    std::cout << "Left Impulse Data:" << std::endl;
-//    for (int i = 0; i < numPoints * 2; ++i) {
-//        std::cout << leftImpulseData[i] << " ";
-//    }
-//    std::cout << std::endl;
-//
-//    std::cout << "Right Impulse Data:" << std::endl;
-//    for (int i = 0; i < numPoints * 2; ++i) {
-//        std::cout << rightImpulseData[i] << " ";
-//    }
-//    std::cout << std::endl;
 
     // Transform post-ringing into pre-ringing
     int quarterLength = numPoints / 2;

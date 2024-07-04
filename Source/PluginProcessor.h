@@ -64,6 +64,7 @@ public:
     juce::AudioProcessorValueTreeState parameters;
     
     const Curve& getCurve() const;
+    void applyCurve();
     
     void toggleBypass();
     void toggleCalibration();

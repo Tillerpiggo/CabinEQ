@@ -295,6 +295,11 @@ const Curve& StartupMVPAudioProcessor::getCurve() const
     return calibrationManager.getCurve();
 }
 
+void StartupMVPAudioProcessor::applyCurve()
+{
+    gainFilter.update (calibrationManager.getCurve(), FFT_SIZE);
+}
+
 void StartupMVPAudioProcessor::toggleBypass()
 {
     isBypassed = ! isBypassed;
