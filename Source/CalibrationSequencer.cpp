@@ -104,23 +104,6 @@ Question CalibrationSequencer::getNextQuestion()
     }
 }
 
-//Question CalibrationSequencer::phaseQuestion (const float frequency, const float gain, const CalibratedSetPoint phase) const
-//{
-//    std::cout << "Phase question" << std::endl;
-//    float GAIN_INCREASE = 6.0f;
-//    float PAN = 0.0f;
-//    std::cout << "test";
-//    Note note1 (gain + GAIN_INCREASE, frequency, PAN, phase.estimatedValue() - phase.getWindowSize());
-//    std::cout << "test2";
-//    Note note2 (gain + GAIN_INCREASE, frequency, PAN, phase.estimatedValue() + phase.getWindowSize());
-//    std::cout << "test3";
-//    
-//    std::cout << "Note1: freq = " << note1.frequency << ", phase = " << note1.phase << std::endl;
-//    std::cout << "Note2: freq = " << note2.frequency << ", phase = " << note2.phase << std::endl;
-//    
-//    return Question (QuestionType::Phase, note1, note2);
-//}
-
 Question CalibrationSequencer::phaseQuestion (const float frequency, const float gain, const CalibratedSetPoint phase) const
 {
     float GAIN_INCREASE = 6.0f;
@@ -131,8 +114,8 @@ Question CalibrationSequencer::phaseQuestion (const float frequency, const float
     float phaseValue1 = phase.estimatedValue() - phase.getWindowSize();
     float phaseValue2 = phase.estimatedValue() + phase.getWindowSize();
     
-    Note note1 (gain + GAIN_INCREASE, frequency, PAN, phaseValue1);
-    Note note2 (gain + GAIN_INCREASE, frequency, PAN, phaseValue2);
+    Note note1 (frequency, gain + GAIN_INCREASE, PAN, phaseValue1);
+    Note note2 (frequency, gain + GAIN_INCREASE, PAN, phaseValue2);
 
     return Question (QuestionType::Phase, note1, note2);
 }
@@ -154,12 +137,12 @@ bool CalibrationSequencer::phasesHaveBeenCalibratedPrecisely() const
 
 bool CalibrationSequencer::pansHaveBeenCalibratedPrecisely() const
 {
-    return calibratedSetPointManager.phasesHaveBeenCalibratedWithPrecision (PAN_PRECISION);
+    return calibratedSetPointManager.pansHaveBeenCalibratedWithPrecision (PAN_PRECISION);
 }
 
 bool CalibrationSequencer::amplitudesHaveBeenCalibratedPrecisely() const
 {
-    return calibratedSetPointManager.phasesHaveBeenCalibratedWithPrecision (AMPLITUDE_PRECISION);
+    return calibratedSetPointManager.amplitudesHaveBeenCalibratedWithPrecision (AMPLITUDE_PRECISION);
 }
 
 Note CalibrationSequencer::referenceNote()
