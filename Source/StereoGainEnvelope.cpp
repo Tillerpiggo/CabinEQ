@@ -15,7 +15,7 @@ StereoGainEnvelope::StereoGainEnvelope() : leftRamp (500, 500), rightRamp (500, 
     
 }
 
-std::pair<float, float> StereoGainEnvelope::gainAtSample (int sample, int noteDurationInSamples)
+const std::pair<float, float> StereoGainEnvelope::getGainAtSample (int sample, int noteDurationInSamples) const
 {
     float leftSample = leftRamp.gainAtSample (sample, noteDurationInSamples);
     float rightSample = rightRamp.gainAtSample (sample, noteDurationInSamples);

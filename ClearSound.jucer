@@ -24,6 +24,10 @@
               file="Source/CurveComponent.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="dgYCTx" name="ArbitrarySequencer.cpp" compile="1" resource="0"
+              file="Source/ArbitrarySequencer.cpp"/>
+        <FILE id="bX0MJX" name="ArbitrarySequencer.h" compile="0" resource="0"
+              file="Source/ArbitrarySequencer.h"/>
         <FILE id="WOTg5b" name="GainEnvelope.cpp" compile="1" resource="0"
               file="Source/GainEnvelope.cpp"/>
         <FILE id="fGlITw" name="GainEnvelope.h" compile="0" resource="0" file="Source/GainEnvelope.h"/>

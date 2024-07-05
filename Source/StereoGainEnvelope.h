@@ -17,7 +17,7 @@ class StereoGainEnvelope
 {
 public:
     StereoGainEnvelope();
-    std::pair<float, float> gainAtSample (int sample, int noteDurationInSamples);
+    const std::pair<float, float> getGainAtSample (int sample, int noteDurationInSamples) const;
     
 private:
     GainEnvelope leftRamp;
