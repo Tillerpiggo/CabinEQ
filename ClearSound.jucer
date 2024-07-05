@@ -24,6 +24,17 @@
               file="Source/CurveComponent.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="WOTg5b" name="GainEnvelope.cpp" compile="1" resource="0"
+              file="Source/GainEnvelope.cpp"/>
+        <FILE id="fGlITw" name="GainEnvelope.h" compile="0" resource="0" file="Source/GainEnvelope.h"/>
+        <FILE id="VLnqpz" name="StereoGainEnvelope.cpp" compile="1" resource="0"
+              file="Source/StereoGainEnvelope.cpp"/>
+        <FILE id="Yfy4sY" name="StereoGainEnvelope.h" compile="0" resource="0"
+              file="Source/StereoGainEnvelope.h"/>
+        <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
+              file="Source/SequenceableNote.cpp"/>
+        <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
+              file="Source/SequenceableNote.h"/>
         <FILE id="tux1Bk" name="CalibrationIntervalSequencer.cpp" compile="1"
               resource="0" file="Source/CalibrationIntervalSequencer.cpp"/>
         <FILE id="iVeprk" name="CalibrationIntervalSequencer.h" compile="0"

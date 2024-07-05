@@ -128,7 +128,7 @@ bool CalibratedSetPointManager::calibratedSetPointsHaveBeenCalibratedWithPrecisi
     for (const auto& calibratedSetPoint : calibratedSetPoints)
     {
         if (! calibratedSetPoint.hasEstablishedWindow() ||
-            ! (calibratedSetPoint.precision() > precision))
+            calibratedSetPoint.precision() > precision)
         {
             return false;
         }
