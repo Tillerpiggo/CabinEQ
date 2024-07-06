@@ -55,10 +55,15 @@ void CalibratedSetPointManager::calibrateWith (Question question, CalibrationCho
             break;
         }
         case QuestionType::ReferencePan:
-            referencePan.calibrateWith (choice); // TODO: this probably is the wrong logic
+            std::cout << "Before: estimatedValue = " << referencePan.estimatedValue();
+            std::cout << ", lowerBound = " << referencePan.getLowerBound();
+            std::cout << ", uppperBound = " << referencePan.getUpperBound() << std::endl;
+            referencePan.calibrateWith (choice);
+            std::cout << "After: estimatedValue = " << referencePan.estimatedValue();
+            std::cout << ", lowerBound = " << referencePan.getLowerBound();
+            std::cout << ", uppperBound = " << referencePan.getUpperBound() << std::endl;
             break;
         case QuestionType::ReferencePhase:
-            std::cout << "calibrating phase with choice" << std::endl;
             referencePhase.calibrateWith (choice);
             break;
     }

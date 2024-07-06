@@ -121,3 +121,13 @@ const float CalibratedSetPoint::getWindowSize() const
     
     return -1;
 }
+
+const float CalibratedSetPoint::getLowerBound() const
+{
+    return lowerBound.value_or (-std::numeric_limits<float>::infinity());
+}
+
+const float CalibratedSetPoint::getUpperBound() const
+{
+    return upperBound.value_or (std::numeric_limits<float>::infinity());
+}

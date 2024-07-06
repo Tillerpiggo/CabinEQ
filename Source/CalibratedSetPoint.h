@@ -25,6 +25,8 @@ public:
     const float estimatedValue() const;
     const float precision() const;
     const float getWindowSize() const;
+    const float getLowerBound() const;
+    const float getUpperBound() const;
     
 private:
     std::optional<float> lowerBound;

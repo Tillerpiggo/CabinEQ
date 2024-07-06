@@ -28,8 +28,8 @@ private:
     static constexpr float PAN_PRECISION = 0.01;
     static constexpr float PHASE_PRECISION = 0.01;
     
-    static constexpr float PHASE_LOW_HZ = 40;
-    static constexpr float PHASE_HIGH_HZ = 2000; // range of freqs to poll for phase
+    static constexpr float PHASE_LOW_HZ = 30;
+    static constexpr float PHASE_HIGH_HZ = 1400; // range of freqs to poll for phase
     
     const CalibratedSetPointManager& calibratedSetPointManager;
     

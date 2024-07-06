@@ -62,6 +62,10 @@
               resource="0" file="Source/BalanceArbitraryResponseFilter.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration">
+        <FILE id="Rz9r3X" name="PhaseCalibratedSetPoint.cpp" compile="1" resource="0"
+              file="Source/PhaseCalibratedSetPoint.cpp"/>
+        <FILE id="blPdcX" name="PhaseCalibratedSetPoint.h" compile="0" resource="0"
+              file="Source/PhaseCalibratedSetPoint.h"/>
         <FILE id="RuvQSy" name="Question.cpp" compile="1" resource="0" file="Source/Question.cpp"/>
         <FILE id="eKsN3S" name="Question.h" compile="0" resource="0" file="Source/Question.h"/>
         <FILE id="ENsrXq" name="CalibratedSetPoint.cpp" compile="1" resource="0"

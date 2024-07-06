@@ -21,7 +21,6 @@ std::pair<float, float> QuestionSequencer::getNextSample()
     }
     
     auto [leftSample, rightSample] = arbitrarySequencer.getNextSample();
-    std::cout << "leftsample: " << leftSample << ", rightSample: " << rightSample << std::endl;
     
     return { leftSample, rightSample };
 }
@@ -59,9 +58,9 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
         {
             // Hard left, hard right, center, then controlled tone
             // Simple two-tone test
-            int noteDurationInSamples = 20000;
-            int leftRightIntroNoteDurationInSamples = 1000;
-            int rampDurationInSamples = 300;
+            int noteDurationInSamples = 40000;
+            int leftRightIntroNoteDurationInSamples = 10000;
+            int rampDurationInSamples = 200;
             
             notes.push_back (SequenceableNote (question.getNote1(),
                                                leftRightIntroNoteDurationInSamples,
@@ -83,7 +82,7 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
             [[fallthrough]];
         case QuestionType::Phase:
         {
-            int noteDurationInSamples = 70000;
+            int noteDurationInSamples = 40000;
             int spaceBetweenNotesInSamples = 20000;
             int rightDelayInSamples = 0; // I don't think this is really helping much
             int rampDurationInSamples = 2000;

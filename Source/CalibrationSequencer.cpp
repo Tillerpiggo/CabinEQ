@@ -21,7 +21,7 @@ Question CalibrationSequencer::getNextQuestion()
 {
     // TODO: Figure out what state we need to track to implement a basic calibration sequence
     // For now, just repeatedly ask for panning, then phase, then level of the 11 notes
-    if (! referenceNoteHasBeenCalibrated())
+    if (false)//! referenceNoteHasBeenCalibrated())
     {
         CalibratedSetPoint referencePan = getReferencePan();
         CalibratedSetPoint referencePhase = getReferencePhase();
@@ -29,13 +29,13 @@ Question CalibrationSequencer::getNextQuestion()
         // Calibrate pan or phase (choose randomly)
         if (referencePhase.precision() > 0.05)
         {
-            Note note1 (REFERENCE_GAIN_DB,
-                        REFERENCE_FREQ,
+            Note note1 (REFERENCE_FREQ,
+                        REFERENCE_GAIN_DB,
                         0.0f,
                         referencePhase.estimatedValue() - referencePhase.getWindowSize());
             
-            Note note2 (REFERENCE_GAIN_DB,
-                        REFERENCE_FREQ,
+            Note note2 (REFERENCE_FREQ,
+                        REFERENCE_GAIN_DB,
                         0.0f,
                         referencePhase.estimatedValue() + referencePhase.getWindowSize());
             
@@ -43,20 +43,21 @@ Question CalibrationSequencer::getNextQuestion()
             
             return Question (QuestionType::ReferencePhase, note1, note2);
         }
-        else
-        {
-            Note note1 (REFERENCE_GAIN_DB,
-                        REFERENCE_FREQ,
-                        referencePan.estimatedValue() - referencePan.getWindowSize(),
-                        0.0f);
-            
-            Note note2 (REFERENCE_GAIN_DB,
-                        REFERENCE_FREQ,
-                        referencePan.estimatedValue() + referencePan.getWindowSize(),
-                        0.0f);
-            
-            return Question (QuestionType::ReferencePan, note1, note2);
-        }
+        // figure out panning calibration for reference note later...
+//        else
+//        {
+//            Note note1 (REFERENCE_FREQ,
+//                        REFERENCE_GAIN_DB,
+//                        referencePan.estimatedValue() - referencePan.getWindowSize(),
+//                        0.0f);
+//            
+//            Note note2 (REFERENCE_FREQ,
+//                        REFERENCE_GAIN_DB,
+//                        referencePan.estimatedValue() + referencePan.getWindowSize(),
+//                        0.0f);
+//            
+//            return Question (QuestionType::ReferencePan, note1, note2);
+//        }
         
        
     }
@@ -133,7 +134,8 @@ Question CalibrationSequencer::phaseQuestion (const float frequency, const float
 
 bool CalibrationSequencer::referenceNoteHasBeenCalibrated() const
 {
-    return getReferencePan().precision() < 0.01 && getReferencePhase().precision() < 0.05;
+    //return getReferencePan().precision() < 0.01 && getReferencePhase().precision() < 0.05;
+    return getReferencePhase().precision() < 0.05;
 }
 
 bool CalibrationSequencer::amplitudesHaveBeenWindowed() const
