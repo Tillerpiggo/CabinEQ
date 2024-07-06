@@ -20,7 +20,10 @@ std::pair<float, float> QuestionSequencer::getNextSample()
         return { 0.0f, 0.0f };
     }
     
-    return arbitrarySequencer.getNextSample();
+    auto [leftSample, rightSample] = arbitrarySequencer.getNextSample();
+    std::cout << "leftsample: " << leftSample << ", rightSample: " << rightSample << std::endl;
+    
+    return { leftSample, rightSample };
 }
 
 void QuestionSequencer::setSampleRate (float newSampleRate)
@@ -50,6 +53,8 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
                                                noteDurationInSamples));
             return notes;
         }
+        case QuestionType::ReferencePan:
+            [[fallthrough]];
         case QuestionType::Pan:
         {
             // Hard left, hard right, center, then controlled tone
@@ -74,6 +79,8 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
                                                StereoGainEnvelope (rampDurationInSamples)));
             return notes;
         }
+        case QuestionType::ReferencePhase:
+            [[fallthrough]];
         case QuestionType::Phase:
         {
             int noteDurationInSamples = 70000;

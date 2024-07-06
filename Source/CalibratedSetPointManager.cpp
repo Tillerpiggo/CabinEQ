@@ -11,7 +11,9 @@
 #include "CalibratedSetPointManager.h"
 #include <random>
 
-CalibratedSetPointManager::CalibratedSetPointManager() : curve(frequencies, amplitudes, pans, phases)
+CalibratedSetPointManager::CalibratedSetPointManager() : curve(frequencies, amplitudes, pans, phases),
+                                                         referencePan (REFERENCE_PAN_WINDOW),
+                                                         referencePhase (REFERENCE_PHASE_WINDOW)
 {
     // TODO: Construct the first batch of set points...
     frequencies = { 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240 };
@@ -47,8 +49,17 @@ void CalibratedSetPointManager::calibrateWith (Question question, CalibrationCho
             phases.at (idx).calibrateWith (choice);
             break;
         case QuestionType::HigherThan:
+        {
             float gain = question.getNote2().gain;
             amplitudes.at (idx).setWindow (gain - 6.0f, gain);
+            break;
+        }
+        case QuestionType::ReferencePan:
+            referencePan.calibrateWith (choice); // TODO: this probably is the wrong logic
+            break;
+        case QuestionType::ReferencePhase:
+            std::cout << "calibrating phase with choice" << std::endl;
+            referencePhase.calibrateWith (choice);
             break;
     }
 }
@@ -66,6 +77,16 @@ const float CalibratedSetPointManager::panAt (const float frequency) const
 const float CalibratedSetPointManager::phaseAt (const float frequency) const
 {
     return phases.at (indexForFrequency (frequency)).estimatedValue();
+}
+
+const CalibratedSetPoint& CalibratedSetPointManager::getReferencePanCalibratedSetPoint() const
+{
+    return referencePan;
+}
+
+const CalibratedSetPoint& CalibratedSetPointManager::getReferencePhaseCalibratedSetPoint() const
+{
+    return referencePhase;
 }
 
 bool CalibratedSetPointManager::amplitudesHaveBeenWindowed() const
@@ -98,6 +119,17 @@ bool CalibratedSetPointManager::phasesHaveBeenCalibratedWithPrecision (float pre
     return calibratedSetPointsHaveBeenCalibratedWithPrecision (phases, precision);
 }
 
+bool CalibratedSetPointManager::phasesHaveBeenCalibratedWithPrecisionInHzRange(
+                                                                  float precision,
+                                                                  float lowerHz,
+                                                                  float upperHz) const
+{
+    return calibratedSetPointsHaveBeenCalibratedWithPrecisionInHzRange (phases,
+                                                                        precision,
+                                                                        lowerHz,
+                                                                        upperHz);
+}
+
 std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestPrecisionAmplitude() const
 {
     return getRandomLowestPrecisionCalibratedSetPoint (amplitudes);
@@ -109,6 +141,11 @@ std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestP
 std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestPrecisionPhase() const
 {
     return getRandomLowestPrecisionCalibratedSetPoint (phases);
+}
+
+std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestPrecisionPhaseInRange (float lowerHz, float upperHz) const
+{
+    return getRandomLowestPrecisionCalibratedSetPointInRange (phases, lowerHz, upperHz);
 }
 
 bool CalibratedSetPointManager::calibratedSetPointsHaveBeenWindowed (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const
@@ -125,10 +162,26 @@ bool CalibratedSetPointManager::calibratedSetPointsHaveBeenWindowed (const std::
 
 bool CalibratedSetPointManager::calibratedSetPointsHaveBeenCalibratedWithPrecision (const std::vector<CalibratedSetPoint>& calibratedSetPoints, float precision) const
 {
-    for (const auto& calibratedSetPoint : calibratedSetPoints)
+    return calibratedSetPointsHaveBeenCalibratedWithPrecisionInHzRange (calibratedSetPoints,
+                                                                        precision,
+                                                                        0,
+                                                                        30000); // accept all frequencies
+}
+
+bool CalibratedSetPointManager::calibratedSetPointsHaveBeenCalibratedWithPrecisionInHzRange (const std::vector<CalibratedSetPoint>& calibratedSetPoints,
+                                                                  float precision,
+                                                                  float lowerHz,
+                                                                  float upperHz) const
+{
+    for (int i = 0; i < frequencies.size(); ++i)
     {
-        if (! calibratedSetPoint.hasEstablishedWindow() ||
-            calibratedSetPoint.precision() > precision)
+        CalibratedSetPoint calibratedSetPoint = calibratedSetPoints.at (i);
+        float frequency = frequencies.at (i);
+        
+        bool isImprecise = ! calibratedSetPoint.hasEstablishedWindow() ||
+                           calibratedSetPoint.precision() > precision;
+        bool inRange = frequency >= lowerHz && frequency <= upperHz;
+        if (isImprecise && inRange)
         {
             return false;
         }
@@ -136,35 +189,58 @@ bool CalibratedSetPointManager::calibratedSetPointsHaveBeenCalibratedWithPrecisi
     return true;
 }
 
-std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestPrecisionCalibratedSetPoint(const std::vector<CalibratedSetPoint>& calibratedSetPoints) const {
+std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestPrecisionCalibratedSetPoint(
+    const std::vector<CalibratedSetPoint>& calibratedSetPoints) const 
+{
+    
+    return getRandomLowestPrecisionCalibratedSetPointInRange (calibratedSetPoints, 0, 30000);
+}
+
+std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestPrecisionCalibratedSetPointInRange(
+    const std::vector<CalibratedSetPoint>& calibratedSetPoints, float lowerHz, float upperHz) const 
+{
+    
     if (calibratedSetPoints.empty()) {
-        throw std::runtime_error("Called getRandomLowestPrecisionCalibratedSetPoint on empty vector");
+        throw std::runtime_error("Called getRandomLowestPrecisionCalibratedSetPointInRange on empty vector");
     }
 
-    // Find the minimum precision
-    float minPrecision = std::numeric_limits<float>::max();
-    for (const auto& setPoint : calibratedSetPoints) {
-        float precision = setPoint.precision();
-        if (precision < minPrecision) {
+    // Filter set points based on the frequency range
+    std::vector<size_t> validIndices;
+    for (size_t i = 0; i < calibratedSetPoints.size(); ++i) {
+        float frequency = frequencies[i];
+        if (frequency >= lowerHz && frequency <= upperHz) {
+            validIndices.push_back(i);
+        }
+    }
+
+    if (validIndices.empty()) {
+        throw std::runtime_error("No calibrated set points in the specified frequency range");
+    }
+
+    // Find the minimum precision among the valid set points
+    float minPrecision = 0.0f;
+    for (size_t index : validIndices) {
+        float precision = calibratedSetPoints[index].precision();
+        if (precision > minPrecision) {
             minPrecision = precision;
         }
     }
 
-    // Get indices of all calibrated set points w/ minimum precision
+    // Get indices of all valid calibrated set points with the minimum precision
     std::vector<size_t> minPrecisionIndices;
-    for (size_t i = 0; i < calibratedSetPoints.size(); ++i) {
-        if (calibratedSetPoints[i].precision() == minPrecision) {
-            minPrecisionIndices.push_back(i);
+    for (size_t index : validIndices) {
+        if (calibratedSetPoints[index].precision() == minPrecision) {
+            minPrecisionIndices.push_back(index);
         }
     }
 
-    // Randomly pick one
+    // Randomly pick one from the min precision indices
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, static_cast<int>(minPrecisionIndices.size()) - 1);
     size_t chosenIndex = minPrecisionIndices[dis(gen)];
 
-    // Get corresponding frequency/calibrated set point
+    // Get corresponding frequency and calibrated set point
     const CalibratedSetPoint& chosenSetPoint = calibratedSetPoints[chosenIndex];
     float chosenFrequency = frequencies[chosenIndex];
 

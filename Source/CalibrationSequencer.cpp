@@ -12,8 +12,7 @@
 #include <random>
 
 CalibrationSequencer::CalibrationSequencer (const CalibratedSetPointManager& calibratedSetPointManager)
-: calibratedSetPointManager (calibratedSetPointManager),
-  referencePan (REFERENCE_PAN_WINDOW), referencePhase (REFERENCE_PHASE_WINDOW)
+: calibratedSetPointManager (calibratedSetPointManager)
 {
     
 }
@@ -24,13 +23,27 @@ Question CalibrationSequencer::getNextQuestion()
     // For now, just repeatedly ask for panning, then phase, then level of the 11 notes
     if (! referenceNoteHasBeenCalibrated())
     {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::bernoulli_distribution dist(0.5);
-        bool coinFlip = dist(gen);
+        CalibratedSetPoint referencePan = getReferencePan();
+        CalibratedSetPoint referencePhase = getReferencePhase();
         
         // Calibrate pan or phase (choose randomly)
-        if (coinFlip)
+        if (referencePhase.precision() > 0.05)
+        {
+            Note note1 (REFERENCE_GAIN_DB,
+                        REFERENCE_FREQ,
+                        0.0f,
+                        referencePhase.estimatedValue() - referencePhase.getWindowSize());
+            
+            Note note2 (REFERENCE_GAIN_DB,
+                        REFERENCE_FREQ,
+                        0.0f,
+                        referencePhase.estimatedValue() + referencePhase.getWindowSize());
+            
+            
+            
+            return Question (QuestionType::ReferencePhase, note1, note2);
+        }
+        else
         {
             Note note1 (REFERENCE_GAIN_DB,
                         REFERENCE_FREQ,
@@ -42,12 +55,10 @@ Question CalibrationSequencer::getNextQuestion()
                         referencePan.estimatedValue() + referencePan.getWindowSize(),
                         0.0f);
             
-            return Question (QuestionType::Pan, note1, note2);
+            return Question (QuestionType::ReferencePan, note1, note2);
         }
-        else
-        {
-            return phaseQuestion (REFERENCE_FREQ, REFERENCE_GAIN_DB, referencePhase);
-        }
+        
+       
     }
     else if (! amplitudesHaveBeenWindowed())
     {
@@ -65,13 +76,15 @@ Question CalibrationSequencer::getNextQuestion()
     {
         std::cout << "calibrating phase" << std::endl;
         // Get random next phase to calibrate
-        auto [freq, phaseCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionPhase();
+        
+        // Hacky but whatever, get in range (40, 2000)
+        auto [freq, phaseCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionPhaseInRange (PHASE_LOW_HZ, PHASE_HIGH_HZ);
         Question phaseQuestionVar = phaseQuestion (freq, calibratedSetPointManager.amplitudeAt (freq), phaseCalibratedSetPoint);
-        std::cout << "Phase question >" << std::endl;
-        std::cout << "Note1: freq = " << phaseQuestionVar.getNote1().frequency
-        << ", phase = " << phaseQuestionVar.getNote1().phase << std::endl;
-        std::cout << "Note2: freq = " << phaseQuestionVar.getNote2().frequency
-        << ", phase = " << phaseQuestionVar.getNote2().phase << std::endl;
+//        std::cout << "Phase question >" << std::endl;
+//        std::cout << "Note1: freq = " << phaseQuestionVar.getNote1().frequency
+//        << ", phase = " << phaseQuestionVar.getNote1().phase << std::endl;
+//        std::cout << "Note2: freq = " << phaseQuestionVar.getNote2().frequency
+//        << ", phase = " << phaseQuestionVar.getNote2().phase << std::endl;
         
         return phaseQuestionVar;
     }
@@ -109,8 +122,6 @@ Question CalibrationSequencer::phaseQuestion (const float frequency, const float
     float GAIN_INCREASE = 6.0f;
     float PAN = 0.0f;
     
-    std::cout << "phase window size: " << phase.getWindowSize() << std::endl;
-    
     float phaseValue1 = phase.estimatedValue() - phase.getWindowSize();
     float phaseValue2 = phase.estimatedValue() + phase.getWindowSize();
     
@@ -122,7 +133,7 @@ Question CalibrationSequencer::phaseQuestion (const float frequency, const float
 
 bool CalibrationSequencer::referenceNoteHasBeenCalibrated() const
 {
-    return referencePan.precision() < 0.02 && referencePhase.precision() < 0.01;
+    return getReferencePan().precision() < 0.01 && getReferencePhase().precision() < 0.05;
 }
 
 bool CalibrationSequencer::amplitudesHaveBeenWindowed() const
@@ -132,7 +143,7 @@ bool CalibrationSequencer::amplitudesHaveBeenWindowed() const
 
 bool CalibrationSequencer::phasesHaveBeenCalibratedPrecisely() const
 {
-    return calibratedSetPointManager.phasesHaveBeenCalibratedWithPrecision (PHASE_PRECISION);
+    return calibratedSetPointManager.phasesHaveBeenCalibratedWithPrecisionInHzRange (PHASE_PRECISION, PHASE_LOW_HZ, PHASE_HIGH_HZ);
 }
 
 bool CalibrationSequencer::pansHaveBeenCalibratedPrecisely() const
@@ -145,10 +156,20 @@ bool CalibrationSequencer::amplitudesHaveBeenCalibratedPrecisely() const
     return calibratedSetPointManager.amplitudesHaveBeenCalibratedWithPrecision (AMPLITUDE_PRECISION);
 }
 
-Note CalibrationSequencer::referenceNote()
+const Note CalibrationSequencer::referenceNote() const
 {
     return Note (REFERENCE_FREQ, 
                  REFERENCE_GAIN_DB,
-                 referencePan.estimatedValue(), 
-                 referencePhase.estimatedValue());
+                 calibratedSetPointManager.getReferencePanCalibratedSetPoint().estimatedValue(),
+                 calibratedSetPointManager.getReferencePhaseCalibratedSetPoint().estimatedValue());
+}
+
+const CalibratedSetPoint& CalibrationSequencer::getReferencePan() const
+{
+    return calibratedSetPointManager.getReferencePanCalibratedSetPoint();
+}
+
+const CalibratedSetPoint& CalibrationSequencer::getReferencePhase() const
+{
+    return calibratedSetPointManager.getReferencePhaseCalibratedSetPoint();
 }

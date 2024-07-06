@@ -33,16 +33,29 @@ public:
     bool amplitudesHaveBeenCalibratedWithPrecision (float precision) const;
     bool pansHaveBeenCalibratedWithPrecision (float precision) const;
     bool phasesHaveBeenCalibratedWithPrecision (float precision) const;
+    bool phasesHaveBeenCalibratedWithPrecisionInHzRange (float precision, float lowerHz, float upperHz) const;
     
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionAmplitude() const;
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPan() const;
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPhase() const;
+    std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPhaseInRange (float lowerHz, float upperHz) const;
+    
+    const CalibratedSetPoint& getReferencePanCalibratedSetPoint() const;
+    const CalibratedSetPoint& getReferencePhaseCalibratedSetPoint() const;
     
 private:
+    static constexpr float REFERENCE_PAN_WINDOW = 3.0;
+    static constexpr float REFERENCE_PHASE_WINDOW = 3.14;
+    
     bool calibratedSetPointsHaveBeenWindowed (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const;
     bool calibratedSetPointsHaveBeenCalibratedWithPrecision (const std::vector<CalibratedSetPoint>& calibratedSetPoints,
                                                              float precision) const;
+    bool calibratedSetPointsHaveBeenCalibratedWithPrecisionInHzRange (const std::vector<CalibratedSetPoint>& calibratedSetPoints,
+                                                                      float precision,
+                                                                      float lowerHz,
+                                                                      float upperHz) const;
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionCalibratedSetPoint (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const; // returns (frequency, calibratedSetPoint)
+    std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionCalibratedSetPointInRange (const std::vector<CalibratedSetPoint>& calibratedSetPoints, float lowerHz, float upperHz) const;
     
     int indexForFrequency (float frequency) const;
     
@@ -52,5 +65,8 @@ private:
     std::vector<CalibratedSetPoint> phases;
     
     Curve curve;
+    CalibratedSetPoint referencePan;
+    CalibratedSetPoint referencePhase;
+    
 };
 

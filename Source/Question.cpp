@@ -51,10 +51,16 @@ const std::string Question::lowerText() const
             return "Left";
             break;
         case QuestionType::Phase:
-            return "Less Diffuse"; // ?? might need to change
+            return "First More Sharp"; // ?? might need to change
             break;
         case QuestionType::HigherThan:
             return "Increase Volume";
+            break;
+        case QuestionType::ReferencePan:
+            return "First More Centered";
+            break;
+        case QuestionType::ReferencePhase:
+            return "First More Sharp";
             break;
     }
 }
@@ -70,10 +76,16 @@ const std::string Question::higherText() const
             return "Right";
             break;
         case QuestionType::Phase:
-            return "More Diffuse"; // ?? same as above, might need to change
+            return "Second More Sharp"; // ?? same as above, might need to change
             break;
         case QuestionType::HigherThan:
             return "Submit";
+            break;
+        case QuestionType::ReferencePan:
+            return "Second More Centered";
+            break;
+        case QuestionType::ReferencePhase:
+            return "Second More Sharp";
             break;
     }
 }

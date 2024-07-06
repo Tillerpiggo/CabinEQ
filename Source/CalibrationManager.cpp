@@ -28,8 +28,10 @@ void CalibrationManager::setSampleRate (float newSampleRate)
 
 void CalibrationManager::calibrateWith (const CalibrationChoice choice)
 {
+    std::cout << "Calibrating with choice: " << std::endl;
     if (currentQuestion.getType() != QuestionType::HigherThan || choice == CalibrationChoice::HigherPreferred)
     {
+        std::cout << "calibrateWith" << std::endl;
         calibratedSetPointManager.calibrateWith (currentQuestion, choice);
         goToNextQuestion();
     }

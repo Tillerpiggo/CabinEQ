@@ -51,9 +51,6 @@
               file="Source/SineWaveGenerator.cpp"/>
         <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
               file="Source/SineWaveGenerator.h"/>
-        <FILE id="fkcCM6" name="NoteSequence.cpp" compile="1" resource="0"
-              file="Source/NoteSequence.cpp"/>
-        <FILE id="C1ImtJ" name="NoteSequence.h" compile="0" resource="0" file="Source/NoteSequence.h"/>
         <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{BBD4AE00-CC92-9DE7-D5E8-A037D1509C11}" name="Audio Processing">

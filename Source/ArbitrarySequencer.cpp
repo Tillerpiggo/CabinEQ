@@ -25,6 +25,9 @@ std::pair<float, float> ArbitrarySequencer::getNextSample()
         goToNextNote();
     }
     
+    std::cout << "lSample: " << leftSample << ", rSample: " << rightSample << std::endl;
+    std::cout << "leftGain: " << leftGain << ", rightGain: " << rightGain << std::endl;
+    
     return { leftSample * leftGain, rightSample * rightGain };
 }
 
