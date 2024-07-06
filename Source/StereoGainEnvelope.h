@@ -23,9 +23,9 @@ enum class StereoGainEnvelopeType
 class StereoGainEnvelope
 {
 public:
-    StereoGainEnvelope (int rampDurationInSamples = 500);
+    StereoGainEnvelope (int rampDurationInSamples = 5000);
     StereoGainEnvelope (int rampDurationInSamples, int rightDelayInSamples);
-    StereoGainEnvelope (StereoGainEnvelopeType type, int rampDurationInSamples = 500);
+    StereoGainEnvelope (StereoGainEnvelopeType type, int rampDurationInSamples = 5000);
     
     const std::pair<float, float> getGainAtSample (int sample, int noteDurationInSamples) const;
     

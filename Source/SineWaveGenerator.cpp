@@ -77,9 +77,6 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     rightAmplitudeCompensation = amplitudeCompensation;
     
     // Apply panning
-    if (note->pan < 20)
-    {
-        leftAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / -2.0);
-        rightAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / 2.0);
-    }
+    leftAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / -2.0);
+    rightAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / 2.0);
 }

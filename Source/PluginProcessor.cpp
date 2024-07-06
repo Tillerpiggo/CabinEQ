@@ -26,6 +26,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     parameters.state = juce::ValueTree("savedParams");
     isCalibrating = false;
     isBypassed = false;
+    gainProcessor.setGainDecibels(12.f);
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -174,6 +175,10 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         if (isBypassed)
         {
             gainFilter.process (context);
+        }
+        else
+        {
+            gainProcessor.process (context);
         }
     }
     

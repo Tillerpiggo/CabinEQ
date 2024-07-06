@@ -20,7 +20,9 @@ public:
     CalibratedSetPoint (float lowerBound, float upperBound);
     
     void calibrateWith (const CalibrationChoice choice);
-    void setWindow (float lowerBound, float upperBound);
+    void setLowerBound (const float lowerBound);
+    void setUpperBound (const float upperBound);
+    
     const bool hasEstablishedWindow() const; // if it has set a definitive upper and lower bound yet
     const float estimatedValue() const;
     const float precision() const;

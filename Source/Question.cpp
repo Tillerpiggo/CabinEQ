@@ -46,22 +46,18 @@ const std::string Question::lowerText() const
     {
         case QuestionType::Level:
             return "Quieter";
-            break;
         case QuestionType::Pan:
             return "Left";
-            break;
         case QuestionType::Phase:
             return "First More Sharp"; // ?? might need to change
-            break;
+        case QuestionType::LowerThan:
+            return "Decrease Volume";
         case QuestionType::HigherThan:
             return "Increase Volume";
-            break;
         case QuestionType::ReferencePan:
             return "First More Centered";
-            break;
         case QuestionType::ReferencePhase:
             return "First More Sharp";
-            break;
     }
 }
 
@@ -71,26 +67,27 @@ const std::string Question::higherText() const
     {
         case QuestionType::Level:
             return "Louder";
-            break;
         case QuestionType::Pan:
             return "Right";
-            break;
         case QuestionType::Phase:
             return "Second More Sharp"; // ?? same as above, might need to change
-            break;
+        case QuestionType::LowerThan:
+            [[fallthrough]];
         case QuestionType::HigherThan:
             return "Submit";
-            break;
         case QuestionType::ReferencePan:
             return "Second More Centered";
-            break;
         case QuestionType::ReferencePhase:
             return "Second More Sharp";
-            break;
     }
 }
 
 void Question::increaseControlledNoteVolume()
 {
     note2.gain += 6.0f;
+}
+
+void Question::decreaseControlledNoteVolume()
+{
+    note2.gain -= 6.0f;
 }

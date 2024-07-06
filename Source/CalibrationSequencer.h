@@ -24,8 +24,8 @@ private:
     static constexpr float REFERENCE_FREQ = 1000.0;
     static constexpr float REFERENCE_GAIN_DB = 0.0;
     
-    static constexpr float AMPLITUDE_PRECISION = 0.05;
-    static constexpr float PAN_PRECISION = 0.01;
+    static constexpr float AMPLITUDE_PRECISION = 0.1;
+    static constexpr float PAN_PRECISION = 0.05;
     static constexpr float PHASE_PRECISION = 0.01;
     
     static constexpr float PHASE_LOW_HZ = 30;
@@ -33,10 +33,11 @@ private:
     
     const CalibratedSetPointManager& calibratedSetPointManager;
     
-    Question phaseQuestion (const float frequency, const float gain, const CalibratedSetPoint phase) const;
+    Question phaseQuestion (const float frequency, const float gain, const PhaseCalibratedSetPoint phase) const;
     
     bool referenceNoteHasBeenCalibrated() const;
     bool amplitudesHaveBeenWindowed() const;
+    bool amplitudesHaveUpperBounds() const;
     bool phasesHaveBeenCalibratedPrecisely() const;
     bool pansHaveBeenCalibratedPrecisely() const;
     bool amplitudesHaveBeenCalibratedPrecisely() const;

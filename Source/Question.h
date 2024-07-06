@@ -18,6 +18,7 @@ enum class QuestionType
     Pan,
     Phase,
     HigherThan, // user asked to raise until value is audibly higher than reference
+    LowerThan,
     ReferencePan,
     ReferencePhase
 };
@@ -35,7 +36,9 @@ public:
     const Note& getNote2() const;
     const std::string lowerText() const; // text for the lowerPreferred button based on QuestionType
     const std::string higherText() const; // text for the higherPreferred button based on QuestionType
+    
     void increaseControlledNoteVolume();
+    void decreaseControlledNoteVolume();
     
 private:
     QuestionType type;

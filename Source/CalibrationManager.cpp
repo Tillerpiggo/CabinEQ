@@ -29,17 +29,24 @@ void CalibrationManager::setSampleRate (float newSampleRate)
 void CalibrationManager::calibrateWith (const CalibrationChoice choice)
 {
     std::cout << "Calibrating with choice: " << std::endl;
-    if (currentQuestion.getType() != QuestionType::HigherThan || choice == CalibrationChoice::HigherPreferred)
+    if ((currentQuestion.getType() == QuestionType::HigherThan ||
+        currentQuestion.getType() == QuestionType::LowerThan) &&
+        choice == CalibrationChoice::LowerPreferred)
     {
-        std::cout << "calibrateWith" << std::endl;
+        if (currentQuestion.getType() == QuestionType::HigherThan)
+        {
+            currentQuestion.increaseControlledNoteVolume();
+        }
+        else
+        {
+            currentQuestion.decreaseControlledNoteVolume();
+        }
+        questionSequencer.setQuestion (currentQuestion);
+    }
+    else
+    {
         calibratedSetPointManager.calibrateWith (currentQuestion, choice);
         goToNextQuestion();
-    }
-    else // Higher than and lower preferred
-    {
-        // set current question with higher value
-        currentQuestion.increaseControlledNoteVolume();
-        questionSequencer.setQuestion (currentQuestion);
     }
 }
 

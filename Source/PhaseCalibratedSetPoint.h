@@ -21,8 +21,9 @@ public:
     
     void calibrateWith (const CalibrationChoice choice);
     const float estimatedValue() const;
-    const float nextGuess() const;
     const float precision() const;
+    const float getCurrentGuess() const;
+    const float getNextGuess() const;
     
 private:
     float currentGuess;

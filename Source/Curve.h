@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "CalibratedSetPoint.h"
+#include "PhaseCalibratedSetPoint.h"
 
 // This manages a curve interpolated between a list of set points, with an arbitrary resolution.
 class Curve
@@ -19,7 +20,7 @@ class Curve
 public:
     Curve (const std::vector<float>& frequencies, 
            const std::vector<CalibratedSetPoint>& amplitudes,
-           const std::vector<CalibratedSetPoint>& phases,
+           const std::vector<PhaseCalibratedSetPoint>& phases,
            const std::vector<CalibratedSetPoint>& pans)
     : frequencies (frequencies), amplitudes (amplitudes), phases (phases), pans(pans) {}
     
@@ -39,9 +40,11 @@ public:
 protected:
     const float interpolateValueAtFrequency (const float frequency, 
                                              const std::vector<CalibratedSetPoint>& values) const;
+    const float interpolatePhaseAtFrequency (const float frequency) const; // DRY violation
+    
     const std::vector<float>& frequencies;
     const std::vector<CalibratedSetPoint>& amplitudes;
-    const std::vector<CalibratedSetPoint>& phases;
+    const std::vector<PhaseCalibratedSetPoint>& phases;
     const std::vector<CalibratedSetPoint>& pans;
     float factor = 1.f;
 };

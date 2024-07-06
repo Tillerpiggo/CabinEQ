@@ -17,7 +17,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float phaseAtFrequency = 0;
     
     panAtFrequency = interpolateValueAtFrequency (frequency, pans);
-    phaseAtFrequency = interpolateValueAtFrequency (frequency, phases);
+    phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
     
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency);
     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency);
@@ -116,6 +116,68 @@ const float Curve::interpolateValueAtFrequency (const float frequency,
             if (i < numPoints - 1)
             {
                 gain3 = values.at (i + 1).estimatedValue();
+            }
+            else
+            {
+                gain3 = gain2;
+            }
+            
+            break;
+        }
+    }
+    
+    // Interpolate using catmull-rom
+    float t = (frequency - freq1) / (freq2 - freq1);
+    float gainAtFrequency = catmullRom (t, gain0, gain1, gain2, gain3);
+    
+    return gainAtFrequency;
+}
+
+// TODO: Fix DRY violation
+const float Curve::interpolatePhaseAtFrequency (const float frequency) const
+{
+    size_t numPoints = frequencies.size();
+    
+    if (frequency < frequencies.at (0))
+    {
+        return phases.at (0).estimatedValue();
+    }
+    
+    if (frequency > frequencies.at (numPoints - 1))
+    {
+        return phases.at (phases.size() - 1).estimatedValue();
+    }
+    
+    float freq1, freq2;
+    float gain0, gain1, gain2, gain3;
+    
+    for (int i = 0; i < numPoints; ++i)
+    {
+        // If the frequency is the same, return the value of the set point
+        if (frequency == frequencies.at (i))
+        {
+            return phases.at (i).estimatedValue();
+        }
+        
+        if (frequency < frequencies.at (i))
+        {
+            freq1 = frequencies.at (i - 1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at (0), but we already check those cases.
+            freq2 = frequencies.at (i);
+            gain1 = phases.at (i - 1).estimatedValue(); // Same reasoning as above.
+            gain2 = phases.at (i).estimatedValue();
+            
+            if (i > 1)
+            {
+                gain0 = phases.at (i - 2).estimatedValue();
+            }
+            else
+            {
+                gain0 = gain1;
+            }
+            
+            if (i < numPoints - 1)
+            {
+                gain3 = phases.at (i + 1).estimatedValue();
             }
             else
             {

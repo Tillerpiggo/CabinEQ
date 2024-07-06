@@ -61,6 +61,21 @@ Question CalibrationSequencer::getNextQuestion()
         
        
     }
+    else if (! amplitudesHaveUpperBounds())
+    {
+        std::cout << "leveling initial amplitude" << std::endl;
+        
+        // Get random next amplitude to test
+        auto [freq, amplitudeCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionAmplitude();
+        
+        Note note1 = referenceNote();
+        Note note2 (freq, 
+                    amplitudeCalibratedSetPoint.estimatedValue(),
+                    0.0f,
+                    0.0f);
+        
+        return Question (QuestionType::HigherThan, note1, note2);
+    }
     else if (! amplitudesHaveBeenWindowed())
     {
         std::cout << "leveling initial amplitude" << std::endl;
@@ -69,18 +84,23 @@ Question CalibrationSequencer::getNextQuestion()
         auto [freq, amplitudeCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionAmplitude();
         
         Note note1 = referenceNote();
-        Note note2 (freq, amplitudeCalibratedSetPoint.estimatedValue(), 0.0f, 0.0f);
+        Note note2 (freq,
+                    amplitudeCalibratedSetPoint.estimatedValue(),
+                    0.0f,
+                    0.0f);
         
-        return Question (QuestionType::HigherThan, note1, note2);
+        return Question (QuestionType::LowerThan, note1, note2);
     }
-    else if (! phasesHaveBeenCalibratedPrecisely())
+    else if (false)//! phasesHaveBeenCalibratedPrecisely())
     {
         std::cout << "calibrating phase" << std::endl;
         // Get random next phase to calibrate
         
         // Hacky but whatever, get in range (40, 2000)
         auto [freq, phaseCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionPhaseInRange (PHASE_LOW_HZ, PHASE_HIGH_HZ);
-        Question phaseQuestionVar = phaseQuestion (freq, calibratedSetPointManager.amplitudeAt (freq), phaseCalibratedSetPoint);
+        Question phaseQuestionVar = phaseQuestion (freq, 
+                                                   calibratedSetPointManager.amplitudeAt (freq),
+                                                   phaseCalibratedSetPoint);
 //        std::cout << "Phase question >" << std::endl;
 //        std::cout << "Note1: freq = " << phaseQuestionVar.getNote1().frequency
 //        << ", phase = " << phaseQuestionVar.getNote1().phase << std::endl;
@@ -96,7 +116,10 @@ Question CalibrationSequencer::getNextQuestion()
         auto [freq, panCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionPan();
         
         Note note1 = referenceNote();
-        Note note2 (freq, calibratedSetPointManager.amplitudeAt (freq), panCalibratedSetPoint.estimatedValue(), 0.0f);
+        Note note2 (freq, 
+                    calibratedSetPointManager.amplitudeAt (freq),
+                    panCalibratedSetPoint.estimatedValue(),
+                    calibratedSetPointManager.phaseAt (freq));
         
         return Question (QuestionType::Pan, note1, note2);
     }
@@ -107,7 +130,10 @@ Question CalibrationSequencer::getNextQuestion()
         auto [freq, amplitudeCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionAmplitude();
         
         Note note1 = referenceNote();
-        Note note2 (freq, amplitudeCalibratedSetPoint.estimatedValue(), 0.0f, 0.0f);
+        Note note2 (freq, 
+                    amplitudeCalibratedSetPoint.estimatedValue(),
+                    calibratedSetPointManager.panAt (freq),
+                    calibratedSetPointManager.phaseAt (freq));
         
         return Question (QuestionType::Level, note1, note2);
     }
@@ -118,17 +144,14 @@ Question CalibrationSequencer::getNextQuestion()
     }
 }
 
-Question CalibrationSequencer::phaseQuestion (const float frequency, const float gain, const CalibratedSetPoint phase) const
+Question CalibrationSequencer::phaseQuestion (const float frequency, const float gain, const PhaseCalibratedSetPoint phase) const
 {
     float GAIN_INCREASE = 6.0f;
     float PAN = 0.0f;
     
-    float phaseValue1 = phase.estimatedValue() - phase.getWindowSize();
-    float phaseValue2 = phase.estimatedValue() + phase.getWindowSize();
+    Note note1 (frequency, gain + GAIN_INCREASE, PAN, phase.getCurrentGuess());
+    Note note2 (frequency, gain + GAIN_INCREASE, PAN, phase.getNextGuess());
     
-    Note note1 (frequency, gain + GAIN_INCREASE, PAN, phaseValue1);
-    Note note2 (frequency, gain + GAIN_INCREASE, PAN, phaseValue2);
-
     return Question (QuestionType::Phase, note1, note2);
 }
 
@@ -141,6 +164,11 @@ bool CalibrationSequencer::referenceNoteHasBeenCalibrated() const
 bool CalibrationSequencer::amplitudesHaveBeenWindowed() const
 {
     return calibratedSetPointManager.amplitudesHaveBeenWindowed();
+}
+
+bool CalibrationSequencer::amplitudesHaveUpperBounds() const
+{
+    return calibratedSetPointManager.amplitudesHaveUpperBounds();
 }
 
 bool CalibrationSequencer::phasesHaveBeenCalibratedPrecisely() const

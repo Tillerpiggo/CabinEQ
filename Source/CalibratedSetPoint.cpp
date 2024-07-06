@@ -24,56 +24,48 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
 {
     float value;
     
-    if (hasEstablishedWindow())
-    {
-        value = estimatedValue();
-    }
-    else if (lowerBound.has_value())
-    {
-        value = lowerBound.value() + windowSize;
-    }
-    else if (upperBound.has_value())
-    {
-        value = upperBound.value() - windowSize;
-    }
-    else
-    {
-        value = 0.0f;
-    }
+    std::cout << "lowerBound before: " << lowerBound.value_or (-1) << ", upperBound before: " << upperBound.value_or (-1) << std::endl;
     
-//    std::cout << "value: " << estimatedValue() << ", windowSize: " << windowSize << std::endl;
+    std::cout << "estimatedValue before: " << estimatedValue() << std::endl;
+    
+    value = estimatedValue();
+    
+    std::cout << "value: " << estimatedValue() << ", windowSize: " << windowSize << std::endl;
     
     if (choice == CalibrationChoice::HigherPreferred)
     {
         upperBound = value;
         
-        // If this violates the lower bound, move to a new window
-        if (lowerBound.has_value() && lowerBound > value)
-        {
-            lowerBound = value - windowSize;
-        }
+//        // If this violates the lower bound, move to a new window
+//        if (lowerBound.has_value() && lowerBound > value)
+//        {
+//            lowerBound = value - windowSize;
+//        }
     }
     else if (choice == CalibrationChoice::LowerPreferred)
     {
         lowerBound = value;
         
-        // Same as above
-        if (upperBound.has_value() && upperBound < value)
-        {
-            upperBound = value + windowSize;
-        }
+//        // Same as above
+//        if (upperBound.has_value() && upperBound < value)
+//        {
+//            upperBound = value + windowSize;
+//        }
     }
     
-//    std::cout << "lowerBound after: " << lowerBound.value_or (-1) << ", upperBound after: " << upperBound.value_or (-1) << std::endl;
-//    
-//    std::cout << "estimatedValue after: " << estimatedValue() << std::endl;
+    std::cout << "lowerBound after: " << lowerBound.value_or (-1) << ", upperBound after: " << upperBound.value_or (-1) << std::endl;
+    
+    std::cout << "estimatedValue after: " << estimatedValue() << std::endl;
 }
 
-void CalibratedSetPoint::setWindow (float lowerBound, float upperBound) 
+void CalibratedSetPoint::setLowerBound (const float lowerBound)
 {
     this->lowerBound = lowerBound;
+}
+
+void CalibratedSetPoint::setUpperBound (const float upperBound)
+{
     this->upperBound = upperBound;
-    windowSize = upperBound - lowerBound;
 }
 
 const float CalibratedSetPoint::estimatedValue() const
@@ -84,11 +76,11 @@ const float CalibratedSetPoint::estimatedValue() const
     }
     else if (lowerBound.has_value())
     {
-        return (lowerBound.value() + windowSize) / 2.0f;
+        return (lowerBound.value() + (lowerBound.value() + windowSize)) / 2.0f;
     }
     else if (upperBound.has_value())
     {
-        return (upperBound.value() - windowSize) / 2.0f;
+        return (upperBound.value() + (upperBound.value() - windowSize)) / 2.0f;
     }
     else
     {
@@ -109,7 +101,14 @@ const float CalibratedSetPoint::precision() const
         return getWindowSize() / 2.0f;
     }
     
-    return std::numeric_limits<float>::max();
+    if (! lowerBound.has_value() && !upperBound.has_value())
+    {
+        return std::numeric_limits<float>::max();
+    }
+    else
+    {
+        return std::numeric_limits<float>::max() / 2.0f;
+    }
 }
 
 const float CalibratedSetPoint::getWindowSize() const

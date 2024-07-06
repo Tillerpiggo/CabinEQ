@@ -12,6 +12,7 @@
 
 #include "Curve.h"
 #include "CalibratedSetPoint.h"
+#include "PhaseCalibratedSetPoint.h"
 #include "Question.h"
 
 class CalibratedSetPointManager
@@ -28,8 +29,8 @@ public:
     const float phaseAt (const float frequency) const;
     
     bool amplitudesHaveBeenWindowed() const;
+    bool amplitudesHaveUpperBounds() const;
     bool pansHaveBeenWindowed() const;
-    bool phasesHaveBeenWindowed() const;
     bool amplitudesHaveBeenCalibratedWithPrecision (float precision) const;
     bool pansHaveBeenCalibratedWithPrecision (float precision) const;
     bool phasesHaveBeenCalibratedWithPrecision (float precision) const;
@@ -37,8 +38,7 @@ public:
     
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionAmplitude() const;
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPan() const;
-    std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPhase() const;
-    std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPhaseInRange (float lowerHz, float upperHz) const;
+    std::pair<float, PhaseCalibratedSetPoint> getRandomLowestPrecisionPhaseInRange (float lowerHz, float upperHz) const;
     
     const CalibratedSetPoint& getReferencePanCalibratedSetPoint() const;
     const CalibratedSetPoint& getReferencePhaseCalibratedSetPoint() const;
@@ -62,7 +62,7 @@ private:
     std::vector<float> frequencies;
     std::vector<CalibratedSetPoint> amplitudes;
     std::vector<CalibratedSetPoint> pans;
-    std::vector<CalibratedSetPoint> phases;
+    std::vector<PhaseCalibratedSetPoint> phases;
     
     Curve curve;
     CalibratedSetPoint referencePan;
