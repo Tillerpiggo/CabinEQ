@@ -25,6 +25,7 @@ public:
     
 private:
     void goToNextNote();
+    const SequenceableNote& getCurrNote() const;
     
     SineWaveGenerator sineWaveGenerator;
     std::vector<SequenceableNote> notes;

@@ -24,7 +24,7 @@ class StereoGainEnvelope
 {
 public:
     StereoGainEnvelope (int rampDurationInSamples = 500);
-    StereoGainEnvelope (int rampDurationInSamples, int rightDelayInSamples); // delays the right start AND end ramps
+    StereoGainEnvelope (int rampDurationInSamples, int rightDelayInSamples);
     StereoGainEnvelope (StereoGainEnvelopeType type, int rampDurationInSamples = 500);
     
     const std::pair<float, float> getGainAtSample (int sample, int noteDurationInSamples) const;

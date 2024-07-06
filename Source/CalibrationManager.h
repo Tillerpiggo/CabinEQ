@@ -11,11 +11,11 @@
 #pragma once
 
 #include "CalibratedSetPointManager.h"
-#include "CalibrationIntervalSequencer.h"
 #include "CalibrationSequencer.h"
 #include "Question.h"
 #include "Curve.h"
 #include "CalibrationChoice.h"
+#include "QuestionSequencer.h"
 
 class CalibrationManager
 {
@@ -34,8 +34,8 @@ private:
     void goToNextQuestion();
     
     CalibratedSetPointManager calibratedSetPointManager;
-    CalibrationIntervalSequencer calibrationIntervalSequencer;
     CalibrationSequencer calibrationSequencer;
+    QuestionSequencer questionSequencer;
     
     Question currentQuestion;
 };

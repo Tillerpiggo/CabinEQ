@@ -28,6 +28,8 @@ public:
     const float getDuration() const;
     const std::pair<float, float> getGainAtSample (int sample) const;
     
+    const Note note() const;
+    
 private:
     float frequency;
     float amplitude;

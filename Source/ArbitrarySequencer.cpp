@@ -38,10 +38,23 @@ void ArbitrarySequencer::setNotes (std::vector<SequenceableNote> notes)
     this->notes = notes;
     numSamplesNoteHasBeenPlaying = 0;
     currNoteIdx = 0;
+    sineWaveGenerator.setNote (getCurrNote().note());
 }
 
 void ArbitrarySequencer::goToNextNote()
 {
     numSamplesNoteHasBeenPlaying = 0;
     currNoteIdx++;
+    
+    if (currNoteIdx >= notes.size())
+    {
+        currNoteIdx = 0;
+    }
+    
+    sineWaveGenerator.setNote (getCurrNote().note());
+}
+
+const SequenceableNote& ArbitrarySequencer::getCurrNote() const
+{
+    return notes.at (currNoteIdx);
 }

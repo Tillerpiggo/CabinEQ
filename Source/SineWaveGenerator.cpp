@@ -22,29 +22,8 @@ void SineWaveGenerator::setSampleRate (float newSampleRate)
 
 const std::pair<float, float> SineWaveGenerator::getNextSample()
 {
-    float gainRampCompensation = 1.0f;
-    if (endNoteGainRamp > 0)
-    {
-        gainRampCompensation = static_cast<float> (endNoteGainRamp) / static_cast<float> (GAIN_RAMP_LEN_IN_SAMPLES);
-        endNoteGainRamp--;
-    }
-    else if (startNoteGainRamp > 0)
-    {
-        gainRampCompensation = 1.0f - static_cast<float> (startNoteGainRamp) / static_cast<float> (GAIN_RAMP_LEN_IN_SAMPLES);
-        startNoteGainRamp--;
-    }
-    
-    if (endNoteGainRamp == 0)
-    {
-        note = nextNote;
-        nextNote.reset();
-        updatePhaseIncrementAndAmplitudeCompensation();
-        phase = 0;
-        endNoteGainRamp--;
-    }
-    
-    float leftSample = std::sin (phase) * leftAmplitudeCompensation * gainRampCompensation;
-    float rightSample = std::sin (phase + note->phase) * rightAmplitudeCompensation * gainRampCompensation;
+    float leftSample = std::sin (phase) * leftAmplitudeCompensation;
+    float rightSample = std::sin (phase + note->phase) * rightAmplitudeCompensation;
     
     phase += phaseIncrement;
     if (phase > 2.0 * juce::MathConstants<float>::pi)
@@ -57,22 +36,13 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
 // and starting the new note with a gain ramp
 void SineWaveGenerator::setNote (Note newNote)
 {
-    if (! note)
-    {
-        note = newNote;
-        updatePhaseIncrementAndAmplitudeCompensation();
-        return;
-    }
-    
-    // TODO: Fancy gain ramp stuff. RN this is just a hard switch
-    nextNote = newNote;
-    endNoteGainRamp = GAIN_RAMP_LEN_IN_SAMPLES;
-    startNoteGainRamp = GAIN_RAMP_LEN_IN_SAMPLES;
+    note = newNote;
+    phase = 0;
+    updatePhaseIncrementAndAmplitudeCompensation();
 }
 
 void SineWaveGenerator::setVolume (float gainInDecibels)
 {
-    // TODO: create gain ramp
     note->gain = gainInDecibels;
     updatePhaseIncrementAndAmplitudeCompensation();
 }

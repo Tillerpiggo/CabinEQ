@@ -48,3 +48,8 @@ const std::pair<float, float> SequenceableNote::getGainAtSample (int sample) con
 {
     return envelope.getGainAtSample (sample, duration);
 }
+
+const Note SequenceableNote::note() const
+{
+    return Note (frequency, amplitude, pan, phase);
+}

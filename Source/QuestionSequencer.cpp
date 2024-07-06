@@ -42,7 +42,7 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
         case QuestionType::Level:
         {
             // Simple two-tone test
-            int noteDurationInSamples = 50000;
+            int noteDurationInSamples = 40000;
             
             notes.push_back (SequenceableNote (question.getNote1(),
                                                noteDurationInSamples));
@@ -76,10 +76,10 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
         }
         case QuestionType::Phase:
         {
-            int noteDurationInSamples = 20000;
-            int spaceBetweenNotesInSamples = 5000;
-            int rightDelayInSamples = 2000;
-            int rampDurationInSamples = 500;
+            int noteDurationInSamples = 70000;
+            int spaceBetweenNotesInSamples = 20000;
+            int rightDelayInSamples = 0; // I don't think this is really helping much
+            int rampDurationInSamples = 2000;
             
             SequenceableNote silentNote (question.getNote1(),
                                          spaceBetweenNotesInSamples,
@@ -102,7 +102,7 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
         case QuestionType::HigherThan:
         {
             // Simple two-tone test
-            int noteDurationInSamples = 50000; // in samples
+            int noteDurationInSamples = 15000;
             
             notes.push_back (SequenceableNote (question.getNote1(),
                                                noteDurationInSamples));

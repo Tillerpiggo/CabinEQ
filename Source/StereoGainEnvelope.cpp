@@ -20,7 +20,6 @@ StereoGainEnvelope::StereoGainEnvelope (int rampDurationInSamples,
                     int rightDelayInSamples) : StereoGainEnvelope (rampDurationInSamples)
 {
     rightRamp.setStartDelayInSamples(rightDelayInSamples);
-    leftRamp.setEndEarlyInSamples (rightDelayInSamples);
 }
 
 StereoGainEnvelope::StereoGainEnvelope (StereoGainEnvelopeType type, int rampDurationInSamples)

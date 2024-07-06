@@ -12,9 +12,8 @@
 
 GainEnvelope::GainEnvelope (int startDurationInSamples, int endDurationInSamples, 
                             float targetGain, int startDelayInSamples, int endEarlyInSamples)
-: startDurationInSamples (startDurationInSamples), endDurationInSamples (endDurationInSamples), targetGain (targetGain)
+: startDurationInSamples (startDurationInSamples), endDurationInSamples (endDurationInSamples), targetGain (targetGain), startDelayInSamples (startDelayInSamples), endEarlyInSamples (endEarlyInSamples)
 {
-    
 }
 
 const float GainEnvelope::gainAtSample (int sample, int noteDurationInSamples) const
@@ -47,7 +46,7 @@ const float GainEnvelope::gainAtSample (int sample, int noteDurationInSamples) c
     return 0.0f;
 }
 
-void GainEnvelope::setRampDurationInSamples (float duration)
+void GainEnvelope::setRampDurationInSamples (int duration)
 {
     startDurationInSamples = duration;
     endDurationInSamples = duration;
@@ -58,13 +57,14 @@ void GainEnvelope::setTargetGain (float gain)
     targetGain = gain;
 }
 
-void GainEnvelope::setStartDelayInSamples (float delay)
+void GainEnvelope::setStartDelayInSamples (int delay)
 {
     startDelayInSamples = delay;
 }
 
-void GainEnvelope::setEndEarlyInSamples (float early)
+void GainEnvelope::setEndEarlyInSamples (int early)
 {
+    std::cout << "set end early in samples to: " << early << std::endl;
     endEarlyInSamples = early;
 }
 

@@ -18,12 +18,12 @@ CalibrationManager::CalibrationManager()
 
 const std::pair<float, float> CalibrationManager::getNextSample()
 {
-    return calibrationIntervalSequencer.getNextSample();
+    return questionSequencer.getNextSample();
 }
 
 void CalibrationManager::setSampleRate (float newSampleRate)
 {
-    calibrationIntervalSequencer.setSampleRate (newSampleRate);
+    questionSequencer.setSampleRate (newSampleRate);
 }
 
 void CalibrationManager::calibrateWith (const CalibrationChoice choice)
@@ -37,9 +37,7 @@ void CalibrationManager::calibrateWith (const CalibrationChoice choice)
     {
         // set current question with higher value
         currentQuestion.increaseControlledNoteVolume();
-        calibrationIntervalSequencer.setNotes(currentQuestion.getNote1(),
-                                              currentQuestion.getNote2(),
-                                              false);
+        questionSequencer.setQuestion (currentQuestion);
     }
 }
 
@@ -55,11 +53,12 @@ const Question& CalibrationManager::getCurrentQuestion() const
 
 const bool CalibrationManager::isPlayingFirstNote() const
 {
-    return calibrationIntervalSequencer.isPlayingFirstNote();
+    // TODO: Fix isPlayingFirstNote
+    return true;//questionSequencer.isPlayingFirstNote();
 }
 
 void CalibrationManager::goToNextQuestion()
 {
     currentQuestion = calibrationSequencer.getNextQuestion();
-    calibrationIntervalSequencer.setNotes (currentQuestion.getNote1(), currentQuestion.getNote2());
+    questionSequencer.setQuestion (currentQuestion);
 }

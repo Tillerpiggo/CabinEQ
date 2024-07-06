@@ -73,7 +73,7 @@ public:
     bool isPlayingFirstNote() const;
     
 private:
-    static const int FFT_SIZE = 18;
+    static const int FFT_SIZE = 19;
     
     bool isBypassed;
     bool isCalibrating;
