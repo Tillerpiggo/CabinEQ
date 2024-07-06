@@ -19,7 +19,7 @@ class SequenceableNote
 public:
     SequenceableNote (float frequency, float amplitude, float pan, float phase,
                       float duration, StereoGainEnvelope envelope);
-    SequenceableNote (Note note, float duration, StereoGainEnvelope envelope);
+    SequenceableNote (Note note, float duration, StereoGainEnvelope envelope = StereoGainEnvelope());
     
     const float getFrequency() const;
     const float getAmplitude() const;

@@ -15,9 +15,14 @@
 class GainEnvelope
 {
 public:
-    GainEnvelope (int startDurationInSamples, int endDurationInSamples, 
+    GainEnvelope (int startDurationInSamples = 500, int endDurationInSamples = 500,
                   float targetGain = 1.0f, int startDelayInSamples = 0, int endEarlyInSamples = 0);
     const float gainAtSample (int sample, int noteDurationInSamples) const;
+    
+    void setRampDurationInSamples (float duration);
+    void setTargetGain (float gain);
+    void setStartDelayInSamples (float delay);
+    void setEndEarlyInSamples (float early);
     
 private:
     const float sigmoid (float x) const;

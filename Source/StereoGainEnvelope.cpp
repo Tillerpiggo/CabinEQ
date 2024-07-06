@@ -10,9 +10,35 @@
 
 #include "StereoGainEnvelope.h"
 
-StereoGainEnvelope::StereoGainEnvelope() : leftRamp (500, 500), rightRamp (500, 500)
+StereoGainEnvelope::StereoGainEnvelope (int rampDurationInSamples)
 {
-    
+    leftRamp.setRampDurationInSamples (rampDurationInSamples);
+    rightRamp.setRampDurationInSamples (rampDurationInSamples);
+}
+
+StereoGainEnvelope::StereoGainEnvelope (int rampDurationInSamples,
+                    int rightDelayInSamples) : StereoGainEnvelope (rampDurationInSamples)
+{
+    rightRamp.setStartDelayInSamples(rightDelayInSamples);
+    leftRamp.setEndEarlyInSamples (rightDelayInSamples);
+}
+
+StereoGainEnvelope::StereoGainEnvelope (StereoGainEnvelopeType type, int rampDurationInSamples)
+: StereoGainEnvelope (rampDurationInSamples)
+{
+    switch (type)
+    {
+        case StereoGainEnvelopeType::HARD_LEFT:
+            rightRamp.setTargetGain (0.0f);
+            break;
+        case StereoGainEnvelopeType::HARD_RIGHT:
+            leftRamp.setTargetGain (0.0f);
+            break;
+        case StereoGainEnvelopeType::SILENT:
+            leftRamp.setTargetGain (0.0f);
+            rightRamp.setTargetGain (0.0f);
+            break;
+    }
 }
 
 const std::pair<float, float> StereoGainEnvelope::getGainAtSample (int sample, int noteDurationInSamples) const

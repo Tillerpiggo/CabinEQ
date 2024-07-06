@@ -47,6 +47,27 @@ const float GainEnvelope::gainAtSample (int sample, int noteDurationInSamples) c
     return 0.0f;
 }
 
+void GainEnvelope::setRampDurationInSamples (float duration)
+{
+    startDurationInSamples = duration;
+    endDurationInSamples = duration;
+}
+
+void GainEnvelope::setTargetGain (float gain)
+{
+    targetGain = gain;
+}
+
+void GainEnvelope::setStartDelayInSamples (float delay)
+{
+    startDelayInSamples = delay;
+}
+
+void GainEnvelope::setEndEarlyInSamples (float early)
+{
+    endEarlyInSamples = early;
+}
+
 const float GainEnvelope::sigmoid (float x) const {
     return 1.0f / (1.0f + std::exp(-x));
 }

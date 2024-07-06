@@ -1,0 +1,114 @@
+/*
+  ==============================================================================
+
+    QuestionSequencer.cpp
+    Created: 5 Jul 2024 4:52:44pm
+    Author:  Tyler Gee
+
+  ==============================================================================
+*/
+
+#include "QuestionSequencer.h"
+
+QuestionSequencer::QuestionSequencer() {}
+
+std::pair<float, float> QuestionSequencer::getNextSample()
+{
+    if (! currQuestion.has_value())
+    {
+        std::cerr << "WARNING: Get next sample called on QuestionSequencer before Question was set" << std::endl;
+        return { 0.0f, 0.0f };
+    }
+    
+    return arbitrarySequencer.getNextSample();
+}
+
+void QuestionSequencer::setSampleRate (float newSampleRate)
+{
+    arbitrarySequencer.setSampleRate (newSampleRate);
+}
+
+void QuestionSequencer::setQuestion (Question question)
+{
+    currQuestion = question;
+    arbitrarySequencer.setNotes (notesForQuestion (currQuestion.value()));
+}
+
+const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Question& question) const
+{
+    std::vector<SequenceableNote> notes;
+    switch (question.getType())
+    {
+        case QuestionType::Level:
+        {
+            // Simple two-tone test
+            int noteDurationInSamples = 50000;
+            
+            notes.push_back (SequenceableNote (question.getNote1(),
+                                               noteDurationInSamples));
+            notes.push_back (SequenceableNote (question.getNote2(),
+                                               noteDurationInSamples));
+            return notes;
+        }
+        case QuestionType::Pan:
+        {
+            // Hard left, hard right, center, then controlled tone
+            // Simple two-tone test
+            int noteDurationInSamples = 20000;
+            int leftRightIntroNoteDurationInSamples = 1000;
+            int rampDurationInSamples = 300;
+            
+            notes.push_back (SequenceableNote (question.getNote1(),
+                                               leftRightIntroNoteDurationInSamples,
+                                               StereoGainEnvelope (StereoGainEnvelopeType::HARD_LEFT,
+                                                                   rampDurationInSamples)));
+            notes.push_back (SequenceableNote (question.getNote1(),
+                                               leftRightIntroNoteDurationInSamples,
+                                               StereoGainEnvelope (StereoGainEnvelopeType::HARD_RIGHT,
+                                                                   rampDurationInSamples)));
+            notes.push_back (SequenceableNote (question.getNote1(),
+                                               noteDurationInSamples,
+                                               StereoGainEnvelope (rampDurationInSamples)));
+            notes.push_back (SequenceableNote (question.getNote2(),
+                                               noteDurationInSamples,
+                                               StereoGainEnvelope (rampDurationInSamples)));
+            return notes;
+        }
+        case QuestionType::Phase:
+        {
+            int noteDurationInSamples = 20000;
+            int spaceBetweenNotesInSamples = 5000;
+            int rightDelayInSamples = 2000;
+            int rampDurationInSamples = 500;
+            
+            SequenceableNote silentNote (question.getNote1(),
+                                         spaceBetweenNotesInSamples,
+                                         StereoGainEnvelope (StereoGainEnvelopeType::SILENT,
+                                                             rampDurationInSamples));
+            
+            notes.push_back (SequenceableNote (question.getNote1(),
+                                               noteDurationInSamples,
+                                               StereoGainEnvelope (rampDurationInSamples,
+                                                                   rightDelayInSamples)));
+            notes.push_back (silentNote);
+            notes.push_back (SequenceableNote (question.getNote2(),
+                                               noteDurationInSamples,
+                                               StereoGainEnvelope (rampDurationInSamples,
+                                                                   rightDelayInSamples)));
+            notes.push_back (silentNote);
+            
+            return notes;
+        }
+        case QuestionType::HigherThan:
+        {
+            // Simple two-tone test
+            int noteDurationInSamples = 50000; // in samples
+            
+            notes.push_back (SequenceableNote (question.getNote1(),
+                                               noteDurationInSamples));
+            notes.push_back (SequenceableNote (question.getNote2(),
+                                               noteDurationInSamples));
+            return notes;
+        }
+    }
+}
