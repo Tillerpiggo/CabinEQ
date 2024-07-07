@@ -20,63 +20,58 @@ CalibratedSetPoint::CalibratedSetPoint (float lowerBound, float upperBound) : wi
     upperBound = upperBound;
 }
 
-void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
+void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float value)
 {
-    float value;
-    
-    std::cout << "lowerBound before: " << lowerBound.value_or (-1) << ", upperBound before: " << upperBound.value_or (-1) << std::endl;
-    
-    std::cout << "estimatedValue before: " << estimatedValue() << std::endl;
-    
-    value = estimatedValue();
-    
-    std::cout << "value: " << estimatedValue() << ", windowSize: " << windowSize << std::endl;
-    
-    if (choice == CalibrationChoice::HigherPreferred)
+    if (! hasEstablishedWindow())
     {
-        upperBound = value;
-        
-//        // If this violates the lower bound, move to a new window
-//        if (lowerBound.has_value() && lowerBound > value)
-//        {
-//            lowerBound = value - windowSize;
-//        }
-    }
-    else if (choice == CalibrationChoice::LowerPreferred)
-    {
-        lowerBound = value;
-        
-//        // Same as above
-//        if (upperBound.has_value() && upperBound < value)
-//        {
-//            upperBound = value + windowSize;
-//        }
-    }
-    else if (choice == CalibrationChoice::NoPreference)
-    {
-        if (upperBound.has_value())
-        {
-            upperBound = (upperBound.value() + value) / 2.0f;
-        }
-        else
-        {
-            upperBound = value + 3.0f;
-        }
-        
-        if (lowerBound.has_value())
-        {
-            lowerBound = (lowerBound.value() + value) / 2.0f;
-        }
-        else
-        {
-            lowerBound = value - 3.0f;
-        }
-        
+        lastGuess = value;
     }
     
-    std::cout << "lowerBound after: " << lowerBound.value_or (-1) << ", upperBound after: " << upperBound.value_or (-1) << std::endl;
-    
-    std::cout << "estimatedValue after: " << estimatedValue() << std::endl;
+    switch (choice)
+    {
+        case CalibrationChoice::HigherPreferred:
+            if (hasEstablishedWindow())
+            {
+                upperBound = value;
+            }
+            else
+            {
+                if (! upperBound.has_value())
+                {
+                    upperBound = value;
+                }
+                else
+                {
+                    lowerBound = value;
+                }
+            }
+            break;
+        case CalibrationChoice::LowerPreferred:
+            lowerBound = value;
+            break;
+        case CalibrationChoice::NoPreference:
+            // If you haven't established a window, don't act on the info yet
+            if (! hasEstablishedWindow()) return;
+            
+            if (upperBound.has_value())
+            {
+                upperBound = (upperBound.value() + value) / 2.0f;
+            }
+            else
+            {
+                upperBound = value + 3.0f;
+            }
+            
+            if (lowerBound.has_value())
+            {
+                lowerBound = (lowerBound.value() + value) / 2.0f;
+            }
+            else
+            {
+                lowerBound = value - 3.0f;
+            }
+            break;
+    }
 }
 
 void CalibratedSetPoint::setLowerBound (const float lowerBound)
@@ -128,7 +123,7 @@ const float CalibratedSetPoint::precision() const
         return getWindowSize() / 2.0f;
     }
     
-    if (! lowerBound.has_value() && !upperBound.has_value())
+    if (! lowerBound.has_value() && ! upperBound.has_value())
     {
         return std::numeric_limits<float>::max();
     }
@@ -156,4 +151,24 @@ const float CalibratedSetPoint::getLowerBound() const
 const float CalibratedSetPoint::getUpperBound() const
 {
     return upperBound.value_or (std::numeric_limits<float>::infinity());
+}
+
+const float CalibratedSetPoint::getNextGuess() const
+{
+    if (! lastGuess.has_value())
+    {
+        return 0.0f; // TODO: add interpolation here
+    }
+    
+    if (! upperBound.has_value())
+    {
+        std::cout << "getting next guess w/ value: " << lastGuess.value() + INIT_WINDOW_SIZE << std::endl;
+        return lastGuess.value() + INIT_WINDOW_SIZE;
+    }
+    else if (! lowerBound.has_value())
+    {
+        return lastGuess.value() - INIT_WINDOW_SIZE;
+    }
+    
+    return std::numeric_limits<float>::min();
 }

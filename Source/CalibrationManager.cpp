@@ -29,26 +29,8 @@ void CalibrationManager::setSampleRate (float newSampleRate)
 
 void CalibrationManager::calibrateWith (const CalibrationChoice choice)
 {
-    std::cout << "Calibrating with choice: " << std::endl;
-    if ((currentQuestion.getType() == QuestionType::HigherThan ||
-        currentQuestion.getType() == QuestionType::LowerThan) &&
-        choice == CalibrationChoice::LowerPreferred)
-    {
-        if (currentQuestion.getType() == QuestionType::HigherThan)
-        {
-            currentQuestion.increaseControlledNoteVolume();
-        }
-        else
-        {
-            currentQuestion.decreaseControlledNoteVolume();
-        }
-        questionSequencer.setQuestion (currentQuestion);
-    }
-    else
-    {
-        calibratedSetPointManager.calibrateWith (currentQuestion, choice);
-        goToNextQuestion();
-    }
+    calibratedSetPointManager.calibrateWith (currentQuestion, choice);
+    goToNextQuestion();
 }
 
 void CalibrationManager::changeReferencePanTo (float newReferencePan)
@@ -74,13 +56,8 @@ const bool CalibrationManager::isPlayingFirstNote() const
 
 void CalibrationManager::sequenceDidFinish()
 {
-    // Go to next question w/ NoPreference
-    if (currentQuestion.getType() != QuestionType::LowerThan &&
-        currentQuestion.getType() != QuestionType::HigherThan)
-    {
-        calibratedSetPointManager.calibrateWith (currentQuestion, CalibrationChoice::NoPreference);
-        goToNextQuestion();
-    }
+    calibratedSetPointManager.calibrateWith (currentQuestion, CalibrationChoice::NoPreference);
+    goToNextQuestion();
 }
 
 void CalibrationManager::goToNextQuestion()

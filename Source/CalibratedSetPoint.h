@@ -19,7 +19,7 @@ public:
     CalibratedSetPoint (float windowSize);
     CalibratedSetPoint (float lowerBound, float upperBound);
     
-    void calibrateWith (const CalibrationChoice choice);
+    void calibrateWith (const CalibrationChoice choice, float value);
     void setLowerBound (const float lowerBound);
     void setUpperBound (const float upperBound);
     
@@ -32,9 +32,14 @@ public:
     const float getLowerBound() const;
     const float getUpperBound() const;
     
+    const float getNextGuess() const;
+    
 private:
+    static constexpr float INIT_WINDOW_SIZE = 12.0f;
+    
     std::optional<float> lowerBound;
     std::optional<float> upperBound;
+    std::optional<float> lastGuess;
     
     float windowSize;
 };

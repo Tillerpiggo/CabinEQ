@@ -83,17 +83,8 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
             // Hard left, hard right, center, then controlled tone
             // Simple two-tone test
             int noteDurationInSamples = 40000;
-            //int leftRightIntroNoteDurationInSamples = 10000;
             int rampDurationInSamples = 5000;
-            
-//            notes.push_back (SequenceableNote (question.getNote1(),
-//                                               leftRightIntroNoteDurationInSamples,
-//                                               StereoGainEnvelope (StereoGainEnvelopeType::HARD_LEFT,
-//                                                                   rampDurationInSamples)));
-//            notes.push_back (SequenceableNote (question.getNote1(),
-//                                               leftRightIntroNoteDurationInSamples,
-//                                               StereoGainEnvelope (StereoGainEnvelopeType::HARD_RIGHT,
-//                                                                   rampDurationInSamples)));
+
             notes.push_back (SequenceableNote (question.getNote1(),
                                                noteDurationInSamples,
                                                StereoGainEnvelope (rampDurationInSamples)));
@@ -129,12 +120,11 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
             
             return notes;
         }
-        case QuestionType::LowerThan:
+        case QuestionType::InitialLowerBounds:
             [[fallthrough]];
-        case QuestionType::HigherThan:
+        case QuestionType::InitialUpperBounds:
         {
-            // Simple two-tone test
-            int noteDurationInSamples = 15000;
+            int noteDurationInSamples = 40000;
             
             notes.push_back (SequenceableNote (question.getNote1(),
                                                noteDurationInSamples));

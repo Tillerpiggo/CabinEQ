@@ -50,10 +50,10 @@ const std::string Question::lowerText() const
             return "Left";
         case QuestionType::Phase:
             return "First More Sharp"; // ?? might need to change
-        case QuestionType::LowerThan:
-            return "Decrease Volume";
-        case QuestionType::HigherThan:
-            return "Increase Volume";
+        case QuestionType::InitialUpperBounds:
+            return "Reference Tone";
+        case QuestionType::InitialLowerBounds:
+            return "Reference Tone";
         case QuestionType::ReferencePan:
             return "First More Centered";
         case QuestionType::ReferencePhase:
@@ -71,10 +71,10 @@ const std::string Question::higherText() const
             return "Right";
         case QuestionType::Phase:
             return "Second More Sharp"; // ?? same as above, might need to change
-        case QuestionType::LowerThan:
-            [[fallthrough]];
-        case QuestionType::HigherThan:
-            return "Submit";
+        case QuestionType::InitialUpperBounds:
+            return "Click me if I'm obviously louder!";
+        case QuestionType::InitialLowerBounds:
+            return "Click me if I'm obviously quieter!";
         case QuestionType::ReferencePan:
             return "Second More Centered";
         case QuestionType::ReferencePhase:

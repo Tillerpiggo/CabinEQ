@@ -20,7 +20,8 @@ CalibrationSequencer::CalibrationSequencer (const CalibratedSetPointManager& cal
 Question CalibrationSequencer::getNextQuestion()
 {
     std::vector<Sequence> sequences = { 
-        Sequence (SequenceType::INIT_AMPLITUDE_WINDOWS, 0),
+        Sequence (SequenceType::INIT_AMPLITUDE_UPPER_BOUNDS, 0),
+        Sequence (SequenceType::INIT_AMPLITUDE_LOWER_BOUNDS, 0),
         Sequence (SequenceType::PAN, 6.0f),
         Sequence (SequenceType::AMPLITUDE, 12.0f),
         Sequence (SequenceType::PAN, 3.0f),
@@ -49,7 +50,9 @@ bool CalibrationSequencer::hasSequenceCompleted (Sequence sequence)
 {
     switch (sequence.type)
     {
-        case SequenceType::INIT_AMPLITUDE_WINDOWS:
+        case SequenceType::INIT_AMPLITUDE_UPPER_BOUNDS:
+            return amplitudesHaveUpperBounds();
+        case SequenceType::INIT_AMPLITUDE_LOWER_BOUNDS:
             return amplitudesHaveBeenWindowed();
         case SequenceType::AMPLITUDE:
             return amplitudesHaveBeenCalibratedWithPrecision (sequence.precision);
@@ -64,18 +67,27 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
 {
     switch (sequence.type)
     {
-        case SequenceType::INIT_AMPLITUDE_WINDOWS:
+        case SequenceType::INIT_AMPLITUDE_LOWER_BOUNDS:
+            [[fallthrough]];
+        case SequenceType::INIT_AMPLITUDE_UPPER_BOUNDS:
         {
             auto [freq, amplitudeCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionAmplitude();
             
             Note note1 = referenceNote();
             Note note2 (freq,
-                        amplitudeCalibratedSetPoint.estimatedValue(),
-                        0.0f,
-                        0.0f);
+                        amplitudeCalibratedSetPoint.getNextGuess(),
+                        calibratedSetPointManager.panAt (freq),
+                        calibratedSetPointManager.phaseAt (freq));
             
-            QuestionType type = amplitudesHaveUpperBounds() ? QuestionType::LowerThan :
-                                                              QuestionType::HigherThan;
+            QuestionType type;
+            if (sequence.type == SequenceType::INIT_AMPLITUDE_UPPER_BOUNDS)
+            {
+                type = QuestionType::InitialUpperBounds;
+            }
+            else
+            {
+                type = QuestionType::InitialLowerBounds;
+            }
             
             return Question (type, note1, note2);
         }

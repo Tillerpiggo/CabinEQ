@@ -23,7 +23,8 @@ public:
 private:
     enum class SequenceType
     {
-        INIT_AMPLITUDE_WINDOWS,
+        INIT_AMPLITUDE_UPPER_BOUNDS,
+        INIT_AMPLITUDE_LOWER_BOUNDS,
         AMPLITUDE,
         PAN,
         PHASE

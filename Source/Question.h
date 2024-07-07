@@ -17,8 +17,8 @@ enum class QuestionType
     Level,
     Pan,
     Phase,
-    HigherThan, // user asked to raise until value is audibly higher than reference
-    LowerThan,
+    InitialUpperBounds,
+    InitialLowerBounds,
     ReferencePan,
     ReferencePhase
 };
