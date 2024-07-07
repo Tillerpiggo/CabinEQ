@@ -21,17 +21,30 @@ public:
     Question getNextQuestion();
     
 private:
+    enum class SequenceType
+    {
+        INIT_AMPLITUDE_WINDOWS,
+        AMPLITUDE,
+        PAN,
+    };
+    
+    struct Sequence
+    {
+        Sequence (SequenceType type, float precision) : type (type), precision (precision) {}
+        
+        SequenceType type;
+        float precision;
+    };
+    
     static constexpr float REFERENCE_FREQ = 1000.0;
     static constexpr float REFERENCE_GAIN_DB = 0.0;
-    
-    static constexpr float AMPLITUDE_PRECISION = 0.5;
-    static constexpr float PAN_PRECISION = 0.05;
-    static constexpr float PHASE_PRECISION = 0.01;
-    
     static constexpr float PHASE_LOW_HZ = 30;
     static constexpr float PHASE_HIGH_HZ = 1400; // range of freqs to poll for phase
     
     const CalibratedSetPointManager& calibratedSetPointManager;
+    
+    bool hasSequenceCompleted (Sequence sequence);
+    Question executeSequence(Sequence sequence);
     
     Question phaseQuestion (const float frequency, const float gain, const PhaseCalibratedSetPoint phase) const;
     
@@ -40,7 +53,7 @@ private:
     bool amplitudesHaveUpperBounds() const;
     bool phasesHaveBeenCalibratedPrecisely() const;
     bool pansHaveBeenCalibratedWithPrecision (float precision) const;
-    bool amplitudesHaveBeenCalibratedPrecisely() const;
+    bool amplitudesHaveBeenCalibratedWithPrecision (float precision) const;
     
     CalibratedSetPoint getRandomLowPrecisionSetPoint (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const; // gets random set point of all those w/ least precision
     
