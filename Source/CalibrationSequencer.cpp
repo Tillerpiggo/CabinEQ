@@ -23,26 +23,26 @@ Question CalibrationSequencer::getNextQuestion()
     // For now, just repeatedly ask for panning, then phase, then level of the 11 notes
     if (false)//! referenceNoteHasBeenCalibrated())
     {
-        CalibratedSetPoint referencePan = getReferencePan();
-        CalibratedSetPoint referencePhase = getReferencePhase();
-        
-        // Calibrate pan or phase (choose randomly)
-        if (referencePhase.precision() > 0.05)
-        {
-            Note note1 (REFERENCE_FREQ,
-                        REFERENCE_GAIN_DB,
-                        0.0f,
-                        referencePhase.estimatedValue() - referencePhase.getWindowSize());
-            
-            Note note2 (REFERENCE_FREQ,
-                        REFERENCE_GAIN_DB,
-                        0.0f,
-                        referencePhase.estimatedValue() + referencePhase.getWindowSize());
-            
-            
-            
-            return Question (QuestionType::ReferencePhase, note1, note2);
-        }
+//        CalibratedSetPoint referencePan = getReferencePan();
+//        CalibratedSetPoint referencePhase = getReferencePhase();
+//        
+//        // Calibrate pan or phase (choose randomly)
+//        if (referencePan.precision() > 0.05)
+//        {
+//            Note note1 (REFERENCE_FREQ,
+//                        REFERENCE_GAIN_DB,
+//                        0.0f,
+//                        referencePhase.estimatedValue() - referencePhase.getWindowSize());
+//            
+//            Note note2 (REFERENCE_FREQ,
+//                        REFERENCE_GAIN_DB,
+//                        0.0f,
+//                        referencePhase.estimatedValue() + referencePhase.getWindowSize());
+//            
+//            
+//            
+//            return Question (QuestionType::ReferencePhase, note1, note2);
+//        }
         // figure out panning calibration for reference note later...
 //        else
 //        {
@@ -109,7 +109,7 @@ Question CalibrationSequencer::getNextQuestion()
         
         return phaseQuestionVar;
     }
-    else if (! pansHaveBeenCalibratedPrecisely())
+    else if (! pansHaveBeenCalibratedWithPrecision (1.0))
     {
         std::cout << "calibrating pan" << std::endl;
         // Get random next pan to calibrate
@@ -136,6 +136,20 @@ Question CalibrationSequencer::getNextQuestion()
                     calibratedSetPointManager.phaseAt (freq));
         
         return Question (QuestionType::Level, note1, note2);
+    }
+    else if (! pansHaveBeenCalibratedWithPrecision (PAN_PRECISION))
+    {
+        std::cout << "calibrating pan" << std::endl;
+        // Get random next pan to calibrate
+        auto [freq, panCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionPan();
+        
+        Note note1 = referenceNote();
+        Note note2 (freq,
+                    calibratedSetPointManager.amplitudeAt (freq),
+                    panCalibratedSetPoint.estimatedValue(),
+                    calibratedSetPointManager.phaseAt (freq));
+        
+        return Question (QuestionType::Pan, note1, note2);
     }
     else
     {
@@ -176,9 +190,9 @@ bool CalibrationSequencer::phasesHaveBeenCalibratedPrecisely() const
     return calibratedSetPointManager.phasesHaveBeenCalibratedWithPrecisionInHzRange (PHASE_PRECISION, PHASE_LOW_HZ, PHASE_HIGH_HZ);
 }
 
-bool CalibrationSequencer::pansHaveBeenCalibratedPrecisely() const
+bool CalibrationSequencer::pansHaveBeenCalibratedWithPrecision (float precision) const
 {
-    return calibratedSetPointManager.pansHaveBeenCalibratedWithPrecision (PAN_PRECISION);
+    return calibratedSetPointManager.pansHaveBeenCalibratedWithPrecision (precision);
 }
 
 bool CalibrationSequencer::amplitudesHaveBeenCalibratedPrecisely() const

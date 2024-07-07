@@ -26,7 +26,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     parameters.state = juce::ValueTree("savedParams");
     isCalibrating = false;
     isBypassed = false;
-    gainProcessor.setGainDecibels(12.f);
+    gainProcessor.setGainDecibels(0.f);
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -328,4 +328,9 @@ const Question& StartupMVPAudioProcessor::getCurrentQuestion() const
 bool StartupMVPAudioProcessor::isPlayingFirstNote() const
 {
     return calibrationManager.isPlayingFirstNote();
+}
+
+void StartupMVPAudioProcessor::changeReferencePanTo (float newReferencePan)
+{
+    calibrationManager.changeReferencePanTo (newReferencePan);
 }

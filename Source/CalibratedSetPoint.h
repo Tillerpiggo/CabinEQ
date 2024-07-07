@@ -23,6 +23,8 @@ public:
     void setLowerBound (const float lowerBound);
     void setUpperBound (const float upperBound);
     
+    void setValue (const float newValue);
+    
     const bool hasEstablishedWindow() const; // if it has set a definitive upper and lower bound yet
     const float estimatedValue() const;
     const float precision() const;

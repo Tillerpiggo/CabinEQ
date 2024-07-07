@@ -24,7 +24,7 @@ private:
     static constexpr float REFERENCE_FREQ = 1000.0;
     static constexpr float REFERENCE_GAIN_DB = 0.0;
     
-    static constexpr float AMPLITUDE_PRECISION = 0.1;
+    static constexpr float AMPLITUDE_PRECISION = 0.5;
     static constexpr float PAN_PRECISION = 0.05;
     static constexpr float PHASE_PRECISION = 0.01;
     
@@ -39,7 +39,7 @@ private:
     bool amplitudesHaveBeenWindowed() const;
     bool amplitudesHaveUpperBounds() const;
     bool phasesHaveBeenCalibratedPrecisely() const;
-    bool pansHaveBeenCalibratedPrecisely() const;
+    bool pansHaveBeenCalibratedWithPrecision (float precision) const;
     bool amplitudesHaveBeenCalibratedPrecisely() const;
     
     CalibratedSetPoint getRandomLowPrecisionSetPoint (const std::vector<CalibratedSetPoint>& calibratedSetPoints) const; // gets random set point of all those w/ least precision

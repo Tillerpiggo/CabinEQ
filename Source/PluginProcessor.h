@@ -72,6 +72,8 @@ public:
     const Question& getCurrentQuestion() const;
     bool isPlayingFirstNote() const;
     
+    void changeReferencePanTo (float newReferencePan);
+    
 private:
     static const int FFT_SIZE = 19;
     

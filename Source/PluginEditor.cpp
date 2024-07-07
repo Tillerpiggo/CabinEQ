@@ -19,8 +19,10 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     addAndMakeVisible (toggleCalibrationButton);
     addAndMakeVisible (lowerPreferredButton);
     addAndMakeVisible (higherPreferredButton);
+    addAndMakeVisible (theSameButton);
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (applyCurveButton);
+    addAndMakeVisible (referenceSlider);
     addAndMakeVisible (redCircle);
     addAndMakeVisible (blueCircle);
     
@@ -30,8 +32,11 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     toggleCalibrationButton.addListener (this);
     lowerPreferredButton.addListener (this);
     higherPreferredButton.addListener (this);
+    theSameButton.addListener (this);
     bypassButton.addListener (this);
     applyCurveButton.addListener (this);
+    
+    referenceSlider.addListener (this);
     
     lowerPreferredButton.setEnabled (false);
     higherPreferredButton.setEnabled (false);
@@ -46,8 +51,10 @@ StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
     toggleCalibrationButton.removeListener (this);
     lowerPreferredButton.removeListener (this);
     higherPreferredButton.removeListener (this);
+    theSameButton.removeListener (this);
     bypassButton.removeListener (this);
     applyCurveButton.removeListener (this);
+    referenceSlider.removeListener (this);
     
     setLookAndFeel(nullptr);
     
@@ -77,15 +84,23 @@ void StartupMVPAudioProcessorEditor::resized()
     // Calculate the remaining height for the lower and higher preferred buttons
     int availableHeight = area.getHeight() - switchHeight - buttonHeight - (3 * padding);
 
+    // Calculate the new height for the lower and higher preferred buttons (2/3 of available height)
+    int buttonSectionHeight = (2 * availableHeight) / 3;
+    int theSameButtonHeight = availableHeight / 3;
+
     // Calculate the width for each button
     int buttonWidth = (area.getWidth() - (3 * padding)) / 2;
 
-    // Layout the lower and higher preferred buttons side by side, taking up available height
-    auto buttonsArea = area.removeFromTop(availableHeight).reduced(padding);
+    // Layout the lower and higher preferred buttons side by side, taking up 2/3 of available height
+    auto buttonsArea = area.removeFromTop(buttonSectionHeight).reduced(padding);
     auto lowerButtonBounds = buttonsArea.removeFromLeft(buttonWidth).reduced(padding / 2);
     lowerPreferredButton.setBounds(lowerButtonBounds);
     auto higherButtonBounds = buttonsArea.reduced(padding / 2);
     higherPreferredButton.setBounds(higherButtonBounds);
+
+    // Place the same button below the lower and higher preferred buttons
+    auto sameButtonArea = area.removeFromTop(theSameButtonHeight).reduced(padding);
+    theSameButton.setBounds(sameButtonArea);
 
     // Place the calibration switch below the buttons
     toggleCalibrationButton.setBounds(area.removeFromTop(switchHeight).reduced(padding / 2));
@@ -99,6 +114,10 @@ void StartupMVPAudioProcessorEditor::resized()
     auto applyCurveButtonArea = rightHalfArea.removeFromLeft((rightHalfArea.getWidth() / 2) - (buttonSpacing / 2));
     auto bypassButtonArea = rightHalfArea.reduced(buttonSpacing / 2);
 
+    // Calculate the area for the referenceSlider to the left of the applyCurveButton
+    auto referenceSliderArea = bottomButtonArea.removeFromLeft((bottomButtonArea.getWidth() / 2) - (buttonSpacing / 2)).reduced(padding);
+
+    referenceSlider.setBounds(referenceSliderArea);
     applyCurveButton.setBounds(applyCurveButtonArea);
     bypassButton.setBounds(bypassButtonArea);
 
@@ -116,6 +135,15 @@ void StartupMVPAudioProcessorEditor::resized()
 
     redCircle.setBounds(redCircleBounds);
     blueCircle.setBounds(blueCircleBounds);
+}
+
+void StartupMVPAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
+{
+    std::cout << "slider value changed" << std::endl;
+    if (slider == &referenceSlider)
+    {
+        audioProcessor.changeReferencePanTo (slider->getValue());
+    }
 }
 
 void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
@@ -136,6 +164,10 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
     {
         audioProcessor.calibrateWith (CalibrationChoice::HigherPreferred);
     }
+    else if (button == &theSameButton)
+    {
+        audioProcessor.calibrateWith (CalibrationChoice::NoPreference);
+    }
     else if (button == &bypassButton)
     {
         audioProcessor.toggleBypass();
@@ -152,7 +184,7 @@ void StartupMVPAudioProcessorEditor::timerCallback()
     Question currentQuestion = audioProcessor.getCurrentQuestion();
     lowerPreferredButton.setButtonText (currentQuestion.lowerText());
     higherPreferredButton.setButtonText (currentQuestion.higherText());
-    
+        
     // Update lights to match which tone is playing
     if (! toggleCalibrationButton.getToggleState())
     {

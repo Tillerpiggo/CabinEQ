@@ -16,7 +16,9 @@ CalibratedSetPointManager::CalibratedSetPointManager() : curve (frequencies, amp
                                                          referencePhase (REFERENCE_PHASE_WINDOW)
 {
     // TODO: Construct the first batch of set points...
-    frequencies = { 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240 };
+    frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120,
+        6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
+//    frequencies = { 160 };
     //frequencies = { 640 };
     
     for (int i = 0; i < frequencies.size(); ++i)
@@ -25,6 +27,8 @@ CalibratedSetPointManager::CalibratedSetPointManager() : curve (frequencies, amp
         pans.push_back (CalibratedSetPoint (3.0f));
         phases.push_back (PhaseCalibratedSetPoint());
     }
+    
+    referencePan.setValue (2.0);
 }
 
 const Curve& CalibratedSetPointManager::getCurve() const
@@ -76,6 +80,11 @@ void CalibratedSetPointManager::calibrateWith (Question question, CalibrationCho
             referencePhase.calibrateWith (choice);
             break;
     }
+}
+
+void CalibratedSetPointManager::changeReferencePanTo (float newReferencePan)
+{
+    referencePan.setValue (newReferencePan);
 }
 
 const float CalibratedSetPointManager::amplitudeAt (const float frequency) const

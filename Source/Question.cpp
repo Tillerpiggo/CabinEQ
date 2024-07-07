@@ -84,10 +84,10 @@ const std::string Question::higherText() const
 
 void Question::increaseControlledNoteVolume()
 {
-    note2.gain += 6.0f;
+    note2.gain += 3.0f;
 }
 
 void Question::decreaseControlledNoteVolume()
 {
-    note2.gain -= 6.0f;
+    note2.gain -= 3.0f;
 }

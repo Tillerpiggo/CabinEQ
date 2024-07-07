@@ -23,6 +23,7 @@ public:
     const Curve& getCurve() const;
     
     void calibrateWith (Question question, CalibrationChoice choice);
+    void changeReferencePanTo (float newReferencePan);
     
     const float amplitudeAt (const float frequency) const;
     const float panAt (const float frequency) const;

@@ -11,7 +11,7 @@
 #include "PhaseCalibratedSetPoint.h"
 
 PhaseCalibratedSetPoint::PhaseCalibratedSetPoint()
-: currentGuess (0.0f), range (M_PI / 32.0f), hasTriedLeft (false), hasTriedRight (false) {}
+: currentGuess (0.0f), range (M_PI), hasTriedLeft (false), hasTriedRight (false) {}
 
 void PhaseCalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
 {

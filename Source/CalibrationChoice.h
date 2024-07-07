@@ -13,5 +13,6 @@
 enum class CalibrationChoice
 {
     LowerPreferred,
-    HigherPreferred
+    HigherPreferred,
+    NoPreference
 };

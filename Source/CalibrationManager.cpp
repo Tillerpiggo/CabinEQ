@@ -50,6 +50,11 @@ void CalibrationManager::calibrateWith (const CalibrationChoice choice)
     }
 }
 
+void CalibrationManager::changeReferencePanTo (float newReferencePan)
+{
+    calibratedSetPointManager.changeReferencePanTo (newReferencePan);
+}
+
 const Curve& CalibrationManager::getCurve() const
 {
     return calibratedSetPointManager.getCurve();

@@ -52,6 +52,27 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice)
 //            upperBound = value + windowSize;
 //        }
     }
+    else if (choice == CalibrationChoice::NoPreference)
+    {
+        if (upperBound.has_value())
+        {
+            upperBound = (upperBound.value() + value) / 2.0f;
+        }
+        else
+        {
+            upperBound = value + 3.0f;
+        }
+        
+        if (lowerBound.has_value())
+        {
+            lowerBound = (lowerBound.value() + value) / 2.0f;
+        }
+        else
+        {
+            lowerBound = value - 3.0f;
+        }
+        
+    }
     
     std::cout << "lowerBound after: " << lowerBound.value_or (-1) << ", upperBound after: " << upperBound.value_or (-1) << std::endl;
     
@@ -66,6 +87,12 @@ void CalibratedSetPoint::setLowerBound (const float lowerBound)
 void CalibratedSetPoint::setUpperBound (const float upperBound)
 {
     this->upperBound = upperBound;
+}
+
+void CalibratedSetPoint::setValue (const float newValue)
+{
+    upperBound = newValue;
+    lowerBound = newValue;
 }
 
 const float CalibratedSetPoint::estimatedValue() const

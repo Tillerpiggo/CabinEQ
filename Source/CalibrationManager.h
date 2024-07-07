@@ -25,6 +25,7 @@ public:
     const std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
     void calibrateWith (const CalibrationChoice choice);
+    void changeReferencePanTo (float newReferencePan);
     
     const Curve& getCurve() const;
     const Question& getCurrentQuestion() const;
@@ -38,4 +39,5 @@ private:
     QuestionSequencer questionSequencer;
     
     Question currentQuestion;
+    
 };

@@ -20,7 +20,8 @@
 */
 class StartupMVPAudioProcessorEditor  : public juce::AudioProcessorEditor,
                                         public juce::Button::Listener,
-                                        public juce::Timer
+                                        public juce::Timer,
+                                        public juce::Slider::Listener
 {
 public:
     StartupMVPAudioProcessorEditor (StartupMVPAudioProcessor&);
@@ -31,6 +32,7 @@ public:
     void resized() override;
     
     void buttonClicked (juce::Button *button) override;
+    void sliderValueChanged (juce::Slider *slider) override;
     
 private:
     juce::Slider& addSlider (std::string name, std::string paramName, int idx);
@@ -44,11 +46,14 @@ private:
     juce::ToggleButton toggleCalibrationButton { "TOGGLE CALIBRATION" };
     juce::TextButton lowerPreferredButton { "Lower Preferred" };
     juce::TextButton higherPreferredButton { "Higher Preferred" };
+    juce::TextButton theSameButton { "They're the same, about " };
     juce::TextButton bypassButton { "BYPASS" };
     juce::TextButton applyCurveButton { "APPLY CURVE" };
     
     CircleComponent redCircle;
     CircleComponent blueCircle;
+    
+    juce::Slider referenceSlider;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
 };
