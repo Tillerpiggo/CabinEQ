@@ -16,15 +16,19 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     setSize (800, 620);
     
     addAndMakeVisible (curveComponent);
-    addAndMakeVisible (toggleCalibrationButton);
+    
     addAndMakeVisible (lowerPreferredButton);
     addAndMakeVisible (higherPreferredButton);
-    addAndMakeVisible (theSameButton);
+    
+    addAndMakeVisible (toggleCalibrationButton);
     addAndMakeVisible (bypassButton);
+    
     addAndMakeVisible (applyCurveButton);
     addAndMakeVisible (referenceSlider);
+    
     addAndMakeVisible (redCircle);
     addAndMakeVisible (blueCircle);
+    addAndMakeVisible (greenCircle);
     
     redCircle.setColor(juce::Colours::lightcoral.withAlpha (0.7f));
     blueCircle.setColor(juce::Colours::lightskyblue.withAlpha (0.7f));
@@ -32,7 +36,6 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     toggleCalibrationButton.addListener (this);
     lowerPreferredButton.addListener (this);
     higherPreferredButton.addListener (this);
-    theSameButton.addListener (this);
     bypassButton.addListener (this);
     applyCurveButton.addListener (this);
     
@@ -49,9 +52,8 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
 StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
 {
     toggleCalibrationButton.removeListener (this);
-    lowerPreferredButton.removeListener (this);
-    higherPreferredButton.removeListener (this);
-    theSameButton.removeListener (this);
+    lowerPreferredButton.removeListener();
+    higherPreferredButton.removeListener();
     bypassButton.removeListener (this);
     applyCurveButton.removeListener (this);
     referenceSlider.removeListener (this);
@@ -98,9 +100,11 @@ void StartupMVPAudioProcessorEditor::resized()
     auto higherButtonBounds = buttonsArea.reduced(padding / 2);
     higherPreferredButton.setBounds(higherButtonBounds);
 
-    // Place the same button below the lower and higher preferred buttons
-    auto sameButtonArea = area.removeFromTop(theSameButtonHeight).reduced(padding);
-    theSameButton.setBounds(sameButtonArea);
+    // Place the green circle below the lower and higher preferred buttons
+    auto greenCircleArea = area.removeFromTop(theSameButtonHeight).reduced(padding);
+    int circleDiameter = 20;
+    auto greenCircleBounds = greenCircleArea.withSizeKeepingCentre(circleDiameter, circleDiameter);
+    greenCircle.setBounds(greenCircleBounds);
 
     // Place the calibration switch below the buttons
     toggleCalibrationButton.setBounds(area.removeFromTop(switchHeight).reduced(padding / 2));
@@ -122,7 +126,6 @@ void StartupMVPAudioProcessorEditor::resized()
     bypassButton.setBounds(bypassButtonArea);
 
     // Calculate the size and position for the circles
-    int circleDiameter = 20;
     int margin = 5;
     int circleSpacing = 4;
     int leftOffset = 3;
@@ -156,17 +159,13 @@ void StartupMVPAudioProcessorEditor::buttonClicked (juce::Button *button)
         lowerPreferredButton.setEnabled (isEnabled);
         higherPreferredButton.setEnabled (isEnabled);
     }
-    else if (button == &lowerPreferredButton)
+    else if (button == lowerPreferredButton.getButtonPointer())
     {
         audioProcessor.calibrateWith (CalibrationChoice::LowerPreferred);
     }
-    else if (button == &higherPreferredButton)
+    else if (button == higherPreferredButton.getButtonPointer())
     {
         audioProcessor.calibrateWith (CalibrationChoice::HigherPreferred);
-    }
-    else if (button == &theSameButton)
-    {
-        audioProcessor.calibrateWith (CalibrationChoice::NoPreference);
     }
     else if (button == &bypassButton)
     {
@@ -182,8 +181,8 @@ void StartupMVPAudioProcessorEditor::timerCallback()
 {
     // Update button text to match question
     Question currentQuestion = audioProcessor.getCurrentQuestion();
-    lowerPreferredButton.setButtonText (currentQuestion.lowerText());
-    higherPreferredButton.setButtonText (currentQuestion.higherText());
+    lowerPreferredButton.setLabelText (currentQuestion.lowerText());
+    higherPreferredButton.setLabelText (currentQuestion.higherText());
         
     // Update lights to match which tone is playing
     if (! toggleCalibrationButton.getToggleState())
@@ -193,13 +192,34 @@ void StartupMVPAudioProcessorEditor::timerCallback()
     }
     else if (audioProcessor.isPlayingFirstNote())
     {
-        redCircle.setColor(juce::Colours::lightcoral.withSaturation (1.0f));
-        blueCircle.setColor(juce::Colours::lightskyblue.withAlpha (0.7f));
+        if (currentQuestion.getType() == QuestionType::Pan)
+        {
+            greenCircle.setColor (juce::Colours::green.withSaturation (1.0f));
+        }
+        else
+        {
+            redCircle.setColor (juce::Colours::lightcoral.withSaturation (1.0f));
+            blueCircle.setColor (juce::Colours::lightskyblue.withAlpha (0.7f));
+            greenCircle.setColor (juce::Colours::green.withAlpha (0.2f));
+            lowerPreferredButton.setDeepRed (true);
+            higherPreferredButton.setDeepRed (false);
+        }
+        
     }
     else
     {
-        redCircle.setColor(juce::Colours::lightcoral.withAlpha (0.7f));
-        blueCircle.setColor(juce::Colours::lightskyblue.withSaturation (1.0f));
+        if (currentQuestion.getType() == QuestionType::Pan)
+        {
+            lowerPreferredButton.setDeepRed (true);
+            higherPreferredButton.setDeepRed (true);
+        }
+        else
+        {
+            redCircle.setColor (juce::Colours::lightcoral.withAlpha (0.7f));
+            blueCircle.setColor (juce::Colours::lightskyblue.withSaturation (1.0f));
+            lowerPreferredButton.setDeepRed (false);
+            higherPreferredButton.setDeepRed (true);
+        }
     }
     
 }

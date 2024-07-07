@@ -74,7 +74,13 @@ const bool CalibrationManager::isPlayingFirstNote() const
 
 void CalibrationManager::sequenceDidFinish()
 {
-    std::cout << "CALIBRATION MANAGER GOT FINISHED SEQUENCE" << std::endl;
+    // Go to next question w/ NoPreference
+    if (currentQuestion.getType() != QuestionType::LowerThan &&
+        currentQuestion.getType() != QuestionType::HigherThan)
+    {
+        calibratedSetPointManager.calibrateWith (currentQuestion, CalibrationChoice::NoPreference);
+        goToNextQuestion();
+    }
 }
 
 void CalibrationManager::goToNextQuestion()

@@ -45,7 +45,7 @@ const std::string Question::lowerText() const
     switch (type)
     {
         case QuestionType::Level:
-            return "Quieter";
+            return "This one's louder!";
         case QuestionType::Pan:
             return "Left";
         case QuestionType::Phase:
@@ -66,7 +66,7 @@ const std::string Question::higherText() const
     switch (type)
     {
         case QuestionType::Level:
-            return "Louder";
+            return "This one's louder!";
         case QuestionType::Pan:
             return "Right";
         case QuestionType::Phase:

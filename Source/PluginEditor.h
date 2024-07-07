@@ -14,6 +14,7 @@
 #include "SliderGroup.h"
 #include "ClearSoundLookAndFeel.h"
 #include "CircleComponent.h"
+#include "CircularButton.h"
 
 //==============================================================================
 /**
@@ -44,14 +45,14 @@ private:
     
     CurveComponent curveComponent;
     juce::ToggleButton toggleCalibrationButton { "TOGGLE CALIBRATION" };
-    juce::TextButton lowerPreferredButton { "Lower Preferred" };
-    juce::TextButton higherPreferredButton { "Higher Preferred" };
-    juce::TextButton theSameButton { "They're the same, about " };
+    CircularButton lowerPreferredButton { "" };
+    CircularButton higherPreferredButton { "" };
     juce::TextButton bypassButton { "BYPASS" };
     juce::TextButton applyCurveButton { "APPLY CURVE" };
     
     CircleComponent redCircle;
     CircleComponent blueCircle;
+    CircleComponent greenCircle;
     
     juce::Slider referenceSlider;
     
