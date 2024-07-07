@@ -30,7 +30,8 @@ Question CalibrationSequencer::getNextQuestion()
         Sequence (SequenceType::PAN, 0.75f),
         Sequence (SequenceType::AMPLITUDE, 1.5f),
         Sequence (SequenceType::PAN, 0.25f),
-        Sequence (SequenceType::AMPLITUDE, 0.5f)
+        Sequence (SequenceType::AMPLITUDE, 0.5f),
+        Sequence (SequenceType::PHASE, 0.01f)
     };
     
     for (auto& sequence : sequences)
@@ -54,6 +55,8 @@ bool CalibrationSequencer::hasSequenceCompleted (Sequence sequence)
             return amplitudesHaveBeenCalibratedWithPrecision (sequence.precision);
         case SequenceType::PAN:
             return pansHaveBeenCalibratedWithPrecision (sequence.precision);
+        case SequenceType::PHASE:
+            return phasesHaveBeenCalibratedWithPrecision (sequence.precision);
     }
 }
 
@@ -100,6 +103,21 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
             
             return Question (QuestionType::Pan, note1, note2);
         }
+        case SequenceType::PHASE:
+        {
+            auto [freq, phaseCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionPhaseInRange (PHASE_LOW_HZ, PHASE_HIGH_HZ);
+            
+            Note note1 (freq,
+                        calibratedSetPointManager.amplitudeAt (freq),
+                        calibratedSetPointManager.panAt (freq),
+                        phaseCalibratedSetPoint.getCurrentGuess());
+            Note note2 (freq,
+                        calibratedSetPointManager.amplitudeAt (freq),
+                        calibratedSetPointManager.panAt (freq),
+                        phaseCalibratedSetPoint.getNextGuess());
+            
+            return Question (QuestionType::Phase, note1, note2);
+        }
     }
 }
 
@@ -130,9 +148,9 @@ bool CalibrationSequencer::amplitudesHaveUpperBounds() const
     return calibratedSetPointManager.amplitudesHaveUpperBounds();
 }
 
-bool CalibrationSequencer::phasesHaveBeenCalibratedPrecisely() const
+bool CalibrationSequencer::phasesHaveBeenCalibratedWithPrecision (float precision) const
 {
-    return calibratedSetPointManager.phasesHaveBeenCalibratedWithPrecisionInHzRange (0.1f, PHASE_LOW_HZ, PHASE_HIGH_HZ);
+    return calibratedSetPointManager.phasesHaveBeenCalibratedWithPrecisionInHzRange (precision, PHASE_LOW_HZ, PHASE_HIGH_HZ);
 }
 
 bool CalibrationSequencer::pansHaveBeenCalibratedWithPrecision (float precision) const

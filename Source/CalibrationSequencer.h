@@ -26,6 +26,7 @@ private:
         INIT_AMPLITUDE_WINDOWS,
         AMPLITUDE,
         PAN,
+        PHASE
     };
     
     struct Sequence
@@ -51,7 +52,7 @@ private:
     bool referenceNoteHasBeenCalibrated() const;
     bool amplitudesHaveBeenWindowed() const;
     bool amplitudesHaveUpperBounds() const;
-    bool phasesHaveBeenCalibratedPrecisely() const;
+    bool phasesHaveBeenCalibratedWithPrecision (float precision) const;
     bool pansHaveBeenCalibratedWithPrecision (float precision) const;
     bool amplitudesHaveBeenCalibratedWithPrecision (float precision) const;
     
