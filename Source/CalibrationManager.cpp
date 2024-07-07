@@ -14,6 +14,7 @@ CalibrationManager::CalibrationManager()
 : calibrationSequencer (calibratedSetPointManager), currentQuestion (Question::defaultQuestion()) 
 {
     goToNextQuestion();
+    questionSequencer.setListener (this);
 }
 
 const std::pair<float, float> CalibrationManager::getNextSample()
@@ -68,7 +69,12 @@ const Question& CalibrationManager::getCurrentQuestion() const
 const bool CalibrationManager::isPlayingFirstNote() const
 {
     // TODO: Fix isPlayingFirstNote
-    return true;//questionSequencer.isPlayingFirstNote();
+    return questionSequencer.isPlayingFirstNote();
+}
+
+void CalibrationManager::sequenceDidFinish()
+{
+    std::cout << "CALIBRATION MANAGER GOT FINISHED SEQUENCE" << std::endl;
 }
 
 void CalibrationManager::goToNextQuestion()

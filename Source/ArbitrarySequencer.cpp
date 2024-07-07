@@ -10,8 +10,6 @@
 
 #include "ArbitrarySequencer.h"
 
-ArbitrarySequencer::ArbitrarySequencer() {}
-
 std::pair<float, float> ArbitrarySequencer::getNextSample()
 {
     SequenceableNote currNote = notes.at (currNoteIdx);
@@ -28,17 +26,28 @@ std::pair<float, float> ArbitrarySequencer::getNextSample()
     return { leftSample * leftGain, rightSample * rightGain };
 }
 
+bool ArbitrarySequencer::isPlayingFirstNote() const
+{
+    return currNoteIdx == 0;
+}
+
 void ArbitrarySequencer::setSampleRate (float newSampleRate)
 {
     sineWaveGenerator.setSampleRate (newSampleRate);
 }
 
-void ArbitrarySequencer::setNotes (std::vector<SequenceableNote> notes)
+void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote>& newNotes)
 {
-    this->notes = notes;
-    numSamplesNoteHasBeenPlaying = 0;
+    notes = newNotes;
     currNoteIdx = 0;
+    numSamplesNoteHasBeenPlaying = 0;
+    
     sineWaveGenerator.setNote (getCurrNote().note());
+}
+
+void ArbitrarySequencer::setListener(SequencerListener* newListener)
+{
+    listener = newListener;
 }
 
 void ArbitrarySequencer::goToNextNote()
@@ -49,6 +58,7 @@ void ArbitrarySequencer::goToNextNote()
     if (currNoteIdx >= notes.size())
     {
         currNoteIdx = 0;
+        notifyListener();
     }
     
     sineWaveGenerator.setNote (getCurrNote().note());
@@ -57,4 +67,12 @@ void ArbitrarySequencer::goToNextNote()
 const SequenceableNote& ArbitrarySequencer::getCurrNote() const
 {
     return notes.at (currNoteIdx);
+}
+
+void ArbitrarySequencer::notifyListener()
+{
+    if (listener != nullptr)
+    {
+        listener->sequenceDidFinish();
+    }
 }

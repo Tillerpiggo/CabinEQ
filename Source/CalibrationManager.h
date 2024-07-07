@@ -17,7 +17,7 @@
 #include "CalibrationChoice.h"
 #include "QuestionSequencer.h"
 
-class CalibrationManager
+class CalibrationManager   : public SequencerListener
 {
 public:
     CalibrationManager();
@@ -30,6 +30,8 @@ public:
     const Curve& getCurve() const;
     const Question& getCurrentQuestion() const;
     const bool isPlayingFirstNote() const;
+    
+    void sequenceDidFinish();
     
 private:
     void goToNextQuestion();

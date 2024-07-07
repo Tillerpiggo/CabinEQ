@@ -24,7 +24,7 @@ CalibratedSetPointManager::CalibratedSetPointManager() : curve (frequencies, amp
     for (int i = 0; i < frequencies.size(); ++i)
     {
         amplitudes.push_back (CalibratedSetPoint (12.0f));
-        pans.push_back (CalibratedSetPoint (3.0f));
+        pans.push_back (CalibratedSetPoint (6.0f));
         phases.push_back (PhaseCalibratedSetPoint());
     }
     

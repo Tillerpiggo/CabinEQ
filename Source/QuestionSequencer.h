@@ -14,18 +14,26 @@
 #include "ArbitrarySequencer.h"
 #include "Question.h"
 
-class QuestionSequencer
+class QuestionSequencer   : public SequencerListener
 {
 public:
     QuestionSequencer();
     
     std::pair<float, float> getNextSample();
+    bool isPlayingFirstNote() const;
+    
     void setSampleRate (float newSampleRate);
     void setQuestion (Question question);
+    
+    void sequenceDidFinish() override;
+    
+    void setListener (SequencerListener* newListener);
     
 private:
     const std::vector<SequenceableNote> notesForQuestion (const Question& question) const;
     
     std::optional<Question> currQuestion;
     ArbitrarySequencer arbitrarySequencer;
+    
+    SequencerListener* listener;
 };

@@ -10,7 +10,10 @@
 
 #include "QuestionSequencer.h"
 
-QuestionSequencer::QuestionSequencer() {}
+QuestionSequencer::QuestionSequencer() : listener (nullptr)
+{
+    arbitrarySequencer.setListener (this);
+}
 
 std::pair<float, float> QuestionSequencer::getNextSample()
 {
@@ -25,6 +28,11 @@ std::pair<float, float> QuestionSequencer::getNextSample()
     return { leftSample, rightSample };
 }
 
+bool QuestionSequencer::isPlayingFirstNote() const
+{
+    return arbitrarySequencer.isPlayingFirstNote();
+}
+
 void QuestionSequencer::setSampleRate (float newSampleRate)
 {
     arbitrarySequencer.setSampleRate (newSampleRate);
@@ -34,6 +42,19 @@ void QuestionSequencer::setQuestion (Question question)
 {
     currQuestion = question;
     arbitrarySequencer.setNotes (notesForQuestion (currQuestion.value()));
+}
+
+void QuestionSequencer::sequenceDidFinish()
+{
+    if (listener != nullptr)
+    {
+        listener->sequenceDidFinish();
+    }
+}
+
+void QuestionSequencer::setListener (SequencerListener* newListener)
+{
+    listener = newListener;
 }
 
 const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Question& question) const
