@@ -26,25 +26,67 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
     {
         case CalibrationChoice::HigherPreferred:
             upperBound = value;
+            
+            // do dynamic tempo calibration; fast response = bigger gap
+            if (! hasEstablishedWindow())
+            {
+                if (numNoPreferencesInARow == 0)
+                {
+                    windowSize *= 2;
+                }
+                else if (numNoPreferencesInARow == 1)
+                {
+                    windowSize *= 1.5;
+                }
+                
+                if (windowSize > 24.0f)
+                {
+                    windowSize = 24.0f;
+                }
+            }
+            else
+            {
+                if (numNoPreferencesInARow == 0)
+                {
+                    lowerBound = lowerBound.value() - 6.0f;
+                }
+                else 
+                {
+                    lowerBound = lowerBound.value() - 2.5f;
+                }
+            }
+            
+            numNoPreferencesInARow = 0;
             break;
         case CalibrationChoice::LowerPreferred:
             lowerBound = value;
+            numNoPreferencesInARow = 0;
             break;
         case CalibrationChoice::NoPreference:
+            if (numNoPreferencesInARow < 2)
+            {
+                numNoPreferencesInARow++;
+                return;
+            }
+            
             if (upperBound.has_value())
             {
-                upperBound = (upperBound.value() + value) / 1.4f;
+                float distanceToValue = upperBound.value() - value;
+                upperBound = upperBound.value() - distanceToValue * 0.3;
             }
             
             if (lowerBound.has_value())
             {
-                lowerBound = (lowerBound.value() + value) / 1.4f;
+                float distanceToValue = value - lowerBound.value();
+                lowerBound = lowerBound.value() + distanceToValue * 0.3;
             }
             
             if (! hasEstablishedWindow())
             {
                 windowSize /= 1.4f;
             }
+            
+            numNoPreferencesInARow++;
             
             break;
     }
@@ -70,14 +112,17 @@ const float CalibratedSetPoint::estimatedValue() const
 {
     if (hasEstablishedWindow())
     {
+        //std::cout << "estimatedValue: " << (upperBound.value() + lowerBound.value()) / 2.0f << std::endl;
         return (upperBound.value() + lowerBound.value()) / 2.0f;
     }
     else if (lowerBound.has_value())
     {
+        //std::cout << "estimatedValue: " << (lowerBound.value() + (lowerBound.value() + windowSize)) / 2.0f << std::endl;
         return (lowerBound.value() + (lowerBound.value() + windowSize)) / 2.0f;
     }
     else if (upperBound.has_value())
     {
+        //std::cout << "estimatedValue: " << (upperBound.value() + (upperBound.value() - windowSize)) / 2.0f << std::endl;
         return (upperBound.value() + (upperBound.value() - windowSize)) / 2.0f;
     }
     else

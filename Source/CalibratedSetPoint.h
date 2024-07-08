@@ -40,4 +40,5 @@ private:
     std::optional<float> upperBound;
     
     float windowSize;
+    int numNoPreferencesInARow = 0;
 };
