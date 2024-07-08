@@ -60,4 +60,5 @@ private:
     const Note referenceNote() const;
     const CalibratedSetPoint& getReferencePan() const;
     const CalibratedSetPoint& getReferencePhase() const;
+
 };

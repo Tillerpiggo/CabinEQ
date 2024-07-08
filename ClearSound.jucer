@@ -26,6 +26,10 @@
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
               file="Source/CurveComponent.h"/>
+        <FILE id="dn7wHe" name="InverseFletcherMunsonCurve.cpp" compile="1"
+              resource="0" file="Source/InverseFletcherMunsonCurve.cpp"/>
+        <FILE id="j9Paoc" name="InverseFletcherMunsonCurve.h" compile="0" resource="0"
+              file="Source/InverseFletcherMunsonCurve.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
         <FILE id="E3LGsL" name="QuestionSequencer.cpp" compile="1" resource="0"

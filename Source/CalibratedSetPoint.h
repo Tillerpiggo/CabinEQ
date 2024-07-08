@@ -24,8 +24,10 @@ public:
     void setUpperBound (const float upperBound);
     
     void setValue (const float newValue);
+    void setInitialGuess (const float initialGuess);
     
     const bool hasEstablishedWindow() const; // if it has set a definitive upper and lower bound yet
+    const bool getIsCompletelyUncalibrated() const;
     const float estimatedValue() const;
     const float precision() const;
     const float getWindowSize() const;
@@ -39,6 +41,9 @@ private:
     std::optional<float> lowerBound;
     std::optional<float> upperBound;
     
+    bool isCompletelyUncalibrated = true;
+    
     float windowSize;
+    
     int numNoPreferencesInARow = 0;
 };

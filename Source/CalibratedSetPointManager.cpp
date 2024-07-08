@@ -81,7 +81,28 @@ void CalibratedSetPointManager::changeReferencePanTo (float newReferencePan)
 
 const float CalibratedSetPointManager::amplitudeAt (const float frequency) const
 {
-    return amplitudes.at (indexForFrequency (frequency)).estimatedValue();
+    int freqIdx = indexForFrequency (frequency);
+    CalibratedSetPoint amplitudeCalibratedSetPoint = amplitudes.at (indexForFrequency (frequency));
+    return amplitudeCalibratedSetPoint.estimatedValue();
+    if (amplitudeCalibratedSetPoint.getIsCompletelyUncalibrated())
+    {
+        // Return average of surrounding set points
+        if (freqIdx == 0)
+        {
+            return amplitudes.at (freqIdx + 1).estimatedValue();
+        }
+        
+        if (freqIdx == frequencies.size() - 1)
+        {
+            return amplitudes.at (freqIdx - 1).estimatedValue();
+        }
+        
+        return (amplitudes.at (freqIdx - 1).estimatedValue() + amplitudes.at (freqIdx + 1).estimatedValue()) / 2.0f;
+    }
+    else
+    {
+        return amplitudeCalibratedSetPoint.estimatedValue();
+    }
 }
 
 const float CalibratedSetPointManager::panAt (const float frequency) const
@@ -92,6 +113,16 @@ const float CalibratedSetPointManager::panAt (const float frequency) const
 const float CalibratedSetPointManager::phaseAt (const float frequency) const
 {
     return phases.at (indexForFrequency (frequency)).estimatedValue();
+}
+
+const std::vector<float>& CalibratedSetPointManager::getFrequencies() const
+{
+    return frequencies;
+}
+
+const std::vector<CalibratedSetPoint>& CalibratedSetPointManager::getAmplitudeCalibratedSetPoints() const
+{
+    return amplitudes;
 }
 
 const CalibratedSetPoint& CalibratedSetPointManager::getReferencePanCalibratedSetPoint() const
@@ -249,6 +280,8 @@ bool CalibratedSetPointManager::calibratedSetPointsHaveBeenCalibratedWithPrecisi
         
         bool isImprecise = ! calibratedSetPoint.hasEstablishedWindow() ||
                            calibratedSetPoint.precision() > precision;
+        
+        std::cout << "precision at freq " << frequencies.at (i) << ": " << calibratedSetPoint.precision();
         bool inRange = frequency >= lowerHz && frequency <= upperHz;
         if (isImprecise && inRange)
         {

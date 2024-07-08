@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "CalibratedSetPoint.h"
 #include "PhaseCalibratedSetPoint.h"
+#include "InverseFletcherMunsonCurve.h"
 
 // This manages a curve interpolated between a list of set points, with an arbitrary resolution.
 class Curve
@@ -47,4 +48,6 @@ protected:
     const std::vector<PhaseCalibratedSetPoint>& phases;
     const std::vector<CalibratedSetPoint>& pans;
     float factor = 1.f;
+    
+    InverseFletcherMunsonCurve inverseFM;
 };

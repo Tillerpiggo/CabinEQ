@@ -23,11 +23,16 @@ public:
     const Curve& getCurve() const;
     
     void calibrateWith (Question question, CalibrationChoice choice);
+    void calibrateSetPointWith (CalibratedSetPoint calibratedSetPoint, CalibrationChoice choice, float value, float interpolatedValue);
+    
     void changeReferencePanTo (float newReferencePan);
     
     const float amplitudeAt (const float frequency) const;
     const float panAt (const float frequency) const;
     const float phaseAt (const float frequency) const;
+    
+    const std::vector<float>& getFrequencies() const;
+    const std::vector<CalibratedSetPoint>& getAmplitudeCalibratedSetPoints() const;
     
     bool amplitudesHaveBeenWindowed() const;
     bool amplitudesHaveUpperBounds() const;

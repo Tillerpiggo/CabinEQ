@@ -22,6 +22,8 @@ CalibratedSetPoint::CalibratedSetPoint (float lowerBound, float upperBound) : wi
 
 void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float value)
 {
+    isCompletelyUncalibrated = false;
+    
     switch (choice)
     {
         case CalibrationChoice::HigherPreferred:
@@ -135,6 +137,11 @@ const float CalibratedSetPoint::estimatedValue() const
 const bool CalibratedSetPoint::hasEstablishedWindow() const
 {
     return lowerBound.has_value() && upperBound.has_value();
+}
+
+const bool CalibratedSetPoint::getIsCompletelyUncalibrated() const
+{
+    return isCompletelyUncalibrated;
 }
 
 const float CalibratedSetPoint::precision() const

@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "Note.h"
+#include "InverseFletcherMunsonCurve.h"
 
 class SineWaveGenerator
 {
@@ -27,7 +28,7 @@ public:
     void setPhase (float phaseInRadians); // changes left/right phase relationship of current playing note
     
 private:
-    static constexpr float TILT = 0.59566214; // 4.5 db/oct slope
+    static constexpr float TILT = 0.7;//0.59566214; // 4.5 db/oct slope
     static constexpr float REFERENCE_FREQ = 1000; // freq in hz whexsre amplitudeCompensation = 0
     
     void updatePhaseIncrementAndAmplitudeCompensation();
@@ -41,4 +42,6 @@ private:
     float phaseIncrement = 0;
     float leftAmplitudeCompensation = 0;
     float rightAmplitudeCompensation = 0;
+    
+    InverseFletcherMunsonCurve inverseFM;
 };
