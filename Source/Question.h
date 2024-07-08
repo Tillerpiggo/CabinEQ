@@ -17,8 +17,6 @@ enum class QuestionType
     Level,
     Pan,
     Phase,
-    InitialUpperBounds,
-    InitialLowerBounds,
     ReferencePan,
     ReferencePhase
 };
@@ -26,7 +24,7 @@ enum class QuestionType
 class Question
 {
 public:
-    Question (QuestionType type, Note note1, Note note2);
+    Question (QuestionType type, Note note1, Note note2, int tempo);
     
     const QuestionType getType() const;
     const float controlledFrequency() const; // return the frequency the user is calibrating/controlling w/ this questi
@@ -34,14 +32,17 @@ public:
     
     const Note& getNote1() const;
     const Note& getNote2() const;
+    const int getTempo() const;
     const std::string lowerText() const; // text for the lowerPreferred button based on QuestionType
     const std::string higherText() const; // text for the higherPreferred button based on QuestionType
     
     void increaseControlledNoteVolume();
     void decreaseControlledNoteVolume();
+    void decreaseTempo();
     
 private:
     QuestionType type;
     Note note1;
     Note note2;
+    int tempo = 4;
 };

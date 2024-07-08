@@ -20,8 +20,7 @@ CalibrationSequencer::CalibrationSequencer (const CalibratedSetPointManager& cal
 Question CalibrationSequencer::getNextQuestion()
 {
     std::vector<Sequence> sequences = { 
-        Sequence (SequenceType::INIT_AMPLITUDE_UPPER_BOUNDS, 0),
-        Sequence (SequenceType::INIT_AMPLITUDE_LOWER_BOUNDS, 0),
+        Sequence (SequenceType::AMPLITUDE, 24.0f),
         Sequence (SequenceType::PAN, 6.0f),
         Sequence (SequenceType::AMPLITUDE, 12.0f),
         Sequence (SequenceType::PAN, 3.0f),
@@ -50,10 +49,6 @@ bool CalibrationSequencer::hasSequenceCompleted (Sequence sequence)
 {
     switch (sequence.type)
     {
-        case SequenceType::INIT_AMPLITUDE_UPPER_BOUNDS:
-            return amplitudesHaveUpperBounds();
-        case SequenceType::INIT_AMPLITUDE_LOWER_BOUNDS:
-            return amplitudesHaveBeenWindowed();
         case SequenceType::AMPLITUDE:
             return amplitudesHaveBeenCalibratedWithPrecision (sequence.precision);
         case SequenceType::PAN:
@@ -67,9 +62,7 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
 {
     switch (sequence.type)
     {
-        case SequenceType::INIT_AMPLITUDE_LOWER_BOUNDS:
-            [[fallthrough]];
-        case SequenceType::INIT_AMPLITUDE_UPPER_BOUNDS:
+        case SequenceType::AMPLITUDE:
         {
             auto [freq, amplitudeCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionAmplitude();
             
@@ -79,29 +72,10 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
                         calibratedSetPointManager.panAt (freq),
                         calibratedSetPointManager.phaseAt (freq));
             
-            QuestionType type;
-            if (sequence.type == SequenceType::INIT_AMPLITUDE_UPPER_BOUNDS)
-            {
-                type = QuestionType::InitialUpperBounds;
-            }
-            else
-            {
-                type = QuestionType::InitialLowerBounds;
-            }
-            
-            return Question (type, note1, note2);
-        }
-        case SequenceType::AMPLITUDE:
-        {
-            auto [freq, amplitudeCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionAmplitude();
-            
-            Note note1 = referenceNote();
-            Note note2 (freq,
-                        amplitudeCalibratedSetPoint.estimatedValue(),
-                        calibratedSetPointManager.panAt (freq),
-                        calibratedSetPointManager.phaseAt (freq));
-            
-            return Question (QuestionType::Level, note1, note2);
+            return Question (QuestionType::Level,
+                             note1,
+                             note2,
+                             amplitudeCalibratedSetPoint.getInitialTempo());
         }
         case SequenceType::PAN:
         {
@@ -110,10 +84,13 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
             Note note1 = referenceNote();
             Note note2 (freq,
                         calibratedSetPointManager.amplitudeAt (freq),
-                        panCalibratedSetPoint.estimatedValue(),
+                        panCalibratedSetPoint.getNextGuess(),
                         calibratedSetPointManager.phaseAt (freq));
             
-            return Question (QuestionType::Pan, note1, note2);
+            return Question (QuestionType::Pan, 
+                             note1,
+                             note2,
+                             panCalibratedSetPoint.getInitialTempo());
         }
         case SequenceType::PHASE:
         {
@@ -128,7 +105,10 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
                         calibratedSetPointManager.panAt (freq),
                         phaseCalibratedSetPoint.getNextGuess());
             
-            return Question (QuestionType::Phase, note1, note2);
+            return Question (QuestionType::Phase, 
+                             note1,
+                             note2,
+                             0);
         }
     }
 }
@@ -141,7 +121,7 @@ Question CalibrationSequencer::phaseQuestion (const float frequency, const float
     Note note1 (frequency, gain + GAIN_INCREASE, PAN, phase.getCurrentGuess());
     Note note2 (frequency, gain + GAIN_INCREASE, PAN, phase.getNextGuess());
     
-    return Question (QuestionType::Phase, note1, note2);
+    return Question (QuestionType::Phase, note1, note2, 0);
 }
 
 bool CalibrationSequencer::referenceNoteHasBeenCalibrated() const

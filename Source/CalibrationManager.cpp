@@ -57,7 +57,8 @@ const bool CalibrationManager::isPlayingFirstNote() const
 void CalibrationManager::sequenceDidFinish()
 {
     calibratedSetPointManager.calibrateWith (currentQuestion, CalibrationChoice::NoPreference);
-    goToNextQuestion();
+    currentQuestion.decreaseTempo();
+    questionSequencer.setQuestion (currentQuestion);
 }
 
 void CalibrationManager::goToNextQuestion()

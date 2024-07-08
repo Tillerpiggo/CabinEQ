@@ -16,8 +16,8 @@ CalibratedSetPointManager::CalibratedSetPointManager() : curve (frequencies, amp
                                                          referencePhase (REFERENCE_PHASE_WINDOW)
 {
     // TODO: Construct the first batch of set points...
-    frequencies = { 20, 100, 300, 600, 2000, 3000, 6000, 10000, 12500, 15000 };
-//    frequencies = { 10, 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
+    //frequencies = { 300, 2000, 5000 };//{ 20, 100, 300, 600, 2000, 3000, 6000, 10000, 12500, 15000 };
+    frequencies = { 10, 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
     
     
 //    frequencies = { 20, 40, 60, 80, 100, 200, 300, 400, 500, 650, 800, 1280, 1500, 1800, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500,
@@ -56,10 +56,6 @@ void CalibratedSetPointManager::calibrateWith (Question question, CalibrationCho
     
     switch (question.getType())
     {
-        case QuestionType::InitialLowerBounds:
-            [[fallthrough]];
-        case QuestionType::InitialUpperBounds:
-            [[fallthrough]];
         case QuestionType::Level:
             amplitudes.at (idx).calibrateWith (choice, question.getNote2().gain);
             break;

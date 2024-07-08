@@ -10,7 +10,8 @@
 
 #include "Question.h"
 
-Question::Question (QuestionType type, Note note1, Note note2) : type (type), note1 (note1), note2 (note2) {}
+Question::Question (QuestionType type, Note note1, Note note2, int tempo)
+    : type (type), note1 (note1), note2 (note2), tempo (tempo) {}
 
 const QuestionType Question::getType() const
 {
@@ -27,7 +28,7 @@ Question Question::defaultQuestion()
     Note note1 (1000.0f, 0.0f, 0.0f, 0.0f);
     Note note2 (440.0f, 0.0f, 0.0f, 0.0f);
     
-    return Question (QuestionType::Level, note1, note2);
+    return Question (QuestionType::Level, note1, note2, 0);
 }
 
 const Note& Question::getNote1() const
@@ -40,6 +41,11 @@ const Note& Question::getNote2() const
     return note2;
 }
 
+const int Question::getTempo() const
+{
+    return tempo;
+}
+
 const std::string Question::lowerText() const
 {
     switch (type)
@@ -50,10 +56,6 @@ const std::string Question::lowerText() const
             return "Left";
         case QuestionType::Phase:
             return "First More Sharp"; // ?? might need to change
-        case QuestionType::InitialUpperBounds:
-            return "Reference Tone";
-        case QuestionType::InitialLowerBounds:
-            return "Reference Tone";
         case QuestionType::ReferencePan:
             return "First More Centered";
         case QuestionType::ReferencePhase:
@@ -71,10 +73,6 @@ const std::string Question::higherText() const
             return "Right";
         case QuestionType::Phase:
             return "Second More Sharp"; // ?? same as above, might need to change
-        case QuestionType::InitialUpperBounds:
-            return "Click me if I'm obviously louder!";
-        case QuestionType::InitialLowerBounds:
-            return "Click me if I'm obviously quieter!";
         case QuestionType::ReferencePan:
             return "Second More Centered";
         case QuestionType::ReferencePhase:
@@ -90,4 +88,9 @@ void Question::increaseControlledNoteVolume()
 void Question::decreaseControlledNoteVolume()
 {
     note2.gain -= 3.0f;
+}
+
+void Question::decreaseTempo()
+{
+    tempo++;
 }

@@ -22,36 +22,36 @@ CalibratedSetPoint::CalibratedSetPoint (float lowerBound, float upperBound) : wi
 
 void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float value)
 {
-    if (! hasEstablishedWindow())
-    {
-        lastGuess = value;
-    }
-    
     switch (choice)
     {
         case CalibrationChoice::HigherPreferred:
-            if (hasEstablishedWindow())
+            upperBound = value;
+            if (! hasEstablishedWindow())
             {
-                upperBound = value;
-            }
-            else
-            {
-                if (! upperBound.has_value())
-                {
-                    upperBound = value;
-                }
-                else
-                {
-                    lowerBound = value;
-                }
+                nextGuess -= 8.0f;
             }
             break;
         case CalibrationChoice::LowerPreferred:
             lowerBound = value;
+            if (! hasEstablishedWindow())
+            {
+                nextGuess += 8.0f;
+            }
             break;
         case CalibrationChoice::NoPreference:
             // If you haven't established a window, don't act on the info yet
-            if (! hasEstablishedWindow()) return;
+            if (! hasEstablishedWindow())
+            {
+                if (! upperBound.has_value())
+                {
+                    nextGuess += 8.0f;
+                }
+                else
+                {
+                    nextGuess -= 8.0f;
+                }
+                return;
+            }
             
             if (upperBound.has_value())
             {
@@ -153,22 +153,29 @@ const float CalibratedSetPoint::getUpperBound() const
     return upperBound.value_or (std::numeric_limits<float>::infinity());
 }
 
+const int CalibratedSetPoint::getInitialTempo() const
+{
+    if (! hasEstablishedWindow())
+    {
+        return 0;
+    }
+    else
+    {
+        int tempo = std::log2(12.0 / precision());
+        if (tempo < 0) tempo = 0;
+
+        return tempo;
+    }
+}
+
 const float CalibratedSetPoint::getNextGuess() const
 {
-    if (! lastGuess.has_value())
+    if (! hasEstablishedWindow())
     {
-        return 0.0f; // TODO: add interpolation here
+        return nextGuess;
     }
-    
-    if (! upperBound.has_value())
+    else
     {
-        std::cout << "getting next guess w/ value: " << lastGuess.value() + INIT_WINDOW_SIZE << std::endl;
-        return lastGuess.value() + INIT_WINDOW_SIZE;
+        return estimatedValue();
     }
-    else if (! lowerBound.has_value())
-    {
-        return lastGuess.value() - INIT_WINDOW_SIZE;
-    }
-    
-    return std::numeric_limits<float>::min();
 }

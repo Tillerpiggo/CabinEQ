@@ -31,15 +31,14 @@ public:
     const float getWindowSize() const;
     const float getLowerBound() const;
     const float getUpperBound() const;
-    
-    const float getNextGuess() const;
+    const int getInitialTempo() const;
     
 private:
     static constexpr float INIT_WINDOW_SIZE = 12.0f;
     
     std::optional<float> lowerBound;
     std::optional<float> upperBound;
-    std::optional<float> lastGuess;
+    float nextGuess = 0.0f;
     
     float windowSize;
 };
