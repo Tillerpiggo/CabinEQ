@@ -38,7 +38,6 @@ private:
     
     std::optional<float> lowerBound;
     std::optional<float> upperBound;
-    float nextGuess = 0.0f;
     
     float windowSize;
 };

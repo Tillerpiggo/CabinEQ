@@ -26,50 +26,26 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
     {
         case CalibrationChoice::HigherPreferred:
             upperBound = value;
-            if (! hasEstablishedWindow())
-            {
-                nextGuess -= 8.0f;
-            }
             break;
         case CalibrationChoice::LowerPreferred:
             lowerBound = value;
-            if (! hasEstablishedWindow())
-            {
-                nextGuess += 8.0f;
-            }
             break;
         case CalibrationChoice::NoPreference:
-            // If you haven't established a window, don't act on the info yet
-            if (! hasEstablishedWindow())
-            {
-                if (! upperBound.has_value())
-                {
-                    nextGuess += 8.0f;
-                }
-                else
-                {
-                    nextGuess -= 8.0f;
-                }
-                return;
-            }
-            
             if (upperBound.has_value())
             {
-                upperBound = (upperBound.value() + value) / 2.0f;
-            }
-            else
-            {
-                upperBound = value + 3.0f;
+                upperBound = (upperBound.value() + value) / 1.4f;
             }
             
             if (lowerBound.has_value())
             {
-                lowerBound = (lowerBound.value() + value) / 2.0f;
+                lowerBound = (lowerBound.value() + value) / 1.4f;
             }
-            else
+            
+            if (! hasEstablishedWindow())
             {
-                lowerBound = value - 3.0f;
+                windowSize /= 1.4f;
             }
+            
             break;
     }
 }
@@ -165,17 +141,5 @@ const int CalibratedSetPoint::getInitialTempo() const
         if (tempo < 0) tempo = 0;
 
         return tempo;
-    }
-}
-
-const float CalibratedSetPoint::getNextGuess() const
-{
-    if (! hasEstablishedWindow())
-    {
-        return nextGuess;
-    }
-    else
-    {
-        return estimatedValue();
     }
 }

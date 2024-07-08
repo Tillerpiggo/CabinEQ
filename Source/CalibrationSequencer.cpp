@@ -68,7 +68,7 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
             
             Note note1 = referenceNote();
             Note note2 (freq,
-                        amplitudeCalibratedSetPoint.getNextGuess(),
+                        amplitudeCalibratedSetPoint.estimatedValue(),
                         calibratedSetPointManager.panAt (freq),
                         calibratedSetPointManager.phaseAt (freq));
             
@@ -84,7 +84,7 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
             Note note1 = referenceNote();
             Note note2 (freq,
                         calibratedSetPointManager.amplitudeAt (freq),
-                        panCalibratedSetPoint.getNextGuess(),
+                        panCalibratedSetPoint.estimatedValue(),
                         calibratedSetPointManager.phaseAt (freq));
             
             return Question (QuestionType::Pan, 
@@ -103,7 +103,7 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
             Note note2 (freq,
                         calibratedSetPointManager.amplitudeAt (freq),
                         calibratedSetPointManager.panAt (freq),
-                        phaseCalibratedSetPoint.getNextGuess());
+                        phaseCalibratedSetPoint.estimatedValue());
             
             return Question (QuestionType::Phase, 
                              note1,
@@ -119,7 +119,7 @@ Question CalibrationSequencer::phaseQuestion (const float frequency, const float
     float PAN = 0.0f;
     
     Note note1 (frequency, gain + GAIN_INCREASE, PAN, phase.getCurrentGuess());
-    Note note2 (frequency, gain + GAIN_INCREASE, PAN, phase.getNextGuess());
+    Note note2 (frequency, gain + GAIN_INCREASE, PAN, phase.estimatedValue());
     
     return Question (QuestionType::Phase, note1, note2, 0);
 }
