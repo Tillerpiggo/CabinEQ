@@ -74,13 +74,13 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
             if (upperBound.has_value())
             {
                 float distanceToValue = upperBound.value() - value;
-                upperBound = upperBound.value() - distanceToValue * 0.3;
+                upperBound = upperBound.value() - distanceToValue * 0.15;
             }
             
             if (lowerBound.has_value())
             {
                 float distanceToValue = value - lowerBound.value();
-                lowerBound = lowerBound.value() + distanceToValue * 0.3;
+                lowerBound = lowerBound.value() + distanceToValue * 0.15;
             }
             
             if (! hasEstablishedWindow())
