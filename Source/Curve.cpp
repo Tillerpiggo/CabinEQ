@@ -20,7 +20,6 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     
     // Figure out delta of fletcher munson curves at that frequency and dB difference
     const float referenceDB = 75.0;
-    const float fletcherMunsonOffset = inverseFM.valueAtFrequency (frequency, referenceDB) - inverseFM.valueAtFrequency(frequency, referenceDB + dbDifference);
     
     
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
@@ -31,8 +30,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
     
     
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + fletcherMunsonOffset / 1.5f);
-    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + fletcherMunsonOffset / 1.5f);
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency);
+    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency);
     
     std::complex<float> leftVal = std::polar (leftGain, 0.0f);
     std::complex<float> rightVal = std::polar (rightGain, phaseAtFrequency);
@@ -47,7 +46,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
     float minFreq = frequencies.at (0);
     float maxFreq = frequencies.at (frequencies.size() - 1);
     
-    // Scale linearly
+    // Scale linearly 
     float freq = t * (maxFreq - minFreq) + minFreq;
     return valueAtFrequency(freq);
 }

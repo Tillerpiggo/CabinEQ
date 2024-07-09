@@ -44,6 +44,10 @@ public:
     
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionAmplitude() const;
     std::pair<float, CalibratedSetPoint> getRandomLowestPrecisionPan() const;
+    std::pair<float, CalibratedSetPoint> getFirstAmplitudeWithPrecisionLessThan (float precision) const;
+    float interpolateAmplitudeAt (float frequency) const;
+    float interpolatePanAt (float frequency) const;
+    std::pair<float, CalibratedSetPoint> getFirstPanWithPrecisionLessThan (float precision) const;
     std::pair<float, PhaseCalibratedSetPoint> getRandomLowestPrecisionPhaseInRange (float lowerHz, float upperHz) const;
     
     const CalibratedSetPoint& getReferencePanCalibratedSetPoint() const;

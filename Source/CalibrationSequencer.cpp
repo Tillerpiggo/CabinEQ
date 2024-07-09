@@ -64,11 +64,21 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
     {
         case SequenceType::AMPLITUDE:
         {
-            auto [freq, amplitudeCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionAmplitude();
+            auto [freq, amplitudeCalibratedSetPoint] = calibratedSetPointManager.getFirstAmplitudeWithPrecisionLessThan (sequence.precision);
+            
+            float amplitude;
+            if (amplitudeCalibratedSetPoint.getIsCompletelyUncalibrated())
+            {
+                amplitude = calibratedSetPointManager.interpolateAmplitudeAt (freq);
+            }
+            else
+            {
+                amplitude = amplitudeCalibratedSetPoint.estimatedValue();
+            }
             
             Note note1 = referenceNote();
             Note note2 (freq,
-                        amplitudeCalibratedSetPoint.estimatedValue(),
+                        amplitude,
                         calibratedSetPointManager.panAt (freq),
                         calibratedSetPointManager.phaseAt (freq));
             
@@ -79,12 +89,22 @@ Question CalibrationSequencer::executeSequence(Sequence sequence)
         }
         case SequenceType::PAN:
         {
-            auto [freq, panCalibratedSetPoint] = calibratedSetPointManager.getRandomLowestPrecisionPan();
+            auto [freq, panCalibratedSetPoint] = calibratedSetPointManager.getFirstPanWithPrecisionLessThan ( sequence.precision);
+            
+            float pan;
+            if (panCalibratedSetPoint.getIsCompletelyUncalibrated())
+            {
+                pan = calibratedSetPointManager.interpolatePanAt (freq);
+            }
+            else
+            {
+                pan = panCalibratedSetPoint.estimatedValue();
+            }
             
             Note note1 = referenceNote();
             Note note2 (freq,
                         calibratedSetPointManager.amplitudeAt (freq),
-                        panCalibratedSetPoint.estimatedValue(),
+                        pan,
                         calibratedSetPointManager.phaseAt (freq));
             
             return Question (QuestionType::Pan, 

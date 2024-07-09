@@ -30,33 +30,33 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
             upperBound = value;
             
             // do dynamic tempo calibration; fast response = bigger gap
-            if (! hasEstablishedWindow())
-            {
-                if (numNoPreferencesInARow == 0)
-                {
-                    windowSize *= 2;
-                }
-                else if (numNoPreferencesInARow == 1)
-                {
-                    windowSize *= 1.5;
-                }
-                
-                if (windowSize > 24.0f)
-                {
-                    windowSize = 24.0f;
-                }
-            }
-            else
-            {
-                if (numNoPreferencesInARow == 0)
-                {
-                    lowerBound = lowerBound.value() - 6.0f;
-                }
-                else 
-                {
-                    lowerBound = lowerBound.value() - 2.5f;
-                }
-            }
+//            if (! hasEstablishedWindow())
+//            {
+//                if (numNoPreferencesInARow == 0)
+//                {
+//                    windowSize *= 2;
+//                }
+//                else if (numNoPreferencesInARow == 1)
+//                {
+//                    windowSize *= 1.5;
+//                }
+//                
+//                if (windowSize > 24.0f)
+//                {
+//                    windowSize = 24.0f;
+//                }
+//            }
+//            else
+//            {
+//                if (numNoPreferencesInARow == 0)
+//                {
+//                    lowerBound = lowerBound.value() - 6.0f;
+//                }
+//                else 
+//                {
+//                    lowerBound = lowerBound.value() - 2.5f;
+//                }
+//            }
             
             numNoPreferencesInARow = 0;
             break;
