@@ -33,6 +33,8 @@ public:
     const float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     const float cubicBezierWithHorizontalDerivative (float t, float y0, float y1) const;
     
+    void setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB);
+    
     void setFactor (const float factor)
     {
         this->factor = factor;
@@ -50,4 +52,7 @@ protected:
     float factor = 1.f;
     
     InverseFletcherMunsonCurve inverseFM;
+    float calibrationDB = 71.0f; // presumed dB of calibration tones at reference tone
+    float calibrationFactor = 0.5f; // factor of signal difference in dB and actual played difference in dB of calibration
+    float fmDB = 82.5f; // presumed playback volume of flat speakers in treated room during mixing
 };

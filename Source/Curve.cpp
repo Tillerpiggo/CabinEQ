@@ -19,8 +19,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float dbDifference = octaves * slope;
     
     // Figure out delta of fletcher munson curves at that frequency and dB difference
-    const float referenceDB = 80.0;
-    const float inverseFMDiff = inverseFM.valueAtFrequency (frequency, referenceDB) - inverseFM.valueAtFrequency (frequency, referenceDB + dbDifference);
+    const float inverseFMDiff = inverseFM.valueAtFrequency (frequency, calibrationDB) - inverseFM.valueAtFrequency (frequency, calibrationDB + dbDifference * calibrationFactor);
     
     
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
@@ -31,8 +30,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
     
     
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff + inverseFM.valueAtFrequency (frequency, referenceDB));
-    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff + inverseFM.valueAtFrequency (frequency, referenceDB));
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff + inverseFM.valueAtFrequency (frequency, fmDB + dbDifference));
+    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff + inverseFM.valueAtFrequency (frequency, fmDB + dbDifference));
     
     std::complex<float> leftVal = std::polar (leftGain, 0.0f);
     std::complex<float> rightVal = std::polar (rightGain, phaseAtFrequency);
@@ -81,6 +80,13 @@ const float Curve::cubicBezierWithHorizontalDerivative (float t, float y0, float
     // We only need to calculate y
     float y = (pow(1.f - t, 3) * y0) + (3 * pow(1.f - t, 2) * t * y0) + (3*(1 - t)*pow(t, 2) * y1) + (pow(t, 3.f) * y1);
     return y;
+}
+
+void Curve::setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB)
+{
+    this->calibrationDB = calibrationDB;
+    this->calibrationFactor = calibrationFactor;
+    this->fmDB = fmDB;
 }
 
 const float Curve::interpolateValueAtFrequency (const float frequency, 

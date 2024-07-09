@@ -31,6 +31,8 @@ public:
     const Question& getCurrentQuestion() const;
     const bool isPlayingFirstNote() const;
     
+    void setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB);
+    
     void sequenceDidFinish();
     
 private:

@@ -339,3 +339,10 @@ void StartupMVPAudioProcessor::changeReferencePanTo (float newReferencePan)
 {
     calibrationManager.changeReferencePanTo (newReferencePan);
 }
+
+void StartupMVPAudioProcessor::setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB)
+{
+    calibrationManager.setFletcherMunsonCompensation (calibrationDB,
+                                                      calibrationFactor,
+                                                      fmDB);
+}

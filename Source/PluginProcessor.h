@@ -74,6 +74,7 @@ public:
     bool isPlayingFirstNote() const;
     
     void changeReferencePanTo (float newReferencePan);
+    void setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB);
     
 private:
     static const int FFT_SIZE = 19;

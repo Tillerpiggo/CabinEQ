@@ -135,6 +135,11 @@ const CalibratedSetPoint& CalibratedSetPointManager::getReferencePhaseCalibrated
     return referencePhase;
 }
 
+void CalibratedSetPointManager::setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB)
+{
+    curve.setFletcherMunsonCompensation (calibrationDB, calibrationFactor, fmDB);
+}
+
 bool CalibratedSetPointManager::amplitudesHaveBeenWindowed() const
 {
     return calibratedSetPointsHaveBeenWindowed (amplitudes);

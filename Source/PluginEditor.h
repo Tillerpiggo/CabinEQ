@@ -54,6 +54,11 @@ private:
     CircleComponent blueCircle;
     CircleComponent greenCircle;
     
+    // JUST ADDED
+    juce::Slider calibrationDBSlider; // 40 to 100 dB
+    juce::Slider calibrationFactorSlider; // 0 to 1
+    juce::Slider fmDBSlider; // 60 to 120 dB
+    
     juce::Slider referenceSlider;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
