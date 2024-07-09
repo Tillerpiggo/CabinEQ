@@ -40,6 +40,7 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor (StartupMVPAudioP
     applyCurveButton.addListener (this);
     
     referenceSlider.addListener (this);
+    referenceSlider.setRange (-12.0f, 12.0f);
     
     lowerPreferredButton.setEnabled (false);
     higherPreferredButton.setEnabled (false);
@@ -119,7 +120,7 @@ void StartupMVPAudioProcessorEditor::resized()
     auto bypassButtonArea = rightHalfArea.reduced(buttonSpacing / 2);
 
     // Calculate the area for the referenceSlider to the left of the applyCurveButton
-    auto referenceSliderArea = bottomButtonArea.removeFromLeft((bottomButtonArea.getWidth() / 2) - (buttonSpacing / 2)).reduced(padding);
+    auto referenceSliderArea = bottomButtonArea.removeFromLeft((bottomButtonArea.getWidth()) - (buttonSpacing / 2)).reduced(padding);
 
     referenceSlider.setBounds(referenceSliderArea);
     applyCurveButton.setBounds(applyCurveButtonArea);
@@ -145,7 +146,7 @@ void StartupMVPAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
     std::cout << "slider value changed" << std::endl;
     if (slider == &referenceSlider)
     {
-        audioProcessor.changeReferencePanTo (slider->getValue());
+        audioProcessor.setBypassVolume (slider->getValue());
     }
 }
 

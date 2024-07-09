@@ -67,6 +67,7 @@ public:
     void applyCurve();
     
     void toggleBypass();
+    void setBypassVolume (float volume);
     void toggleCalibration();
     void calibrateWith (CalibrationChoice choice);
     const Question& getCurrentQuestion() const;

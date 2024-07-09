@@ -310,6 +310,11 @@ void StartupMVPAudioProcessor::toggleBypass()
     isBypassed = ! isBypassed;
 }
 
+void StartupMVPAudioProcessor::setBypassVolume (float volume)
+{
+    gainProcessor.setGainDecibels (volume);
+}
+
 void StartupMVPAudioProcessor::toggleCalibration()
 {
     isCalibrating = ! isCalibrating;
