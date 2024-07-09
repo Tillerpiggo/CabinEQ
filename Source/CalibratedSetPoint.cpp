@@ -27,74 +27,33 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
     switch (choice)
     {
         case CalibrationChoice::HigherPreferred:
+        {
             upperBound = value;
             
-            // do dynamic tempo calibration; fast response = bigger gap
-            if (! hasEstablishedWindow())
-            {
-                if (numNoPreferencesInARow == 0)
-                {
-                    windowSize = 24.0f;
-                }
-            }
-            else
-            {
-                if (numNoPreferencesInARow == 0)
-                {
-                    float distanceToValue = lowerBound.value() - value;
-                    lowerBound = lowerBound.value() - distanceToValue * 0.2;
-                }
-            }
+            // Make bias 1 at
+            float L = 1;
+            float k = 0.4;  // Adjust the steepness
+            float x_0 = 2;  // Adjust the midpoint
+            bias = L / (1 + std::exp (-k * (numNoPreferencesInARow - x_0)));
             
             numNoPreferencesInARow = 0;
             break;
+        }
         case CalibrationChoice::LowerPreferred:
+        {
             lowerBound = value;
             
-            if (! hasEstablishedWindow())
-            {
-                if (numNoPreferencesInARow == 0)
-                {
-                    windowSize = 24.0f;
-                }
-            }
-            else
-            {
-                if (numNoPreferencesInARow == 0)
-                {
-                    float distanceToValue = upperBound.value() - value;
-                    upperBound = upperBound.value() + distanceToValue * 0.2;
-                }
-            }
+            // Make bias 1 at
+            float L = 1;
+            float k = 0.4;  // Adjust the steepness
+            float x_0 = 2;  // Adjust the midpoint
+            bias = 1.0f - (L / (1 + std::exp (-k * (numNoPreferencesInARow - x_0))));
             
             numNoPreferencesInARow = 0;
             break;
+        }
         case CalibrationChoice::NoPreference:
-            if (numNoPreferencesInARow < 2)
-            {
-                numNoPreferencesInARow++;
-                return;
-            }
-            
-            if (upperBound.has_value())
-            {
-                float distanceToValue = upperBound.value() - value;
-                upperBound = upperBound.value() - distanceToValue * 0.1;
-            }
-            
-            if (lowerBound.has_value())
-            {
-                float distanceToValue = value - lowerBound.value();
-                lowerBound = lowerBound.value() + distanceToValue * 0.1;
-            }
-            
-            if (! hasEstablishedWindow())
-            {
-                windowSize /= 1.2f;
-            }
-            
             numNoPreferencesInARow++;
-            
             break;
     }
 }
@@ -120,17 +79,17 @@ const float CalibratedSetPoint::estimatedValue() const
     if (hasEstablishedWindow())
     {
         //std::cout << "estimatedValue: " << (upperBound.value() + lowerBound.value()) / 2.0f << std::endl;
-        return ((bias) * upperBound.value() + (1.0f - bias) * lowerBound.value()) / 2.0f;
+        return ((bias) * upperBound.value() + (1.0f - bias) * lowerBound.value());
     }
     else if (lowerBound.has_value())
     {
         //std::cout << "estimatedValue: " << (lowerBound.value() + (lowerBound.value() + windowSize)) / 2.0f << std::endl;
-        return ((1.0f - bias) * lowerBound.value() + (bias) * (lowerBound.value() + windowSize)) / 2.0f;
+        return ((1.0f - bias) * lowerBound.value() + (bias) * (lowerBound.value() + windowSize));
     }
     else if (upperBound.has_value())
     {
         //std::cout << "estimatedValue: " << (upperBound.value() + (upperBound.value() - windowSize)) / 2.0f << std::endl;
-        return ((bias) * upperBound.value() + (1.0f - bias) * (upperBound.value() - windowSize)) / 2.0f;
+        return ((bias) * upperBound.value() + (1.0f - bias) * (upperBound.value() - windowSize));
     }
     else
     {
