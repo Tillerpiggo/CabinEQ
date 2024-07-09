@@ -44,6 +44,7 @@ private:
     bool isCompletelyUncalibrated = true;
     
     float windowSize;
+    float bias = 0.5f; // 0 to 1, with 0.5 being unbiased, 1 being guess very close to upper bound, 0 being guess very close to lower bound
     
     int numNoPreferencesInARow = 0;
 };

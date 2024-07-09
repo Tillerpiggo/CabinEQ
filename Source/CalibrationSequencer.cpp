@@ -20,7 +20,7 @@ CalibrationSequencer::CalibrationSequencer (const CalibratedSetPointManager& cal
 Question CalibrationSequencer::getNextQuestion()
 {
     std::vector<Sequence> sequences = { 
-        Sequence (SequenceType::AMPLITUDE, 24.0f),
+        Sequence (SequenceType::AMPLITUDE, 1.0f),
         Sequence (SequenceType::PAN, 6.0f),
         Sequence (SequenceType::AMPLITUDE, 12.0f),
         Sequence (SequenceType::PAN, 3.0f),

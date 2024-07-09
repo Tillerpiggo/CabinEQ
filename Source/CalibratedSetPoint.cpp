@@ -30,38 +30,43 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
             upperBound = value;
             
             // do dynamic tempo calibration; fast response = bigger gap
-//            if (! hasEstablishedWindow())
-//            {
-//                if (numNoPreferencesInARow == 0)
-//                {
-//                    windowSize *= 2;
-//                }
-//                else if (numNoPreferencesInARow == 1)
-//                {
-//                    windowSize *= 1.5;
-//                }
-//                
-//                if (windowSize > 24.0f)
-//                {
-//                    windowSize = 24.0f;
-//                }
-//            }
-//            else
-//            {
-//                if (numNoPreferencesInARow == 0)
-//                {
-//                    lowerBound = lowerBound.value() - 6.0f;
-//                }
-//                else 
-//                {
-//                    lowerBound = lowerBound.value() - 2.5f;
-//                }
-//            }
+            if (! hasEstablishedWindow())
+            {
+                if (numNoPreferencesInARow == 0)
+                {
+                    windowSize = 24.0f;
+                }
+            }
+            else
+            {
+                if (numNoPreferencesInARow == 0)
+                {
+                    float distanceToValue = lowerBound.value() - value;
+                    lowerBound = lowerBound.value() - distanceToValue * 0.2;
+                }
+            }
             
             numNoPreferencesInARow = 0;
             break;
         case CalibrationChoice::LowerPreferred:
             lowerBound = value;
+            
+            if (! hasEstablishedWindow())
+            {
+                if (numNoPreferencesInARow == 0)
+                {
+                    windowSize = 24.0f;
+                }
+            }
+            else
+            {
+                if (numNoPreferencesInARow == 0)
+                {
+                    float distanceToValue = upperBound.value() - value;
+                    upperBound = upperBound.value() + distanceToValue * 0.2;
+                }
+            }
+            
             numNoPreferencesInARow = 0;
             break;
         case CalibrationChoice::NoPreference:
@@ -74,18 +79,18 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
             if (upperBound.has_value())
             {
                 float distanceToValue = upperBound.value() - value;
-                upperBound = upperBound.value() - distanceToValue * 0.15;
+                upperBound = upperBound.value() - distanceToValue * 0.1;
             }
             
             if (lowerBound.has_value())
             {
                 float distanceToValue = value - lowerBound.value();
-                lowerBound = lowerBound.value() + distanceToValue * 0.15;
+                lowerBound = lowerBound.value() + distanceToValue * 0.1;
             }
             
             if (! hasEstablishedWindow())
             {
-                windowSize /= 1.4f;
+                windowSize /= 1.2f;
             }
             
             numNoPreferencesInARow++;
@@ -115,17 +120,17 @@ const float CalibratedSetPoint::estimatedValue() const
     if (hasEstablishedWindow())
     {
         //std::cout << "estimatedValue: " << (upperBound.value() + lowerBound.value()) / 2.0f << std::endl;
-        return (upperBound.value() + lowerBound.value()) / 2.0f;
+        return ((bias) * upperBound.value() + (1.0f - bias) * lowerBound.value()) / 2.0f;
     }
     else if (lowerBound.has_value())
     {
         //std::cout << "estimatedValue: " << (lowerBound.value() + (lowerBound.value() + windowSize)) / 2.0f << std::endl;
-        return (lowerBound.value() + (lowerBound.value() + windowSize)) / 2.0f;
+        return ((1.0f - bias) * lowerBound.value() + (bias) * (lowerBound.value() + windowSize)) / 2.0f;
     }
     else if (upperBound.has_value())
     {
         //std::cout << "estimatedValue: " << (upperBound.value() + (upperBound.value() - windowSize)) / 2.0f << std::endl;
-        return (upperBound.value() + (upperBound.value() - windowSize)) / 2.0f;
+        return ((bias) * upperBound.value() + (1.0f - bias) * (upperBound.value() - windowSize)) / 2.0f;
     }
     else
     {

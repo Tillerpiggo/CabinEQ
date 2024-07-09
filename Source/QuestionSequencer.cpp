@@ -65,7 +65,7 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
         case QuestionType::Level:
         {
             // Simple two-tone test
-            int noteDurationInSamples = 20000 + 5000 * question.getTempo();
+            int noteDurationInSamples = 25000 + 8000 * question.getTempo();
             int rampDurationInSamples = 5000;
             
             notes.push_back (SequenceableNote (question.getNote1(),
@@ -82,7 +82,7 @@ const std::vector<SequenceableNote> QuestionSequencer::notesForQuestion (const Q
         {
             // Hard left, hard right, center, then controlled tone
             // Simple two-tone test
-            int noteDurationInSamples = 20000 + 5000 * question.getTempo();
+            int noteDurationInSamples = 25000 + 8000 * question.getTempo();
             int rampDurationInSamples = 5000;
 
             notes.push_back (SequenceableNote (question.getNote1(),
