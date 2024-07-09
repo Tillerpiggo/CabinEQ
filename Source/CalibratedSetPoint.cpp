@@ -32,7 +32,7 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
             
             // Make bias 1 at
             float L = 1;
-            float k = 0.4;  // Adjust the steepness
+            float k = 0.44;  // Adjust the steepness
             float x_0 = 2;  // Adjust the midpoint
             bias = L / (1 + std::exp (-k * (numNoPreferencesInARow - x_0)));
             
@@ -45,7 +45,7 @@ void CalibratedSetPoint::calibrateWith (const CalibrationChoice choice, float va
             
             // Make bias 1 at
             float L = 1;
-            float k = 0.4;  // Adjust the steepness
+            float k = 0.44;  // Adjust the steepness
             float x_0 = 2;  // Adjust the midpoint
             bias = 1.0f - (L / (1 + std::exp (-k * (numNoPreferencesInARow - x_0))));
             

@@ -19,7 +19,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float dbDifference = octaves * slope;
     
     // Figure out delta of fletcher munson curves at that frequency and dB difference
-    const float referenceDB = 75.0;
+    const float referenceDB = 80.0;
+    const float inverseFMDiff = inverseFM.valueAtFrequency (frequency, referenceDB) - inverseFM.valueAtFrequency (frequency, referenceDB + dbDifference);
     
     
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
@@ -30,8 +31,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
     
     
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency);
-    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency);
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff + inverseFM.valueAtFrequency (frequency, referenceDB));
+    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff + inverseFM.valueAtFrequency (frequency, referenceDB));
     
     std::complex<float> leftVal = std::polar (leftGain, 0.0f);
     std::complex<float> rightVal = std::polar (rightGain, phaseAtFrequency);

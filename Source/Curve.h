@@ -48,4 +48,6 @@ protected:
     const std::vector<PhaseCalibratedSetPoint>& phases;
     const std::vector<CalibratedSetPoint>& pans;
     float factor = 1.f;
+    
+    InverseFletcherMunsonCurve inverseFM;
 };
