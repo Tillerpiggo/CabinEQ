@@ -20,8 +20,8 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), parameters (*this, nullptr, "Parameters", createParameterLayout (23)),
-                          binaryCalibrationManager (calibratedSetPointManager),
-                          sliderCalibrationManager (calibratedSetPointManager)
+                          binaryCalibrationManager (calibratedSetPointManager)//,
+                          //sliderCalibrationManager (calibratedSetPointManager)
 
 #endif
 {
@@ -111,6 +111,7 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     binaryCalibrationManager.setSampleRate (sampleRate);
+    //sliderCalibrationManager.setSampleRate (sampleRate);
     
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -375,12 +376,12 @@ void StartupMVPAudioProcessor::changeReferencePanTo (float newReferencePan)
     binaryCalibrationManager.changeReferencePanTo (newReferencePan);
 }
 
-void StartupMVPAudioProcessor::setAmplitudeAtIdx (int index, float newValue)
-{
-//    sliderCalibrationManager.setAmplitudeAtIdx (index, newValue);
-}
-
-void StartupMVPAudioProcessor::setIsSlidingSlider (bool isSliding)
-{
-    isSlidingSlider = isSliding;
-}
+//void StartupMVPAudioProcessor::setAmplitudeAtIdx (int index, float newValue)
+//{
+////    sliderCalibrationManager.setAmplitudeAtIdx (index, newValue);
+//}
+//
+//void StartupMVPAudioProcessor::setIsSlidingSlider (bool isSliding)
+//{
+//    isSlidingSlider = isSliding;
+//}

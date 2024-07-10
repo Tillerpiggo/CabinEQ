@@ -13,8 +13,8 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-class SliderPage   : public juce::Component,
-                     public juce::Slider::Listener
+class SliderPage   : public juce::Component//,
+                     //public juce::Slider::Listener
 {
 public:
     SliderPage(StartupMVPAudioProcessor& p);
@@ -22,9 +22,9 @@ public:
 
     void resized() override;
     
-    void sliderValueChanged (juce::Slider *slider) override;
-    void sliderDragStarted (juce::Slider *slider) override;
-    void sliderDragEnded (juce::Slider *slider) override;
+//    void sliderValueChanged (juce::Slider *slider) override;
+//    void sliderDragStarted (juce::Slider *slider) override;
+//    void sliderDragEnded (juce::Slider *slider) override;
 
 private:
     StartupMVPAudioProcessor& processor;

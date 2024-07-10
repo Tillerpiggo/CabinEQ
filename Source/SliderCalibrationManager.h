@@ -10,21 +10,23 @@
 
 #pragma once
 
-#include "CalibratedSetPointManager.h"
-#include "Curve.h"
-#include "CalibrationChoice.h"
-#include "SliderSequencer.h"
+#include <JuceHeader.h>
+//#include "CalibratedSetPointManager.h"
+//#include "Curve.h"
+//#include "CalibrationChoice.h"
+//#include "SliderSequencer.h"
 
 class SliderCalibrationManager
 {
 public:
-    SliderCalibrationManager (CalibratedSetPointManager& calibratedSetPointManager);
+    //SliderCalibrationManager (CalibratedSetPointManager& calibratedSetPointManager);
+    SliderCalibrationManager() {}
     
-    const std::pair<float, float> getNextSample();
-    void setSampleRate (float newSampleRate);
-    void setAmplitudeAtIdx (int index, float amplitudeInDecibels);
+//    const std::pair<float, float> getNextSample();
+//    void setSampleRate (float newSampleRate);
+//    void setAmplitudeAtIdx (int index, float amplitudeInDecibels);
     
 private:
-    CalibratedSetPointManager& calibratedSetPointManager;
-    SliderSequencer sliderSequencer;
+//    CalibratedSetPointManager& calibratedSetPointManager;
+//    SliderSequencer sliderSequencer;
 };
