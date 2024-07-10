@@ -21,6 +21,7 @@ public:
     CalibratedSetPointManager();
     
     const Curve& getCurve() const;
+    void updateCurve (Curve& curve) const;
     
     void calibrateWith (Question question, CalibrationChoice choice);
     void calibrateSetPointWith (CalibratedSetPoint calibratedSetPoint, CalibrationChoice choice, float value, float interpolatedValue);

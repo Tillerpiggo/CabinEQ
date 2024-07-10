@@ -31,17 +31,17 @@ public:
         this->factor = factor;
     }
 
-    void setFrequencies(const std::vector<float>& frequencies)
+    void setFrequencies(std::vector<float> frequencies)
     {
         this->frequencies = frequencies;
     }
 
-    void setAmplitudes(const std::vector<float>& amplitudes)
+    void setAmplitudes(std::vector<float> amplitudes)
     {
         this->amplitudes = amplitudes;
     }
 
-    void setPhases(const std::vector<float>& phases)
+    void setPhases(std::vector<float> phases)
     {
         this->phases = phases;
     }

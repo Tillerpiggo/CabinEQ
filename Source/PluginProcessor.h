@@ -76,12 +76,13 @@ public:
     void changeReferencePanTo (float newReferencePan);
  
 private:
-    static const int FFT_SIZE = 19;
+    static const int FFT_SIZE = 17;
     
     bool isBypassed;
     bool isCalibrating;
 
     ArbitraryResponseFilter gainFilter;
+    Curve curve;
     CalibrationManager calibrationManager;
     juce::dsp::Gain<float> gainProcessor;
     

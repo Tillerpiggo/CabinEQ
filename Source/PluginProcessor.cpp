@@ -27,6 +27,16 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     isCalibrating = false;
     isBypassed = false;
     gainProcessor.setGainDecibels(0.f);
+    
+    std::vector<float> frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
+    std::vector<float> amplitudes (23, 0.0f);
+    std::vector<float> pans (23, 0.0f);
+    std::vector<float> phases (23, 0.0f);
+    
+    curve.setFrequencies (frequencies);
+    curve.setAmplitudes (amplitudes);
+    curve.setPans (pans);
+    curve.setPhases (phases);
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -211,29 +221,28 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
-//    std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
-//    if (savedParams != nullptr)
-//    {
-//        if (savedParams->hasTagName(parameters.state.getType()))
-//        {
-//            parameters.state = juce::ValueTree::fromXml(*savedParams);
+    std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
+    if (savedParams != nullptr)
+    {
+        if (savedParams->hasTagName(parameters.state.getType()))
+        {
+            parameters.state = juce::ValueTree::fromXml(*savedParams);
+            applyCurve();
+//            std::vector<float> amplitudes;
 //            
-//            for (int i = 0; i < SetPointManager::NUM_SET_POINTS; ++i)
+//            for (int i = 0; i < 23; ++i)
 //            {
 //                std::string idx = std::to_string (i);
 //                
 //                double gain = parameters.getRawParameterValue("gain_" + idx)->load();
-//                double pan = parameters.getRawParameterValue("pan_" + idx)->load();
-//                double phase = parameters.getRawParameterValue ("phase_" + idx)->load();
-////                calibrationManager.setGainAtIdx (i, gain);
-////                calibrationManager.setPanAtIdx (i, pan);
-////                calibrationManager.setPhaseAtIdx (i, phase);
+//                amplitudes.push_back (gain);
 //            }
 //            
-//            gainFilter.update (calibrationManager.getCurve(), FFT_SIZE);
-////            balanceFilter.update (calibrationManager.getBalanceCurve(), FFT_SIZE);
-//        }
-//    }
+//            curve.setAmplitudes (amplitudes);
+//            gainFilter.update (curve, FFT_SIZE);
+//            balanceFilter.update (calibrationManager.getBalanceCurve(), FFT_SIZE);
+        }
+    }
 }
 
 //==============================================================================
@@ -302,7 +311,19 @@ const Curve& StartupMVPAudioProcessor::getCurve() const
 
 void StartupMVPAudioProcessor::applyCurve()
 {
-    gainFilter.update (calibrationManager.getCurve(), FFT_SIZE);
+    std::vector<float> amplitudes;
+    
+    for (int i = 0; i < 23; ++i)
+    {
+        std::string idx = std::to_string (i);
+        
+        double gain = parameters.getRawParameterValue("gain_" + idx)->load();
+        amplitudes.push_back (gain);
+    }
+    
+    curve.setAmplitudes (amplitudes);
+    gainFilter.update (curve, FFT_SIZE);
+    //gainFilter.update (curve, FFT_SIZE);
 }
 
 void StartupMVPAudioProcessor::toggleBypass()

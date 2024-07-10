@@ -18,13 +18,6 @@ CalibratedSetPointManager::CalibratedSetPointManager()
     //frequencies = { 300, 2000, 5000 };//{ 20, 100, 300, 600, 2000, 3000, 6000, 10000, 12500, 15000 };
     frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
     
-    
-//    frequencies = { 20, 40, 60, 80, 100, 200, 300, 400, 500, 650, 800, 1280, 1500, 1800, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500,
-//        12000, 12500, 13000, 13500, 14000, 14500, 15000 };
-    
-//    frequencies = { 160 };
-    //frequencies = { 640 };
-    
     for (int i = 0; i < frequencies.size(); ++i)
     {
         amplitudes.push_back (CalibratedSetPoint (12.0f));
@@ -137,6 +130,24 @@ const CalibratedSetPoint& CalibratedSetPointManager::getReferencePanCalibratedSe
 const CalibratedSetPoint& CalibratedSetPointManager::getReferencePhaseCalibratedSetPoint() const
 {
     return referencePhase;
+}
+
+void CalibratedSetPointManager::updateCurve (Curve& curve) const
+{
+    std::vector<float> amplitudeFloats;
+    std::vector<float> panFloats;
+    std::vector<float> phaseFloats;
+    
+    for (int i = 0; i < frequencies.size(); ++i)
+    {
+        amplitudeFloats.push_back (amplitudes.at (i).estimatedValue());
+        panFloats.push_back (pans.at (i).estimatedValue());
+        phaseFloats.push_back (phases.at (i).estimatedValue());
+    }
+    
+    curve.setAmplitudes (amplitudeFloats);
+    curve.setPans (panFloats);
+    curve.setPhases (phaseFloats);
 }
 
 
