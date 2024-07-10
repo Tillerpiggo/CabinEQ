@@ -12,6 +12,7 @@
 #include "Curve.h"
 #include "ArbitraryResponseFilter.h"
 #include "BinaryCalibrationManager.h"
+#include "SliderCalibrationManager.h"
 
 //==============================================================================
 /**
@@ -74,6 +75,11 @@ public:
     bool isPlayingFirstNote() const;
     
     void changeReferencePanTo (float newReferencePan);
+    
+    BinaryCalibrationManager& getBinaryCalibrationManager()
+    {
+        return binaryCalibrationManager;
+    }
  
 private:
     static const int FFT_SIZE = 17;
@@ -84,6 +90,7 @@ private:
     ArbitraryResponseFilter gainFilter;
     Curve curve;
     BinaryCalibrationManager binaryCalibrationManager;
+    SliderCalibrationManager sliderCalibrationManager;
     juce::dsp::Gain<float> gainProcessor;
     
     //==============================================================================

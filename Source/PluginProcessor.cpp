@@ -212,8 +212,8 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     
-//    std::unique_ptr <juce::XmlElement> xml (parameters.state.createXml());
-//    copyXmlToBinary(*xml, destData);
+    std::unique_ptr <juce::XmlElement> xml (parameters.state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -317,12 +317,14 @@ void StartupMVPAudioProcessor::applyCurve()
     {
         std::string idx = std::to_string (i);
         
-        double gain = parameters.getRawParameterValue("gain_" + idx)->load();
-        amplitudes.push_back (gain);
+        double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
+        sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
     }
     
-    curve.setAmplitudes (amplitudes);
-    gainFilter.update (curve, FFT_SIZE);
+    sliderCalibrationManager.updateFilter (gainFilter);
+//    
+//    curve.setAmplitudes (amplitudes);
+//    gainFilter.update (curve, FFT_SIZE);
     //gainFilter.update (curve, FFT_SIZE);
 }
 

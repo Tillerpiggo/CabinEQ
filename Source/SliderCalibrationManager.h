@@ -9,3 +9,43 @@
 */
 
 #pragma once
+
+#include <JuceHeader.h>
+#include "SliderSequencer.h"
+#include "SliderSetPointManager.h"
+#include "ArbitraryResponseFilter.h"
+#include "Curve.h"
+
+class SliderCalibrationManager
+{
+public:
+    SliderCalibrationManager() {};
+    
+    void updateFilter (ArbitraryResponseFilter& filter);
+    
+    std::pair<float, float> getNextSample()
+    {
+        return sliderSequencer.getNextSample();
+    }
+    
+    void setSampleRate (float newSampleRate)
+    {
+        sliderSequencer.setSampleRate (newSampleRate);
+    }
+    
+    void setCurrIdx (int idx)
+    {
+        sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
+                                      sliderSetPointManager.getAmplitudeAt (idx));
+    }
+    
+    void setAmplitudeAtIdx (int idx, float newAmplitude)
+    {
+        sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
+    }
+    
+private:
+    SliderSequencer sliderSequencer;
+    SliderSetPointManager sliderSetPointManager;
+    Curve curve;
+};

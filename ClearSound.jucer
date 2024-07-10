@@ -38,6 +38,10 @@
               file="Source/InverseFletcherMunsonCurve.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="tFPxFE" name="SliderSequencer.cpp" compile="1" resource="0"
+              file="Source/SliderSequencer.cpp"/>
+        <FILE id="BXO2gB" name="SliderSequencer.h" compile="0" resource="0"
+              file="Source/SliderSequencer.h"/>
         <FILE id="E3LGsL" name="QuestionSequencer.cpp" compile="1" resource="0"
               file="Source/QuestionSequencer.cpp"/>
         <FILE id="rujkY1" name="QuestionSequencer.h" compile="0" resource="0"
