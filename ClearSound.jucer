@@ -94,10 +94,10 @@
               file="Source/CalibrationSequencer.cpp"/>
         <FILE id="tnTJwR" name="CalibrationSequencer.h" compile="0" resource="0"
               file="Source/CalibrationSequencer.h"/>
-        <FILE id="axJbH0" name="CalibrationManager.cpp" compile="1" resource="0"
-              file="Source/CalibrationManager.cpp"/>
-        <FILE id="BHGMxG" name="CalibrationManager.h" compile="0" resource="0"
-              file="Source/CalibrationManager.h"/>
+        <FILE id="axJbH0" name="BinaryCalibrationManager.cpp" compile="1" resource="0"
+              file="Source/BinaryCalibrationManager.cpp"/>
+        <FILE id="BHGMxG" name="BinaryCalibrationManager.h" compile="0" resource="0"
+              file="Source/BinaryCalibrationManager.h"/>
         <FILE id="iJTgDM" name="CalibrationChoice.h" compile="0" resource="0"
               file="Source/CalibrationChoice.h"/>
       </GROUP>

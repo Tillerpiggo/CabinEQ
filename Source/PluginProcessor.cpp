@@ -108,7 +108,7 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    calibrationManager.setSampleRate (sampleRate);
+    binaryCalibrationManager.setSampleRate (sampleRate);
     
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -168,7 +168,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            const std::pair<float, float> value = calibrationManager.getNextSample();
+            const std::pair<float, float> value = binaryCalibrationManager.getNextSample();
             leftChannel[sample] = value.first * 0.05 * 0.5;
             
             if (rightChannel)
@@ -306,7 +306,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 //==============================================================================
 const Curve& StartupMVPAudioProcessor::getCurve() const
 {
-    return calibrationManager.getCurve();
+    return binaryCalibrationManager.getCurve();
 }
 
 void StartupMVPAudioProcessor::applyCurve()
@@ -343,20 +343,20 @@ void StartupMVPAudioProcessor::toggleCalibration()
 
 void StartupMVPAudioProcessor::calibrateWith (CalibrationChoice choice)
 {
-    calibrationManager.calibrateWith (choice);
+    binaryCalibrationManager.calibrateWith (choice);
 }
 
 const Question& StartupMVPAudioProcessor::getCurrentQuestion() const
 {
-    return calibrationManager.getCurrentQuestion();
+    return binaryCalibrationManager.getCurrentQuestion();
 }
 
 bool StartupMVPAudioProcessor::isPlayingFirstNote() const
 {
-    return calibrationManager.isPlayingFirstNote();
+    return binaryCalibrationManager.isPlayingFirstNote();
 }
 
 void StartupMVPAudioProcessor::changeReferencePanTo (float newReferencePan)
 {
-    calibrationManager.changeReferencePanTo (newReferencePan);
+    binaryCalibrationManager.changeReferencePanTo (newReferencePan);
 }

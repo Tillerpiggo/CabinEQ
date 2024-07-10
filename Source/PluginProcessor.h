@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 #include "ArbitraryResponseFilter.h"
-#include "CalibrationManager.h"
+#include "BinaryCalibrationManager.h"
 
 //==============================================================================
 /**
@@ -83,7 +83,7 @@ private:
 
     ArbitraryResponseFilter gainFilter;
     Curve curve;
-    CalibrationManager calibrationManager;
+    BinaryCalibrationManager binaryCalibrationManager;
     juce::dsp::Gain<float> gainProcessor;
     
     //==============================================================================
