@@ -11,7 +11,8 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 #include "ArbitraryResponseFilter.h"
-#include "CalibrationManager.h"
+#include "BinaryCalibrationManager.h"
+#include "SliderCalibrationManager.h"
 
 //==============================================================================
 /**
@@ -74,16 +75,21 @@ public:
     bool isPlayingFirstNote() const;
     
     void changeReferencePanTo (float newReferencePan);
+    void setAmplitudeAtIdx (int index, float newValue);
+    void setIsSlidingSlider (bool isSliding);
  
 private:
     static const int FFT_SIZE = 17;
     
     bool isBypassed;
     bool isCalibrating;
+    bool isSlidingSlider;
 
     ArbitraryResponseFilter gainFilter;
     Curve curve;
-    CalibrationManager calibrationManager;
+    BinaryCalibrationManager calibrationManager;
+    //SliderCalibrationManager sliderCalibrationManager;
+    CalibratedSetPointManager calibratedSetPointManager;
     juce::dsp::Gain<float> gainProcessor;
     
     //==============================================================================

@@ -38,6 +38,10 @@
               file="Source/InverseFletcherMunsonCurve.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="Y7wS64" name="SliderSequencer.cpp" compile="1" resource="0"
+              file="Source/SliderSequencer.cpp"/>
+        <FILE id="hPTep3" name="SliderSequencer.h" compile="0" resource="0"
+              file="Source/SliderSequencer.h"/>
         <FILE id="E3LGsL" name="QuestionSequencer.cpp" compile="1" resource="0"
               file="Source/QuestionSequencer.cpp"/>
         <FILE id="rujkY1" name="QuestionSequencer.h" compile="0" resource="0"
@@ -76,6 +80,14 @@
               resource="0" file="Source/BalanceArbitraryResponseFilter.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration">
+        <FILE id="i38nfl" name="SliderCalibrationManager.cpp" compile="1" resource="0"
+              file="Source/SliderCalibrationManager.cpp"/>
+        <FILE id="DtYFh7" name="SliderCalibrationManager.h" compile="0" resource="0"
+              file="Source/SliderCalibrationManager.h"/>
+        <FILE id="axJbH0" name="BinaryCalibrationManager.cpp" compile="1" resource="0"
+              file="Source/BinaryCalibrationManager.cpp"/>
+        <FILE id="BHGMxG" name="BinaryCalibrationManager.h" compile="0" resource="0"
+              file="Source/BinaryCalibrationManager.h"/>
         <FILE id="Rz9r3X" name="PhaseCalibratedSetPoint.cpp" compile="1" resource="0"
               file="Source/PhaseCalibratedSetPoint.cpp"/>
         <FILE id="blPdcX" name="PhaseCalibratedSetPoint.h" compile="0" resource="0"
@@ -94,10 +106,6 @@
               file="Source/CalibrationSequencer.cpp"/>
         <FILE id="tnTJwR" name="CalibrationSequencer.h" compile="0" resource="0"
               file="Source/CalibrationSequencer.h"/>
-        <FILE id="axJbH0" name="CalibrationManager.cpp" compile="1" resource="0"
-              file="Source/CalibrationManager.cpp"/>
-        <FILE id="BHGMxG" name="CalibrationManager.h" compile="0" resource="0"
-              file="Source/CalibrationManager.h"/>
         <FILE id="iJTgDM" name="CalibrationChoice.h" compile="0" resource="0"
               file="Source/CalibrationChoice.h"/>
       </GROUP>

@@ -15,7 +15,6 @@ CalibratedSetPointManager::CalibratedSetPointManager()
     : referencePan (REFERENCE_PAN_WINDOW), referencePhase (REFERENCE_PHASE_WINDOW)
 {
     // TODO: Construct the first batch of set points...
-    //frequencies = { 300, 2000, 5000 };//{ 20, 100, 300, 600, 2000, 3000, 6000, 10000, 12500, 15000 };
     frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
     
     for (int i = 0; i < frequencies.size(); ++i)
@@ -26,11 +25,6 @@ CalibratedSetPointManager::CalibratedSetPointManager()
     }
     
     referencePan.setValue (2.0);
-}
-
-const Curve& CalibratedSetPointManager::getCurve() const
-{
-    return curve;
 }
 
 void CalibratedSetPointManager::calibrateWith (Question question, CalibrationChoice choice)
@@ -105,6 +99,14 @@ const float CalibratedSetPointManager::panAt (const float frequency) const
 const float CalibratedSetPointManager::phaseAt (const float frequency) const
 {
     return phases.at (indexForFrequency (frequency)).estimatedValue();
+}
+
+const Note CalibratedSetPointManager::noteAt (const int index) const
+{
+    return Note (frequencies.at (index),
+                 amplitudes.at (index).estimatedValue(),
+                 pans.at (index).estimatedValue(),
+                 phases.at (index).estimatedValue());
 }
 
 const std::vector<float>& CalibratedSetPointManager::getFrequencies() const

@@ -17,10 +17,10 @@
 #include "CalibrationChoice.h"
 #include "QuestionSequencer.h"
 
-class CalibrationManager   : public SequencerListener
+class BinaryCalibrationManager   : public SequencerListener
 {
 public:
-    CalibrationManager();
+    BinaryCalibrationManager (CalibratedSetPointManager& calibratedSetPointManager);
     
     const std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
@@ -40,10 +40,11 @@ public:
 private:
     void goToNextQuestion();
     
-    CalibratedSetPointManager calibratedSetPointManager;
+    CalibratedSetPointManager& calibratedSetPointManager;
     CalibrationSequencer calibrationSequencer;
     QuestionSequencer questionSequencer;
     
     Question currentQuestion;
+    Curve curve;
     
 };

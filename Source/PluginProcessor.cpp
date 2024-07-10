@@ -19,7 +19,9 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (23))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (23)),
+                          calibrationManager (calibratedSetPointManager)//,
+                          //sliderCalibrationManager (calibratedSetPointManager)
 
 #endif
 {
@@ -163,6 +165,18 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
+    
+//    if (isSlidingSlider)
+//    {
+//        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+//        {
+//            const std::pair<float, float> value = sliderCalibrationManager.getNextSample();
+//            leftChannel[sample] = value.first * 0.05 * 0.5;
+//            
+//            if (rightChannel)
+//                rightChannel[sample] = value.second * 0.05 * 0.5;
+//        }
+//    }
     
     if (isCalibrating)
     {
@@ -359,4 +373,14 @@ bool StartupMVPAudioProcessor::isPlayingFirstNote() const
 void StartupMVPAudioProcessor::changeReferencePanTo (float newReferencePan)
 {
     calibrationManager.changeReferencePanTo (newReferencePan);
+}
+
+void StartupMVPAudioProcessor::setAmplitudeAtIdx (int index, float newValue)
+{
+    //sliderCalibrationManager.setAmplitudeAtIdx (index, newValue);
+}
+
+void StartupMVPAudioProcessor::setIsSlidingSlider (bool isSliding)
+{
+    isSlidingSlider = isSliding;
 }

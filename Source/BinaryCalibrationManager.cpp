@@ -8,65 +8,67 @@
   ==============================================================================
 */
 
-#include "CalibrationManager.h"
+#include "BinaryCalibrationManager.h"
 
-CalibrationManager::CalibrationManager() 
-: calibrationSequencer (calibratedSetPointManager), currentQuestion (Question::defaultQuestion()) 
+BinaryCalibrationManager::BinaryCalibrationManager (CalibratedSetPointManager& calibratedSetPointManager)
+    : calibratedSetPointManager (calibratedSetPointManager), calibrationSequencer (calibratedSetPointManager),
+      currentQuestion (Question::defaultQuestion())
 {
     goToNextQuestion();
     questionSequencer.setListener (this);
+    calibratedSetPointManager.updateCurve (curve);
 }
 
-const std::pair<float, float> CalibrationManager::getNextSample()
+const std::pair<float, float> BinaryCalibrationManager::getNextSample()
 {
     return questionSequencer.getNextSample();
 }
 
-void CalibrationManager::setSampleRate (float newSampleRate)
+void BinaryCalibrationManager::setSampleRate (float newSampleRate)
 {
     questionSequencer.setSampleRate (newSampleRate);
 }
 
-void CalibrationManager::calibrateWith (const CalibrationChoice choice)
+void BinaryCalibrationManager::calibrateWith (const CalibrationChoice choice)
 {
     calibratedSetPointManager.calibrateWith (currentQuestion, choice);
     goToNextQuestion();
 }
 
-void CalibrationManager::changeReferencePanTo (float newReferencePan)
+void BinaryCalibrationManager::changeReferencePanTo (float newReferencePan)
 {
     calibratedSetPointManager.changeReferencePanTo (newReferencePan);
 }
 
-void CalibrationManager::setAmplitudeAt (int index, float value)
+void BinaryCalibrationManager::setAmplitudeAt (int index, float value)
 {
     calibratedSetPointManager.setAmplitudeAt (index, value);
 }
 
-const Curve& CalibrationManager::getCurve() const
+const Curve& BinaryCalibrationManager::getCurve() const
 {
-    return calibratedSetPointManager.getCurve();
+    return curve;
 }
 
-const Question& CalibrationManager::getCurrentQuestion() const
+const Question& BinaryCalibrationManager::getCurrentQuestion() const
 {
     return currentQuestion;
 }
 
-const bool CalibrationManager::isPlayingFirstNote() const
+const bool BinaryCalibrationManager::isPlayingFirstNote() const
 {
     // TODO: Fix isPlayingFirstNote
     return questionSequencer.isPlayingFirstNote();
 }
 
-void CalibrationManager::sequenceDidFinish()
+void BinaryCalibrationManager::sequenceDidFinish()
 {
     calibratedSetPointManager.calibrateWith (currentQuestion, CalibrationChoice::NoPreference);
     currentQuestion.decreaseTempo();
     questionSequencer.setQuestion (currentQuestion);
 }
 
-void CalibrationManager::goToNextQuestion()
+void BinaryCalibrationManager::goToNextQuestion()
 {
     currentQuestion = calibrationSequencer.getNextQuestion();
     questionSequencer.setQuestion (currentQuestion);
