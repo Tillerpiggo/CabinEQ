@@ -125,6 +125,11 @@ const std::vector<CalibratedSetPoint>& CalibratedSetPointManager::getAmplitudeCa
     return amplitudes;
 }
 
+void CalibratedSetPointManager::setAmplitudeAt (int index, float value)
+{
+    amplitudes.at (index).setValue (value);
+}
+
 const CalibratedSetPoint& CalibratedSetPointManager::getReferencePanCalibratedSetPoint() const
 {
     return referencePan;

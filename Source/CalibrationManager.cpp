@@ -38,6 +38,11 @@ void CalibrationManager::changeReferencePanTo (float newReferencePan)
     calibratedSetPointManager.changeReferencePanTo (newReferencePan);
 }
 
+void CalibrationManager::setAmplitudeAt (int index, float value)
+{
+    calibratedSetPointManager.setAmplitudeAt (index, value);
+}
+
 const Curve& CalibrationManager::getCurve() const
 {
     return calibratedSetPointManager.getCurve();

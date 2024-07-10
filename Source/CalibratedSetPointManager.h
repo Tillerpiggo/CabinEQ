@@ -34,6 +34,8 @@ public:
     const std::vector<float>& getFrequencies() const;
     const std::vector<CalibratedSetPoint>& getAmplitudeCalibratedSetPoints() const;
     
+    void setAmplitudeAt (int index, float value);
+    
     bool amplitudesHaveBeenWindowed() const;
     bool amplitudesHaveUpperBounds() const;
     bool pansHaveBeenWindowed() const;

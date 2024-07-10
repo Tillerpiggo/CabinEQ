@@ -10,56 +10,27 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "CurveComponent.h"
-#include "SliderGroup.h"
-#include "ClearSoundLookAndFeel.h"
-#include "CircleComponent.h"
-#include "CircularButton.h"
+#include "BinaryClassificationPage.h"
 
 //==============================================================================
 /**
 */
-class StartupMVPAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                        public juce::Button::Listener,
-                                        public juce::Timer,
-                                        public juce::Slider::Listener
+class StartupMVPAudioProcessorEditor   : public juce::AudioProcessorEditor
 {
 public:
     StartupMVPAudioProcessorEditor (StartupMVPAudioProcessor&);
     ~StartupMVPAudioProcessorEditor() override;
-    
+
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-    
-    void buttonClicked (juce::Button *button) override;
-    void sliderValueChanged (juce::Slider *slider) override;
-    
+
 private:
-    juce::Slider& addSlider (std::string name, std::string paramName, int idx);
-    void timerCallback() override;
-    
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     StartupMVPAudioProcessor& audioProcessor;
+
+    juce::TabbedComponent tabbedComponent;
     
-    CurveComponent curveComponent;
-    juce::ToggleButton toggleCalibrationButton { "TOGGLE CALIBRATION" };
-    CircularButton lowerPreferredButton { "" };
-    CircularButton higherPreferredButton { "" };
-    juce::TextButton bypassButton { "BYPASS" };
-    juce::TextButton applyCurveButton { "APPLY CURVE" };
-    
-    CircleComponent redCircle;
-    CircleComponent blueCircle;
-    CircleComponent greenCircle;
-    
-    // JUST ADDED
-    juce::Slider calibrationDBSlider; // 40 to 100 dB
-    juce::Slider calibrationFactorSlider; // 0 to 1
-    juce::Slider fmDBSlider; // 60 to 120 dB
-    
-    juce::Slider referenceSlider;
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessorEditor)
+    std::unique_ptr<BinaryClassificationPage> binaryClassificationPage;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
 };

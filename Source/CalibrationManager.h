@@ -27,6 +27,8 @@ public:
     void calibrateWith (const CalibrationChoice choice);
     void changeReferencePanTo (float newReferencePan);
     
+    void setAmplitudeAt (int index, float value);
+    
     const Curve& getCurve() const;
     const Question& getCurrentQuestion() const;
     const bool isPlayingFirstNote() const;
