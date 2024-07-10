@@ -164,6 +164,18 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
     
+    if (sliderCalibrationManager.getIsSlidingSlider())
+    {
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            const std::pair<float, float> value = sliderCalibrationManager.getNextSample();
+            leftChannel[sample] = value.first * 0.05 * 0.5;
+            
+            if (rightChannel)
+                rightChannel[sample] = value.second * 0.05 * 0.5;
+        }
+    }
+    
     if (isCalibrating)
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)

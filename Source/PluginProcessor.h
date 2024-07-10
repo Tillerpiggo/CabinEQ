@@ -76,9 +76,9 @@ public:
     
     void changeReferencePanTo (float newReferencePan);
     
-    BinaryCalibrationManager& getBinaryCalibrationManager()
+    SliderCalibrationManager& getSliderCalibrationManager()
     {
-        return binaryCalibrationManager;
+        return sliderCalibrationManager;
     }
  
 private:

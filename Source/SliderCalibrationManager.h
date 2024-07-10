@@ -28,6 +28,11 @@ public:
         return sliderSequencer.getNextSample();
     }
     
+    bool getIsSlidingSlider() const
+    {
+        return isSlidingSlider;
+    }
+    
     void setSampleRate (float newSampleRate)
     {
         sliderSequencer.setSampleRate (newSampleRate);
@@ -44,8 +49,14 @@ public:
         sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
     }
     
+    void setIsSlidingSlider (bool isSliding)
+    {
+        isSlidingSlider = isSliding;
+    }
+    
 private:
     SliderSequencer sliderSequencer;
     SliderSetPointManager sliderSetPointManager;
     Curve curve;
+    bool isSlidingSlider;
 };

@@ -19,16 +19,25 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
         auto& slider = *sliders[i];
         addAndMakeVisible (sliderContainer);
         sliderContainer.addAndMakeVisible (slider);
+        slider.getProperties().set("idx", i);
 
         auto paramID = "gain_" + std::to_string(i);
         sliderAttachments[i] = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (processor.parameters, paramID, slider);
+        
+        slider.addListener (this);
     }
 
     viewport.setViewedComponent (&sliderContainer, true);
     addAndMakeVisible (viewport);
 }
 
-SliderPage::~SliderPage() = default;
+SliderPage::~SliderPage()
+{
+    for (auto& slider : sliders)
+    {
+        slider->removeListener (this);
+    }
+}
 
 void SliderPage::resized()
 {
@@ -46,4 +55,22 @@ void SliderPage::resized()
         auto& slider = *sliders[i];
         slider.setBounds(i * sliderWidth, 0, sliderWidth, sliderHeight);
     }
+}
+
+void SliderPage::sliderValueChanged (juce::Slider *slider)
+{
+    
+}
+
+void SliderPage::sliderDragStarted (juce::Slider *slider)
+{
+    SliderCalibrationManager& sliderCalibrationManager = processor.getSliderCalibrationManager();
+    sliderCalibrationManager.setIsSlidingSlider (true);
+    sliderCalibrationManager.setCurrIdx (slider->getProperties().getWithDefault("idx", -1));
+    
+}
+
+void SliderPage::sliderDragEnded (juce::Slider *slider)
+{
+    processor.getSliderCalibrationManager().setIsSlidingSlider (false);
 }
