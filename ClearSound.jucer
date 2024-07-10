@@ -16,6 +16,8 @@
               file="Source/ClearSoundLookAndFeel.h"/>
       </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
+        <FILE id="RXILUA" name="SliderPage.cpp" compile="1" resource="0" file="Source/SliderPage.cpp"/>
+        <FILE id="VBfRK2" name="SliderPage.h" compile="0" resource="0" file="Source/SliderPage.h"/>
         <FILE id="TjAzW7" name="BinaryClassificationPage.cpp" compile="1" resource="0"
               file="Source/BinaryClassificationPage.cpp"/>
         <FILE id="N1ECUx" name="BinaryClassificationPage.h" compile="0" resource="0"

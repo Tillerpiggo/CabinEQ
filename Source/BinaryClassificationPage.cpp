@@ -132,7 +132,7 @@ void BinaryClassificationPage::buttonClicked(juce::Button* button)
 
 void BinaryClassificationPage::addComponents()
 {
-    addAndMakeVisible(curveComponent);
+    //addAndMakeVisible(curveComponent);
     addAndMakeVisible(lowerPreferredButton);
     addAndMakeVisible(higherPreferredButton);
     addAndMakeVisible(toggleCalibrationButton);
@@ -146,7 +146,7 @@ void BinaryClassificationPage::addComponents()
     referenceSlider.setRange(-12.0f, 12.0f);
     calibrationDBSlider.setRange(40, 100);
     calibrationDBSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
-    calibrationFactorSlider.setRange(0.0, 1.0);
+    calibrationFactorSlider.setRange(-1.0, 1.0);
     calibrationFactorSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
     fmDBSlider.setRange(60, 120);
     fmDBSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);

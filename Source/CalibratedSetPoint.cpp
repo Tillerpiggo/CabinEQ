@@ -93,7 +93,7 @@ const float CalibratedSetPoint::estimatedValue() const
     }
     else
     {
-        return 0.0f;
+        return 0.5f;
     }
     
 }
