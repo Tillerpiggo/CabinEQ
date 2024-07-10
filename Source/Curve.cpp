@@ -19,7 +19,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float dbDifference = octaves * slope;
     
     // Figure out delta of fletcher munson curves at that frequency and dB difference
-    const float inverseFMDiff = inverseFM.valueAtFrequency (frequency, calibrationDB) - inverseFM.valueAtFrequency (frequency, calibrationDB + dbDifference * calibrationFactor);
+    const float inverseFMDiff = inverseFM.valueAtFrequency (frequency, calibrationDB) - inverseFM.valueAtFrequency (frequency, calibrationDB + dbDifference * calibrationFactor + inverseFM.valueAtFrequency (frequency, fmDB + dbDifference));
     
     
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
@@ -28,7 +28,6 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     
     panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
-    
     
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff + inverseFM.valueAtFrequency (frequency, fmDB + dbDifference));
     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff + inverseFM.valueAtFrequency (frequency, fmDB + dbDifference));
