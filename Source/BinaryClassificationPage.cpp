@@ -80,9 +80,6 @@ void BinaryClassificationPage::resized()
     int sliderHeight = 70;  // Increased height for more vertical space
 
     auto sliderArea = area.removeFromTop(sliderHeight).reduced(padding);
-    calibrationDBSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(padding / 2));
-    calibrationFactorSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(padding / 2));
-    fmDBSlider.setBounds(sliderArea.reduced(padding / 2));
 }
 
 void BinaryClassificationPage::sliderValueChanged(juce::Slider* slider)
@@ -91,14 +88,6 @@ void BinaryClassificationPage::sliderValueChanged(juce::Slider* slider)
     if (slider == &referenceSlider)
     {
         audioProcessor.setBypassVolume(slider->getValue());
-    }
-    else if (slider == &calibrationDBSlider ||
-             slider == &calibrationFactorSlider ||
-             slider == &fmDBSlider)
-    {
-        audioProcessor.setFletcherMunsonCompensation(calibrationDBSlider.getValue(),
-                                                     calibrationFactorSlider.getValue(),
-                                                     fmDBSlider.getValue());
     }
 }
 
@@ -139,18 +128,9 @@ void BinaryClassificationPage::addComponents()
     addAndMakeVisible(bypassButton);
     addAndMakeVisible(applyCurveButton);
     addAndMakeVisible(referenceSlider);
-    addAndMakeVisible(calibrationDBSlider);
-    addAndMakeVisible(calibrationFactorSlider);
-    addAndMakeVisible(fmDBSlider);
 
     referenceSlider.setRange(-12.0f, 12.0f);
-    calibrationDBSlider.setRange(40, 100);
-    calibrationDBSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
-    calibrationFactorSlider.setRange(-1.0, 1.0);
-    calibrationFactorSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
-    fmDBSlider.setRange(60, 120);
-    fmDBSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
-
+    
     lowerPreferredButton.setEnabled(false);
     higherPreferredButton.setEnabled(false);
 }
@@ -163,9 +143,6 @@ void BinaryClassificationPage::addListeners()
     bypassButton.addListener (this);
     applyCurveButton.addListener (this);
     referenceSlider.addListener (this);
-    calibrationDBSlider.addListener (this);
-    calibrationFactorSlider.addListener (this);
-    fmDBSlider.addListener (this);
 }
 
 void BinaryClassificationPage::removeListeners()
@@ -176,9 +153,6 @@ void BinaryClassificationPage::removeListeners()
     bypassButton.removeListener (this);
     applyCurveButton.removeListener (this);
     referenceSlider.removeListener (this);
-    calibrationDBSlider.removeListener (this);
-    calibrationFactorSlider.removeListener (this);
-    fmDBSlider.removeListener (this);
 }
 
 void BinaryClassificationPage::timerCallback()

@@ -11,48 +11,53 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CalibratedSetPoint.h"
-#include "PhaseCalibratedSetPoint.h"
-#include "InverseFletcherMunsonCurve.h"
+#include <vector>
+#include <complex>
 
-// This manages a curve interpolated between a list of set points, with an arbitrary resolution.
 class Curve
 {
 public:
-    Curve (const std::vector<float>& frequencies, 
-           const std::vector<CalibratedSetPoint>& amplitudes,
-           const std::vector<PhaseCalibratedSetPoint>& phases,
-           const std::vector<CalibratedSetPoint>& pans)
-    : frequencies (frequencies), amplitudes (amplitudes), phases (phases), pans(pans) {}
-    
-    virtual ~Curve() {}
-    
+    Curve() = default;
+    virtual ~Curve() = default;
+
     const std::pair<std::complex<float>, std::complex<float>> valueAtFrequency (float frequency) const;
     const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time) const;
     const std::pair<std::complex<float>, std::complex<float>> valueAtNormalizedTime (float time) const;
     const float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     const float cubicBezierWithHorizontalDerivative (float t, float y0, float y1) const;
     
-    void setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB);
-    
     void setFactor (const float factor)
     {
         this->factor = factor;
     }
-    
+
+    void setFrequencies(const std::vector<float>& frequencies)
+    {
+        this->frequencies = frequencies;
+    }
+
+    void setAmplitudes(const std::vector<float>& amplitudes)
+    {
+        this->amplitudes = amplitudes;
+    }
+
+    void setPhases(const std::vector<float>& phases)
+    {
+        this->phases = phases;
+    }
+
+    void setPans(const std::vector<float>& pans)
+    {
+        this->pans = pans;
+    }
+
 protected:
-    const float interpolateValueAtFrequency (const float frequency, 
-                                             const std::vector<CalibratedSetPoint>& values) const;
+    const float interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const;
     const float interpolatePhaseAtFrequency (const float frequency) const; // DRY violation
     
-    const std::vector<float>& frequencies;
-    const std::vector<CalibratedSetPoint>& amplitudes;
-    const std::vector<PhaseCalibratedSetPoint>& phases;
-    const std::vector<CalibratedSetPoint>& pans;
+    std::vector<float> frequencies;
+    std::vector<float> amplitudes;
+    std::vector<float> phases;
+    std::vector<float> pans;
     float factor = 1.f;
-    
-    InverseFletcherMunsonCurve inverseFM;
-    float calibrationDB = 71.0f; // presumed dB of calibration tones at reference tone
-    float calibrationFactor = 0.5f; // factor of signal difference in dB and actual played difference in dB of calibration
-    float fmDB = 82.5f; // presumed playback volume of flat speakers in treated room during mixing
 };

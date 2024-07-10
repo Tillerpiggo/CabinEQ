@@ -19,7 +19,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (10))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (23))
 
 #endif
 {
@@ -338,11 +338,4 @@ bool StartupMVPAudioProcessor::isPlayingFirstNote() const
 void StartupMVPAudioProcessor::changeReferencePanTo (float newReferencePan)
 {
     calibrationManager.changeReferencePanTo (newReferencePan);
-}
-
-void StartupMVPAudioProcessor::setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB)
-{
-    calibrationManager.setFletcherMunsonCompensation (calibrationDB,
-                                                      calibrationFactor,
-                                                      fmDB);
 }

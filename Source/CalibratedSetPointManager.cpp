@@ -11,9 +11,8 @@
 #include "CalibratedSetPointManager.h"
 #include <random>
 
-CalibratedSetPointManager::CalibratedSetPointManager() : curve (frequencies, amplitudes, phases, pans),
-                                                         referencePan (REFERENCE_PAN_WINDOW),
-                                                         referencePhase (REFERENCE_PHASE_WINDOW)
+CalibratedSetPointManager::CalibratedSetPointManager()
+    : referencePan (REFERENCE_PAN_WINDOW), referencePhase (REFERENCE_PHASE_WINDOW)
 {
     // TODO: Construct the first batch of set points...
     //frequencies = { 300, 2000, 5000 };//{ 20, 100, 300, 600, 2000, 3000, 6000, 10000, 12500, 15000 };
@@ -140,10 +139,6 @@ const CalibratedSetPoint& CalibratedSetPointManager::getReferencePhaseCalibrated
     return referencePhase;
 }
 
-void CalibratedSetPointManager::setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB)
-{
-    curve.setFletcherMunsonCompensation (calibrationDB, calibrationFactor, fmDB);
-}
 
 bool CalibratedSetPointManager::amplitudesHaveBeenWindowed() const
 {

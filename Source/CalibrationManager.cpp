@@ -59,11 +59,6 @@ const bool CalibrationManager::isPlayingFirstNote() const
     return questionSequencer.isPlayingFirstNote();
 }
 
-void CalibrationManager::setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB)
-{
-    calibratedSetPointManager.setFletcherMunsonCompensation (calibrationDB, calibrationFactor, fmDB);
-}
-
 void CalibrationManager::sequenceDidFinish()
 {
     calibratedSetPointManager.calibrateWith (currentQuestion, CalibrationChoice::NoPreference);

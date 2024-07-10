@@ -13,191 +13,137 @@
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequency (float frequency) const
 {
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
-    float panAtFrequency = 0;
-    float phaseAtFrequency = 0;
-    
-    panAtFrequency = interpolateValueAtFrequency (frequency, pans);
-    phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
+    float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
+    float phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
     
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency);
     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency);
     
-    std::complex<float> leftVal = std::polar (leftGain, 0.0f);
-    std::complex<float> rightVal = std::polar (rightGain, phaseAtFrequency);
+    std::complex<float> leftVal = std::polar(leftGain, 0.0f);
+    std::complex<float> rightVal = std::polar(rightGain, phaseAtFrequency);
     
     return { leftVal, rightVal };
 }
 
-// Returns the value along the curve in time (0 < t < 1), such that t is a linear
-// mapping across frequencies. E.g. t=0 would be 20hz, t=0.5 would be ~10khz, and t=1 would be ~20khz.
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t) const
 {
-    float minFreq = frequencies.at (0);
-    float maxFreq = frequencies.at (frequencies.size() - 1);
-    
-    // Scale linearly 
+    float minFreq = frequencies.at(0);
+    float maxFreq = frequencies.at(frequencies.size() - 1);
+
+    // Scale linearly
     float freq = t * (maxFreq - minFreq) + minFreq;
     return valueAtFrequency(freq);
 }
 
-// Returns the value along the curve in normalized time (0 < t < 1), such that when plotted,
-// it properly displays the logarithmic frequency response.
-
-// NOTE: it's debatable whether this scaling logic really belongs in Curve or should stay in CurveComponent.
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t) const
 {
-    float minFreq = frequencies.at (0);
-    float maxFreq = frequencies.at (frequencies.size() - 1);
+    float minFreq = frequencies.at(0);
+    float maxFreq = frequencies.at(frequencies.size() - 1);
     
     // Scale logarithmically (should this be here?)
     float logMinFreq = std::log(minFreq);
     float logMaxFreq = std::log(maxFreq);
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
     
-    return valueAtFrequency (freq);
+    return valueAtFrequency(freq);
 }
 
 const float Curve::catmullRom (float t, float y0, float y1, float y2, float y3) const
 {
     float y = 0.5 * ((2.f * y1) + (-y0 + y2) * t + (2.f * y0 - 5.f * y1 + 4.f * y2 - y3) * pow(t, 2) + (-y0 + 3 * y1 - 3 * y2 + y3) * pow(t, 3));
-    
     return y;
 }
 
 const float Curve::cubicBezierWithHorizontalDerivative (float t, float y0, float y1) const
 {
-    // We only need to calculate y
-    float y = (pow(1.f - t, 3) * y0) + (3 * pow(1.f - t, 2) * t * y0) + (3*(1 - t)*pow(t, 2) * y1) + (pow(t, 3.f) * y1);
+    float y = (pow(1.f - t, 3) * y0) + (3 * pow(1.f - t, 2) * t * y0) + (3 * (1 - t) * pow(t, 2) * y1) + (pow(t, 3.f) * y1);
     return y;
 }
 
-void Curve::setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB)
-{
-    this->calibrationDB = calibrationDB;
-    this->calibrationFactor = calibrationFactor;
-    this->fmDB = fmDB;
-}
-
-const float Curve::interpolateValueAtFrequency (const float frequency, 
-                                                const std::vector<CalibratedSetPoint>& values) const
+const float Curve::interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const
 {
     size_t numPoints = frequencies.size();
     
-    if (frequency < frequencies.at (0))
+    if (frequency < frequencies.at(0))
     {
-        return values.at (0).estimatedValue();
+        return values.at(0);
     }
     
-    if (frequency > frequencies.at (numPoints - 1))
+    if (frequency > frequencies.at(numPoints - 1))
     {
-        return values.at (values.size() - 1).estimatedValue();
+        return values.at(values.size() - 1);
     }
     
     float freq1, freq2;
     float gain0, gain1, gain2, gain3;
     
-    for (int i = 0; i < numPoints; ++i)
+    for (size_t i = 0; i < numPoints; ++i)
     {
-        // If the frequency is the same, return the value of the set point
-        if (frequency == frequencies.at (i))
+        if (frequency == frequencies.at(i))
         {
-            return values.at (i).estimatedValue();
+            return values.at(i);
         }
         
-        if (frequency < frequencies.at (i))
+        if (frequency < frequencies.at(i))
         {
-            freq1 = frequencies.at (i - 1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at (0), but we already check those cases.
-            freq2 = frequencies.at (i);
-            gain1 = values.at (i - 1).estimatedValue(); // Same reasoning as above.
-            gain2 = values.at (i).estimatedValue();
+            freq1 = frequencies.at(i - 1);
+            freq2 = frequencies.at(i);
+            gain1 = values.at(i - 1);
+            gain2 = values.at(i);
             
-            if (i > 1)
-            {
-                gain0 = values.at (i - 2).estimatedValue();
-            }
-            else
-            {
-                gain0 = gain1;
-            }
-            
-            if (i < numPoints - 1)
-            {
-                gain3 = values.at (i + 1).estimatedValue();
-            }
-            else
-            {
-                gain3 = gain2;
-            }
+            gain0 = (i > 1) ? values.at(i - 2) : gain1;
+            gain3 = (i < numPoints - 1) ? values.at(i + 1) : gain2;
             
             break;
         }
     }
     
-    // Interpolate using catmull-rom
     float t = (frequency - freq1) / (freq2 - freq1);
-    float gainAtFrequency = catmullRom (t, gain0, gain1, gain2, gain3);
+    float gainAtFrequency = catmullRom(t, gain0, gain1, gain2, gain3);
     
     return gainAtFrequency;
 }
 
-// TODO: Fix DRY violation
 const float Curve::interpolatePhaseAtFrequency (const float frequency) const
 {
     size_t numPoints = frequencies.size();
     
-    if (frequency < frequencies.at (0))
+    if (frequency < frequencies.at(0))
     {
-        return phases.at (0).estimatedValue();
+        return phases.at(0);
     }
     
-    if (frequency > frequencies.at (numPoints - 1))
+    if (frequency > frequencies.at(numPoints - 1))
     {
-        return phases.at (phases.size() - 1).estimatedValue();
+        return phases.at(phases.size() - 1);
     }
     
     float freq1, freq2;
     float gain0, gain1, gain2, gain3;
     
-    for (int i = 0; i < numPoints; ++i)
+    for (size_t i = 0; i < numPoints; ++i)
     {
-        // If the frequency is the same, return the value of the set point
-        if (frequency == frequencies.at (i))
+        if (frequency == frequencies.at(i))
         {
-            return phases.at (i).estimatedValue();
+            return phases.at(i);
         }
         
-        if (frequency < frequencies.at (i))
+        if (frequency < frequencies.at(i))
         {
-            freq1 = frequencies.at (i - 1); // There should always be a previous set point. The only way for there not to be one is if freq <= setPoints.at (0), but we already check those cases.
-            freq2 = frequencies.at (i);
-            gain1 = phases.at (i - 1).estimatedValue(); // Same reasoning as above.
-            gain2 = phases.at (i).estimatedValue();
+            freq1 = frequencies.at(i - 1);
+            freq2 = frequencies.at(i);
+            gain1 = phases.at(i - 1);
+            gain2 = phases.at(i);
             
-            if (i > 1)
-            {
-                gain0 = phases.at (i - 2).estimatedValue();
-            }
-            else
-            {
-                gain0 = gain1;
-            }
-            
-            if (i < numPoints - 1)
-            {
-                gain3 = phases.at (i + 1).estimatedValue();
-            }
-            else
-            {
-                gain3 = gain2;
-            }
+            gain0 = (i > 1) ? phases.at(i - 2) : gain1;
+            gain3 = (i < numPoints - 1) ? phases.at(i + 1) : gain2;
             
             break;
         }
     }
     
-    // Interpolate using catmull-rom
     float t = (frequency - freq1) / (freq2 - freq1);
-    float gainAtFrequency = catmullRom (t, gain0, gain1, gain2, gain3);
+    float gainAtFrequency = catmullRom(t, gain0, gain1, gain2, gain3);
     
     return gainAtFrequency;
 }

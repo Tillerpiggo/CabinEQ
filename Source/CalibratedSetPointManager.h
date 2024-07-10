@@ -55,8 +55,6 @@ public:
     const CalibratedSetPoint& getReferencePanCalibratedSetPoint() const;
     const CalibratedSetPoint& getReferencePhaseCalibratedSetPoint() const;
     
-    void setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB);
-    
 private:
     static constexpr float REFERENCE_PAN_WINDOW = 3.0;
     static constexpr float REFERENCE_PHASE_WINDOW = 3.14;

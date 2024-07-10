@@ -47,7 +47,4 @@ private:
     juce::TextButton bypassButton { "Bypass" };
     juce::TextButton applyCurveButton { "Apply Curve" };
     juce::Slider referenceSlider;
-    juce::Slider calibrationDBSlider;
-    juce::Slider calibrationFactorSlider;
-    juce::Slider fmDBSlider;
 };
