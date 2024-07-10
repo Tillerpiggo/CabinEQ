@@ -121,6 +121,11 @@ const std::vector<CalibratedSetPoint>& CalibratedSetPointManager::getAmplitudeCa
 
 void CalibratedSetPointManager::setAmplitudeAt (int index, float value)
 {
+    if (index < 0 || index >= frequencies.size())
+    {
+        std::cerr << "TRIED TO SET AMPLITUDE AT IDX: " << index << ", WHICH IS OUT OF BOUNDS!!!" << std::endl;
+        return;
+    }
     amplitudes.at (index).setValue (value);
 }
 

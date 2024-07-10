@@ -44,7 +44,6 @@ void BinaryClassificationPage::resized()
 
     // Calculate the new height for the lower and higher preferred buttons (2/3 of available height)
     int buttonSectionHeight = (2 * availableHeight) / 3;
-    int theSameButtonHeight = availableHeight / 3;
 
     // Calculate the width for each button
     int buttonWidth = (area.getWidth() - (3 * padding)) / 2;
@@ -63,23 +62,15 @@ void BinaryClassificationPage::resized()
     auto bottomButtonArea = area.removeFromBottom(buttonHeight).reduced(padding);
     auto rightHalfArea = bottomButtonArea.removeFromRight(bottomButtonArea.getWidth() / 2);
     int buttonSpacing = 5; // Small spacing between buttons
-
-    // Calculate bounds for applyCurveButton and bypassButton
     auto applyCurveButtonArea = rightHalfArea.removeFromLeft((rightHalfArea.getWidth() / 2) - (buttonSpacing / 2));
     auto bypassButtonArea = rightHalfArea.reduced(buttonSpacing / 2);
-
-    // Calculate the area for the referenceSlider to the left of the applyCurveButton
     auto referenceSliderArea = bottomButtonArea.removeFromLeft((bottomButtonArea.getWidth()) - (buttonSpacing / 2)).reduced(padding);
 
     referenceSlider.setBounds(referenceSliderArea);
     applyCurveButton.setBounds(applyCurveButtonArea);
     bypassButton.setBounds(bypassButtonArea);
 
-    // Set bounds for the sliders horizontally with more vertical space
     int sliderWidth = (area.getWidth() - (4 * padding)) / 3;
-    int sliderHeight = 70;  // Increased height for more vertical space
-
-    auto sliderArea = area.removeFromTop(sliderHeight).reduced(padding);
 }
 
 void BinaryClassificationPage::sliderValueChanged(juce::Slider* slider)

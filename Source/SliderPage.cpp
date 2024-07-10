@@ -22,13 +22,22 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
 
         auto paramID = "gain_" + std::to_string(i);
         sliderAttachments[i] = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (processor.parameters, paramID, slider);
+        
+        slider.addListener (this);
+        slider.getProperties().set ("index", i);
     }
 
     viewport.setViewedComponent (&sliderContainer, true);
     addAndMakeVisible (viewport);
 }
 
-SliderPage::~SliderPage() = default;
+SliderPage::~SliderPage()
+{
+    for (auto& slider : sliders)
+    {
+        slider->removeListener (this);
+    }
+}
 
 void SliderPage::resized()
 {
@@ -46,4 +55,20 @@ void SliderPage::resized()
         auto& slider = *sliders[i];
         slider.setBounds(i * sliderWidth, 0, sliderWidth, sliderHeight);
     }
+}
+
+void SliderPage::sliderValueChanged (juce::Slider *slider)
+{
+    auto sliderIndex = slider->getProperties()["index"];
+    processor.setAmplitudeAtIdx (sliderIndex, slider->getValue());
+}
+
+void SliderPage::sliderDragStarted (juce::Slider *slider)
+{
+    processor.setIsSlidingSlider (true);
+}
+
+void SliderPage::sliderDragEnded (juce::Slider *slider)
+{
+    processor.setIsSlidingSlider (false);
 }

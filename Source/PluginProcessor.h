@@ -87,7 +87,7 @@ private:
 
     ArbitraryResponseFilter gainFilter;
     Curve curve;
-    BinaryCalibrationManager calibrationManager;
+    BinaryCalibrationManager binaryCalibrationManager;
     SliderCalibrationManager sliderCalibrationManager;
     CalibratedSetPointManager calibratedSetPointManager;
     juce::dsp::Gain<float> gainProcessor;

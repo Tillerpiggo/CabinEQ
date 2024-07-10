@@ -74,8 +74,12 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
         return values.at(values.size() - 1);
     }
     
-    float freq1, freq2;
-    float gain0, gain1, gain2, gain3;
+    float freq1 = 0.0f;
+    float freq2 = 0.0f;
+    float gain0 = 0.0f;
+    float gain1 = 0.0f;
+    float gain2 = 0.0f;
+    float gain3 = 0.0f;
     
     for (size_t i = 0; i < numPoints; ++i)
     {
@@ -118,8 +122,12 @@ const float Curve::interpolatePhaseAtFrequency (const float frequency) const
         return phases.at(phases.size() - 1);
     }
     
-    float freq1, freq2;
-    float gain0, gain1, gain2, gain3;
+    float freq1 = 0.0f;
+    float freq2 = 0.0f;
+    float gain0 = 0.0f;
+    float gain1 = 0.0f;
+    float gain2 = 0.0f;
+    float gain3 = 0.0f;
     
     for (size_t i = 0; i < numPoints; ++i)
     {
