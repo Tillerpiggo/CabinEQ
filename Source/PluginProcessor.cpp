@@ -376,12 +376,12 @@ void StartupMVPAudioProcessor::changeReferencePanTo (float newReferencePan)
     binaryCalibrationManager.changeReferencePanTo (newReferencePan);
 }
 
-//void StartupMVPAudioProcessor::setAmplitudeAtIdx (int index, float newValue)
-//{
-////    sliderCalibrationManager.setAmplitudeAtIdx (index, newValue);
-//}
-//
-//void StartupMVPAudioProcessor::setIsSlidingSlider (bool isSliding)
-//{
-//    isSlidingSlider = isSliding;
-//}
+void StartupMVPAudioProcessor::setAmplitudeAtIdx (int index, float newValue)
+{
+//    sliderCalibrationManager.setAmplitudeAtIdx (index, newValue);
+}
+
+void StartupMVPAudioProcessor::setIsSlidingSlider (bool isSliding)
+{
+    isSlidingSlider = isSliding;
+}

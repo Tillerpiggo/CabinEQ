@@ -23,7 +23,7 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
         auto paramID = "gain_" + std::to_string(i);
         sliderAttachments[i] = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (processor.parameters, paramID, slider);
         
-        //slider.addListener (this);
+        slider.addListener (this);
         //slider.getProperties().set ("index", i);
     }
 
@@ -33,10 +33,10 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
 
 SliderPage::~SliderPage()
 {
-//    for (auto& slider : sliders)
-//    {
-//        slider->removeListener (this);
-//    }
+    for (auto& slider : sliders)
+    {
+        slider->removeListener (this);
+    }
 }
 
 void SliderPage::resized()
@@ -57,21 +57,21 @@ void SliderPage::resized()
     }
 }
 
-//void SliderPage::sliderValueChanged (juce::Slider *slider)
-//{
-//    //auto sliderIndex = slider->getProperties()["index"];
-//    //processor.setAmplitudeAtIdx (sliderIndex, slider->getValue());
-//    std::cout << "Slider value changed" << std::endl;
-//}
-//
-//void SliderPage::sliderDragStarted (juce::Slider *slider)
-//{
-//    std::cout << "Slider drag started" << std::endl;
-//    //processor.setIsSlidingSlider (true);
-//}
-//
-//void SliderPage::sliderDragEnded (juce::Slider *slider)
-//{
-//    std::cout << "Slider drag ended" << std::endl;
-//    //processor.setIsSlidingSlider (false);
-//}
+void SliderPage::sliderValueChanged (juce::Slider *slider)
+{
+    //auto sliderIndex = slider->getProperties()["index"];
+//    processor.setAmplitudeAtIdx (sliderIndex, slider->getValue());
+    std::cout << "Slider value changed" << std::endl;
+}
+
+void SliderPage::sliderDragStarted (juce::Slider *slider)
+{
+    std::cout << "Slider drag started" << std::endl;
+    processor.setIsSlidingSlider (true);
+}
+
+void SliderPage::sliderDragEnded (juce::Slider *slider)
+{
+    std::cout << "Slider drag ended" << std::endl;
+    processor.setIsSlidingSlider (false);
+}

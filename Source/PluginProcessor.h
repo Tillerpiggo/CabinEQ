@@ -75,8 +75,8 @@ public:
     bool isPlayingFirstNote() const;
     
     void changeReferencePanTo (float newReferencePan);
-//    void setAmplitudeAtIdx (int index, float newValue);
-//    void setIsSlidingSlider (bool isSliding);
+    void setAmplitudeAtIdx (int index, float newValue);
+    void setIsSlidingSlider (bool isSliding);
  
 private:
     static const int FFT_SIZE = 17;
