@@ -20,8 +20,8 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), parameters (*this, nullptr, "Parameters", createParameterLayout (23)),
-                          calibrationManager (calibratedSetPointManager)//,
-                          //sliderCalibrationManager (calibratedSetPointManager)
+                          calibrationManager (calibratedSetPointManager),
+                          sliderCalibrationManager (calibratedSetPointManager)
 
 #endif
 {

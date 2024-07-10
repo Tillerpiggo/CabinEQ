@@ -427,6 +427,7 @@ std::pair<float, CalibratedSetPoint> CalibratedSetPointManager::getRandomLowestP
 //    float chosenFrequency = frequencies[chosenIndex];
     
     //return { chosenFrequency, chosenSetPoint };
+    return { 0.0f, amplitudes.at (0) }; // so it doesn't complain
 }
 
 int CalibratedSetPointManager::indexForFrequency (float frequency) const
