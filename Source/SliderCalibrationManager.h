@@ -21,8 +21,8 @@ class SliderCalibrationManager
 public:
     SliderCalibrationManager() 
     {
-        sliderSequencer.playRandomNotes (sliderSetPointManager.getFrequencies(), 
-                                         sliderSetPointManager.getAmplitudes());
+//        sliderSequencer.playRandomNotes (sliderSetPointManager.getFrequencies(), 
+//                                         sliderSetPointManager.getAmplitudes());
     }
     
     void updateFilter (ArbitraryResponseFilter& filter);

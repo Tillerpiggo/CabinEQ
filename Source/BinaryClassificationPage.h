@@ -40,7 +40,7 @@ private:
     void timerCallback() override;
 
     StartupMVPAudioProcessor& audioProcessor;
-    CurveComponent curveComponent;
+    //CurveComponent curveComponent;
     CircularButton lowerPreferredButton { "Lower Preferred" };
     CircularButton higherPreferredButton { "Higher Preferred" };
     juce::ToggleButton toggleCalibrationButton { "Toggle Calibration" };

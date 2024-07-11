@@ -80,10 +80,12 @@ void SliderPage::sliderDragEnded (juce::Slider *slider)
 
 void SliderPage::timerCallback()
 {
+    std::cout << "timer callback to access sliders" << std::endl;
     int playingIdx = processor.getSliderCalibrationManager().getCurrentlyPlayingIdx();
     
     for (int i = 0; i < sliders.size(); ++i)
     {
+        std::cout << "sliders at i: " << i << std::endl;
         if (i == playingIdx)
         {
             sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::red);
@@ -93,4 +95,5 @@ void SliderPage::timerCallback()
             sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::blue);
         }
     }
+    std::cout << "accessed sliders" << std::endl;
 }

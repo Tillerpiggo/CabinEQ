@@ -64,7 +64,7 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout (int numPoints);
     juce::AudioProcessorValueTreeState parameters;
     
-    const Curve& getCurve();
+//    const Curve& getCurve();
     void applyCurve();
     
     void toggleBypass();

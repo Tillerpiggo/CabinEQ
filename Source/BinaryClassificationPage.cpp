@@ -11,7 +11,7 @@
 #include "BinaryClassificationPage.h"
 
 BinaryClassificationPage::BinaryClassificationPage(StartupMVPAudioProcessor& p)
-    : audioProcessor(p), curveComponent(p.getCurve())
+    : audioProcessor(p)//, curveComponent(p.getCurve())
 {
     addComponents();
     addListeners();
@@ -30,10 +30,10 @@ void BinaryClassificationPage::resized()
 {
     auto area = getLocalBounds();
     int padding = 10;
-    int curveComponentHeight = 200;
-
-    // Reserve the top 200 points for the curve component
-    curveComponent.setBounds(area.removeFromTop(curveComponentHeight).reduced(padding));
+//    int curveComponentHeight = 200;
+//
+//    // Reserve the top 200 points for the curve component
+//    curveComponent.setBounds(area.removeFromTop(curveComponentHeight).reduced(padding));
 
     // Calculate the height for the switch and bypass button
     int switchHeight = 30;

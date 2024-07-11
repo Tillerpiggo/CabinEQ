@@ -33,10 +33,12 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     std::vector<float> pans (23, 0.0f);
     std::vector<float> phases (23, 0.0f);
     
+    std::cout << "Initialized" << std::endl;
     curve.setFrequencies (frequencies);
     curve.setAmplitudes (amplitudes);
     curve.setPans (pans);
     curve.setPhases (phases);
+    std::cout << "set curve" << std::endl;
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -116,6 +118,7 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.numChannels = 2;
     
     gainFilter.prepare (spec);
+    std::cout << "prepared to play" << std::endl;
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -314,10 +317,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
-const Curve& StartupMVPAudioProcessor::getCurve()
-{
-    return binaryCalibrationManager.getCurve();
-}
+//const Curve& StartupMVPAudioProcessor::getCurve()
+//{
+//    return binaryCalibrationManager.getCurve();
+//}
 
 void StartupMVPAudioProcessor::applyCurve()
 {
