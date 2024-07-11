@@ -46,7 +46,9 @@ public:
     
     void setAmplitudeAtIdx (int idx, float newAmplitude)
     {
+        std::cout << "index: " << idx << std::endl;
         sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
+        sliderSequencer.changeControlledAmplitude (newAmplitude);
     }
     
     void setIsSlidingSlider (bool isSliding)

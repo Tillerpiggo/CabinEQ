@@ -175,8 +175,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
                 rightChannel[sample] = value.second * 0.05 * 0.5;
         }
     }
-    
-    if (isCalibrating)
+    else if (isCalibrating)
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
@@ -187,7 +186,6 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
                 rightChannel[sample] = value.second * 0.05 * 0.5;
         }
     }
-    
     else
     {
         // process audio through the filter

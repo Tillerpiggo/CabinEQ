@@ -19,3 +19,9 @@ void SliderSequencer::playInterval (float frequency, float amplitude)
     
     arbitrarySequencer.setNotes ({ note1, note2 });
 }
+
+void SliderSequencer::changeControlledAmplitude (float newAmplitude)
+{
+    // change arbitrarysequencer to be able to dynamically change volume of note at index
+    arbitrarySequencer.changeNoteGainAtIdx (1, newAmplitude);
+}

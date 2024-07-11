@@ -59,7 +59,8 @@ void SliderPage::resized()
 
 void SliderPage::sliderValueChanged (juce::Slider *slider)
 {
-    
+    int i = slider->getProperties().getWithDefault("idx", -1);
+    processor.getSliderCalibrationManager().setAmplitudeAtIdx (i, slider->getValue());
 }
 
 void SliderPage::sliderDragStarted (juce::Slider *slider)

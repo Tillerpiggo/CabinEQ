@@ -33,6 +33,8 @@ public:
     void setNotes (const std::vector<SequenceableNote>& notes);
     void setListener (SequencerListener* newListener);
     
+    void changeNoteGainAtIdx (int idx, float noteGain);
+    
 private:
     void goToNextNote();
     const SequenceableNote& getCurrNote() const;

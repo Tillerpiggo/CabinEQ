@@ -20,12 +20,20 @@ class SliderSequencer
 public:
     SliderSequencer() {};
     
-    std::pair<float, float> getNextSample() { return arbitrarySequencer.getNextSample(); }
-    void setSampleRate (float newSampleRate) { arbitrarySequencer.setSampleRate (newSampleRate); }
-    
     void playInterval (float frequency, float amplitude);
+    void changeControlledAmplitude (float newAmplitude);
+    
+    std::pair<float, float> getNextSample() 
+    {
+        return arbitrarySequencer.getNextSample();
+    }
+    
+    void setSampleRate (float newSampleRate) 
+    {
+        arbitrarySequencer.setSampleRate (newSampleRate);
+    }
     
 private:
     ArbitrarySequencer arbitrarySequencer;
-    Note referenceNote = Note (1000.0f, 12.0f, 0.0f, 0.0f);
+    Note referenceNote = Note (1000.0f, 0.0f, 0.0f, 0.0f);
 };

@@ -26,6 +26,12 @@ public:
     const float getPan() const;
     const float getPhase() const;
     const float getDuration() const;
+    
+    void setAmplitude (float newAmplitude)
+    {
+        amplitude = newAmplitude;
+    }
+    
     const std::pair<float, float> getGainAtSample (int sample) const;
     
     const Note note() const;
