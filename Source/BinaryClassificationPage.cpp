@@ -22,6 +22,7 @@ BinaryClassificationPage::BinaryClassificationPage(StartupMVPAudioProcessor& p)
 BinaryClassificationPage::~BinaryClassificationPage()
 {
     removeListeners();
+    stopTimer();
 }
 
 

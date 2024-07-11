@@ -23,22 +23,22 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 
 #endif
 {
-    parameters.state = juce::ValueTree("savedParams");
-    isCalibrating = false;
-    isBypassed = false;
-    gainProcessor.setGainDecibels(0.f);
-    
-    std::vector<float> frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
-    std::vector<float> amplitudes (23, 0.0f);
-    std::vector<float> pans (23, 0.0f);
-    std::vector<float> phases (23, 0.0f);
-    
-    std::cout << "Initialized" << std::endl;
-    curve.setFrequencies (frequencies);
-    curve.setAmplitudes (amplitudes);
-    curve.setPans (pans);
-    curve.setPhases (phases);
-    std::cout << "set curve" << std::endl;
+//    parameters.state = juce::ValueTree("savedParams");
+//    isCalibrating = false;
+//    isBypassed = false;
+//    gainProcessor.setGainDecibels(0.f);
+//    
+//    std::vector<float> frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
+//    std::vector<float> amplitudes (23, 0.0f);
+//    std::vector<float> pans (23, 0.0f);
+//    std::vector<float> phases (23, 0.0f);
+//    
+//    std::cout << "Initialized" << std::endl;
+//    curve.setFrequencies (frequencies);
+//    curve.setAmplitudes (amplitudes);
+//    curve.setPans (pans);
+//    curve.setPhases (phases);
+//    std::cout << "set curve" << std::endl;
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
