@@ -28,12 +28,14 @@ public:
     
     std::pair<float, float> getNextSample();
     bool isPlayingFirstNote() const;
+    float currentlyPlayingFrequency() const;
     
     void setSampleRate (float newSampleRate);
     void setNotes (const std::vector<SequenceableNote>& notes);
     void setListener (SequencerListener* newListener);
     
     void changeNoteGainAtIdx (int idx, float noteGain);
+    void changeNoteGainWithFrequency (float frequency, float noteGain);
     
 private:
     void goToNextNote();

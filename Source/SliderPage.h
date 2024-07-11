@@ -14,7 +14,8 @@
 #include "PluginProcessor.h"
 
 class SliderPage   : public juce::Component,
-                     public juce::Slider::Listener
+                     public juce::Slider::Listener,
+                     public juce::Timer
 {
 public:
     SliderPage(StartupMVPAudioProcessor& p);
@@ -25,6 +26,8 @@ public:
     void sliderValueChanged (juce::Slider *slider) override;
     void sliderDragStarted (juce::Slider *slider) override;
     void sliderDragEnded (juce::Slider *slider) override;
+    
+    void timerCallback() override;
 
 private:
     StartupMVPAudioProcessor& processor;

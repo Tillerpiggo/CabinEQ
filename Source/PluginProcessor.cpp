@@ -314,7 +314,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
-const Curve& StartupMVPAudioProcessor::getCurve() const
+const Curve& StartupMVPAudioProcessor::getCurve()
 {
     return binaryCalibrationManager.getCurve();
 }
@@ -328,11 +328,14 @@ void StartupMVPAudioProcessor::applyCurve()
         std::string idx = std::to_string (i);
         
         double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
+        std::cout << "Gain: " << gain << std::endl;
         sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
     }
     
     sliderCalibrationManager.updateFilter (gainFilter);
-//    
+    //binaryCalibrationManager.updateFilter (gainFilter);
+    //gainFilter.update (binaryCalibrationManager.getCurve(), 18);
+//
 //    curve.setAmplitudes (amplitudes);
 //    gainFilter.update (curve, FFT_SIZE);
     //gainFilter.update (curve, FFT_SIZE);

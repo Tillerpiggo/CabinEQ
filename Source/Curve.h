@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include <vector>
 #include <complex>
+#include "InverseFletcherMunsonCurve.h"
 
 class Curve
 {
@@ -60,4 +61,6 @@ protected:
     std::vector<float> phases;
     std::vector<float> pans;
     float factor = 1.f;
+    
+    InverseFletcherMunsonCurve inverseFM;
 };

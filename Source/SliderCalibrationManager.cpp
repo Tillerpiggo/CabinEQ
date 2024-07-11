@@ -13,7 +13,15 @@
 void SliderCalibrationManager::updateFilter (ArbitraryResponseFilter& filter)
 {
     curve.setFrequencies (sliderSetPointManager.getFrequencies());
-    curve.setAmplitudes (sliderSetPointManager.getAmplitudes());
+    std::vector<float> amplitudePoints = sliderSetPointManager.getAmplitudes();
+    std::vector<float> frequencies = sliderSetPointManager.getFrequencies();
+    
+    for (int i = 0; i < amplitudePoints.size(); ++i)
+    {
+        std::cout << "Slider Amplitude at " << frequencies.at (i) << ": " << amplitudePoints.at (i);
+    }
+    
+    curve.setAmplitudes (amplitudePoints);
     curve.setPans (std::vector<float> (sliderSetPointManager.numPoints(), 0.0f));
     curve.setPhases (std::vector<float> (sliderSetPointManager.numPoints(), 0.0f));
     

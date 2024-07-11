@@ -33,6 +33,7 @@ public:
     const float phaseAt (const float frequency) const;
     
     const std::vector<float>& getFrequencies() const;
+    const std::vector<CalibratedSetPoint>& getAmplitudes() const { return amplitudes; }
     const std::vector<CalibratedSetPoint>& getAmplitudeCalibratedSetPoints() const;
     
     void setAmplitudeAt (int index, float value);

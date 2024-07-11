@@ -14,7 +14,7 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
 {
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];
-    for (int i = 0; i < 2 * numPoints; i++)
+    for (int i = 0; i < 2 * numPoints; ++i)
     {
         float t = static_cast<float>(i) / (2 * numPoints);
         

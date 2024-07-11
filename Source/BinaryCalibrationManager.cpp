@@ -15,6 +15,7 @@ BinaryCalibrationManager::BinaryCalibrationManager()
 {
     goToNextQuestion();
     questionSequencer.setListener (this);
+    
 }
 
 const std::pair<float, float> BinaryCalibrationManager::getNextSample()
@@ -41,11 +42,6 @@ void BinaryCalibrationManager::changeReferencePanTo (float newReferencePan)
 void BinaryCalibrationManager::setAmplitudeAt (int index, float value)
 {
     calibratedSetPointManager.setAmplitudeAt (index, value);
-}
-
-const Curve& BinaryCalibrationManager::getCurve() const
-{
-    return calibratedSetPointManager.getCurve();
 }
 
 const Question& BinaryCalibrationManager::getCurrentQuestion() const

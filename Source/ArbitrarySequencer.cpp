@@ -31,6 +31,11 @@ bool ArbitrarySequencer::isPlayingFirstNote() const
     return currNoteIdx == 0;
 }
 
+float ArbitrarySequencer::currentlyPlayingFrequency() const
+{
+    return notes.at (currNoteIdx).getFrequency();
+}
+
 void ArbitrarySequencer::setSampleRate (float newSampleRate)
 {
     sineWaveGenerator.setSampleRate (newSampleRate);
@@ -62,6 +67,17 @@ void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)
     if (currNoteIdx == idx)
     {
         sineWaveGenerator.setVolume (noteGain);
+    }
+}
+
+void ArbitrarySequencer::changeNoteGainWithFrequency (float frequency, float noteGain)
+{
+    for (int i = 0; i < notes.size(); ++i)
+    {
+        if (notes.at (i).getFrequency() == frequency)
+        {
+            changeNoteGainAtIdx (i, noteGain);
+        }
     }
 }
 

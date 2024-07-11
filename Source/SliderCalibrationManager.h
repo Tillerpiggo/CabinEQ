@@ -19,13 +19,22 @@
 class SliderCalibrationManager
 {
 public:
-    SliderCalibrationManager() {};
+    SliderCalibrationManager() 
+    {
+        sliderSequencer.playRandomNotes (sliderSetPointManager.getFrequencies(), 
+                                         sliderSetPointManager.getAmplitudes());
+    }
     
     void updateFilter (ArbitraryResponseFilter& filter);
     
     std::pair<float, float> getNextSample()
     {
         return sliderSequencer.getNextSample();
+    }
+    
+    int getCurrentlyPlayingIdx()
+    {
+        return sliderSetPointManager.indexForFrequency (sliderSequencer.currentlyPlayingFrequency());
     }
     
     bool getIsSlidingSlider() const
@@ -40,15 +49,18 @@ public:
     
     void setCurrIdx (int idx)
     {
-        sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
-                                      sliderSetPointManager.getAmplitudeAt (idx));
+//        sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
+//                                      sliderSetPointManager.getAmplitudeAt (idx));
+        
     }
     
     void setAmplitudeAtIdx (int idx, float newAmplitude)
     {
         std::cout << "index: " << idx << std::endl;
         sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
-        sliderSequencer.changeControlledAmplitude (newAmplitude);
+        //sliderSequencer.changeControlledAmplitude (newAmplitude);
+        sliderSequencer.changeAmplitudeOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
+                                                             newAmplitude);
     }
     
     void setIsSlidingSlider (bool isSliding)

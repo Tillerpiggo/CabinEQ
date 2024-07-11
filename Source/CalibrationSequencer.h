@@ -37,7 +37,7 @@ private:
     };
     
     static constexpr float REFERENCE_FREQ = 1000.0;
-    static constexpr float REFERENCE_GAIN_DB = 0.0;
+    static constexpr float REFERENCE_GAIN_DB = 6.0;
     static constexpr float PHASE_LOW_HZ = 30;
     static constexpr float PHASE_HIGH_HZ = 1400; // range of freqs to poll for phase
     

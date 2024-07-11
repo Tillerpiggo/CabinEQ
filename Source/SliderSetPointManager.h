@@ -36,6 +36,19 @@ public:
         amplitudes.at (index) = newAmplitude;
     }
     
+    int indexForFrequency (float frequency) const
+    {
+        for (int i = 0; i < frequencies.size(); ++i)
+        {
+            if (frequency == frequencies.at (i))
+            {
+                return i;
+            }
+        }
+        
+        return -1;
+    }
+    
 private:
     std::vector<float> frequencies;
     std::vector<float> amplitudes;

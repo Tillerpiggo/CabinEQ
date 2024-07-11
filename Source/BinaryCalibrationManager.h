@@ -29,15 +29,38 @@ public:
     
     void setAmplitudeAt (int index, float value);
     
-    const Curve& getCurve() const;
     const Question& getCurrentQuestion() const;
     const bool isPlayingFirstNote() const;
     
     void setFletcherMunsonCompensation (float calibrationDB, float calibrationFactor, float fmDB);
     
     void sequenceDidFinish();
+    const Curve& getCurve()
+    {
+        updateCurve();
+        return curve;
+    }
     
 private:
+    void updateCurve()
+    {
+        auto& frequencies = calibratedSetPointManager.getFrequencies();
+        auto& amplitudePoints = calibratedSetPointManager.getAmplitudes();
+        
+        std::vector<float> amplitudes;
+            
+        for (int i = 0; i < frequencies.size(); ++i)
+        {
+            std::cout << "Amplitude at " << frequencies.at (i) << ": " << amplitudePoints.at (i).estimatedValue() << std::endl;
+            amplitudes.push_back (amplitudePoints.at (i).estimatedValue());
+        }
+        
+        curve.setFrequencies (calibratedSetPointManager.getFrequencies());
+        curve.setAmplitudes (amplitudes);
+        curve.setPans (std::vector<float> (frequencies.size(), 0.0f));
+        curve.setPhases (std::vector<float> (frequencies.size(), 0.0f));
+    }
+    
     void goToNextQuestion();
     
     CalibratedSetPointManager calibratedSetPointManager;
@@ -45,5 +68,6 @@ private:
     QuestionSequencer questionSequencer;
     
     Question currentQuestion;
+    Curve curve;
     
 };

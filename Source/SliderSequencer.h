@@ -23,9 +23,17 @@ public:
     void playInterval (float frequency, float amplitude);
     void changeControlledAmplitude (float newAmplitude);
     
+    void playRandomNotes (std::vector<float> frequencies, std::vector<float> amplitudes);
+    void changeAmplitudeOfNotesWithFrequency (float frequency, float newAmplitude);
+    
     std::pair<float, float> getNextSample() 
     {
         return arbitrarySequencer.getNextSample();
+    }
+    
+    float currentlyPlayingFrequency() const
+    {
+        return arbitrarySequencer.currentlyPlayingFrequency();
     }
     
     void setSampleRate (float newSampleRate) 
@@ -35,5 +43,5 @@ public:
     
 private:
     ArbitrarySequencer arbitrarySequencer;
-    Note referenceNote = Note (1000.0f, 0.0f, 0.0f, 0.0f);
+    Note referenceNote = Note (1000.0f, 6.0f, 0.0f, 0.0f);
 };

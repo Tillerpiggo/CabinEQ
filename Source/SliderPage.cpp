@@ -29,6 +29,8 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
 
     viewport.setViewedComponent (&sliderContainer, true);
     addAndMakeVisible (viewport);
+    
+    startTimer (10);
 }
 
 SliderPage::~SliderPage()
@@ -74,4 +76,21 @@ void SliderPage::sliderDragStarted (juce::Slider *slider)
 void SliderPage::sliderDragEnded (juce::Slider *slider)
 {
     processor.getSliderCalibrationManager().setIsSlidingSlider (false);
+}
+
+void SliderPage::timerCallback()
+{
+    int playingIdx = processor.getSliderCalibrationManager().getCurrentlyPlayingIdx();
+    
+    for (int i = 0; i < sliders.size(); ++i)
+    {
+        if (i == playingIdx)
+        {
+            sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::red);
+        }
+        else
+        {
+            sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::blue);
+        }
+    }
 }
