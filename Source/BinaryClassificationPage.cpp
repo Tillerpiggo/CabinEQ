@@ -82,7 +82,7 @@ void BinaryClassificationPage::sliderValueChanged(juce::Slider* slider)
     std::cout << "slider value changed" << std::endl;
     if (slider == &referenceSlider)
     {
-        audioProcessor.setBypassVolume(slider->getValue());
+        //audioProcessor.setBypassVolume(slider->getValue());
     }
 }
 
@@ -90,7 +90,7 @@ void BinaryClassificationPage::buttonClicked(juce::Button* button)
 {
     if (button == &toggleCalibrationButton)
     {
-        audioProcessor.toggleCalibration();
+        //audioProcessor.toggleCalibration();
 
         bool isEnabled = toggleCalibrationButton.getToggleState();
         lowerPreferredButton.setEnabled (isEnabled);
@@ -98,19 +98,19 @@ void BinaryClassificationPage::buttonClicked(juce::Button* button)
     }
     else if (button == lowerPreferredButton.getButtonPointer())
     {
-        audioProcessor.calibrateWith(CalibrationChoice::LowerPreferred);
+        //audioProcessor.calibrateWith(CalibrationChoice::LowerPreferred);
     }
     else if (button == higherPreferredButton.getButtonPointer())
     {
-        audioProcessor.calibrateWith(CalibrationChoice::HigherPreferred);
+        //audioProcessor.calibrateWith(CalibrationChoice::HigherPreferred);
     }
     else if (button == &bypassButton)
     {
-        audioProcessor.toggleBypass();
+        //audioProcessor.toggleBypass();
     }
     else if (button == &applyCurveButton)
     {
-        audioProcessor.applyCurve();
+        //audioProcessor.applyCurve();
     }
 }
 
@@ -152,6 +152,7 @@ void BinaryClassificationPage::removeListeners()
 
 void BinaryClassificationPage::timerCallback()
 {
+    /*
     // Update button text to match question
     Question currentQuestion = audioProcessor.getCurrentQuestion();
     lowerPreferredButton.setLabelText(currentQuestion.lowerText());
@@ -188,4 +189,5 @@ void BinaryClassificationPage::timerCallback()
             higherPreferredButton.setDeepRed (true);
         }
     }
+     */
 }

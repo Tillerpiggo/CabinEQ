@@ -61,39 +61,39 @@ public:
     int getNoteDataSize() const;
     
     //==============================================================================
-    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout (int numPoints);
-    juce::AudioProcessorValueTreeState parameters;
+//    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout (int numPoints);
+//    juce::AudioProcessorValueTreeState parameters;
     
 //    const Curve& getCurve();
-    void applyCurve();
+//    void applyCurve();
+//    
+//    void toggleBypass();
+//    void setBypassVolume (float volume);
+//    void toggleCalibration();
+//    void calibrateWith (CalibrationChoice choice);
+//    const Question& getCurrentQuestion() const;
+//    bool isPlayingFirstNote() const;
+//    
+//    void changeReferencePanTo (float newReferencePan);
     
-    void toggleBypass();
-    void setBypassVolume (float volume);
-    void toggleCalibration();
-    void calibrateWith (CalibrationChoice choice);
-    const Question& getCurrentQuestion() const;
-    bool isPlayingFirstNote() const;
-    
-    void changeReferencePanTo (float newReferencePan);
-    
-    SliderCalibrationManager& getSliderCalibrationManager()
-    {
-        return sliderCalibrationManager;
-    }
+//    SliderCalibrationManager& getSliderCalibrationManager()
+//    {
+//        return sliderCalibrationManager;
+//    }
  
 private:
     static const int FFT_SIZE = 20;
     
-    bool isBypassed;
-    bool isCalibrating;
+//    bool isBypassed;
+//    bool isCalibrating;
 
     ArbitraryResponseFilter gainFilter;
-    Curve curve;
-    BinaryCalibrationManager binaryCalibrationManager;
-    SliderCalibrationManager sliderCalibrationManager;
+//    Curve curve;
+//    BinaryCalibrationManager binaryCalibrationManager;
+//    SliderCalibrationManager sliderCalibrationManager;
     
     juce::dsp::ProcessSpec spec;
-    juce::dsp::Gain<float> gainProcessor;
+//    juce::dsp::Gain<float> gainProcessor;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)

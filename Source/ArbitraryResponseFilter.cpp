@@ -10,32 +10,6 @@
 
 #include "ArbitraryResponseFilter.h"
 
-std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curve& curve, int numPoints)
-{
-    float* leftFreqResponse = new float[2 * numPoints];
-    float* rightFreqResponse = new float[2 * numPoints];
-    for (int i = 0; i < 2 * numPoints; ++i)
-    {
-        float t = static_cast<float>(i) / (2 * numPoints);
-        
-        auto [val, val2] = curve.valueAtTime (t);
-        
-        if (i % 2 == 0)
-        {
-            leftFreqResponse[i] = val.real();
-            rightFreqResponse[i] = val.real();
-        }
-        else
-        {
-            leftFreqResponse[i] = val.imag();
-            rightFreqResponse[i] = val.imag();
-        }
-    }
-    
-    return { leftFreqResponse, rightFreqResponse };
-}
-
-
 void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 {
     // Perform an IFFT on the desired frequency response
@@ -74,4 +48,29 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     
     delete[] leftFreqResponse;
     delete[] rightFreqResponse;
+}
+
+std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curve& curve, int numPoints)
+{
+    float* leftFreqResponse = new float[2 * numPoints];
+    float* rightFreqResponse = new float[2 * numPoints];
+    for (int i = 0; i < 2 * numPoints; ++i)
+    {
+        float t = static_cast<float>(i) / (2 * numPoints);
+        
+        auto [val, val2] = curve.valueAtTime (t);
+        
+        if (i % 2 == 0)
+        {
+            leftFreqResponse[i] = val.real();
+            rightFreqResponse[i] = val.real();
+        }
+        else
+        {
+            leftFreqResponse[i] = val.imag();
+            rightFreqResponse[i] = val.imag();
+        }
+    }
+    
+    return { leftFreqResponse, rightFreqResponse };
 }

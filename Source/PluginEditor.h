@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "BinaryClassificationPage.h"
-#include "SliderPage.h"
+//#include "SliderPage.h"
 
 //==============================================================================
 /**
@@ -32,7 +32,7 @@ private:
     juce::TabbedComponent tabbedComponent;
     
     std::unique_ptr<BinaryClassificationPage> binaryClassificationPage;
-    std::unique_ptr<SliderPage> sliderPage;
+    //std::unique_ptr<SliderPage> sliderPage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
 };
