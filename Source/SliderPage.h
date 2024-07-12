@@ -35,8 +35,8 @@ private:
     juce::Viewport viewport;
     juce::Component sliderContainer;
 
-    std::array<std::unique_ptr<juce::Slider>, 23> sliders;
-    std::array<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>, 23> sliderAttachments;
+    std::vector<std::unique_ptr<juce::Slider>> sliders;
+    std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>> sliderAttachments;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SliderPage)
 };

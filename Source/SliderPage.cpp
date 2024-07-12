@@ -35,28 +35,28 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
 
 SliderPage::~SliderPage()
 {
-    for (auto& slider : sliders)
-    {
-        slider->removeListener (this);
-    }
+//    for (auto& slider : sliders)
+//    {
+//        slider->removeListener (this);
+//    }
 }
 
 void SliderPage::resized()
 {
-    auto area = getLocalBounds();
-    viewport.setBounds(area);
-
-    int sliderWidth = 50;
-    int sliderHeight = area.getHeight();
-    int totalWidth = sliders.size() * sliderWidth;
-
-    sliderContainer.setSize(totalWidth, sliderHeight);
-
-    for (int i = 0; i < sliders.size(); ++i)
-    {
-        auto& slider = *sliders[i];
-        slider.setBounds(i * sliderWidth, 0, sliderWidth, sliderHeight);
-    }
+//    auto area = getLocalBounds();
+//    viewport.setBounds(area);
+//
+//    int sliderWidth = 50;
+//    int sliderHeight = area.getHeight();
+//    int totalWidth = sliders.size() * sliderWidth;
+//
+//    sliderContainer.setSize(totalWidth, sliderHeight);
+//
+//    for (int i = 0; i < sliders.size(); ++i)
+//    {
+//        auto& slider = *sliders[i];
+//        slider.setBounds(i * sliderWidth, 0, sliderWidth, sliderHeight);
+//    }
 }
 
 void SliderPage::sliderValueChanged (juce::Slider *slider)
@@ -80,20 +80,20 @@ void SliderPage::sliderDragEnded (juce::Slider *slider)
 
 void SliderPage::timerCallback()
 {
-    std::cout << "timer callback to access sliders" << std::endl;
-    int playingIdx = processor.getSliderCalibrationManager().getCurrentlyPlayingIdx();
-    
-    for (int i = 0; i < sliders.size(); ++i)
-    {
-        std::cout << "sliders at i: " << i << std::endl;
-        if (i == playingIdx)
-        {
-            sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::red);
-        }
-        else
-        {
-            sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::blue);
-        }
-    }
-    std::cout << "accessed sliders" << std::endl;
+//    std::cout << "timer callback to access sliders" << std::endl;
+//    int playingIdx = processor.getSliderCalibrationManager().getCurrentlyPlayingIdx();
+//    
+//    for (int i = 0; i < sliders.size(); ++i)
+//    {
+//        std::cout << "sliders at i: " << i << std::endl;
+//        if (i == playingIdx)
+//        {
+//            sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::red);
+//        }
+//        else
+//        {
+//            sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::blue);
+//        }
+//    }
+//    std::cout << "accessed sliders" << std::endl;
 }
