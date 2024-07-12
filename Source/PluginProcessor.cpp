@@ -117,11 +117,6 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     
     this->sampleRate = sampleRate;
     this->samplesPerBlock = samplesPerBlock;
-    
-//    spec.sampleRate = sampleRate;
-//    spec.maximumBlockSize = samplesPerBlock;
-//    spec.numChannels = getTotalNumInputChannels();
-//    gainFilter.prepare (spec);
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -158,7 +153,7 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    std::cout << "start process block" << std::endl;
+//    std::cout << "start process block" << std::endl;
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -169,7 +164,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
-    std::cout << "setup left/right channel" << std::endl;
+//    std::cout << "setup left/right channel" << std::endl;
     if (sliderCalibrationManager.getIsSlidingSlider())
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
@@ -195,23 +190,16 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     else
     {
         // process audio through the filter
-        std::cout << "creating process block" << std::endl;
         juce::dsp::AudioBlock<float> block (buffer);
         juce::dsp::ProcessContextReplacing<float> context (block);
         
-        std::cout << "created process block" << std::endl;
-        
         if (isBypassed && hasPreparedFilter)
         {
-            std::cout << "processing filter" << std::endl;
             gainFilter.process (context);
-            std::cout << "process called" << std::endl;
         }
         else
         {
-            std::cout << "gainProcessor processing" << std::endl;
             gainProcessor.process (context);
-            std::cout << "gainProcessor processed" << std::endl;
         }
     }
 }
@@ -325,11 +313,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 //==============================================================================
 void StartupMVPAudioProcessor::applyCurve()
 {
-//    spec.sampleRate = sampleRate;
-//    spec.maximumBlockSize = samplesPerBlock;
-//    spec.numChannels = getTotalNumInputChannels();
-//    gainFilter.prepare (spec);
-    
     std::vector<float> amplitudes;
     
     for (int i = 0; i < 23; ++i)
@@ -340,7 +323,7 @@ void StartupMVPAudioProcessor::applyCurve()
         sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
     }
     
-    //sliderCalibrationManager.updateFilter (gainFilter);
+    sliderCalibrationManager.updateFilter (gainFilter);
     //binaryCalibrationManager.updateFilter (gainFilter);
     //gainFilter.update (binaryCalibrationManager.getCurve(), 18);
 }
