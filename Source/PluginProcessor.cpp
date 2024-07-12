@@ -241,14 +241,6 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
             
         }
     }
-    
-    std::cout << "preparing filter spec" << std::endl;
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = getTotalNumInputChannels();
-    gainFilter.prepare (spec);
-    std::cout << "done preparing filter spec" << std::endl;
-    //hasPreparedFilter = true;
 }
 
 //==============================================================================
@@ -313,6 +305,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 //==============================================================================
 void StartupMVPAudioProcessor::applyCurve()
 {
+    if (!hasPreparedFilter)
+    {
+        spec.sampleRate = sampleRate;
+        spec.maximumBlockSize = samplesPerBlock;
+        spec.numChannels = getTotalNumInputChannels();
+        gainFilter.prepare (spec);
+        hasPreparedFilter = true;
+    }
+    
     std::vector<float> amplitudes;
     
     for (int i = 0; i < 23; ++i)
@@ -322,6 +323,8 @@ void StartupMVPAudioProcessor::applyCurve()
         double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
         sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
     }
+    
+    std::cout << "update filter" << std::endl;
     
     sliderCalibrationManager.updateFilter (gainFilter);
     //binaryCalibrationManager.updateFilter (gainFilter);

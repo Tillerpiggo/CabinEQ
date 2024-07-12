@@ -74,10 +74,10 @@ public:
     }
  
 private:
-    static const int FFT_SIZE = 20;
+    static const int FFT_SIZE = 8;
     
-    bool isBypassed;
-    bool isCalibrating;
+    bool isBypassed = false;
+    bool isCalibrating = false;
 
     ArbitraryResponseFilter gainFilter;
     BinaryCalibrationManager binaryCalibrationManager;
@@ -87,9 +87,9 @@ private:
     juce::dsp::Gain<float> gainProcessor;
     
     // Hacky solution to fix gainFilter bug
-    bool hasPreparedFilter;
     int sampleRate;
     int samplesPerBlock;
+    bool hasPreparedFilter = false;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)

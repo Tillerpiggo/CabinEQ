@@ -22,7 +22,7 @@ public:
     
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept { convolution.process (context); }
-    void update (const Curve& curve, int fft_size = 16); // update the filter to match the curve
+    void update (const Curve& curve, int fft_size = 4); // update the filter to match the curve
     
     void prepare (const juce::dsp::ProcessSpec& spec)
     {

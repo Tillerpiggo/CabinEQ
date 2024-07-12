@@ -106,11 +106,11 @@ void BinaryClassificationPage::buttonClicked(juce::Button* button)
     }
     else if (button == &bypassButton)
     {
-        //audioProcessor.toggleBypass();
+        audioProcessor.toggleBypass();
     }
     else if (button == &applyCurveButton)
     {
-        //audioProcessor.applyCurve();
+        audioProcessor.applyCurve();
     }
 }
 
