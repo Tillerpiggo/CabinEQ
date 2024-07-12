@@ -20,6 +20,8 @@
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
         <FILE id="RXILUA" name="SliderPage.cpp" compile="1" resource="0" file="Source/SliderPage.cpp"/>
         <FILE id="VBfRK2" name="SliderPage.h" compile="0" resource="0" file="Source/SliderPage.h"/>
+        <FILE id="fz6Na1" name="TuningPage.cpp" compile="1" resource="0" file="Source/TuningPage.cpp"/>
+        <FILE id="l6bNz1" name="TuningPage.h" compile="0" resource="0" file="Source/TuningPage.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"

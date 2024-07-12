@@ -22,6 +22,7 @@ public:
     ~SliderPage() override;
 
     void resized() override;
+    void paint (juce::Graphics& g) override;
     
     void sliderValueChanged (juce::Slider *slider) override;
     void sliderDragStarted (juce::Slider *slider) override;

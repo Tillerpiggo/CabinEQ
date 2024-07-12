@@ -44,18 +44,20 @@ SliderPage::~SliderPage()
 void SliderPage::resized()
 {
     auto area = getLocalBounds();
+    int padding = 10;
+    
     viewport.setBounds(area);
 
     int sliderWidth = 50;
     int sliderHeight = area.getHeight();
     int totalWidth = sliders.size() * sliderWidth;
 
-    sliderContainer.setSize(totalWidth, sliderHeight);
+    sliderContainer.setSize(totalWidth + 2 * padding, sliderHeight);
 
     for (int i = 0; i < sliders.size(); ++i)
     {
         auto& slider = *sliders[i];
-        slider.setBounds(i * sliderWidth, 0, sliderWidth, sliderHeight);
+        slider.setBounds(padding + i * sliderWidth, 0, sliderWidth, sliderHeight);
     }
 }
 
@@ -70,7 +72,6 @@ void SliderPage::sliderDragStarted (juce::Slider *slider)
     SliderCalibrationManager& sliderCalibrationManager = processor.getSliderCalibrationManager();
     sliderCalibrationManager.setIsSlidingSlider (true);
     sliderCalibrationManager.setCurrIdx (slider->getProperties().getWithDefault("idx", -1));
-    
 }
 
 void SliderPage::sliderDragEnded (juce::Slider *slider)
@@ -84,13 +85,25 @@ void SliderPage::timerCallback()
     
     for (int i = 0; i < sliders.size(); ++i)
     {
+        auto& slider = *sliders[i];
+        
         if (i == playingIdx)
         {
-            sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::red);
+            slider.setColour (juce::Slider::thumbColourId, juce::Colour::fromRGB(255, 69, 0)); // Orange-Red for active sliders
         }
         else
         {
-            sliders.at (i)->setColour (juce::Slider::thumbColourId, juce::Colours::blue);
+            slider.setColour (juce::Slider::thumbColourId, juce::Colour::fromRGB(30, 144, 255)); // DodgerBlue for inactive sliders
         }
+
+        slider.setColour(juce::Slider::trackColourId, juce::Colour::fromRGB(70, 70, 70)); // Dark grey track
+        slider.setColour(juce::Slider::backgroundColourId, juce::Colour::fromRGB(40, 40, 40)); // Matching dark background
+        slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colour::fromRGB(50, 50, 50)); // Slightly lighter background for text box
+        slider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 255, 255)); // White text in the text box
     }
+}
+
+void SliderPage::paint (juce::Graphics& g)
+{
+    g.fillAll (juce::Colour::fromRGB(30, 30, 30)); // Dark background color
 }

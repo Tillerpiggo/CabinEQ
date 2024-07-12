@@ -12,8 +12,9 @@
 
 void CurveComponent::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::azure);
-    // Draw a path with 1000 points using this->curve
+    g.fillAll (juce::Colour::fromRGB(40, 40, 40));
+    g.setColour (juce::Colour::fromRGB(0, 255, 128));
+
     juce::Path path;
     path.startNewSubPath(0, 0);
     
@@ -27,10 +28,7 @@ void CurveComponent::paint (juce::Graphics& g)
         float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
         float endX = width * normalizedTime;
         
-        // Get value at time (val from 0 to 1)
         float val = juce::Decibels::gainToDecibels (curve.valueAtNormalizedTime (normalizedTime).first.real());
-        
-        // Transform to be in the height dimension
         float endY = height * (1.f - (val + 24.f) / 48.f);
         
         path.lineTo (endX, endY);
