@@ -70,6 +70,21 @@ void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)
     }
 }
 
+void ArbitrarySequencer::changeNotePanAtIdx (int idx, float notePan)
+{
+    if (idx < 0 || idx > notes.size())
+    {
+        std::cerr << "WARNING: changing note gain at idx out of bounds" << std::endl;
+        return;
+    }
+    
+    notes.at (idx).setPan(notePan);
+    if (currNoteIdx == idx)
+    {
+        sineWaveGenerator.setPan (notePan);
+    }
+}
+
 void ArbitrarySequencer::changeNoteGainWithFrequency (float frequency, float noteGain)
 {
     for (int i = 0; i < notes.size(); ++i)
@@ -77,6 +92,17 @@ void ArbitrarySequencer::changeNoteGainWithFrequency (float frequency, float not
         if (notes.at (i).getFrequency() == frequency)
         {
             changeNoteGainAtIdx (i, noteGain);
+        }
+    }
+}
+
+void ArbitrarySequencer::changeNotePanWithFrequency (float frequency, float notePan)
+{
+    for (int i = 0; i < notes.size(); ++i)
+    {
+        if (notes.at (i).getFrequency() == frequency)
+        {
+            changeNotePanAtIdx (i, notePan);
         }
     }
 }

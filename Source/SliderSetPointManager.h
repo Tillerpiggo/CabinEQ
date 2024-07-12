@@ -19,7 +19,8 @@ public:
     
     const std::vector<float>& getFrequencies() const { return frequencies; }
     const std::vector<float>& getAmplitudes() const { return amplitudes; }
-    const int numPoints() const { return frequencies.size(); }
+    const std::vector<float>& getPans() const { return pans; }
+    const int numPoints() const { return static_cast<int> (frequencies.size()); }
     
     float getFrequencyAt (int index) const 
     {
@@ -31,9 +32,19 @@ public:
         return amplitudes.at (index);
     }
     
+    float getPanAt (int index) const
+    {
+        return pans.at (index);
+    }
+    
     void setAmplitudeAt (int index, float newAmplitude) 
     {
         amplitudes.at (index) = newAmplitude;
+    }
+    
+    void setPanAt (int index, float newPan)
+    {
+        pans.at (index) = newPan;
     }
     
     int indexForFrequency (float frequency) const
@@ -52,4 +63,5 @@ public:
 private:
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
+    std::vector<float> pans;
 };

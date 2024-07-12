@@ -17,26 +17,31 @@ class ArbitraryResponseFilter
 {
 public:
     ArbitraryResponseFilter ()
-        : convolution (latency), latency { static_cast<int> (pow (2, 20)) } {}
+        : latency { static_cast<int> (pow (2, 21)) }
+    {
+        std::unique_ptr<juce::dsp::Convolution> newConvolver (new juce::dsp::Convolution (latency));
+        convolution = std::move (newConvolver);
+    }
+    
     virtual ~ArbitraryResponseFilter() = default;
     
     template <typename ProcessContext>
-    void process (const ProcessContext &context) noexcept { convolution.process (context); }
+    void process (const ProcessContext &context) noexcept { convolution->process (context); }
     void update (const Curve& curve, int fft_size = 4); // update the filter to match the curve
     
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        convolution.reset();
+        convolution->reset();
         sampleRate = spec.sampleRate;
         numChannels = spec.numChannels;
         std::cout << "prepare started 2" << std::endl;
-        convolution.prepare (spec);
+        convolution->prepare (spec);
     }
     
 protected:
     std::pair<float*, float*> frequencyResponse (const Curve& curve, int numPoints);
     
-    juce::dsp::Convolution convolution;
+    std::unique_ptr<juce::dsp::Convolution> convolution;
     juce::dsp::Convolution::Latency latency;
     
     double sampleRate;

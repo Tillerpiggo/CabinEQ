@@ -35,7 +35,9 @@ public:
     void setListener (SequencerListener* newListener);
     
     void changeNoteGainAtIdx (int idx, float noteGain);
+    void changeNotePanAtIdx (int idx, float notePan);
     void changeNoteGainWithFrequency (float frequency, float noteGain);
+    void changeNotePanWithFrequency (float frequency, float notePan);
     
 private:
     void goToNextNote();

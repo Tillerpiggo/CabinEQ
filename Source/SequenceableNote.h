@@ -32,6 +32,11 @@ public:
         amplitude = newAmplitude;
     }
     
+    void setPan (float newPan)
+    {
+        pan = newPan;
+    }
+    
     const std::pair<float, float> getGainAtSample (int sample) const;
     
     const Note note() const;

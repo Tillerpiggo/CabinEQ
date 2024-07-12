@@ -293,21 +293,18 @@ void StartupMVPAudioProcessor::applyCurve()
         hasPreparedFilter = true;
     }
     
-    std::vector<float> amplitudes;
-    
     for (int i = 0; i < 23; ++i)
     {
         std::string idx = std::to_string (i);
         
         double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
+        double pan = parameters.getRawParameterValue ("pan_" + idx)->load();
+        
         sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
+        sliderCalibrationManager.setPanAtIdx (i, pan);
     }
     
-    std::cout << "update filter" << std::endl;
-    
     sliderCalibrationManager.updateFilter (gainFilter);
-    //binaryCalibrationManager.updateFilter (gainFilter);
-    //gainFilter.update (binaryCalibrationManager.getCurve(), 18);
 }
 
 void StartupMVPAudioProcessor::toggleBypass()

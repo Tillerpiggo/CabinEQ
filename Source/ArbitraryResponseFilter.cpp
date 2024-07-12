@@ -43,8 +43,8 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     impulseBuffer.copyFrom(0, 0, leftImpulseData, numSamples);
     impulseBuffer.copyFrom(1, 0, rightImpulseData, numSamples);
     
-    convolution.reset();
-    convolution.loadImpulseResponse(std::move(impulseBuffer), sampleRate, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, juce::dsp::Convolution::Normalise::no);
+    convolution->reset();
+    convolution->loadImpulseResponse(std::move(impulseBuffer), sampleRate, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, juce::dsp::Convolution::Normalise::no);
     
     delete[] leftFreqResponse;
     delete[] rightFreqResponse;

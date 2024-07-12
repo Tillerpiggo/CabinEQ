@@ -22,7 +22,9 @@ public:
     SliderCalibrationManager() : isSlidingSlider (false)
     {
         sliderSequencer.playRandomNotes (sliderSetPointManager.getFrequencies(), 
-                                         sliderSetPointManager.getAmplitudes());
+                                         sliderSetPointManager.getAmplitudes(),
+                                         sliderSetPointManager.getPans());
+        updateCurve();
     }
     
     void updateFilter (ArbitraryResponseFilter& filter);
@@ -54,17 +56,24 @@ public:
     
     void setCurrIdx (int idx)
     {
-        sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
-                                      sliderSetPointManager.getAmplitudeAt (idx));
+//        sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
+//                                      sliderSetPointManager.getAmplitudeAt (idx),
+//                                      sliderSetPointManager.getPanAt (idx));
         
     }
     
     void setAmplitudeAtIdx (int idx, float newAmplitude)
     {
         sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
-//        sliderSequencer.changeControlledAmplitude (newAmplitude);
         sliderSequencer.changeAmplitudeOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
                                                              newAmplitude);
+    }
+    
+    void setPanAtIdx (int idx, float newPan)
+    {
+        sliderSetPointManager.setPanAt (idx, newPan);
+        sliderSequencer.changePanOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
+                                                       newPan);
     }
     
     void setIsSlidingSlider (bool isSliding)
@@ -73,6 +82,8 @@ public:
     }
     
 private:
+    void updateCurve();
+    
     SliderSequencer sliderSequencer;
     SliderSetPointManager sliderSetPointManager;
     Curve curve;

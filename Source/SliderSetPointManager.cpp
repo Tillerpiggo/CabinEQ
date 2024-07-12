@@ -18,5 +18,6 @@ SliderSetPointManager::SliderSetPointManager()
     for (int i = 0; i < frequencies.size(); ++i)
     {
         amplitudes.push_back (0.0f);
+        pans.push_back (0.0f);
     }
 }
