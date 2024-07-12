@@ -91,6 +91,8 @@ private:
     Curve curve;
     BinaryCalibrationManager binaryCalibrationManager;
     SliderCalibrationManager sliderCalibrationManager;
+    
+    juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> gainProcessor;
     
     //==============================================================================

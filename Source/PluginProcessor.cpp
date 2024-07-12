@@ -112,16 +112,11 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
 {
     binaryCalibrationManager.setSampleRate (sampleRate);
     
-    juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = 2;
-    
-    std::cout << "sample rate: " << sampleRate << std::endl;
-    std::cout << "samples per block: " << samplesPerBlock << std::endl;
+    spec.numChannels = getTotalNumInputChannels();
     
     gainFilter.prepare (spec);
-//    std::cout << "prepared to play" << std::endl;
 }
 
 void StartupMVPAudioProcessor::releaseResources()
