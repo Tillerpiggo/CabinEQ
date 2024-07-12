@@ -38,7 +38,6 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
 
 void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 {
-    /*
     // Perform an IFFT on the desired frequency response
     juce::dsp::FFT fft (fft_size);
     int numPoints = fft.getSize();
@@ -63,7 +62,6 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     }
     
     // Load the IR into the convolution
-    int numChannels = 2;
     int numSamples = numPoints;
     
     juce::AudioBuffer<float> impulseBuffer (numChannels, numSamples);
@@ -76,5 +74,4 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     
     delete[] leftFreqResponse;
     delete[] rightFreqResponse;
-     */
 }

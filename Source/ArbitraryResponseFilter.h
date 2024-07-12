@@ -17,15 +17,18 @@ class ArbitraryResponseFilter
 {
 public:
     ArbitraryResponseFilter ()
-    : convolution (latency), latency { static_cast<int> (pow (2, 18))} {}
+    : convolution () {}//, latency { static_cast<int> (pow (2, 4))} {}
     virtual ~ArbitraryResponseFilter() = default;
     
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
         convolution.reset();
         sampleRate = spec.sampleRate;
+        numChannels = spec.numChannels;
+        std::cout << "prepare started 2" << std::endl;
         convolution.prepare (spec);
     }
+    
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept { convolution.process (context); }
     
@@ -35,8 +38,11 @@ public:
 protected:
     juce::dsp::Convolution convolution;
     juce::dsp::Convolution::Latency latency;
+    
     double sampleRate = 44100;
     bool hasLoadedImpulse;
+    
+    int numChannels = 2;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArbitraryResponseFilter)
 };

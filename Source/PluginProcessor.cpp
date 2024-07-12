@@ -116,7 +116,10 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumInputChannels();
     
+    sliderCalibrationManager.updateFilter (gainFilter);
+    std::cout << "prepare started" << std::endl;
     gainFilter.prepare (spec);
+    std::cout << "prepare finished" << std::endl;
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -196,6 +199,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         if (isBypassed)
         {
             gainFilter.process (context);
+            std::cout << "process called" << std::endl;
         }
         else
         {
@@ -239,19 +243,6 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         {
             parameters.state = juce::ValueTree::fromXml(*savedParams);
             applyCurve();
-//            std::vector<float> amplitudes;
-//            
-//            for (int i = 0; i < 23; ++i)
-//            {
-//                std::string idx = std::to_string (i);
-//                
-//                double gain = parameters.getRawParameterValue("gain_" + idx)->load();
-//                amplitudes.push_back (gain);
-//            }
-//            
-//            curve.setAmplitudes (amplitudes);
-//            gainFilter.update (curve, FFT_SIZE);
-//            balanceFilter.update (calibrationManager.getBalanceCurve(), FFT_SIZE);
         }
     }
 }
@@ -315,11 +306,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
-//const Curve& StartupMVPAudioProcessor::getCurve()
-//{
-//    return binaryCalibrationManager.getCurve();
-//}
-
 void StartupMVPAudioProcessor::applyCurve()
 {
     std::vector<float> amplitudes;
@@ -335,10 +321,6 @@ void StartupMVPAudioProcessor::applyCurve()
     //sliderCalibrationManager.updateFilter (gainFilter);
     //binaryCalibrationManager.updateFilter (gainFilter);
     //gainFilter.update (binaryCalibrationManager.getCurve(), 18);
-//
-//    curve.setAmplitudes (amplitudes);
-//    gainFilter.update (curve, FFT_SIZE);
-    //gainFilter.update (curve, FFT_SIZE);
 }
 
 void StartupMVPAudioProcessor::toggleBypass()
