@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <chrono>
 
 //==============================================================================
 StartupMVPAudioProcessor::StartupMVPAudioProcessor()
@@ -19,14 +20,14 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )//, parameters (*this, nullptr, "Parameters", createParameterLayout (23))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (23))
 
 #endif
 {
-//    parameters.state = juce::ValueTree("savedParams");
-//    isCalibrating = false;
-//    isBypassed = false;
-//    gainProcessor.setGainDecibels(0.f);
+    parameters.state = juce::ValueTree("savedParams");
+    isCalibrating = false;
+    isBypassed = false;
+    gainProcessor.setGainDecibels(0.f);
 //    
 //    std::vector<float> frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
 //    std::vector<float> amplitudes (23, 0.0f);
@@ -39,6 +40,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 //    curve.setPans (pans);
 //    curve.setPhases (phases);
 //    std::cout << "set curve" << std::endl;
+    std::cout << "Initialized" << std::endl;
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -111,15 +113,15 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     //binaryCalibrationManager.setSampleRate (sampleRate);
+    sliderCalibrationManager.setSampleRate (sampleRate);
     
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = getTotalNumInputChannels();
+    this->sampleRate = sampleRate;
+    this->samplesPerBlock = samplesPerBlock;
     
-    //sliderCalibrationManager.updateFilter (gainFilter);
-    std::cout << "prepare started" << std::endl;
-    gainFilter.prepare (spec);
-    std::cout << "prepare finished" << std::endl;
+//    spec.sampleRate = sampleRate;
+//    spec.maximumBlockSize = samplesPerBlock;
+//    spec.numChannels = getTotalNumInputChannels();
+//    gainFilter.prepare (spec);
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -156,7 +158,7 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    /*
+    std::cout << "start process block" << std::endl;
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -167,7 +169,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
-    
+    std::cout << "setup left/right channel" << std::endl;
     if (sliderCalibrationManager.getIsSlidingSlider())
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
@@ -193,20 +195,25 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     else
     {
         // process audio through the filter
+        std::cout << "creating process block" << std::endl;
         juce::dsp::AudioBlock<float> block (buffer);
         juce::dsp::ProcessContextReplacing<float> context (block);
         
-        if (isBypassed)
+        std::cout << "created process block" << std::endl;
+        
+        if (isBypassed && hasPreparedFilter)
         {
+            std::cout << "processing filter" << std::endl;
             gainFilter.process (context);
             std::cout << "process called" << std::endl;
         }
         else
         {
+            std::cout << "gainProcessor processing" << std::endl;
             gainProcessor.process (context);
+            std::cout << "gainProcessor processed" << std::endl;
         }
     }
-    */
 }
 
 //==============================================================================
@@ -227,8 +234,8 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     
-//    std::unique_ptr <juce::XmlElement> xml (parameters.state.createXml());
-//    copyXmlToBinary(*xml, destData);
+    std::unique_ptr <juce::XmlElement> xml (parameters.state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -236,15 +243,24 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
-//    std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
-//    if (savedParams != nullptr)
-//    {
-//        if (savedParams->hasTagName(parameters.state.getType()))
-//        {
-//            parameters.state = juce::ValueTree::fromXml(*savedParams);
-//            applyCurve();
-//        }
-//    }
+    std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
+    if (savedParams != nullptr)
+    {
+        if (savedParams->hasTagName(parameters.state.getType()))
+        {
+            parameters.state = juce::ValueTree::fromXml(*savedParams);
+            applyCurve();
+            
+        }
+    }
+    
+    std::cout << "preparing filter spec" << std::endl;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumInputChannels();
+    gainFilter.prepare (spec);
+    std::cout << "done preparing filter spec" << std::endl;
+    //hasPreparedFilter = true;
 }
 
 //==============================================================================
@@ -255,106 +271,86 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 }
 
 
-//juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::createParameterLayout(int numPoints)
-//{
-//    juce::AudioProcessorValueTreeState::ParameterLayout layout;
-//
-//    // Define range for each parameter
-//    float defaultVal = 0.f; // for everything
-//    juce::NormalisableRange<float> gainRange (-24.0f, 48.0, 0.05f, 1.0f);
-//    juce::NormalisableRange<float> panRange (-24.0f, 24.0, 0.05f, 1.0f);
-//    juce::NormalisableRange<float> phaseRange (-3.14, 3.14, 0.01f, 1.0f);
-//    //
-//
-//    // Add numPoints gain parameters
-//    for ( int i = 0; i < numPoints; i++ ) {
-//        juce::String paramID = "gain_" + std::to_string(i);
-//
-//        layout.add(std::make_unique<juce::AudioParameterFloat>(
-//            juce::ParameterID(paramID, 1),
-//            paramID,
-//            gainRange,
-//            defaultVal
-//        ));
-//    }
-//    
-//    // Add numPoints balance parameters to match
-//    for ( int i = 0; i < numPoints; i++ ) {
-//        juce::String paramID = "pan_" + std::to_string(i);
-//
-//        layout.add(std::make_unique<juce::AudioParameterFloat>(
-//            juce::ParameterID(paramID, 1),
-//            paramID,
-//            panRange,
-//            defaultVal
-//        ));
-//    }
-//    
-//    // Add numPoints phase parameters as well
-//    for ( int i = 0; i < numPoints; i++ ) {
-//        juce::String paramID = "phase_" + std::to_string(i);
-//
-//        layout.add(std::make_unique<juce::AudioParameterFloat>(
-//            juce::ParameterID(paramID, 1),
-//            paramID,
-//            phaseRange,
-//            defaultVal
-//        ));
-//    }
-//
-//    return layout;
-//}
+
+juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::createParameterLayout(int numPoints)
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    // Define range for each parameter
+    float defaultVal = 0.f; // for everything
+    juce::NormalisableRange<float> gainRange (-24.0f, 48.0, 0.05f, 1.0f);
+    juce::NormalisableRange<float> panRange (-24.0f, 24.0, 0.05f, 1.0f);
+    juce::NormalisableRange<float> phaseRange (-3.14, 3.14, 0.01f, 1.0f);
+    //
+
+    // Add numPoints gain parameters
+    for ( int i = 0; i < numPoints; i++ ) {
+        juce::String paramID = "gain_" + std::to_string(i);
+
+        layout.add (std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID(paramID, 1),
+            paramID,
+            gainRange,
+            defaultVal
+        ));
+    }
+    
+    // Add numPoints balance parameters to match
+    for ( int i = 0; i < numPoints; i++ ) {
+        juce::String paramID = "pan_" + std::to_string(i);
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID(paramID, 1),
+            paramID,
+            panRange,
+            defaultVal
+        ));
+    }
+    
+    // Add numPoints phase parameters as well
+    for ( int i = 0; i < numPoints; i++ ) {
+        juce::String paramID = "phase_" + std::to_string(i);
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID(paramID, 1),
+            paramID,
+            phaseRange,
+            defaultVal
+        ));
+    }
+
+    return layout;
+}
 
 //==============================================================================
-//void StartupMVPAudioProcessor::applyCurve()
-//{
-//    /*
-//    std::vector<float> amplitudes;
-//    
-//    for (int i = 0; i < 23; ++i)
-//    {
-//        std::string idx = std::to_string (i);
-//        
-//        double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
-//        sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
-//    }
-//    */
-//    //sliderCalibrationManager.updateFilter (gainFilter);
-//    //binaryCalibrationManager.updateFilter (gainFilter);
-//    //gainFilter.update (binaryCalibrationManager.getCurve(), 18);
-//}
-//
-//void StartupMVPAudioProcessor::toggleBypass()
-//{
-//    //isBypassed = ! isBypassed;
-//}
-//
-//void StartupMVPAudioProcessor::setBypassVolume (float volume)
-//{
-//    //gainProcessor.setGainDecibels (volume);
-//}
-//
-//void StartupMVPAudioProcessor::toggleCalibration()
-//{
-//    //isCalibrating = ! isCalibrating;
-//}
+void StartupMVPAudioProcessor::applyCurve()
+{
+//    spec.sampleRate = sampleRate;
+//    spec.maximumBlockSize = samplesPerBlock;
+//    spec.numChannels = getTotalNumInputChannels();
+//    gainFilter.prepare (spec);
+    
+    std::vector<float> amplitudes;
+    
+    for (int i = 0; i < 23; ++i)
+    {
+        std::string idx = std::to_string (i);
+        
+        double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
+        sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
+    }
+    
+    //sliderCalibrationManager.updateFilter (gainFilter);
+    //binaryCalibrationManager.updateFilter (gainFilter);
+    //gainFilter.update (binaryCalibrationManager.getCurve(), 18);
+}
 
-//void StartupMVPAudioProcessor::calibrateWith (CalibrationChoice choice)
-//{
-//    //binaryCalibrationManager.calibrateWith (choice);
-//}
+void StartupMVPAudioProcessor::toggleBypass()
+{
+    isBypassed = ! isBypassed;
+}
 
-//const Question& StartupMVPAudioProcessor::getCurrentQuestion() const
-//{
-//    return binaryCalibrationManager.getCurrentQuestion();
-//}
-//
-//bool StartupMVPAudioProcessor::isPlayingFirstNote() const
-//{
-//    return binaryCalibrationManager.isPlayingFirstNote();
-//}
-//
-//void StartupMVPAudioProcessor::changeReferencePanTo (float newReferencePan)
-//{
-//    binaryCalibrationManager.changeReferencePanTo (newReferencePan);
-//}
+void StartupMVPAudioProcessor::setBypassVolume (float volume)
+{
+    gainProcessor.setGainDecibels (volume);
+}

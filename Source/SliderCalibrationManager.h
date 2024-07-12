@@ -19,7 +19,7 @@
 class SliderCalibrationManager
 {
 public:
-    SliderCalibrationManager() 
+    SliderCalibrationManager() : isSlidingSlider (false)
     {
 //        sliderSequencer.playRandomNotes (sliderSetPointManager.getFrequencies(), 
 //                                         sliderSetPointManager.getAmplitudes());
@@ -39,6 +39,7 @@ public:
     
     bool getIsSlidingSlider() const
     {
+        std::cout << "issliding slider: " << isSlidingSlider << std::endl;
         return isSlidingSlider;
     }
     
