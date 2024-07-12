@@ -17,7 +17,7 @@ class ArbitraryResponseFilter
 {
 public:
     ArbitraryResponseFilter ()
-    : convolution () {}//, latency { static_cast<int> (pow (2, 4))} {}
+        : convolution (latency), latency { static_cast<int> (pow (2, 20)) } {}
     virtual ~ArbitraryResponseFilter() = default;
     
     void prepare (const juce::dsp::ProcessSpec& spec)
