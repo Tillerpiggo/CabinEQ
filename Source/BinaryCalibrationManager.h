@@ -51,7 +51,6 @@ private:
             
         for (int i = 0; i < frequencies.size(); ++i)
         {
-            std::cout << "Amplitude at " << frequencies.at (i) << ": " << amplitudePoints.at (i).estimatedValue() << std::endl;
             amplitudes.push_back (amplitudePoints.at (i).estimatedValue());
         }
         

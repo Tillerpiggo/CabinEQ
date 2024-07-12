@@ -117,8 +117,11 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 2;
     
+    std::cout << "sample rate: " << sampleRate << std::endl;
+    std::cout << "samples per block: " << samplesPerBlock << std::endl;
+    
     gainFilter.prepare (spec);
-    std::cout << "prepared to play" << std::endl;
+//    std::cout << "prepared to play" << std::endl;
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -155,7 +158,7 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    
+    /*
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -204,7 +207,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             gainProcessor.process (context);
         }
     }
-    
+    */
 }
 
 //==============================================================================
@@ -331,11 +334,10 @@ void StartupMVPAudioProcessor::applyCurve()
         std::string idx = std::to_string (i);
         
         double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
-        std::cout << "Gain: " << gain << std::endl;
         sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
     }
     
-    sliderCalibrationManager.updateFilter (gainFilter);
+    //sliderCalibrationManager.updateFilter (gainFilter);
     //binaryCalibrationManager.updateFilter (gainFilter);
     //gainFilter.update (binaryCalibrationManager.getCurve(), 18);
 //
