@@ -18,24 +18,10 @@
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="RXILUA" name="SliderPage.cpp" compile="1" resource="0" file="Source/SliderPage.cpp"/>
         <FILE id="VBfRK2" name="SliderPage.h" compile="0" resource="0" file="Source/SliderPage.h"/>
-        <FILE id="TjAzW7" name="BinaryClassificationPage.cpp" compile="1" resource="0"
-              file="Source/BinaryClassificationPage.cpp"/>
-        <FILE id="N1ECUx" name="BinaryClassificationPage.h" compile="0" resource="0"
-              file="Source/BinaryClassificationPage.h"/>
-        <FILE id="H8IGhf" name="CircleComponent.h" compile="0" resource="0"
-              file="Source/CircleComponent.h"/>
-        <FILE id="j8rTjR" name="CircularButton.cpp" compile="1" resource="0"
-              file="Source/CircularButton.cpp"/>
-        <FILE id="wuIHWz" name="CircularButton.h" compile="0" resource="0"
-              file="Source/CircularButton.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
               file="Source/CurveComponent.h"/>
-        <FILE id="dn7wHe" name="InverseFletcherMunsonCurve.cpp" compile="1"
-              resource="0" file="Source/InverseFletcherMunsonCurve.cpp"/>
-        <FILE id="j9Paoc" name="InverseFletcherMunsonCurve.h" compile="0" resource="0"
-              file="Source/InverseFletcherMunsonCurve.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
         <FILE id="tFPxFE" name="SliderSequencer.cpp" compile="1" resource="0"
@@ -53,14 +39,14 @@
               file="Source/StereoGainEnvelope.cpp"/>
         <FILE id="Yfy4sY" name="StereoGainEnvelope.h" compile="0" resource="0"
               file="Source/StereoGainEnvelope.h"/>
-        <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
-              file="Source/SequenceableNote.cpp"/>
-        <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
-              file="Source/SequenceableNote.h"/>
         <FILE id="u9ZaeK" name="SineWaveGenerator.cpp" compile="1" resource="0"
               file="Source/SineWaveGenerator.cpp"/>
         <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
               file="Source/SineWaveGenerator.h"/>
+        <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
+              file="Source/SequenceableNote.cpp"/>
+        <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
+              file="Source/SequenceableNote.h"/>
         <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{BBD4AE00-CC92-9DE7-D5E8-A037D1509C11}" name="Audio Processing">
@@ -78,40 +64,6 @@
               file="Source/SliderSetPointManager.cpp"/>
         <FILE id="uEzYGm" name="SliderSetPointManager.h" compile="0" resource="0"
               file="Source/SliderSetPointManager.h"/>
-      </GROUP>
-      <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="BinaryCalibrationOld">
-        <FILE id="E3LGsL" name="QuestionSequencer.cpp" compile="1" resource="0"
-              file="Source/QuestionSequencer.cpp"/>
-        <FILE id="rujkY1" name="QuestionSequencer.h" compile="0" resource="0"
-              file="Source/QuestionSequencer.h"/>
-        <FILE id="tux1Bk" name="CalibrationIntervalSequencer.cpp" compile="1"
-              resource="0" file="Source/CalibrationIntervalSequencer.cpp"/>
-        <FILE id="iVeprk" name="CalibrationIntervalSequencer.h" compile="0"
-              resource="0" file="Source/CalibrationIntervalSequencer.h"/>
-        <FILE id="Rz9r3X" name="PhaseCalibratedSetPoint.cpp" compile="1" resource="0"
-              file="Source/PhaseCalibratedSetPoint.cpp"/>
-        <FILE id="blPdcX" name="PhaseCalibratedSetPoint.h" compile="0" resource="0"
-              file="Source/PhaseCalibratedSetPoint.h"/>
-        <FILE id="RuvQSy" name="Question.cpp" compile="1" resource="0" file="Source/Question.cpp"/>
-        <FILE id="eKsN3S" name="Question.h" compile="0" resource="0" file="Source/Question.h"/>
-        <FILE id="ENsrXq" name="CalibratedSetPoint.cpp" compile="1" resource="0"
-              file="Source/CalibratedSetPoint.cpp"/>
-        <FILE id="dhHXCH" name="CalibratedSetPoint.h" compile="0" resource="0"
-              file="Source/CalibratedSetPoint.h"/>
-        <FILE id="iJTgDM" name="CalibrationChoice.h" compile="0" resource="0"
-              file="Source/CalibrationChoice.h"/>
-        <FILE id="noJ5wR" name="CalibratedSetPointManager.cpp" compile="1"
-              resource="0" file="Source/CalibratedSetPointManager.cpp"/>
-        <FILE id="srTuKz" name="CalibratedSetPointManager.h" compile="0" resource="0"
-              file="Source/CalibratedSetPointManager.h"/>
-        <FILE id="ie3EVa" name="CalibrationSequencer.cpp" compile="1" resource="0"
-              file="Source/CalibrationSequencer.cpp"/>
-        <FILE id="tnTJwR" name="CalibrationSequencer.h" compile="0" resource="0"
-              file="Source/CalibrationSequencer.h"/>
-        <FILE id="axJbH0" name="BinaryCalibrationManager.cpp" compile="1" resource="0"
-              file="Source/BinaryCalibrationManager.cpp"/>
-        <FILE id="BHGMxG" name="BinaryCalibrationManager.h" compile="0" resource="0"
-              file="Source/BinaryCalibrationManager.h"/>
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>

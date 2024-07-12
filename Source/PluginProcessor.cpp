@@ -238,7 +238,6 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         {
             parameters.state = juce::ValueTree::fromXml(*savedParams);
             applyCurve();
-            
         }
     }
 }

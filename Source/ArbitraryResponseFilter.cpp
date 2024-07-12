@@ -12,7 +12,6 @@
 
 void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 {
-    std::cout << "start update" << std::endl;
     // Perform an IFFT on the desired frequency response
     juce::dsp::FFT fft (fft_size);
     int numPoints = fft.getSize();
@@ -40,23 +39,6 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     int numSamples = numPoints;
     
     juce::AudioBuffer<float> impulseBuffer (numChannels, numSamples);
-    
-    std::cout << "Copying from" << std::endl;
-    
-    std::cout << "Left Impulse Data: " << std::endl;
-    std::cout << leftImpulseData[0] << std::endl;
-//    for (int i = 0; i < numPoints; ++i)
-//    {
-//        std::cout << leftImpulseData[i] << " ";
-//    }
-//    std::cout << std::endl;
-//    
-//    std::cout << "Right Impulse Data: " << std::endl;
-//    for (int i = 0; i < numPoints; ++i)
-//    {
-//        std::cout << rightImpulseData.at (i) << " ";
-//    }
-//    std::cout << std::endl;
 
     impulseBuffer.copyFrom(0, 0, leftImpulseData, numSamples);
     impulseBuffer.copyFrom(1, 0, rightImpulseData, numSamples);
