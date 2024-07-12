@@ -27,7 +27,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 //    isCalibrating = false;
 //    isBypassed = false;
 //    gainProcessor.setGainDecibels(0.f);
-//    
+    
 //    std::vector<float> frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
 //    std::vector<float> amplitudes (23, 0.0f);
 //    std::vector<float> pans (23, 0.0f);
@@ -110,15 +110,15 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    binaryCalibrationManager.setSampleRate (sampleRate);
-    
-    juce::dsp::ProcessSpec spec;
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = 2;
-    
-    gainFilter.prepare (spec);
-    std::cout << "prepared to play" << std::endl;
+//    binaryCalibrationManager.setSampleRate (sampleRate);
+//    
+//    juce::dsp::ProcessSpec spec;
+//    spec.sampleRate = sampleRate;
+//    spec.maximumBlockSize = samplesPerBlock;
+//    spec.numChannels = 2;
+//    
+//    gainFilter.prepare (spec);
+//    std::cout << "prepared to play" << std::endl;
 }
 
 void StartupMVPAudioProcessor::releaseResources()
@@ -155,7 +155,7 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    
+    /*
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -204,7 +204,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             gainProcessor.process (context);
         }
     }
-    
+    */
 }
 
 //==============================================================================

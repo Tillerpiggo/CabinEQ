@@ -15,7 +15,7 @@ BinaryClassificationPage::BinaryClassificationPage(StartupMVPAudioProcessor& p)
 {
     addComponents();
     addListeners();
-    
+//    
     startTimer (10);
 }
 
@@ -75,12 +75,6 @@ void BinaryClassificationPage::resized()
     referenceSlider.setBounds(referenceSliderArea);
     applyCurveButton.setBounds(applyCurveButtonArea);
     bypassButton.setBounds(bypassButtonArea);
-
-    // Set bounds for the sliders horizontally with more vertical space
-    int sliderWidth = (area.getWidth() - (4 * padding)) / 3;
-    int sliderHeight = 70;  // Increased height for more vertical space
-
-    auto sliderArea = area.removeFromTop(sliderHeight).reduced(padding);
 }
 
 void BinaryClassificationPage::sliderValueChanged(juce::Slider* slider)
