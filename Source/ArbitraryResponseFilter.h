@@ -38,4 +38,5 @@ protected:
     double sampleRate = 44100;
     bool hasLoadedImpulse;
     
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArbitraryResponseFilter)
 };
