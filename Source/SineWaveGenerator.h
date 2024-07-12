@@ -12,7 +12,6 @@
 
 #include <JuceHeader.h>
 #include "Note.h"
-#include "InverseFletcherMunsonCurve.h"
 
 class SineWaveGenerator
 {

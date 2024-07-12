@@ -11,7 +11,6 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 #include "ArbitraryResponseFilter.h"
-#include "BinaryCalibrationManager.h"
 #include "SliderCalibrationManager.h"
 
 //==============================================================================
@@ -66,7 +65,7 @@ public:
     
     void applyCurve();
     void toggleBypass();
-    void setBypassVolume (float volume);
+    void setBypassBalance (float balance);
     
     SliderCalibrationManager& getSliderCalibrationManager()
     {
@@ -80,11 +79,11 @@ private:
     bool isCalibrating = false;
 
     ArbitraryResponseFilter gainFilter;
-    BinaryCalibrationManager binaryCalibrationManager;
     SliderCalibrationManager sliderCalibrationManager;
     
     juce::dsp::ProcessSpec spec;
-    juce::dsp::Gain<float> gainProcessor;
+    juce::dsp::Gain<float> dryGainProcessor;
+    juce::dsp::Gain<float> wetGainProcessor;
     
     // Hacky solution to fix gainFilter bug
     int sampleRate;

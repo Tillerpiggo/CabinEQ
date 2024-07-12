@@ -32,6 +32,11 @@ public:
         return sliderSequencer.getNextSample();
     }
     
+    const Curve& getCurve() const
+    {
+        return curve;
+    }
+    
     int getCurrentlyPlayingIdx()
     {
         return sliderSetPointManager.indexForFrequency (sliderSequencer.currentlyPlayingFrequency());

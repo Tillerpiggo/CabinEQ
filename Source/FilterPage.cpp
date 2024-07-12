@@ -1,0 +1,79 @@
+/*
+  ==============================================================================
+
+    FilterPage.cpp
+    Created: 11 Jul 2024 11:53:46pm
+    Author:  Tyler Gee
+
+  ==============================================================================
+*/
+
+#include "FilterPage.h"
+
+FilterPage::FilterPage(StartupMVPAudioProcessor& p)
+    : processor (p), curveComponent (p.getSliderCalibrationManager().getCurve())
+{
+    balanceSlider.setRange (-12.0, 12.0);
+    balanceSlider.setTextValueSuffix (" dB");
+    balanceSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    balanceSlider.setTextBoxStyle (juce::Slider::TextBoxRight, true, 100, 20);
+
+    applyFilterButton.addListener (this);
+    bypassButton.addListener (this);
+    balanceSlider.addListener (this);
+    
+    addAndMakeVisible (curveComponent);
+    addAndMakeVisible (applyFilterButton);
+    addAndMakeVisible (bypassButton);
+    addAndMakeVisible (balanceSlider);
+}
+
+FilterPage::~FilterPage()
+{
+    applyFilterButton.removeListener (this);
+    bypassButton.removeListener (this);
+    balanceSlider.removeListener (this);
+}
+
+void FilterPage::resized()
+{
+    auto area = getLocalBounds();
+    
+    auto halfHeight = area.getHeight() / 2;
+    auto buttonHeight = 100;
+    auto sliderHeight = 50;
+    auto buttonWidth = area.getWidth() / 2;
+
+    curveComponent.setBounds(area.removeFromTop(halfHeight));
+
+    auto buttonArea = area.removeFromTop(buttonHeight).reduced(10);
+    applyFilterButton.setBounds(buttonArea.removeFromLeft(buttonWidth - 10));
+    bypassButton.setBounds(buttonArea);
+
+    balanceSlider.setBounds(area.removeFromTop(sliderHeight).reduced(10));
+}
+
+void FilterPage::paint (juce::Graphics& g)
+{
+    g.fillAll (juce::Colour::fromRGB(30, 30, 30)); // A nice dark color
+}
+
+void FilterPage::sliderValueChanged (juce::Slider *slider)
+{
+    if (slider == &balanceSlider)
+    {
+        processor.setBypassBalance (slider->getValue());
+    }
+}
+
+void FilterPage::buttonClicked (juce::Button *button)
+{
+    if (button == &applyFilterButton)
+    {
+        processor.applyCurve();
+    }
+    else if (button == &bypassButton)
+    {
+        processor.toggleBypass();
+    }
+}

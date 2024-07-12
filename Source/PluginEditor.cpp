@@ -14,10 +14,10 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioPr
 {
     setSize(800, 620);
     
-    binaryClassificationPage = std::make_unique<BinaryClassificationPage> (p);
+    filterPage = std::make_unique<FilterPage> (p);
     sliderPage = std::make_unique<SliderPage> (p);
     
-    tabbedComponent.addTab ("Binary Classification", juce::Colours::lightgrey, binaryClassificationPage.get(), false);
+    tabbedComponent.addTab ("Filter", juce::Colours::lightgrey, filterPage.get(), false);
     tabbedComponent.addTab ("Sliders", juce::Colours::lightgrey, sliderPage.get(), false);
 
     addAndMakeVisible(tabbedComponent);

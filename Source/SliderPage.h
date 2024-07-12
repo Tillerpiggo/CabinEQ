@@ -34,10 +34,6 @@ private:
 
     juce::Viewport viewport;
     juce::Component sliderContainer;
-
-//    std::vector<std::unique_ptr<juce::Slider>> sliders;
-//    std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>> sliderAttachments;
-
     std::array<std::unique_ptr<juce::Slider>, 23> sliders;
     std::array<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>, 23> sliderAttachments;
 

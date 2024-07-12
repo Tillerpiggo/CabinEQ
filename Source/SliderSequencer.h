@@ -11,7 +11,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CalibratedSetPointManager.h"
 #include "ArbitrarySequencer.h"
 #include "Note.h"
 

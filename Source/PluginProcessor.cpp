@@ -24,23 +24,13 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 
 #endif
 {
-    parameters.state = juce::ValueTree("savedParams");
     isCalibrating = false;
     isBypassed = false;
-    gainProcessor.setGainDecibels(0.f);
-//    
-//    std::vector<float> frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
-//    std::vector<float> amplitudes (23, 0.0f);
-//    std::vector<float> pans (23, 0.0f);
-//    std::vector<float> phases (23, 0.0f);
-//    
-//    std::cout << "Initialized" << std::endl;
-//    curve.setFrequencies (frequencies);
-//    curve.setAmplitudes (amplitudes);
-//    curve.setPans (pans);
-//    curve.setPhases (phases);
-//    std::cout << "set curve" << std::endl;
-    std::cout << "Initialized" << std::endl;
+    
+    dryGainProcessor.setGainDecibels (0.0f);
+    wetGainProcessor.setGainDecibels (0.0f);
+    
+    parameters.state = juce::ValueTree("savedParams");
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -176,17 +166,6 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
                 rightChannel[sample] = value.second * 0.05 * 0.5;
         }
     }
-    else if (isCalibrating)
-    {
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-        {
-            const std::pair<float, float> value = binaryCalibrationManager.getNextSample();
-            leftChannel[sample] = value.first * 0.05 * 0.5;
-            
-            if (rightChannel)
-                rightChannel[sample] = value.second * 0.05 * 0.5;
-        }
-    }
     else
     {
         // process audio through the filter
@@ -196,10 +175,11 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         if (isBypassed && hasPreparedFilter)
         {
             gainFilter.process (context);
+            wetGainProcessor.process (context);
         }
         else
         {
-            gainProcessor.process (context);
+            dryGainProcessor.process (context);
         }
     }
 }
@@ -335,7 +315,8 @@ void StartupMVPAudioProcessor::toggleBypass()
     isBypassed = ! isBypassed;
 }
 
-void StartupMVPAudioProcessor::setBypassVolume (float volume)
+void StartupMVPAudioProcessor::setBypassBalance (float balance)
 {
-    gainProcessor.setGainDecibels (volume);
+    dryGainProcessor.setGainDecibels (-balance);
+    wetGainProcessor.setGainDecibels (balance);
 }
