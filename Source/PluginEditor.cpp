@@ -18,7 +18,7 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioPr
 //    sliderPage = std::make_unique<SliderPage> (p);
 //    
     tabbedComponent.addTab ("Binary Classification", juce::Colours::lightgrey, binaryClassificationPage.get(), false);
-    //tabbedComponent.addTab ("Sliders", juce::Colours::lightgrey, sliderPage.get(), false);
+//    tabbedComponent.addTab ("Sliders", juce::Colours::lightgrey, sliderPage.get(), false);
 
     addAndMakeVisible(tabbedComponent);
 }
