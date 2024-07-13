@@ -20,6 +20,8 @@ public:
     SliderSequencer() {};
     
     void playInterval (float frequency, float amplitude, float pan);
+    void playIntervalAndLastNote (float frequency, float amplitude, float pan,
+                                  float lastFrequency, float lastAmplitude, float lastPan);
     void changeControlledAmplitude (float newAmplitude);
     void changeControlledPan (float newPan);
     

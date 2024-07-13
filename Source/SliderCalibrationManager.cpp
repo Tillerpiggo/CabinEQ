@@ -15,7 +15,7 @@ SliderCalibrationManager::SliderCalibrationManager()
 {
     int numPoints = sliderSetPointManager.getNumPoints();
 
-    tuningIndices = { 5, 6, 7, 8, 9 };
+    tuningIndices = { 4, 5, 6, 7, 8 };
     
     for (int i = 0; i < numPoints; ++i) tuningIndexCounts[i] = 0;
     for (const auto& idx : tuningIndices) tuningIndexCounts[idx]++;
@@ -76,9 +76,24 @@ void SliderCalibrationManager::setSampleRate (float newSampleRate)
 
 void SliderCalibrationManager::setCurrIdx (int idx)
 {
-     sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
-                                   sliderSetPointManager.getAmplitudeAt (idx),
-                                   sliderSetPointManager.getPanAt (idx));
+    sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
+                                  sliderSetPointManager.getAmplitudeAt (idx),
+                                  sliderSetPointManager.getPanAt (idx));
+//    if (idx == 0 || idx == 8)
+//    {
+//        sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
+//                                      sliderSetPointManager.getAmplitudeAt (idx),
+//                                      sliderSetPointManager.getPanAt (idx));
+//    }
+//    else
+//    {
+//        sliderSequencer.playIntervalAndLastNote (sliderSetPointManager.getFrequencyAt (idx), 
+//                                                 sliderSetPointManager.getAmplitudeAt (idx),
+//                                                 sliderSetPointManager.getPanAt (idx),
+//                                                 sliderSetPointManager.getFrequencyAt (idx - 1),
+//                                                 sliderSetPointManager.getAmplitudeAt (idx - 1),
+//                                                 sliderSetPointManager.getPanAt (idx - 1));
+//    }
 }
 
 void SliderCalibrationManager::setAmplitudeAtIdx (int idx, float newAmplitude)
@@ -138,18 +153,15 @@ void SliderCalibrationManager::changeTuningIndices() {
 
     // Choose a random index from the available indices
     std::mt19937 rng(std::random_device{}());
-    std::uniform_int_distribution<> distAvail(0, availableIndices.size() - 1);
+    std::uniform_int_distribution<> distAvail(0, static_cast<int>(availableIndices.size()) - 1);
     int newIndex = availableIndices[distAvail(rng)];
 
     // Choose a random index in tuningIndices to substitute
-    std::uniform_int_distribution<> distTuning(0, tuningIndices.size() - 1);
+    std::uniform_int_distribution<> distTuning(0, static_cast<int>(tuningIndices.size()) - 1);
     int indexToReplace = distTuning(rng);
 
-    // Substitute the index and update counts
-    int oldIndex = tuningIndices[indexToReplace];
     tuningIndices[indexToReplace] = newIndex;
     tuningIndexCounts[newIndex]++;
-    tuningIndexCounts[oldIndex]--;
     
     playTuningNotes();
 }
@@ -182,6 +194,7 @@ void SliderCalibrationManager::playTuningNotes()
     }
     
     sliderSequencer.playTuningNotes (subsetFrequencies, subsetAmplitudes, subsetPans);
+    //sliderSequencer.playRandomNotes (subsetFrequencies, subsetAmplitudes, subsetPans);
     std::cout << "Playing Tuning Notes" << std::endl;
 }
 
