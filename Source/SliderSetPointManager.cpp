@@ -12,19 +12,27 @@
 
 SliderSetPointManager::SliderSetPointManager()
 {
-    // All C, E, G, A frequencies from below 20hz to 20khz
+    // All C, E, G, A for octaves in human hearing range
     std::vector<float> baseFrequencies = { 32.7032, 41.2034, 48.9994, 55.0000 }; // C1, E1, G1, A1
-    std::vector<float> extendedFrequencies;
+
     for (float baseFreq : baseFrequencies)
     {
-        extendedFrequencies.push_back(baseFreq / 2.0);
+        frequencies.push_back(baseFreq / 2.0);
+        frequencies.push_back(baseFreq);
     }
-    extendedFrequencies.insert(extendedFrequencies.end(), baseFrequencies.begin(), baseFrequencies.end());
     
-    while (extendedFrequencies.back() < 20000.0)
+    size_t currentSize = frequencies.size();
+    while (frequencies.back() < 20000.0)
     {
-        for (float freq : extendedFrequencies) frequencies.push_back(freq);
-        for (float& freq : extendedFrequencies) freq *= 2.0;
+        for (size_t i = 0; i < currentSize; ++i)
+        {
+            float newFreq = frequencies[i] * 2.0;
+            if (newFreq < 20000.0)
+            {
+                frequencies.push_back(newFreq);
+            }
+        }
+        currentSize = frequencies.size();
     }
     
     for (int i = 0; i < frequencies.size(); ++i)

@@ -95,31 +95,75 @@ void SliderSequencer::changeControlledPan (float newPan)
 
 void SliderSequencer::playTuningNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans)
 {
+    /*
     std::vector<SequenceableNote> notes;
 
-    // Ensure we only iterate as many times as there are frequencies
-    size_t numNotes = frequencies.size() * 4;
-    size_t index = 0;
+    // Ensure there are at least two frequencies
+    if (frequencies.size() < 2)
+        return;
 
-    for (int i = 0; i < numNotes; ++i)
+    size_t numFrequencies = frequencies.size();
+
+    for (size_t i = 0; i < numFrequencies; ++i)
     {
-        // Get the current index and wrap around if necessary
-        size_t currentIndex = index % frequencies.size();
-        
-        float frequency = frequencies.at(currentIndex);
-        float amplitude = amplitudes.at(currentIndex);
-        float pan = pans.at(currentIndex);
-        
-        // Create and add the note to the sequence
-        SequenceableNote note(frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope());
-        notes.push_back(note);
+        for (size_t j = 0; j < numFrequencies; ++j)
+        {
+            if (i != j) // Ensure we aren't comparing the same frequency
+            {
+                // First note with frequency i
+                {
+                    float frequency = frequencies.at(i);
+                    float amplitude = amplitudes.at(i);
+                    float pan = pans.at(i);
 
-        // Increment the index
-        index++;
+                    SequenceableNote note(frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope());
+                    notes.push_back(note);
+                }
+
+                // Second note with frequency j
+                {
+                    float frequency = frequencies.at(j);
+                    float amplitude = amplitudes.at(j);
+                    float pan = pans.at(j);
+
+                    SequenceableNote note(frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope());
+                    notes.push_back(note);
+                }
+            }
+        }
     }
 
     arbitrarySequencer.setNotes(notes);
+     */
 }
+
+//void SliderSequencer::playTuningNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans)
+//{
+//    std::vector<SequenceableNote> notes;
+//
+//    // Ensure we only iterate as many times as there are frequencies
+//    size_t numNotes = frequencies.size() * 4;
+//    size_t index = 0;
+//
+//    for (int i = 0; i < numNotes; ++i)
+//    {
+//        // Get the current index and wrap around if necessary
+//        size_t currentIndex = index % frequencies.size();
+//        
+//        float frequency = frequencies.at(currentIndex);
+//        float amplitude = amplitudes.at(currentIndex);
+//        float pan = pans.at(currentIndex);
+//        
+//        // Create and add the note to the sequence
+//        SequenceableNote note(frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope());
+//        notes.push_back(note);
+//
+//        // Increment the index
+//        index++;
+//    }
+//
+//    arbitrarySequencer.setNotes(notes);
+//}
 
 void SliderSequencer::playRandomNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans)
 {

@@ -220,7 +220,18 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         if (savedParams->hasTagName(parameters.state.getType()))
         {
             parameters.state = juce::ValueTree::fromXml(*savedParams);
-            applyCurve();
+            
+            // Just load curve, don't apply it here
+            for (int i = 0; i < SliderSetPointManager::NUM_PTS; ++i)
+            {
+                std::string idx = std::to_string (i);
+                
+                double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
+                double pan = parameters.getRawParameterValue ("pan_" + idx)->load();
+                
+                sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
+                sliderCalibrationManager.setPanAtIdx (i, pan);
+            }
         }
     }
 }
