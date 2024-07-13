@@ -65,6 +65,8 @@ public:
         return -1;
     }
     
+    static const int NUM_PTS = 72;
+    
 private:
     std::vector<float> frequencies;
     std::vector<float> amplitudes;

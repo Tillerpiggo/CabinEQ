@@ -22,10 +22,9 @@ class SliderCalibrationManager
 public:
     SliderCalibrationManager();
 
-    void updateFilter (ArbitraryResponseFilter& filter);
+    const Curve& getCurve();
 
     std::pair<float, float> getNextSample();
-    const Curve& getCurve() const;
     int getCurrentlyPlayingIdx();
     int getCurrentlyPlayingTuningIdx();
     bool getIsCalibrating() const;

@@ -15,7 +15,7 @@ SliderCalibrationManager::SliderCalibrationManager()
 {
     int numPoints = sliderSetPointManager.getNumPoints();
 
-    tuningIndices = { 4, 5, 6, 7, 8 };
+    tuningIndices = { 4, 5, 6, 7 };
     
     for (int i = 0; i < numPoints; ++i) tuningIndexCounts[i] = 0;
     for (const auto& idx : tuningIndices) tuningIndexCounts[idx]++;
@@ -24,20 +24,15 @@ SliderCalibrationManager::SliderCalibrationManager()
     updateCurve();
 }
 
-void SliderCalibrationManager::updateFilter (ArbitraryResponseFilter& filter)
+const Curve& SliderCalibrationManager::getCurve()
 {
     updateCurve();
-    filter.update (curve, 18);
+    return curve;
 }
 
 std::pair<float, float> SliderCalibrationManager::getNextSample()
 {
     return sliderSequencer.getNextSample();
-}
-
-const Curve& SliderCalibrationManager::getCurve() const
-{
-    return curve;
 }
 
 int SliderCalibrationManager::getCurrentlyPlayingIdx()

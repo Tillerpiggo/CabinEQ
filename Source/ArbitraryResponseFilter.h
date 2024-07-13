@@ -16,8 +16,8 @@
 class ArbitraryResponseFilter
 {
 public:
-    ArbitraryResponseFilter ()
-        : latency { static_cast<int> (pow (2, 18)) }
+    ArbitraryResponseFilter (int fftSize)
+        : latency { static_cast<int> (pow (2, fftSize)) }
     {
         std::unique_ptr<juce::dsp::Convolution> newConvolver (new juce::dsp::Convolution (latency));
         convolution = std::move (newConvolver);

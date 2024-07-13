@@ -12,12 +12,24 @@
 
 SliderSetPointManager::SliderSetPointManager()
 {
-    std::cout << "Initializing slider set point manager" << std::endl;
-    frequencies = { 20, 40, 80, 160, 240, 320, 640, 1280, 1800, 2560, 3500, 4000, 5120, 6000, 7000, 8000, 9000, 10240, 11000, 12000, 13000, 14000, 15000 };
+    // All C, E, G, A frequencies from below 20hz to 20khz
+    std::vector<float> baseFrequencies = { 32.7032, 41.2034, 48.9994, 55.0000 }; // C1, E1, G1, A1
+    std::vector<float> extendedFrequencies;
+    for (float baseFreq : baseFrequencies)
+    {
+        extendedFrequencies.push_back(baseFreq / 2.0);
+    }
+    extendedFrequencies.insert(extendedFrequencies.end(), baseFrequencies.begin(), baseFrequencies.end());
+    
+    while (extendedFrequencies.back() < 20000.0)
+    {
+        for (float freq : extendedFrequencies) frequencies.push_back(freq);
+        for (float& freq : extendedFrequencies) freq *= 2.0;
+    }
     
     for (int i = 0; i < frequencies.size(); ++i)
     {
-        amplitudes.push_back (0.0f);
-        pans.push_back (0.0f);
+        amplitudes.push_back(0.0f);
+        pans.push_back(0.0f);
     }
 }

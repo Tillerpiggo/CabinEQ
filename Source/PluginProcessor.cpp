@@ -20,10 +20,12 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (23))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (SliderSetPointManager::NUM_PTS)),
+                          gainFilter (FFT_SIZE)
 
 #endif
 {
+    std::cout << "Initializing" << std::endl;
     isCalibrating = false;
     isBypassed = false;
     
@@ -31,6 +33,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     wetGainProcessor.setGainDecibels (0.0f);
     
     parameters.state = juce::ValueTree("savedParams");
+    std::cout << "Done Initializing" << std::endl;
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -293,7 +296,7 @@ void StartupMVPAudioProcessor::applyCurve()
         hasPreparedFilter = true;
     }
     
-    for (int i = 0; i < 23; ++i)
+    for (int i = 0; i < SliderSetPointManager::NUM_PTS; ++i)
     {
         std::string idx = std::to_string (i);
         
@@ -304,7 +307,7 @@ void StartupMVPAudioProcessor::applyCurve()
         sliderCalibrationManager.setPanAtIdx (i, pan);
     }
     
-    sliderCalibrationManager.updateFilter (gainFilter);
+    gainFilter.update (sliderCalibrationManager.getCurve(), FFT_SIZE);
 }
 
 void StartupMVPAudioProcessor::toggleBypass()
