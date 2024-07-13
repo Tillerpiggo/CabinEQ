@@ -155,7 +155,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
 //    std::cout << "setup left/right channel" << std::endl;
-    if (sliderCalibrationManager.getIsSlidingSlider())
+    if (sliderCalibrationManager.getIsCalibrating())
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {

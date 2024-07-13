@@ -15,77 +15,39 @@
 #include "SliderSetPointManager.h"
 #include "ArbitraryResponseFilter.h"
 #include "Curve.h"
+#include <random>
 
 class SliderCalibrationManager
 {
 public:
-    SliderCalibrationManager() : isSlidingSlider (false)
-    {
-        sliderSequencer.playRandomNotes (sliderSetPointManager.getFrequencies(), 
-                                         sliderSetPointManager.getAmplitudes(),
-                                         sliderSetPointManager.getPans());
-        updateCurve();
-    }
-    
+    SliderCalibrationManager();
+
     void updateFilter (ArbitraryResponseFilter& filter);
+
+    std::pair<float, float> getNextSample();
+    const Curve& getCurve() const;
+    int getCurrentlyPlayingIdx();
+    int getCurrentlyPlayingTuningIdx();
+    bool getIsCalibrating() const;
     
-    std::pair<float, float> getNextSample()
-    {
-        return sliderSequencer.getNextSample();
-    }
-    
-    const Curve& getCurve() const
-    {
-        return curve;
-    }
-    
-    int getCurrentlyPlayingIdx()
-    {
-        return sliderSetPointManager.indexForFrequency (sliderSequencer.currentlyPlayingFrequency());
-    }
-    
-    bool getIsSlidingSlider() const
-    {
-        return isSlidingSlider;
-    }
-    
-    void setSampleRate (float newSampleRate)
-    {
-        sliderSequencer.setSampleRate (newSampleRate);
-    }
-    
-    void setCurrIdx (int idx)
-    {
-//        sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
-//                                      sliderSetPointManager.getAmplitudeAt (idx),
-//                                      sliderSetPointManager.getPanAt (idx));
-        
-    }
-    
-    void setAmplitudeAtIdx (int idx, float newAmplitude)
-    {
-        sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
-        sliderSequencer.changeAmplitudeOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
-                                                             newAmplitude);
-    }
-    
-    void setPanAtIdx (int idx, float newPan)
-    {
-        sliderSetPointManager.setPanAt (idx, newPan);
-        sliderSequencer.changePanOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
-                                                       newPan);
-    }
-    
-    void setIsSlidingSlider (bool isSliding)
-    {
-        isSlidingSlider = isSliding;
-    }
-    
+    const std::vector<float>& getTuningIndices();
+
+    void setSampleRate (float newSampleRate);
+    void setCurrIdx (int idx);
+    void setAmplitudeAtIdx (int idx, float newAmplitude);
+    void setPanAtIdx (int idx, float newPan);
+    void setIsCalibrating (bool isCalibrating);
+    void changeTuningIndices();
+
 private:
     void updateCurve();
+    void playTuningNotes();
     
     SliderSequencer sliderSequencer;
     SliderSetPointManager sliderSetPointManager;
     Curve curve;
-    bool isSlidingSlider;
+    bool isCalibrating;
+    
+    std::vector<float> tuningIndices;
+    std::map<float, int> tuningIndexCounts;
 };

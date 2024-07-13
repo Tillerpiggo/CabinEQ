@@ -37,6 +37,11 @@ public:
         return pans.at (index);
     }
     
+    int getNumPoints() const
+    {
+        return frequencies.size();
+    }
+    
     void setAmplitudeAt (int index, float newAmplitude) 
     {
         amplitudes.at (index) = newAmplitude;

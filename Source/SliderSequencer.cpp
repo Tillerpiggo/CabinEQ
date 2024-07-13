@@ -32,31 +32,63 @@ void SliderSequencer::changeControlledPan (float newPan)
     arbitrarySequencer.changeNotePanAtIdx (1, newPan);
 }
 
-void SliderSequencer::playRandomNotes (std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans)
+void SliderSequencer::playTuningNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans)
+{
+    std::vector<SequenceableNote> notes;
+
+    // Ensure we only iterate as many times as there are frequencies
+    size_t numNotes = frequencies.size() * 4;
+    size_t index = 0;
+
+    for (int i = 0; i < numNotes; ++i)
+    {
+        // Get the current index and wrap around if necessary
+        size_t currentIndex = index % frequencies.size();
+        
+        float frequency = frequencies.at(currentIndex);
+        float amplitude = amplitudes.at(currentIndex);
+        float pan = pans.at(currentIndex);
+        
+        // Create and add the note to the sequence
+        SequenceableNote note(frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope());
+        notes.push_back(note);
+
+        // Increment the index
+        index++;
+    }
+
+    arbitrarySequencer.setNotes(notes);
+}
+
+void SliderSequencer::playRandomNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans)
 {
     std::vector<SequenceableNote> notes;
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, static_cast<int> (frequencies.size() - 1));
+    std::uniform_int_distribution<> dis(0, static_cast<int>(frequencies.size() - 1));
     
     size_t numNotes = frequencies.size() * 4;
+    int lastIndex = -1;
 
     for (int i = 0; i < numNotes; ++i)
     {
-        int index = dis(gen);
-        float frequency = frequencies.at (index);
-        float amplitude = amplitudes.at (index);
-        float pan = pans.at (index);
+        int index;
+        do {
+            index = dis(gen);
+        } while (index == lastIndex);
+        
+        lastIndex = index;
+
+        float frequency = frequencies.at(index);
+        float amplitude = amplitudes.at(index);
+        float pan = pans.at(index);
         
         // Create and add the note to the sequence
-        SequenceableNote note (frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope());
-        SequenceableNote spacingNote (frequency, 0.0f, 0.0f, 0.0f, 10000,
-                                      StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
-        notes.push_back (note);
-        notes.push_back (spacingNote);
+        SequenceableNote note(frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope());
+        notes.push_back(note);
     }
     
-    arbitrarySequencer.setNotes (notes);
+    arbitrarySequencer.setNotes(notes);
 }
 
 void SliderSequencer::changeAmplitudeOfNotesWithFrequency (float frequency, float newAmplitude)

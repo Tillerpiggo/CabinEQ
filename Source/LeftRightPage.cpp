@@ -70,13 +70,13 @@ void LeftRightPage::sliderValueChanged (juce::Slider *slider)
 void LeftRightPage::sliderDragStarted (juce::Slider *slider)
 {
     SliderCalibrationManager& sliderCalibrationManager = processor.getSliderCalibrationManager();
-    sliderCalibrationManager.setIsSlidingSlider (true);
+    sliderCalibrationManager.setIsCalibrating (true);
     sliderCalibrationManager.setCurrIdx (slider->getProperties().getWithDefault("idx", -1));
 }
 
 void LeftRightPage::sliderDragEnded (juce::Slider *slider)
 {
-    processor.getSliderCalibrationManager().setIsSlidingSlider (false);
+    processor.getSliderCalibrationManager().setIsCalibrating (false);
 }
 
 void LeftRightPage::timerCallback()

@@ -13,6 +13,7 @@
 #include "FilterPage.h"
 #include "SliderPage.h"
 #include "LeftRightPage.h"
+#include "TuningPage.h"
 
 //==============================================================================
 /**
@@ -35,6 +36,7 @@ private:
     std::unique_ptr<FilterPage> filterPage;
     std::unique_ptr<SliderPage> sliderPage;
     std::unique_ptr<LeftRightPage> leftRightPage;
+    std::unique_ptr<TuningPage> tuningPage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
 };

@@ -23,6 +23,7 @@ public:
     void changeControlledAmplitude (float newAmplitude);
     void changeControlledPan (float newPan);
     
+    void playTuningNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans);
     void playRandomNotes (std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans);
     void changeAmplitudeOfNotesWithFrequency (float frequency, float newAmplitude);
     void changePanOfNotesWithFrequency (float frequency, float newPan);
