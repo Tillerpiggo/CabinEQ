@@ -13,6 +13,7 @@
 SliderPage::SliderPage(StartupMVPAudioProcessor& p)
     : processor(p)
 {
+    std::cout << "Initializing sliders" << std::endl;
     for (int i = 0; i < sliders.size(); ++i)
     {
         sliders[i] = std::make_unique<juce::Slider> (juce::Slider::LinearVertical, juce::Slider::TextBoxBelow);
@@ -31,6 +32,7 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
     addAndMakeVisible (viewport);
     
     startTimer (10);
+    std::cout << "finish initializing sliders" << std::endl;
 }
 
 SliderPage::~SliderPage()
@@ -59,6 +61,7 @@ void SliderPage::resized()
         auto& slider = *sliders[i];
         slider.setBounds(padding + i * sliderWidth, 0, sliderWidth, sliderHeight);
     }
+    std::cout << "finish resizing" << std::endl;
 }
 
 void SliderPage::sliderValueChanged (juce::Slider *slider)
@@ -101,6 +104,7 @@ void SliderPage::timerCallback()
         slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colour::fromRGB(50, 50, 50)); // Slightly lighter background for text box
         slider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 255, 255)); // White text in the text box
     }
+    std::cout << "end timer callback" << std::endl;
 }
 
 void SliderPage::paint (juce::Graphics& g)

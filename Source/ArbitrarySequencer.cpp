@@ -33,6 +33,7 @@ bool ArbitrarySequencer::isPlayingFirstNote() const
 
 float ArbitrarySequencer::currentlyPlayingFrequency() const
 {
+    if (currNoteIdx < 0 || currNoteIdx >= notes.size()) return -1;
     return notes.at (currNoteIdx).getFrequency();
 }
 
