@@ -27,6 +27,16 @@ ForcedPerfectionismPage::ForcedPerfectionismPage (StartupMVPAudioProcessor& p) :
     largeMinusButton.addListener (this);
     toggleCalibrationButton.addListener (this);
     nextButton.addListener (this);
+    
+    // Create parameter attachments
+    for (int i = 0; i < parameterAttachments.size(); ++i)
+    {
+        parameterAttachments[i] = std::make_unique<juce::ParameterAttachment>(*processor.parameters.getParameter ("gain_" + std::to_string (i)),
+                                                                           [this, i](float newValue) { parameterChangedCallback(newValue, i); }, nullptr);
+        parameterAttachments[i]->sendInitialUpdate();
+    }
+    
+    startTimer (10);
 }
 
 ForcedPerfectionismPage::~ForcedPerfectionismPage()
@@ -38,6 +48,8 @@ ForcedPerfectionismPage::~ForcedPerfectionismPage()
     largeMinusButton.removeListener (this);
     toggleCalibrationButton.removeListener (this);
     nextButton.removeListener (this);
+    
+    stopTimer();
 }
 
 void ForcedPerfectionismPage::resized()
@@ -92,10 +104,12 @@ void ForcedPerfectionismPage::paint(juce::Graphics& g)
 {
     g.fillAll(backgroundColor);
     
-    g.setColour(circleColorOff);
+    if (currPlayingCircle == 0) g.setColour (circleColorOn);
+    else g.setColour (circleColorOff);
     g.fillEllipse(circleOne);
     
-    g.setColour(circleColorOn);
+    if (currPlayingCircle == 1) g.setColour (circleColorOn);
+    else g.setColour (circleColorOff);
     g.fillEllipse(circleTwo);
 }
 
@@ -104,7 +118,7 @@ void ForcedPerfectionismPage::sliderValueChanged (juce::Slider *slider)
 {
     if (slider == &this->slider)
     {
-        
+        parameterAttachments[currIdx]->setValueAsPartOfGesture (slider->getValue());
     }
 }
 
@@ -112,7 +126,7 @@ void ForcedPerfectionismPage::sliderDragStarted (juce::Slider *slider)
 {
     if (slider == &this->slider)
     {
-        
+        parameterAttachments[currIdx]->beginGesture();
     }
 }
 
@@ -120,7 +134,7 @@ void ForcedPerfectionismPage::sliderDragEnded (juce::Slider *slider)
 {
     if (slider == &this->slider)
     {
-        
+        parameterAttachments[currIdx]->endGesture();
     }
 }
     
@@ -128,23 +142,33 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
 {
     if (button == &largePlusButton)
     {
-        
+        incrementCurrValueBy (3.0f);
     }
     else if (button == &smallPlusButton)
     {
-        
+        incrementCurrValueBy (0.1f);
     }
     else if (button == &smallMinusButton)
     {
-        
+        incrementCurrValueBy (0.1f);
     }
     else if (button == &largeMinusButton)
     {
-        
+        incrementCurrValueBy (3.0f);
     }
     else if (button == &toggleCalibrationButton)
     {
+        isCalibrating = ! isCalibrating;
+        processor.getSliderCalibrationManager().setIsCalibrating (isCalibrating);
         
+        if (isCalibrating)
+        {
+            toggleCalibrationButton.setButtonText ("Stop Calibrating");
+        }
+        else
+        {
+            toggleCalibrationButton.setButtonText ("Start Calibrating");
+        }
     }
     else if (button == &nextButton)
     {
@@ -154,5 +178,22 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
     
 void ForcedPerfectionismPage::timerCallback()
 {
-    // update circles
+    if (processor.getSliderCalibrationManager().getCurrentlyPlayingIdx() == currIdx) currPlayingCircle = 0;
+    else currPlayingCircle = 1;
+}
+
+void ForcedPerfectionismPage::parameterChangedCallback (float newValue, int idx)
+{
+    if (idx == currIdx)
+    {
+        slider.setValue (newValue);
+    }
+}
+
+void ForcedPerfectionismPage::incrementCurrValueBy (float increment)
+{
+    float newValue = processor.parameters.getParameterAsValue("gain_" + std::to_string(currIdx)).getValue();
+    newValue += increment;
+    parameterAttachments[currIdx]->setValueAsPartOfGesture (newValue);
+    processor.getSliderCalibrationManager().setAmplitudeAtIdx (currIdx, newValue);
 }

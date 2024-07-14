@@ -34,8 +34,11 @@ public:
     void timerCallback() override;
     
 private:
+    void parameterChangedCallback (float newValue, int idx);
+    void incrementCurrValueBy (float increment);
+    
     StartupMVPAudioProcessor& processor;
-    std::array<std::unique_ptr<juce::ParameterAttachment>, SliderSetPointManager::NUM_PTS> sliderAttachments;
+    std::array<std::unique_ptr<juce::ParameterAttachment>, SliderSetPointManager::NUM_PTS> parameterAttachments;
     
     juce::Rectangle<float> circleOne; // for the reference tone
     juce::Rectangle<float> circleTwo; // for the controlled tone
@@ -50,4 +53,8 @@ private:
     juce::Colour circleColorOff = juce::Colours::lightblue;
     juce::Colour circleColorOn = juce::Colours::blue;
     juce::Colour backgroundColor = juce::Colours::white;
+    
+    int currIdx = 0;
+    int currPlayingCircle = -1;
+    bool isCalibrating = false;
 };
