@@ -71,24 +71,42 @@ void SliderCalibrationManager::setSampleRate (float newSampleRate)
 
 void SliderCalibrationManager::setCurrIdx (int idx)
 {
+    currIdx = idx;
     sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
                                   sliderSetPointManager.getAmplitudeAt (idx),
-                                  sliderSetPointManager.getPanAt (idx));
-//    if (idx == 0 || idx == 8)
+                                  sliderSetPointManager.getPanAt (idx),
+                                  noteLength);
+//    int comparisonIdx = 0;
+//    for (int i = 0; i < comparisonList.size(); ++i)
 //    {
-//        sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
-//                                      sliderSetPointManager.getAmplitudeAt (idx),
-//                                      sliderSetPointManager.getPanAt (idx));
+//        if (comparisonList[i] == idx)
+//        {
+//            comparisonIdx = i;
+//            break;
+//        }
 //    }
-//    else
+//    
+//    std::vector<float> allFrequencies = sliderSetPointManager.getFrequencies();
+//    std::vector<float> allAmplitudes = sliderSetPointManager.getAmplitudes();
+//    std::vector<float> allPans = sliderSetPointManager.getPans();
+//    std::vector<float> subsetFrequencies;
+//    std::vector<float> subsetAmplitudes;
+//    std::vector<float> subsetPans;
+//    
+//    for (int i = 0; i <= comparisonIdx; ++i)
 //    {
-//        sliderSequencer.playIntervalAndLastNote (sliderSetPointManager.getFrequencyAt (idx), 
-//                                                 sliderSetPointManager.getAmplitudeAt (idx),
-//                                                 sliderSetPointManager.getPanAt (idx),
-//                                                 sliderSetPointManager.getFrequencyAt (idx - 1),
-//                                                 sliderSetPointManager.getAmplitudeAt (idx - 1),
-//                                                 sliderSetPointManager.getPanAt (idx - 1));
+//        int i2 = comparisonList[i];
+//        if (i2 == idx) continue;
+//        
+//        subsetFrequencies.push_back(allFrequencies[i2]);
+//        subsetAmplitudes.push_back(allAmplitudes[i2]);
+//        subsetPans.push_back(allPans[i2]);
 //    }
+//    
+//    sliderSequencer.playComparisonFrequencies (sliderSetPointManager.getFrequencyAt (idx),
+//                                               sliderSetPointManager.getAmplitudeAt (idx),
+//                                               sliderSetPointManager.getPanAt (idx),
+//                                               subsetFrequencies, subsetAmplitudes, subsetPans);
 }
 
 void SliderCalibrationManager::setAmplitudeAtIdx (int idx, float newAmplitude)
@@ -125,10 +143,9 @@ void SliderCalibrationManager::changeTuningIndices() {
 
     // Find the minimum play count
     int minCount = std::numeric_limits<int>::max();
-    for (const auto& [index, count] : tuningIndexCounts) {
-        if (count < minCount) {
-            minCount = count;
-        }
+    for (const auto& [index, count] : tuningIndexCounts) 
+    {
+        if (count < minCount) minCount = count;
     }
 
     // Collect indices with the minimum play count
@@ -187,7 +204,8 @@ void SliderCalibrationManager::playTuningNotes()
     std::vector<float> subsetAmplitudes;
     std::vector<float> subsetPans;
     
-    for (const auto& idx : tuningIndices) {
+    for (const auto& idx : tuningIndices) 
+    {
         subsetFrequencies.push_back(allFrequencies[idx]);
         subsetAmplitudes.push_back(allAmplitudes[idx]);
         subsetPans.push_back(allPans[idx]);
@@ -223,6 +241,12 @@ void SliderCalibrationManager::decrementReferenceToneIndex()
 {
     if (referenceToneIdx > 0) referenceToneIdx--;
     updateReferenceTone();
+}
+
+void SliderCalibrationManager::changeNoteLength (int newNoteLength)
+{
+    noteLength = newNoteLength;
+    if (currIdx != -1) setCurrIdx (currIdx);
 }
 
 void SliderCalibrationManager::updateReferenceTone()

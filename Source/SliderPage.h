@@ -42,6 +42,7 @@ private:
     
     juce::TextButton incrementReferenceToneIdxButton { "+" };
     juce::TextButton decrementReferenceToneIdxButton { "-" };
+    juce::Slider tempoSlider;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SliderPage)
 };

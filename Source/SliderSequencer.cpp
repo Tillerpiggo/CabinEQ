@@ -11,9 +11,9 @@
 #include "SliderSequencer.h"
 #include <random>
 
-void SliderSequencer::playInterval (float frequency, float amplitude, float pan)
+void SliderSequencer::playInterval (float frequency, float amplitude, float pan, int noteLength)
 {
-    int noteDurationInSamples = 10000;
+    int noteDurationInSamples = noteLength;
     
     SequenceableNote note1 (referenceNote, noteDurationInSamples);
     SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
@@ -31,6 +31,25 @@ void SliderSequencer::playIntervalAndLastNote (float frequency, float amplitude,
     SequenceableNote currNote (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
     
     arbitrarySequencer.setNotes ({ currNote, refNote, lastNote, refNote });
+}
+
+void SliderSequencer::playComparisonFrequencies (float frequency, float amplitude, float pan,
+                                std::vector<float> frequencies,
+                                std::vector<float> amplitudes,
+                                std::vector<float> pans)
+{
+    std::vector<SequenceableNote> notes;
+    
+    int noteDurationInSamples = 20000;
+    SequenceableNote baseNote (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
+    
+    for (int i = 0; i < frequencies.size(); ++i)
+    {
+        notes.push_back (SequenceableNote (frequencies[i], amplitudes[i], pans[i], 0.0f, noteDurationInSamples, StereoGainEnvelope()));
+        notes.push_back (baseNote);
+    }
+    
+    arbitrarySequencer.setNotes (notes);
 }
 
 void SliderSequencer::changeControlledAmplitude (float newAmplitude)

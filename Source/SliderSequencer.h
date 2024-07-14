@@ -19,9 +19,13 @@ class SliderSequencer
 public:
     SliderSequencer() {};
     
-    void playInterval (float frequency, float amplitude, float pan);
+    void playInterval (float frequency, float amplitude, float pan, int noteLength);
     void playIntervalAndLastNote (float frequency, float amplitude, float pan,
                                   float lastFrequency, float lastAmplitude, float lastPan);
+    void playComparisonFrequencies (float frequency, float amplitude, float pan,
+                                    std::vector<float> frequencies,
+                                    std::vector<float> amplitudes,
+                                    std::vector<float> pans);
     void changeControlledAmplitude (float newAmplitude);
     void changeControlledPan (float newPan);
     

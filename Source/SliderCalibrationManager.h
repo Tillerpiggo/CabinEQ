@@ -40,6 +40,7 @@ public:
     
     void incrementReferenceToneIndex();
     void decrementReferenceToneIndex();
+    void changeNoteLength (int newNoteLength);
 
 private:
     void updateCurve();
@@ -56,8 +57,13 @@ private:
     std::vector<int> tuningIndices;
     std::map<float, int> tuningIndexCounts;
     
-    std::vector<float> octaveOrder = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0 };
-    int octaveIdx = 0;
+    //std::vector<float> octaveOrder = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0 };
+//    int octaveIdx = 0;
     
     int referenceToneIdx = 5;
+    int currIdx = -1;
+    
+    int noteLength = 20000;
+    
+    std::vector<int> comparisonList = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0 };
 };
