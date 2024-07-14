@@ -28,6 +28,10 @@
         <FILE id="B7JOFX" name="PanTuningPage.cpp" compile="1" resource="0"
               file="Source/PanTuningPage.cpp"/>
         <FILE id="nkCSnT" name="PanTuningPage.h" compile="0" resource="0" file="Source/PanTuningPage.h"/>
+        <FILE id="UnKMIQ" name="ForcedPerfectionismPage.cpp" compile="1" resource="0"
+              file="Source/ForcedPerfectionismPage.cpp"/>
+        <FILE id="QmKVjw" name="ForcedPerfectionismPage.h" compile="0" resource="0"
+              file="Source/ForcedPerfectionismPage.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
