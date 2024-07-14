@@ -31,6 +31,11 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
     viewport.setViewedComponent (&sliderContainer, true);
     addAndMakeVisible (viewport);
     
+    addAndMakeVisible (incrementReferenceToneIdxButton);
+    addAndMakeVisible (decrementReferenceToneIdxButton);
+    incrementReferenceToneIdxButton.addListener (this);
+    decrementReferenceToneIdxButton.addListener (this);
+    
     startTimer (10);
     std::cout << "finish initializing sliders" << std::endl;
 }
@@ -43,6 +48,7 @@ SliderPage::~SliderPage()
     }
 }
 
+/*
 void SliderPage::resized()
 {
     auto area = getLocalBounds();
@@ -63,6 +69,44 @@ void SliderPage::resized()
     }
     std::cout << "finish resizing" << std::endl;
 }
+ */
+
+void SliderPage::resized()
+{
+    auto area = getLocalBounds();
+    int padding = 10;
+    
+    viewport.setBounds(area);
+
+    int sliderWidth = 50;
+    int sliderHeight = area.getHeight();
+    int totalWidth = sliders.size() * sliderWidth;
+
+    sliderContainer.setSize(totalWidth + 2 * padding, sliderHeight);
+
+    for (int i = 0; i < sliders.size(); ++i)
+    {
+        auto& slider = *sliders[i];
+        slider.setBounds(padding + i * sliderWidth, 0, sliderWidth, sliderHeight);
+    }
+
+    // Set the bounds for the increment and decrement buttons
+    int buttonWidth = 50;
+    int buttonHeight = 30;
+    int buttonMargin = 10;
+
+    incrementReferenceToneIdxButton.setBounds(area.getRight() - buttonWidth - buttonMargin,
+                                              area.getY() + buttonMargin,
+                                              buttonWidth,
+                                              buttonHeight);
+
+    decrementReferenceToneIdxButton.setBounds(area.getRight() - buttonWidth - buttonMargin,
+                                              incrementReferenceToneIdxButton.getBottom() + buttonMargin,
+                                              buttonWidth,
+                                              buttonHeight);
+
+    std::cout << "finish resizing" << std::endl;
+}
 
 void SliderPage::sliderValueChanged (juce::Slider *slider)
 {
@@ -80,6 +124,18 @@ void SliderPage::sliderDragStarted (juce::Slider *slider)
 void SliderPage::sliderDragEnded (juce::Slider *slider)
 {
     processor.getSliderCalibrationManager().setIsCalibrating (false);
+}
+
+void SliderPage::buttonClicked (juce::Button *button)
+{
+    if (button == &incrementReferenceToneIdxButton)
+    {
+        processor.getSliderCalibrationManager().incrementReferenceToneIndex();
+    }
+    else if (button == &decrementReferenceToneIdxButton)
+    {
+        processor.getSliderCalibrationManager().decrementReferenceToneIndex();
+    }
 }
 
 void SliderPage::timerCallback()
@@ -104,7 +160,6 @@ void SliderPage::timerCallback()
         slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colour::fromRGB(50, 50, 50)); // Slightly lighter background for text box
         slider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 255, 255)); // White text in the text box
     }
-    std::cout << "end timer callback" << std::endl;
 }
 
 void SliderPage::paint (juce::Graphics& g)

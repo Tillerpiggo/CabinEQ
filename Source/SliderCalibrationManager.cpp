@@ -59,7 +59,7 @@ bool SliderCalibrationManager::getIsCalibrating() const
     return isCalibrating;
 }
 
-const std::vector<float>& SliderCalibrationManager::getTuningIndices()
+const std::vector<int>& SliderCalibrationManager::getTuningIndices()
 {
     return tuningIndices;
 }
@@ -96,6 +96,8 @@ void SliderCalibrationManager::setAmplitudeAtIdx (int idx, float newAmplitude)
     sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
     sliderSequencer.changeAmplitudeOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
                                                          newAmplitude);
+    
+    if (idx == referenceToneIdx) updateReferenceTone();
 }
 
 void SliderCalibrationManager::setPanAtIdx (int idx, float newPan)
@@ -109,9 +111,15 @@ void SliderCalibrationManager::setIsCalibrating (bool isCalibrating)
 {
     this->isCalibrating = isCalibrating;
 }
-
+//
 void SliderCalibrationManager::changeTuningIndices() {
-    std::cout << "changing tuning indices" << std::endl;
+//    tuningIndices = generateTuningPattern (0, 39, octaveOrder.at (octaveIdx));
+//    for (auto idx : tuningIndices) std::cout << "idx: " << idx << std::endl;
+//    octaveIdx++;
+//    if (octaveIdx >= octaveOrder.size()) octaveIdx = 0;
+//    
+//    playTuningNotes();
+    
     std::vector<float> frequencies = sliderSetPointManager.getFrequencies();
     int numFrequencies = frequencies.size();
 
@@ -122,15 +130,12 @@ void SliderCalibrationManager::changeTuningIndices() {
             minCount = count;
         }
     }
-    
-    std::cout << "minCount: " << minCount << std::endl;
 
     // Collect indices with the minimum play count
     std::vector<int> minCountIndices;
     for (const auto& [index, count] : tuningIndexCounts) {
         if (count == minCount) {
             minCountIndices.push_back(index);
-            std::cout << "adding index: " << index << std::endl;
         }
     }
 
@@ -189,7 +194,39 @@ void SliderCalibrationManager::playTuningNotes()
     }
     
     sliderSequencer.playTuningNotes (subsetFrequencies, subsetAmplitudes, subsetPans);
-    //sliderSequencer.playRandomNotes (subsetFrequencies, subsetAmplitudes, subsetPans);
-    std::cout << "Playing Tuning Notes" << std::endl;
+//    sliderSequencer.playRandomNotes (subsetFrequencies, subsetAmplitudes, subsetPans);
 }
 
+std::vector<int> SliderCalibrationManager::generateTuningPattern (int start, int end, int octave)
+{
+    std::vector<int> pattern;
+    int numOctaves = end - start + 1;
+    int octaveSize = 4;
+
+    int base = octave * octaveSize;
+    
+    pattern.push_back(base + 0);
+    pattern.push_back(base + 2);
+    pattern.push_back(base + 3);
+    pattern.push_back(base + 1);
+
+    return pattern;
+}
+
+void SliderCalibrationManager::incrementReferenceToneIndex()
+{
+    if (referenceToneIdx < SliderSetPointManager::NUM_PTS - 1) referenceToneIdx++;
+    updateReferenceTone();
+}
+
+void SliderCalibrationManager::decrementReferenceToneIndex()
+{
+    if (referenceToneIdx > 0) referenceToneIdx--;
+    updateReferenceTone();
+}
+
+void SliderCalibrationManager::updateReferenceTone()
+{
+    sliderSequencer.setReferenceNote (sliderSetPointManager.getFrequencyAt (referenceToneIdx),
+                                      sliderSetPointManager.getAmplitudeAt (referenceToneIdx));
+}

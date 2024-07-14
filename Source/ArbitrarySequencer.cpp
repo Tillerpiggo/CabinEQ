@@ -12,6 +12,8 @@
 
 std::pair<float, float> ArbitrarySequencer::getNextSample()
 {
+    if (currNoteIdx < 0 || currNoteIdx >= notes.size()) return { 0.0f, 0.0f };
+    
     SequenceableNote currNote = notes.at (currNoteIdx);
     
     auto [leftSample, rightSample] = sineWaveGenerator.getNextSample();

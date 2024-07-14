@@ -147,7 +147,9 @@ void TuningPage::buttonClicked (juce::Button* button)
     if (button == &toggleCalibrationButton)
     {
         isCalibrating = ! isCalibrating;
+        std::cout << "started tuning" << std::endl;
         processor.getSliderCalibrationManager().setIsCalibrating (isCalibrating);
+        std::cout << "is calibrating!!" << std::endl;
     }
     else if (button == &nextButton)
     {
@@ -170,7 +172,7 @@ void TuningPage::parameterChangedCallback (float newValue, int tuningIdx)
 
 int TuningPage::sliderIndexForTuningIndex (int tuningIdx)
 {
-    const std::vector<float>& tuningIndices = processor.getSliderCalibrationManager().getTuningIndices();
+    const std::vector<int>& tuningIndices = processor.getSliderCalibrationManager().getTuningIndices();
     for (int i = 0; i < tuningIndices.size(); ++i)
     {
         if (tuningIndices[i] == tuningIdx)

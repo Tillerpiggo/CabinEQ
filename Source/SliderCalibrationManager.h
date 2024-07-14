@@ -29,7 +29,7 @@ public:
     int getCurrentlyPlayingTuningIdx();
     bool getIsCalibrating() const;
     
-    const std::vector<float>& getTuningIndices();
+    const std::vector<int>& getTuningIndices();
 
     void setSampleRate (float newSampleRate);
     void setCurrIdx (int idx);
@@ -37,16 +37,27 @@ public:
     void setPanAtIdx (int idx, float newPan);
     void setIsCalibrating (bool isCalibrating);
     void changeTuningIndices();
+    
+    void incrementReferenceToneIndex();
+    void decrementReferenceToneIndex();
 
 private:
     void updateCurve();
     void playTuningNotes();
+    std::vector<int> generateTuningPattern (int start, int end, int octave);
+    
+    void updateReferenceTone();
     
     SliderSequencer sliderSequencer;
     SliderSetPointManager sliderSetPointManager;
     Curve curve;
     bool isCalibrating;
     
-    std::vector<float> tuningIndices;
+    std::vector<int> tuningIndices;
     std::map<float, int> tuningIndexCounts;
+    
+    std::vector<float> octaveOrder = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0 };
+    int octaveIdx = 0;
+    
+    int referenceToneIdx = 5;
 };

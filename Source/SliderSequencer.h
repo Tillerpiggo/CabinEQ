@@ -30,6 +30,8 @@ public:
     void changeAmplitudeOfNotesWithFrequency (float frequency, float newAmplitude);
     void changePanOfNotesWithFrequency (float frequency, float newPan);
     
+    void setReferenceNote (float frequency, float amplitude);
+    
     std::pair<float, float> getNextSample() 
     {
         return arbitrarySequencer.getNextSample();

@@ -25,6 +25,9 @@
         <FILE id="uZOW5M" name="LeftRightPage.h" compile="0" resource="0" file="Source/LeftRightPage.h"/>
         <FILE id="fz6Na1" name="TuningPage.cpp" compile="1" resource="0" file="Source/TuningPage.cpp"/>
         <FILE id="l6bNz1" name="TuningPage.h" compile="0" resource="0" file="Source/TuningPage.h"/>
+        <FILE id="B7JOFX" name="PanTuningPage.cpp" compile="1" resource="0"
+              file="Source/PanTuningPage.cpp"/>
+        <FILE id="nkCSnT" name="PanTuningPage.h" compile="0" resource="0" file="Source/PanTuningPage.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
