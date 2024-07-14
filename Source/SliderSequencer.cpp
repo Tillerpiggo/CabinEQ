@@ -21,6 +21,17 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     arbitrarySequencer.setNotes ({ note1, note2 });
 }
 
+void SliderSequencer::playTwoToneInterval (float frequency1, float amplitude1, float pan1,
+                                           float frequency2, float amplitude2, float pan2)
+{
+    int noteDurationInSamples = 25000;
+    
+    SequenceableNote note1 (Note (frequency1, amplitude1, pan1, 0.0f), noteDurationInSamples);
+    SequenceableNote note2 (Note (frequency2, amplitude2, pan2, 0.0f), noteDurationInSamples);
+    
+    arbitrarySequencer.setNotes ({ note1, note2 });
+}
+
 void SliderSequencer::playIntervalAndLastNote (float frequency, float amplitude, float pan,
                                                float lastFrequency, float lastAmplitude, float lastPan)
 {

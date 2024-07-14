@@ -10,6 +10,7 @@
 
 #include "SliderCalibrationManager.h"
 #include <cmath>
+#include <random>
 
 SliderCalibrationManager::SliderCalibrationManager()
     : isCalibrating (false)
@@ -259,13 +260,61 @@ int SliderCalibrationManager::goToNextQuestion()
     if (adjustment < 0.2)
     {
         // remove from pending indices and add to locked in indices
+        for (int i = 0; i < pendingIndices.size(); ++i)
+        {
+            if (pendingIndices[i] == currIdx)
+            {
+                pendingIndices.erase (pendingIndices.begin() + currIdx);
+                lockedInIndices.push_back (currIdx);
+                break;
+            }
+        }
     }
     
     // Generate a new question from pending indices and locked in indices
+    std::vector<int> availableIndices;
+    for (int i = 0; i < lockedInIndices.size(); ++i) availableIndices.push_back (lockedInIndices[i]);
+    for (int i = 0; i < pendingIndices.size(); ++i) pendingIndices.push_back (pendingIndices[i]);
+    
+    // Pick random pending index as controlled tone and remove it from available indices
+    currIdx = getRandomElement (pendingIndices);
+    removeElementMatching (currIdx, availableIndices);
+    
+    int secondIdx = getRandomElement (availableIndices);
+    
+    // Now the question is between tones at (currIdx, secondIdx)
+    sliderSequencer.playTwoToneInterval (sliderSetPointManager.getFrequencyAt (currIdx),
+                                         sliderSetPointManager.getAmplitudeAt (currIdx),
+                                         sliderSetPointManager.getPanAt (currIdx),
+                                         sliderSetPointManager.getFrequencyAt (secondIdx),
+                                         sliderSetPointManager.getAmplitudeAt (secondIdx),
+                                         sliderSetPointManager.getPanAt (secondIdx));
+    
+    return currIdx;
 }
 
 void SliderCalibrationManager::updateReferenceTone()
 {
     sliderSequencer.setReferenceNote (sliderSetPointManager.getFrequencyAt (referenceToneIdx),
                                       sliderSetPointManager.getAmplitudeAt (referenceToneIdx));
+}
+
+int SliderCalibrationManager::getRandomElement (std::vector<int> vec) const
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(0, static_cast<int> (vec.size()) - 1);
+    return vec[distr(gen)];
+}
+
+int SliderCalibrationManager::removeElementMatching (int val, std::vector<int>& vec)
+{
+    for (int i = 0; i < vec.size(); ++i)
+    {
+        if (vec[i] == val)
+        {
+            vec.erase (vec.begin() + i);
+            break;
+        }
+    }
 }

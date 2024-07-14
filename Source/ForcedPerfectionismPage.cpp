@@ -174,7 +174,7 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
     }
     else if (button == &nextButton)
     {
-        
+        currIdx = processor.getSliderCalibrationManager().goToNextQuestion();
     }
 }
     

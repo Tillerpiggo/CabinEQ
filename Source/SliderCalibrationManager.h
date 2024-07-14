@@ -67,6 +67,9 @@ private:
     std::vector<int> comparisonList = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0 };
     
     // Forced perfectionism
+    int getRandomElement (std::vector<int> vec) const;
+    int removeElementMatching (int val, std::vector<int>& vec);
+    
     std::vector<int> lockedInIndices = { 5 };
     std::vector<int> pendingIndices = { 4, 6 };
     int currNoteIdx = 5; // as an absolute index
