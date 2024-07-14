@@ -254,7 +254,7 @@ void SliderCalibrationManager::changeNoteLength (int newNoteLength)
 int SliderCalibrationManager::goToNextQuestion()
 {
     // If the adjustment was small, lock in the current note, add a new note to the mix
-    float currVal = sliderSetPointManager.getAmplitudeAt (currIdx);
+    float currVal = sliderSetPointManager.getAmplitudeAt (currNoteIdx);
     float adjustment = abs (currVal - lastVal);
     
     if (adjustment < 0.2)
@@ -262,10 +262,11 @@ int SliderCalibrationManager::goToNextQuestion()
         // remove from pending indices and add to locked in indices
         for (int i = 0; i < pendingIndices.size(); ++i)
         {
-            if (pendingIndices[i] == currIdx)
+            std::cout << "Removing from indices" << std::endl;
+            if (pendingIndices[i] == currNoteIdx)
             {
-                pendingIndices.erase (pendingIndices.begin() + currIdx);
-                lockedInIndices.push_back (currIdx);
+                pendingIndices.erase (pendingIndices.begin() + currNoteIdx);
+                lockedInIndices.push_back (currNoteIdx);
                 break;
             }
         }
@@ -277,20 +278,20 @@ int SliderCalibrationManager::goToNextQuestion()
     for (int i = 0; i < pendingIndices.size(); ++i) pendingIndices.push_back (pendingIndices[i]);
     
     // Pick random pending index as controlled tone and remove it from available indices
-    currIdx = getRandomElement (pendingIndices);
-    removeElementMatching (currIdx, availableIndices);
+    currNoteIdx = getRandomElement (pendingIndices);
+    removeElementMatching (currNoteIdx, availableIndices);
     
     int secondIdx = getRandomElement (availableIndices);
     
     // Now the question is between tones at (currIdx, secondIdx)
-    sliderSequencer.playTwoToneInterval (sliderSetPointManager.getFrequencyAt (currIdx),
-                                         sliderSetPointManager.getAmplitudeAt (currIdx),
-                                         sliderSetPointManager.getPanAt (currIdx),
+    sliderSequencer.playTwoToneInterval (sliderSetPointManager.getFrequencyAt (currNoteIdx),
+                                         sliderSetPointManager.getAmplitudeAt (currNoteIdx),
+                                         sliderSetPointManager.getPanAt (currNoteIdx),
                                          sliderSetPointManager.getFrequencyAt (secondIdx),
                                          sliderSetPointManager.getAmplitudeAt (secondIdx),
                                          sliderSetPointManager.getPanAt (secondIdx));
     
-    return currIdx;
+    return currNoteIdx;
 }
 
 void SliderCalibrationManager::updateReferenceTone()
