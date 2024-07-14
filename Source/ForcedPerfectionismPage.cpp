@@ -42,7 +42,8 @@ ForcedPerfectionismPage::~ForcedPerfectionismPage()
 
 void ForcedPerfectionismPage::resized()
 {
-    auto area = getLocalBounds();
+    auto area = getLocalBounds().reduced(20); // Adding padding around the whole UI
+    area.removeFromTop (100);
     
     // Define height ratios for each section
     auto circleHeight = area.getHeight() / 4;
@@ -53,8 +54,21 @@ void ForcedPerfectionismPage::resized()
     // Position circles
     auto circleArea = area.removeFromTop(circleHeight);
     auto circleWidth = circleArea.getWidth() / 2;
-    circleOne = circleArea.removeFromLeft(circleWidth).reduced(10).toFloat();
-    circleTwo = circleArea.reduced(10).toFloat();
+    auto circleDiameter = std::min(circleWidth, circleHeight) - 20; // Reduce diameter to bring circles closer
+
+    circleOne = juce::Rectangle<float>(
+        circleArea.getX() + (circleWidth - circleDiameter) / 2.0f - 10.0f,
+        circleArea.getY() + (circleHeight - circleDiameter) / 2.0f,
+        circleDiameter,
+        circleDiameter
+    );
+
+    circleTwo = juce::Rectangle<float>(
+        circleArea.getX() + circleWidth + (circleWidth - circleDiameter) / 2.0f + 10.0f,
+        circleArea.getY() + (circleHeight - circleDiameter) / 2.0f,
+        circleDiameter,
+        circleDiameter
+    );
     
     // Position slider
     slider.setBounds(area.removeFromTop(sliderHeight).reduced(10));

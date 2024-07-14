@@ -15,6 +15,7 @@
 #include "LeftRightPage.h"
 #include "TuningPage.h"
 #include "PanTuningPage.h"
+#include "ForcedPerfectionismPage.h"
 
 //==============================================================================
 /**
@@ -39,6 +40,7 @@ private:
     std::unique_ptr<LeftRightPage> leftRightPage;
     std::unique_ptr<TuningPage> tuningPage;
     std::unique_ptr<PanTuningPage> panTuningPage;
-
+    std::unique_ptr<ForcedPerfectionismPage> forcedPerfectionismPage;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
 };
