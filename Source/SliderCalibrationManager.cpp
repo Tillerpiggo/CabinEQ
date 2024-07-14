@@ -9,6 +9,7 @@
 */
 
 #include "SliderCalibrationManager.h"
+#include <cmath>
 
 SliderCalibrationManager::SliderCalibrationManager()
     : isCalibrating (false)
@@ -247,6 +248,20 @@ void SliderCalibrationManager::changeNoteLength (int newNoteLength)
 {
     noteLength = newNoteLength;
     if (currIdx != -1) setCurrIdx (currIdx);
+}
+
+int SliderCalibrationManager::goToNextQuestion()
+{
+    // If the adjustment was small, lock in the current note, add a new note to the mix
+    float currVal = sliderSetPointManager.getAmplitudeAt (currIdx);
+    float adjustment = abs (currVal - lastVal);
+    
+    if (adjustment < 0.2)
+    {
+        // remove from pending indices and add to locked in indices
+    }
+    
+    // Generate a new question from pending indices and locked in indices
 }
 
 void SliderCalibrationManager::updateReferenceTone()

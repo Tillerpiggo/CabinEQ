@@ -41,7 +41,9 @@ public:
     void incrementReferenceToneIndex();
     void decrementReferenceToneIndex();
     void changeNoteLength (int newNoteLength);
-
+    
+    // Forced perfectionism
+    int goToNextQuestion();
 private:
     void updateCurve();
     void playTuningNotes();
@@ -57,13 +59,17 @@ private:
     std::vector<int> tuningIndices;
     std::map<float, int> tuningIndexCounts;
     
-    //std::vector<float> octaveOrder = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0 };
-//    int octaveIdx = 0;
-    
     int referenceToneIdx = 5;
     int currIdx = -1;
     
     int noteLength = 20000;
     
     std::vector<int> comparisonList = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0 };
+    
+    // Forced perfectionism
+    std::vector<int> lockedInIndices = { 5 };
+    std::vector<int> pendingIndices = { 4, 6 };
+    int currNoteIdx = 5; // as an absolute index
+    int nextNoteIdx = 3; // in the comparison list
+    float lastVal = -48.0f; // junk value that forces large diff
 };

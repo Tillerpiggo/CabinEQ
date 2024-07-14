@@ -37,6 +37,8 @@ ForcedPerfectionismPage::ForcedPerfectionismPage (StartupMVPAudioProcessor& p) :
     }
     
     startTimer (10);
+    
+    currIdx = processor.getSliderCalibrationManager().goToNextQuestion();
 }
 
 ForcedPerfectionismPage::~ForcedPerfectionismPage()
