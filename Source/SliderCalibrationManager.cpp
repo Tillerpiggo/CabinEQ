@@ -262,7 +262,6 @@ int SliderCalibrationManager::goToNextQuestion()
         // remove from pending indices and add to locked in indices
         for (int i = 0; i < pendingIndices.size(); ++i)
         {
-            std::cout << "Removing from indices" << std::endl;
             if (pendingIndices[i] == currNoteIdx)
             {
                 pendingIndices.erase (pendingIndices.begin() + currNoteIdx);
@@ -275,7 +274,7 @@ int SliderCalibrationManager::goToNextQuestion()
     // Generate a new question from pending indices and locked in indices
     std::vector<int> availableIndices;
     for (int i = 0; i < lockedInIndices.size(); ++i) availableIndices.push_back (lockedInIndices[i]);
-    for (int i = 0; i < pendingIndices.size(); ++i) pendingIndices.push_back (pendingIndices[i]);
+    for (int i = 0; i < pendingIndices.size(); ++i) availableIndices.push_back (pendingIndices[i]);
     
     // Pick random pending index as controlled tone and remove it from available indices
     currNoteIdx = getRandomElement (pendingIndices);
@@ -291,6 +290,7 @@ int SliderCalibrationManager::goToNextQuestion()
                                          sliderSetPointManager.getAmplitudeAt (secondIdx),
                                          sliderSetPointManager.getPanAt (secondIdx));
     
+    
     return currNoteIdx;
 }
 
@@ -305,6 +305,7 @@ int SliderCalibrationManager::getRandomElement (std::vector<int> vec) const
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distr(0, static_cast<int> (vec.size()) - 1);
+
     return vec[distr(gen)];
 }
 

@@ -19,7 +19,7 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioPr
     leftRightPage = std::make_unique<LeftRightPage> (p);
     tuningPage = std::make_unique<TuningPage> (p);
     panTuningPage = std::make_unique<PanTuningPage> (p);
-//    forcedPerfectionismPage = std::make_unique<ForcedPerfectionismPage> (p);
+    forcedPerfectionismPage = std::make_unique<ForcedPerfectionismPage> (p);
     
     tabbedComponent.addTab ("Filter", juce::Colours::lightgrey, filterPage.get(), false);
     tabbedComponent.addTab ("Sliders", juce::Colours::lightgrey, sliderPage.get(), false);
