@@ -180,8 +180,11 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
     
 void ForcedPerfectionismPage::timerCallback()
 {
+    int lastPlayingCircle = currPlayingCircle;
     if (processor.getSliderCalibrationManager().getCurrentlyPlayingIdx() == currIdx) currPlayingCircle = 0;
     else currPlayingCircle = 1;
+    
+    if (lastPlayingCircle != currPlayingCircle) repaint();
 }
 
 void ForcedPerfectionismPage::parameterChangedCallback (float newValue, int idx)
