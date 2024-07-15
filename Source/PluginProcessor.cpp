@@ -25,7 +25,6 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 
 #endif
 {
-    std::cout << "Initializing" << std::endl;
     isCalibrating = false;
     isBypassed = false;
     
@@ -33,7 +32,6 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     wetGainProcessor.setGainDecibels (0.0f);
     
     parameters.state = juce::ValueTree("savedParams");
-    std::cout << "Done Initializing" << std::endl;
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()

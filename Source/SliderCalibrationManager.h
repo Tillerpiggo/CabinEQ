@@ -44,7 +44,7 @@ public:
     void changeNoteLength (int newNoteLength);
     
     // Forced perfectionism
-    int goToNextQuestion();
+    int goToNextQuestion (float newVal);
 private:
     void updateCurve();
     void playTuningNotes();
@@ -73,9 +73,8 @@ private:
     
     std::vector<int> lockedInIndices;
     std::vector<int> pendingIndices = { 4, 5 };
-    int currNoteIdx = 5; // as an absolute index
+    int currNoteIdx = 4; // as an absolute index
     int nextNoteIdx = 2; // in the comparison list
-    float lastVal = -48.0f; // junk value that forces large diff
     
     int lastAskedIdx = -1;
 };

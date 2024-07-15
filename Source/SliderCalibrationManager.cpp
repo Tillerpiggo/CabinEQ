@@ -256,28 +256,42 @@ void SliderCalibrationManager::changeNoteLength (int newNoteLength)
     if (currIdx != -1) setCurrIdx (currIdx);
 }
 
-int SliderCalibrationManager::goToNextQuestion()
+int SliderCalibrationManager::goToNextQuestion (float newVal)
 {
+    std::cout << "Currently playing: " << currNoteIdx << std::endl;
+    std::cout << "Locked In Indices before: ";
+    for (int i = 0; i < lockedInIndices.size(); ++i) std::cout << lockedInIndices[i] << " ";
+    std::cout << std::endl;
+    
+    std::cout << "Pending Indices before: ";
+    for (int i = 0; i < pendingIndices.size(); ++i) std::cout << pendingIndices[i] << " ";
+    std::cout << std::endl;
+    
     if (nextNoteIdx >= comparisonList.size()) return 0;
     
     // If the adjustment was small, lock in the current note, add a new note to the mix
-    float currVal = sliderSetPointManager.getAmplitudeAt (currNoteIdx);
-    float adjustment = abs (currVal - lastVal);
+    float lastVal = sliderSetPointManager.getAmplitudeAt (currNoteIdx);
+    float adjustment = abs (lastVal - newVal);
+    sliderSetPointManager.setAmplitudeAt (currNoteIdx, newVal);
     
-    lastVal = currVal;
-    
-    std::cout << "LastVal: " << lastVal << ", CurrVal: " << currVal << std::endl;
+    std::cout << "LastVal: " << lastVal << ", CurrVal: " << newVal << std::endl;
     std::cout << "Adjustment: " << adjustment << std::endl;
+    
+    std::cout << "amplitude after: " << sliderSetPointManager.getAmplitudeAt (currNoteIdx) << std::endl;
     
     if (adjustment < 0.1)
     {
+        std::cout << "LOCKING IN!!" << std::endl;
         // remove from pending indices and add to locked in indices
         for (int i = 0; i < pendingIndices.size(); ++i)
         {
+            std::cout << "searching... " << currNoteIdx << std::endl;
             if (pendingIndices[i] == currNoteIdx)
             {
                 pendingIndices.erase (pendingIndices.begin() + i);
                 lockedInIndices.push_back (currNoteIdx);
+                
+                std::cout << "LOCKED IN " << currNoteIdx << std::endl;
                 
                 pendingIndices.push_back (comparisonList[nextNoteIdx]);
                 nextNoteIdx++;
@@ -326,7 +340,8 @@ int SliderCalibrationManager::goToNextQuestion()
     for (int i = 0; i < pendingIndices.size(); ++i) std::cout << pendingIndices[i] << " ";
     std::cout << std::endl;
     
-    std::cout << "Playing notes: " << currNoteIdx << ", " << secondIdx << std::endl;
+    std::cout << "currNoteIdx after: " << currNoteIdx << std::endl;
+    std::cout << std::endl;
     
     return currNoteIdx;
 }

@@ -13,7 +13,6 @@
 SliderPage::SliderPage(StartupMVPAudioProcessor& p)
     : processor(p)
 {
-    std::cout << "Initializing sliders" << std::endl;
     for (int i = 0; i < sliders.size(); ++i)
     {
         sliders[i] = std::make_unique<juce::Slider> (juce::Slider::LinearVertical, juce::Slider::TextBoxBelow);
@@ -43,7 +42,6 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
     tempoSlider.addListener (this);
     
     startTimer (10);
-    std::cout << "finish initializing sliders" << std::endl;
 }
 
 SliderPage::~SliderPage()
@@ -101,8 +99,6 @@ void SliderPage::resized()
                           decrementReferenceToneIdxButton.getBottom() + tempoSliderMargin,
                           tempoSliderWidth,
                           tempoSliderHeight);
-
-    std::cout << "finish resizing" << std::endl;
 }
 
 void SliderPage::sliderValueChanged (juce::Slider *slider)

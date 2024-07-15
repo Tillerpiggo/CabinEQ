@@ -44,7 +44,7 @@ ForcedPerfectionismPage::ForcedPerfectionismPage (StartupMVPAudioProcessor& p) :
     
     startTimer (10);
     
-    currIdx = processor.getSliderCalibrationManager().goToNextQuestion();
+    currIdx = processor.getSliderCalibrationManager().goToNextQuestion (-1.0f);
     parameterAttachments[currIdx]->sendInitialUpdate();
 }
 
@@ -185,7 +185,7 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
     }
     else if (button == &nextButton)
     {
-        currIdx = processor.getSliderCalibrationManager().goToNextQuestion();
+        currIdx = processor.getSliderCalibrationManager().goToNextQuestion (slider.getValue());
         parameterAttachments[currIdx]->sendInitialUpdate();
         numCompletedLabel.setText (std::to_string (processor.getSliderCalibrationManager().getNumLockedIn()) + "/22", juce::NotificationType::dontSendNotification);
     }
@@ -213,5 +213,4 @@ void ForcedPerfectionismPage::incrementCurrValueBy (float increment)
     float newValue = processor.parameters.getParameterAsValue("gain_" + std::to_string(currIdx)).getValue();
     newValue += increment;
     parameterAttachments[currIdx]->setValueAsPartOfGesture (newValue);
-    processor.getSliderCalibrationManager().setAmplitudeAtIdx (currIdx, newValue);
 }
