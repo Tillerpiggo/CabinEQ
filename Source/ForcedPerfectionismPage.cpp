@@ -194,7 +194,6 @@ void ForcedPerfectionismPage::parameterChangedCallback (float newValue, int idx)
 {
     if (idx == currIdx)
     {
-        std::cout << "new value: " << newValue << std::endl;
         slider.setValue (newValue);
     }
 }

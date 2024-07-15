@@ -278,6 +278,10 @@ int SliderCalibrationManager::goToNextQuestion()
                 pendingIndices.push_back (comparisonList[nextNoteIdx]);
                 nextNoteIdx++;
                 
+                // TODO: Immediately return with a question involving the newly added tone
+                
+                return currNoteIdx;
+                
                 break;
             }
         }
