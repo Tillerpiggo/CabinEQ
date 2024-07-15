@@ -33,8 +33,6 @@ SliderSetPointManager::SliderSetPointManager()
     frequencies = { 20, 40, 80, 160, 200, 320, 403, 640, 1280, 1612, 2032, 2560, 2940, 3377, 3880, 4457, 5120, 5881, 6755, 7760, 8914, 10240 };
     
     
-    for (const auto& freq : frequencies) std::cout << "freq: " << freq << std::endl;
-    
     for (size_t i = 0; i < frequencies.size(); ++i)
     {
         amplitudes.push_back(0.0f);

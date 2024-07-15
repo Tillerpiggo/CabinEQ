@@ -274,13 +274,11 @@ int SliderCalibrationManager::goToNextQuestion()
         // remove from pending indices and add to locked in indices
         for (int i = 0; i < pendingIndices.size(); ++i)
         {
-            std::cout << "i: " << i << std::endl;
             if (pendingIndices[i] == currNoteIdx)
             {
                 pendingIndices.erase (pendingIndices.begin() + i);
                 lockedInIndices.push_back (currNoteIdx);
                 
-                int newIdx = comparisonList[nextNoteIdx];
                 pendingIndices.push_back (comparisonList[nextNoteIdx]);
                 nextNoteIdx++;
                 
@@ -328,6 +326,8 @@ int SliderCalibrationManager::goToNextQuestion()
     for (int i = 0; i < pendingIndices.size(); ++i) std::cout << pendingIndices[i] << " ";
     std::cout << std::endl;
     
+    std::cout << "Playing notes: " << currNoteIdx << ", " << secondIdx << std::endl;
+    
     return currNoteIdx;
 }
 
@@ -344,7 +344,6 @@ int SliderCalibrationManager::getRandomElement (std::vector<int> vec) const
     std::uniform_int_distribution<> distr(0, static_cast<int> (vec.size()) - 1);
     int random_idx = distr(gen);
     
-    std::cout << "Random index: " << random_idx << std::endl;
     return vec[random_idx];
 }
 
