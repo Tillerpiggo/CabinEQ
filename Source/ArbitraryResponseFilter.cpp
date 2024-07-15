@@ -30,7 +30,8 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     int quarterLength = numPoints / 2;
 
     // Swap elements of the first and second quarters
-    for (int i = 0; i < quarterLength; ++i) {
+    for (int i = 0; i < quarterLength; ++i) 
+    {
         std::swap(leftImpulseData[i], leftImpulseData[i + quarterLength]);
         std::swap(rightImpulseData[i], rightImpulseData[i + quarterLength]);
     }
@@ -58,13 +59,15 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 
 std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curve& curve, int numPoints)
 {
+    //float factor = nyquist / maxFreq;
+    
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];
     for (int i = 0; i < 2 * numPoints; ++i)
     {
         float t = static_cast<float>(i) / (2 * numPoints);
         
-        auto [val, val2] = curve.valueAtTime (t);
+        auto [val, val2] = curve.valueAtTime (t * t);
         
         if (i % 2 == 0)
         {

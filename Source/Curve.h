@@ -34,21 +34,26 @@ public:
     void setFrequencies(std::vector<float> frequencies)
     {
         this->frequencies = frequencies;
+        this->frequencies.push_back (22050);
     }
 
     void setAmplitudes(std::vector<float> amplitudes)
     {
         this->amplitudes = amplitudes;
+        float lastAmplitude = amplitudes.at (amplitudes.size() - 1);
+        this->amplitudes.push_back (lastAmplitude);
     }
 
     void setPhases(std::vector<float> phases)
     {
         this->phases = phases;
+        this->phases.push_back (0);
     }
 
     void setPans(const std::vector<float>& pans)
     {
         this->pans = pans;
+        this->pans.push_back (0.0f);
     }
 
 protected:
