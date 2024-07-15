@@ -20,6 +20,7 @@ ForcedPerfectionismPage::ForcedPerfectionismPage (StartupMVPAudioProcessor& p) :
     addAndMakeVisible (toggleCalibrationButton);
     addAndMakeVisible (nextButton);
     
+    slider.setRange (-24.0f, 48.0f);
     slider.addListener (this);
     largePlusButton.addListener (this);
     smallPlusButton.addListener (this);
@@ -33,12 +34,13 @@ ForcedPerfectionismPage::ForcedPerfectionismPage (StartupMVPAudioProcessor& p) :
     {
         parameterAttachments[i] = std::make_unique<juce::ParameterAttachment>(*processor.parameters.getParameter ("gain_" + std::to_string (i)),
                                                                            [this, i](float newValue) { parameterChangedCallback(newValue, i); }, nullptr);
-        parameterAttachments[i]->sendInitialUpdate();
+        //parameterAttachments[i]->sendInitialUpdate();
     }
     
     startTimer (10);
     
     currIdx = processor.getSliderCalibrationManager().goToNextQuestion();
+    parameterAttachments[currIdx]->sendInitialUpdate();
 }
 
 ForcedPerfectionismPage::~ForcedPerfectionismPage()
@@ -144,19 +146,19 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
 {
     if (button == &largePlusButton)
     {
-        incrementCurrValueBy (3.0f);
+        incrementCurrValueBy (1.0f);
     }
     else if (button == &smallPlusButton)
     {
-        incrementCurrValueBy (0.1f);
+        incrementCurrValueBy (0.05f);
     }
     else if (button == &smallMinusButton)
     {
-        incrementCurrValueBy (0.1f);
+        incrementCurrValueBy (-0.05f);
     }
     else if (button == &largeMinusButton)
     {
-        incrementCurrValueBy (3.0f);
+        incrementCurrValueBy (-1.0f);
     }
     else if (button == &toggleCalibrationButton)
     {
@@ -175,6 +177,7 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
     else if (button == &nextButton)
     {
         currIdx = processor.getSliderCalibrationManager().goToNextQuestion();
+        parameterAttachments[currIdx]->sendInitialUpdate();
     }
 }
     
@@ -191,6 +194,7 @@ void ForcedPerfectionismPage::parameterChangedCallback (float newValue, int idx)
 {
     if (idx == currIdx)
     {
+        std::cout << "new value: " << newValue << std::endl;
         slider.setValue (newValue);
     }
 }

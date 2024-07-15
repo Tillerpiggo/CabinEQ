@@ -35,6 +35,12 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
         std::swap(rightImpulseData[i], rightImpulseData[i + quarterLength]);
     }
     
+    // Window the impulse
+    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::hamming, true);
+    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
+    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
+    
+    
     // Load the IR into the convolution
     int numSamples = numPoints;
     

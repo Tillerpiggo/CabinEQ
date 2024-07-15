@@ -253,23 +253,37 @@ void SliderCalibrationManager::changeNoteLength (int newNoteLength)
 
 int SliderCalibrationManager::goToNextQuestion()
 {
+    if (nextNoteIdx >= comparisonList.size()) return 0;
+    
     // If the adjustment was small, lock in the current note, add a new note to the mix
     float currVal = sliderSetPointManager.getAmplitudeAt (currNoteIdx);
     float adjustment = abs (currVal - lastVal);
     
-    if (adjustment < 0.2)
+    lastVal = currVal;
+    
+    std::cout << "LastVal: " << lastVal << ", CurrVal: " << currVal << std::endl;
+    std::cout << "Adjustment: " << adjustment << std::endl;
+    
+    if (adjustment < 0.1)
     {
         // remove from pending indices and add to locked in indices
         for (int i = 0; i < pendingIndices.size(); ++i)
         {
+            std::cout << "i: " << i << std::endl;
             if (pendingIndices[i] == currNoteIdx)
             {
-                pendingIndices.erase (pendingIndices.begin() + currNoteIdx);
+                pendingIndices.erase (pendingIndices.begin() + i);
                 lockedInIndices.push_back (currNoteIdx);
+                
+                pendingIndices.push_back (comparisonList[nextNoteIdx]);
+                nextNoteIdx++;
+                
                 break;
             }
         }
     }
+    
+    
     
     // Generate a new question from pending indices and locked in indices
     std::vector<int> availableIndices;
@@ -290,7 +304,6 @@ int SliderCalibrationManager::goToNextQuestion()
                                          sliderSetPointManager.getAmplitudeAt (secondIdx),
                                          sliderSetPointManager.getPanAt (secondIdx));
     
-    
     return currNoteIdx;
 }
 
@@ -305,8 +318,10 @@ int SliderCalibrationManager::getRandomElement (std::vector<int> vec) const
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distr(0, static_cast<int> (vec.size()) - 1);
-
-    return vec[distr(gen)];
+    int random_idx = distr(gen);
+    
+    std::cout << "Random index: " << random_idx << std::endl;
+    return vec[random_idx];
 }
 
 int SliderCalibrationManager::removeElementMatching (int val, std::vector<int>& vec)

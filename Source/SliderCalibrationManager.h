@@ -64,15 +64,15 @@ private:
     
     int noteLength = 20000;
     
-    std::vector<int> comparisonList = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0 };
+    std::vector<int> comparisonList = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 };
     
     // Forced perfectionism
     int getRandomElement (std::vector<int> vec) const;
     int removeElementMatching (int val, std::vector<int>& vec);
     
-    std::vector<int> lockedInIndices = { 5 };
-    std::vector<int> pendingIndices = { 4, 6 };
+    std::vector<int> lockedInIndices;
+    std::vector<int> pendingIndices = { 4, 5 };
     int currNoteIdx = 5; // as an absolute index
-    int nextNoteIdx = 3; // in the comparison list
+    int nextNoteIdx = 2; // in the comparison list
     float lastVal = -48.0f; // junk value that forces large diff
 };
