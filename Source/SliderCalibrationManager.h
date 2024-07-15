@@ -27,6 +27,7 @@ public:
     std::pair<float, float> getNextSample();
     int getCurrentlyPlayingIdx();
     int getCurrentlyPlayingTuningIdx();
+    int getNumLockedIn();
     bool getIsCalibrating() const;
     
     const std::vector<int>& getTuningIndices();
@@ -75,4 +76,6 @@ private:
     int currNoteIdx = 5; // as an absolute index
     int nextNoteIdx = 2; // in the comparison list
     float lastVal = -48.0f; // junk value that forces large diff
+    
+    int lastAskedIdx = -1;
 };

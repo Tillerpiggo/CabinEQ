@@ -56,6 +56,11 @@ int SliderCalibrationManager::getCurrentlyPlayingTuningIdx()
     return -1;
 }
 
+int SliderCalibrationManager::getNumLockedIn()
+{
+    return static_cast<int> (lockedInIndices.size());
+}
+
 bool SliderCalibrationManager::getIsCalibrating() const
 {
     return isCalibrating;
@@ -275,12 +280,9 @@ int SliderCalibrationManager::goToNextQuestion()
                 pendingIndices.erase (pendingIndices.begin() + i);
                 lockedInIndices.push_back (currNoteIdx);
                 
+                int newIdx = comparisonList[nextNoteIdx];
                 pendingIndices.push_back (comparisonList[nextNoteIdx]);
                 nextNoteIdx++;
-                
-                // TODO: Immediately return with a question involving the newly added tone
-                
-                return currNoteIdx;
                 
                 break;
             }
@@ -292,14 +294,24 @@ int SliderCalibrationManager::goToNextQuestion()
     // Generate a new question from pending indices and locked in indices
     std::vector<int> availableIndices;
     for (int i = 0; i < lockedInIndices.size(); ++i) availableIndices.push_back (lockedInIndices[i]);
-    for (int i = 0; i < pendingIndices.size(); ++i) availableIndices.push_back (pendingIndices[i]);
+    
+    if (lockedInIndices.size() < 3)
+    {
+        for (int i = 0; i < pendingIndices.size(); ++i) availableIndices.push_back (pendingIndices[i]);
+    }
     
     // Pick random pending index as controlled tone and remove it from available indices
-    currNoteIdx = getRandomElement (pendingIndices);
-    removeElementMatching (currNoteIdx, availableIndices);
-    
+    int currNoteIdx = getRandomElement (pendingIndices);
     int secondIdx = getRandomElement (availableIndices);
     
+    while (secondIdx == lastAskedIdx || secondIdx == currNoteIdx)
+    {
+        currNoteIdx = getRandomElement (pendingIndices);
+        secondIdx = getRandomElement (availableIndices);
+    }
+    removeElementMatching (currNoteIdx, availableIndices);
+     
+    lastAskedIdx = secondIdx;
     // Now the question is between tones at (currIdx, secondIdx)
     sliderSequencer.playTwoToneInterval (sliderSetPointManager.getFrequencyAt (currNoteIdx),
                                          sliderSetPointManager.getAmplitudeAt (currNoteIdx),
@@ -307,6 +319,14 @@ int SliderCalibrationManager::goToNextQuestion()
                                          sliderSetPointManager.getFrequencyAt (secondIdx),
                                          sliderSetPointManager.getAmplitudeAt (secondIdx),
                                          sliderSetPointManager.getPanAt (secondIdx));
+    
+    std::cout << "Locked In Indices after: ";
+    for (int i = 0; i < lockedInIndices.size(); ++i) std::cout << lockedInIndices[i] << " ";
+    std::cout << std::endl;
+    
+    std::cout << "Pending Indices after: ";
+    for (int i = 0; i < pendingIndices.size(); ++i) std::cout << pendingIndices[i] << " ";
+    std::cout << std::endl;
     
     return currNoteIdx;
 }

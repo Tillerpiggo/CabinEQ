@@ -19,6 +19,7 @@ ForcedPerfectionismPage::ForcedPerfectionismPage (StartupMVPAudioProcessor& p) :
     addAndMakeVisible (largeMinusButton);
     addAndMakeVisible (toggleCalibrationButton);
     addAndMakeVisible (nextButton);
+    addAndMakeVisible (numCompletedLabel);
     
     slider.setRange (-24.0f, 48.0f);
     slider.addListener (this);
@@ -28,6 +29,10 @@ ForcedPerfectionismPage::ForcedPerfectionismPage (StartupMVPAudioProcessor& p) :
     largeMinusButton.addListener (this);
     toggleCalibrationButton.addListener (this);
     nextButton.addListener (this);
+    
+    numCompletedLabel.setText ("0/22", juce::NotificationType::dontSendNotification);
+    numCompletedLabel.setColour (juce::Label::textColourId, juce::Colours::black);
+    numCompletedLabel.setJustificationType (juce::Justification::centred);
     
     // Create parameter attachments
     for (int i = 0; i < parameterAttachments.size(); ++i)
@@ -66,6 +71,7 @@ void ForcedPerfectionismPage::resized()
     auto sliderHeight = area.getHeight() / 8;
     auto buttonHeight = area.getHeight() / 8;
     auto lowerButtonHeight = area.getHeight() / 8;
+    auto labelHeight = area.getHeight() / 8;
 
     // Position circles
     auto circleArea = area.removeFromTop(circleHeight);
@@ -102,6 +108,9 @@ void ForcedPerfectionismPage::resized()
     auto lowerButtonWidth = lowerButtonArea.getWidth() / 2;
     toggleCalibrationButton.setBounds(lowerButtonArea.removeFromLeft(lowerButtonWidth).reduced(5));
     nextButton.setBounds(lowerButtonArea.reduced(5));
+
+    // Position numCompletedLabel centered below the rest of the contents
+    numCompletedLabel.setBounds(area.removeFromTop(labelHeight).reduced(10));
 }
 
 void ForcedPerfectionismPage::paint(juce::Graphics& g)
@@ -178,6 +187,7 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
     {
         currIdx = processor.getSliderCalibrationManager().goToNextQuestion();
         parameterAttachments[currIdx]->sendInitialUpdate();
+        numCompletedLabel.setText (std::to_string (processor.getSliderCalibrationManager().getNumLockedIn()) + "/22", juce::NotificationType::dontSendNotification);
     }
 }
     

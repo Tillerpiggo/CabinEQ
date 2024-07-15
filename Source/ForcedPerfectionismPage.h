@@ -49,6 +49,7 @@ private:
     juce::TextButton largeMinusButton { "--" };
     juce::TextButton toggleCalibrationButton { "Start Calibrating" };
     juce::TextButton nextButton { "Next >" };
+    juce::Label numCompletedLabel;
     
     juce::Colour circleColorOff = juce::Colours::lightblue;
     juce::Colour circleColorOn = juce::Colours::blue;

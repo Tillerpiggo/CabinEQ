@@ -24,12 +24,22 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
 void SliderSequencer::playTwoToneInterval (float frequency1, float amplitude1, float pan1,
                                            float frequency2, float amplitude2, float pan2)
 {
-    int noteDurationInSamples = 25000;
+    int noteDurationInSamples = 20000;
     
-    SequenceableNote note1 (Note (frequency1, amplitude1, pan1, 0.0f), noteDurationInSamples);
-    SequenceableNote note2 (Note (frequency2, amplitude2, pan2, 0.0f), noteDurationInSamples);
+    std::vector<SequenceableNote> notes;
+    for (int i = 0; i < 5; ++i)
+    {
+        SequenceableNote note1 (Note (frequency1, amplitude1, pan1, 0.0f), noteDurationInSamples + 10000 * i);
+        SequenceableNote note2 (Note (frequency2, amplitude2, pan2, 0.0f), noteDurationInSamples + 10000 * i);
+        
+        for (int j = 0; j < 4; ++j)
+        {
+            notes.push_back (note1);
+            notes.push_back (note2);
+        }
+    }
     
-    arbitrarySequencer.setNotes ({ note1, note2 });
+    arbitrarySequencer.setNotes (notes);
 }
 
 void SliderSequencer::playIntervalAndLastNote (float frequency, float amplitude, float pan,
