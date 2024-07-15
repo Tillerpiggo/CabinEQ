@@ -65,7 +65,7 @@ private:
     
     int noteLength = 20000;
     
-    std::vector<int> comparisonList = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 };
+    std::vector<int> comparisonList = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 };
     
     // Forced perfectionism
     int getRandomElement (std::vector<int> vec) const;
@@ -73,7 +73,9 @@ private:
     
     std::vector<int> lockedInIndices;
     std::vector<int> pendingIndices = { 4, 5 };
+    std::vector<float> lastVals;
     int currNoteIdx = 4; // as an absolute index
+    int secondNoteIdx = -1;
     int nextNoteIdx = 2; // in the comparison list
     
     int lastAskedIdx = -1;

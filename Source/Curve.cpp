@@ -74,14 +74,14 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
 {
     size_t numPoints = frequencies.size();
     
-    if (frequency < frequencies.at(0))
+    if (frequency < frequencies.at (0))
     {
-        return values.at(0);
+        return values.at (0);
     }
     
     if (frequency > frequencies.at(numPoints - 1))
     {
-        return values.at(values.size() - 1);
+        return values.at (numPoints - 1);
     }
     
     float freq1, freq2;

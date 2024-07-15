@@ -44,8 +44,8 @@ ForcedPerfectionismPage::ForcedPerfectionismPage (StartupMVPAudioProcessor& p) :
     
     startTimer (10);
     
-    currIdx = processor.getSliderCalibrationManager().goToNextQuestion (-1.0f);
-    parameterAttachments[currIdx]->sendInitialUpdate();
+    currIdx = -1;
+    //parameterAttachments[currIdx]->sendInitialUpdate();
 }
 
 ForcedPerfectionismPage::~ForcedPerfectionismPage()
@@ -129,6 +129,8 @@ void ForcedPerfectionismPage::paint(juce::Graphics& g)
     
 void ForcedPerfectionismPage::sliderValueChanged (juce::Slider *slider)
 {
+    if (currIdx == -1) return;
+    
     if (slider == &this->slider)
     {
         parameterAttachments[currIdx]->setValueAsPartOfGesture (slider->getValue());
@@ -137,6 +139,8 @@ void ForcedPerfectionismPage::sliderValueChanged (juce::Slider *slider)
 
 void ForcedPerfectionismPage::sliderDragStarted (juce::Slider *slider)
 {
+    if (currIdx == -1) return;
+    
     if (slider == &this->slider)
     {
         parameterAttachments[currIdx]->beginGesture();
@@ -145,6 +149,8 @@ void ForcedPerfectionismPage::sliderDragStarted (juce::Slider *slider)
 
 void ForcedPerfectionismPage::sliderDragEnded (juce::Slider *slider)
 {
+    if (currIdx == -1) return;
+    
     if (slider == &this->slider)
     {
         parameterAttachments[currIdx]->endGesture();
@@ -174,6 +180,12 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
         isCalibrating = ! isCalibrating;
         processor.getSliderCalibrationManager().setIsCalibrating (isCalibrating);
         
+        if (isCalibrating && currIdx == -1) {
+            currIdx = processor.getSliderCalibrationManager().goToNextQuestion (-28.0f);
+            parameterAttachments[currIdx]->sendInitialUpdate();
+        }
+        
+        
         if (isCalibrating)
         {
             toggleCalibrationButton.setButtonText ("Stop Calibrating");
@@ -185,6 +197,7 @@ void ForcedPerfectionismPage::buttonClicked (juce::Button *button)
     }
     else if (button == &nextButton)
     {
+        std::cout << "Going to next question from next button" << std::endl;
         currIdx = processor.getSliderCalibrationManager().goToNextQuestion (slider.getValue());
         parameterAttachments[currIdx]->sendInitialUpdate();
         numCompletedLabel.setText (std::to_string (processor.getSliderCalibrationManager().getNumLockedIn()) + "/22", juce::NotificationType::dontSendNotification);
@@ -210,6 +223,8 @@ void ForcedPerfectionismPage::parameterChangedCallback (float newValue, int idx)
 
 void ForcedPerfectionismPage::incrementCurrValueBy (float increment)
 {
+    if (currIdx == -1) return;
+    
     float newValue = processor.parameters.getParameterAsValue("gain_" + std::to_string(currIdx)).getValue();
     newValue += increment;
     parameterAttachments[currIdx]->setValueAsPartOfGesture (newValue);

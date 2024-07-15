@@ -36,7 +36,7 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     }
     
     // Window the impulse
-    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::hamming, true);
+    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::blackmanHarris, true);
     window.multiplyWithWindowingTable(leftImpulseData, numPoints);
     window.multiplyWithWindowingTable(rightImpulseData, numPoints);
     

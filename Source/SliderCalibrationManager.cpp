@@ -21,6 +21,7 @@ SliderCalibrationManager::SliderCalibrationManager()
     
     for (int i = 0; i < numPoints; ++i) tuningIndexCounts[i] = 0;
     for (const auto& idx : tuningIndices) tuningIndexCounts[idx]++;
+    for (int i = 0; i < SliderSetPointManager::NUM_PTS; ++i) lastVals.push_back (-48.0f);
     
     playTuningNotes();
     updateCurve();
@@ -258,7 +259,7 @@ void SliderCalibrationManager::changeNoteLength (int newNoteLength)
 
 int SliderCalibrationManager::goToNextQuestion (float newVal)
 {
-    std::cout << "Currently playing: " << currNoteIdx << std::endl;
+    std::cout << "Currently playing: " << currNoteIdx << ", " << secondNoteIdx << std::endl;
     std::cout << "Locked In Indices before: ";
     for (int i = 0; i < lockedInIndices.size(); ++i) std::cout << lockedInIndices[i] << " ";
     std::cout << std::endl;
@@ -270,9 +271,19 @@ int SliderCalibrationManager::goToNextQuestion (float newVal)
     if (nextNoteIdx >= comparisonList.size()) return 0;
     
     // If the adjustment was small, lock in the current note, add a new note to the mix
-    float lastVal = sliderSetPointManager.getAmplitudeAt (currNoteIdx);
+    std::cout << "LastVals: ";
+    for (int i = 0; i < lastVals.size(); ++i) std::cout << lastVals[i];
+    std::cout << std::endl;
+    
+    float lastVal = lastVals[currNoteIdx];
     float adjustment = abs (lastVal - newVal);
     sliderSetPointManager.setAmplitudeAt (currNoteIdx, newVal);
+    lastVals[currNoteIdx] = newVal;
+    std::cout << "set last val at " << currNoteIdx << "to " << newVal << std::endl;
+    
+    std::cout << "LastVals after: ";
+    for (int i = 0; i < lastVals.size(); ++i) std::cout << lastVals[i];
+    std::cout << std::endl;
     
     std::cout << "LastVal: " << lastVal << ", CurrVal: " << newVal << std::endl;
     std::cout << "Adjustment: " << adjustment << std::endl;
@@ -313,24 +324,24 @@ int SliderCalibrationManager::goToNextQuestion (float newVal)
     }
     
     // Pick random pending index as controlled tone and remove it from available indices
-    int currNoteIdx = getRandomElement (pendingIndices);
-    int secondIdx = getRandomElement (availableIndices);
+    currNoteIdx = getRandomElement (pendingIndices);
+    secondNoteIdx = getRandomElement (availableIndices);
     
-    while (secondIdx == lastAskedIdx || secondIdx == currNoteIdx)
+    while (secondNoteIdx == lastAskedIdx || secondNoteIdx == currNoteIdx)
     {
         currNoteIdx = getRandomElement (pendingIndices);
-        secondIdx = getRandomElement (availableIndices);
+        secondNoteIdx = getRandomElement (availableIndices);
     }
     removeElementMatching (currNoteIdx, availableIndices);
      
-    lastAskedIdx = secondIdx;
+    lastAskedIdx = secondNoteIdx;
     // Now the question is between tones at (currIdx, secondIdx)
     sliderSequencer.playTwoToneInterval (sliderSetPointManager.getFrequencyAt (currNoteIdx),
                                          sliderSetPointManager.getAmplitudeAt (currNoteIdx),
                                          sliderSetPointManager.getPanAt (currNoteIdx),
-                                         sliderSetPointManager.getFrequencyAt (secondIdx),
-                                         sliderSetPointManager.getAmplitudeAt (secondIdx),
-                                         sliderSetPointManager.getPanAt (secondIdx));
+                                         sliderSetPointManager.getFrequencyAt (secondNoteIdx),
+                                         sliderSetPointManager.getAmplitudeAt (secondNoteIdx),
+                                         sliderSetPointManager.getPanAt (secondNoteIdx));
     
     std::cout << "Locked In Indices after: ";
     for (int i = 0; i < lockedInIndices.size(); ++i) std::cout << lockedInIndices[i] << " ";
