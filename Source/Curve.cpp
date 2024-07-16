@@ -18,7 +18,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     
     // Figure out delta of dB from reference tone
     const float referenceFrequency = 1000.0;
-    const float slope = -6.5;
+    const float slope = -8.5f;
     float octaves = std::log2(frequency / referenceFrequency);
     float dbDifference = octaves * slope;
     
