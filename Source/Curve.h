@@ -60,13 +60,17 @@ public:
                 avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3]);
             }
             
-            if (abs (amplitudes[i] - avg) < 3.0f)
+            if (abs (amplitudes[i] - avg) < 3.5f)
             {
                 this->amplitudes.push_back (avg);
             }
             else
             {
-                this->amplitudes.push_back (amplitudes[i]);
+                float avgDiff = abs (amplitudes[i] - avg);
+                float diffThreshold = 8.0f; // Amount of difference from average to use purely the original
+                if (avgDiff > diffThreshold) avgDiff = diffThreshold;
+                float percentOrig = (diffThreshold - abs (amplitudes[i] - avg)) / diffThreshold;
+                this->amplitudes.push_back (percentOrig * amplitudes[i] + (1 - percentOrig) * avg);
             }
         }
         this->amplitudes.push_back (amplitudes[amplitudes.size() - 1]);
@@ -80,6 +84,40 @@ public:
     void setPans(const std::vector<float>& pans)
     {
         this->pans = pans;
+        
+        this->pans.push_back (pans[0]);
+        for (int i = 1; i < pans.size() - 1; ++i)
+        {
+            float avg;
+            
+            if (i == 1 || i == pans.size() - 2)
+            {
+                avg = 0.5f * pans[i - 1] + 0.5f * pans[i + 1];
+            }
+            else if (i == 2 || i == pans.size() - 3)
+            {
+                avg = 0.25f * pans[i - 1] + 0.25f * pans[i + 1] + 0.25f * pans[i - 2] + 0.25f * pans[i + 2];
+            }
+            else
+            {
+                float p = 1.0f / 6.0f;
+                avg = p * (pans[i - 3] + pans[i - 2] + pans[i - 1] + pans[i + 1] + pans[i + 2] + pans[i + 3]);
+            }
+            
+            if (abs (pans[i] - avg) < 1.5f)
+            {
+                this->pans.push_back (avg);
+            }
+            else
+            {
+                float avgDiff = abs (pans[i] - avg);
+                float diffThreshold = 4.0f; // Amount of difference from average to use purely the original
+                if (avgDiff > diffThreshold) avgDiff = diffThreshold;
+                float percentOrig = (diffThreshold - abs (pans[i] - avg)) / diffThreshold;
+                this->pans.push_back (percentOrig * pans[i] + (1 - percentOrig) * avg);
+            }
+        }
+        this->pans.push_back (pans[pans.size() - 1]);
     }
     
     std::vector<float> frequencies;
