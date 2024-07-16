@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include <vector>
 #include <complex>
+#include <cmath>
 #include "InverseFletcherMunsonCurve.h"
 
 class Curve
@@ -39,7 +40,36 @@ public:
 
     void setAmplitudes(std::vector<float> amplitudes)
     {
-        this->amplitudes = amplitudes;
+        this->amplitudes.clear();
+        this->amplitudes.push_back (amplitudes[0]);
+        for (int i = 1; i < amplitudes.size() - 1; ++i)
+        {
+            float avg;
+            
+            if (i == 1 || i == amplitudes.size() - 2)
+            {
+                avg = 0.5f * amplitudes[i - 1] + 0.5f * amplitudes[i + 1];
+            }
+            else if (i == 2 || i == amplitudes.size() - 3)
+            {
+                avg = 0.25f * amplitudes[i - 1] + 0.25f * amplitudes[i + 1] + 0.25f * amplitudes[i - 2] + 0.25f * amplitudes[i + 2];
+            }
+            else
+            {
+                float p = 1.0f / 6.0f;
+                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3]);
+            }
+            
+            if (abs (amplitudes[i] - avg) < 3.0f)
+            {
+                this->amplitudes.push_back (avg);
+            }
+            else
+            {
+                this->amplitudes.push_back (amplitudes[i]);
+            }
+        }
+        this->amplitudes.push_back (amplitudes[amplitudes.size() - 1]);
     }
 
     void setPhases(std::vector<float> phases)

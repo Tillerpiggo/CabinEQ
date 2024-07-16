@@ -155,6 +155,6 @@ void SliderSequencer::changePanOfNotesWithFrequency (float frequency, float newP
 
 void SliderSequencer::setReferenceNote (float frequency, float amplitude)
 {
-    referenceNote.frequency = frequency;
-    referenceNote.gain = amplitude;
+//    referenceNote.frequency = frequency;
+//    referenceNote.gain = amplitude;
 }
