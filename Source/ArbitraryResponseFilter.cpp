@@ -37,10 +37,16 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     }
     
     // Window the impulse
-    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::blackmanHarris, true);
-    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
-    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
+//    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::blackmanHarris, true);
+//    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
+//    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
     
+    std::cout << "Impulse data: " << std::endl;
+    for (int i = 0; i < numPoints * 2; ++i)
+    {
+        std::cout << leftImpulseData[i] << " ";
+    }
+    std::cout << std::endl;
     
     // Load the IR into the convolution
     int numSamples = numPoints;
@@ -63,11 +69,11 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
     
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];
-    for (int i = 0; i < 2 * numPoints; ++i)
+    for (int i = 0; i < numPoints; ++i)
     {
-        float t = static_cast<float>(i) / (2 * numPoints);
+        float t = static_cast<float>(i) / (numPoints);
         
-        auto [val, val2] = curve.valueAtTime (t * t);
+        auto [val, val2] = curve.valueAtTime (t);
         
         if (i % 2 == 0)
         {
@@ -78,6 +84,24 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
         {
             leftFreqResponse[i] = val.imag();
             rightFreqResponse[i] = val.imag();
+        }
+    }
+    
+    for (int i = 0; i < numPoints; ++i)
+    {
+        float t = static_cast<float>(i) / (numPoints);
+        
+        auto [val, val2] = curve.valueAtTime (1 - t);
+        
+        if (i % 2 == 0)
+        {
+            leftFreqResponse[i + numPoints] = val.real();
+            rightFreqResponse[i + numPoints] = val.real();
+        }
+        else
+        {
+            leftFreqResponse[i + numPoints] = val.imag();
+            rightFreqResponse[i + numPoints] = val.imag();
         }
     }
     

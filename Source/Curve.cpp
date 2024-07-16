@@ -15,19 +15,24 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     float phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
-//    
-//    // Figure out delta of dB from reference tone
-//    const float referenceFrequency = 1000.0;
-//    const float slope = -4.5;
-//    float octaves = std::log2(frequency / referenceFrequency);
-//    float dbDifference = octaves * slope;
-//    
-//    // Figure out delta of fletcher munson curves at that frequency and dB difference
-//    const float referenceDB = 80.0;
-//    const float inverseFMDiff = inverseFM.valueAtFrequency (frequency, referenceDB) - inverseFM.valueAtFrequency (frequency, referenceDB + dbDifference);
     
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency);
-    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency);
+    // Figure out delta of dB from reference tone
+    const float referenceFrequency = 1000.0;
+    const float slope = -3;
+    float octaves = std::log2(frequency / referenceFrequency);
+    float dbDifference = octaves * slope;
+    
+    // Figure out delta of fletcher munson curves at that frequency and dB difference
+    const float referenceDB = 80.0;
+    const float inverseFMDiff = inverseFM.valueAtFrequency (frequency, referenceDB) - inverseFM.valueAtFrequency (frequency, referenceDB + dbDifference);
+    
+    if (frequency < 20)
+    {
+        dbDifference = 0.0f;
+    }
+    
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + dbDifference - inverseFMDiff);
+    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + dbDifference - inverseFMDiff);
     
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, phaseAtFrequency);
@@ -37,12 +42,12 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t) const
 {
-    float minFreq = frequencies.at(0);
-    float maxFreq = frequencies.at(frequencies.size() - 1);
-
-    // Scale linearly
-    float freq = t * (maxFreq - minFreq) + minFreq;
-    return valueAtFrequency(freq);
+//    float minFreq = frequencies.at(0);
+//    float maxFreq = frequencies.at(frequencies.size() - 1);
+//
+//    // Scale linearly
+//    float freq = t * (maxFreq - minFreq) + minFreq;
+    return valueAtFrequency(t * 22050);
 }
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t) const
