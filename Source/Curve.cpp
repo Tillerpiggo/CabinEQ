@@ -34,8 +34,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
         inverseFMDiff = 0.0f;
     }
     
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + dbDifference);//inverseFMDiff);
-    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + dbDifference);//inverseFMDiff);
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff);
+    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + inverseFMDiff);
     
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, phaseAtFrequency);

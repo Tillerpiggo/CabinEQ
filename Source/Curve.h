@@ -54,10 +54,25 @@ public:
             {
                 avg = 0.25f * amplitudes[i - 1] + 0.25f * amplitudes[i + 1] + 0.25f * amplitudes[i - 2] + 0.25f * amplitudes[i + 2];
             }
-            else
+            else if (i == 3 || i == amplitudes.size() - 4)
             {
                 float p = 1.0f / 6.0f;
                 avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3]);
+            }
+            else if (i == 4 || i == amplitudes.size() - 5)
+            {
+                float p = 1.0f / 8.0f;
+                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4]);
+            }
+            else if (i == 5 || i == amplitudes.size() - 6)
+            {
+                float p = 1.0f / 10.0f;
+                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4] + amplitudes[i + 5] + amplitudes[i - 5]);
+            }
+            else
+            {
+                float p = 1.0f / 12.0f;
+                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4] + amplitudes[i + 5] + amplitudes[i - 5] + amplitudes[i + 6] + amplitudes[i - 6]);
             }
             
             if (abs (amplitudes[i] - avg) < 3.5f)
@@ -111,7 +126,7 @@ public:
             else
             {
                 float avgDiff = abs (pans[i] - avg);
-                float diffThreshold = 4.0f; // Amount of difference from average to use purely the original
+                float diffThreshold = 2.0f; // Amount of difference from average to use purely the original
                 if (avgDiff > diffThreshold) avgDiff = diffThreshold;
                 float percentOrig = (diffThreshold - abs (pans[i] - avg)) / diffThreshold;
                 this->pans.push_back (percentOrig * pans[i] + (1 - percentOrig) * avg);

@@ -33,15 +33,28 @@ SliderSetPointManager::SliderSetPointManager()
 //    frequencies = { 20, 40, 80, 160, 200, 320, 403, 640, 1280, 1612, 2032, 2560, 2940, 3377, 3880, 4457, 5120, 5881, 6755, 7760, 8914, 10240, 14000 };
     
     // Generate 50 evenly spaced frequencies from 20 to 15000khz
-    frequencies.reserve(NUM_PTS);
+    frequencies.reserve(NUM_PTS / 3);
     float startFreq = 20.0f;
-    float endFreq = 15000.0f;
+    float endFreq = 1000.0f;
 
     float logStart = std::log10(startFreq);
     float logEnd = std::log10(endFreq);
-    float step = (logEnd - logStart) / (NUM_PTS - 1);
+    float step = (logEnd - logStart) / (NUM_PTS / 3 - 1);
 
-    for (int i = 0; i < NUM_PTS; ++i) {
+    for (int i = 0; i < NUM_PTS / 3; ++i) {
+        double logFreq = logStart + i * step;
+        frequencies.push_back(std::pow(10, logFreq));
+    }
+    
+    frequencies.reserve(2 * NUM_PTS / 3);
+    startFreq = 1050.0f;
+    endFreq = 12000.0f;
+
+    logStart = std::log10(startFreq);
+    logEnd = std::log10(endFreq);
+    step = (logEnd - logStart) / (2 * NUM_PTS / 3 - 1);
+
+    for (int i = 0; i < 2 * NUM_PTS / 3; ++i) {
         double logFreq = logStart + i * step;
         frequencies.push_back(std::pow(10, logFreq));
     }
