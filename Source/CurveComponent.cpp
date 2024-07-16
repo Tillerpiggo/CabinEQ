@@ -23,17 +23,17 @@ void CurveComponent::paint (juce::Graphics& g)
     
     int N = 4000;
     
-//    for (int i = 0; i < N; i++)
-//    {
-//        float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
-//        float endX = width * normalizedTime;
-//        
-//        float val = juce::Decibels::gainToDecibels (curve.valueAtTime (normalizedTime).first.real());
-//        float endY = height * (1.f - (val + 24.f) / 48.f);
-//        
-//        path.lineTo (endX, endY);
-//    }
-//    g.strokePath (path, juce::PathStrokeType (2.f));
+    for (int i = 0; i < N; i++)
+    {
+        float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
+        float endX = width * normalizedTime;
+        
+        float val = juce::Decibels::gainToDecibels (curve.valueAtNormalizedTime (normalizedTime).first.real());
+        float endY = height * (1.f - (val + 24.f) / 48.f);
+        
+        path.lineTo (endX, endY);
+    }
+    g.strokePath (path, juce::PathStrokeType (2.f));
     
 //    for (int i = 0; i < curve.frequencies.size(); ++i)
 //    {

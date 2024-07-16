@@ -23,21 +23,48 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);
     
-    float* leftImpulseData = leftFreqResponse;
-    float* rightImpulseData = rightFreqResponse;
+//    std::cout << "left frequency response" << std::endl;
+//    for (int i = 0; i < numPoints * 2; ++i) std::cout << leftFreqResponse[i] << std::endl;
+//    std::cout << std::endl;
+    
+//    float* leftImpulseData = leftFreqResponse;
+//    float* rightImpulseData = rightFreqResponse;
+//    
+    float leftImpulseData[numPoints * 2];
+    float rightImpulseData[numPoints * 2];
+    
+    for (int i = 0; i < numPoints * 2; ++i)
+    {
+        leftImpulseData[i] = leftFreqResponse[i];
+        rightImpulseData[i] = rightFreqResponse[i];
+    }
 
     // Transform post-ringing into pre-ringing
-    int quarterLength = numPoints / 2;
-
-    // Swap elements of the first and second quarters
-    for (int i = 0; i < quarterLength; ++i) 
+    int inflectionPoint = numPoints / 2;
+    
+    for (int i = 0; i < numPoints; ++i)
     {
-        std::swap(leftImpulseData[i], leftImpulseData[i + quarterLength]);
-        std::swap(rightImpulseData[i], rightImpulseData[i + quarterLength]);
+        leftImpulseData[i] = leftFreqResponse[(i + inflectionPoint) % numPoints];
+        rightImpulseData[i] = rightFreqResponse[(i + inflectionPoint) % numPoints];
     }
     
+//    for (int i = 0; i < numPoints / 2; ++i)
+//    {
+//        std::swap(leftImpulseData[i], leftImpulseData[numPoints / 2 - 1 - i]);
+//        std::swap(rightImpulseData[i], rightImpulseData[numPoints / 2 - 1 - i]);
+//    }
+    
+    
+
+    // Swap elements of the first and second quarters
+//    for (int i = 0; i < quarterLength; ++i) 
+//    {
+//        std::swap(leftImpulseData[i], leftImpulseData[i + quarterLength]);
+//        std::swap(rightImpulseData[i], rightImpulseData[i + quarterLength]);
+//    }
+    
     // Window the impulse
-//    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::blackmanHarris, true);
+//    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::hann, true);
 //    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
 //    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
     

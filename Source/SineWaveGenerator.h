@@ -27,7 +27,7 @@ public:
     void setPhase (float phaseInRadians); // changes left/right phase relationship of current playing note
     
 private:
-    static constexpr float TILT = 1;//0.7079; // 6 db/oct slope //0.59566214; // 4.5 db/oct slope
+    static constexpr float TILT = 1;//0.59566214;//1;//0.7079; // 6 db/oct slope //0.59566214; // 4.5 db/oct slope
     static constexpr float REFERENCE_FREQ = 1000; // freq in hz whexsre amplitudeCompensation = 0
     
     void updatePhaseIncrementAndAmplitudeCompensation();

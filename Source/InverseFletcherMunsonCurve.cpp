@@ -70,12 +70,12 @@ const float InverseFletcherMunsonCurve::valueAtFrequency (float frequency, float
     
     if (frequency < freqs.at(0))
     {
-        return L_n - gains.at(0);
+        return gains.at(0);
     }
     
     if (frequency > freqs.at(numPoints - 1))
     {
-        return L_n - gains.at(numPoints - 1); // TODO: Make this also roll offs
+        return gains.at(numPoints - 1); // TODO: Make this also roll offs
     }
     
     float setPointFreq1;
@@ -91,7 +91,7 @@ const float InverseFletcherMunsonCurve::valueAtFrequency (float frequency, float
         // If the frequency is the same, return the value of the set point
         if (frequency == freqs.at(i))
         {
-            return L_n - gains.at(i);
+            return gains.at(i);
         }
         
         if (frequency < freqs.at(i))
@@ -127,7 +127,7 @@ const float InverseFletcherMunsonCurve::valueAtFrequency (float frequency, float
     float t = (frequency - setPointFreq1) / (setPointFreq2 - setPointFreq1);
     float gainAtFrequency = catmullRom (t, setPointGain0, setPointGain1, setPointGain2, setPointGain3);
     
-    return L_n - gainAtFrequency;
+    return gainAtFrequency;
 }
 
 // TODO: This is actually reused from Curve... we should make a class that stores this kind of math and does it for us.
