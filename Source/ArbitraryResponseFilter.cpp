@@ -27,11 +27,11 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 //    for (int i = 0; i < numPoints * 2; ++i) std::cout << leftFreqResponse[i] << std::endl;
 //    std::cout << std::endl;
     
-//    float* leftImpulseData = leftFreqResponse;
-//    float* rightImpulseData = rightFreqResponse;
+    float* leftImpulseData = leftFreqResponse;
+    float* rightImpulseData = rightFreqResponse;
 //    
-    float leftImpulseData[numPoints * 2];
-    float rightImpulseData[numPoints * 2];
+//    float leftImpulseData[numPoints * 2];
+//    float rightImpulseData[numPoints * 2];
     
     for (int i = 0; i < numPoints * 2; ++i)
     {
@@ -42,15 +42,11 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     // Transform post-ringing into pre-ringing
     int inflectionPoint = numPoints / 2;
     
-    for (int i = 0; i < numPoints; ++i)
+    for (int i = 0; i < numPoints / 2; ++i)
     {
-        leftImpulseData[i] = leftFreqResponse[(i + inflectionPoint) % numPoints];
-        rightImpulseData[i] = rightFreqResponse[(i + inflectionPoint) % numPoints];
+        std::swap(leftImpulseData[i], leftImpulseData[i + numPoints / 2]);
+        std::swap(rightImpulseData[i], rightImpulseData[i + numPoints / 2]);
     }
-    
-    std::cout << "Impulse data: " << std::endl;
-    for (int i = 0; i < numPoints; ++i) std::cout << leftImpulseData[i] << " ";
-    std::cout << std::endl;
     
 //    for (int i = 0; i < numPoints / 2; ++i)
 //    {
