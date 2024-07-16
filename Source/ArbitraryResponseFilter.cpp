@@ -64,9 +64,9 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 //    }
     
     // Window the impulse
-//    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::hann, true);
-//    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
-//    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
+    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::blackmanHarris, true);
+    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
+    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
     
     std::cout << "Impulse data: " << std::endl;
     for (int i = 0; i < numPoints * 2; ++i)

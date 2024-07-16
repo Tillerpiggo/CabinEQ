@@ -21,16 +21,19 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     const float slope = -4.5;
     float octaves = std::log2(frequency / referenceFrequency);
     float dbDifference = octaves * slope;
+    float dbDifference2 = 0;//octaves * -1.5;
     
     // Figure out delta of fletcher munson curves at that frequency and dB difference
-    const float referenceDB = 83.0;
-    float inverseFMDiff = inverseFM.valueAtFrequency (frequency, referenceDB + dbDifference) - inverseFM.valueAtFrequency (frequency, referenceDB); // for measurement from -3db slope
-    inverseFMDiff -= dbDifference;
+    const float referenceDB = 70.0;
+    float inverseFMDiff = inverseFM.valueAtFrequency (frequency, referenceDB + dbDifference + dbDifference2) - inverseFM.valueAtFrequency (frequency, referenceDB); // for measurement from -3db slope
+    inverseFMDiff -= (dbDifference + dbDifference2);
+    
     
     
     if (frequency < 20)
     {
         dbDifference = 0.0f;
+        dbDifference2 = 0.0f;
         inverseFMDiff = 0.0f;
     }
     

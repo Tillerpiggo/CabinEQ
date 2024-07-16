@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "Note.h"
+#include "InverseFletcherMunsonCurve.h"
 
 class SineWaveGenerator
 {
@@ -41,4 +42,6 @@ private:
     float phaseIncrement = 0;
     float leftAmplitudeCompensation = 0;
     float rightAmplitudeCompensation = 0;
+    
+    InverseFletcherMunsonCurve inverseFM;
 };
