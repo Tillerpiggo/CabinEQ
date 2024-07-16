@@ -82,9 +82,11 @@ public:
             else
             {
                 float avgDiff = abs (amplitudes[i] - avg);
-                float diffThreshold = 8.0f; // Amount of difference from average to use purely the original
+                float diffThreshold = 4.0f; // Amount of difference from average to use purely the original
                 if (avgDiff > diffThreshold) avgDiff = diffThreshold;
                 float percentOrig = (diffThreshold - abs (amplitudes[i] - avg)) / diffThreshold;
+                percentOrig *= percentOrig;
+                percentOrig *= percentOrig;
                 this->amplitudes.push_back (percentOrig * amplitudes[i] + (1 - percentOrig) * avg);
             }
         }
