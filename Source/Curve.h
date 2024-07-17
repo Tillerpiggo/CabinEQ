@@ -40,7 +40,10 @@ public:
 
     void setAmplitudes(std::vector<float> amplitudes)
     {
+        this->amplitudes = amplitudes;
+        /*
         this->amplitudes.clear();
+
         this->amplitudes.push_back (amplitudes[0]);
         for (int i = 1; i < amplitudes.size() - 1; ++i)
         {
@@ -54,26 +57,27 @@ public:
             {
                 avg = 0.25f * amplitudes[i - 1] + 0.25f * amplitudes[i + 1] + 0.25f * amplitudes[i - 2] + 0.25f * amplitudes[i + 2];
             }
-            else if (i == 3 || i == amplitudes.size() - 4)
+            else// if (i == 3 || i == amplitudes.size() - 4)
             {
                 float p = 1.0f / 6.0f;
                 avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3]);
             }
-            else if (i == 4 || i == amplitudes.size() - 5)
-            {
-                float p = 1.0f / 8.0f;
-                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4]);
-            }
-            else if (i == 5 || i == amplitudes.size() - 6)
-            {
-                float p = 1.0f / 10.0f;
-                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4] + amplitudes[i + 5] + amplitudes[i - 5]);
-            }
-            else
-            {
-                float p = 1.0f / 12.0f;
-                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4] + amplitudes[i + 5] + amplitudes[i - 5] + amplitudes[i + 6] + amplitudes[i - 6]);
-            }
+//            else //if (i == 4 || i == amplitudes.size() - 5)
+//            {
+//                float p = 1.0f / 8.0f;
+//                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4]);
+//            }
+//            else if (i == 5 || i == amplitudes.size() - 6)
+//            {
+//                float p = 1.0f / 10.0f;
+//                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4] + amplitudes[i + 5] + amplitudes[i - 5]);
+//            }
+//            else
+//            {
+//                float p = 1.0f / 10.0f;
+//                float p2 = 1.0f / 20.0f;
+//                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4]) + p2 * (amplitudes[i + 5] + amplitudes[i - 5] + amplitudes[i + 6] + amplitudes[i - 6]);
+//            }
             
             if (abs (amplitudes[i] - avg) < 3.5f)
             {
@@ -82,15 +86,17 @@ public:
             else
             {
                 float avgDiff = abs (amplitudes[i] - avg);
-                float diffThreshold = 4.0f; // Amount of difference from average to use purely the original
+                float diffThreshold = 3.5f; // Amount of difference from average to use purely the original
                 if (avgDiff > diffThreshold) avgDiff = diffThreshold;
                 float percentOrig = (diffThreshold - abs (amplitudes[i] - avg)) / diffThreshold;
                 percentOrig *= percentOrig;
-                percentOrig *= percentOrig;
+                //percentOrig *= percentOrig;
                 this->amplitudes.push_back (percentOrig * amplitudes[i] + (1 - percentOrig) * avg);
             }
         }
         this->amplitudes.push_back (amplitudes[amplitudes.size() - 1]);
+        
+        */
     }
 
     void setPhases(std::vector<float> phases)
@@ -128,9 +134,11 @@ public:
             else
             {
                 float avgDiff = abs (pans[i] - avg);
-                float diffThreshold = 2.0f; // Amount of difference from average to use purely the original
+                float diffThreshold = 1.5f; // Amount of difference from average to use purely the original
                 if (avgDiff > diffThreshold) avgDiff = diffThreshold;
                 float percentOrig = (diffThreshold - abs (pans[i] - avg)) / diffThreshold;
+                percentOrig *= percentOrig;
+                percentOrig *= percentOrig;
                 this->pans.push_back (percentOrig * pans[i] + (1 - percentOrig) * avg);
             }
         }

@@ -19,7 +19,7 @@ class SliderSequencer
 public:
     SliderSequencer() {};
     
-    void playInterval (float frequency, float amplitude, float pan, int noteLength);
+    void playInterval (float frequency, float amplitude, float pan, int noteLength, bool repeating);
     void playTwoToneInterval (float frequency1, float amplitude1, float pan1,
                               float frequency2, float amplitude2, float pan2); // TODO - give this dynamic tempo
     void playIntervalAndLastNote (float frequency, float amplitude, float pan,

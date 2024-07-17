@@ -83,7 +83,8 @@ void SliderCalibrationManager::setCurrIdx (int idx)
     sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
                                   sliderSetPointManager.getAmplitudeAt (idx),
                                   sliderSetPointManager.getPanAt (idx),
-                                  noteLength);
+                                  noteLength,
+                                  false);
 //    int comparisonIdx = 0;
 //    for (int i = 0; i < comparisonList.size(); ++i)
 //    {

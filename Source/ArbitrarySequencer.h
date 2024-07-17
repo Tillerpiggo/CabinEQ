@@ -31,7 +31,7 @@ public:
     float currentlyPlayingFrequency() const;
     
     void setSampleRate (float newSampleRate);
-    void setNotes (const std::vector<SequenceableNote>& notes);
+    void setNotes (const std::vector<SequenceableNote>& notes, bool repeating = true);
     void setListener (SequencerListener* newListener);
     
     void changeNoteGainAtIdx (int idx, float noteGain);
@@ -50,4 +50,6 @@ private:
     int currNoteIdx;
     int numSamplesNoteHasBeenPlaying;
     SequencerListener* listener;
+    
+    bool isRepeating = true;
 };

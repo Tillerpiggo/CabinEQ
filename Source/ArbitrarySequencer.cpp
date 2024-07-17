@@ -44,13 +44,15 @@ void ArbitrarySequencer::setSampleRate (float newSampleRate)
     sineWaveGenerator.setSampleRate (newSampleRate);
 }
 
-void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote>& newNotes)
+void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote>& newNotes, bool repeating)
 {
     notes = newNotes;
     currNoteIdx = 0;
     numSamplesNoteHasBeenPlaying = 0;
     
     sineWaveGenerator.setNote (getCurrNote().note());
+    
+    this->isRepeating = repeating;
 }
 
 void ArbitrarySequencer::setListener(SequencerListener* newListener)
@@ -115,7 +117,7 @@ void ArbitrarySequencer::goToNextNote()
     numSamplesNoteHasBeenPlaying = 0;
     currNoteIdx++;
     
-    if (currNoteIdx >= notes.size())
+    if (currNoteIdx >= notes.size() && isRepeating)
     {
         currNoteIdx = 0;
         notifyListener();
@@ -126,6 +128,7 @@ void ArbitrarySequencer::goToNextNote()
 
 const SequenceableNote& ArbitrarySequencer::getCurrNote() const
 {
+    if (currNoteIdx < 0 || currNoteIdx >= notes.size()) return notes.at (0);
     return notes.at (currNoteIdx);
 }
 

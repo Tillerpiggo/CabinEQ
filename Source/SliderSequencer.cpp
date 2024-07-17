@@ -11,14 +11,14 @@
 #include "SliderSequencer.h"
 #include <random>
 
-void SliderSequencer::playInterval (float frequency, float amplitude, float pan, int noteLength)
+void SliderSequencer::playInterval (float frequency, float amplitude, float pan, int noteLength, bool repeating)
 {
     int noteDurationInSamples = noteLength;
     
     SequenceableNote note1 (referenceNote, noteDurationInSamples);
     SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
     
-    arbitrarySequencer.setNotes ({ note1, note2 });
+    arbitrarySequencer.setNotes ({ note1, note2 }, repeating);
 }
 
 void SliderSequencer::playTwoToneInterval (float frequency1, float amplitude1, float pan1,
