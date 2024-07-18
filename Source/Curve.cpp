@@ -36,11 +36,11 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
      */
     
     
-    float amplitudeCompensationGain = std::pow (0.64, std::log2(frequency / 1000.0f));
-    if (frequency < 60)
+    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
+    if (frequency < 50)
     {
-        amplitudeCompensationGain /= std::pow (0.64, std::log2(frequency / 60.0f));
-        amplitudeCompensationGain /= std::pow (0.5, std::log2(frequency / 60.0f));
+        amplitudeCompensationGain /= std::pow (0.59, std::log2(frequency / 50.0f));
+        amplitudeCompensationGain /= std::pow (0.3, std::log2(frequency / 50.0f));
     }
     if (frequency > 10000)
     {

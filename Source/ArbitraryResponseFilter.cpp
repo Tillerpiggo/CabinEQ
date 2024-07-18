@@ -102,6 +102,9 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
 {
     //float factor = nyquist / maxFreq;
     
+    float maxFreq = 60.0f;
+    float minFreq = -48.0f;
+    
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];
     for (int i = 0; i < numPoints; ++i)
@@ -116,10 +119,10 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
             rightFreqResponse[i] = val2.real();
             
             // Limit freq response
-            if (leftFreqResponse[i] > 48.0f) leftFreqResponse[i] = 48.0f;
-            if (leftFreqResponse[i] < -24.0f) leftFreqResponse[i] = -24.0f;
-            if (rightFreqResponse[i] > 48.0f) rightFreqResponse[i] = 48.0f;
-            if (rightFreqResponse[i] < -24.0f) rightFreqResponse[i] = -24.0f;
+            if (leftFreqResponse[i] > maxFreq) leftFreqResponse[i] = maxFreq;
+            if (leftFreqResponse[i] < minFreq) leftFreqResponse[i] = minFreq;
+            if (rightFreqResponse[i] > maxFreq) rightFreqResponse[i] = maxFreq;
+            if (rightFreqResponse[i] < minFreq) rightFreqResponse[i] = minFreq;
         }
         else
         {
@@ -140,10 +143,10 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
             rightFreqResponse[i + numPoints] = val2.real();
             
             // Limit freq response
-            if (leftFreqResponse[i + numPoints] > 48.0f) leftFreqResponse[i + numPoints] = 48.0f;
-            if (leftFreqResponse[i + numPoints] < -24.0f) leftFreqResponse[i + numPoints] = -24.0f;
-            if (rightFreqResponse[i + numPoints] > 48.0f) rightFreqResponse[i + numPoints] = 48.0f;
-            if (rightFreqResponse[i + numPoints] < -24.0f) rightFreqResponse[i + numPoints] = -24.0f;
+            if (leftFreqResponse[i + numPoints] > maxFreq) leftFreqResponse[i + numPoints] = maxFreq;
+            if (leftFreqResponse[i + numPoints] < minFreq) leftFreqResponse[i + numPoints] = minFreq;
+            if (rightFreqResponse[i + numPoints] > maxFreq) rightFreqResponse[i + numPoints] = maxFreq;
+            if (rightFreqResponse[i + numPoints] < minFreq) rightFreqResponse[i + numPoints] = minFreq;
         }
         else
         {
