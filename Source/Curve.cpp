@@ -17,8 +17,9 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
     
     // Figure out delta of dB from reference tone
+    /*
     const float referenceFrequency = 1000.0;
-    const float slope = -4.5f;//-2.0f;
+    const float slope = -4.0f;//-2.0f;
     float octaves = std::log2(frequency / referenceFrequency);
     float dbDifference = octaves * slope;
     
@@ -32,11 +33,26 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     
     float dbVal2 = 75.0 + dbDifference;
     float inverseFMVal2 = dbVal2 - inverseFM.valueAtFrequency (frequency, dbVal2);
+     */
     
-    if (frequency < 20)
+    
+    float amplitudeCompensationGain = std::pow (0.64, std::log2(frequency / 1000.0f));
+    if (frequency < 60)
+    {
+        amplitudeCompensationGain /= std::pow (0.64, std::log2(frequency / 60.0f));
+        amplitudeCompensationGain /= std::pow (0.5, std::log2(frequency / 60.0f));
+    }
+    if (frequency > 10000)
+    {
+        amplitudeCompensationGain *= std::pow (0.5, std::log2(frequency / 10000.0f));
+    }
+    
+    
+    float dbDifference = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
+    
+    if (frequency < 1)
     {
         dbDifference = 0.0f;
-        inverseFMDiff = 0.0f;
     }
     
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);// + inverseFMVal + inverseFMVal2);// - dbDifference);// + inverseFMVal);// + inverseFMDiff);

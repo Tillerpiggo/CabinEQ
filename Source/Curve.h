@@ -96,8 +96,8 @@ public:
             }
         }
         this->amplitudes.push_back (amplitudes[amplitudes.size() - 1]);
-        */
         
+        */
     }
 
     void setPhases(std::vector<float> phases)

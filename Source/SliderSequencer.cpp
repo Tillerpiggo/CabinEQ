@@ -15,7 +15,18 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
 {
     int noteDurationInSamples = noteLength;
     
-    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000));
+    float amplitudeCompensationGain = std::pow (0.64, std::log2(frequency / 1000.0f));
+    if (frequency < 60)
+    {
+        amplitudeCompensationGain /= std::pow (0.64, std::log2(frequency / 60.0f));
+        amplitudeCompensationGain /= std::pow (0.5, std::log2(frequency / 60.0f));
+    }
+    if (frequency > 10000)
+    {
+        amplitudeCompensationGain *= std::pow (0.5, std::log2(frequency / 10000.0f));
+    }
+    
+    
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     Note referenceNoteCompensated = referenceNote;

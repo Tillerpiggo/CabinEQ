@@ -48,6 +48,11 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
         std::swap(rightImpulseData[i], rightImpulseData[i + numPoints / 2]);
     }
     
+    std::cout << "Impulse data: " << std::endl;
+    
+    for (int i = 0; i < numPoints; ++i) std::cout << leftImpulseData[i] << " " << std::endl;
+    std::cout << std::endl;
+    
 //    for (int i = 0; i < numPoints / 2; ++i)
 //    {
 //        std::swap(leftImpulseData[i], leftImpulseData[numPoints / 2 - 1 - i]);
