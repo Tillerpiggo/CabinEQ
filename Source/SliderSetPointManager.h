@@ -65,7 +65,7 @@ public:
         return -1;
     }
     
-    static const int NUM_PTS = 150;
+    static const int NUM_PTS = 60;
     
 private:
     std::vector<float> frequencies;

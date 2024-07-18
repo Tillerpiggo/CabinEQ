@@ -15,10 +15,16 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
 {
     int noteDurationInSamples = noteLength;
     
-    SequenceableNote note1 (referenceNote, noteDurationInSamples);
+    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000));
+    float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
+    
+    Note referenceNoteCompensated = referenceNote;
+    referenceNoteCompensated.gain += amplitudeCompensationDB;
+    
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
     
-    arbitrarySequencer.setNotes ({ note1, note2 }, repeating);
+    arbitrarySequencer.setNotes ({ note1, note2, note1 }, repeating);
 }
 
 void SliderSequencer::playTwoToneInterval (float frequency1, float amplitude1, float pan1,

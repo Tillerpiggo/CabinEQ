@@ -18,15 +18,20 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     
     // Figure out delta of dB from reference tone
     const float referenceFrequency = 1000.0;
-    const float slope = -4.5f;
+    const float slope = -4.5f;//-2.0f;
     float octaves = std::log2(frequency / referenceFrequency);
     float dbDifference = octaves * slope;
     
     // Figure out delta of fletcher munson curves at that frequency and dB difference
-    const float referenceDB = 82.0f;
+    const float referenceDB = 75.0f;
     float inverseFMDiff = inverseFM.valueAtFrequency (frequency, referenceDB + dbDifference) - inverseFM.valueAtFrequency (frequency, referenceDB); // for measurement from -3db slope
-    //inverseFMDiff -= dbDifference;
+    inverseFMDiff -= dbDifference;
     
+    float dbVal = 95.0 + dbDifference;
+    float inverseFMVal = dbVal - inverseFM.valueAtFrequency (frequency, dbVal);
+    
+    float dbVal2 = 75.0 + dbDifference;
+    float inverseFMVal2 = dbVal2 - inverseFM.valueAtFrequency (frequency, dbVal2);
     
     if (frequency < 20)
     {
@@ -34,8 +39,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
         inverseFMDiff = 0.0f;
     }
     
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency + dbDifference);
-    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency + dbDifference);
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);// + inverseFMVal + inverseFMVal2);// - dbDifference);// + inverseFMVal);// + inverseFMDiff);
+    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);// + inverseFMVal + inverseFMVal2);// - dbDifference);// + inverseFMVal);// + inverseFMDiff);
     
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, phaseAtFrequency);

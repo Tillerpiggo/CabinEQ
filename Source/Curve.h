@@ -41,6 +41,7 @@ public:
     void setAmplitudes(std::vector<float> amplitudes)
     {
         this->amplitudes = amplitudes;
+        
         /*
         this->amplitudes.clear();
 
@@ -95,8 +96,8 @@ public:
             }
         }
         this->amplitudes.push_back (amplitudes[amplitudes.size() - 1]);
-        
         */
+        
     }
 
     void setPhases(std::vector<float> phases)
