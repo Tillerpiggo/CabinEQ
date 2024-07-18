@@ -50,10 +50,16 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     
     float dbDifference = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
-    if (frequency < 20)
-    {
-        dbDifference = 48.0f;
-    }
+//    if (dbDifference < -20.0f)
+//    {
+//        dbDifference = -20.0f;
+//    }
+//    if (frequency < 10)
+//    {
+//        std::cout << "dbDifference: " << dbDifference;
+//    }
+//    
+    
     
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);// + inverseFMVal + inverseFMVal2);// - dbDifference);// + inverseFMVal);// + inverseFMDiff);
     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);// + inverseFMVal + inverseFMVal2);// - dbDifference);// + inverseFMVal);// + inverseFMDiff);

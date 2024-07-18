@@ -32,6 +32,10 @@
               file="Source/ForcedPerfectionismPage.cpp"/>
         <FILE id="QmKVjw" name="ForcedPerfectionismPage.h" compile="0" resource="0"
               file="Source/ForcedPerfectionismPage.h"/>
+        <FILE id="Vb2pVp" name="BlindSliderPage.cpp" compile="1" resource="0"
+              file="Source/BlindSliderPage.cpp"/>
+        <FILE id="xHvLGx" name="BlindSliderPage.h" compile="0" resource="0"
+              file="Source/BlindSliderPage.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"

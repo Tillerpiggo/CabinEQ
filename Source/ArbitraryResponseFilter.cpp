@@ -113,12 +113,18 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
         if (i % 2 == 0)
         {
             leftFreqResponse[i] = val.real();
-            rightFreqResponse[i] = val.real();
+            rightFreqResponse[i] = val2.real();
+            
+            // Limit freq response
+            if (leftFreqResponse[i] > 48.0f) leftFreqResponse[i] = 48.0f;
+            if (leftFreqResponse[i] < -24.0f) leftFreqResponse[i] = -24.0f;
+            if (rightFreqResponse[i] > 48.0f) rightFreqResponse[i] = 48.0f;
+            if (rightFreqResponse[i] < -24.0f) rightFreqResponse[i] = -24.0f;
         }
         else
         {
             leftFreqResponse[i] = val.imag();
-            rightFreqResponse[i] = val.imag();
+            rightFreqResponse[i] = val2.imag();
         }
     }
     
@@ -131,12 +137,18 @@ std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curv
         if (i % 2 == 0)
         {
             leftFreqResponse[i + numPoints] = val.real();
-            rightFreqResponse[i + numPoints] = val.real();
+            rightFreqResponse[i + numPoints] = val2.real();
+            
+            // Limit freq response
+            if (leftFreqResponse[i + numPoints] > 48.0f) leftFreqResponse[i + numPoints] = 48.0f;
+            if (leftFreqResponse[i + numPoints] < -24.0f) leftFreqResponse[i + numPoints] = -24.0f;
+            if (rightFreqResponse[i + numPoints] > 48.0f) rightFreqResponse[i + numPoints] = 48.0f;
+            if (rightFreqResponse[i + numPoints] < -24.0f) rightFreqResponse[i + numPoints] = -24.0f;
         }
         else
         {
             leftFreqResponse[i + numPoints] = val.imag();
-            rightFreqResponse[i + numPoints] = val.imag();
+            rightFreqResponse[i + numPoints] = val2.imag();
         }
     }
     
