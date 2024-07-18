@@ -20,6 +20,14 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     auto leftFreqResponse = freqResponse.first;
     auto rightFreqResponse = freqResponse.second;
     
+    std::cout << "Frequency Response" << std::endl;
+    for (int i = 0; i < numPoints; ++i)
+    {
+        std::cout << leftFreqResponse[i] << " ";
+    }
+    std::cout << std::endl;
+    
+    
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);
     
@@ -48,11 +56,6 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
         std::swap(rightImpulseData[i], rightImpulseData[i + numPoints / 2]);
     }
     
-    std::cout << "Impulse data: " << std::endl;
-    
-    for (int i = 0; i < numPoints; ++i) std::cout << leftImpulseData[i] << " " << std::endl;
-    std::cout << std::endl;
-    
 //    for (int i = 0; i < numPoints / 2; ++i)
 //    {
 //        std::swap(leftImpulseData[i], leftImpulseData[numPoints / 2 - 1 - i]);
@@ -73,12 +76,12 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 //    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
 //    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
     
-    std::cout << "Impulse data: " << std::endl;
-    for (int i = 0; i < numPoints * 2; ++i)
-    {
-        std::cout << leftImpulseData[i] << " ";
-    }
-    std::cout << std::endl;
+//    std::cout << "Impulse data: " << std::endl;
+//    for (int i = 0; i < numPoints * 2; ++i)
+//    {
+//        std::cout << leftImpulseData[i] << " ";
+//    }
+//    std::cout << std::endl;
     
     // Load the IR into the convolution
     int numSamples = numPoints;
