@@ -19,11 +19,11 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     if (frequency < 50)
     {
         amplitudeCompensationGain /= std::pow (0.59, std::log2(frequency / 50.0f));
-        amplitudeCompensationGain /= std::pow (0.3, std::log2(frequency / 50.0f));
+        amplitudeCompensationGain /= std::pow (0.2, std::log2(frequency / 50.0f));
     }
     if (frequency > 10000)
     {
-        amplitudeCompensationGain *= std::pow (0.5, std::log2(frequency / 10000.0f));
+        amplitudeCompensationGain *= std::pow (0.2, std::log2(frequency / 10000.0f));
     }
     
     

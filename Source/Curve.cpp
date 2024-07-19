@@ -40,21 +40,22 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     if (frequency < 50)
     {
         amplitudeCompensationGain /= std::pow (0.59, std::log2(frequency / 50.0f));
-        amplitudeCompensationGain /= std::pow (0.3, std::log2(frequency / 50.0f));
+        amplitudeCompensationGain /= std::pow (0.2, std::log2(frequency / 50.0f));
     }
     if (frequency > 10000)
     {
-        amplitudeCompensationGain *= std::pow (0.5, std::log2(frequency / 10000.0f));
+        amplitudeCompensationGain *= std::pow (0.2, std::log2(frequency / 10000.0f));
     }
-    
     
     float dbDifference = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce upwards slope for clarity
     const float referenceFrequency = 1000.0;
-    const float slope = -2.0f;//-2.0f;
+    const float slope = 2.0f;//-2.0f;
     float octaves = std::log2((frequency) / (referenceFrequency));
     float dbDifference2 = octaves * slope;
+    
+    //dbDifference += dbDifference2;
     
     //dbDifference += dbDifference2;
     
