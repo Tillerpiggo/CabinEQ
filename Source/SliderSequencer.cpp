@@ -29,6 +29,14 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
+    // Introduce upwards slope for clarity
+    const float referenceFrequency = 1000.0;
+    const float slope = 2.0f;//-2.0f;
+    float octaves = std::log2((frequency) / (referenceFrequency));
+    float dbDifference = octaves * slope;
+    
+    amplitudeCompensationDB += dbDifference;
+    
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += amplitudeCompensationDB;
     

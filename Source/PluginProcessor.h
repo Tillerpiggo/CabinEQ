@@ -73,7 +73,7 @@ public:
     }
  
 private:
-    static const int FFT_SIZE = 18;
+    static const int FFT_SIZE = 20;
     
     bool isBypassed = false;
     bool isCalibrating = false;

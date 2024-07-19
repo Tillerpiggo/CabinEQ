@@ -49,13 +49,9 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     
     float dbDifference = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
-    // Introduce upwards slope for clarity
-    const float referenceFrequency = 1000.0;
-    const float slope = 0.355f;//-2.0f;
-    float octaves = std::log2((frequency) / (referenceFrequency));
-    float dbDifference2 = octaves * slope;
     
-    dbDifference += dbDifference2;
+    
+    //dbDifference -= dbDifference2;
     
     //dbDifference += dbDifference2;
     
