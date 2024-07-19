@@ -358,6 +358,15 @@ int SliderCalibrationManager::goToNextQuestion (float newVal)
     return currNoteIdx;
 }
 
+int SliderCalibrationManager::goToNextBlindQuestion()
+{
+    currBlindIdx++;
+    
+    if (currBlindIdx > SliderSetPointManager::NUM_PTS) return -1;
+    
+    return currBlindIdx;
+}
+
 void SliderCalibrationManager::updateReferenceTone()
 {
     sliderSequencer.setReferenceNote (sliderSetPointManager.getFrequencyAt (referenceToneIdx),

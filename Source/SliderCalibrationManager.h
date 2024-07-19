@@ -45,6 +45,7 @@ public:
     
     // Forced perfectionism
     int goToNextQuestion (float newVal);
+    int goToNextBlindQuestion();
 private:
     void updateCurve();
     void playTuningNotes();
@@ -79,4 +80,7 @@ private:
     int nextNoteIdx = 2; // in the comparison list
     
     int lastAskedIdx = -1;
+    
+    // Blind calibration
+    int currBlindIdx = 0;
 };
