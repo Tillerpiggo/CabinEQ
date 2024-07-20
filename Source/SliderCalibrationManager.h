@@ -26,8 +26,6 @@ public:
 
     std::pair<float, float> getNextSample();
     int getCurrentlyPlayingIdx();
-    int getCurrentlyPlayingTuningIdx();
-    int getNumLockedIn();
     bool getIsCalibrating() const;
     
     const std::vector<int>& getTuningIndices();
@@ -37,19 +35,14 @@ public:
     void setAmplitudeAtIdx (int idx, float newAmplitude);
     void setPanAtIdx (int idx, float newPan);
     void setIsCalibrating (bool isCalibrating);
-    void changeTuningIndices();
     
     void incrementReferenceToneIndex();
     void decrementReferenceToneIndex();
     void changeNoteLength (int newNoteLength);
     
-    // Forced perfectionism
-    int goToNextQuestion (float newVal);
     int goToNextBlindQuestion();
 private:
     void updateCurve();
-    void playTuningNotes();
-    std::vector<int> generateTuningPattern (int start, int end, int octave);
     
     void updateReferenceTone();
     
@@ -58,28 +51,10 @@ private:
     Curve curve;
     bool isCalibrating;
     
-    std::vector<int> tuningIndices;
-    std::map<float, int> tuningIndexCounts;
-    
     int referenceToneIdx = 5;
     int currIdx = -1;
     
     int noteLength = 20000;
-    
-    std::vector<int> comparisonList = { 5, 4, 6, 3, 7, 2, 8, 1, 9, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 };
-    
-    // Forced perfectionism
-    int getRandomElement (std::vector<int> vec) const;
-    int removeElementMatching (int val, std::vector<int>& vec);
-    
-    std::vector<int> lockedInIndices;
-    std::vector<int> pendingIndices = { 4, 5 };
-    std::vector<float> lastVals;
-    int currNoteIdx = 4; // as an absolute index
-    int secondNoteIdx = -1;
-    int nextNoteIdx = 2; // in the comparison list
-    
-    int lastAskedIdx = -1;
     
     // Blind calibration
     int currBlindIdx = 0;

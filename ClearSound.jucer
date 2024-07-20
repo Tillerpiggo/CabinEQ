@@ -23,15 +23,6 @@
         <FILE id="Px8gSh" name="LeftRightPage.cpp" compile="1" resource="0"
               file="Source/LeftRightPage.cpp"/>
         <FILE id="uZOW5M" name="LeftRightPage.h" compile="0" resource="0" file="Source/LeftRightPage.h"/>
-        <FILE id="fz6Na1" name="TuningPage.cpp" compile="1" resource="0" file="Source/TuningPage.cpp"/>
-        <FILE id="l6bNz1" name="TuningPage.h" compile="0" resource="0" file="Source/TuningPage.h"/>
-        <FILE id="B7JOFX" name="PanTuningPage.cpp" compile="1" resource="0"
-              file="Source/PanTuningPage.cpp"/>
-        <FILE id="nkCSnT" name="PanTuningPage.h" compile="0" resource="0" file="Source/PanTuningPage.h"/>
-        <FILE id="UnKMIQ" name="ForcedPerfectionismPage.cpp" compile="1" resource="0"
-              file="Source/ForcedPerfectionismPage.cpp"/>
-        <FILE id="QmKVjw" name="ForcedPerfectionismPage.h" compile="0" resource="0"
-              file="Source/ForcedPerfectionismPage.h"/>
         <FILE id="Vb2pVp" name="BlindSliderPage.cpp" compile="1" resource="0"
               file="Source/BlindSliderPage.cpp"/>
         <FILE id="xHvLGx" name="BlindSliderPage.h" compile="0" resource="0"
@@ -42,10 +33,6 @@
               file="Source/CurveComponent.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
-        <FILE id="PWZrV9" name="TuningController.cpp" compile="1" resource="0"
-              file="Source/TuningController.cpp"/>
-        <FILE id="Y0PhkD" name="TuningController.h" compile="0" resource="0"
-              file="Source/TuningController.h"/>
         <FILE id="tFPxFE" name="SliderSequencer.cpp" compile="1" resource="0"
               file="Source/SliderSequencer.cpp"/>
         <FILE id="BXO2gB" name="SliderSequencer.h" compile="0" resource="0"

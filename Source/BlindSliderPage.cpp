@@ -60,8 +60,6 @@ void BlindSliderPage::resized()
     area.removeFromTop (100);
     
     // Define height ratios for each section
-    auto circleHeight = area.getHeight() / 4;
-    auto sliderHeight = area.getHeight() / 8;
     auto buttonHeight = area.getHeight() / 8;
     auto lowerButtonHeight = area.getHeight() / 8;
     auto labelHeight = area.getHeight() / 8;
@@ -110,7 +108,7 @@ void BlindSliderPage::buttonClicked (juce::Button *button)
         processor.getSliderCalibrationManager().setIsCalibrating (isCalibrating);
         
         if (isCalibrating && currIdx == -1) {
-            currIdx = processor.getSliderCalibrationManager().goToNextQuestion (-28.0f);
+//            currIdx = processor.getSliderCalibrationManager().goToNextQuestion (-28.0f);
             parameterAttachments[currIdx]->sendInitialUpdate();
         }
         
@@ -129,7 +127,7 @@ void BlindSliderPage::buttonClicked (juce::Button *button)
         currIdx = processor.getSliderCalibrationManager().goToNextBlindQuestion();
         
         parameterAttachments[currIdx]->sendInitialUpdate();
-        progressLabel.setText (std::to_string (processor.getSliderCalibrationManager().getNumLockedIn()) + "%", juce::NotificationType::dontSendNotification);
+//        progressLabel.setText (std::to_string (processor.getSliderCalibrationManager().getNumLockedIn()) + "%", juce::NotificationType::dontSendNotification);
     }
 }
 
