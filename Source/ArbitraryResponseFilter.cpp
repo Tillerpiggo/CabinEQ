@@ -20,13 +20,13 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     auto leftFreqResponse = freqResponse.first;
     auto rightFreqResponse = freqResponse.second;
     
-    std::cout << "Frequency Response" << std::endl;
-    for (int i = 0; i < numPoints; ++i)
-    {
-        std::cout << leftFreqResponse[i] << " ";
-    }
-    std::cout << std::endl;
-    
+//    std::cout << "Frequency Response" << std::endl;
+//    for (int i = 0; i < 2 * numPoints; ++i)
+//    {
+//        std::cout << leftFreqResponse[i] << " ";
+//    }
+//    std::cout << std::endl;
+//    
     
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);

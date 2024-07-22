@@ -15,9 +15,8 @@
 #include "PluginProcessor.h"
 
 class BlindSliderPage   : public juce::Component,
-                                  public juce::Slider::Listener,
-                                  public juce::Button::Listener,
-                                  public juce::Timer
+//                          public juce::Slider::Listener,
+                          public juce::Button::Listener
 {
 public:
     BlindSliderPage (StartupMVPAudioProcessor& p);
@@ -25,8 +24,8 @@ public:
 
     void resized() override;
     void paint (juce::Graphics& g) override;
+    
     void buttonClicked (juce::Button *button) override;
-    void timerCallback() override;
     
 private:
     void parameterChangedCallback (float newValue, int idx);

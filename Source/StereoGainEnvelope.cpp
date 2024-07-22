@@ -16,8 +16,19 @@ StereoGainEnvelope::StereoGainEnvelope (int rampDurationInSamples)
     rightRamp.setRampDurationInSamples (rampDurationInSamples);
 }
 
-StereoGainEnvelope::StereoGainEnvelope (int rampDurationInSamples,
-                    int rightDelayInSamples) : StereoGainEnvelope (rampDurationInSamples)
+StereoGainEnvelope::StereoGainEnvelope (int startRampDurationInSamples, int endRampDurationInSamples,
+                                        int endEarlyInSamples)
+{
+    leftRamp.setStartDurationInSamples (startRampDurationInSamples);
+    rightRamp.setStartDurationInSamples (startRampDurationInSamples);
+    leftRamp.setEndDurationInSamples (endRampDurationInSamples);
+    rightRamp.setEndDurationInSamples (endRampDurationInSamples);
+    leftRamp.setEndEarlyInSamples (endEarlyInSamples);
+    rightRamp.setEndEarlyInSamples (endEarlyInSamples);
+}
+
+StereoGainEnvelope::StereoGainEnvelope (int rampDurationInSamples, int rightDelayInSamples)
+    : StereoGainEnvelope (rampDurationInSamples)
 {
     rightRamp.setStartDelayInSamples(rightDelayInSamples);
 }

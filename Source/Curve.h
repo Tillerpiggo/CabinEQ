@@ -14,7 +14,6 @@
 #include <vector>
 #include <complex>
 #include <cmath>
-#include "InverseFletcherMunsonCurve.h"
 
 class Curve
 {
@@ -36,68 +35,18 @@ public:
     void setFrequencies(std::vector<float> frequencies)
     {
         this->frequencies = frequencies;
+        
+        std::cout << "Frequencies: " << std::endl;
+        for (float freq : frequencies) std::cout << freq << " ";
+        std::cout << std::endl;
     }
 
     void setAmplitudes(std::vector<float> amplitudes)
     {
         this->amplitudes = amplitudes;
-        
-        /*
-        this->amplitudes.clear();
-
-        this->amplitudes.push_back (amplitudes[0]);
-        for (int i = 1; i < amplitudes.size() - 1; ++i)
-        {
-            float avg;
-            
-            if (i == 1 || i == amplitudes.size() - 2)
-            {
-                avg = 0.5f * amplitudes[i - 1] + 0.5f * amplitudes[i + 1];
-            }
-            else if (i == 2 || i == amplitudes.size() - 3)
-            {
-                avg = 0.25f * amplitudes[i - 1] + 0.25f * amplitudes[i + 1] + 0.25f * amplitudes[i - 2] + 0.25f * amplitudes[i + 2];
-            }
-            else// if (i == 3 || i == amplitudes.size() - 4)
-            {
-                float p = 1.0f / 6.0f;
-                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3]);
-            }
-//            else //if (i == 4 || i == amplitudes.size() - 5)
-//            {
-//                float p = 1.0f / 8.0f;
-//                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4]);
-//            }
-//            else if (i == 5 || i == amplitudes.size() - 6)
-//            {
-//                float p = 1.0f / 10.0f;
-//                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4] + amplitudes[i + 5] + amplitudes[i - 5]);
-//            }
-//            else
-//            {
-//                float p = 1.0f / 10.0f;
-//                float p2 = 1.0f / 20.0f;
-//                avg = p * (amplitudes[i - 3] + amplitudes[i - 2] + amplitudes[i - 1] + amplitudes[i + 1] + amplitudes[i + 2] + amplitudes[i + 3] + amplitudes[i - 4] + amplitudes[i + 4]) + p2 * (amplitudes[i + 5] + amplitudes[i - 5] + amplitudes[i + 6] + amplitudes[i - 6]);
-//            }
-            
-            if (abs (amplitudes[i] - avg) < 3.5f)
-            {
-                this->amplitudes.push_back (avg);
-            }
-            else
-            {
-                float avgDiff = abs (amplitudes[i] - avg);
-                float diffThreshold = 3.5f; // Amount of difference from average to use purely the original
-                if (avgDiff > diffThreshold) avgDiff = diffThreshold;
-                float percentOrig = (diffThreshold - abs (amplitudes[i] - avg)) / diffThreshold;
-                percentOrig *= percentOrig;
-                //percentOrig *= percentOrig;
-                this->amplitudes.push_back (percentOrig * amplitudes[i] + (1 - percentOrig) * avg);
-            }
-        }
-        this->amplitudes.push_back (amplitudes[amplitudes.size() - 1]);
-        
-        */
+        std::cout << "Amplitudes: " << std::endl;
+        for (float amp : amplitudes) std::cout << amp << " ";
+        std::cout << std::endl;
     }
 
     void setPhases(std::vector<float> phases)
@@ -156,7 +105,5 @@ protected:
     
     std::vector<float> phases;
     std::vector<float> pans;
-    float factor = 1.f;
-    
-    InverseFletcherMunsonCurve inverseFM;
+    float factor = 1.0f;
 };

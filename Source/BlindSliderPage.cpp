@@ -38,7 +38,6 @@ BlindSliderPage::BlindSliderPage (StartupMVPAudioProcessor& p) : processor (p)
                                                                            [this, i](float newValue) { parameterChangedCallback(newValue, i); }, nullptr);
     }
     
-    startTimer (10);
     currIdx = processor.getSliderCalibrationManager().goToNextBlindQuestion();
 }
 
@@ -50,8 +49,6 @@ BlindSliderPage::~BlindSliderPage()
     largeMinusButton.removeListener (this);
     toggleCalibrationButton.removeListener (this);
     nextButton.removeListener (this);
-    
-    stopTimer();
 }
 
 void BlindSliderPage::resized()

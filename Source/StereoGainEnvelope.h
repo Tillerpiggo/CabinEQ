@@ -24,6 +24,7 @@ class StereoGainEnvelope
 {
 public:
     StereoGainEnvelope (int rampDurationInSamples = 5000);
+    StereoGainEnvelope (int startRampDurationInSamples, int endRampDurationInSamples, int endEarlyInSamples);
     StereoGainEnvelope (int rampDurationInSamples, int rightDelayInSamples);
     StereoGainEnvelope (StereoGainEnvelopeType type, int rampDurationInSamples = 5000);
     

@@ -14,6 +14,7 @@
 #include "SliderPage.h"
 #include "LeftRightPage.h"
 #include "BlindSliderPage.h"
+#include "VerifyFilterPage.h"
 
 //==============================================================================
 /**
@@ -37,6 +38,7 @@ private:
     std::unique_ptr<SliderPage> sliderPage;
     std::unique_ptr<LeftRightPage> leftRightPage;
     std::unique_ptr<BlindSliderPage> blindSliderPage;
+    std::unique_ptr<VerifyFilterPage> verifyFilterPage;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
 };

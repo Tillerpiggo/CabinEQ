@@ -22,6 +22,7 @@ public:
     void playInterval (float frequency, float amplitude, float pan, int noteLength, bool repeating);
     void playTwoToneInterval (float frequency1, float amplitude1, float pan1,
                               float frequency2, float amplitude2, float pan2); // TODO - give this dynamic tempo
+    void playTestingInterval(float tone1Freq, float tone1Vol, float tone2Freq, float tone2Vol);
     void playIntervalAndLastNote (float frequency, float amplitude, float pan,
                                   float lastFrequency, float lastAmplitude, float lastPan);
     void playComparisonFrequencies (float frequency, float amplitude, float pan,

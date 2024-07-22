@@ -41,6 +41,24 @@ public:
     void changeNoteLength (int newNoteLength);
     
     int goToNextBlindQuestion();
+    
+    // Testing
+    
+    // Getters
+    bool getIsTesting() const;
+    bool getIsFilterEnabled() const;
+    float getFilterGain() const;
+
+    // Setters
+    void setIsTesting (bool isTesting);
+    void setIsFilterEnabled (bool isFilterEnabled);
+    
+    void setTone1Freq (float tone1Freq);
+    void setTone2Freq (float tone2Freq);
+    void setTone1Vol (float tone1Vol);
+    void setTone2Vol (float tone2Vol);
+    void setFilterGain (float filterGain);
+    
 private:
     void updateCurve();
     
@@ -58,4 +76,16 @@ private:
     
     // Blind calibration
     int currBlindIdx = 0;
+    std::vector<float> randomIndices;
+    
+    // Testing (verifying the filter)
+    bool isTesting = false;
+    bool isFilterEnabled = false;
+    
+    float tone1Freq = 1000.0f;
+    float tone2Freq = 2000.0f;
+    float tone1Vol = 6.0f;
+    float tone2Vol = 6.0f;
+    float filterGain = 0.0f;
+    
 };

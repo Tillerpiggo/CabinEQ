@@ -16,58 +16,11 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     float phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
     
-    // Figure out delta of dB from reference tone
-    /*
-    const float referenceFrequency = 1000.0;
-    const float slope = -4.0f;//-2.0f;
-    float octaves = std::log2(frequency / referenceFrequency);
-    float dbDifference = octaves * slope;
-    
-    // Figure out delta of fletcher munson curves at that frequency and dB difference
-    const float referenceDB = 75.0f;
-    float inverseFMDiff = inverseFM.valueAtFrequency (frequency, referenceDB + dbDifference) - inverseFM.valueAtFrequency (frequency, referenceDB); // for measurement from -3db slope
-    inverseFMDiff -= dbDifference;
-    
-    float dbVal = 95.0 + dbDifference;
-    float inverseFMVal = dbVal - inverseFM.valueAtFrequency (frequency, dbVal);
-    
-    float dbVal2 = 75.0 + dbDifference;
-    float inverseFMVal2 = dbVal2 - inverseFM.valueAtFrequency (frequency, dbVal2);
-     */
+    float dbDifference = -4.5f * std::log2((frequency) / 1000.0f);
     
     
-    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
-    if (frequency < 50)
-    {
-        amplitudeCompensationGain /= std::pow (0.59, std::log2(frequency / 50.0f));
-        amplitudeCompensationGain /= std::pow (0.2, std::log2(frequency / 50.0f));
-    }
-    if (frequency > 10000)
-    {
-        amplitudeCompensationGain *= std::pow (0.2, std::log2(frequency / 10000.0f));
-    }
-    
-    float dbDifference = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
-    
-    
-    
-    //dbDifference -= dbDifference2;
-    
-    //dbDifference += dbDifference2;
-    
-//    if (dbDifference < -20.0f)
-//    {
-//        dbDifference = -20.0f;
-//    }
-//    if (frequency < 10)
-//    {
-//        std::cout << "dbDifference: " << dbDifference;
-//    }
-//
-    
-    
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);// + inverseFMVal + inverseFMVal2);// - dbDifference);// + inverseFMVal);// + inverseFMDiff);
-    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);// + inverseFMVal + inverseFMVal2);// - dbDifference);// + inverseFMVal);// + inverseFMDiff);
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
+    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
     
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, phaseAtFrequency);
@@ -77,11 +30,6 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t) const
 {
-//    float minFreq = frequencies.at(0);
-//    float maxFreq = frequencies.at(frequencies.size() - 1);
-//
-//    // Scale linearly
-//    float freq = t * (maxFreq - minFreq) + minFreq;
     return valueAtFrequency(t * 22050);
 }
 
@@ -116,6 +64,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
     
     if (frequency < frequencies.at (0))
     {
+//        return interpolateValueAtFrequency (100.0, values);
         return values.at (0);
     }
     

@@ -15,23 +15,24 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
 {
     int noteDurationInSamples = noteLength;
     
-    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
-    if (frequency < 50)
-    {
-        amplitudeCompensationGain /= std::pow (0.59, std::log2(frequency / 50.0f));
-        amplitudeCompensationGain /= std::pow (0.2, std::log2(frequency / 50.0f));
-    }
-    if (frequency > 10000)
-    {
-        amplitudeCompensationGain *= std::pow (0.2, std::log2(frequency / 10000.0f));
-    }
+    //float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
+    float amplitudeCompensationDB = -4.5f * std::log2((frequency) / 1000.0f);
+//    if (frequency < 50)
+//    {
+//        amplitudeCompensationGain /= std::pow (0.59, std::log2(frequency / 50.0f));
+//        amplitudeCompensationGain /= std::pow (0.3, std::log2(frequency / 50.0f));
+//    }
+//    if (frequency > 10000)
+//    {
+//        amplitudeCompensationGain *= std::pow (0.2, std::log2(frequency / 10000.0f));
+//    }
     
     
-    float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
+    //float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
-    // Introduce upwards slope for clarity
+    // Introduce custom slope for clarity
     const float referenceFrequency = 1000.0;
-    const float slope = 2.0f;//-2.0f;
+    float slope = 0.6f;
     float octaves = std::log2((frequency) / (referenceFrequency));
     float dbDifference = octaves * slope;
     
@@ -40,10 +41,39 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += amplitudeCompensationDB;
     
-    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-    SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
+    StereoGainEnvelope envelope = StereoGainEnvelope (300, 15000, noteDurationInSamples - 15300);
     
-    arbitrarySequencer.setNotes ({ note1, note2, note1 }, repeating);
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples, envelope);
+    SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples, envelope);
+    
+    arbitrarySequencer.setNotes ({ note1, note2 }, repeating);
+}
+
+void SliderSequencer::playTestingInterval(float tone1Freq, float tone1Vol, float tone2Freq, float tone2Vol) 
+{
+    int noteDurationInSamples = 25000;
+    bool repeating = true;
+    float pan = 0.0f;
+    float phase = 0.0f;
+
+    // Apply a -2dB/octave slope centered at 1000Hz
+    const float referenceFrequency = 1000.0f;
+    const float negativeSlope = -2.0f;
+
+    auto applyNegativeSlope = [referenceFrequency, negativeSlope] (float frequency, float volume)
+    {
+        float octaves = std::log2(frequency / referenceFrequency);
+        float dbDifference = octaves * negativeSlope;
+        return volume + dbDifference;
+    };
+
+    float adjustedTone1DB = applyNegativeSlope(tone1Freq, tone1Vol);
+    float adjustedTone2DB = applyNegativeSlope(tone2Freq, tone2Vol);
+
+    SequenceableNote note1 (tone1Freq, adjustedTone1DB, pan, phase, noteDurationInSamples, StereoGainEnvelope());
+    SequenceableNote note2 (tone2Freq, adjustedTone2DB, pan, phase, noteDurationInSamples, StereoGainEnvelope());
+    
+    arbitrarySequencer.setNotes ({ note1, note2 }, repeating);
 }
 
 void SliderSequencer::playTwoToneInterval (float frequency1, float amplitude1, float pan1,

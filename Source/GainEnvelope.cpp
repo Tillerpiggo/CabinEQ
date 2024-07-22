@@ -52,6 +52,16 @@ void GainEnvelope::setRampDurationInSamples (int duration)
     endDurationInSamples = duration;
 }
 
+void GainEnvelope::setStartDurationInSamples (int startDuration)
+{
+    startDurationInSamples = startDuration;
+}
+
+void GainEnvelope::setEndDurationInSamples (int endDuration)
+{
+    endDurationInSamples = endDuration;
+}
+
 void GainEnvelope::setTargetGain (float gain)
 {
     targetGain = gain;

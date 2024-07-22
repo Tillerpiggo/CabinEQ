@@ -27,6 +27,10 @@
               file="Source/BlindSliderPage.cpp"/>
         <FILE id="xHvLGx" name="BlindSliderPage.h" compile="0" resource="0"
               file="Source/BlindSliderPage.h"/>
+        <FILE id="e1dk1h" name="VerifyFilterPage.cpp" compile="1" resource="0"
+              file="Source/VerifyFilterPage.cpp"/>
+        <FILE id="u9SitO" name="VerifyFilterPage.h" compile="0" resource="0"
+              file="Source/VerifyFilterPage.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
