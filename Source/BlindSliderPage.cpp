@@ -14,6 +14,10 @@ BlindSliderPage::BlindSliderPage (StartupMVPAudioProcessor& p) : processor (p)
 {
     addAndMakeVisible (largePlusButton);
     addAndMakeVisible (smallPlusButton);
+    addAndMakeVisible (tinyPlusButton);
+    addAndMakeVisible (teenyTinyPlusButton);
+    addAndMakeVisible (teenyTinyMinusButton);
+    addAndMakeVisible (tinyMinusButton);
     addAndMakeVisible (smallMinusButton);
     addAndMakeVisible (largeMinusButton);
     addAndMakeVisible (toggleCalibrationButton);
@@ -22,6 +26,10 @@ BlindSliderPage::BlindSliderPage (StartupMVPAudioProcessor& p) : processor (p)
     
     largePlusButton.addListener (this);
     smallPlusButton.addListener (this);
+    tinyPlusButton.addListener (this);
+    teenyTinyPlusButton.addListener (this);
+    teenyTinyMinusButton.addListener (this);
+    tinyMinusButton.addListener (this);
     smallMinusButton.addListener (this);
     largeMinusButton.addListener (this);
     toggleCalibrationButton.addListener (this);
@@ -38,13 +46,17 @@ BlindSliderPage::BlindSliderPage (StartupMVPAudioProcessor& p) : processor (p)
                                                                            [this, i](float newValue) { parameterChangedCallback(newValue, i); }, nullptr);
     }
     
-    currIdx = processor.getSliderCalibrationManager().goToNextBlindQuestion();
+    currIdx = 0;//processor.getSliderCalibrationManager().goToNextBlindQuestion();
 }
 
 BlindSliderPage::~BlindSliderPage()
 {
     largePlusButton.removeListener (this);
     smallPlusButton.removeListener (this);
+    tinyPlusButton.removeListener (this);
+    teenyTinyPlusButton.removeListener (this);
+    teenyTinyMinusButton.removeListener (this);
+    tinyMinusButton.removeListener (this);
     smallMinusButton.removeListener (this);
     largeMinusButton.removeListener (this);
     toggleCalibrationButton.removeListener (this);
@@ -54,7 +66,7 @@ BlindSliderPage::~BlindSliderPage()
 void BlindSliderPage::resized()
 {
     auto area = getLocalBounds().reduced(20); // Adding padding around the whole UI
-    area.removeFromTop (100);
+    area.removeFromTop(100);
     
     // Define height ratios for each section
     auto buttonHeight = area.getHeight() / 8;
@@ -62,9 +74,13 @@ void BlindSliderPage::resized()
     auto labelHeight = area.getHeight() / 8;
     
     auto buttonArea = area.removeFromTop(buttonHeight);
-    auto buttonWidth = buttonArea.getWidth() / 4;
+    auto buttonWidth = buttonArea.getWidth() / 8; // Adjusted for eight buttons now
     largeMinusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
     smallMinusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
+    tinyMinusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
+    teenyTinyMinusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
+    teenyTinyPlusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
+    tinyPlusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
     smallPlusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
     largePlusButton.setBounds(buttonArea.reduced(5));
 
@@ -80,35 +96,67 @@ void BlindSliderPage::paint(juce::Graphics& g)
 {
     g.fillAll(backgroundColor);
 }
+
+void BlindSliderPage::sliderValueChanged (juce::Slider *slider)
+{
+    if (slider == &this->slider)
+    {
+        int idxToUpdate = processor.getSliderCalibrationManager().setAmplitudeAtBlindIdx (slider->getValue());
+        parameterAttachments[idxToUpdate]->setValueAsPartOfGesture (slider->getValue());
+    }
+}
+
+void BlindSliderPage::sliderDragStarted (juce::Slider *slider)
+{
+    if (slider == &this->slider)
+    {
+        processor.getSliderCalibrationManager().playBlindInterval();
+    }
+}
+
+void BlindSliderPage::sliderDragEnded (juce::Slider *slider)
+{
+    // Do nothing for now
+}
     
 void BlindSliderPage::buttonClicked (juce::Button *button)
 {
     if (button == &largePlusButton)
     {
-        incrementCurrValueBy (1.0f);
+        incrementCurrValueBy (4.0f);
     }
     else if (button == &smallPlusButton)
     {
-        incrementCurrValueBy (0.05f);
+        incrementCurrValueBy (2.0f);
+    }
+    else if (button == &tinyPlusButton)
+    {
+        incrementCurrValueBy (1.0f);
+    }
+    else if (button == &teenyTinyPlusButton)
+    {
+        incrementCurrValueBy (0.5f);
+    }
+    else if (button == &teenyTinyMinusButton)
+    {
+        incrementCurrValueBy (-0.5f);
+    }
+    else if (button == &tinyMinusButton)
+    {
+        incrementCurrValueBy (-1.0f);
     }
     else if (button == &smallMinusButton)
     {
-        incrementCurrValueBy (-0.05f);
+        incrementCurrValueBy (-2.0f);
     }
     else if (button == &largeMinusButton)
     {
-        incrementCurrValueBy (-1.0f);
+        incrementCurrValueBy (-4.0f);
     }
     else if (button == &toggleCalibrationButton)
     {
         isCalibrating = ! isCalibrating;
         processor.getSliderCalibrationManager().setIsCalibrating (isCalibrating);
-        
-        if (isCalibrating && currIdx == -1) {
-//            currIdx = processor.getSliderCalibrationManager().goToNextQuestion (-28.0f);
-            parameterAttachments[currIdx]->sendInitialUpdate();
-        }
-        
         
         if (isCalibrating)
         {
@@ -123,8 +171,8 @@ void BlindSliderPage::buttonClicked (juce::Button *button)
     {
         currIdx = processor.getSliderCalibrationManager().goToNextBlindQuestion();
         
-        parameterAttachments[currIdx]->sendInitialUpdate();
-//        progressLabel.setText (std::to_string (processor.getSliderCalibrationManager().getNumLockedIn()) + "%", juce::NotificationType::dontSendNotification);
+//        parameterAttachments[currIdx]->sendInitialUpdate();
+        progressLabel.setText (std::to_string (processor.getSliderCalibrationManager().getCurrBlindPercent()) + "%", juce::NotificationType::dontSendNotification);
     }
 }
 
@@ -137,9 +185,7 @@ void BlindSliderPage::incrementCurrValueBy (float increment)
 {
     if (currIdx == -1) return;
     
-    float newValue = processor.parameters.getParameterAsValue("gain_" + std::to_string(currIdx)).getValue();
-    newValue += increment;
-    parameterAttachments[currIdx]->setValueAsPartOfGesture (newValue);
-    processor.getSliderCalibrationManager().setAmplitudeAtIdx(currIdx, newValue);
+    auto [idxToUpdate, newValue] = processor.getSliderCalibrationManager().incrementAmplitudeAtBlindIdxAndPlay (increment);
+    parameterAttachments[idxToUpdate]->setValueAsPartOfGesture (newValue);
 }
 

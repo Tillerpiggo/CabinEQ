@@ -17,7 +17,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float phaseAtFrequency = interpolatePhaseAtFrequency (frequency);
     
     float dbDifference = -4.5f * std::log2((frequency) / 1000.0f);
-    
+    //dbDifference = 0;
     
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);

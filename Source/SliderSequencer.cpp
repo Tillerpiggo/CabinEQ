@@ -15,8 +15,8 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
 {
     int noteDurationInSamples = noteLength;
     
-    //float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
-    float amplitudeCompensationDB = -4.5f * std::log2((frequency) / 1000.0f);
+    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
+    //float amplitudeCompensationDB = -4.5f * std::log2((frequency) / 1000.0f);
 //    if (frequency < 50)
 //    {
 //        amplitudeCompensationGain /= std::pow (0.59, std::log2(frequency / 50.0f));
@@ -28,25 +28,26 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
 //    }
     
     
-    //float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
+    float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce custom slope for clarity
-    const float referenceFrequency = 1000.0;
-    float slope = 0.6f;
-    float octaves = std::log2((frequency) / (referenceFrequency));
-    float dbDifference = octaves * slope;
-    
-    amplitudeCompensationDB += dbDifference;
+//    const float referenceFrequency = 1000.0;
+//    float slope = 0.6f;
+//    float octaves = std::log2((frequency) / (referenceFrequency));
+//    float dbDifference = octaves * slope;
+//    
+//    amplitudeCompensationDB += dbDifference;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += amplitudeCompensationDB;
     
-    StereoGainEnvelope envelope = StereoGainEnvelope (300, 15000, noteDurationInSamples - 15300);
+    //StereoGainEnvelope envelope = StereoGainEnvelope (300, 15000, noteDurationInSamples - 15300);
+    StereoGainEnvelope envelope = StereoGainEnvelope();
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples, envelope);
     SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples, envelope);
     
-    arbitrarySequencer.setNotes ({ note1, note2 }, repeating);
+    arbitrarySequencer.setNotes ({ note1, note2, note1 }, repeating);
 }
 
 void SliderSequencer::playTestingInterval(float tone1Freq, float tone1Vol, float tone2Freq, float tone2Vol) 

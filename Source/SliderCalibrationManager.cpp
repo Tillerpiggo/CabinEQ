@@ -49,6 +49,11 @@ bool SliderCalibrationManager::getIsCalibrating() const
     return isCalibrating;
 }
 
+float SliderCalibrationManager::getCurrBlindPercent() const
+{
+    return static_cast<float> (currBlindIdx) / static_cast<float> (randomIndices.size());
+}
+
 void SliderCalibrationManager::setSampleRate (float newSampleRate)
 {
     sliderSequencer.setSampleRate (newSampleRate);
@@ -73,6 +78,36 @@ void SliderCalibrationManager::setAmplitudeAtIdx (int idx, float newAmplitude)
                                                          newAmplitude);
     
     if (idx == referenceToneIdx) updateReferenceTone();
+}
+
+std::pair<int, float> SliderCalibrationManager::incrementAmplitudeAtBlindIdxAndPlay (float increment)
+{
+    int idxToUpdate = randomIndices[currBlindIdx];
+    
+    float newAmplitude = sliderSetPointManager.getAmplitudeAt (idxToUpdate) + increment;
+    sliderSetPointManager.setAmplitudeAt (idxToUpdate, newAmplitude);
+    
+    playBlindInterval();
+    
+    return { idxToUpdate, newAmplitude };
+}
+
+int SliderCalibrationManager::setAmplitudeAtBlindIdx (float newAmplitude)
+{
+    int idxToUpdate = randomIndices[currBlindIdx];
+    sliderSetPointManager.setAmplitudeAt (idxToUpdate, newAmplitude);
+    
+    return idxToUpdate;
+}
+
+void SliderCalibrationManager::playBlindInterval()
+{
+    int idxToUpdate = randomIndices[currBlindIdx];
+    sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idxToUpdate),
+                                  sliderSetPointManager.getAmplitudeAt (idxToUpdate),
+                                  sliderSetPointManager.getPanAt (idxToUpdate),
+                                  noteLength,
+                                  false);
 }
 
 void SliderCalibrationManager::setPanAtIdx (int idx, float newPan)
@@ -121,7 +156,7 @@ int SliderCalibrationManager::goToNextBlindQuestion()
 {
     currBlindIdx++;
     
-    if (currBlindIdx > SliderSetPointManager::NUM_PTS) return -1;
+    if (currBlindIdx >= SliderSetPointManager::NUM_PTS) return -1;
     
     sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (randomIndices[currBlindIdx]),
                                   sliderSetPointManager.getAmplitudeAt (randomIndices[currBlindIdx]),

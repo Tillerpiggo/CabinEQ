@@ -35,7 +35,7 @@ SliderSetPointManager::SliderSetPointManager()
     // Generate 50 evenly spaced frequencies from 20 to 15000khz
     frequencies.reserve(NUM_PTS / 3);
     float startFreq = 20.0f;
-    float endFreq = 1000.0f;
+    float endFreq = 950.0f;
 
     float logStart = std::log10(startFreq);
     float logEnd = std::log10(endFreq);
@@ -48,7 +48,7 @@ SliderSetPointManager::SliderSetPointManager()
     
     frequencies.reserve(2 * NUM_PTS / 3);
     startFreq = 1050.0f;
-    endFreq = 12000.0f;
+    endFreq = 10000.0f;
 
     logStart = std::log10(startFreq);
     logEnd = std::log10(endFreq);

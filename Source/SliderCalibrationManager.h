@@ -27,12 +27,15 @@ public:
     std::pair<float, float> getNextSample();
     int getCurrentlyPlayingIdx();
     bool getIsCalibrating() const;
+    float getCurrBlindPercent() const;
     
     const std::vector<int>& getTuningIndices();
 
     void setSampleRate (float newSampleRate);
     void setCurrIdx (int idx);
     void setAmplitudeAtIdx (int idx, float newAmplitude);
+    std::pair<int, float> incrementAmplitudeAtBlindIdxAndPlay (float increment);
+    int setAmplitudeAtBlindIdx (float newAmplitude);
     void setPanAtIdx (int idx, float newPan);
     void setIsCalibrating (bool isCalibrating);
     
@@ -41,6 +44,7 @@ public:
     void changeNoteLength (int newNoteLength);
     
     int goToNextBlindQuestion();
+    void playBlindInterval();
     
     // Testing
     

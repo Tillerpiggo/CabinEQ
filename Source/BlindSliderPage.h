@@ -15,7 +15,7 @@
 #include "PluginProcessor.h"
 
 class BlindSliderPage   : public juce::Component,
-//                          public juce::Slider::Listener,
+                          public juce::Slider::Listener,
                           public juce::Button::Listener
 {
 public:
@@ -24,6 +24,10 @@ public:
 
     void resized() override;
     void paint (juce::Graphics& g) override;
+    
+    void sliderValueChanged (juce::Slider *slider) override;
+    void sliderDragStarted (juce::Slider *slider) override;
+    void sliderDragEnded (juce::Slider *slider) override;
     
     void buttonClicked (juce::Button *button) override;
     
@@ -34,10 +38,15 @@ private:
     StartupMVPAudioProcessor& processor;
     std::array<std::unique_ptr<juce::ParameterAttachment>, SliderSetPointManager::NUM_PTS> parameterAttachments;
     
-    juce::TextButton largePlusButton { "++" };
-    juce::TextButton smallPlusButton { "+" };
-    juce::TextButton smallMinusButton { "-" };
-    juce::TextButton largeMinusButton { "--" };
+    juce::Slider slider;
+    juce::TextButton largePlusButton { "++++" };
+    juce::TextButton smallPlusButton { "+++" };
+    juce::TextButton tinyPlusButton { "++" };
+    juce::TextButton teenyTinyPlusButton { "+" };
+    juce::TextButton teenyTinyMinusButton { "-"};
+    juce::TextButton tinyMinusButton { "--" };
+    juce::TextButton smallMinusButton { "---" };
+    juce::TextButton largeMinusButton { "----" };
     juce::TextButton toggleCalibrationButton { "Start Calibrating" };
     juce::TextButton nextButton { "Next >" };
     juce::Label progressLabel;

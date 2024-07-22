@@ -70,12 +70,14 @@ const float InverseFletcherMunsonCurve::valueAtFrequency (float frequency, float
     
     if (frequency < freqs.at(0))
     {
-        return gains.at(0);
+        return gains.at(0) * ((frequency) / (freqs.at (numPoints - 1)))
+                           * ((frequency) / (freqs.at (numPoints - 1)));
     }
     
     if (frequency > freqs.at(numPoints - 1))
     {
-        return gains.at(numPoints - 1); // TODO: Make this also roll offs
+        return gains.at(numPoints - 1) * ((22050 - frequency) / (22050 - freqs.at (numPoints - 1)))
+                                       * ((22050 - frequency) / (22050 - freqs.at (numPoints - 1))); // TODO: Make this also roll offs
     }
     
     float setPointFreq1;
