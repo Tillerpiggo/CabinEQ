@@ -102,6 +102,7 @@ int SliderCalibrationManager::setAmplitudeAtBlindIdx (float newAmplitude)
 
 void SliderCalibrationManager::playBlindInterval()
 {
+    std::cout << "Play blind interval!" << std::endl;
     int idxToUpdate = randomIndices[currBlindIdx];
     sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idxToUpdate),
                                   sliderSetPointManager.getAmplitudeAt (idxToUpdate),

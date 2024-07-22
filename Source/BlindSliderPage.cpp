@@ -23,7 +23,12 @@ BlindSliderPage::BlindSliderPage (StartupMVPAudioProcessor& p) : processor (p)
     addAndMakeVisible (toggleCalibrationButton);
     addAndMakeVisible (nextButton);
     addAndMakeVisible (progressLabel);
+    addAndMakeVisible (slider);
     
+    slider.setRange (-24.0f, 48.0f);
+    slider.setSliderStyle (juce::Slider::SliderStyle::LinearHorizontal);
+    
+    slider.addListener (this);
     largePlusButton.addListener (this);
     smallPlusButton.addListener (this);
     tinyPlusButton.addListener (this);
@@ -51,6 +56,7 @@ BlindSliderPage::BlindSliderPage (StartupMVPAudioProcessor& p) : processor (p)
 
 BlindSliderPage::~BlindSliderPage()
 {
+    slider.removeListener (this);
     largePlusButton.removeListener (this);
     smallPlusButton.removeListener (this);
     tinyPlusButton.removeListener (this);
@@ -69,10 +75,16 @@ void BlindSliderPage::resized()
     area.removeFromTop(100);
     
     // Define height ratios for each section
+    auto sliderHeight = area.getHeight() / 8;
     auto buttonHeight = area.getHeight() / 8;
     auto lowerButtonHeight = area.getHeight() / 8;
     auto labelHeight = area.getHeight() / 8;
     
+    // Define the slider area
+    auto sliderArea = area.removeFromTop(sliderHeight);
+    slider.setBounds(sliderArea.reduced(10));
+
+    // Define the button area
     auto buttonArea = area.removeFromTop(buttonHeight);
     auto buttonWidth = buttonArea.getWidth() / 8; // Adjusted for eight buttons now
     largeMinusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
@@ -84,11 +96,13 @@ void BlindSliderPage::resized()
     smallPlusButton.setBounds(buttonArea.removeFromLeft(buttonWidth).reduced(5));
     largePlusButton.setBounds(buttonArea.reduced(5));
 
+    // Define the lower button area
     auto lowerButtonArea = area.removeFromTop(lowerButtonHeight);
     auto lowerButtonWidth = lowerButtonArea.getWidth() / 2;
     toggleCalibrationButton.setBounds(lowerButtonArea.removeFromLeft(lowerButtonWidth).reduced(5));
     nextButton.setBounds(lowerButtonArea.reduced(5));
 
+    // Define the label area
     progressLabel.setBounds(area.removeFromTop(labelHeight).reduced(10));
 }
 
