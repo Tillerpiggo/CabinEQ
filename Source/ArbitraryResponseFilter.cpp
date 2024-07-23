@@ -12,41 +12,6 @@
 
 void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 {
-    /*
-    // Perform an IFFT on the desired frequency response
-    juce::dsp::FFT fft (fft_size);
-    int numPoints = fft.getSize();
-    
-    auto freqResponse = frequencyResponse (curve, numPoints);
-    auto leftFreqResponse = freqResponse.first;
-    auto rightFreqResponse = freqResponse.second;
-
-    fft.performRealOnlyInverseTransform (leftFreqResponse);
-    fft.performRealOnlyInverseTransform (rightFreqResponse);
-    
-    float* leftImpulseData = leftFreqResponse;
-    float* rightImpulseData = rightFreqResponse;
-    
-    for (int i = 0; i < numPoints * 2; ++i)
-    {
-        leftImpulseData[i] = leftFreqResponse[i];
-        rightImpulseData[i] = rightFreqResponse[i];
-    }
-
-    // Transform post-ringing into pre-ringing
-    int inflectionPoint = numPoints / 2;
-    
-    for (int i = 0; i < numPoints / 2; ++i)
-    {
-        std::swap(leftImpulseData[i], leftImpulseData[i + numPoints / 2]);
-        std::swap(rightImpulseData[i], rightImpulseData[i + numPoints / 2]);
-    }
-    
-    // Window the impulse
-    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::blackmanHarris, true);
-    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
-    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
-    */
     auto [leftImpulseData, rightImpulseData] = curve.getStereoImpulse (fft_size);
     
     // Load the IR into the convolution

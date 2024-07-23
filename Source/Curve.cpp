@@ -34,8 +34,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t) const
 {
-    float minFreq = frequencies.at(0);
-    float maxFreq = frequencies.at(frequencies.size() - 1);
+    float minFreq = 1;//frequencies.at(0);
+    float maxFreq = 22050;//frequencies.at(frequencies.size() - 1);
     
     // Scale logarithmically (should this be here?)
     float logMinFreq = std::log(minFreq);

@@ -33,12 +33,12 @@ void CurveComponent::paint (juce::Graphics& g)
         float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
         float endX = width * normalizedTime;
         
-        float val = juce::Decibels::gainToDecibels (curve.valueAtNormalizedTime (normalizedTime).first.real());
+        float val = juce::Decibels::gainToDecibels (curve.valueAtTime (normalizedTime).first.real());
         float endY = height * (1.0f - (val + 24.0f) / 48.0f);
         
         path.lineTo (endX, endY);
     }
-    g.strokePath (path, juce::PathStrokeType (2.0f));
+    g.strokePath (path, juce::PathStrokeType (1.0f));
     
     
     g.setColour (juce::Colours::transparentBlack);
@@ -50,16 +50,17 @@ void CurveComponent::paint (juce::Graphics& g)
     // Draw true frequency response
     for (int i = 0; i < trueFreqResponse.size() / 2; ++i)
     {
-        float normalizedTime = static_cast<float>(i) / static_cast<float>(numFreqResponsePoints / 4);
+        float normalizedTime = static_cast<float>(i) / static_cast<float>(trueFreqResponse.size() / 2);
         float endX = width * normalizedTime;
         
         float val = juce::Decibels::gainToDecibels (trueFreqResponse[i]);
-        float endY = height * (1.0f - (val + 80.0f) / 48.0f);
+        float endY = height * (1.0f - (val + 15.1f) / 48.0f);
         
         trueFreqResponsePath.lineTo (endX, endY);
 //        std::cout << "x: " << endX << std::endl;
 //        std::cout << "y: " << endY << std::endl;
 //        std::cout << "val: " << val << std::endl;
+//        std::cout << "True Freq Response: " << juce::Decibels::gainToDecibels (trueFreqResponse[i]) << std::endl;
     }
     g.strokePath (trueFreqResponsePath, juce::PathStrokeType (1.0f));
 }
@@ -71,15 +72,17 @@ void CurveComponent::resized()
 
 void CurveComponent::drawTrueFrequencyResponse()
 {
-    auto [leftImpulseResponse, rightImpulseResponse] = curve.getStereoImpulse (10);
+    int impulseLen = 14;
+    int impulseNumPoints = std::pow (2, impulseLen);
+    auto [leftImpulseResponse, rightImpulseResponse] = curve.getStereoImpulse (impulseLen);
     
     // Perform 0-padded FFT
     juce::dsp::FFT fft (fftSize);
-    float* zeroPaddedImpulse = new float[numFreqResponsePoints * 2];
+    float* zeroPaddedImpulse = new float[fft.getSize() * 2];
     
-    for (int i = 0; i < numFreqResponsePoints * 2; ++i)
+    for (int i = 0; i < fft.getSize() * 2; ++i)
     {
-        if (i < std::pow (2, 10) * 2) // Length of left impulse response, theoretically
+        if (i < impulseNumPoints * 2) // Length of left impulse response, theoretically
         {
             zeroPaddedImpulse[i] = leftImpulseResponse[i];
         }
@@ -93,7 +96,7 @@ void CurveComponent::drawTrueFrequencyResponse()
     for (int i = 0; i < numFreqResponsePoints * 2; ++i) std::cout << zeroPaddedImpulse[i] << " ";
     std::cout << std::endl;
  
-    fft.performRealOnlyForwardTransform (zeroPaddedImpulse);
+    fft.performFrequencyOnlyForwardTransform (zeroPaddedImpulse);
     
     // Save result to true freq response
     trueFreqResponse.clear();
