@@ -66,17 +66,17 @@ void Curve::setFrequencies(std::vector<float> frequencies)
 {
     this->frequencies = frequencies;
     
-    std::cout << "Frequencies: " << std::endl;
-    for (float freq : frequencies) std::cout << freq << " ";
-    std::cout << std::endl;
+//    std::cout << "Frequencies: " << std::endl;
+//    for (float freq : frequencies) std::cout << freq << " ";
+//    std::cout << std::endl;
 }
 
 void Curve::setAmplitudes(std::vector<float> amplitudes)
 {
     this->amplitudes = amplitudes;
-    std::cout << "Amplitudes: " << std::endl;
-    for (float amp : amplitudes) std::cout << amp << " ";
-    std::cout << std::endl;
+//    std::cout << "Amplitudes: " << std::endl;
+//    for (float amp : amplitudes) std::cout << amp << " ";
+//    std::cout << std::endl;
 }
 
 void Curve::setPhases(std::vector<float> phases)

@@ -30,6 +30,6 @@ private:
     const Curve& curve;
     std::vector<float> trueFreqResponse;
     
-    int fftSize = 14;
+    int fftSize = 8;
     int numFreqResponsePoints = std::pow (2, fftSize);
 };
