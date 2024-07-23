@@ -12,6 +12,7 @@
 
 void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
 {
+    /*
     // Perform an IFFT on the desired frequency response
     juce::dsp::FFT fft (fft_size);
     int numPoints = fft.getSize();
@@ -19,27 +20,12 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     auto freqResponse = frequencyResponse (curve, numPoints);
     auto leftFreqResponse = freqResponse.first;
     auto rightFreqResponse = freqResponse.second;
-    
-//    std::cout << "Frequency Response" << std::endl;
-//    for (int i = 0; i < 2 * numPoints; ++i)
-//    {
-//        std::cout << leftFreqResponse[i] << " ";
-//    }
-//    std::cout << std::endl;
-//    
-    
+
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);
     
-//    std::cout << "left frequency response" << std::endl;
-//    for (int i = 0; i < numPoints * 2; ++i) std::cout << leftFreqResponse[i] << std::endl;
-//    std::cout << std::endl;
-    
     float* leftImpulseData = leftFreqResponse;
     float* rightImpulseData = rightFreqResponse;
-//    
-//    float leftImpulseData[numPoints * 2];
-//    float rightImpulseData[numPoints * 2];
     
     for (int i = 0; i < numPoints * 2; ++i)
     {
@@ -56,35 +42,15 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
         std::swap(rightImpulseData[i], rightImpulseData[i + numPoints / 2]);
     }
     
-//    for (int i = 0; i < numPoints / 2; ++i)
-//    {
-//        std::swap(leftImpulseData[i], leftImpulseData[numPoints / 2 - 1 - i]);
-//        std::swap(rightImpulseData[i], rightImpulseData[numPoints / 2 - 1 - i]);
-//    }
-    
-    
-
-    // Swap elements of the first and second quarters
-//    for (int i = 0; i < quarterLength; ++i) 
-//    {
-//        std::swap(leftImpulseData[i], leftImpulseData[i + quarterLength]);
-//        std::swap(rightImpulseData[i], rightImpulseData[i + quarterLength]);
-//    }
-    
     // Window the impulse
-//    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::hann, true);
-//    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
-//    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
-    
-//    std::cout << "Impulse data: " << std::endl;
-//    for (int i = 0; i < numPoints * 2; ++i)
-//    {
-//        std::cout << leftImpulseData[i] << " ";
-//    }
-//    std::cout << std::endl;
+    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::blackmanHarris, true);
+    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
+    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
+    */
+    auto [leftImpulseData, rightImpulseData] = curve.getStereoImpulse (fft_size);
     
     // Load the IR into the convolution
-    int numSamples = numPoints;
+    int numSamples = std::pow (2, fft_size);
     
     juce::AudioBuffer<float> impulseBuffer (numChannels, numSamples);
 
@@ -94,8 +60,8 @@ void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
     convolution->reset();
     convolution->loadImpulseResponse(std::move(impulseBuffer), sampleRate, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, juce::dsp::Convolution::Normalise::no);
     
-    delete[] leftFreqResponse;
-    delete[] rightFreqResponse;
+    delete[] leftImpulseData;
+    delete[] rightImpulseData;
 }
 
 std::pair<float*, float*> ArbitraryResponseFilter::frequencyResponse (const Curve& curve, int numPoints)

@@ -16,7 +16,7 @@
 class CurveComponent : public juce::Component
 {
 public:
-    CurveComponent (const Curve& curve) : curve (curve) {}
+    CurveComponent (const Curve& curve);
     CurveComponent& operator=(CurveComponent&& other) noexcept {
         return *this;
     }
@@ -24,6 +24,12 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
+    void drawTrueFrequencyResponse();
+    
 private:
     const Curve& curve;
+    std::vector<float> trueFreqResponse;
+    
+    int fftSize = 14;
+    int numFreqResponsePoints = std::pow (2, fftSize);
 };
