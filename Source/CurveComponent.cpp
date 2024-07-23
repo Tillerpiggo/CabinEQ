@@ -20,25 +20,25 @@ void CurveComponent::paint (juce::Graphics& g)
     g.fillAll (juce::Colour::fromRGB(40, 40, 40));
     g.setColour (juce::Colour::fromRGB(0, 255, 128));
 
-//    juce::Path path;
-//    path.startNewSubPath(0, 0);
+    juce::Path path;
+    path.startNewSubPath(0, 0);
     
     float width = getWidth();
     float height = getHeight();
     
-//    int N = 4000;
-//    
-//    for (int i = 0; i < N; ++i)
-//    {
-//        float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
-//        float endX = width * normalizedTime;
-//        
-//        float val = juce::Decibels::gainToDecibels (curve.valueAtNormalizedTime (normalizedTime).first.real());
-//        float endY = height * (1.0f - (val + 24.0f) / 48.0f);
-//        
-//        path.lineTo (endX, endY);
-//    }
-//    g.strokePath (path, juce::PathStrokeType (2.0f));
+    int N = 4000;
+    
+    for (int i = 0; i < N; ++i)
+    {
+        float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
+        float endX = width * normalizedTime;
+        
+        float val = juce::Decibels::gainToDecibels (curve.valueAtNormalizedTime (normalizedTime).first.real());
+        float endY = height * (1.0f - (val + 24.0f) / 48.0f);
+        
+        path.lineTo (endX, endY);
+    }
+    g.strokePath (path, juce::PathStrokeType (2.0f));
     
     
     g.setColour (juce::Colours::transparentBlack);
@@ -48,17 +48,18 @@ void CurveComponent::paint (juce::Graphics& g)
     g.setColour (juce::Colour::fromRGB(255, 128, 0));
     
     // Draw true frequency response
-    for (int i = 0; i < trueFreqResponse.size(); ++i)
+    for (int i = 0; i < trueFreqResponse.size() / 2; ++i)
     {
-        float normalizedTime = static_cast<float>(i) / static_cast<float>(numFreqResponsePoints);
+        float normalizedTime = static_cast<float>(i) / static_cast<float>(numFreqResponsePoints / 4);
         float endX = width * normalizedTime;
         
         float val = juce::Decibels::gainToDecibels (trueFreqResponse[i]);
-        float endY = height * (1.0f - (val + 24.0f) / 48.0f);
+        float endY = height * (1.0f - (val + 80.0f) / 48.0f);
         
         trueFreqResponsePath.lineTo (endX, endY);
-        std::cout << "x: " << endX << std::endl;
-        std::cout << "y: " << endY << std::endl;
+//        std::cout << "x: " << endX << std::endl;
+//        std::cout << "y: " << endY << std::endl;
+//        std::cout << "val: " << val << std::endl;
     }
     g.strokePath (trueFreqResponsePath, juce::PathStrokeType (1.0f));
 }
@@ -87,6 +88,10 @@ void CurveComponent::drawTrueFrequencyResponse()
             zeroPaddedImpulse[i] = 0.0f;
         }
     }
+    
+    std::cout << "Zero padded impulse: " << std::endl;
+    for (int i = 0; i < numFreqResponsePoints * 2; ++i) std::cout << zeroPaddedImpulse[i] << " ";
+    std::cout << std::endl;
  
     fft.performRealOnlyForwardTransform (zeroPaddedImpulse);
     
