@@ -119,6 +119,7 @@ void SliderPage::sliderDragStarted (juce::Slider *slider)
     
     SliderCalibrationManager& sliderCalibrationManager = processor.getSliderCalibrationManager();
     sliderCalibrationManager.setIsCalibrating (true);
+    std::cout << "Set curr idx to: " << static_cast<int>(slider->getProperties().getWithDefault("idx", -1)) << std::endl;
     sliderCalibrationManager.setCurrIdx (slider->getProperties().getWithDefault("idx", -1));
 }
 

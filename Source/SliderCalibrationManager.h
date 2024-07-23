@@ -76,7 +76,7 @@ private:
     int referenceToneIdx = 5;
     int currIdx = -1;
     
-    int noteLength = 20000;
+    int noteLength = 25000;
     
     // Blind calibration
     int currBlindIdx = 0;

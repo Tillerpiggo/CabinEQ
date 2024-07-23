@@ -31,23 +31,24 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce custom slope for clarity
-//    const float referenceFrequency = 1000.0;
-//    float slope = 2.0f;
-//    float octaves = std::log2((frequency) / (referenceFrequency));
-//    float dbDifference = octaves * slope;
-//    
-//    amplitudeCompensationDB += dbDifference;
+    const float referenceFrequency = 1000.0;
+    float slope = 2.4f;
+    float octaves = std::log2((frequency) / (referenceFrequency));
+    float dbDifference = octaves * slope;
+    
+    amplitudeCompensationDB += dbDifference;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += amplitudeCompensationDB;
     
     //StereoGainEnvelope envelope = StereoGainEnvelope (300, 15000, noteDurationInSamples - 15300);
-    StereoGainEnvelope envelope = StereoGainEnvelope();
+//    StereoGainEnvelope envelope = StereoGainEnvelope (5000, 5000);
     
-    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples, envelope);
-    SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples, envelope);
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+    SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
+    SequenceableNote spacingNote (1000.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
     
-    arbitrarySequencer.setNotes ({ note1, note2, note1 }, repeating);
+    arbitrarySequencer.setNotes ({ note1, note2 }, true);
 }
 
 void SliderSequencer::playTestingInterval(float tone1Freq, float tone1Vol, float tone2Freq, float tone2Vol) 

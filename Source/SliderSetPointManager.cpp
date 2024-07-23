@@ -34,7 +34,7 @@ SliderSetPointManager::SliderSetPointManager()
     
     // Generate 50 evenly spaced frequencies from 20 to 15000khz
     frequencies.reserve(NUM_PTS / 3);
-    float startFreq = 20.0f;
+    float startFreq = 50.0f;
     float endFreq = 950.0f;
 
     float logStart = std::log10(startFreq);
@@ -46,15 +46,28 @@ SliderSetPointManager::SliderSetPointManager()
         frequencies.push_back(std::pow(10, logFreq));
     }
     
-    frequencies.reserve(2 * NUM_PTS / 3);
+    frequencies.reserve(NUM_PTS / 3);
     startFreq = 1050.0f;
-    endFreq = 10000.0f;
+    endFreq = 7500.0f;
 
     logStart = std::log10(startFreq);
     logEnd = std::log10(endFreq);
-    step = (logEnd - logStart) / (2 * NUM_PTS / 3 - 1);
+    step = (logEnd - logStart) / (NUM_PTS / 3 - 1);
 
-    for (int i = 0; i < 2 * NUM_PTS / 3; ++i) {
+    for (int i = 0; i < NUM_PTS / 3; ++i) {
+        double logFreq = logStart + i * step;
+        frequencies.push_back(std::pow(10, logFreq));
+    }
+    
+    frequencies.reserve(NUM_PTS / 3);
+    startFreq = 8000.0f;
+    endFreq = 18000.0f;
+
+    logStart = std::log10(startFreq);
+    logEnd = std::log10(endFreq);
+    step = (logEnd - logStart) / (NUM_PTS / 3 - 1);
+
+    for (int i = 0; i < NUM_PTS / 3; ++i) {
         double logFreq = logStart + i * step;
         frequencies.push_back(std::pow(10, logFreq));
     }

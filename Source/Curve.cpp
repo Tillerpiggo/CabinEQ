@@ -18,6 +18,9 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     
     float dbDifference = -4.5f * std::log2((frequency) / 1000.0f);
     
+    if (frequency < 50.0f) dbDifference = -4.5f * std::log2(50.0f / 1000.0f);
+    //if (frequency > 15000.0f) dbDifference = -4.5f * std::log2(15000.0f / 1000.0f);
+    
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
     
@@ -157,7 +160,7 @@ const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size) const
     }
     
     // Window the impulse
-    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::blackmanHarris, true);
+    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::rectangular, true);
     window.multiplyWithWindowingTable(leftImpulseData, numPoints);
     window.multiplyWithWindowingTable(rightImpulseData, numPoints);
     
@@ -176,7 +179,8 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
     
     if (frequency > frequencies.at(numPoints - 1))
     {
-        return values.at (numPoints - 1);
+        //std::cout << "Val at "
+        return 0;//values.at (numPoints - 1);
     }
     
     float freq1, freq2;

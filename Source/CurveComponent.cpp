@@ -26,6 +26,8 @@ void CurveComponent::paint (juce::Graphics& g)
     float width = getWidth();
     float height = getHeight();
     
+    float windowFactor = 0.5;
+    
     int N = 4000;
     
     for (int i = 0; i < N; ++i)
@@ -33,7 +35,7 @@ void CurveComponent::paint (juce::Graphics& g)
         float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
         float endX = width * normalizedTime;
         
-        float val = juce::Decibels::gainToDecibels (curve.valueAtTime (normalizedTime).first.real());
+        float val = juce::Decibels::gainToDecibels (curve.valueAtTime (normalizedTime * windowFactor).first.real());
         float endY = height * (1.0f - (val + 24.0f) / 48.0f);
         
         path.lineTo (endX, endY);
@@ -48,9 +50,9 @@ void CurveComponent::paint (juce::Graphics& g)
     g.setColour (juce::Colour::fromRGB(255, 128, 0));
     
     // Draw true frequency response
-    for (int i = 0; i < trueFreqResponse.size() / 2; ++i)
+    for (int i = 0; i < (trueFreqResponse.size() / 2) * windowFactor; ++i)
     {
-        float normalizedTime = static_cast<float>(i) / static_cast<float>(trueFreqResponse.size() / 2);
+        float normalizedTime = static_cast<float>(i) / static_cast<float>((trueFreqResponse.size() / 2) * windowFactor);
         float endX = width * normalizedTime;
         
         float val = juce::Decibels::gainToDecibels (trueFreqResponse[i]);
@@ -72,7 +74,7 @@ void CurveComponent::resized()
 
 void CurveComponent::drawTrueFrequencyResponse()
 {
-    int impulseLen = 14;
+    int impulseLen = 13;
     int impulseNumPoints = std::pow (2, impulseLen);
     auto [leftImpulseResponse, rightImpulseResponse] = curve.getStereoImpulse (impulseLen);
     
@@ -92,9 +94,9 @@ void CurveComponent::drawTrueFrequencyResponse()
         }
     }
     
-    std::cout << "Zero padded impulse: " << std::endl;
-    for (int i = 0; i < numFreqResponsePoints * 2; ++i) std::cout << zeroPaddedImpulse[i] << " ";
-    std::cout << std::endl;
+//    std::cout << "Zero padded impulse: " << std::endl;
+//    for (int i = 0; i < numFreqResponsePoints * 2; ++i) std::cout << zeroPaddedImpulse[i] << " ";
+//    std::cout << std::endl;
  
     fft.performFrequencyOnlyForwardTransform (zeroPaddedImpulse);
     
