@@ -11,7 +11,7 @@
 #include "FilterPage.h"
 
 FilterPage::FilterPage(StartupMVPAudioProcessor& p)
-    : processor(p), curveComponent(p.getSliderCalibrationManager().getCurve())
+    : processor(p), curveComponent(p.getSetPointManager().getCurve())
 {
     balanceSlider.setRange(-12.0, 12.0);
     balanceSlider.setTextValueSuffix(" dB");

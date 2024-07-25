@@ -10,7 +10,7 @@
 
 #include "ArbitraryResponseFilter.h"
 
-void ArbitraryResponseFilter::update (const Curve& curve, int fft_size)
+void ArbitraryResponseFilter::updateWithCurve (const Curve& curve, int fft_size)
 {
     auto [leftImpulseData, rightImpulseData] = curve.getStereoImpulse (fft_size);
     

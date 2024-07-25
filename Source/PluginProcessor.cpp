@@ -20,8 +20,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (SetPointManager::NUM_PTS)),
-                          gainFilter (FFT_SIZE)
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (SetPointManager::NUM_PTS))
 
 #endif
 {
@@ -104,7 +103,7 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     //binaryCalibrationManager.setSampleRate (sampleRate);
-    sliderCalibrationManager.setSampleRate (sampleRate);
+    playbackManager.setSampleRate (sampleRate);
     
     this->sampleRate = sampleRate;
     this->samplesPerBlock = samplesPerBlock;
@@ -148,6 +147,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     // Get channel pointers and clear buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
+    
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
@@ -156,11 +156,11 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
     
-    if (sliderCalibrationManager.getIsCalibrating())
+    if (playbackManager.getIsCalibrating())
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            const std::pair<float, float> value = sliderCalibrationManager.getNextSample();
+            const std::pair<float, float> value = playbackManager.getNextSample();
             leftChannel[sample] = value.first * 0.05 * 0.5;
             
             if (rightChannel)
@@ -175,7 +175,8 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         
         if (isBypassed && hasPreparedFilter)
         {
-            gainFilter.process (context);
+//            gainFilter.process (context);
+            // TODO: Fix this
             wetGainProcessor.process (context);
         }
         else
@@ -227,8 +228,8 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
                 double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
                 double pan = parameters.getRawParameterValue ("pan_" + idx)->load();
                 
-                sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
-                sliderCalibrationManager.setPanAtIdx (i, pan);
+//                playbackManager.setAmplitudeAtIdx (i, gain);
+//                playbackManager.setPanAtIdx (i, pan);
             }
         }
     }
@@ -301,7 +302,7 @@ void StartupMVPAudioProcessor::applyCurve()
         spec.sampleRate = sampleRate;
         spec.maximumBlockSize = samplesPerBlock;
         spec.numChannels = getTotalNumInputChannels();
-        gainFilter.prepare (spec);
+        playbackManager.prepare (spec);
         hasPreparedFilter = true;
     }
     
@@ -312,11 +313,11 @@ void StartupMVPAudioProcessor::applyCurve()
         double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
         double pan = parameters.getRawParameterValue ("pan_" + idx)->load();
         
-        sliderCalibrationManager.setAmplitudeAtIdx (i, gain);
-        sliderCalibrationManager.setPanAtIdx (i, pan);
+//        playbackManager.setAmplitudeAtIdx (i, gain);
+//        playbackManager.setPanAtIdx (i, pan);
     }
     
-    gainFilter.update (sliderCalibrationManager.getCurve(), FFT_SIZE);
+    playbackManager.updateWithCurve (setPointManager.getCurve());
 }
 
 void StartupMVPAudioProcessor::toggleBypass()

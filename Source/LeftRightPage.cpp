@@ -64,43 +64,43 @@ void LeftRightPage::resized()
 void LeftRightPage::sliderValueChanged (juce::Slider *slider)
 {
     int i = slider->getProperties().getWithDefault("idx", -1);
-    processor.getSliderCalibrationManager().setPanAtIdx (i, slider->getValue());
+//    processor.getSliderCalibrationManager().setPanAtIdx (i, slider->getValue());
 }
 
 void LeftRightPage::sliderDragStarted (juce::Slider *slider)
 {
-    SliderCalibrationManager& sliderCalibrationManager = processor.getSliderCalibrationManager();
-    sliderCalibrationManager.setIsCalibrating (true);
-    sliderCalibrationManager.setCurrIdx (slider->getProperties().getWithDefault("idx", -1));
+//    PlaybackManager& sliderCalibrationManager = processor.getSliderCalibrationManager();
+//    sliderCalibrationManager.setIsCalibrating (true);
+//    sliderCalibrationManager.setCurrIdx (slider->getProperties().getWithDefault("idx", -1));
 }
 
 void LeftRightPage::sliderDragEnded (juce::Slider *slider)
 {
-    processor.getSliderCalibrationManager().setIsCalibrating (false);
+//    processor.getSliderCalibrationManager().setIsCalibrating (false);
 }
 
 void LeftRightPage::timerCallback()
 {
-    int playingIdx = processor.getSliderCalibrationManager().getCurrentlyPlayingIdx();
+//    int playingIdx = processor.getSliderCalibrationManager().getCurrentlyPlayingIdx();
     
-    for (int i = 0; i < sliders.size(); ++i)
-    {
-        auto& slider = *sliders[i];
-        
-        if (i == playingIdx)
-        {
-            slider.setColour (juce::Slider::thumbColourId, juce::Colour::fromRGB(255, 69, 0)); // Orange-Red for active sliders
-        }
-        else
-        {
-            slider.setColour (juce::Slider::thumbColourId, juce::Colour::fromRGB(30, 144, 255)); // DodgerBlue for inactive sliders
-        }
-
-        slider.setColour(juce::Slider::trackColourId, juce::Colour::fromRGB(70, 70, 70)); // Dark grey track
-        slider.setColour(juce::Slider::backgroundColourId, juce::Colour::fromRGB(40, 40, 40)); // Matching dark background
-        slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colour::fromRGB(50, 50, 50)); // Slightly lighter background for text box
-        slider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 255, 255)); // White text in the text box
-    }
+//    for (int i = 0; i < sliders.size(); ++i)
+//    {
+//        auto& slider = *sliders[i];
+//        
+//        if (i == playingIdx)
+//        {
+//            slider.setColour (juce::Slider::thumbColourId, juce::Colour::fromRGB(255, 69, 0)); // Orange-Red for active sliders
+//        }
+//        else
+//        {
+//            slider.setColour (juce::Slider::thumbColourId, juce::Colour::fromRGB(30, 144, 255)); // DodgerBlue for inactive sliders
+//        }
+//
+//        slider.setColour(juce::Slider::trackColourId, juce::Colour::fromRGB(70, 70, 70)); // Dark grey track
+//        slider.setColour(juce::Slider::backgroundColourId, juce::Colour::fromRGB(40, 40, 40)); // Matching dark background
+//        slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colour::fromRGB(50, 50, 50)); // Slightly lighter background for text box
+//        slider.setColour(juce::Slider::textBoxTextColourId, juce::Colour::fromRGB(255, 255, 255)); // White text in the text box
+//    }
 }
 
 void LeftRightPage::paint (juce::Graphics& g)

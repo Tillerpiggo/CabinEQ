@@ -55,6 +55,8 @@ SetPointManager::SetPointManager()
         float freq = std::pow (10, logFreq);
         setPoints.emplace_back (freq, 0, 0);
     }
+    
+    curve.updateWithSetPoints (setPoints);
 }
 
 void SetPointManager::setSetPointAt (int idx, SetPoint setPoint)
@@ -62,6 +64,7 @@ void SetPointManager::setSetPointAt (int idx, SetPoint setPoint)
     if (idx < 0 || idx >= getNumPoints()) 
         return;
     setPoints[idx] = setPoint;
+    curve.updateWithSetPoints (setPoints);
 }
 
 void SetPointManager::setAmplitudeAt (int idx, float newAmplitude)
@@ -69,6 +72,7 @@ void SetPointManager::setAmplitudeAt (int idx, float newAmplitude)
     if (idx < 0 || idx >= getNumPoints()) 
         return;
     setPoints[idx].amplitude = newAmplitude;
+    curve.updateWithSetPoints (setPoints);
 }
 
 void SetPointManager::setPanAt (int idx, float newPan)
@@ -76,4 +80,10 @@ void SetPointManager::setPanAt (int idx, float newPan)
     if (idx < 0 || idx >= getNumPoints()) 
         return;
     setPoints[idx].pan = newPan;
+    curve.updateWithSetPoints (setPoints);
+}
+
+const Curve& SetPointManager::getCurve() const
+{
+    return curve;
 }

@@ -10,8 +10,8 @@
 
 #include <JuceHeader.h>
 #include "Curve.h"
-#include "ArbitraryResponseFilter.h"
-#include "SliderCalibrationManager.h"
+#include "PlaybackManager.h"
+#include "SetPointManager.h"
 
 //==============================================================================
 /**
@@ -67,10 +67,8 @@ public:
     void toggleBypass();
     void setBypassBalance (float balance);
     
-    SliderCalibrationManager& getSliderCalibrationManager()
-    {
-        return sliderCalibrationManager;
-    }
+    SetPointManager& getSetPointManager();
+    
  
 private:
     static const int FFT_SIZE = 10;
@@ -78,8 +76,8 @@ private:
     bool isBypassed = false;
     bool isCalibrating = false;
 
-    ArbitraryResponseFilter gainFilter;
-    SliderCalibrationManager sliderCalibrationManager;
+    PlaybackManager playbackManager;
+    SetPointManager setPointManager;
     
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> dryGainProcessor;

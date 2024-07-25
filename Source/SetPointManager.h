@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "SetPoint.h"
+#include "Curve.h"
 
 /// This class manages reading and writing data in ClearEQ. Adding/removing profiles, changing set points, and a useful interface for getting relevant data is handled here.
 class SetPointManager
@@ -25,6 +26,8 @@ public:
     void setSetPointAt (int idx, SetPoint setPoint);
     void setAmplitudeAt (int idx, float newAmplitude);
     void setPanAt (int idx, float newPan);
+    
+    const Curve& getCurve() const;
     
     int indexForFrequency (float frequency) const
     {
@@ -43,4 +46,5 @@ public:
     
 private:
     std::vector<SetPoint> setPoints;
+    Curve curve;
 };

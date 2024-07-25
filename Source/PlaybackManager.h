@@ -14,44 +14,32 @@
 #include "SliderSequencer.h"
 #include "SetPointManager.h"
 #include "ArbitraryResponseFilter.h"
-#include "Curve.h"
 #include <random>
 
-class SliderCalibrationManager
+/// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
+/// process audio or play sine tones as needed.
+class PlaybackManager
 {
 public:
-    SliderCalibrationManager();
-
-    const Curve& getCurve();
+    PlaybackManager();
 
     std::pair<float, float> getNextSample();
     int getCurrentlyPlayingIdx();
     bool getIsCalibrating() const;
     
     void setSampleRate (float newSampleRate);
-    void setCurrIdx (int idx);
-    void setAmplitudeAtIdx (int idx, float newAmplitude);
-    void setPanAtIdx (int idx, float newPan);
     void setIsCalibrating (bool isCalibrating);
     
-    void incrementReferenceToneIndex();
-    void decrementReferenceToneIndex();
-    void changeNoteLength (int newNoteLength);
-    
-    int goToNextBlindQuestion();
-    void playBlindInterval();
+    void updateWithCurve (const Curve& curve); // update the current filter with the curve
+    void prepare (const juce::dsp::ProcessSpec& spec);
     
 private:
-    void updateCurve();
+    const int FFT_SIZE = 12;
     
-    void updateReferenceTone();
-    
+    ArbitraryResponseFilter filter;
     SliderSequencer sliderSequencer;
-    SetPointManager setPointManager;
-    Curve curve;
     bool isCalibrating;
     
     int currIdx = -1;
-    
     int noteLength = 25000;
 };
