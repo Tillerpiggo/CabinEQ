@@ -26,7 +26,7 @@ void CurveComponent::paint (juce::Graphics& g)
     float width = getWidth();
     float height = getHeight();
     
-    float windowFactor = 0.5;
+    float windowFactor = 0.03;
     
     int N = 4000;
     
@@ -35,12 +35,24 @@ void CurveComponent::paint (juce::Graphics& g)
         float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
         float endX = width * normalizedTime;
         
-        float val = juce::Decibels::gainToDecibels (curve.valueAtTime (normalizedTime * windowFactor).first.real());
+        float val = juce::Decibels::gainToDecibels (curve.valueAtNormalizedTime (normalizedTime).first.real());
         float endY = height * (1.0f - (val + 24.0f) / 48.0f);
         
         path.lineTo (endX, endY);
     }
     g.strokePath (path, juce::PathStrokeType (1.0f));
+    
+//    for (int i = 0; i < N; ++i)
+//    {
+//        float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
+//        float endX = width * normalizedTime;
+//        
+//        float val = juce::Decibels::gainToDecibels (curve.valueAtTime (normalizedTime * windowFactor).first.real());
+//        float endY = height * (1.0f - (val + 24.0f) / 48.0f);
+//        
+//        path.lineTo (endX, endY);
+//    }
+//    g.strokePath (path, juce::PathStrokeType (1.0f));
     
     
     g.setColour (juce::Colours::transparentBlack);
@@ -74,7 +86,7 @@ void CurveComponent::resized()
 
 void CurveComponent::drawTrueFrequencyResponse()
 {
-    int impulseLen = 13;
+    int impulseLen = 10;
     int impulseNumPoints = std::pow (2, impulseLen);
     auto [leftImpulseResponse, rightImpulseResponse] = curve.getStereoImpulse (impulseLen);
     

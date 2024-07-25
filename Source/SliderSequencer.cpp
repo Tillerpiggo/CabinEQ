@@ -32,7 +32,7 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     
     // Introduce custom slope for clarity
     const float referenceFrequency = 1000.0;
-    float slope = 2.4f;
+    float slope = 1.7f;
     float octaves = std::log2((frequency) / (referenceFrequency));
     float dbDifference = octaves * slope;
     
