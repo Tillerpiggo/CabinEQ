@@ -38,4 +38,6 @@ private:
     juce::TextButton applyFilterButton { "Apply Filter" };
     juce::TextButton bypassButton { "Bypass" };
     juce::Slider balanceSlider;
+    
+    bool isBypassed;
 };

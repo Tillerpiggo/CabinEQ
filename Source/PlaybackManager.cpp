@@ -66,6 +66,11 @@ void PlaybackManager::setIsCalibrating (bool isCalibrating)
     this->isCalibrating = isCalibrating;
 }
 
+void PlaybackManager::setIsBypassed (bool isBypassed)
+{
+    this->isBypassed = isBypassed;
+}
+
 void PlaybackManager::updateWithCurve (const Curve& curve)
 {
     filter.updateWithCurve (curve, FFT_SIZE);

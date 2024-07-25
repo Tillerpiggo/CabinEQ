@@ -29,6 +29,7 @@ public:
     
     void setSampleRate (float newSampleRate);
     void setIsCalibrating (bool isCalibrating);
+    void setIsBypassed (bool isBypassed);
     
     void updateWithCurve (const Curve& curve); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);

@@ -320,9 +320,9 @@ void StartupMVPAudioProcessor::applyCurve()
     playbackManager.updateWithCurve (setPointManager.getCurve());
 }
 
-void StartupMVPAudioProcessor::toggleBypass()
+void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
 {
-//    isBypassed = ! isBypassed;
+    playbackManager.setIsBypassed (isBypassed);
 }
 
 void StartupMVPAudioProcessor::setBypassBalance (float balance)

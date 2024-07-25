@@ -11,7 +11,7 @@
 #include "FilterPage.h"
 
 FilterPage::FilterPage(StartupMVPAudioProcessor& p)
-    : processor(p), curveComponent(p.getSetPointManager().getCurve())
+    : processor(p), curveComponent(p.getSetPointManager().getCurve()), isBypassed (false)
 {
     balanceSlider.setRange(-12.0, 12.0);
     balanceSlider.setTextValueSuffix(" dB");
@@ -86,6 +86,7 @@ void FilterPage::buttonClicked(juce::Button* button)
     }
     else if (button == &bypassButton)
     {
-        processor.toggleBypass();
+        isBypassed = ! isBypassed;
+        processor.setIsBypassed (isBypassed);
     }
 }

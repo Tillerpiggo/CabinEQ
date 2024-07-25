@@ -64,7 +64,7 @@ public:
     juce::AudioProcessorValueTreeState parameters;
     
     void applyCurve();
-    void toggleBypass();
+    void setIsBypassed (bool isBypassed);
     void setBypassBalance (float balance);
     
     SetPointManager& getSetPointManager();
