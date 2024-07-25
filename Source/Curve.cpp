@@ -68,18 +68,11 @@ void Curve::setFactor (const float factor)
 void Curve::setFrequencies(std::vector<float> frequencies)
 {
     this->frequencies = frequencies;
-    
-//    std::cout << "Frequencies: " << std::endl;
-//    for (float freq : frequencies) std::cout << freq << " ";
-//    std::cout << std::endl;
 }
 
 void Curve::setAmplitudes(std::vector<float> amplitudes)
 {
     this->amplitudes = amplitudes;
-//    std::cout << "Amplitudes: " << std::endl;
-//    for (float amp : amplitudes) std::cout << amp << " ";
-//    std::cout << std::endl;
 }
 
 void Curve::setPhases(std::vector<float> phases)
@@ -90,42 +83,21 @@ void Curve::setPhases(std::vector<float> phases)
 void Curve::setPans(const std::vector<float>& pans)
 {
     this->pans = pans;
-    
-    this->pans.push_back (pans[0]);
-    for (int i = 1; i < pans.size() - 1; ++i)
+}
+
+void Curve::updateWithSetPoints (std::vector<SetPoint> setPoints)
+{
+    frequencies.clear();
+    amplitudes.clear();
+    pans.clear();
+    phases.clear();
+    for (SetPoint setPoint : setPoints)
     {
-        float avg;
-        
-        if (i == 1 || i == pans.size() - 2)
-        {
-            avg = 0.5f * pans[i - 1] + 0.5f * pans[i + 1];
-        }
-        else if (i == 2 || i == pans.size() - 3)
-        {
-            avg = 0.25f * pans[i - 1] + 0.25f * pans[i + 1] + 0.25f * pans[i - 2] + 0.25f * pans[i + 2];
-        }
-        else
-        {
-            float p = 1.0f / 6.0f;
-            avg = p * (pans[i - 3] + pans[i - 2] + pans[i - 1] + pans[i + 1] + pans[i + 2] + pans[i + 3]);
-        }
-        
-        if (abs (pans[i] - avg) < 1.5f)
-        {
-            this->pans.push_back (avg);
-        }
-        else
-        {
-            float avgDiff = abs (pans[i] - avg);
-            float diffThreshold = 1.5f; // Amount of difference from average to use purely the original
-            if (avgDiff > diffThreshold) avgDiff = diffThreshold;
-            float percentOrig = (diffThreshold - abs (pans[i] - avg)) / diffThreshold;
-            percentOrig *= percentOrig;
-            percentOrig *= percentOrig;
-            this->pans.push_back (percentOrig * pans[i] + (1 - percentOrig) * avg);
-        }
+        frequencies.push_back (setPoint.frequency);
+        amplitudes.push_back (setPoint.amplitude);
+        pans.push_back (setPoint.pan);
+        phases.push_back (0);
     }
-    this->pans.push_back (pans[pans.size() - 1]);
 }
 
 const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size) const
@@ -180,14 +152,12 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
     
     if (frequency < frequencies.at (0))
     {
-//        return interpolateValueAtFrequency (100.0, values);
         return values.at (0);
     }
     
     if (frequency > frequencies.at(numPoints - 1))
     {
-        //std::cout << "Val at "
-        return 0;//values.at (numPoints - 1);
+        return values.at (numPoints - 1);
     }
     
     float freq1, freq2;

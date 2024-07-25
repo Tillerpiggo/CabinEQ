@@ -11,52 +11,25 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "SetPoint.h"
 
 class SetPointManager
 {
 public:
     SetPointManager();
     
-    const std::vector<float>& getFrequencies() const { return frequencies; }
-    const std::vector<float>& getAmplitudes() const { return amplitudes; }
-    const std::vector<float>& getPans() const { return pans; }
-    const int numPoints() const { return static_cast<int> (frequencies.size()); }
+    const std::vector<SetPoint>& getSetPoints() { return setPoints; }
+    const int getNumPoints() const { return static_cast<int> (setPoints.size()); }
     
-    float getFrequencyAt (int index) const 
-    {
-        return frequencies.at (index);
-    }
-    
-    float getAmplitudeAt (int index) const 
-    {
-        return amplitudes.at (index);
-    }
-    
-    float getPanAt (int index) const
-    {
-        return pans.at (index);
-    }
-    
-    int getNumPoints() const
-    {
-        return frequencies.size();
-    }
-    
-    void setAmplitudeAt (int index, float newAmplitude) 
-    {
-        amplitudes.at (index) = newAmplitude;
-    }
-    
-    void setPanAt (int index, float newPan)
-    {
-        pans.at (index) = newPan;
-    }
+    void setSetPointAt (int idx, SetPoint setPoint);
+    void setAmplitudeAt (int idx, float newAmplitude);
+    void setPanAt (int idx, float newPan);
     
     int indexForFrequency (float frequency) const
     {
-        for (int i = 0; i < frequencies.size(); ++i)
+        for (int i = 0; i < setPoints.size(); ++i)
         {
-            if (frequency == frequencies.at (i))
+            if (frequency == setPoints.at (i).frequency)
             {
                 return i;
             }
@@ -68,7 +41,5 @@ public:
     static const int NUM_PTS = 60;
     
 private:
-    std::vector<float> frequencies;
-    std::vector<float> amplitudes;
-    std::vector<float> pans;
+    std::vector<SetPoint> setPoints;
 };

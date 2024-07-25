@@ -13,7 +13,9 @@
 SetPointManager::SetPointManager()
 {
     // Generate NUM_PTS evenly spaced frequencies from 20 to 15000khz
-    frequencies.reserve(NUM_PTS / 3);
+    setPoints.clear();
+    setPoints.reserve (NUM_PTS);
+    
     float startFreq = 50.0f;
     float endFreq = 950.0f;
 
@@ -22,11 +24,12 @@ SetPointManager::SetPointManager()
     float step = (logEnd - logStart) / (NUM_PTS / 3 - 1);
 
     for (int i = 0; i < NUM_PTS / 3; ++i) {
-        double logFreq = logStart + i * step;
-        frequencies.push_back(std::pow(10, logFreq));
+        float logFreq = logStart + i * step;
+        float freq = std::pow (10, logFreq);
+        
+        setPoints.emplace_back (freq, 0, 0);
     }
     
-    frequencies.reserve(NUM_PTS / 3);
     startFreq = 1050.0f;
     endFreq = 7500.0f;
 
@@ -36,10 +39,10 @@ SetPointManager::SetPointManager()
 
     for (int i = 0; i < NUM_PTS / 3; ++i) {
         double logFreq = logStart + i * step;
-        frequencies.push_back(std::pow(10, logFreq));
+        float freq = std::pow (10, logFreq);
+        setPoints.emplace_back (freq, 0, 0);
     }
     
-    frequencies.reserve(NUM_PTS / 3);
     startFreq = 8000.0f;
     endFreq = 18000.0f;
 
@@ -49,12 +52,28 @@ SetPointManager::SetPointManager()
 
     for (int i = 0; i < NUM_PTS / 3; ++i) {
         double logFreq = logStart + i * step;
-        frequencies.push_back(std::pow(10, logFreq));
+        float freq = std::pow (10, logFreq);
+        setPoints.emplace_back (freq, 0, 0);
     }
-    
-    for (size_t i = 0; i < frequencies.size(); ++i)
-    {
-        amplitudes.push_back(0.0f);
-        pans.push_back(0.0f);
-    }
+}
+
+void SetPointManager::setSetPointAt (int idx, SetPoint setPoint)
+{
+    if (idx < 0 || idx >= getNumPoints()) 
+        return;
+    setPoints[idx] = setPoint;
+}
+
+void SetPointManager::setAmplitudeAt (int idx, float newAmplitude)
+{
+    if (idx < 0 || idx >= getNumPoints()) 
+        return;
+    setPoints[idx].amplitude = newAmplitude;
+}
+
+void SetPointManager::setPanAt (int idx, float newPan)
+{
+    if (idx < 0 || idx >= getNumPoints()) 
+        return;
+    setPoints[idx].pan = newPan;
 }

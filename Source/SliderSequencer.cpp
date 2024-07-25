@@ -15,19 +15,7 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
 {
     int noteDurationInSamples = noteLength;
     
-    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
-    //float amplitudeCompensationDB = -4.5f * std::log2((frequency) / 1000.0f);
-//    if (frequency < 50)
-//    {
-//        amplitudeCompensationGain /= std::pow (0.59, std::log2(frequency / 50.0f));
-//        amplitudeCompensationGain /= std::pow (0.3, std::log2(frequency / 50.0f));
-//    }
-//    if (frequency > 10000)
-//    {
-//        amplitudeCompensationGain *= std::pow (0.2, std::log2(frequency / 10000.0f));
-//    }
-    
-    
+    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));    
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce custom slope for clarity
@@ -41,9 +29,6 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += amplitudeCompensationDB;
     
-    //StereoGainEnvelope envelope = StereoGainEnvelope (300, 15000, noteDurationInSamples - 15300);
-//    StereoGainEnvelope envelope = StereoGainEnvelope (5000, 5000);
-    
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
     SequenceableNote spacingNote (1000.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
@@ -51,83 +36,9 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     arbitrarySequencer.setNotes ({ note1, note2 }, true);
 }
 
-void SliderSequencer::playTestingInterval(float tone1Freq, float tone1Vol, float tone2Freq, float tone2Vol) 
+void SliderSequencer::playInterval (SetPoint setPoint, int noteLength, bool repeating)
 {
-    int noteDurationInSamples = 25000;
-    bool repeating = true;
-    float pan = 0.0f;
-    float phase = 0.0f;
-
-    // Apply a -2dB/octave slope centered at 1000Hz
-    const float referenceFrequency = 1000.0f;
-    const float negativeSlope = -2.0f;
-
-    auto applyNegativeSlope = [referenceFrequency, negativeSlope] (float frequency, float volume)
-    {
-        float octaves = std::log2(frequency / referenceFrequency);
-        float dbDifference = octaves * negativeSlope;
-        return volume + dbDifference;
-    };
-
-    float adjustedTone1DB = applyNegativeSlope(tone1Freq, tone1Vol);
-    float adjustedTone2DB = applyNegativeSlope(tone2Freq, tone2Vol);
-
-    SequenceableNote note1 (tone1Freq, adjustedTone1DB, pan, phase, noteDurationInSamples, StereoGainEnvelope());
-    SequenceableNote note2 (tone2Freq, adjustedTone2DB, pan, phase, noteDurationInSamples, StereoGainEnvelope());
-    
-    arbitrarySequencer.setNotes ({ note1, note2 }, repeating);
-}
-
-void SliderSequencer::playTwoToneInterval (float frequency1, float amplitude1, float pan1,
-                                           float frequency2, float amplitude2, float pan2)
-{
-    int noteDurationInSamples = 20000;
-    
-    std::vector<SequenceableNote> notes;
-    for (int i = 0; i < 5; ++i)
-    {
-        SequenceableNote note1 (Note (frequency1, amplitude1, pan1, 0.0f), noteDurationInSamples + 10000 * i);
-        SequenceableNote note2 (Note (frequency2, amplitude2, pan2, 0.0f), noteDurationInSamples + 10000 * i);
-        
-        for (int j = 0; j < 4; ++j)
-        {
-            notes.push_back (note1);
-            notes.push_back (note2);
-        }
-    }
-    
-    arbitrarySequencer.setNotes (notes);
-}
-
-void SliderSequencer::playIntervalAndLastNote (float frequency, float amplitude, float pan,
-                                               float lastFrequency, float lastAmplitude, float lastPan)
-{
-    int noteDurationInSamples = 10000;
-    
-    SequenceableNote refNote (referenceNote, noteDurationInSamples);
-    SequenceableNote lastNote (Note (lastFrequency, lastAmplitude, lastPan, 0.0f), noteDurationInSamples);
-    SequenceableNote currNote (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
-    
-    arbitrarySequencer.setNotes ({ currNote, refNote, lastNote, refNote });
-}
-
-void SliderSequencer::playComparisonFrequencies (float frequency, float amplitude, float pan,
-                                std::vector<float> frequencies,
-                                std::vector<float> amplitudes,
-                                std::vector<float> pans)
-{
-    std::vector<SequenceableNote> notes;
-    
-    int noteDurationInSamples = 20000;
-    SequenceableNote baseNote (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
-    
-    for (int i = 0; i < frequencies.size(); ++i)
-    {
-        notes.push_back (SequenceableNote (frequencies[i], amplitudes[i], pans[i], 0.0f, noteDurationInSamples, StereoGainEnvelope()));
-        notes.push_back (baseNote);
-    }
-    
-    arbitrarySequencer.setNotes (notes);
+    playInterval (setPoint.frequency, setPoint.amplitude, setPoint.pan, noteLength, repeating);
 }
 
 void SliderSequencer::changeControlledAmplitude (float newAmplitude)
@@ -141,65 +52,6 @@ void SliderSequencer::changeControlledPan (float newPan)
     arbitrarySequencer.changeNotePanAtIdx (1, newPan);
 }
 
-void SliderSequencer::playTuningNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans)
-{
-    std::vector<SequenceableNote> notes;
-
-    // Ensure we only iterate as many times as there are frequencies
-    size_t numNotes = frequencies.size() * 4;
-    size_t index = 0;
-
-    for (int i = 0; i < numNotes; ++i)
-    {
-        // Get the current index and wrap around if necessary
-        size_t currentIndex = index % frequencies.size();
-        
-        float frequency = frequencies.at(currentIndex);
-        float amplitude = amplitudes.at(currentIndex);
-        float pan = pans.at(currentIndex);
-        
-        // Create and add the note to the sequence
-        SequenceableNote note(frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope (5000));
-        notes.push_back(note);
-
-        // Increment the index
-        index++;
-    }
-
-    arbitrarySequencer.setNotes(notes);
-}
-
-void SliderSequencer::playRandomNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans)
-{
-    std::vector<SequenceableNote> notes;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, static_cast<int>(frequencies.size() - 1));
-    
-    size_t numNotes = frequencies.size() * 4;
-    int lastIndex = -1;
-
-    for (int i = 0; i < numNotes; ++i)
-    {
-        int index;
-        do {
-            index = dis(gen);
-        } while (index == lastIndex);
-        
-        lastIndex = index;
-
-        float frequency = frequencies.at(index);
-        float amplitude = amplitudes.at(index);
-        float pan = pans.at(index);
-        
-        // Create and add the note to the sequence
-        SequenceableNote note(frequency, amplitude, pan, 0.0f, 20000, StereoGainEnvelope());
-        notes.push_back(note);
-    }
-    
-    arbitrarySequencer.setNotes(notes);
-}
-
 void SliderSequencer::changeAmplitudeOfNotesWithFrequency (float frequency, float newAmplitude)
 {
     arbitrarySequencer.changeNoteGainWithFrequency (frequency, newAmplitude);
@@ -210,8 +62,17 @@ void SliderSequencer::changePanOfNotesWithFrequency (float frequency, float newP
     arbitrarySequencer.changeNotePanWithFrequency (frequency, newPan);
 }
 
-void SliderSequencer::setReferenceNote (float frequency, float amplitude)
+std::pair<float, float> SliderSequencer::getNextSample()
 {
-//    referenceNote.frequency = frequency;
-//    referenceNote.gain = amplitude;
+    return arbitrarySequencer.getNextSample();
+}
+
+float SliderSequencer::currentlyPlayingFrequency() const
+{
+    return arbitrarySequencer.currentlyPlayingFrequency();
+}
+
+void SliderSequencer::setSampleRate (float newSampleRate)
+{
+    arbitrarySequencer.setSampleRate (newSampleRate);
 }

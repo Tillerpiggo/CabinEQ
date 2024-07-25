@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "ArbitrarySequencer.h"
 #include "Note.h"
+#include "SetPointManager.h"
 
 class SliderSequencer
 {
@@ -20,39 +21,16 @@ public:
     SliderSequencer() {};
     
     void playInterval (float frequency, float amplitude, float pan, int noteLength, bool repeating);
-    void playTwoToneInterval (float frequency1, float amplitude1, float pan1,
-                              float frequency2, float amplitude2, float pan2); // TODO - give this dynamic tempo
-    void playTestingInterval(float tone1Freq, float tone1Vol, float tone2Freq, float tone2Vol);
-    void playIntervalAndLastNote (float frequency, float amplitude, float pan,
-                                  float lastFrequency, float lastAmplitude, float lastPan);
-    void playComparisonFrequencies (float frequency, float amplitude, float pan,
-                                    std::vector<float> frequencies,
-                                    std::vector<float> amplitudes,
-                                    std::vector<float> pans);
+    void playInterval (SetPoint setPoint, int noteLength, bool repeating);
     void changeControlledAmplitude (float newAmplitude);
     void changeControlledPan (float newPan);
     
-    void playTuningNotes(std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans);
-    void playRandomNotes (std::vector<float> frequencies, std::vector<float> amplitudes, std::vector<float> pans);
     void changeAmplitudeOfNotesWithFrequency (float frequency, float newAmplitude);
     void changePanOfNotesWithFrequency (float frequency, float newPan);
     
-    void setReferenceNote (float frequency, float amplitude);
-    
-    std::pair<float, float> getNextSample() 
-    {
-        return arbitrarySequencer.getNextSample();
-    }
-    
-    float currentlyPlayingFrequency() const
-    {
-        return arbitrarySequencer.currentlyPlayingFrequency();
-    }
-    
-    void setSampleRate (float newSampleRate) 
-    {
-        arbitrarySequencer.setSampleRate (newSampleRate);
-    }
+    std::pair<float, float> getNextSample();
+    float currentlyPlayingFrequency() const;
+    void setSampleRate (float newSampleRate);
     
 private:
     ArbitrarySequencer arbitrarySequencer;

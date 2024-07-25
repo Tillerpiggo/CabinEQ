@@ -15,7 +15,6 @@
 SliderCalibrationManager::SliderCalibrationManager()
     : isCalibrating (false)
 {
-    int numPoints = sliderSetPointManager.getNumPoints();
     updateCurve();
 }
 
@@ -32,7 +31,7 @@ std::pair<float, float> SliderCalibrationManager::getNextSample()
 
 int SliderCalibrationManager::getCurrentlyPlayingIdx()
 {
-    return sliderSetPointManager.indexForFrequency (sliderSequencer.currentlyPlayingFrequency());
+    return setPointManager.indexForFrequency (sliderSequencer.currentlyPlayingFrequency());
 }
 
 bool SliderCalibrationManager::getIsCalibrating() const
@@ -48,26 +47,22 @@ void SliderCalibrationManager::setSampleRate (float newSampleRate)
 void SliderCalibrationManager::setCurrIdx (int idx)
 {
     currIdx = idx;
-    sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idx),
-                                  sliderSetPointManager.getAmplitudeAt (idx),
-                                  sliderSetPointManager.getPanAt (idx),
+    sliderSequencer.playInterval (setPointManager.getSetPoints().at (idx),
                                   noteLength,
                                   false);
-    
-    std::cout << "Freq: " << sliderSetPointManager.getFrequencyAt (idx) << std::endl;
 }
 
 void SliderCalibrationManager::setAmplitudeAtIdx (int idx, float newAmplitude)
 {
-    sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
-    sliderSequencer.changeAmplitudeOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
+    setPointManager.setAmplitudeAt (idx, newAmplitude);
+    sliderSequencer.changeAmplitudeOfNotesWithFrequency (setPointManager.getSetPoints().at (idx).frequency,
                                                          newAmplitude);
 }
 
 void SliderCalibrationManager::setPanAtIdx (int idx, float newPan)
 {
-    sliderSetPointManager.setPanAt (idx, newPan);
-    sliderSequencer.changePanOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
+    setPointManager.setPanAt (idx, newPan);
+    sliderSequencer.changePanOfNotesWithFrequency (setPointManager.getSetPoints().at (idx).pan,
                                                    newPan);
 }
 
@@ -78,14 +73,7 @@ void SliderCalibrationManager::setIsCalibrating (bool isCalibrating)
 
 void SliderCalibrationManager::updateCurve()
 {
-    curve.setFrequencies (sliderSetPointManager.getFrequencies());
-    std::vector<float> amplitudePoints = sliderSetPointManager.getAmplitudes();
-    std::vector<float> panPoints = sliderSetPointManager.getPans();
-    std::vector<float> frequencies = sliderSetPointManager.getFrequencies();
-    
-    curve.setAmplitudes (amplitudePoints);
-    curve.setPans (panPoints);
-    curve.setPhases (std::vector<float> (sliderSetPointManager.numPoints(), 0.0f));
+    curve.updateWithSetPoints (setPointManager.getSetPoints());
 }
 
 void SliderCalibrationManager::changeNoteLength (int newNoteLength)

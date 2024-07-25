@@ -15,6 +15,8 @@
 #include <complex>
 #include <cmath>
 
+#include "SetPoint.h"
+
 class Curve
 {
 public:
@@ -32,6 +34,8 @@ public:
     void setAmplitudes(std::vector<float> amplitudes);
     void setPhases(std::vector<float> phases);
     void setPans(const std::vector<float>& pans);
+    
+    void updateWithSetPoints (std::vector<SetPoint> setPoints);
     
     const std::pair<float*, float*> getStereoImpulse (int fft_size) const; // This hands ownership of the float*'s to whoever calls it!!
     

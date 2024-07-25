@@ -11,6 +11,15 @@
       <FILE id="RaTQso" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="AQoyPD" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="WjuqiB" name="SliderCalibrationManager.cpp" compile="1" resource="0"
+            file="Source/SliderCalibrationManager.cpp"/>
+      <FILE id="hy7fWU" name="SliderCalibrationManager.h" compile="0" resource="0"
+            file="Source/SliderCalibrationManager.h"/>
+      <FILE id="KO7pRp" name="SetPointManager.cpp" compile="1" resource="0"
+            file="Source/SetPointManager.cpp"/>
+      <FILE id="uEzYGm" name="SetPointManager.h" compile="0" resource="0"
+            file="Source/SetPointManager.h"/>
+      <FILE id="h9bYnu" name="SetPoint.h" compile="0" resource="0" file="Source/SetPoint.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
@@ -56,16 +65,7 @@
         <FILE id="PAcIbm" name="ArbitraryResponseFilter.h" compile="0" resource="0"
               file="Source/ArbitraryResponseFilter.h"/>
       </GROUP>
-      <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration">
-        <FILE id="WjuqiB" name="SliderCalibrationManager.cpp" compile="1" resource="0"
-              file="Source/SliderCalibrationManager.cpp"/>
-        <FILE id="hy7fWU" name="SliderCalibrationManager.h" compile="0" resource="0"
-              file="Source/SliderCalibrationManager.h"/>
-        <FILE id="KO7pRp" name="SetPointManager.cpp" compile="1" resource="0"
-              file="Source/SetPointManager.cpp"/>
-        <FILE id="uEzYGm" name="SetPointManager.h" compile="0" resource="0"
-              file="Source/SetPointManager.h"/>
-      </GROUP>
+      <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration"/>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
     </GROUP>

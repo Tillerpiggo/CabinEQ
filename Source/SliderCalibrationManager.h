@@ -47,7 +47,7 @@ private:
     void updateReferenceTone();
     
     SliderSequencer sliderSequencer;
-    SetPointManager sliderSetPointManager;
+    SetPointManager setPointManager;
     Curve curve;
     bool isCalibrating;
     
