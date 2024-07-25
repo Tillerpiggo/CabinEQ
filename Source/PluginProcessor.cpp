@@ -24,9 +24,6 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 
 #endif
 {
-    isCalibrating = false;
-    isBypassed = false;
-    
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
     
@@ -102,7 +99,10 @@ void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    //binaryCalibrationManager.setSampleRate (sampleRate);
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumInputChannels();
+    playbackManager.prepare (spec);
     playbackManager.setSampleRate (sampleRate);
     
     this->sampleRate = sampleRate;
@@ -143,16 +143,16 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-//    std::cout << "start process block" << std::endl;
-    // Get channel pointers and clear buffer
+    // Clear buffer before handing it off to playbackManager
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
-    
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    playbackManager.processBlock (buffer);
+    /*
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
     
@@ -184,6 +184,7 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             dryGainProcessor.process (context);
         }
     }
+     */
 }
 
 //==============================================================================
@@ -297,14 +298,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 //==============================================================================
 void StartupMVPAudioProcessor::applyCurve()
 {
-    if (!hasPreparedFilter)
-    {
-        spec.sampleRate = sampleRate;
-        spec.maximumBlockSize = samplesPerBlock;
-        spec.numChannels = getTotalNumInputChannels();
-        playbackManager.prepare (spec);
-        hasPreparedFilter = true;
-    }
+//    if (!hasPreparedFilter)
+//    {
+//        spec.sampleRate = sampleRate;
+//        spec.maximumBlockSize = samplesPerBlock;
+//        spec.numChannels = getTotalNumInputChannels();
+//        playbackManager.prepare (spec);
+//    }
     
     for (int i = 0; i < SetPointManager::NUM_PTS; ++i)
     {
@@ -322,7 +322,7 @@ void StartupMVPAudioProcessor::applyCurve()
 
 void StartupMVPAudioProcessor::toggleBypass()
 {
-    isBypassed = ! isBypassed;
+//    isBypassed = ! isBypassed;
 }
 
 void StartupMVPAudioProcessor::setBypassBalance (float balance)

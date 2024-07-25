@@ -72,9 +72,6 @@ public:
  
 private:
     static const int FFT_SIZE = 10;
-    
-    bool isBypassed = false;
-    bool isCalibrating = false;
 
     PlaybackManager playbackManager;
     SetPointManager setPointManager;
@@ -86,7 +83,6 @@ private:
     // Hacky solution to fix gainFilter bug
     int sampleRate;
     int samplesPerBlock;
-    bool hasPreparedFilter = false;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)

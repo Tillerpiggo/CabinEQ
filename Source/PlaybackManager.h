@@ -23,9 +23,9 @@ class PlaybackManager
 public:
     PlaybackManager();
 
-    std::pair<float, float> getNextSample();
+    void processBlock (juce::AudioBuffer<float>& buffer);
+    
     int getCurrentlyPlayingIdx();
-    bool getIsCalibrating() const;
     
     void setSampleRate (float newSampleRate);
     void setIsCalibrating (bool isCalibrating);
@@ -34,11 +34,16 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     
 private:
+    std::pair<float, float> getNextSample();
+    
     const int FFT_SIZE = 12;
     
     ArbitraryResponseFilter filter;
     SliderSequencer sliderSequencer;
+    
     bool isCalibrating;
+    bool isBypassed;
+    bool hasPreparedFilter;
     
     int currIdx = -1;
     int noteLength = 25000;
