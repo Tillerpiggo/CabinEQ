@@ -226,8 +226,8 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
                 double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
                 double pan = parameters.getRawParameterValue ("pan_" + idx)->load();
                 
-//                playbackManager.setAmplitudeAtIdx (i, gain);
-//                playbackManager.setPanAtIdx (i, pan);
+                setPointManager.setAmplitudeAt (i, gain);
+                setPointManager.setPanAt (i, gain);
             }
         }
     }
