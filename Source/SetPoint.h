@@ -10,6 +10,7 @@
 
 #pragma once
 
+/// This stores the raw data for each set point in a given EQ curve.
 struct SetPoint
 {
     SetPoint (float frequency, float amplitude, float pan)

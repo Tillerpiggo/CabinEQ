@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "SetPoint.h"
 
+/// This class manages reading and writing data in ClearEQ. Adding/removing profiles, changing set points, and a useful interface for getting relevant data is handled here.
 class SetPointManager
 {
 public:

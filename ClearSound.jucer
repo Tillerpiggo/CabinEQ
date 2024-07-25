@@ -20,6 +20,10 @@
       <FILE id="uEzYGm" name="SetPointManager.h" compile="0" resource="0"
             file="Source/SetPointManager.h"/>
       <FILE id="h9bYnu" name="SetPoint.h" compile="0" resource="0" file="Source/SetPoint.h"/>
+      <FILE id="tErBau" name="ClearEQValueTree.cpp" compile="1" resource="0"
+            file="Source/ClearEQValueTree.cpp"/>
+      <FILE id="ZDls9P" name="ClearEQValueTree.h" compile="0" resource="0"
+            file="Source/ClearEQValueTree.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
