@@ -14,7 +14,10 @@
 
 PlaybackManager::PlaybackManager()
     : filter (FFT_SIZE), isCalibrating (false), isBypassed (false), hasPreparedFilter (false)
-{}
+{
+    dryGainProcessor.setGainDecibels (0.0f);
+    wetGainProcessor.setGainDecibels (0.0f);
+}
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
 {
@@ -41,12 +44,11 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
         if (isBypassed && hasPreparedFilter)
         {
             filter.process (context);
-            // TODO: Fix this
-//            wetGainProcessor.process (context);
+            wetGainProcessor.process (context);
         }
         else
         {
-//            dryGainProcessor.process (context);
+            dryGainProcessor.process (context);
         }
     }
 }
@@ -69,6 +71,12 @@ void PlaybackManager::setIsCalibrating (bool isCalibrating)
 void PlaybackManager::setIsBypassed (bool isBypassed)
 {
     this->isBypassed = isBypassed;
+}
+
+void PlaybackManager::setDryWetVolumeBalance (float balance)
+{
+    dryGainProcessor.setGainDecibels (-balance);
+    wetGainProcessor.setGainDecibels (+balance);
 }
 
 void PlaybackManager::updateWithCurve (const Curve& curve)

@@ -30,6 +30,7 @@ public:
     void setSampleRate (float newSampleRate);
     void setIsCalibrating (bool isCalibrating);
     void setIsBypassed (bool isBypassed);
+    void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
     
     void updateWithCurve (const Curve& curve); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);
@@ -40,6 +41,9 @@ private:
     const int FFT_SIZE = 12;
     
     ArbitraryResponseFilter filter;
+    juce::dsp::Gain<float> dryGainProcessor;
+    juce::dsp::Gain<float> wetGainProcessor;
+    
     SliderSequencer sliderSequencer;
     
     bool isCalibrating;

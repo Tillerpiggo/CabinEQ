@@ -24,9 +24,6 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 
 #endif
 {
-    dryGainProcessor.setGainDecibels (0.0f);
-    wetGainProcessor.setGainDecibels (0.0f);
-    
     parameters.state = juce::ValueTree("savedParams");
 }
 
@@ -327,8 +324,7 @@ void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
 
 void StartupMVPAudioProcessor::setBypassBalance (float balance)
 {
-    dryGainProcessor.setGainDecibels (-balance);
-    wetGainProcessor.setGainDecibels (balance);
+    playbackManager.setDryWetVolumeBalance (balance);
 }
 
 SetPointManager& StartupMVPAudioProcessor::getSetPointManager()

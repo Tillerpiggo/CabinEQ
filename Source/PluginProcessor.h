@@ -77,8 +77,6 @@ private:
     SetPointManager setPointManager;
     
     juce::dsp::ProcessSpec spec;
-    juce::dsp::Gain<float> dryGainProcessor;
-    juce::dsp::Gain<float> wetGainProcessor;
     
     // Hacky solution to fix gainFilter bug
     int sampleRate;
