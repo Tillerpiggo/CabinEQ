@@ -11,7 +11,7 @@
 #include "ClearEQValueTree.h"
 
 ClearEQValueTree::ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
-    : idProfile (identifier), idSetPoint ("SetPoint"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
+    : idProfile (identifier), idSetPoint ("SetPoint"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
 {
     valueTree = apvts.state.getChildWithName (idProfile);
     
@@ -31,10 +31,11 @@ const std::vector<SetPoint> ClearEQValueTree::getSetPoints() const
     
     for (const auto& setPoint : valueTree)
     {
+        int id = setPoint.getProperty (idId);
         float freq = setPoint.getProperty (idFrequency);
         float ampl = setPoint.getProperty (idAmplitude);
         float pan = setPoint.getProperty (idPan);
-        setPoints.emplace_back (freq, ampl, pan);
+        setPoints.emplace_back (id, freq, ampl, pan);
     }
     
     return setPoints;

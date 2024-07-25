@@ -13,10 +13,11 @@
 /// This stores the raw data for each set point in a given EQ curve.
 struct SetPoint
 {
-    SetPoint (float frequency, float amplitude, float pan)
-        : frequency (frequency), amplitude (amplitude), pan (pan)
+    SetPoint (int id, float frequency, float amplitude, float pan)
+        : id (id), frequency (frequency), amplitude (amplitude), pan (pan)
     {}
     
+    int id;
     float frequency;
     float amplitude; // in DB
     float pan; // in DB. (-3 = +1.5dB on left channel, -1.5dB on right channel)

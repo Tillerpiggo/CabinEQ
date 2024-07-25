@@ -29,6 +29,6 @@ public:
 private:
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
     
-    juce::Identifier idProfile, idSetPoint, idFrequency, idAmplitude, idPan;
+    juce::Identifier idProfile, idSetPoint, idId, idFrequency, idAmplitude, idPan;
     juce::ValueTree valueTree;
 };

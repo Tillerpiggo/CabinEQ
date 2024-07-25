@@ -12,6 +12,8 @@
 
 SetPointManager::SetPointManager()
 {
+    int id = 0;
+    
     // Generate NUM_PTS evenly spaced frequencies from 20 to 15000khz
     setPoints.clear();
     setPoints.reserve (NUM_PTS);
@@ -26,8 +28,8 @@ SetPointManager::SetPointManager()
     for (int i = 0; i < NUM_PTS / 3; ++i) {
         float logFreq = logStart + i * step;
         float freq = std::pow (10, logFreq);
-        
-        setPoints.emplace_back (freq, 0, 0);
+        setPoints.emplace_back (id, freq, 0, 0);
+        id++;
     }
     
     startFreq = 1050.0f;
@@ -40,7 +42,8 @@ SetPointManager::SetPointManager()
     for (int i = 0; i < NUM_PTS / 3; ++i) {
         double logFreq = logStart + i * step;
         float freq = std::pow (10, logFreq);
-        setPoints.emplace_back (freq, 0, 0);
+        setPoints.emplace_back (id, freq, 0, 0);
+        id++;
     }
     
     startFreq = 8000.0f;
@@ -53,7 +56,8 @@ SetPointManager::SetPointManager()
     for (int i = 0; i < NUM_PTS / 3; ++i) {
         double logFreq = logStart + i * step;
         float freq = std::pow (10, logFreq);
-        setPoints.emplace_back (freq, 0, 0);
+        setPoints.emplace_back (id, freq, 0, 0);
+        id++;
     }
     
     curve.updateWithSetPoints (setPoints);
