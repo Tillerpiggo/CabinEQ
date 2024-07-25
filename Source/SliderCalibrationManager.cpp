@@ -17,15 +17,6 @@ SliderCalibrationManager::SliderCalibrationManager()
 {
     int numPoints = sliderSetPointManager.getNumPoints();
     updateCurve();
-    
-    for (int i = 0; i < numPoints; ++i)
-    {
-        randomIndices.push_back (i);
-    }
-    
-    std::random_device rd;
-    std::default_random_engine rng(rd());
-    std::shuffle (randomIndices.begin(), randomIndices.end(), rd);
 }
 
 const Curve& SliderCalibrationManager::getCurve()
@@ -47,11 +38,6 @@ int SliderCalibrationManager::getCurrentlyPlayingIdx()
 bool SliderCalibrationManager::getIsCalibrating() const
 {
     return isCalibrating;
-}
-
-float SliderCalibrationManager::getCurrBlindPercent() const
-{
-    return static_cast<float> (currBlindIdx) / static_cast<float> (randomIndices.size());
 }
 
 void SliderCalibrationManager::setSampleRate (float newSampleRate)
@@ -76,39 +62,6 @@ void SliderCalibrationManager::setAmplitudeAtIdx (int idx, float newAmplitude)
     sliderSetPointManager.setAmplitudeAt (idx, newAmplitude);
     sliderSequencer.changeAmplitudeOfNotesWithFrequency (sliderSetPointManager.getFrequencyAt (idx),
                                                          newAmplitude);
-    
-    if (idx == referenceToneIdx) updateReferenceTone();
-}
-
-std::pair<int, float> SliderCalibrationManager::incrementAmplitudeAtBlindIdxAndPlay (float increment)
-{
-    int idxToUpdate = randomIndices[currBlindIdx];
-    
-    float newAmplitude = sliderSetPointManager.getAmplitudeAt (idxToUpdate) + increment;
-    sliderSetPointManager.setAmplitudeAt (idxToUpdate, newAmplitude);
-    
-    playBlindInterval();
-    
-    return { idxToUpdate, newAmplitude };
-}
-
-int SliderCalibrationManager::setAmplitudeAtBlindIdx (float newAmplitude)
-{
-    int idxToUpdate = randomIndices[currBlindIdx];
-    sliderSetPointManager.setAmplitudeAt (idxToUpdate, newAmplitude);
-    
-    return idxToUpdate;
-}
-
-void SliderCalibrationManager::playBlindInterval()
-{
-    std::cout << "Play blind interval!" << std::endl;
-    int idxToUpdate = randomIndices[currBlindIdx];
-    sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (idxToUpdate),
-                                  sliderSetPointManager.getAmplitudeAt (idxToUpdate),
-                                  sliderSetPointManager.getPanAt (idxToUpdate),
-                                  noteLength,
-                                  false);
 }
 
 void SliderCalibrationManager::setPanAtIdx (int idx, float newPan)
@@ -135,99 +88,8 @@ void SliderCalibrationManager::updateCurve()
     curve.setPhases (std::vector<float> (sliderSetPointManager.numPoints(), 0.0f));
 }
 
-void SliderCalibrationManager::incrementReferenceToneIndex()
-{
-    if (referenceToneIdx < SliderSetPointManager::NUM_PTS - 1) referenceToneIdx++;
-    updateReferenceTone();
-}
-
-void SliderCalibrationManager::decrementReferenceToneIndex()
-{
-    if (referenceToneIdx > 0) referenceToneIdx--;
-    updateReferenceTone();
-}
-
 void SliderCalibrationManager::changeNoteLength (int newNoteLength)
 {
     noteLength = newNoteLength;
     if (currIdx != -1) setCurrIdx (currIdx);
-}
-
-int SliderCalibrationManager::goToNextBlindQuestion()
-{
-    currBlindIdx++;
-    
-    if (currBlindIdx >= SliderSetPointManager::NUM_PTS) return -1;
-    
-    sliderSequencer.playInterval (sliderSetPointManager.getFrequencyAt (randomIndices[currBlindIdx]),
-                                  sliderSetPointManager.getAmplitudeAt (randomIndices[currBlindIdx]),
-                                  sliderSetPointManager.getPanAt (randomIndices[currBlindIdx]),
-                                  noteLength,
-                                  false);
-    
-    return currBlindIdx;
-}
-
-void SliderCalibrationManager::updateReferenceTone()
-{
-    sliderSequencer.setReferenceNote (sliderSetPointManager.getFrequencyAt (referenceToneIdx),
-                                      sliderSetPointManager.getAmplitudeAt (referenceToneIdx));
-}
-
-//===================================
-// Testing
-
-// Getters
-bool SliderCalibrationManager::getIsTesting() const {
-    return isTesting;
-}
-
-bool SliderCalibrationManager::getIsFilterEnabled() const {
-    return isFilterEnabled;
-}
-
-float SliderCalibrationManager::getFilterGain() const {
-    if (isFilterEnabled) return juce::Decibels::decibelsToGain (filterGain);
-    else return 1.0f; // don't change gain if filter isn't enabled
-}
-
-// Setters
-void SliderCalibrationManager::setIsTesting (bool isTesting) {
-    this->isTesting = isTesting;
-    sliderSequencer.playTestingInterval(tone1Freq, tone1Vol,
-                                        tone2Freq, tone2Vol);
-}
-
-void SliderCalibrationManager::setIsFilterEnabled (bool isFilterEnabled) {
-    this->isFilterEnabled = isFilterEnabled;
-    std::cout << "Filter enabled: " << isFilterEnabled << std::endl;
-}
-
-void SliderCalibrationManager::setTone1Freq (float tone1Freq) {
-    this->tone1Freq = tone1Freq;
-    sliderSequencer.playTestingInterval (tone1Freq, tone1Vol,
-                                        tone2Freq, tone2Vol);
-}
-
-void SliderCalibrationManager::setTone2Freq (float tone2Freq) {
-    this->tone2Freq = tone2Freq;
-    sliderSequencer.playTestingInterval (tone1Freq, tone1Vol,
-                                        tone2Freq, tone2Vol);
-}
-
-void SliderCalibrationManager::setTone1Vol (float tone1Vol) {
-    this->tone1Vol = tone1Vol;
-    sliderSequencer.playTestingInterval (tone1Freq, tone1Vol,
-                                        tone2Freq, tone2Vol);
-}
-
-void SliderCalibrationManager::setTone2Vol (float tone2Vol) {
-    this->tone2Vol = tone2Vol;
-    sliderSequencer.playTestingInterval (tone1Freq, tone1Vol,
-                                        tone2Freq, tone2Vol);
-}
-
-void SliderCalibrationManager::setFilterGain (float filterGain) {
-    this->filterGain = filterGain;
-    std::cout << "set filter gain to: " << filterGain << std::endl;
 }

@@ -11,10 +11,6 @@
       <FILE id="RaTQso" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="AQoyPD" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <GROUP id="{A0C547AF-9401-8E07-E364-8C9E7D21ADC9}" name="LookAndFeel">
-        <FILE id="jkVMMb" name="ClearSoundLookAndFeel.h" compile="0" resource="0"
-              file="Source/ClearSoundLookAndFeel.h"/>
-      </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
@@ -23,14 +19,6 @@
         <FILE id="Px8gSh" name="LeftRightPage.cpp" compile="1" resource="0"
               file="Source/LeftRightPage.cpp"/>
         <FILE id="uZOW5M" name="LeftRightPage.h" compile="0" resource="0" file="Source/LeftRightPage.h"/>
-        <FILE id="Vb2pVp" name="BlindSliderPage.cpp" compile="1" resource="0"
-              file="Source/BlindSliderPage.cpp"/>
-        <FILE id="xHvLGx" name="BlindSliderPage.h" compile="0" resource="0"
-              file="Source/BlindSliderPage.h"/>
-        <FILE id="e1dk1h" name="VerifyFilterPage.cpp" compile="1" resource="0"
-              file="Source/VerifyFilterPage.cpp"/>
-        <FILE id="u9SitO" name="VerifyFilterPage.h" compile="0" resource="0"
-              file="Source/VerifyFilterPage.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
@@ -67,10 +55,6 @@
               file="Source/ArbitraryResponseFilter.cpp"/>
         <FILE id="PAcIbm" name="ArbitraryResponseFilter.h" compile="0" resource="0"
               file="Source/ArbitraryResponseFilter.h"/>
-        <FILE id="JvKCEq" name="InverseFletcherMunsonCurve.cpp" compile="1"
-              resource="0" file="Source/InverseFletcherMunsonCurve.cpp"/>
-        <FILE id="dKSpjH" name="InverseFletcherMunsonCurve.h" compile="0" resource="0"
-              file="Source/InverseFletcherMunsonCurve.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration">
         <FILE id="WjuqiB" name="SliderCalibrationManager.cpp" compile="1" resource="0"

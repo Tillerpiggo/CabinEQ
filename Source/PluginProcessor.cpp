@@ -155,30 +155,6 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
-
-    // Just for testing purposes
-    if (sliderCalibrationManager.getIsTesting())
-    {
-        float filterGain = sliderCalibrationManager.getFilterGain();
-//        std::cout << "filter gain: " << filterGain << std::endl;
-        
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-        {
-            const std::pair<float, float> value = sliderCalibrationManager.getNextSample();
-            leftChannel[sample] = value.first * 0.05 * 0.5 * filterGain;
-            
-            if (rightChannel)
-                rightChannel[sample] = value.second * 0.05 * 0.5 * filterGain;
-        }
-        
-        if (sliderCalibrationManager.getIsFilterEnabled())
-        {
-            juce::dsp::AudioBlock<float> block (buffer);
-            juce::dsp::ProcessContextReplacing<float> context (block);
-            
-            gainFilter.process (context);
-        }
-    }
     
     if (sliderCalibrationManager.getIsCalibrating())
     {

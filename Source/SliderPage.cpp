@@ -30,17 +30,6 @@ SliderPage::SliderPage(StartupMVPAudioProcessor& p)
     viewport.setViewedComponent (&sliderContainer, true);
     addAndMakeVisible (viewport);
     
-    addAndMakeVisible (incrementReferenceToneIdxButton);
-    addAndMakeVisible (decrementReferenceToneIdxButton);
-    incrementReferenceToneIdxButton.addListener (this);
-    decrementReferenceToneIdxButton.addListener (this);
-    
-    addAndMakeVisible (tempoSlider);
-    tempoSlider.setRange (10000, 100000);
-    tempoSlider.setValue (20000);
-    tempoSlider.setSliderStyle (juce::Slider::SliderStyle::LinearVertical);
-    tempoSlider.addListener (this);
-    
     startTimer (10);
 }
 
@@ -50,10 +39,6 @@ SliderPage::~SliderPage()
     {
         slider->removeListener (this);
     }
-    
-    incrementReferenceToneIdxButton.removeListener (this);
-    decrementReferenceToneIdxButton.removeListener (this);
-    tempoSlider.removeListener (this);
 }
 
 void SliderPage::resized()
@@ -74,49 +59,16 @@ void SliderPage::resized()
         auto& slider = *sliders[i];
         slider.setBounds(padding + i * sliderWidth, 0, sliderWidth, sliderHeight);
     }
-
-    // Set the bounds for the increment and decrement buttons
-    int buttonWidth = 50;
-    int buttonHeight = 30;
-    int buttonMargin = 10;
-
-    incrementReferenceToneIdxButton.setBounds(area.getRight() - buttonWidth - buttonMargin,
-                                              area.getY() + buttonMargin,
-                                              buttonWidth,
-                                              buttonHeight);
-
-    decrementReferenceToneIdxButton.setBounds(area.getRight() - buttonWidth - buttonMargin,
-                                              incrementReferenceToneIdxButton.getBottom() + buttonMargin,
-                                              buttonWidth,
-                                              buttonHeight);
-
-    // Set the bounds for the tempoSlider
-    int tempoSliderWidth = 50;
-    int tempoSliderHeight = 200; // Adjust the height as needed
-    int tempoSliderMargin = 10;
-
-    tempoSlider.setBounds(area.getRight() - tempoSliderWidth - tempoSliderMargin,
-                          decrementReferenceToneIdxButton.getBottom() + tempoSliderMargin,
-                          tempoSliderWidth,
-                          tempoSliderHeight);
 }
 
 void SliderPage::sliderValueChanged (juce::Slider *slider)
 {
-    if (slider == &tempoSlider)
-    {
-        processor.getSliderCalibrationManager().changeNoteLength (slider->getValue());
-        return;
-    }
-    
     int i = slider->getProperties().getWithDefault("idx", -1);
     processor.getSliderCalibrationManager().setAmplitudeAtIdx (i, slider->getValue());
 }
 
 void SliderPage::sliderDragStarted (juce::Slider *slider)
 {
-    if (slider == &tempoSlider) return;
-    
     SliderCalibrationManager& sliderCalibrationManager = processor.getSliderCalibrationManager();
     sliderCalibrationManager.setIsCalibrating (true);
     std::cout << "Set curr idx to: " << static_cast<int>(slider->getProperties().getWithDefault("idx", -1)) << std::endl;
@@ -125,20 +77,7 @@ void SliderPage::sliderDragStarted (juce::Slider *slider)
 
 void SliderPage::sliderDragEnded (juce::Slider *slider)
 {
-    if (slider == &tempoSlider) return;
     processor.getSliderCalibrationManager().setIsCalibrating (false);
-}
-
-void SliderPage::buttonClicked (juce::Button *button)
-{
-    if (button == &incrementReferenceToneIdxButton)
-    {
-        processor.getSliderCalibrationManager().incrementReferenceToneIndex();
-    }
-    else if (button == &decrementReferenceToneIdxButton)
-    {
-        processor.getSliderCalibrationManager().decrementReferenceToneIndex();
-    }
 }
 
 void SliderPage::timerCallback()
