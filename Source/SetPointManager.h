@@ -12,10 +12,10 @@
 
 #include <JuceHeader.h>
 
-class SliderSetPointManager
+class SetPointManager
 {
 public:
-    SliderSetPointManager();
+    SetPointManager();
     
     const std::vector<float>& getFrequencies() const { return frequencies; }
     const std::vector<float>& getAmplitudes() const { return amplitudes; }

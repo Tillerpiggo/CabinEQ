@@ -20,7 +20,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (SliderSetPointManager::NUM_PTS)),
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (SetPointManager::NUM_PTS)),
                           gainFilter (FFT_SIZE)
 
 #endif
@@ -220,7 +220,7 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
             parameters.state = juce::ValueTree::fromXml(*savedParams);
             
             // Just load curve, don't apply it here
-            for (int i = 0; i < SliderSetPointManager::NUM_PTS; ++i)
+            for (int i = 0; i < SetPointManager::NUM_PTS; ++i)
             {
                 std::string idx = std::to_string (i);
                 
@@ -305,7 +305,7 @@ void StartupMVPAudioProcessor::applyCurve()
         hasPreparedFilter = true;
     }
     
-    for (int i = 0; i < SliderSetPointManager::NUM_PTS; ++i)
+    for (int i = 0; i < SetPointManager::NUM_PTS; ++i)
     {
         std::string idx = std::to_string (i);
         

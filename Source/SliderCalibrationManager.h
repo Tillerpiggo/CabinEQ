@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 #include "SliderSequencer.h"
-#include "SliderSetPointManager.h"
+#include "SetPointManager.h"
 #include "ArbitraryResponseFilter.h"
 #include "Curve.h"
 #include <random>
@@ -47,7 +47,7 @@ private:
     void updateReferenceTone();
     
     SliderSequencer sliderSequencer;
-    SliderSetPointManager sliderSetPointManager;
+    SetPointManager sliderSetPointManager;
     Curve curve;
     bool isCalibrating;
     

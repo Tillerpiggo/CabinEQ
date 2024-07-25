@@ -61,10 +61,10 @@
               file="Source/SliderCalibrationManager.cpp"/>
         <FILE id="hy7fWU" name="SliderCalibrationManager.h" compile="0" resource="0"
               file="Source/SliderCalibrationManager.h"/>
-        <FILE id="KO7pRp" name="SliderSetPointManager.cpp" compile="1" resource="0"
-              file="Source/SliderSetPointManager.cpp"/>
-        <FILE id="uEzYGm" name="SliderSetPointManager.h" compile="0" resource="0"
-              file="Source/SliderSetPointManager.h"/>
+        <FILE id="KO7pRp" name="SetPointManager.cpp" compile="1" resource="0"
+              file="Source/SetPointManager.cpp"/>
+        <FILE id="uEzYGm" name="SetPointManager.h" compile="0" resource="0"
+              file="Source/SetPointManager.h"/>
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
