@@ -330,3 +330,8 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     dryGainProcessor.setGainDecibels (-balance);
     wetGainProcessor.setGainDecibels (balance);
 }
+
+SetPointManager& StartupMVPAudioProcessor::getSetPointManager()
+{
+    return setPointManager;
+}

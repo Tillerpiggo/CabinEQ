@@ -32,8 +32,8 @@ private:
 
     juce::TabbedComponent tabbedComponent;
     
-//    std::unique_ptr<FilterPage> filterPage;
-//    std::unique_ptr<SliderPage> sliderPage;
+    std::unique_ptr<FilterPage> filterPage;
+    std::unique_ptr<SliderPage> sliderPage;
     std::unique_ptr<LeftRightPage> leftRightPage;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
