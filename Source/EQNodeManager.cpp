@@ -89,21 +89,15 @@ void EQNodeManager::removeEQNode (int id)
 
 void EQNodeManager::updateEQNode (int id, float frequency, float amplitude, float pan)
 {
-    std::cout << "Updating EQ node" << std::endl;
     for (int i = 0; i < eqNodes.size(); ++i)
     {
         if (eqNodes[i].id == id)
         {
-            std::cout << "Found EQ node with matching id" << std::endl;
             eqNodes[i].frequency = frequency;
             eqNodes[i].amplitude = amplitude;
             eqNodes[i].pan = pan;
         }
     }
-    
-    std::cout << "EQ Nodes After: " << std::endl;
-    for (int i = 0; i < eqNodes.size(); ++i)
-        std::cout << "EQNode(id: " << eqNodes[i].id << ", freq: " << eqNodes[i].frequency << ", ampl: " << eqNodes[i].amplitude << ", pan: " << eqNodes[i].pan << std::endl;
     
     curve.updateWithEQNodes (eqNodes);
     clearEQValueTree.updateNode (id, frequency, amplitude, pan);

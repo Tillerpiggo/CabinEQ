@@ -51,12 +51,14 @@ void ClearEQValueTree::addNode (const int id, const float frequency, const float
     eqNode.setProperty (idAmplitude, amplitude, nullptr);
     eqNode.setProperty (idPan, pan, nullptr);
     valueTree.appendChild (eqNode, nullptr);
+    
+    std::cout << "All nodes" << std::endl;
+    for (const auto& eqNode: getEQNodes())
+        std::cout << "EQNode(id: " << eqNode.id << ", freq: " << eqNode.frequency << ", ampl: " << eqNode.amplitude << ", pan: " << eqNode.pan << ")" << std::endl;
 }
 
 void ClearEQValueTree::removeNode (const int id)
 {
-    std::cout << "Removing node" << std::endl;
-    
     juce::ValueTree nodeToRemove = valueTree.getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
         valueTree.removeChild (nodeToRemove, nullptr);
@@ -64,8 +66,6 @@ void ClearEQValueTree::removeNode (const int id)
 
 void ClearEQValueTree::updateNode (const int id, const float frequency, const float amplitude, const float pan)
 {
-    std::cout << "Updating node" << std::endl;
-    
     juce::ValueTree nodeToModify = valueTree.getChildWithProperty (idId, id);
     
     if (nodeToModify.isValid())
