@@ -10,8 +10,10 @@
 
 #include "EQProfilePage.h"
 
-EQProfilePage::EQProfilePage (StartupMVPAudioProcessor& p) : processor (p)
+EQProfilePage::EQProfilePage (StartupMVPAudioProcessor& p) 
+    : processor (p), curveComponent (p.getCurve())
 {
+    addAndMakeVisible (curveComponent);
     addAndMakeVisible (addEQNodeButton);
     addAndMakeVisible (viewport);
     addAndMakeVisible (eqNodeControllerContainer);
@@ -28,6 +30,9 @@ void EQProfilePage::resized()
 {
     auto area = getLocalBounds();
     int padding = 10;
+
+    int curveComponentHeight = 200;
+    curveComponent.setBounds(area.removeFromTop(curveComponentHeight).reduced(padding));
 
     int buttonHeight = 100;
     addEQNodeButton.setBounds(area.removeFromBottom(buttonHeight).reduced(padding));

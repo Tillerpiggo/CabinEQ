@@ -74,6 +74,10 @@ void EQNodeController::paint (juce::Graphics& g)
 void EQNodeController::sliderValueChanged (juce::Slider *slider)
 {
     // Do nothing, for now
+    if (slider == &frequencySlider || slider == &amplitudeSlider || slider == &panSlider)
+    {
+        listener->eqNodeChanged (id, frequencySlider.getValue(), amplitudeSlider.getValue(), panSlider.getValue());
+    }
 }
 
 void EQNodeController::sliderDragStarted (juce::Slider *slider)

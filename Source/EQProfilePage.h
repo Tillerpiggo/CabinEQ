@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "EQNodeController.h"
+#include "CurveComponent.h"
 
 /// This page lets the user manage a list of EQNodes. They can use it to add, maodify, or remove EQNodes via sliders.
 class EQProfilePage   : public juce::Component,
@@ -35,6 +36,7 @@ private:
     
     StartupMVPAudioProcessor& processor;
     
+    CurveComponent curveComponent;
     juce::TextButton addEQNodeButton { "Add Node" };
     juce::Viewport viewport;
     juce::Component eqNodeControllerContainer; // contains the list of all eqNodeControllers

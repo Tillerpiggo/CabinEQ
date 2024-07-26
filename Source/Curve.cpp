@@ -61,6 +61,10 @@ const float Curve::catmullRom (float t, float y0, float y1, float y2, float y3) 
 
 void Curve::updateWithEQNodes (std::vector<EQNode> eqNodes)
 {
+    std::sort(eqNodes.begin(), eqNodes.end(), [](const EQNode &a, const EQNode &b) 
+    {
+        return a.frequency < b.frequency;
+    });
     this->eqNodes = eqNodes;
 }
 

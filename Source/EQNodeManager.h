@@ -30,19 +30,6 @@ public:
     
     const Curve& getCurve() const;
     
-    int indexForFrequency (float frequency) const
-    {
-        for (int i = 0; i < eqNodes.size(); ++i)
-        {
-            if (frequency == eqNodes.at (i).frequency)
-            {
-                return i;
-            }
-        }
-        
-        return -1;
-    }
-    
     static const int NUM_PTS = 60;
     
 private:
