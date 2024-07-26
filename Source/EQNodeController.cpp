@@ -67,6 +67,7 @@ void EQNodeController::resized()
 void EQNodeController::paint (juce::Graphics& g)
 {
     // TODO: Paint colors here
+    g.fillAll (juce::Colour::fromRGB(30, 30, 30));
 }
 
 

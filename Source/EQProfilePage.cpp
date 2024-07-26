@@ -29,13 +29,13 @@ void EQProfilePage::resized()
     auto area = getLocalBounds();
     int padding = 10;
 
-    auto buttonHeight = 100;
+    int buttonHeight = 100;
     addEQNodeButton.setBounds(area.removeFromBottom(buttonHeight).reduced(padding));
     viewport.setBounds(area);
 
     int eqNodeControllerWidth = area.getWidth();
     int eqNodeControllerHeight = 200;
-    int totalHeight = static_cast<int>(eqNodeControllers.size()) * eqNodeControllerHeight;
+    int totalHeight = static_cast<int>(eqNodeControllers.size()) * (eqNodeControllerHeight + padding) - padding;
 
     eqNodeControllerContainer.setSize(eqNodeControllerWidth + 2 * padding, totalHeight + 2 * padding);
 
@@ -43,10 +43,11 @@ void EQProfilePage::resized()
     {
         auto& eqNodeController = *eqNodeControllers[i];
         eqNodeController.setBounds(0,
-                                   padding + i * eqNodeControllerHeight,
+                                   i * (eqNodeControllerHeight),
                                    eqNodeControllerWidth,
                                    eqNodeControllerHeight);
     }
+    std::cout << "Total Height: " << totalHeight << std::endl;
 }
 
 void EQProfilePage::paint (juce::Graphics& g)
@@ -63,6 +64,8 @@ void EQProfilePage::eqNodeChanged (int id, float frequency, float amplitude, flo
 void EQProfilePage::removeButtonClicked (int id)
 {
     processor.removeEQNode (id);
+    updateUIWithEQNodes (processor.getEQNodes());
+    resized();
 }
 
 void EQProfilePage::buttonClicked (juce::Button *button)
@@ -96,5 +99,5 @@ void EQProfilePage::updateUIWithEQNodes (const std::vector<EQNode>& eqNodes)
     
     // Make the container visible and add it to the viewport
     viewport.setViewedComponent (&eqNodeControllerContainer, true);
-     
+    resized();
 }
