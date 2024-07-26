@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 #include "SliderSequencer.h"
-#include "SetPointManager.h"
+#include "EQNodeManager.h"
 #include "ArbitraryResponseFilter.h"
 #include <random>
 

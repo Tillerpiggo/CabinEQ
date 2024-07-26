@@ -15,10 +15,10 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     std::vector<float> amplitudes;
     std::vector<float> pans;
     
-    for (SetPoint setPoint : setPoints)
+    for (const auto& eqNode : eqNodes)
     {
-        amplitudes.push_back (setPoint.amplitude);
-        pans.push_back (setPoint.pan);
+        amplitudes.push_back (eqNode.amplitude);
+        pans.push_back (eqNode.pan);
     }
     
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
@@ -59,9 +59,9 @@ const float Curve::catmullRom (float t, float y0, float y1, float y2, float y3) 
     return y;
 }
 
-void Curve::updateWithSetPoints (std::vector<SetPoint> setPoints)
+void Curve::updateWithEQNodes (std::vector<EQNode> eqNodes)
 {
-    this->setPoints = setPoints;
+    this->eqNodes = eqNodes;
 }
 
 const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size) const
@@ -112,14 +112,14 @@ const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size) const
 
 const float Curve::interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const
 {
-    size_t numPoints = setPoints.size();
+    size_t numPoints = eqNodes.size();
     
-    if (frequency < setPoints.at (0).frequency)
+    if (frequency < eqNodes.at (0).frequency)
     {
         return values.at (0);
     }
     
-    if (frequency > setPoints.at(numPoints - 1).frequency)
+    if (frequency > eqNodes.at(numPoints - 1).frequency)
     {
         return values.at (numPoints - 1);
     }
@@ -129,7 +129,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
     
     for (size_t i = 0; i < numPoints; ++i)
     {
-        float currFreq = setPoints.at (i).frequency;
+        float currFreq = eqNodes.at (i).frequency;
         if (frequency == currFreq)
         {
             return values.at(i);
@@ -137,8 +137,8 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
         
         if (frequency < currFreq)
         {
-            freq1 = setPoints.at(i - 1).frequency;
-            freq2 = setPoints.at(i).frequency;
+            freq1 = eqNodes.at(i - 1).frequency;
+            freq2 = eqNodes.at(i).frequency;
             gain1 = values.at(i - 1);
             gain2 = values.at(i);
             

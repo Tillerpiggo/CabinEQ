@@ -36,9 +36,9 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     arbitrarySequencer.setNotes ({ note1, note2 }, true);
 }
 
-void SliderSequencer::playInterval (SetPoint setPoint, int noteLength, bool repeating)
+void SliderSequencer::playInterval (EQNode eqNode, int noteLength, bool repeating)
 {
-    playInterval (setPoint.frequency, setPoint.amplitude, setPoint.pan, noteLength, repeating);
+    playInterval (eqNode.frequency, eqNode.amplitude, eqNode.pan, noteLength, repeating);
 }
 
 void SliderSequencer::changeControlledAmplitude (float newAmplitude)

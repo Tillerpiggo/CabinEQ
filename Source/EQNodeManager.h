@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    SliderSetPointManager.h
+    EQNodeManager.h
     Created: 10 Jul 2024 3:39:46pm
     Author:  Tyler Gee
 
@@ -11,29 +11,29 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SetPoint.h"
+#include "EQNode.h"
 #include "Curve.h"
 
 /// This class manages reading and writing data in ClearEQ. Adding/removing profiles, changing set points, and a useful interface for getting relevant data is handled here.
-class SetPointManager
+class EQNodeManager
 {
 public:
-    SetPointManager();
+    EQNodeManager();
     
-    const std::vector<SetPoint>& getSetPoints() { return setPoints; }
-    const int getNumPoints() const { return static_cast<int> (setPoints.size()); }
+    const std::vector<EQNode>& getNodes() { return eqNodes; }
+    const int getNumNodes() const { return static_cast<int> (eqNodes.size()); }
     
-    void setSetPointAt (int idx, SetPoint setPoint);
-    void setAmplitudeAt (int idx, float newAmplitude);
-    void setPanAt (int idx, float newPan);
+    void setNodeAt (int id, EQNode node);
+    void setAmplitudeAt (int id, float newAmplitude);
+    void setPanAt (int id, float newPan);
     
     const Curve& getCurve() const;
     
     int indexForFrequency (float frequency) const
     {
-        for (int i = 0; i < setPoints.size(); ++i)
+        for (int i = 0; i < eqNodes.size(); ++i)
         {
-            if (frequency == setPoints.at (i).frequency)
+            if (frequency == eqNodes.at (i).frequency)
             {
                 return i;
             }
@@ -45,6 +45,6 @@ public:
     static const int NUM_PTS = 60;
     
 private:
-    std::vector<SetPoint> setPoints;
+    std::vector<EQNode> eqNodes;
     Curve curve;
 };

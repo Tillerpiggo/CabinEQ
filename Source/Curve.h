@@ -15,7 +15,7 @@
 #include <complex>
 #include <cmath>
 
-#include "SetPoint.h"
+#include "EQNode.h"
 
 class Curve
 {
@@ -28,7 +28,7 @@ public:
     const std::pair<std::complex<float>, std::complex<float>> valueAtNormalizedTime (float time) const;
     const float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     
-    void updateWithSetPoints (std::vector<SetPoint> setPoints);
+    void updateWithEQNodes (std::vector<EQNode> eqNodes);
     
     const std::pair<float*, float*> getStereoImpulse (int fft_size) const; // This hands ownership of the float*'s to whoever calls it!!
 
@@ -36,5 +36,5 @@ protected:
     const float interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const;
     std::pair<float*, float*> frequencyResponse (int numPoints) const;
     
-    std::vector<SetPoint> setPoints;
+    std::vector<EQNode> eqNodes;
 };

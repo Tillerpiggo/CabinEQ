@@ -1,22 +1,22 @@
 /*
   ==============================================================================
 
-    SliderSetPointManager.cpp
+    EQNodeManager.cpp
     Created: 10 Jul 2024 3:39:46pm
     Author:  Tyler Gee
 
   ==============================================================================
 */
 
-#include "SetPointManager.h"
+#include "EQNodeManager.h"
 
-SetPointManager::SetPointManager()
+EQNodeManager::EQNodeManager()
 {
     int id = 0;
     
     // Generate NUM_PTS evenly spaced frequencies from 20 to 15000khz
-    setPoints.clear();
-    setPoints.reserve (NUM_PTS);
+    eqNodes.clear();
+    eqNodes.reserve (NUM_PTS);
     
     float startFreq = 50.0f;
     float endFreq = 950.0f;
@@ -28,7 +28,7 @@ SetPointManager::SetPointManager()
     for (int i = 0; i < NUM_PTS / 3; ++i) {
         float logFreq = logStart + i * step;
         float freq = std::pow (10, logFreq);
-        setPoints.emplace_back (id, freq, 0, 0);
+        eqNodes.emplace_back (id, freq, 0, 0);
         id++;
     }
     
@@ -42,7 +42,7 @@ SetPointManager::SetPointManager()
     for (int i = 0; i < NUM_PTS / 3; ++i) {
         double logFreq = logStart + i * step;
         float freq = std::pow (10, logFreq);
-        setPoints.emplace_back (id, freq, 0, 0);
+        eqNodes.emplace_back (id, freq, 0, 0);
         id++;
     }
     
@@ -56,38 +56,38 @@ SetPointManager::SetPointManager()
     for (int i = 0; i < NUM_PTS / 3; ++i) {
         double logFreq = logStart + i * step;
         float freq = std::pow (10, logFreq);
-        setPoints.emplace_back (id, freq, 0, 0);
+        eqNodes.emplace_back (id, freq, 0, 0);
         id++;
     }
     
-    curve.updateWithSetPoints (setPoints);
+    curve.updateWithEQNodes (eqNodes);
 }
 
-void SetPointManager::setSetPointAt (int idx, SetPoint setPoint)
+void EQNodeManager::setNodeAt (int idx, EQNode node)
 {
-    if (idx < 0 || idx >= getNumPoints()) 
+    if (idx < 0 || idx >= getNumNodes())
         return;
-    setPoints[idx] = setPoint;
-    curve.updateWithSetPoints (setPoints);
+    eqNodes[idx] = node;
+    curve.updateWithEQNodes (eqNodes);
 }
 
-void SetPointManager::setAmplitudeAt (int idx, float newAmplitude)
+void EQNodeManager::setAmplitudeAt (int idx, float newAmplitude)
 {
-    if (idx < 0 || idx >= getNumPoints()) 
+    if (idx < 0 || idx >= getNumNodes())
         return;
-    setPoints[idx].amplitude = newAmplitude;
-    curve.updateWithSetPoints (setPoints);
+    eqNodes[idx].amplitude = newAmplitude;
+    curve.updateWithEQNodes (eqNodes);
 }
 
-void SetPointManager::setPanAt (int idx, float newPan)
+void EQNodeManager::setPanAt (int idx, float newPan)
 {
-    if (idx < 0 || idx >= getNumPoints()) 
+    if (idx < 0 || idx >= getNumNodes())
         return;
-    setPoints[idx].pan = newPan;
-    curve.updateWithSetPoints (setPoints);
+    eqNodes[idx].pan = newPan;
+    curve.updateWithEQNodes (eqNodes);
 }
 
-const Curve& SetPointManager::getCurve() const
+const Curve& EQNodeManager::getCurve() const
 {
     return curve;
 }

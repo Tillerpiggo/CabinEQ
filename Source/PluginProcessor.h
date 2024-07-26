@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 #include "PlaybackManager.h"
-#include "SetPointManager.h"
+#include "EQNodeManager.h"
 
 //==============================================================================
 /**
@@ -67,14 +67,15 @@ public:
     void setIsBypassed (bool isBypassed);
     void setBypassBalance (float balance);
     
-    SetPointManager& getSetPointManager();
+    const Curve& getCurve() const;
     
+    // Setting points
  
 private:
     static const int FFT_SIZE = 10;
 
     PlaybackManager playbackManager;
-    SetPointManager setPointManager;
+    EQNodeManager eqNodeManager;
     
     juce::dsp::ProcessSpec spec;
     

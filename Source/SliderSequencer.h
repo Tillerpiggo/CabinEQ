@@ -13,7 +13,7 @@
 #include <JuceHeader.h>
 #include "ArbitrarySequencer.h"
 #include "Note.h"
-#include "SetPointManager.h"
+#include "EQNodeManager.h"
 
 class SliderSequencer
 {
@@ -21,7 +21,7 @@ public:
     SliderSequencer() {};
     
     void playInterval (float frequency, float amplitude, float pan, int noteLength, bool repeating);
-    void playInterval (SetPoint setPoint, int noteLength, bool repeating);
+    void playInterval (EQNode eqNode, int noteLength, bool repeating);
     void changeControlledAmplitude (float newAmplitude);
     void changeControlledPan (float newPan);
     

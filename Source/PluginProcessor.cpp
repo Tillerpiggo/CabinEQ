@@ -20,7 +20,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (SetPointManager::NUM_PTS))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (EQNodeManager::NUM_PTS))
 
 #endif
 {
@@ -219,15 +219,15 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
             parameters.state = juce::ValueTree::fromXml(*savedParams);
             
             // Just load curve, don't apply it here
-            for (int i = 0; i < SetPointManager::NUM_PTS; ++i)
+            for (int i = 0; i < EQNodeManager::NUM_PTS; ++i)
             {
                 std::string idx = std::to_string (i);
                 
                 double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
                 double pan = parameters.getRawParameterValue ("pan_" + idx)->load();
                 
-                setPointManager.setAmplitudeAt (i, gain);
-                setPointManager.setPanAt (i, pan);
+                eqNodeManager.setAmplitudeAt (i, gain);
+                eqNodeManager.setPanAt (i, pan);
             }
         }
     }
@@ -303,7 +303,7 @@ void StartupMVPAudioProcessor::applyCurve()
 //        playbackManager.prepare (spec);
 //    }
     
-    for (int i = 0; i < SetPointManager::NUM_PTS; ++i)
+    for (int i = 0; i < EQNodeManager::NUM_PTS; ++i)
     {
         std::string idx = std::to_string (i);
         
@@ -314,7 +314,7 @@ void StartupMVPAudioProcessor::applyCurve()
 //        playbackManager.setPanAtIdx (i, pan);
     }
     
-    playbackManager.updateWithCurve (setPointManager.getCurve());
+    playbackManager.updateWithCurve (eqNodeManager.getCurve());
 }
 
 void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
@@ -327,7 +327,7 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
-SetPointManager& StartupMVPAudioProcessor::getSetPointManager()
+const Curve& StartupMVPAudioProcessor::getCurve() const
 {
-    return setPointManager;
+    return eqNodeManager.getCurve();
 }

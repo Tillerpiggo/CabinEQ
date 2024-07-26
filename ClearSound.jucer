@@ -11,15 +11,14 @@
       <FILE id="RaTQso" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="AQoyPD" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="WjuqiB" name="SliderCalibrationManager.cpp" compile="1" resource="0"
-            file="Source/SliderCalibrationManager.cpp"/>
-      <FILE id="hy7fWU" name="SliderCalibrationManager.h" compile="0" resource="0"
-            file="Source/SliderCalibrationManager.h"/>
-      <FILE id="KO7pRp" name="SetPointManager.cpp" compile="1" resource="0"
-            file="Source/SetPointManager.cpp"/>
-      <FILE id="uEzYGm" name="SetPointManager.h" compile="0" resource="0"
-            file="Source/SetPointManager.h"/>
-      <FILE id="h9bYnu" name="SetPoint.h" compile="0" resource="0" file="Source/SetPoint.h"/>
+      <FILE id="Nta5k2" name="PlaybackManager.cpp" compile="1" resource="0"
+            file="Source/PlaybackManager.cpp"/>
+      <FILE id="amZ4ZY" name="PlaybackManager.h" compile="0" resource="0"
+            file="Source/PlaybackManager.h"/>
+      <FILE id="KO7pRp" name="EQNodeManager.cpp" compile="1" resource="0"
+            file="Source/EQNodeManager.cpp"/>
+      <FILE id="uEzYGm" name="EQNodeManager.h" compile="0" resource="0" file="Source/EQNodeManager.h"/>
+      <FILE id="h9bYnu" name="EQNode.h" compile="0" resource="0" file="Source/EQNode.h"/>
       <FILE id="tErBau" name="ClearEQValueTree.cpp" compile="1" resource="0"
             file="Source/ClearEQValueTree.cpp"/>
       <FILE id="ZDls9P" name="ClearEQValueTree.h" compile="0" resource="0"

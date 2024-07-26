@@ -11,7 +11,7 @@
 #include "ClearEQValueTree.h"
 
 ClearEQValueTree::ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
-    : idProfile (identifier), idSetPoint ("SetPoint"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
+    : idProfile (identifier), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
 {
     valueTree = apvts.state.getChildWithName (idProfile);
     
@@ -23,31 +23,31 @@ ClearEQValueTree::ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, c
     }
 }
 
-const std::vector<SetPoint> ClearEQValueTree::getSetPoints() const
+const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
 {
-    std::vector<SetPoint> setPoints;
+    std::vector<EQNode> eqNodes;
     if (! valueTree.isValid())
-        return setPoints;
+        return eqNodes;
     
-    for (const auto& setPoint : valueTree)
+    for (const auto& eqNode : valueTree)
     {
-        int id = setPoint.getProperty (idId);
-        float freq = setPoint.getProperty (idFrequency);
-        float ampl = setPoint.getProperty (idAmplitude);
-        float pan = setPoint.getProperty (idPan);
-        setPoints.emplace_back (id, freq, ampl, pan);
+        int id = eqNode.getProperty (idId);
+        float freq = eqNode.getProperty (idFrequency);
+        float ampl = eqNode.getProperty (idAmplitude);
+        float pan = eqNode.getProperty (idPan);
+        eqNodes.emplace_back (id, freq, ampl, pan);
     }
     
-    return setPoints;
+    return eqNodes;
 }
 
 void ClearEQValueTree::addNode (const float frequency, const float amplitude, const float pan)
 {
-    juce::ValueTree setPointNode (idSetPoint);
-    setPointNode.setProperty (idFrequency, frequency, nullptr);
-    setPointNode.setProperty (idAmplitude, amplitude, nullptr);
-    setPointNode.setProperty (idPan, pan, nullptr);
-    valueTree.appendChild (setPointNode, nullptr);
+    juce::ValueTree eqNode (idEQNode);
+    eqNode.setProperty (idFrequency, frequency, nullptr);
+    eqNode.setProperty (idAmplitude, amplitude, nullptr);
+    eqNode.setProperty (idPan, pan, nullptr);
+    valueTree.appendChild (eqNode, nullptr);
 }
 
 void ClearEQValueTree::removeNode (const float frequency)
@@ -56,12 +56,12 @@ void ClearEQValueTree::removeNode (const float frequency)
     valueTree.removeChild (nodeToRemove, nullptr);
 }
 
-void ClearEQValueTree::resetNodes (const std::vector<SetPoint>& setPoints)
+void ClearEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
 {
     valueTree.removeAllChildren (nullptr);
     valueTree.removeAllProperties (nullptr);
-    for (const auto& setPoint : setPoints)
-        addNode (setPoint.frequency, setPoint.amplitude, setPoint.pan);
+    for (const auto& eqNode : eqNodes)
+        addNode (eqNode.frequency, eqNode.amplitude, eqNode.pan);
 }
 
 void ClearEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)
