@@ -20,7 +20,8 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (EQNodeManager::NUM_PTS))
+                       ), parameters (*this, nullptr, "Parameters", createParameterLayout (EQNodeManager::NUM_PTS)),
+                          eqNodeManager (parameters)
 
 #endif
 {

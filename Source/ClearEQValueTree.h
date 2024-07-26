@@ -22,8 +22,9 @@ public:
     
     const std::vector<EQNode> getEQNodes() const; // constructs set points matching the set points we have in memory
     
-    void addNode (const float frequency, const float amplitude, const float pan);
-    void removeNode (const float frequency);
+    void addNode (const int id, const float frequency, const float amplitude, const float pan);
+    void removeNode (const int id);
+    void updateNode (const int id, const float frequency, const float amplitude, const float pan);
     void resetNodes (const std::vector<EQNode>& eqNodes); // makes this value tree store the given set points
     
 private:

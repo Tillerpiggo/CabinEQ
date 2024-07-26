@@ -41,19 +41,39 @@ const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
     return eqNodes;
 }
 
-void ClearEQValueTree::addNode (const float frequency, const float amplitude, const float pan)
+void ClearEQValueTree::addNode (const int id, const float frequency, const float amplitude, const float pan)
 {
+    std::cout << "Adding node" << std::endl;
+    
     juce::ValueTree eqNode (idEQNode);
+    eqNode.setProperty (idId, id, nullptr);
     eqNode.setProperty (idFrequency, frequency, nullptr);
     eqNode.setProperty (idAmplitude, amplitude, nullptr);
     eqNode.setProperty (idPan, pan, nullptr);
     valueTree.appendChild (eqNode, nullptr);
 }
 
-void ClearEQValueTree::removeNode (const float frequency)
+void ClearEQValueTree::removeNode (const int id)
 {
-    juce::ValueTree nodeToRemove = valueTree.getChildWithProperty (idFrequency, frequency);
-    valueTree.removeChild (nodeToRemove, nullptr);
+    std::cout << "Removing node" << std::endl;
+    
+    juce::ValueTree nodeToRemove = valueTree.getChildWithProperty (idId, id);
+    if (nodeToRemove.isValid())
+        valueTree.removeChild (nodeToRemove, nullptr);
+}
+
+void ClearEQValueTree::updateNode (const int id, const float frequency, const float amplitude, const float pan)
+{
+    std::cout << "Updating node" << std::endl;
+    
+    juce::ValueTree nodeToModify = valueTree.getChildWithProperty (idId, id);
+    
+    if (nodeToModify.isValid())
+    {
+        nodeToModify.setProperty (idFrequency, frequency, nullptr);
+        nodeToModify.setProperty (idAmplitude, amplitude, nullptr);
+        nodeToModify.setProperty (idPan, pan, nullptr);
+    }
 }
 
 void ClearEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
@@ -61,7 +81,7 @@ void ClearEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
     valueTree.removeAllChildren (nullptr);
     valueTree.removeAllProperties (nullptr);
     for (const auto& eqNode : eqNodes)
-        addNode (eqNode.frequency, eqNode.amplitude, eqNode.pan);
+        addNode (eqNode.id, eqNode.frequency, eqNode.amplitude, eqNode.pan);
 }
 
 void ClearEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)

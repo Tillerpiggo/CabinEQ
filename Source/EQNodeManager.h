@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "ClearEQvalueTree.h"
 #include "EQNode.h"
 #include "Curve.h"
 
@@ -18,7 +19,7 @@
 class EQNodeManager
 {
 public:
-    EQNodeManager();
+    EQNodeManager (juce::AudioProcessorValueTreeState& apvts);
     
     const std::vector<EQNode>& getNodes() const { return eqNodes; }
     const int getNumNodes() const { return static_cast<int> (eqNodes.size()); }
@@ -45,6 +46,8 @@ public:
     static const int NUM_PTS = 60;
     
 private:
+    ClearEQValueTree clearEQValueTree;
+    
     std::vector<EQNode> eqNodes;
     Curve curve;
 };

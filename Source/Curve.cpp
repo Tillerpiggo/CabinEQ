@@ -73,13 +73,6 @@ const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size) const
     auto freqResponse = frequencyResponse (numPoints);
     auto leftFreqResponse = freqResponse.first;
     auto rightFreqResponse = freqResponse.second;
-    
-//    std::cout << "Freq response: " << std::endl;
-//    for (int i = 0; i < numPoints; ++i)
-//    {
-//        std::cout << leftFreqResponse[i] << " ";
-//    }
-//    std::cout << std::endl;
 
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);
@@ -114,15 +107,10 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
 {
     size_t numPoints = eqNodes.size();
     
-    if (frequency < eqNodes.at (0).frequency)
-    {
-        return values.at (0);
-    }
-    
-    if (frequency > eqNodes.at(numPoints - 1).frequency)
-    {
-        return values.at (numPoints - 1);
-    }
+    // Edge case checks
+    if (eqNodes.size() == 0) return 0.0f;
+    if (frequency < eqNodes.at (0).frequency) return values.at (0);
+    if (frequency > eqNodes.at(numPoints - 1).frequency) return values.at (numPoints - 1);
     
     float freq1, freq2;
     float gain0, gain1, gain2, gain3;

@@ -10,8 +10,14 @@
 
 #include "EQNodeManager.h"
 
-EQNodeManager::EQNodeManager()
+EQNodeManager::EQNodeManager (juce::AudioProcessorValueTreeState& apvts)
+    : clearEQValueTree (apvts, "ClearEQ")
 {
+    // Get EQ nodes straight from clearEQValueTree
+    this->eqNodes = clearEQValueTree.getEQNodes();
+    curve.updateWithEQNodes (eqNodes);
+    
+    /*
     int id = 0;
     
     // Generate NUM_PTS evenly spaced frequencies from 20 to 15000khz
@@ -59,11 +65,10 @@ EQNodeManager::EQNodeManager()
         eqNodes.emplace_back (id, freq, 0, 0);
         id++;
     }
-    
-    curve.updateWithEQNodes (eqNodes);
+     */
 }
 
-void EQNodeManager::addEQNode (float amplitude, float frequency, float pan)
+void EQNodeManager::addEQNode (float frequency, float amplitude, float pan)
 {
     // The next id is one higher than the highest id in the list
     int id = -1;
@@ -71,7 +76,7 @@ void EQNodeManager::addEQNode (float amplitude, float frequency, float pan)
         id = std::max (eqNode.id, id);
     id++;
     eqNodes.emplace_back (id, amplitude, frequency, pan);
-    // TODO: Add to underlying value tree
+    clearEQValueTree.addNode (id, frequency, amplitude, pan);
 }
 
 void EQNodeManager::removeEQNode (int id)
@@ -79,6 +84,7 @@ void EQNodeManager::removeEQNode (int id)
     for (int i = 0; i < eqNodes.size(); ++i)
         if (eqNodes[i].id == id)
             eqNodes.erase (eqNodes.begin() + i);
+    clearEQValueTree.removeNode (id);
 }
 
 void EQNodeManager::updateEQNode (int id, float frequency, float amplitude, float pan)
@@ -100,6 +106,7 @@ void EQNodeManager::updateEQNode (int id, float frequency, float amplitude, floa
         std::cout << "EQNode(id: " << eqNodes[i].id << ", freq: " << eqNodes[i].frequency << ", ampl: " << eqNodes[i].amplitude << ", pan: " << eqNodes[i].pan << std::endl;
     
     curve.updateWithEQNodes (eqNodes);
+    clearEQValueTree.updateNode (id, frequency, amplitude, pan);
 }
 
 const Curve& EQNodeManager::getCurve() const
