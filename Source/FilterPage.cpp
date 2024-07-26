@@ -10,7 +10,7 @@
 
 #include "FilterPage.h"
 
-FilterPage::FilterPage(StartupMVPAudioProcessor& p)
+FilterPage::FilterPage (StartupMVPAudioProcessor& p)
     : processor(p), curveComponent(p.getCurve()), isBypassed (false)
 {
     balanceSlider.setRange(-12.0, 12.0);

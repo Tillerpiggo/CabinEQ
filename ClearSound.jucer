@@ -24,6 +24,13 @@
       <FILE id="ZDls9P" name="ClearEQValueTree.h" compile="0" resource="0"
             file="Source/ClearEQValueTree.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
+        <FILE id="sQFMFZ" name="EQProfilePage.cpp" compile="1" resource="0"
+              file="Source/EQProfilePage.cpp"/>
+        <FILE id="QnUELA" name="EQProfilePage.h" compile="0" resource="0" file="Source/EQProfilePage.h"/>
+        <FILE id="BJ4X6e" name="EQNodeController.cpp" compile="1" resource="0"
+              file="Source/EQNodeController.cpp"/>
+        <FILE id="Qr3krC" name="EQNodeController.h" compile="0" resource="0"
+              file="Source/EQNodeController.h"/>
         <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
         <FILE id="RXILUA" name="SliderPage.cpp" compile="1" resource="0" file="Source/SliderPage.cpp"/>

@@ -17,10 +17,12 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioPr
     filterPage = std::make_unique<FilterPage> (p);
     sliderPage = std::make_unique<SliderPage> (p);
     leftRightPage = std::make_unique<LeftRightPage> (p);
+    eqProfilePage = std::make_unique<EQProfilePage> (p);
     
     tabbedComponent.addTab ("Filter", juce::Colours::lightgrey, filterPage.get(), false);
     tabbedComponent.addTab ("Sliders", juce::Colours::lightgrey, sliderPage.get(), false);
     tabbedComponent.addTab ("Left/Right", juce::Colours::lightgrey, leftRightPage.get(), false);
+    tabbedComponent.addTab ("Profile", juce::Colours::lightgrey, eqProfilePage.get(), false);
 
     addAndMakeVisible(tabbedComponent);
 }
