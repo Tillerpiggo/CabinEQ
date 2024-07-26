@@ -70,6 +70,9 @@ public:
     const Curve& getCurve() const;
     
     // Setting points
+    void addEQNode (float frequency, float amplitude, float pan);
+    void removeEQNode (int id);
+    void updateEQNode (int id, float frequency, float amplitude, float pan);
  
 private:
     static const int FFT_SIZE = 10;

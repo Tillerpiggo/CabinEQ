@@ -71,10 +71,6 @@ void CurveComponent::paint (juce::Graphics& g)
         float endY = height * (1.0f - (val + 15.1f) / 48.0f);
         
         trueFreqResponsePath.lineTo (endX, endY);
-//        std::cout << "x: " << endX << std::endl;
-//        std::cout << "y: " << endY << std::endl;
-//        std::cout << "val: " << val << std::endl;
-//        std::cout << "True Freq Response: " << juce::Decibels::gainToDecibels (trueFreqResponse[i]) << std::endl;
     }
     g.strokePath (trueFreqResponsePath, juce::PathStrokeType (1.0f));
 }

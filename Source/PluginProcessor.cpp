@@ -211,6 +211,52 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
+    // SUPER HACKY!!!
+    // Generate NUM_PTS evenly spaced frequencies from 20 to 15000khz
+    std::vector<float> frequencies;
+    float NUM_PTS = EQNodeManager::NUM_PTS;
+    frequencies.reserve (NUM_PTS);
+    
+    float startFreq = 50.0f;
+    float endFreq = 950.0f;
+
+    float logStart = std::log10(startFreq);
+    float logEnd = std::log10(endFreq);
+    float step = (logEnd - logStart) / (NUM_PTS / 3 - 1);
+
+    for (int i = 0; i < NUM_PTS / 3; ++i) {
+        float logFreq = logStart + i * step;
+        float freq = std::pow (10, logFreq);
+        frequencies.push_back (freq);
+    }
+    
+    startFreq = 1050.0f;
+    endFreq = 7500.0f;
+
+    logStart = std::log10(startFreq);
+    logEnd = std::log10(endFreq);
+    step = (logEnd - logStart) / (NUM_PTS / 3 - 1);
+
+    for (int i = 0; i < NUM_PTS / 3; ++i) {
+        double logFreq = logStart + i * step;
+        float freq = std::pow (10, logFreq);
+        frequencies.push_back (freq);
+    }
+    
+    startFreq = 8000.0f;
+    endFreq = 18000.0f;
+
+    logStart = std::log10(startFreq);
+    logEnd = std::log10(endFreq);
+    step = (logEnd - logStart) / (NUM_PTS / 3 - 1);
+
+    for (int i = 0; i < NUM_PTS / 3; ++i) {
+        double logFreq = logStart + i * step;
+        float freq = std::pow (10, logFreq);
+        frequencies.emplace_back (freq);
+    }
+    
+    
     std::unique_ptr <juce::XmlElement> savedParams(getXmlFromBinary(data, sizeInBytes));
     if (savedParams != nullptr)
     {
@@ -226,8 +272,7 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
                 double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
                 double pan = parameters.getRawParameterValue ("pan_" + idx)->load();
                 
-                eqNodeManager.setAmplitudeAt (i, gain);
-                eqNodeManager.setPanAt (i, pan);
+                eqNodeManager.updateEQNode (i, frequencies[i], gain, pan);
             }
         }
     }
@@ -330,4 +375,19 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
 const Curve& StartupMVPAudioProcessor::getCurve() const
 {
     return eqNodeManager.getCurve();
+}
+
+void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan)
+{
+    eqNodeManager.addEQNode (frequency, amplitude, pan);
+}
+
+void StartupMVPAudioProcessor::removeEQNode (int id)
+{
+    eqNodeManager.removeEQNode (id);
+}
+
+void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan)
+{
+    eqNodeManager.updateEQNode (id, frequency, amplitude, pan);
 }

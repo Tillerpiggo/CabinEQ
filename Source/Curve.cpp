@@ -74,12 +74,12 @@ const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size) const
     auto leftFreqResponse = freqResponse.first;
     auto rightFreqResponse = freqResponse.second;
     
-    std::cout << "Freq response: " << std::endl;
-    for (int i = 0; i < numPoints; ++i)
-    {
-        std::cout << leftFreqResponse[i] << " ";
-    }
-    std::cout << std::endl;
+//    std::cout << "Freq response: " << std::endl;
+//    for (int i = 0; i < numPoints; ++i)
+//    {
+//        std::cout << leftFreqResponse[i] << " ";
+//    }
+//    std::cout << std::endl;
 
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);

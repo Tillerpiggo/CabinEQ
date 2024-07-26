@@ -63,27 +63,42 @@ EQNodeManager::EQNodeManager()
     curve.updateWithEQNodes (eqNodes);
 }
 
-void EQNodeManager::setNodeAt (int idx, EQNode node)
+void EQNodeManager::addEQNode (float amplitude, float frequency, float pan)
 {
-    if (idx < 0 || idx >= getNumNodes())
-        return;
-    eqNodes[idx] = node;
-    curve.updateWithEQNodes (eqNodes);
+    // The next id is one higher than the highest id in the list
+    int id = -1;
+    for (EQNode eqNode : eqNodes)
+        id = std::max (eqNode.id, id);
+    id++;
+    eqNodes.emplace_back (id, amplitude, frequency, pan);
+    // TODO: Add to underlying value tree
 }
 
-void EQNodeManager::setAmplitudeAt (int idx, float newAmplitude)
+void EQNodeManager::removeEQNode (int id)
 {
-    if (idx < 0 || idx >= getNumNodes())
-        return;
-    eqNodes[idx].amplitude = newAmplitude;
-    curve.updateWithEQNodes (eqNodes);
+    for (int i = 0; i < eqNodes.size(); ++i)
+        if (eqNodes[i].id == id)
+            eqNodes.erase (eqNodes.begin() + i);
 }
 
-void EQNodeManager::setPanAt (int idx, float newPan)
+void EQNodeManager::updateEQNode (int id, float frequency, float amplitude, float pan)
 {
-    if (idx < 0 || idx >= getNumNodes())
-        return;
-    eqNodes[idx].pan = newPan;
+    std::cout << "Updating EQ node" << std::endl;
+    for (int i = 0; i < eqNodes.size(); ++i)
+    {
+        if (eqNodes[i].id == id)
+        {
+            std::cout << "Found EQ node with matching id" << std::endl;
+            eqNodes[i].frequency = frequency;
+            eqNodes[i].amplitude = amplitude;
+            eqNodes[i].pan = pan;
+        }
+    }
+    
+    std::cout << "EQ Nodes After: " << std::endl;
+    for (int i = 0; i < eqNodes.size(); ++i)
+        std::cout << "EQNode(id: " << eqNodes[i].id << ", freq: " << eqNodes[i].frequency << ", ampl: " << eqNodes[i].amplitude << ", pan: " << eqNodes[i].pan << std::endl;
+    
     curve.updateWithEQNodes (eqNodes);
 }
 

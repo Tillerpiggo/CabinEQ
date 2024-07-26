@@ -23,9 +23,12 @@ public:
     const std::vector<EQNode>& getNodes() { return eqNodes; }
     const int getNumNodes() const { return static_cast<int> (eqNodes.size()); }
     
-    void setNodeAt (int id, EQNode node);
-    void setAmplitudeAt (int id, float newAmplitude);
-    void setPanAt (int id, float newPan);
+//    void setNodeAt (int id, EQNode eqNode);
+//    void setAmplitudeAt (int id, float newAmplitude);
+//    void setPanAt (int id, float newPan);
+    void addEQNode (float frequency, float amplitude, float pan);
+    void removeEQNode (int id);
+    void updateEQNode (int id, float frequency, float amplitude, float pan);
     
     const Curve& getCurve() const;
     
