@@ -96,7 +96,12 @@ void EQNodeController::buttonClicked (juce::Button *button)
     }
 }
 
-void EQNodeController::setListener (std::unique_ptr<EQNodeControllerListener> listener)
+void EQNodeController::setListener (EQNodeControllerListener *listener)
 {
-    this->listener = std::move (listener);
+    this->listener = listener;
+}
+
+void EQNodeController::removeListener()
+{
+    this->listener = nullptr;
 }

@@ -41,7 +41,8 @@ public:
     void sliderDragEnded (juce::Slider *slider) override;
     void buttonClicked (juce::Button *button) override;
     
-    void setListener (std::unique_ptr<EQNodeControllerListener> listener);
+    void setListener (EQNodeControllerListener *listener);
+    void removeListener();
     
 private:
     juce::Slider frequencySlider;
@@ -49,7 +50,7 @@ private:
     juce::Slider panSlider;
     juce::TextButton removeButton { "Remove Node" };
     
-    std::unique_ptr<EQNodeControllerListener> listener;
+    EQNodeControllerListener* listener;
     
     int id;
     float frequency, amplitude, pan;

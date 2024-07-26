@@ -14,6 +14,7 @@ EQProfilePage::EQProfilePage (StartupMVPAudioProcessor& p) : processor (p)
 {
     addAndMakeVisible (addEQNodeButton);
     addAndMakeVisible (viewport);
+    addAndMakeVisible (eqNodeControllerContainer);
     addEQNodeButton.addListener (this);
     updateUIWithEQNodes (p.getEQNodes());
 }
@@ -69,14 +70,19 @@ void EQProfilePage::buttonClicked (juce::Button *button)
     if (button == &addEQNodeButton)
     {
         processor.addEQNode (1000.0f, 0.0f, 0.0f);
+        std::cout << "Added node (again)" << std::endl;
         updateUIWithEQNodes (processor.getEQNodes());
     }
 }
 
 void EQProfilePage::updateUIWithEQNodes (const std::vector<EQNode>& eqNodes)
 {
-    
     // First, clear current UI
+    for (auto& eqNodeController : eqNodeControllers)
+    {
+        eqNodeController->removeListener();
+        eqNodeController.reset();
+    }
     eqNodeControllers.clear();
     
     // Then, add each one to the container
@@ -85,12 +91,10 @@ void EQProfilePage::updateUIWithEQNodes (const std::vector<EQNode>& eqNodes)
         eqNodeControllers.push_back (std::make_unique<EQNodeController> (eqNode));
         auto& eqNodeControllerThatWasJustAdded = *eqNodeControllers.back();
         eqNodeControllerContainer.addAndMakeVisible (eqNodeControllerThatWasJustAdded);
-        eqNodeControllerThatWasJustAdded.setListener (std::unique_ptr<EQProfilePage> (this));
+        eqNodeControllerThatWasJustAdded.setListener (this);
     }
     
     // Make the container visible and add it to the viewport
-    addAndMakeVisible (viewport);
-    addAndMakeVisible (eqNodeControllerContainer);
     viewport.setViewedComponent (&eqNodeControllerContainer, true);
      
 }
