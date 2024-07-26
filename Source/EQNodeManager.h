@@ -20,7 +20,7 @@ class EQNodeManager
 public:
     EQNodeManager();
     
-    const std::vector<EQNode>& getNodes() { return eqNodes; }
+    const std::vector<EQNode>& getNodes() const { return eqNodes; }
     const int getNumNodes() const { return static_cast<int> (eqNodes.size()); }
     
 //    void setNodeAt (int id, EQNode eqNode);

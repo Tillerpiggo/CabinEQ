@@ -391,3 +391,8 @@ void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float ampl
 {
     eqNodeManager.updateEQNode (id, frequency, amplitude, pan);
 }
+
+const std::vector<EQNode>& StartupMVPAudioProcessor::getEQNodes() const
+{
+    return eqNodeManager.getNodes();
+}

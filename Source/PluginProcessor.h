@@ -73,6 +73,8 @@ public:
     void addEQNode (float frequency, float amplitude, float pan);
     void removeEQNode (int id);
     void updateEQNode (int id, float frequency, float amplitude, float pan);
+    
+    const std::vector<EQNode>& getEQNodes() const;
  
 private:
     static const int FFT_SIZE = 10;

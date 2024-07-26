@@ -11,18 +11,20 @@
 #include "SliderPage.h"
 
 SliderPage::SliderPage(StartupMVPAudioProcessor& p)
-    : processor(p)
+    : processor (p)
 {
-    for (int i = 0; i < sliders.size(); ++i)
+    const auto& eqNodes = p.getEQNodes();
+    
+    for (const auto& eqNode : eqNodes)
     {
-        sliders[i] = std::make_unique<juce::Slider> (juce::Slider::LinearVertical, juce::Slider::TextBoxBelow);
-        auto& slider = *sliders[i];
+        sliders.push_back (std::make_unique<juce::Slider> (juce::Slider::LinearVertical, juce::Slider::TextBoxBelow));
+        auto& slider = *sliders.back();
         addAndMakeVisible (sliderContainer);
         sliderContainer.addAndMakeVisible (slider);
-        slider.getProperties().set("idx", i);
+        slider.getProperties().set("id", eqNode.id);
 
-        auto paramID = "gain_" + std::to_string(i);
-        sliderAttachments[i] = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (processor.parameters, paramID, slider);
+        auto paramID = "gain_" + std::to_string(eqNode.id);
+        sliderAttachments.push_back (std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (processor.parameters, paramID, slider));
         
         slider.addListener (this);
     }
