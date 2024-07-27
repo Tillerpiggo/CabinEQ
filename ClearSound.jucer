@@ -68,6 +68,16 @@
               file="Source/ArbitraryResponseFilter.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Calibration"/>
+      <GROUP id="{204139DF-76FC-2970-75AF-CB82419D64E9}" name="BSpline">
+        <FILE id="Q0i0u6" name="BSpline.cpp" compile="1" resource="0" file="Source/BSpline.cpp"/>
+        <FILE id="mBj2JC" name="BSpline.h" compile="0" resource="0" file="Source/BSpline.h"/>
+        <FILE id="YlI4DH" name="BSplineBase.cpp" compile="1" resource="0" file="Source/BSplineBase.cpp"/>
+        <FILE id="ffbp5J" name="BSplineBase.h" compile="0" resource="0" file="Source/BSplineBase.h"/>
+        <FILE id="B9wM8b" name="BSplineLib.cpp" compile="1" resource="0" file="Source/BSplineLib.cpp"/>
+        <FILE id="um04Bk" name="BSplineVersion.h" compile="0" resource="0"
+              file="Source/BSplineVersion.h"/>
+        <FILE id="N3gHYJ" name="BandedMatrix.h" compile="0" resource="0" file="Source/BandedMatrix.h"/>
+      </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
     </GROUP>

@@ -143,7 +143,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
     }
     
     float t = (frequency - freq1) / (freq2 - freq1);
-    float gainAtFrequency = catmullRom(t, gain0, gain1, gain2, gain3);
+    float gainAtFrequency = catmullRom (t, gain0, gain1, gain2, gain3);
     
     return gainAtFrequency;
 }
