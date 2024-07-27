@@ -27,7 +27,7 @@ EQNodeController::EQNodeController (int id, float frequency, float amplitude, fl
     panSlider.setRange (-24.0f, 24.0f, 0.01);
     panSlider.setTextValueSuffix (" dB");
     panSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    panSlider.setValue (amplitude);
+    panSlider.setValue (pan);
     
     frequencySlider.addListener (this);
     amplitudeSlider.addListener (this);
@@ -80,7 +80,6 @@ void EQNodeController::sliderDragStarted (juce::Slider *slider)
 
 void EQNodeController::sliderValueChanged (juce::Slider *slider)
 {
-    // Do nothing, for now
     if (slider == &frequencySlider || slider == &amplitudeSlider || slider == &panSlider)
     {
         listener->eqNodeChanged (id, frequencySlider.getValue(), amplitudeSlider.getValue(), panSlider.getValue());
