@@ -15,14 +15,11 @@
             file="Source/PlaybackManager.cpp"/>
       <FILE id="amZ4ZY" name="PlaybackManager.h" compile="0" resource="0"
             file="Source/PlaybackManager.h"/>
-      <FILE id="KO7pRp" name="EQNodeManager.cpp" compile="1" resource="0"
-            file="Source/EQNodeManager.cpp"/>
-      <FILE id="uEzYGm" name="EQNodeManager.h" compile="0" resource="0" file="Source/EQNodeManager.h"/>
-      <FILE id="h9bYnu" name="EQNode.h" compile="0" resource="0" file="Source/EQNode.h"/>
       <FILE id="tErBau" name="ClearEQValueTree.cpp" compile="1" resource="0"
             file="Source/ClearEQValueTree.cpp"/>
       <FILE id="ZDls9P" name="ClearEQValueTree.h" compile="0" resource="0"
             file="Source/ClearEQValueTree.h"/>
+      <FILE id="h9bYnu" name="EQNode.h" compile="0" resource="0" file="Source/EQNode.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="sQFMFZ" name="EQProfilePage.cpp" compile="1" resource="0"
               file="Source/EQProfilePage.cpp"/>
@@ -33,11 +30,6 @@
               file="Source/EQNodeController.h"/>
         <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
-        <FILE id="RXILUA" name="SliderPage.cpp" compile="1" resource="0" file="Source/SliderPage.cpp"/>
-        <FILE id="VBfRK2" name="SliderPage.h" compile="0" resource="0" file="Source/SliderPage.h"/>
-        <FILE id="Px8gSh" name="LeftRightPage.cpp" compile="1" resource="0"
-              file="Source/LeftRightPage.cpp"/>
-        <FILE id="uZOW5M" name="LeftRightPage.h" compile="0" resource="0" file="Source/LeftRightPage.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"

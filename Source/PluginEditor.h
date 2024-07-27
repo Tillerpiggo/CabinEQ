@@ -11,8 +11,6 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "FilterPage.h"
-#include "SliderPage.h"
-#include "LeftRightPage.h"
 #include "EQProfilePage.h"
 
 //==============================================================================
@@ -34,8 +32,6 @@ private:
     juce::TabbedComponent tabbedComponent;
     
     std::unique_ptr<FilterPage> filterPage;
-    std::unique_ptr<SliderPage> sliderPage;
-    std::unique_ptr<LeftRightPage> leftRightPage;
     std::unique_ptr<EQProfilePage> eqProfilePage;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)

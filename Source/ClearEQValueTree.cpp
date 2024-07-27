@@ -11,40 +11,16 @@
 #include "ClearEQValueTree.h"
 
 ClearEQValueTree::ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
-    : idProfile (identifier), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan"), apvts (apvts)
-{
-    /*
-    std::cout << "APVTS ON INIT" << std::endl;
-    printValueTree (apvts.state);
-    valueTree = apvts.state;//.getChildWithName (idProfile);
-
-    // Initialize value tree if we can't load it
-    if (! valueTree.isValid())
-    {
-        valueTree = juce::ValueTree (idProfile);
-        apvts.state = valueTree;
-        
-        std::cout << "RESETTING TREE" << std::endl;
-        printValueTree (apvts.state);
-        
-        std::cout << "Value Tree Parent: " << valueTree.getType().toString() << std::endl;
-    }
-     */
-}
+    : apvts (apvts), idProfile (identifier), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
+{}
 
 const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
 {
     if (! hasBeenInitialized) return {};
     
-    std::cout << "GETTING EQ NODES FROM TREE" << std::endl;
-    printValueTree (apvts.state);
-    
     std::vector<EQNode> eqNodes;
-    std::cout << "1" << std::endl;
     if (! valueTree.isValid())
         return eqNodes;
-    
-    std::cout << "2" << std::endl;
     
     for (const auto& eqNode : valueTree)
     {
@@ -54,8 +30,6 @@ const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
         float pan = eqNode.getProperty (idPan);
         eqNodes.emplace_back (id, freq, ampl, pan);
     }
-    
-    std::cout << "3" << std::endl;
     
     return eqNodes;
 }
@@ -84,16 +58,6 @@ int ClearEQValueTree::addEQNode (const float frequency, const float amplitude, c
 {
     if (! hasBeenInitialized) return -1;
     
-    std::cout << "Value Tree Parent: " << valueTree.getParent().getType().toString() << std::endl;
-    
-    std::cout << "APVTS BEFORE ADDING NODE" << std::endl;
-    printValueTree (apvts.state);
-    
-    std::cout << "ValueTree BEFORE ADDING NODE" << std::endl;
-    printValueTree (valueTree);
-    
-    //std::cout << "Adding node" << std::endl;
-    
     int id = -1;
     for (const auto& eqNode : valueTree)
     {
@@ -102,28 +66,6 @@ int ClearEQValueTree::addEQNode (const float frequency, const float amplitude, c
     id++;
     
     addEQNode (id, frequency, amplitude, pan);
-    
-//    juce::ValueTree eqNode (idEQNode);
-//    eqNode.setProperty (idId, id, nullptr);
-//    eqNode.setProperty (idFrequency, frequency, nullptr);
-//    eqNode.setProperty (idAmplitude, amplitude, nullptr);
-//    eqNode.setProperty (idPan, pan, nullptr);
-//    valueTree.appendChild (eqNode, nullptr);
-    
-    //std::cout << "Num nodes: " << valueTree.getNumChildren() << std::endl;
-    
-//    std::cout << "All nodes" << std::endl;
-//    for (const auto& eqNode: getEQNodes())
-//        std::cout << "EQNode(id: " << eqNode.id << ", freq: " << eqNode.frequency << ", ampl: " << eqNode.amplitude << ", pan: " << eqNode.pan << ")" << std::endl;
-    
-//    apvts.state = valueTree;
-    
-    std::cout << "Added node! Current state:" << std::endl;
-    std::cout << "Num nodes: " << apvts.state.getNumChildren() << std::endl;
-    printValueTree (apvts.state);
-    
-    std::cout << "Added node (ValueTree)! Current state:" << std::endl;
-    printValueTree (valueTree);
     
     curve.updateWithEQNodes (getEQNodes());
     
@@ -171,20 +113,13 @@ void ClearEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
 
 void ClearEQValueTree::initValueTreeFromAPVTS()
 {
-    std::cout << "APVTS ON INIT" << std::endl;
-    printValueTree (apvts.state);
-    valueTree = apvts.state;//.getChildWithName (idProfile);
+    valueTree = apvts.state;
 
     // Initialize value tree if we can't load it
     if (! valueTree.isValid())
     {
         valueTree = juce::ValueTree (idProfile);
         apvts.state = valueTree;
-        
-        std::cout << "RESETTING TREE" << std::endl;
-        printValueTree (apvts.state);
-        
-        std::cout << "Value Tree Parent: " << valueTree.getType().toString() << std::endl;
     }
     
     hasBeenInitialized = true;

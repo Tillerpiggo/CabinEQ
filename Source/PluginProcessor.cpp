@@ -202,40 +202,9 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    
-    std::cout << "Setting state information" << std::endl;
-    
     auto state = parameters.copyState();
     std::unique_ptr <juce::XmlElement> xml (state.createXml());
     copyXmlToBinary(*xml, destData);
-    
-    
-    std::cout << "Saving state as: " << state.getType().toString() << std::endl;
-    const auto& clearEQTree = state;
-    if (clearEQTree.isValid())
-    {
-        std::cout << "ClearEQValueTree (numNodes: " << clearEQTree.getNumChildren() << ")" << std::endl;
-        juce::Identifier idId ("id");
-        juce::Identifier idFrequency ("frequency");
-        juce::Identifier idAmplitude ("amplitude");
-        if (clearEQTree.getNumChildren() > 0)
-        {
-            for (const auto& eqNode : clearEQTree)
-            {
-                float id = eqNode.getProperty (idId);
-                float freq = eqNode.getProperty (idFrequency);
-                float ampl = eqNode.getProperty (idAmplitude);
-                
-                std::cout << "EQNode (id: " << id << ", freq: " << freq << ", ampl: " << ampl << ")" << std::endl;
-            }
-        }
-    }
-    else
-    {
-        std::cout << "NO_TREE" << std::endl;
-    }
-    std::cout << xml->toString() << std::endl;
-    std::cout << std::endl;
 }
 
 void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -249,37 +218,8 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         {
             parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
             clearEQValueTree.initValueTreeFromAPVTS();
-//            eqNodeManager.loadFromAPVTS();
-            std::cout << "Getting state as: " << parameters.state.getType().toString() << std::endl;
-            const auto& clearEQTree = parameters.state;
-            if (clearEQTree.isValid())
-            {
-                std::cout << "ClearEQValueTree (numNodes: " << clearEQTree.getNumChildren() << ")" << std::endl;
-                if (clearEQTree.getNumChildren() > 0)
-                {
-                    juce::Identifier idId ("id");
-                    juce::Identifier idFrequency ("frequency");
-                    juce::Identifier idAmplitude ("amplitude");
-                    for (const auto& eqNode : clearEQTree)
-                    {
-                        float id = eqNode.getProperty (idId);
-                        float freq = eqNode.getProperty (idFrequency);
-                        float ampl = eqNode.getProperty (idAmplitude);
-                        
-                        std::cout << "EQNode (id: " << id << ", freq: " << freq << ", ampl: " << ampl << ")" << std::endl;
-                    }
-                }
-            }
-            else
-            {
-                std::cout << "NO_TREE" << std::endl;
-            }
-            std::cout << xmlState->toString() << std::endl;
-            std::cout << std::endl;
         }
     }
-    
-    std::cout << "Finished getting state" << std::endl;
 }
 
 //==============================================================================
@@ -400,6 +340,5 @@ void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float ampl
 
 const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes() const
 {
-    std::cout << "getting eq nodes in pluginProcessor" << std::endl;
     return clearEQValueTree.getEQNodes();
 }
