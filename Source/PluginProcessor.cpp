@@ -202,6 +202,9 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    
+    std::cout << "Setting state information" << std::endl;
+    
     auto state = parameters.copyState();
     std::unique_ptr <juce::XmlElement> xml (state.createXml());
     copyXmlToBinary(*xml, destData);
@@ -274,6 +277,8 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
             std::cout << std::endl;
         }
     }
+    
+    std::cout << "Finished getting state" << std::endl;
 }
 
 //==============================================================================

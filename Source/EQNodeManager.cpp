@@ -13,9 +13,11 @@
 EQNodeManager::EQNodeManager (juce::AudioProcessorValueTreeState& apvts)
     : clearEQValueTree (apvts, "ClearEQ")
 {
+    std::cout << "Initializing EQNodeManager" << std::endl;
     // Get EQ nodes straight from clearEQValueTree
-    this->eqNodes = clearEQValueTree.getEQNodes();
+    const auto& eqNodes = clearEQValueTree.getEQNodes();
     curve.updateWithEQNodes (eqNodes);
+    std::cout << "Initialized EQNodeManager" << std::endl;
     
     /*
     int id = 0;
@@ -68,34 +70,43 @@ EQNodeManager::EQNodeManager (juce::AudioProcessorValueTreeState& apvts)
      */
 }
 
+const std::vector<EQNode>& EQNodeManager::getNodes() const
+{
+    return clearEQValueTree.getEQNodes();
+}
+
 void EQNodeManager::addEQNode (float frequency, float amplitude, float pan)
 {
-    int id = clearEQValueTree.addNode (frequency, amplitude, pan);
-    eqNodes.emplace_back (id, amplitude, frequency, pan);
+    clearEQValueTree.addNode (frequency, amplitude, pan);
+//    std::cout << "Adding EQNode(id: " << id << ")" << std::endl;
+//    eqNodes.emplace_back (id, amplitude, frequency, pan);
+    numNodes++;
 }
 
 void EQNodeManager::removeEQNode (int id)
 {
-    for (int i = 0; i < eqNodes.size(); ++i)
-        if (eqNodes[i].id == id)
-            eqNodes.erase (eqNodes.begin() + i);
+    std::cout << "Removing eq node: " << id << std::endl;
+//    for (int i = 0; i < eqNodes.size(); ++i)
+//        if (eqNodes[i].id == id)
+//            eqNodes.erase (eqNodes.begin() + i);
     clearEQValueTree.removeNode (id);
+    numNodes--;
 }
 
 void EQNodeManager::updateEQNode (int id, float frequency, float amplitude, float pan)
 {
-    for (int i = 0; i < eqNodes.size(); ++i)
-    {
-        if (eqNodes[i].id == id)
-        {
-            eqNodes[i].frequency = frequency;
-            eqNodes[i].amplitude = amplitude;
-            eqNodes[i].pan = pan;
-        }
-    }
-    
-    curve.updateWithEQNodes (eqNodes);
+//    for (int i = 0; i < eqNodes.size(); ++i)
+//    {
+//        if (eqNodes[i].id == id)
+//        {
+//            eqNodes[i].frequency = frequency;
+//            eqNodes[i].amplitude = amplitude;
+//            eqNodes[i].pan = pan;
+//        }
+//    }
     clearEQValueTree.updateNode (id, frequency, amplitude, pan);
+    const auto& eqNodes = clearEQValueTree.getEQNodes();
+    curve.updateWithEQNodes (eqNodes);
 }
 
 void EQNodeManager::loadFromAPVTS()
@@ -103,12 +114,16 @@ void EQNodeManager::loadFromAPVTS()
     std::cout << "INIT VALUE TREE FROM APVTS" << std::endl;
     clearEQValueTree.initValueTreeFromAPVTS();
     
-    for (const auto& eqNode : clearEQValueTree.getEQNodes())
-    {
-        std::cout << "EQNode(id: " << eqNode.id << ", freq: " << eqNode.frequency << ")" << std::endl;
-    }
+//    eqNodes.clear();
+//    for (const auto& eqNode : clearEQValueTree.getEQNodes())
+//    {
+//        std::cout << "EQNode(id: " << eqNode.id << ", freq: " << eqNode.frequency << ")" << std::endl;
+//    }
     
-    eqNodes = clearEQValueTree.getEQNodes();
+    //eqNodes = clearEQValueTree.getEQNodes();
+    std::cout << "pushing back" << std::endl;
+//    eqNodes.push_back (EQNode (10, 1000, 0, 0));
+    std::cout << "pushed back" << std::endl;
 }
 
 const Curve& EQNodeManager::getCurve() const

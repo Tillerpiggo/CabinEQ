@@ -13,23 +13,21 @@
 ClearEQValueTree::ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
     : idProfile (identifier), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan"), apvts (apvts)
 {
-    /*
     std::cout << "APVTS ON INIT" << std::endl;
     printValueTree (apvts.state);
     valueTree = apvts.state;//.getChildWithName (idProfile);
-//
-//    // Initialize value tree if we can't load it
-//    if (! valueTree.isValid())
-//    {
-//        valueTree = juce::ValueTree (idProfile);
-//        apvts.state = valueTree;
-//        
-//        std::cout << "RESETTING TREE" << std::endl;
-//        printValueTree (apvts.state);
-//        
-//        std::cout << "Value Tree Parent: " << valueTree.getType().toString() << std::endl;
-//    }
-     */
+
+    // Initialize value tree if we can't load it
+    if (! valueTree.isValid())
+    {
+        valueTree = juce::ValueTree (idProfile);
+        apvts.state = valueTree;
+        
+        std::cout << "RESETTING TREE" << std::endl;
+        printValueTree (apvts.state);
+        
+        std::cout << "Value Tree Parent: " << valueTree.getType().toString() << std::endl;
+    }
 }
 
 const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
@@ -86,6 +84,7 @@ int ClearEQValueTree::addNode (const float frequency, const float amplitude, con
     {
         id = std::max ((int) eqNode.getProperty (idId), id);
     }
+    id++;
     
     addNode (id, frequency, amplitude, pan);
     
@@ -111,7 +110,7 @@ int ClearEQValueTree::addNode (const float frequency, const float amplitude, con
     std::cout << "Added node (ValueTree)! Current state:" << std::endl;
     printValueTree (valueTree);
     
-    
+    return id;
 }
 
 void ClearEQValueTree::removeNode (const int id)
