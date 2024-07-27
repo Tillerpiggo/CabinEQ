@@ -20,8 +20,8 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Params", createParameterLayout (EQNodeManager::NUM_PTS)),
-                          eqNodeManager (parameters)
+                       ), parameters (*this, nullptr, "Params", createParameterLayout (0)),
+                          clearEQValueTree (parameters, "ClearEQ")
 
 #endif
 {
@@ -248,7 +248,8 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         if (xmlState->hasTagName(parameters.state.getType()))
         {
             parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-            eqNodeManager.loadFromAPVTS();
+            clearEQValueTree.initValueTreeFromAPVTS();
+//            eqNodeManager.loadFromAPVTS();
             std::cout << "Getting state as: " << parameters.state.getType().toString() << std::endl;
             const auto& clearEQTree = parameters.state;
             if (clearEQTree.isValid())
@@ -351,6 +352,7 @@ void StartupMVPAudioProcessor::applyCurve()
 //        playbackManager.prepare (spec);
 //    }
     
+    /*
     for (int i = 0; i < EQNodeManager::NUM_PTS; ++i)
     {
         std::string idx = std::to_string (i);
@@ -361,8 +363,9 @@ void StartupMVPAudioProcessor::applyCurve()
 //        playbackManager.setAmplitudeAtIdx (i, gain);
 //        playbackManager.setPanAtIdx (i, pan);
     }
+     */
     
-    playbackManager.updateWithCurve (eqNodeManager.getCurve());
+    playbackManager.updateWithCurve (clearEQValueTree.getCurve());
 }
 
 void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
@@ -377,25 +380,26 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
 
 const Curve& StartupMVPAudioProcessor::getCurve() const
 {
-    return eqNodeManager.getCurve();
+    return clearEQValueTree.getCurve();
 }
 
 void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan)
 {
-    eqNodeManager.addEQNode (frequency, amplitude, pan);
+    clearEQValueTree.addEQNode (frequency, amplitude, pan);
 }
 
 void StartupMVPAudioProcessor::removeEQNode (int id)
 {
-    eqNodeManager.removeEQNode (id);
+    clearEQValueTree.removeEQNode (id);
 }
 
 void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan)
 {
-    eqNodeManager.updateEQNode (id, frequency, amplitude, pan);
+    clearEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
 
-const std::vector<EQNode>& StartupMVPAudioProcessor::getEQNodes() const
+const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes() const
 {
-    return eqNodeManager.getNodes();
+    std::cout << "getting eq nodes in pluginProcessor" << std::endl;
+    return clearEQValueTree.getEQNodes();
 }

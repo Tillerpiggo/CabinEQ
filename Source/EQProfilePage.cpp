@@ -18,6 +18,7 @@ EQProfilePage::EQProfilePage (StartupMVPAudioProcessor& p)
     addAndMakeVisible (viewport);
     addAndMakeVisible (eqNodeControllerContainer);
     addEQNodeButton.addListener (this);
+    std::cout << "About to update UI with EQ nodes" << std::endl;
     updateUIWithEQNodes (p.getEQNodes());
 }
 
@@ -84,6 +85,8 @@ void EQProfilePage::buttonClicked (juce::Button *button)
 
 void EQProfilePage::updateUIWithEQNodes (const std::vector<EQNode>& eqNodes)
 {
+    std::cout << "Updating UI with eq nodes" << std::endl;
+    
     // First, clear current UI
     for (auto& eqNodeController : eqNodeControllers)
     {

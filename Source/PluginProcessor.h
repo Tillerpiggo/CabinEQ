@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 #include "PlaybackManager.h"
-#include "EQNodeManager.h"
+#include "ClearEQValueTree.h"
 
 //==============================================================================
 /**
@@ -67,20 +67,21 @@ public:
     void setIsBypassed (bool isBypassed);
     void setBypassBalance (float balance);
     
+   
     const Curve& getCurve() const;
+    const std::vector<EQNode> getEQNodes() const;
     
     // Setting points
     void addEQNode (float frequency, float amplitude, float pan);
     void removeEQNode (int id);
     void updateEQNode (int id, float frequency, float amplitude, float pan);
-    
-    const std::vector<EQNode>& getEQNodes() const;
  
 private:
     static const int FFT_SIZE = 10;
 
     PlaybackManager playbackManager;
-    EQNodeManager eqNodeManager;
+    ClearEQValueTree clearEQValueTree;
+//    EQNodeManager eqNodeManager;
     
     juce::dsp::ProcessSpec spec;
     

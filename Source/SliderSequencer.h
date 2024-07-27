@@ -13,7 +13,7 @@
 #include <JuceHeader.h>
 #include "ArbitrarySequencer.h"
 #include "Note.h"
-#include "EQNodeManager.h"
+#include "EQNode.h"
 
 class SliderSequencer
 {

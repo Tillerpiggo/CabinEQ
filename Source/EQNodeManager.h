@@ -9,6 +9,7 @@
 */
 
 
+/*
 #pragma once
 
 #include <JuceHeader.h>
@@ -42,3 +43,4 @@ private:
 //    std::vector<EQNode> eqNodes;
     Curve curve;
 };
+*/

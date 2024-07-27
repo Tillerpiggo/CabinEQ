@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+/*
 #include "EQNodeManager.h"
 
 EQNodeManager::EQNodeManager (juce::AudioProcessorValueTreeState& apvts)
@@ -67,7 +68,7 @@ EQNodeManager::EQNodeManager (juce::AudioProcessorValueTreeState& apvts)
         eqNodes.emplace_back (id, freq, 0, 0);
         id++;
     }
-     */
+     
 }
 
 const std::vector<EQNode>& EQNodeManager::getNodes() const
@@ -130,3 +131,4 @@ const Curve& EQNodeManager::getCurve() const
 {
     return curve;
 }
+*/
