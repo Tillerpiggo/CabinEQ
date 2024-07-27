@@ -70,6 +70,13 @@ void EQNodeController::paint (juce::Graphics& g)
     g.fillAll (juce::Colour::fromRGB(30, 30, 30));
 }
 
+void EQNodeController::sliderDragStarted (juce::Slider *slider)
+{
+    if (slider == &frequencySlider || slider == &amplitudeSlider || slider == &panSlider)
+    {
+        listener->eqNodeStartedChange (id, frequencySlider.getValue(), amplitudeSlider.getValue(), panSlider.getValue());
+    }
+}
 
 void EQNodeController::sliderValueChanged (juce::Slider *slider)
 {
@@ -80,17 +87,12 @@ void EQNodeController::sliderValueChanged (juce::Slider *slider)
     }
 }
 
-void EQNodeController::sliderDragStarted (juce::Slider *slider)
+void EQNodeController::sliderDragEnded (juce::Slider *slider)
 {
     if (slider == &frequencySlider || slider == &amplitudeSlider || slider == &panSlider)
     {
-        listener->eqNodeChanged (id, frequencySlider.getValue(), amplitudeSlider.getValue(), panSlider.getValue());
+        listener->eqNodeEndedChange (id, frequencySlider.getValue(), amplitudeSlider.getValue(), panSlider.getValue());
     }
-}
-
-void EQNodeController::sliderDragEnded (juce::Slider *slider)
-{
-    // Do nothing, for now
 }
 
 void EQNodeController::buttonClicked (juce::Button *button)

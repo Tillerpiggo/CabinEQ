@@ -19,7 +19,9 @@ class EQNodeControllerListener
 public:
     virtual ~EQNodeControllerListener() = default;
 
+    virtual void eqNodeStartedChange (int id, float frequency, float amplitude, float pan) = 0;
     virtual void eqNodeChanged (int id, float frequency, float amplitude, float pan) = 0;
+    virtual void eqNodeEndedChange (int id, float frequency, float amplitude, float pan) = 0;
     virtual void removeButtonClicked (int id) = 0;
 };
 
@@ -36,8 +38,8 @@ public:
     void resized() override;
     void paint (juce::Graphics& g) override;
     
-    void sliderValueChanged (juce::Slider *slider) override;
     void sliderDragStarted (juce::Slider *slider) override;
+    void sliderValueChanged (juce::Slider *slider) override;
     void sliderDragEnded (juce::Slider *slider) override;
     void buttonClicked (juce::Button *button) override;
     

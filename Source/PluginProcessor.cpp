@@ -337,6 +337,23 @@ void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float ampl
     clearEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
 
+void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode eqNode)
+{
+    playbackManager.setCalibratingEQNode (eqNode);
+    playbackManager.setIsCalibrating (true);
+    std::cout << "start calibrating eq node" << std::endl;
+}
+
+void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode eqNode)
+{
+    playbackManager.updateCalibratingEQNode (eqNode);
+}
+
+void StartupMVPAudioProcessor::endCalibratingEQNode()
+{
+    playbackManager.setIsCalibrating (false);
+}
+
 const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes() const
 {
     return clearEQValueTree.getEQNodes();

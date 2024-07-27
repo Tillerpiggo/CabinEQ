@@ -75,6 +75,11 @@ public:
     void addEQNode (float frequency, float amplitude, float pan);
     void removeEQNode (int id);
     void updateEQNode (int id, float frequency, float amplitude, float pan);
+    
+    // Changing points
+    void startCalibratingEQNode (EQNode eqNode);
+    void updateCalibratingEQNode (EQNode eqNode);
+    void endCalibratingEQNode();
  
 private:
     static const int FFT_SIZE = 10;

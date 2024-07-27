@@ -95,6 +95,7 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
 
 void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 {
+    std::cout << "update calibrating eq node" << std::endl;
     int noteDurationInSamples = 25000;
     
     Note referenceNoteCompensated = referenceNote;

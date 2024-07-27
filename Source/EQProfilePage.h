@@ -27,7 +27,9 @@ public:
     void resized() override;
     void paint (juce::Graphics& g) override;
     
+    void eqNodeStartedChange (int id, float frequency, float amplitude, float pan) override;
     void eqNodeChanged (int id, float frequency, float amplitude, float pan) override;
+    void eqNodeEndedChange (int id, float frequency, float amplitude, float pan) override;
     void removeButtonClicked (int id) override;
     void buttonClicked (juce::Button *button) override;
     

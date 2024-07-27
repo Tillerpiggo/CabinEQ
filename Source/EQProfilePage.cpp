@@ -59,10 +59,22 @@ void EQProfilePage::paint (juce::Graphics& g)
     
 }
 
+void EQProfilePage::eqNodeStartedChange (int id, float frequency, float amplitude, float pan)
+{
+    processor.updateEQNode (id, frequency, amplitude, pan);
+    processor.startCalibratingEQNode (EQNode (id, frequency, amplitude, pan));
+}
 
 void EQProfilePage::eqNodeChanged (int id, float frequency, float amplitude, float pan)
 {
     processor.updateEQNode (id, frequency, amplitude, pan);
+    processor.updateCalibratingEQNode (EQNode (id, frequency, amplitude, pan));
+}
+
+void EQProfilePage::eqNodeEndedChange (int id, float frequency, float amplitude, float pan)
+{
+    processor.updateEQNode (id, frequency, amplitude, pan);
+    processor.endCalibratingEQNode();
 }
 
 void EQProfilePage::removeButtonClicked (int id)
