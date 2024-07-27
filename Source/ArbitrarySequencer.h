@@ -34,6 +34,7 @@ public:
     void setNotes (const std::vector<SequenceableNote>& notes, bool repeating = true);
     void setListener (SequencerListener* newListener);
     
+    void changeNoteAtIdx (int idx, Note newNote);
     void changeNoteGainAtIdx (int idx, float noteGain);
     void changeNotePanAtIdx (int idx, float notePan);
     void changeNoteGainWithFrequency (float frequency, float noteGain);

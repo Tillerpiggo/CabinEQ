@@ -60,6 +60,24 @@ void ArbitrarySequencer::setListener(SequencerListener* newListener)
     listener = newListener;
 }
 
+void ArbitrarySequencer::changeNoteAtIdx (int idx, Note newNote)
+{
+    if (idx < 0 || idx > notes.size())
+    {
+        std::cerr << "WARNING: changing note gain at idx out of bounds" << std::endl;
+        return;
+    }
+    
+    notes.at (idx).setFrequency (newNote.frequency);
+    notes.at (idx).setAmplitude (newNote.gain);
+    notes.at (idx).setPan (newNote.pan);
+    
+    if (currNoteIdx == idx)
+    {
+        sineWaveGenerator.setNote (newNote);
+    }
+}
+
 void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)
 {
     if (idx < 0 || idx > notes.size())

@@ -101,7 +101,6 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
-    playbackManager.setSampleRate (sampleRate);
     
     this->sampleRate = sampleRate;
     this->samplesPerBlock = samplesPerBlock;
@@ -305,7 +304,7 @@ void StartupMVPAudioProcessor::applyCurve()
     }
      */
     
-    playbackManager.updateWithCurve (clearEQValueTree.getCurve());
+    playbackManager.updateFilterWithCurve (clearEQValueTree.getCurve());
 }
 
 void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)

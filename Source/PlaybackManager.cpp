@@ -53,14 +53,16 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     }
 }
 
-std::pair<float, float> PlaybackManager::getNextSample()
+void PlaybackManager::updateFilterWithCurve (const Curve& curve)
 {
-    return sliderSequencer.getNextSample();
+    filter.updateWithCurve (curve, FFT_SIZE);
 }
 
-void PlaybackManager::setSampleRate (float newSampleRate)
+void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    sliderSequencer.setSampleRate (newSampleRate);
+    filter.prepare (spec);
+    arbitrarySequencer.setSampleRate (spec.sampleRate);
+    hasPreparedFilter = true;
 }
 
 void PlaybackManager::setIsCalibrating (bool isCalibrating)
@@ -79,13 +81,49 @@ void PlaybackManager::setDryWetVolumeBalance (float balance)
     wetGainProcessor.setGainDecibels (+balance);
 }
 
-void PlaybackManager::updateWithCurve (const Curve& curve)
+void PlaybackManager::setCalibratingEQNode (EQNode node)
 {
-    filter.updateWithCurve (curve, FFT_SIZE);
+    int noteDurationInSamples = 25000;
+    
+    Note referenceNoteCompensated = referenceNote;
+    referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
+    
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+    SequenceableNote note2 (node, noteDurationInSamples);
+    arbitrarySequencer.setNotes ({ note1, note2 }, true);
 }
 
-void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
+void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 {
-    filter.prepare (spec);
-    hasPreparedFilter = true;
+    int noteDurationInSamples = 25000;
+    
+    Note referenceNoteCompensated = referenceNote;
+    referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
+    
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+    SequenceableNote note2 (updatedNode, noteDurationInSamples);
+    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
+    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+}
+
+std::pair<float, float> PlaybackManager::getNextSample()
+{
+    return arbitrarySequencer.getNextSample();
+}
+
+float PlaybackManager::getCompensationDBAtFrequency (float frequency)
+{
+    // To compensate for music curve
+    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
+    float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
+    
+    // Introduce custom slope for clarity
+    const float referenceFrequency = 1000.0;
+    float slope = 1.7f;
+    float octaves = std::log2((frequency) / (referenceNote.frequency));
+    float dbDifference = octaves * slope;
+    
+    amplitudeCompensationDB += dbDifference;
+    
+    return amplitudeCompensationDB;
 }
