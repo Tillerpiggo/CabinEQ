@@ -24,8 +24,6 @@ public:
 
     void processBlock (juce::AudioBuffer<float>& buffer);
     
-    int getCurrentlyPlayingIdx();
-    
     void setSampleRate (float newSampleRate);
     void setIsCalibrating (bool isCalibrating);
     void setIsBypassed (bool isBypassed);

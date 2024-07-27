@@ -65,6 +65,7 @@ void Curve::updateWithEQNodes (std::vector<EQNode> eqNodes)
     {
         return a.frequency < b.frequency;
     });
+    
     this->eqNodes = eqNodes;
 }
 

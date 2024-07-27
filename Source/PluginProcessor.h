@@ -81,7 +81,6 @@ private:
 
     PlaybackManager playbackManager;
     ClearEQValueTree clearEQValueTree;
-//    EQNodeManager eqNodeManager;
     
     juce::dsp::ProcessSpec spec;
     

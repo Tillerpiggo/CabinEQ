@@ -17,12 +17,12 @@ void ArbitraryResponseFilter::updateWithCurve (const Curve& curve, int fft_size)
     // Load the IR into the convolution
     int numSamples = std::pow (2, fft_size);
     
-    std::cout << "Impulse Data" << std::endl;
-    for (int i = 0; i < numSamples; ++i)
-    {
-        std::cout << leftImpulseData[i] << " ";
-    }
-    std::cout << std::endl;
+//    std::cout << "Impulse Data" << std::endl;
+//    for (int i = 0; i < numSamples; ++i)
+//    {
+//        std::cout << leftImpulseData[i] << " ";
+//    }
+//    std::cout << std::endl;
     
     juce::AudioBuffer<float> impulseBuffer (numChannels, numSamples);
 
