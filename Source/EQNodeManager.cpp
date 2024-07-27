@@ -70,13 +70,8 @@ EQNodeManager::EQNodeManager (juce::AudioProcessorValueTreeState& apvts)
 
 void EQNodeManager::addEQNode (float frequency, float amplitude, float pan)
 {
-    // The next id is one higher than the highest id in the list
-    int id = -1;
-    for (EQNode eqNode : eqNodes)
-        id = std::max (eqNode.id, id);
-    id++;
+    int id = clearEQValueTree.addNode (frequency, amplitude, pan);
     eqNodes.emplace_back (id, amplitude, frequency, pan);
-    clearEQValueTree.addNode (id, frequency, amplitude, pan);
 }
 
 void EQNodeManager::removeEQNode (int id)
@@ -101,6 +96,19 @@ void EQNodeManager::updateEQNode (int id, float frequency, float amplitude, floa
     
     curve.updateWithEQNodes (eqNodes);
     clearEQValueTree.updateNode (id, frequency, amplitude, pan);
+}
+
+void EQNodeManager::loadFromAPVTS()
+{
+    std::cout << "INIT VALUE TREE FROM APVTS" << std::endl;
+    clearEQValueTree.initValueTreeFromAPVTS();
+    
+    for (const auto& eqNode : clearEQValueTree.getEQNodes())
+    {
+        std::cout << "EQNode(id: " << eqNode.id << ", freq: " << eqNode.frequency << ")" << std::endl;
+    }
+    
+    eqNodes = clearEQValueTree.getEQNodes();
 }
 
 const Curve& EQNodeManager::getCurve() const

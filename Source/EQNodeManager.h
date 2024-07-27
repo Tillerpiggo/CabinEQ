@@ -28,6 +28,8 @@ public:
     void removeEQNode (int id);
     void updateEQNode (int id, float frequency, float amplitude, float pan);
     
+    void loadFromAPVTS(); // loads nodes from whatever the apvts has stored right now
+    
     const Curve& getCurve() const;
     
     static const int NUM_PTS = 50;

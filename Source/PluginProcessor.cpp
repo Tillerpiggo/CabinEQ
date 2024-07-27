@@ -25,7 +25,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
 
 #endif
 {
-    //parameters.state = juce::ValueTree("savedParams");
+//    parameters.state = juce::ValueTree("Params");
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -208,7 +208,7 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     
     
     std::cout << "Saving state as: " << state.getType().toString() << std::endl;
-    const auto& clearEQTree = state.getChildWithName (juce::Identifier ("ClearEQ"));
+    const auto& clearEQTree = state;
     if (clearEQTree.isValid())
     {
         std::cout << "ClearEQValueTree (numNodes: " << clearEQTree.getNumChildren() << ")" << std::endl;
@@ -245,8 +245,9 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         if (xmlState->hasTagName(parameters.state.getType()))
         {
             parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
+            eqNodeManager.loadFromAPVTS();
             std::cout << "Getting state as: " << parameters.state.getType().toString() << std::endl;
-            const auto& clearEQTree = parameters.state.getChildWithName (juce::Identifier ("ClearEQ"));
+            const auto& clearEQTree = parameters.state;
             if (clearEQTree.isValid())
             {
                 std::cout << "ClearEQValueTree (numNodes: " << clearEQTree.getNumChildren() << ")" << std::endl;
