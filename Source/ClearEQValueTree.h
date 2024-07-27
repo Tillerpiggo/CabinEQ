@@ -31,6 +31,7 @@ private:
     juce::AudioProcessorValueTreeState& apvts;
     
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
+    void printAPVTS (juce::AudioProcessorValueTreeState& apvts) const;
     
     juce::Identifier idProfile, idEQNode, idId, idFrequency, idAmplitude, idPan;
     juce::ValueTree valueTree;

@@ -13,19 +13,28 @@
 ClearEQValueTree::ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
     : idProfile (identifier), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan"), apvts (apvts)
 {
+    std::cout << "APVTS ON INIT" << std::endl;
+    printAPVTS (apvts);
     valueTree = apvts.state.getChildWithName (idProfile);
     
     // Initialize value tree if we can't load it
     if (! valueTree.isValid())
     {
-        std::cout << "RESETTING TREE" << std::endl;
         valueTree = juce::ValueTree (idProfile);
-        //apvts.state.appendChild (valueTree, nullptr);
+        apvts.state.appendChild (valueTree, nullptr);
+        
+        std::cout << "RESETTING TREE" << std::endl;
+        printAPVTS (apvts);
+        
+        std::cout << "Value Tree Parent: " << valueTree.getParent().getType().toString() << std::endl;
     }
 }
 
 const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
 {
+    std::cout << "GETTING EQ NODES FROM TREE" << std::endl;
+    printAPVTS (apvts);
+    
     std::vector<EQNode> eqNodes;
     if (! valueTree.isValid())
         return eqNodes;
@@ -44,6 +53,11 @@ const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
 
 void ClearEQValueTree::addNode (const int id, const float frequency, const float amplitude, const float pan)
 {
+    std::cout << "Value Tree Parent: " << valueTree.getParent().getType().toString() << std::endl;
+    
+    std::cout << "APVTS BEFORE ADDING NODE" << std::endl;
+    printAPVTS (apvts);
+    
     //std::cout << "Adding node" << std::endl;
     
     juce::ValueTree eqNode (idEQNode);
@@ -59,28 +73,9 @@ void ClearEQValueTree::addNode (const int id, const float frequency, const float
 //    for (const auto& eqNode: getEQNodes())
 //        std::cout << "EQNode(id: " << eqNode.id << ", freq: " << eqNode.frequency << ", ampl: " << eqNode.amplitude << ", pan: " << eqNode.pan << ")" << std::endl;
     
-    std::cout << "State after adding node" << std::endl;
-    std::cout << "Saving state as: " << apvts.state.getType().toString() << std::endl;
-    const auto& clearEQTree = apvts.state.getChildWithName (idProfile);
-    if (clearEQTree.isValid())
-    {
-        std::cout << "ClearEQValueTree (numNodes: " << clearEQTree.getNumChildren() << ")" << std::endl;
-        juce::Identifier idId ("id");
-        juce::Identifier idFrequency ("frequency");
-        juce::Identifier idAmplitude ("amplitude");
-        if (clearEQTree.getNumChildren() > 0)
-        {
-            for (const auto& eqNode : clearEQTree)
-            {
-                float id = eqNode.getProperty (idId);
-                float freq = eqNode.getProperty (idFrequency);
-                float ampl = eqNode.getProperty (idAmplitude);
-                
-                std::cout << "EQNode (id: " << id << ", freq: " << freq << ", ampl: " << ampl << ")" << std::endl;
-            }
-        }
-    }
-    std::cout << std::endl;
+    std::cout << "Added node! Current state:" << std::endl;
+    std::cout << "Num nodes: " << apvts.state.getNumChildren() << std::endl;
+    printAPVTS (apvts);
 }
 
 void ClearEQValueTree::removeNode (const int id)
@@ -114,4 +109,32 @@ void ClearEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)
 {
     apvts.state.removeAllChildren (nullptr);
     apvts.state.removeAllProperties (nullptr);
+}
+
+void ClearEQValueTree::printAPVTS (juce::AudioProcessorValueTreeState& apvts) const
+{
+    const auto& clearEQTree = apvts.state.getChildWithName (idProfile);
+    if (clearEQTree.isValid())
+    {
+        std::cout << "ClearEQValueTree (numNodes: " << clearEQTree.getNumChildren() << ")" << std::endl;
+        juce::Identifier idId ("id");
+        juce::Identifier idFrequency ("frequency");
+        juce::Identifier idAmplitude ("amplitude");
+        if (clearEQTree.getNumChildren() > 0)
+        {
+            for (const auto& eqNode : clearEQTree)
+            {
+                float id = eqNode.getProperty (idId);
+                float freq = eqNode.getProperty (idFrequency);
+                float ampl = eqNode.getProperty (idAmplitude);
+                
+                std::cout << "EQNode (id: " << id << ", freq: " << freq << ", ampl: " << ampl << ")" << std::endl;
+            }
+        }
+    }
+    else
+    {
+        std::cout << "NO_TREE" << std::endl;
+    }
+    std::cout << std::endl;
 }

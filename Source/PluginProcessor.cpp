@@ -231,6 +231,7 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     {
         std::cout << "NO_TREE" << std::endl;
     }
+    std::cout << xml->toString() << std::endl;
     std::cout << std::endl;
 }
 
@@ -244,7 +245,7 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         if (xmlState->hasTagName(parameters.state.getType()))
         {
             parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-            std::cout << "Retrieving state as: " << parameters.state.getType().toString() << std::endl;
+            std::cout << "Getting state as: " << parameters.state.getType().toString() << std::endl;
             const auto& clearEQTree = parameters.state.getChildWithName (juce::Identifier ("ClearEQ"));
             if (clearEQTree.isValid())
             {
@@ -268,6 +269,7 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
             {
                 std::cout << "NO_TREE" << std::endl;
             }
+            std::cout << xmlState->toString() << std::endl;
             std::cout << std::endl;
         }
     }
