@@ -52,7 +52,6 @@ void EQProfilePage::resized()
                                    eqNodeControllerWidth,
                                    eqNodeControllerHeight);
     }
-    std::cout << "Total Height: " << totalHeight << std::endl;
 }
 
 void EQProfilePage::paint (juce::Graphics& g)
@@ -78,7 +77,7 @@ void EQProfilePage::buttonClicked (juce::Button *button)
     if (button == &addEQNodeButton)
     {
         processor.addEQNode (1000.0f, 0.0f, 0.0f);
-        std::cout << "Added node (again)" << std::endl;
+//        std::cout << "Added node (again)" << std::endl;
         updateUIWithEQNodes (processor.getEQNodes());
     }
 }

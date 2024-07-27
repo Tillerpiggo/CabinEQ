@@ -34,7 +34,6 @@ public:
         convolution->reset();
         sampleRate = spec.sampleRate;
         numChannels = spec.numChannels;
-        std::cout << "prepare started 2" << std::endl;
         convolution->prepare (spec);
     }
     

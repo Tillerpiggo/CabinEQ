@@ -54,7 +54,7 @@ void CurveComponent::paint (juce::Graphics& g)
 //    }
 //    g.strokePath (path, juce::PathStrokeType (1.0f));
     
-    
+    /*
     g.setColour (juce::Colours::transparentBlack);
     juce::Path trueFreqResponsePath;
     trueFreqResponsePath.startNewSubPath (0, 0);
@@ -73,6 +73,7 @@ void CurveComponent::paint (juce::Graphics& g)
         trueFreqResponsePath.lineTo (endX, endY);
     }
     g.strokePath (trueFreqResponsePath, juce::PathStrokeType (1.0f));
+     */
 }
 
 void CurveComponent::resized()
@@ -116,8 +117,6 @@ void CurveComponent::drawTrueFrequencyResponse()
     }
     
     repaint();
-    
-    std::cout << "True freq response size: " << trueFreqResponse.size() << std::endl;
     
     delete[] leftImpulseResponse;
     delete[] rightImpulseResponse;

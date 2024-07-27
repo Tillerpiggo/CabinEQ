@@ -30,7 +30,7 @@ public:
     
     const Curve& getCurve() const;
     
-    static const int NUM_PTS = 60;
+    static const int NUM_PTS = 50;
     
 private:
     ClearEQValueTree clearEQValueTree;

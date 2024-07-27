@@ -28,6 +28,8 @@ public:
     void resetNodes (const std::vector<EQNode>& eqNodes); // makes this value tree store the given set points
     
 private:
+    juce::AudioProcessorValueTreeState& apvts;
+    
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
     
     juce::Identifier idProfile, idEQNode, idId, idFrequency, idAmplitude, idPan;
