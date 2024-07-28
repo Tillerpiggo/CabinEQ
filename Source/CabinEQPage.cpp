@@ -51,6 +51,15 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     }
 }
 
+void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
+{
+    juce::Point<int> dragPoint = event.getPosition();
+    auto [freq, ampl] = frequencyAndAmplitudeForCoords (dragPoint.x, dragPoint.y);
+    
+    processor.updateEQNode (draggingId, freq, ampl, 0.0f);
+    repaint();
+}
+
 
 //==========================
 void CabinEQPage::drawCurve (juce::Graphics& g, const Curve& curve, int numPoints)
