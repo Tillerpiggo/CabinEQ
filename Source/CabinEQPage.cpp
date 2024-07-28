@@ -1,0 +1,103 @@
+/*
+  ==============================================================================
+
+    CabinEQPage.cpp
+    Created: 27 Jul 2024 9:31:27pm
+    Author:  Tyler Gee
+
+  ==============================================================================
+*/
+
+#include "CabinEQPage.h"
+
+CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
+    : processor (p)
+{
+    updateEQNodes();
+}
+
+void CabinEQPage::paint (juce::Graphics& g)
+{
+    g.fillAll (juce::Colour::fromRGB (34, 34, 34));
+    drawCurve (g, processor.getCurve(), 4000);
+    drawDots (g);
+}
+
+void CabinEQPage::resized()
+{
+    setBounds (0, 0, getWidth(), getHeight());
+}
+
+void CabinEQPage::drawCurve (juce::Graphics& g, const Curve& curve, int numPoints)
+{
+    g.setColour (juce::Colour::fromRGB(0, 255, 128));
+
+    juce::Path path;
+    path.startNewSubPath(0, 0);
+    
+    float width = getWidth();
+    float height = getHeight();
+    
+    int N = 4000;
+    
+    for (int i = 0; i < N; ++i)
+    {
+        float t = static_cast<float>(i) / static_cast<float>(N);
+        
+        float freq = frequencyAtTime (t);
+        float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
+        
+        path.lineTo (coordsForEQNode (freq, ampl));
+    }
+    g.strokePath (path, juce::PathStrokeType (1.0f));
+}
+
+void CabinEQPage::updateEQNodes()
+{
+    eqNodes = processor.getEQNodes();
+}
+
+void CabinEQPage::drawDots (juce::Graphics& g)
+{
+    g.setColour (juce::Colour::fromRGB (255, 0, 255)); // Bright magenta
+
+
+    for (const auto& node : eqNodes)
+    {
+        const auto& point = coordsForEQNode (node.frequency, node.amplitude);
+        std::cout << "Frequency: " << node.frequency << ", Amplitude: " << node.amplitude << std::endl;
+        g.fillEllipse (point.x - 3.0f, point.y - 3.0f, 6.0f, 6.0f); // Draw a small circle with radius 3
+    }
+}
+
+juce::Point<float> CabinEQPage::coordsForEQNode (float frequency, float amplitude)
+{
+    float width = getWidth();
+    float height = getHeight();
+    
+    float x = width * timeAtFrequency (frequency);
+    float y = height * (1.0f - (amplitude + 24.0f) / 48.0f);
+    
+    return { x, y };
+}
+
+float CabinEQPage::frequencyAtTime (float t)
+{
+    // Scale logarithmically (should this be here?)
+    float logMinFreq = std::log(MIN_FREQ);
+    float logMaxFreq = std::log(MAX_FREQ);
+    float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
+    
+    return freq;
+}
+
+float CabinEQPage::timeAtFrequency (float freq)
+{
+    float logMinFreq = std::log(MIN_FREQ);
+    float logMaxFreq = std::log(MAX_FREQ);
+    float logFreq = std::log(freq);
+
+    // Normalize the log frequency
+    float t = (logFreq - logMinFreq) / (logMaxFreq - logMinFreq);
+    return t;
+}

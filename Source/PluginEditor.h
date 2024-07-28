@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "FilterPage.h"
 #include "EQProfilePage.h"
+#include "CabinEQPage.h"
 
 //==============================================================================
 /**
@@ -33,6 +34,7 @@ private:
     
     std::unique_ptr<FilterPage> filterPage;
     std::unique_ptr<EQProfilePage> eqProfilePage;
+    std::unique_ptr<CabinEQPage> cabinEQPage;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
 };
