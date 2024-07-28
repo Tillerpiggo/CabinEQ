@@ -64,7 +64,8 @@ void CabinEQPage::drawDots (juce::Graphics& g)
 
     for (const auto& node : eqNodes)
     {
-        const auto& point = coordsForEQNode (node.frequency, node.amplitude);
+        float dbDifference = -4.5f * std::log2((node.frequency) / 1000.0f);
+        const auto& point = coordsForEQNode (node.frequency, node.amplitude - dbDifference);
         std::cout << "Frequency: " << node.frequency << ", Amplitude: " << node.amplitude << std::endl;
         g.fillEllipse (point.x - 3.0f, point.y - 3.0f, 6.0f, 6.0f); // Draw a small circle with radius 3
     }
