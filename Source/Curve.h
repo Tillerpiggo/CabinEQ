@@ -26,7 +26,7 @@ public:
     const std::pair<std::complex<float>, std::complex<float>> valueAtFrequency (float frequency) const;
     const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time) const;
     const std::pair<std::complex<float>, std::complex<float>> valueAtNormalizedTime (float time) const;
-    const float catmullRom (float t, float y0, float y1, float y2, float y3) const;
+    float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     
     void updateWithEQNodes (std::vector<EQNode> eqNodes);
     

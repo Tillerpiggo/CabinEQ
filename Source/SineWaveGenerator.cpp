@@ -37,7 +37,6 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
 void SineWaveGenerator::setNote (Note newNote)
 {
     note = newNote;
-    phase = 0;
     updatePhaseIncrementAndAmplitudeCompensation();
 }
 

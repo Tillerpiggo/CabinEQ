@@ -120,12 +120,12 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce custom slope for clarity
-    const float referenceFrequency = 1000.0;
-    float slope = 1.7f;
-    float octaves = std::log2((frequency) / (referenceNote.frequency));
-    float dbDifference = octaves * slope;
-    
-    amplitudeCompensationDB += dbDifference;
+//    const float referenceFrequency = 1000.0;
+//    float slope = 1.7f;
+//    float octaves = std::log2((frequency) / (referenceNote.frequency));
+//    float dbDifference = octaves * slope;
+//    
+//    amplitudeCompensationDB += dbDifference;
     
     return amplitudeCompensationDB;
 }

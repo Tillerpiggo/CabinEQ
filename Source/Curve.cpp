@@ -53,9 +53,11 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormaliz
     return valueAtFrequency(freq);
 }
 
-const float Curve::catmullRom (float t, float y0, float y1, float y2, float y3) const
+float Curve::catmullRom(float t, float y0, float y1, float y2, float y3) const
 {
-    float y = 0.5 * ((2.f * y1) + (-y0 + y2) * t + (2.f * y0 - 5.f * y1 + 4.f * y2 - y3) * pow(t, 2) + (-y0 + 3 * y1 - 3 * y2 + y3) * pow(t, 3));
+    float t2 = t * t;
+    float t3 = t * t * t;
+    float y = 0.5f * ((2.f * y1) + (-y0 + y2) * t + (2.f * y0 - 5.f * y1 + 4.f * y2 - y3) * t2 + (-y0 + 3.f * y1 - 3.f * y2 + y3) * t3);
     return y;
 }
 
