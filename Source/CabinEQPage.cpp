@@ -45,10 +45,24 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
         if (clickedPoint.getDistanceFrom (eqNodePoint) <= maxDist)
         {
             draggingId = eqNode.id;
+            //processor.startCalibratingEQNode (eqNode);
+            
+            if (! event.mods.isRightButtonDown())
+            {
+                processor.startCalibratingEQNode (eqNode);
+            }
+            else
+            {
+                processor.removeEQNode(draggingId);
+            }
+            
             repaint();
-            break;
+            return;
         }
     }
+    
+    processor.addEQNode (freq, ampl, 0.0f);
+    repaint();
 }
 
 void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
@@ -56,7 +70,37 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     juce::Point<int> dragPoint = event.getPosition();
     auto [freq, ampl] = frequencyAndAmplitudeForCoords (dragPoint.x, dragPoint.y);
     
-    processor.updateEQNode (draggingId, freq, ampl, 0.0f);
+    EQNode node (0, 0, 0, 0);
+    // Get the eq node in question
+    for (const auto& eqNode : eqNodes)
+        if (eqNode.id == draggingId)
+            node = eqNode;
+    
+    node.frequency = freq;
+    node.amplitude = ampl;
+    
+    processor.updateEQNode (draggingId, freq, ampl, node.pan);
+    processor.updateCalibratingEQNode (node);
+    repaint();
+}
+
+void CabinEQPage::mouseUp (const juce::MouseEvent& event)
+{
+    juce::Point<int> endPoint = event.getPosition();
+    auto [freq, ampl] = frequencyAndAmplitudeForCoords (endPoint.x, endPoint.y);
+    
+    EQNode node (0, 0, 0, 0);
+    // Get the eq node in question
+    for (const auto& eqNode : eqNodes)
+        if (eqNode.id == draggingId)
+            node = eqNode;
+    
+    node.frequency = freq;
+    node.amplitude = ampl;
+    
+    processor.updateEQNode (draggingId, freq, ampl, node.pan);
+    processor.endCalibratingEQNode();
+    draggingId = -1;
     repaint();
 }
 
@@ -100,8 +144,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
         
         float dbDifference = -4.5f * std::log2((node.frequency) / 1000.0f);
         const auto& point = coordsForEQNode (node.frequency, node.amplitude - dbDifference);
-        std::cout << "Frequency: " << node.frequency << ", Amplitude: " << node.amplitude << std::endl;
-        g.fillEllipse (point.x - 3.0f, point.y - 3.0f, 6.0f, 6.0f); // Draw a small circle with radius 3
+        g.fillEllipse (point.x - 6.0f, point.y - 6.0f, 12.0f, 12.0f);
         
         if (node.id == draggingId)
             g.setColour (juce::Colour::fromRGB (255, 0, 255));
