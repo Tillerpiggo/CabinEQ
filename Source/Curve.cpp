@@ -24,10 +24,10 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
-    float dbDifference = -4.5f * std::log2((frequency) / 1000.0f);
+    float dbDifference = -4.5f * std::log2((frequency) / 1000.0f); // commented out for CabinEQ dev purposes
 
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
-    float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
+                                                     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
     
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, 0.0f);

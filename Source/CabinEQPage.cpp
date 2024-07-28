@@ -28,15 +28,37 @@ void CabinEQPage::resized()
     setBounds (0, 0, getWidth(), getHeight());
 }
 
+void CabinEQPage::mouseDown (const juce::MouseEvent& event)
+{
+    float x = event.getMouseDownX();
+    float y = event.getMouseDownY();
+    auto [freq, ampl] = frequencyAndAmplitudeForCoords (x, y);
+    
+    juce::Point<float> clickedPoint (freq, ampl);
+    float maxDist = 50.0f;
+    
+    // Get id of node within distance range
+    for (const auto& eqNode : eqNodes)
+    {
+        juce::Point<float> eqNodePoint (eqNode.frequency, eqNode.amplitude);
+        
+        if (clickedPoint.getDistanceFrom (eqNodePoint) <= maxDist)
+        {
+            draggingId = eqNode.id;
+            repaint();
+            break;
+        }
+    }
+}
+
+
+//==========================
 void CabinEQPage::drawCurve (juce::Graphics& g, const Curve& curve, int numPoints)
 {
     g.setColour (juce::Colour::fromRGB(0, 255, 128));
 
     juce::Path path;
     path.startNewSubPath(0, 0);
-    
-    float width = getWidth();
-    float height = getHeight();
     
     int N = 4000;
     
@@ -59,15 +81,21 @@ void CabinEQPage::updateEQNodes()
 
 void CabinEQPage::drawDots (juce::Graphics& g)
 {
+    eqNodes = processor.getEQNodes();
     g.setColour (juce::Colour::fromRGB (255, 0, 255)); // Bright magenta
-
-
+    
     for (const auto& node : eqNodes)
     {
+        if (node.id == draggingId)
+            g.setColour (juce::Colour::fromRGB (255, 255, 0));
+        
         float dbDifference = -4.5f * std::log2((node.frequency) / 1000.0f);
         const auto& point = coordsForEQNode (node.frequency, node.amplitude - dbDifference);
         std::cout << "Frequency: " << node.frequency << ", Amplitude: " << node.amplitude << std::endl;
         g.fillEllipse (point.x - 3.0f, point.y - 3.0f, 6.0f, 6.0f); // Draw a small circle with radius 3
+        
+        if (node.id == draggingId)
+            g.setColour (juce::Colour::fromRGB (255, 0, 255));
     }
 }
 
@@ -82,7 +110,22 @@ juce::Point<float> CabinEQPage::coordsForEQNode (float frequency, float amplitud
     return { x, y };
 }
 
-float CabinEQPage::frequencyAtTime (float t)
+std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForCoords (float x, float y) const
+{
+    // Calculate freq
+    float freq = frequencyAtTime (x / getWidth());
+    
+    // Calculate amplitude
+    float height = getHeight();
+    float normalizedY = y / height;
+    float ampl = (1.0f - normalizedY) * 48.0f - 24.0f;
+    float dbDifference = -4.5f * std::log2((freq) / 1000.0f);
+    ampl += dbDifference;
+    
+    return { freq, ampl };
+}
+
+float CabinEQPage::frequencyAtTime (float t) const
 {
     // Scale logarithmically (should this be here?)
     float logMinFreq = std::log(MIN_FREQ);
@@ -92,7 +135,7 @@ float CabinEQPage::frequencyAtTime (float t)
     return freq;
 }
 
-float CabinEQPage::timeAtFrequency (float freq)
+float CabinEQPage::timeAtFrequency (float freq) const
 {
     float logMinFreq = std::log(MIN_FREQ);
     float logMaxFreq = std::log(MAX_FREQ);
