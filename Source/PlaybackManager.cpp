@@ -161,11 +161,11 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
     
     // Introduce custom slope for clarity
     const float referenceFrequency = 1000.0;
-    float slope = 1.6f;
+    float slope = 1.8f;
     float octaves = std::log2((frequency) / (referenceNote.frequency));
     float dbDifference = octaves * slope;
     
-    float slopeSlope = octaves * -0.1f;
+    float slopeSlope = octaves * -0.15f;
     dbDifference += octaves * slopeSlope;
     
     amplitudeCompensationDB += dbDifference;
