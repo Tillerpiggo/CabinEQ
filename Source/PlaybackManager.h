@@ -42,7 +42,7 @@ public:
     void updateSineSweepCenterFrequency (float centerFreq);
     void setCalibratingEQNode (EQNode calibratingNode); // changes the EQNode being compared to the reference tone and restarts interval
     void updateCalibratingEQNode (EQNode updatedNode); // changes the EQNode being compared to the reference tone but does not restart the interval
-//    void setGreenNoiseCenterFrequency (float centerFreq);
+    void setGreenNoiseCenterFrequency (float centerFreq);
     
     void setReferenceVolume (float volume);
     

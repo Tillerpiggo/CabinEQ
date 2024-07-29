@@ -88,9 +88,9 @@ public:
     float getCurrSineSweepFreq();
     
     // Green noise
-//    void startGreenNoise (float centerFreq);
-//    void updateGreenNoise (float centerFreq);
-//    void endGreenNoise();
+    void startGreenNoise (float centerFreq);
+    void updateGreenNoise (float centerFreq);
+    void endGreenNoise();
     float getCurrGreenNoiseFreq();
     
     // misc

@@ -69,17 +69,14 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * note->frequency / sampleRate;
     float amplitudeCompensation = std::pow (TILT, std::log2(note->frequency / REFERENCE_FREQ));
+    if (! applyCompensation)
+        amplitudeCompensation = 1.0f;
+    
     float noteGain = juce::Decibels::decibelsToGain (note->gain + 8.0f);//30.0f);
     amplitudeCompensation *= noteGain;
     
     leftAmplitudeCompensation = amplitudeCompensation;
     rightAmplitudeCompensation = amplitudeCompensation;
-    
-    if (! applyCompensation)
-    {
-        leftAmplitudeCompensation = 1.0f;
-        rightAmplitudeCompensation = 1.0f;
-    }
     
     // Apply panning
     leftAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / -2.0);

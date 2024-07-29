@@ -22,7 +22,7 @@ public:
     std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
     void setCenterFrequency (float centerFreq);
-    float getCenterFrequency() const;
+    float getCurrFreq() const;
     
 private:
     void updateArbitrarySequencerNotes();

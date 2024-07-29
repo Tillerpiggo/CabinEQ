@@ -59,7 +59,8 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-        processor.startSineSweep (freq);
+//        processor.startSineSweep (freq);
+        processor.startGreenNoise (freq);
         
         return;
     }
@@ -98,7 +99,8 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     {
         std::cout << "mouse drag!!" << std::endl;
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-        processor.updateSineSweep (freq);
+//        processor.updateSineSweep (freq);
+        processor.updateGreenNoise (freq);
         
         return;
     }
@@ -121,6 +123,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
 void CabinEQPage::mouseUp (const juce::MouseEvent& event)
 {
     processor.endSineSweep();
+    processor.endGreenNoise();
     
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     EQNode node (0, 0, 0, 0);
@@ -243,7 +246,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
     
     g.setColour (juce::Colour::fromRGB (0, 255, 255));
     
-    float freq = processor.getCurrSineSweepFreq();
+    float freq = processor.getCurrGreenNoiseFreq();
     const auto& point = coordsForEQNode (freq, juce::Decibels::gainToDecibels (processor.getCurve().valueAtFrequency (freq).first.real()));
     float dotRadius = 3.0f;
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
