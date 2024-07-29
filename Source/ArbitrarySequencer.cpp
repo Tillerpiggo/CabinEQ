@@ -10,6 +10,10 @@
 
 #include "ArbitrarySequencer.h"
 
+ArbitrarySequencer::ArbitrarySequencer (bool applyCompensation)
+    : sineWaveGenerator (applyCompensation), currNoteIdx(0), numSamplesNoteHasBeenPlaying(0), listener(nullptr)
+{}
+
 std::pair<float, float> ArbitrarySequencer::getNextSample()
 {
     if (currNoteIdx < 0 || currNoteIdx >= notes.size()) return { 0.0f, 0.0f };

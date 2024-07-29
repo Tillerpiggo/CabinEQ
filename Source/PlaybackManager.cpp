@@ -13,7 +13,8 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : filter (FFT_SIZE), isSweeping (false), isCalibrating (false), isBypassed (false), hasPreparedFilter (false)
+    : filter (FFT_SIZE), isSweeping (false), isPlayingGreenNoise (false), isCalibrating (false), isBypassed (false),
+      hasPreparedFilter (false)
 {
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
@@ -53,6 +54,20 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
                     rightChannel[sample] = value.second * 0.05 * 0.5 * referenceGain;
             }
         }
+        else if (isPlayingGreenNoise)
+        {
+//            for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+//            {
+//                const std::pair<float, float> value = greenNoiseGenerator.getNextSample();
+//                float referenceGain = juce::Decibels::decibelsToGain (referenceVolume);
+//                referenceGain *= juce::Decibels::decibelsToGain (getCompensationDBAtFrequency (greenNoiseGenerator.getCenterFrequency()));
+//                
+//                leftChannel[sample] = value.first * 0.05 * 0.5 * referenceGain;
+//                
+//                if (rightChannel)
+//                    rightChannel[sample] = value.second * 0.05 * 0.5 * referenceGain;
+//            }
+        }
         
         // process audio through the filter
         juce::dsp::AudioBlock<float> block (buffer);
@@ -85,6 +100,11 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 float PlaybackManager::getCurrSineSweepFreq() const
 {
     return sineSweepGenerator.getCurrFreq();
+}
+
+float PlaybackManager::getCurrGreenNoiseFreq() const
+{
+    return greenNoiseGenerator.getCenterFrequency();
 }
 
 void PlaybackManager::setIsSweeping (bool isSweeping)
@@ -143,6 +163,11 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
     arbitrarySequencer.changeNoteAtIdx (1, note2.note());
 }
 
+//void PlaybackManager::setGreenNoiseCenterFrequency (float centerFreq)
+//{
+//    greenNoiseGenerator.setCenterFrequency (centerFreq);
+//}
+
 void PlaybackManager::setReferenceVolume (float volume)
 {
     this->referenceVolume = volume;
@@ -160,12 +185,11 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce custom slope for clarity
-    const float referenceFrequency = 1000.0;
-    float slope = 1.8f;
+    float slope = 1.6f;
     float octaves = std::log2((frequency) / (referenceNote.frequency));
     float dbDifference = octaves * slope;
     
-    float slopeSlope = octaves * -0.15f;
+    float slopeSlope = octaves * -0.1f;
     dbDifference += octaves * slopeSlope;
     
     amplitudeCompensationDB += dbDifference;

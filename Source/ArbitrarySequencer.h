@@ -24,7 +24,7 @@ public:
 class ArbitrarySequencer
 {
 public:
-    ArbitrarySequencer() : currNoteIdx(0), numSamplesNoteHasBeenPlaying(0), listener(nullptr) {}
+    ArbitrarySequencer (bool applyCompensation = false);
     
     std::pair<float, float> getNextSample();
     bool isPlayingFirstNote() const;

@@ -380,6 +380,31 @@ float StartupMVPAudioProcessor::getCurrSineSweepFreq()
     return playbackManager.getCurrSineSweepFreq();
 }
 
+/*
+void StartupMVPAudioProcessor::startGreenNoise (float centerFreq)
+{
+    playbackManager.setIsPlayingGreenNoise (true);
+//    playbackManager.setGreenNoiseCenterFrequency (centerFreq);
+}
+
+void StartupMVPAudioProcessor::updateGreenNoise (float centerFreq)
+{
+//    playbackManager.setGreenNoiseCenterFrequency (centerFreq);
+}
+
+void StartupMVPAudioProcessor::endGreenNoise()
+{
+    playbackManager.setIsPlayingGreenNoise (false);
+}
+ */
+
+float StartupMVPAudioProcessor::getCurrGreenNoiseFreq()
+{
+//    return 0.0f;
+    return playbackManager.getCurrGreenNoiseFreq();
+}
+
+
 void StartupMVPAudioProcessor::setReferenceVolume (float volume)
 {
     playbackManager.setReferenceVolume (volume);

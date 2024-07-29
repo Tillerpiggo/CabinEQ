@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "ArbitraryResponseFilter.h"
 #include "ArbitrarySequencer.h"
+#include "GreenNoiseGenerator.h"
 #include "SineSweepGenerator.h"
 #include <random>
 
@@ -29,8 +30,10 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     float getCurrSineSweepFreq() const;
+    float getCurrGreenNoiseFreq() const;
     
     void setIsSweeping (bool isSweeping);
+    void setIsPlayingGreenNoise (bool isPlayingGreenNoise);
     void setIsCalibrating (bool isCalibrating);
     void setIsBypassed (bool isBypassed);
     void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
@@ -39,6 +42,7 @@ public:
     void updateSineSweepCenterFrequency (float centerFreq);
     void setCalibratingEQNode (EQNode calibratingNode); // changes the EQNode being compared to the reference tone and restarts interval
     void updateCalibratingEQNode (EQNode updatedNode); // changes the EQNode being compared to the reference tone but does not restart the interval
+//    void setGreenNoiseCenterFrequency (float centerFreq);
     
     void setReferenceVolume (float volume);
     
@@ -53,10 +57,12 @@ private:
     juce::dsp::Gain<float> wetGainProcessor;
     
     ArbitrarySequencer arbitrarySequencer;
+    GreenNoiseGenerator greenNoiseGenerator;
     SineSweepGenerator sineSweepGenerator;
     Note referenceNote = Note (1000.0f, 6.0f, 0.0f, 0.0f);
     
     bool isSweeping;
+    bool isPlayingGreenNoise;
     bool isCalibrating;
     bool isBypassed;
     bool hasPreparedFilter;

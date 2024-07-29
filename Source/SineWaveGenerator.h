@@ -16,7 +16,7 @@
 class SineWaveGenerator
 {
 public:
-    SineWaveGenerator();
+    SineWaveGenerator (bool applyCompensation = true);
     
     void setSampleRate (float newSampleRate);
     const std::pair<float, float> getNextSample();
@@ -41,4 +41,6 @@ private:
     float phaseIncrement = 0;
     float leftAmplitudeCompensation = 0;
     float rightAmplitudeCompensation = 0;
+    
+    bool applyCompensation;
 };

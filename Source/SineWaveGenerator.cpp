@@ -10,7 +10,7 @@
 
 #include "SineWaveGenerator.h"
 
-SineWaveGenerator::SineWaveGenerator ()
+SineWaveGenerator::SineWaveGenerator (bool applyCompensation) : applyCompensation (applyCompensation)
 {
    // currentGain.reset (rampLengthInSamples);
 }
@@ -74,6 +74,12 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     
     leftAmplitudeCompensation = amplitudeCompensation;
     rightAmplitudeCompensation = amplitudeCompensation;
+    
+    if (! applyCompensation)
+    {
+        leftAmplitudeCompensation = 1.0f;
+        rightAmplitudeCompensation = 1.0f;
+    }
     
     // Apply panning
     leftAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / -2.0);

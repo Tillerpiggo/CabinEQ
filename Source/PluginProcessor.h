@@ -87,6 +87,12 @@ public:
     void endSineSweep();
     float getCurrSineSweepFreq();
     
+    // Green noise
+//    void startGreenNoise (float centerFreq);
+//    void updateGreenNoise (float centerFreq);
+//    void endGreenNoise();
+    float getCurrGreenNoiseFreq();
+    
     // misc
     void setReferenceVolume (float volume);
  
