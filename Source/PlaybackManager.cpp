@@ -44,10 +44,11 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
             for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
             {
                 const std::pair<float, float> value = sineSweepGenerator.getNextSample();
-                leftChannel[sample] = value.first * 0.05 * 0.5;
+                
+                leftChannel[sample] = value.first * 0.05 * 0.5 * juce::Decibels::decibelsToGain (referenceVolume);
                 
                 if (rightChannel)
-                    rightChannel[sample] = value.second * 0.05 * 0.5;
+                    rightChannel[sample] = value.second * 0.05 * 0.5 * juce::Decibels::decibelsToGain (referenceVolume);
             }
         }
         

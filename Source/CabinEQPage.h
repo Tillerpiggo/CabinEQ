@@ -30,6 +30,7 @@ public:
     void mouseDown (const juce::MouseEvent &event) override;
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
+    void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
     
     void sliderValueChanged (juce::Slider *slider) override;
     void timerCallback() override;
@@ -60,4 +61,8 @@ private:
     
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
+    
+    float minFreqShowing = 20.0f;
+    float maxFreqShowing = 20000.0f;
+    float zoom = 5.0f;
 };

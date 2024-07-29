@@ -56,7 +56,7 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseDown (const juce::MouseEvent& event)
 {
-    if (event.mods.isCtrlDown())
+    if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
         processor.startSineSweep (freq);
@@ -94,7 +94,7 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
 {
-    if (event.mods.isCtrlDown())
+    if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
         std::cout << "mouse drag!!" << std::endl;
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
@@ -137,6 +137,44 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     draggingId = -1;
     
     processor.applyCurve();
+    repaint();
+}
+
+void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
+{
+    auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
+    
+    float p = 1 + (wheel.deltaY);
+    float dx = wheel.deltaX * -0.3f;
+    
+    float t = timeAtFrequency (freq);
+    float leftChunkSize = t;
+    float rightChunkSize = 1 - t;
+    
+    float leftSideOfWindow = t - (leftChunkSize * p) + dx;
+    float rightSideOfWindow = t + (rightChunkSize * p) + dx;
+    
+    
+    minFreqShowing = frequencyAtTime (leftSideOfWindow);
+    maxFreqShowing = frequencyAtTime (rightSideOfWindow);
+    
+    if (minFreqShowing < MIN_FREQ)
+        minFreqShowing = MIN_FREQ;
+    if (maxFreqShowing > MAX_FREQ)
+        maxFreqShowing = MAX_FREQ;
+    
+    
+    
+//    if (wheel.deltaY > 0)
+//    {
+//        minFreqShowing = std::sqrt (freq * minFreqShowing);
+//        maxFreqShowing = std::sqrt (freq * maxFreqShowing);
+//    }
+//    else
+//    {
+//        minFreqShowing = std::sqrt (MIN_FREQ * minFreqShowing);
+//        maxFreqShowing = std::sqrt (MAX_FREQ * maxFreqShowing);
+//    }
     repaint();
 }
 
@@ -245,8 +283,8 @@ std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForMouseEvent (const j
 float CabinEQPage::frequencyAtTime (float t) const
 {
     // Scale logarithmically (should this be here?)
-    float logMinFreq = std::log(MIN_FREQ);
-    float logMaxFreq = std::log(MAX_FREQ);
+    float logMinFreq = std::log(minFreqShowing);
+    float logMaxFreq = std::log(maxFreqShowing);
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
     
     return freq;
@@ -254,8 +292,8 @@ float CabinEQPage::frequencyAtTime (float t) const
 
 float CabinEQPage::timeAtFrequency (float freq) const
 {
-    float logMinFreq = std::log(MIN_FREQ);
-    float logMaxFreq = std::log(MAX_FREQ);
+    float logMinFreq = std::log(minFreqShowing);
+    float logMaxFreq = std::log(maxFreqShowing);
     float logFreq = std::log(freq);
 
     // Normalize the log frequency
