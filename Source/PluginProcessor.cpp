@@ -367,7 +367,7 @@ void StartupMVPAudioProcessor::startSineSweep (float centerFreq)
 
 void StartupMVPAudioProcessor::updateSineSweep (float centerFreq)
 {
-    playbackManager.setSineSweepCenterFrequency (centerFreq);
+    playbackManager.updateSineSweepCenterFrequency (centerFreq);
 }
 
 void StartupMVPAudioProcessor::endSineSweep()

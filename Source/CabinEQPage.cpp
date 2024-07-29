@@ -316,9 +316,8 @@ float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNo
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     float freqRatio = freq / eqNode.frequency;
-    float amplDiff = std::abs (ampl - eqNode.amplitude);
     
-    return (1.0f - freqRatio) * 2.0f + amplDiff;
+    return std::abs (1.0f - freqRatio);
 }
 
 std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const

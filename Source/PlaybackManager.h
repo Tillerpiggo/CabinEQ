@@ -36,6 +36,7 @@ public:
     void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
     
     void setSineSweepCenterFrequency (float centerFreq);
+    void updateSineSweepCenterFrequency (float centerFreq);
     void setCalibratingEQNode (EQNode calibratingNode); // changes the EQNode being compared to the reference tone and restarts interval
     void updateCalibratingEQNode (EQNode updatedNode); // changes the EQNode being compared to the reference tone but does not restart the interval
     

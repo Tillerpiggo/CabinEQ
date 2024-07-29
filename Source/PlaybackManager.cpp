@@ -31,10 +31,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             const std::pair<float, float> value = getNextSample();
-            leftChannel[sample] = value.first * 0.05 * 0.5;
+            leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
             
             if (rightChannel)
-                rightChannel[sample] = value.second * 0.05 * 0.5;
+                rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
         }
     }
     else
@@ -44,11 +44,13 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
             for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
             {
                 const std::pair<float, float> value = sineSweepGenerator.getNextSample();
+                float referenceGain = juce::Decibels::decibelsToGain (referenceVolume);
+                referenceGain *= juce::Decibels::decibelsToGain (getCompensationDBAtFrequency (sineSweepGenerator.getCurrFreq()));
                 
-                leftChannel[sample] = value.first * 0.05 * 0.5 * juce::Decibels::decibelsToGain (referenceVolume);
+                leftChannel[sample] = value.first * 0.05 * 0.5 * referenceGain;
                 
                 if (rightChannel)
-                    rightChannel[sample] = value.second * 0.05 * 0.5 * juce::Decibels::decibelsToGain (referenceVolume);
+                    rightChannel[sample] = value.second * 0.05 * 0.5 * referenceGain;
             }
         }
         
@@ -111,15 +113,17 @@ void PlaybackManager::setSineSweepCenterFrequency (float centerFreq)
     sineSweepGenerator.setCenterFrequency (centerFreq);
 }
 
+void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq)
+{
+    sineSweepGenerator.updateCenterFrequency (centerFreq);
+}
+
 void PlaybackManager::setCalibratingEQNode (EQNode node)
 {
     int noteDurationInSamples = 25000;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
-    
-    referenceNoteCompensated.gain += referenceVolume;
-    node.amplitude += referenceVolume;
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (node, noteDurationInSamples);
@@ -132,9 +136,6 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
-    
-    referenceNoteCompensated.gain += referenceVolume;
-    updatedNode.amplitude += referenceVolume;
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (updatedNode, noteDurationInSamples);
@@ -159,12 +160,15 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce custom slope for clarity
-//    const float referenceFrequency = 1000.0;
-//    float slope = 1.7f;
-//    float octaves = std::log2((frequency) / (referenceNote.frequency));
-//    float dbDifference = octaves * slope;
-//    
-//    amplitudeCompensationDB += dbDifference;
+    const float referenceFrequency = 1000.0;
+    float slope = 1.6f;
+    float octaves = std::log2((frequency) / (referenceNote.frequency));
+    float dbDifference = octaves * slope;
+    
+    float slopeSlope = octaves * -0.1f;
+    dbDifference += octaves * slopeSlope;
+    
+    amplitudeCompensationDB += dbDifference;
     
     return amplitudeCompensationDB;
 }

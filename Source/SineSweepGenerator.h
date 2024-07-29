@@ -22,6 +22,7 @@ public:
     std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
     void setCenterFrequency (float centerFreq);
+    void updateCenterFrequency (float centerFreq);
     float getCurrFreq() const;
     
 private:
@@ -31,8 +32,8 @@ private:
     
     static constexpr float FREQ_RANGE_FACTOR = 1.0f;
     static constexpr float FREQ_STEP = 1.0001f;
-    static constexpr float TEMPO = 1; // samples per change
-    static constexpr float BASE_DB = 8.0f;
+    static constexpr float TEMPO = 5; // samples per change
+    static constexpr float BASE_DB = 0.0f;
     bool increasingFreq = true;
     
     int currStep = 0;

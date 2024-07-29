@@ -27,6 +27,12 @@ void SineSweepGenerator::setSampleRate (float newSampleRate)
 void SineSweepGenerator::setCenterFrequency (float centerFreq)
 {
     this->centerFreq = centerFreq;
+    currFreq = centerFreq;
+}
+
+void SineSweepGenerator::updateCenterFrequency (float centerFreq)
+{
+    this->centerFreq = centerFreq;
 }
 
 void SineSweepGenerator::incrementFreq()
@@ -35,7 +41,7 @@ void SineSweepGenerator::incrementFreq()
     {
         currStep = 0;
         
-        if (currFreq >= centerFreq * FREQ_STEP || currFreq <= centerFreq * FREQ_STEP)
+        if (currFreq >= centerFreq / FREQ_STEP && currFreq <= centerFreq * FREQ_STEP)
             currFreq = centerFreq;
         if (currFreq < centerFreq)
             currFreq *= FREQ_STEP;
