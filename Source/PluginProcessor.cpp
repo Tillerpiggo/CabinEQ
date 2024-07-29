@@ -379,3 +379,8 @@ float StartupMVPAudioProcessor::getCurrSineSweepFreq()
 {
     return playbackManager.getCurrSineSweepFreq();
 }
+
+void StartupMVPAudioProcessor::setReferenceVolume (float volume)
+{
+    playbackManager.setReferenceVolume (volume);
+}

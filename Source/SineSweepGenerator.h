@@ -29,9 +29,9 @@ private:
     
     SineWaveGenerator sineWaveGenerator;
     
-    static constexpr float FREQ_RANGE_FACTOR = 1.2f;
+    static constexpr float FREQ_RANGE_FACTOR = 1.0f;
     static constexpr float FREQ_STEP = 1.0001f;
-    static constexpr float TEMPO = 50; // samples per change
+    static constexpr float TEMPO = 1; // samples per change
     static constexpr float BASE_DB = 8.0f;
     bool increasingFreq = true;
     

@@ -33,19 +33,14 @@ void SineSweepGenerator::incrementFreq()
 {
     if (currStep >= TEMPO)
     {
-        std::cout << "currFreq: " << currFreq << std::endl;
         currStep = 0;
-        // TODO: Implement so that it goes up half the time and down the other half of the time
-        if (increasingFreq)
+        
+        if (currFreq >= centerFreq * FREQ_STEP || currFreq <= centerFreq * FREQ_STEP)
+            currFreq = centerFreq;
+        if (currFreq < centerFreq)
             currFreq *= FREQ_STEP;
-        else
+        if (currFreq > centerFreq)
             currFreq /= FREQ_STEP;
-        
-        if (currFreq < centerFreq / FREQ_RANGE_FACTOR)
-            increasingFreq = true;
-        
-        if (currFreq > centerFreq * FREQ_RANGE_FACTOR)
-            increasingFreq = false;
         
         float dbDifference = -4.5f * std::log2 (currFreq / 1000.0f);
         sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, 0.0f, 0.0f));

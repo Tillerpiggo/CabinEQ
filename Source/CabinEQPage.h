@@ -15,10 +15,13 @@
 #include "EQNode.h"
 
 class CabinEQPage   : public juce::Component,
+                      public juce::Slider::Listener,
                       public juce::Timer
+
 {
 public:
     CabinEQPage (StartupMVPAudioProcessor& p);
+    ~CabinEQPage() override;
     
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -28,9 +31,12 @@ public:
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
     
+    void sliderValueChanged (juce::Slider *slider) override;
     void timerCallback() override;
     
 private:
+    juce::Slider referenceSlider;
+    
     static constexpr float MIN_FREQ = 20.0f;
     static constexpr float MAX_FREQ = 20000.0f;
     

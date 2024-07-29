@@ -13,8 +13,19 @@
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     : processor (p)
 {
+    addAndMakeVisible (referenceSlider);
+    referenceSlider.setRange (-24.0f, 24.0f);
+    referenceSlider.setValue (0.0f);
+    referenceSlider.addListener (this);
+    
     updateEQNodes();
     startTimer (10);
+}
+
+CabinEQPage::~CabinEQPage()
+{
+    referenceSlider.removeListener (this);
+    stopTimer();
 }
 
 void CabinEQPage::paint (juce::Graphics& g)
@@ -27,19 +38,13 @@ void CabinEQPage::paint (juce::Graphics& g)
 void CabinEQPage::resized()
 {
     setBounds (0, 0, getWidth(), getHeight());
+    
+    int sliderHeight = 50; // Set the height for the slider
+    referenceSlider.setBounds (10, getHeight() - sliderHeight - 10, getWidth() - 20, sliderHeight);
 }
 
 void CabinEQPage::mouseMove (const juce::MouseEvent& event)
 {
-//    for (const auto& eqNode : eqNodes)
-//    {
-//        if (mouseEventIsNearEQNode (event, eqNode))
-//        {
-//            hoveringId = eqNode.id;
-//            repaint();
-//            return;
-//        }
-//    }
     hoveringId = -1;
     
     std::optional<EQNode> hoveringEQNode = getClosestEQNodeToMouseEvent (event);
@@ -51,34 +56,22 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseDown (const juce::MouseEvent& event)
 {
-    if (event.mods.isRightButtonDown())
+    if (event.mods.isCtrlDown())
     {
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-//        processor.startCalibratingEQNode (EQNode (-1, freq, processor.getCurve().valueAtFrequency (freq).first.real(), 0.0f));
         processor.startSineSweep (freq);
         
         return;
     }
     
-//    float minDist = 200.0f;
-//    EQNode draggingEQNode (0.0f, 0.0f, 0.0f, 0.0f);
-//    
-//    // Get id of node within distance range
-//    for (const auto& eqNode : eqNodes)
-//    {
-//        float dist = mouseEventEQNodeDistance (event, eqNode);
-//        if (mouseEventIsNearEQNode (event, eqNode) && dist < minDist)
-//        {
-//            minDist = dist;
-//            draggingId = eqNode.id;
-//            draggingEQNode = eqNode;
-//        }
-//    }
     std::optional<EQNode> draggingEQNode = getClosestEQNodeToMouseEvent (event);
+    if (draggingEQNode.has_value())
+        draggingId = draggingEQNode.value().id;
+    
     if (! draggingEQNode.has_value())
     {
         auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
-        if (! event.mods.isRightButtonDown())
+        if (! event.mods.isRightButtonDown() && ampl > -24.0f)
             processor.addEQNode (freq, ampl, 0.0f);
         
         repaint();
@@ -101,11 +94,10 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
 {
-    if (event.mods.isRightButtonDown())
+    if (event.mods.isCtrlDown())
     {
         std::cout << "mouse drag!!" << std::endl;
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-//        processor.updateCalibratingEQNode (EQNode (-1, freq, processor.getCurve().valueAtFrequency (freq).first.real(), 0.0f));
         processor.updateSineSweep (freq);
         
         return;
@@ -143,7 +135,17 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     processor.updateEQNode (draggingId, freq, ampl, node.pan);
     processor.endCalibratingEQNode();
     draggingId = -1;
+    
+    processor.applyCurve();
     repaint();
+}
+
+void CabinEQPage::sliderValueChanged (juce::Slider *slider)
+{
+    if (slider == &referenceSlider)
+    {
+        processor.setReferenceVolume (slider->getValue());
+    }
 }
 
 void CabinEQPage::timerCallback()

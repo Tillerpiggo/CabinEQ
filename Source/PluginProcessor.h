@@ -86,6 +86,9 @@ public:
     void updateSineSweep (float centerFreq);
     void endSineSweep();
     float getCurrSineSweepFreq();
+    
+    // misc
+    void setReferenceVolume (float volume);
  
 private:
     static const int FFT_SIZE = 10;

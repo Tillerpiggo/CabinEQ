@@ -117,6 +117,9 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
     
+    referenceNoteCompensated.gain += referenceVolume;
+    node.amplitude += referenceVolume;
+    
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (node, noteDurationInSamples);
     arbitrarySequencer.setNotes ({ note1, note2 }, true);
@@ -129,10 +132,18 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
     
+    referenceNoteCompensated.gain += referenceVolume;
+    updatedNode.amplitude += referenceVolume;
+    
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (updatedNode, noteDurationInSamples);
     arbitrarySequencer.changeNoteAtIdx (0, note1.note());
     arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+}
+
+void PlaybackManager::setReferenceVolume (float volume)
+{
+    this->referenceVolume = volume;
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

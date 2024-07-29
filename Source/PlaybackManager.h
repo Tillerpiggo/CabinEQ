@@ -39,6 +39,8 @@ public:
     void setCalibratingEQNode (EQNode calibratingNode); // changes the EQNode being compared to the reference tone and restarts interval
     void updateCalibratingEQNode (EQNode updatedNode); // changes the EQNode being compared to the reference tone but does not restart the interval
     
+    void setReferenceVolume (float volume);
+    
 private:
     std::pair<float, float> getNextSample();
     float getCompensationDBAtFrequency (float frequency);
@@ -60,4 +62,6 @@ private:
     
     int currIdx = -1;
     int noteLength = 25000;
+    
+    float referenceVolume = 0.0f;
 };
