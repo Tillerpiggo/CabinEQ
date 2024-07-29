@@ -21,17 +21,19 @@ public:
     
     std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
-    
-    void setFrequencyCenter (float freq);
+    void setCenterFrequency (float centerFreq);
+    float getCurrFreq() const;
     
 private:
     void incrementFreq(); // increment frequency and amplitude and update the sine wave generator
     
     SineWaveGenerator sineWaveGenerator;
     
-    static constexpr float FREQ_RANGE_FACTOR = 1.5f;
-    static constexpr float FREQ_STEP = 1.01f;
-    static constexpr float TEMPO = 100; // samples per change
+    static constexpr float FREQ_RANGE_FACTOR = 1.2f;
+    static constexpr float FREQ_STEP = 1.0001f;
+    static constexpr float TEMPO = 50; // samples per change
+    static constexpr float BASE_DB = 8.0f;
+    bool increasingFreq = true;
     
     int currStep = 0;
     float centerFreq = 1000.0f;

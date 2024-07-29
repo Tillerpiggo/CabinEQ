@@ -13,7 +13,7 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : filter (FFT_SIZE), isCalibrating (false), isBypassed (false), hasPreparedFilter (false)
+    : filter (FFT_SIZE), isSweeping (false), isCalibrating (false), isBypassed (false), hasPreparedFilter (false)
 {
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
@@ -39,11 +39,23 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     }
     else
     {
+        if (isSweeping)
+        {
+            for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+            {
+                const std::pair<float, float> value = sineSweepGenerator.getNextSample();
+                leftChannel[sample] = value.first * 0.05 * 0.5;
+                
+                if (rightChannel)
+                    rightChannel[sample] = value.second * 0.05 * 0.5;
+            }
+        }
+        
         // process audio through the filter
         juce::dsp::AudioBlock<float> block (buffer);
         juce::dsp::ProcessContextReplacing<float> context (block);
         
-        if (isBypassed && hasPreparedFilter)
+        if ((isBypassed && hasPreparedFilter) || isSweeping)
         {
             filter.process (context);
             wetGainProcessor.process (context);
@@ -67,6 +79,16 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     hasPreparedFilter = true;
 }
 
+float PlaybackManager::getCurrSineSweepFreq() const
+{
+    return sineSweepGenerator.getCurrFreq();
+}
+
+void PlaybackManager::setIsSweeping (bool isSweeping)
+{
+    this->isSweeping = isSweeping;
+}
+
 void PlaybackManager::setIsCalibrating (bool isCalibrating)
 {
     this->isCalibrating = isCalibrating;
@@ -81,6 +103,11 @@ void PlaybackManager::setDryWetVolumeBalance (float balance)
 {
     dryGainProcessor.setGainDecibels (-balance);
     wetGainProcessor.setGainDecibels (+balance);
+}
+
+void PlaybackManager::setSineSweepCenterFrequency (float centerFreq)
+{
+    sineSweepGenerator.setCenterFrequency (centerFreq);
 }
 
 void PlaybackManager::setCalibratingEQNode (EQNode node)

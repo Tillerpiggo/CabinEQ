@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "ArbitraryResponseFilter.h"
 #include "ArbitrarySequencer.h"
+#include "SineSweepGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -27,10 +28,14 @@ public:
     void updateFilterWithCurve (const Curve& curve); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);
     
+    float getCurrSineSweepFreq() const;
+    
+    void setIsSweeping (bool isSweeping);
     void setIsCalibrating (bool isCalibrating);
     void setIsBypassed (bool isBypassed);
     void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
     
+    void setSineSweepCenterFrequency (float centerFreq);
     void setCalibratingEQNode (EQNode calibratingNode); // changes the EQNode being compared to the reference tone and restarts interval
     void updateCalibratingEQNode (EQNode updatedNode); // changes the EQNode being compared to the reference tone but does not restart the interval
     
@@ -45,8 +50,10 @@ private:
     juce::dsp::Gain<float> wetGainProcessor;
     
     ArbitrarySequencer arbitrarySequencer;
+    SineSweepGenerator sineSweepGenerator;
     Note referenceNote = Note (1000.0f, 6.0f, 0.0f, 0.0f);
     
+    bool isSweeping;
     bool isCalibrating;
     bool isBypassed;
     bool hasPreparedFilter;

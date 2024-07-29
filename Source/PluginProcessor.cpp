@@ -358,3 +358,24 @@ const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes() const
 {
     return clearEQValueTree.getEQNodes();
 }
+
+void StartupMVPAudioProcessor::startSineSweep (float centerFreq)
+{
+    playbackManager.setIsSweeping (true);
+    playbackManager.setSineSweepCenterFrequency (centerFreq);
+}
+
+void StartupMVPAudioProcessor::updateSineSweep (float centerFreq)
+{
+    playbackManager.setSineSweepCenterFrequency (centerFreq);
+}
+
+void StartupMVPAudioProcessor::endSineSweep()
+{
+    playbackManager.setIsSweeping (false);
+}
+
+float StartupMVPAudioProcessor::getCurrSineSweepFreq()
+{
+    return playbackManager.getCurrSineSweepFreq();
+}

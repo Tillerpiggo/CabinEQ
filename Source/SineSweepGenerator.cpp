@@ -24,18 +24,37 @@ void SineSweepGenerator::setSampleRate (float newSampleRate)
     sineWaveGenerator.setSampleRate (newSampleRate);
 }
 
-void SineSweepGenerator::setFrequencyCenter (float freq)
+void SineSweepGenerator::setCenterFrequency (float centerFreq)
 {
-    centerFreq = freq;
+    this->centerFreq = centerFreq;
 }
 
 void SineSweepGenerator::incrementFreq()
 {
     if (currStep >= TEMPO)
     {
+        std::cout << "currFreq: " << currFreq << std::endl;
         currStep = 0;
         // TODO: Implement so that it goes up half the time and down the other half of the time
+        if (increasingFreq)
+            currFreq *= FREQ_STEP;
+        else
+            currFreq /= FREQ_STEP;
+        
+        if (currFreq < centerFreq / FREQ_RANGE_FACTOR)
+            increasingFreq = true;
+        
+        if (currFreq > centerFreq * FREQ_RANGE_FACTOR)
+            increasingFreq = false;
+        
+        float dbDifference = -4.5f * std::log2 (currFreq / 1000.0f);
+        sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, 0.0f, 0.0f));
     }
     
     currStep++;
+}
+
+float SineSweepGenerator::getCurrFreq() const
+{
+    return currFreq;
 }

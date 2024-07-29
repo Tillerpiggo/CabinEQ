@@ -80,6 +80,12 @@ public:
     void startCalibratingEQNode (EQNode eqNode);
     void updateCalibratingEQNode (EQNode eqNode);
     void endCalibratingEQNode();
+    
+    // Sine sweep
+    void startSineSweep (float centerFreq);
+    void updateSineSweep (float centerFreq);
+    void endSineSweep();
+    float getCurrSineSweepFreq();
  
 private:
     static const int FFT_SIZE = 10;

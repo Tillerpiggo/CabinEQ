@@ -14,7 +14,8 @@
 #include "PluginProcessor.h"
 #include "EQNode.h"
 
-class CabinEQPage   : public juce::Component
+class CabinEQPage   : public juce::Component,
+                      public juce::Timer
 {
 public:
     CabinEQPage (StartupMVPAudioProcessor& p);
@@ -26,6 +27,8 @@ public:
     void mouseDown (const juce::MouseEvent &event) override;
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
+    
+    void timerCallback() override;
     
 private:
     static constexpr float MIN_FREQ = 20.0f;
@@ -39,7 +42,10 @@ private:
     float timeAtFrequency (float freq) const;
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
     bool mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const;
+    float mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const;
     EQNode eqNodeForMouseEvent (const juce::MouseEvent& event) const; // returns an EQNode corresponding to the point on the curve at the frequency of the mouse event (x-value)
+    
+    std::optional<EQNode> getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const;
     
     void updateEQNodes();
     
