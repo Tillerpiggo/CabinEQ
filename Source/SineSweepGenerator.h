@@ -1,0 +1,40 @@
+/*
+  ==============================================================================
+
+    SineSweepGenerator.h
+    Created: 28 Jul 2024 7:34:18pm
+    Author:  Tyler Gee
+
+  ==============================================================================
+*/
+
+#pragma once
+
+#include <JuceHeader.h>
+#include "SineWaveGenerator.h"
+
+/// This class provides an easy interface to generate a sine sweep in a given frequency range.
+class SineSweepGenerator
+{
+public:
+    SineSweepGenerator();
+    
+    std::pair<float, float> getNextSample();
+    void setSampleRate (float newSampleRate);
+    
+    void setFrequencyCenter (float freq);
+    
+private:
+    void incrementFreq(); // increment frequency and amplitude and update the sine wave generator
+    
+    SineWaveGenerator sineWaveGenerator;
+    
+    static constexpr float FREQ_RANGE_FACTOR = 1.5f;
+    static constexpr float FREQ_STEP = 1.01f;
+    static constexpr float TEMPO = 100; // samples per change
+    
+    int currStep = 0;
+    float centerFreq = 1000.0f;
+    float currFreq = 1000.0f;
+    
+};

@@ -22,6 +22,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
+    void mouseMove (const juce::MouseEvent &event) override;
     void mouseDown (const juce::MouseEvent &event) override;
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
@@ -36,7 +37,9 @@ private:
     
     float frequencyAtTime (float t) const;
     float timeAtFrequency (float freq) const;
-    std::pair<float, float> frequencyAndAmplitudeForCoords (float x, float y) const;
+    std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
+    bool mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const;
+    EQNode eqNodeForMouseEvent (const juce::MouseEvent& event) const; // returns an EQNode corresponding to the point on the curve at the frequency of the mouse event (x-value)
     
     void updateEQNodes();
     
@@ -44,4 +47,5 @@ private:
     std::vector<EQNode> eqNodes;
     
     int draggingId = -1; // not currently dragging any point
+    int hoveringId = -1; // not hovering over any point
 };

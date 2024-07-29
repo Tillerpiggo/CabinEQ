@@ -57,6 +57,10 @@
               file="Source/SineWaveGenerator.cpp"/>
         <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
               file="Source/SineWaveGenerator.h"/>
+        <FILE id="ipHh6l" name="SineSweepGenerator.cpp" compile="1" resource="0"
+              file="Source/SineSweepGenerator.cpp"/>
+        <FILE id="HYovE4" name="SineSweepGenerator.h" compile="0" resource="0"
+              file="Source/SineSweepGenerator.h"/>
         <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
               file="Source/SequenceableNote.cpp"/>
         <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
