@@ -266,6 +266,8 @@ juce::Point<float> CabinEQPage::coordsForEQNode (float frequency, float amplitud
     float width = getWidth();
     float height = getHeight();
     
+    amplitude -= -4.5 * std::log2 (frequency / 1000.0f);
+    
     float x = width * timeAtFrequency (frequency);
     float y = height * (1.0f - (amplitude + 24.0f) / 48.0f);
     
@@ -284,9 +286,8 @@ std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForMouseEvent (const j
     float height = getHeight();
     float normalizedY = y / height;
     float ampl = (1.0f - normalizedY) * 48.0f - 24.0f;
+    ampl += -4.5 * std::log2 (freq / 1000.0f);
 //    float dbDifference = -4.5f * std::log2((freq) / 1000.0f);
-    float dbDifference = 0.0f;
-    ampl += dbDifference;
     
     return { freq, ampl };
 }
@@ -333,13 +334,16 @@ float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNo
 
 std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const
 {
-    float minDist = 500.0f;
+    std::cout << "ratio: " << maxFreqShowing / minFreqShowing << std::endl;
+    float minDist = 0.03f * (std::log (maxFreqShowing / minFreqShowing)) / 3.0f;
+    std::cout << "minDist: " << minDist << std::endl;
     std::optional<EQNode> closestEQNode;
     
     // Get id of node within distance range
     for (const auto& eqNode : eqNodes)
     {
         float dist = mouseEventEQNodeDistance (event, eqNode);
+//        std::cout << "dist: " << dist << std::endl;
         if (mouseEventIsNearEQNode (event, eqNode) && dist < minDist)
         {
             minDist = dist;
