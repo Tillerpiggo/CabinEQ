@@ -10,6 +10,34 @@
 
 #include "Curve.h"
 
+const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValueAtFrequency (float frequency) const
+{
+    std::vector<float> amplitudes;
+    std::vector<float> pans;
+    
+    for (const auto& eqNode : eqNodes)
+    {
+        amplitudes.push_back (eqNode.amplitude);
+        pans.push_back (eqNode.pan);
+    }
+    
+    float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
+    float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
+    
+    /*float dbDifference = -4.5f * std::log2((frequency) / 1000.0f);*/ // commented out for CabinEQ dev purposes
+//    float dbDifference = 0.0f;
+    float dbDifference = -3.5f * std::log2((frequency) / 1000.0f);
+//    float dbDifference = 0.0f;
+
+    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
+                                                     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
+    
+    std::complex<float> leftVal = std::polar(leftGain, 0.0f);
+    std::complex<float> rightVal = std::polar(rightGain, 0.0f);
+    
+    return { leftVal, rightVal };
+}
+
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequency (float frequency) const
 {
     std::vector<float> amplitudes;
@@ -24,9 +52,10 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
-    float dbDifference = -4.5f * std::log2((frequency) / 1000.0f); // commented out for CabinEQ dev purposes
-//    dbDifference -= inverseFM.valueAtFrequency (frequency, 70.0f);
+    /*float dbDifference = -4.5f * std::log2((frequency) / 1000.0f);*/ // commented out for CabinEQ dev purposes
 //    float dbDifference = 0.0f;
+//    dbDifference += -3.5f * std::log2((frequency) / 1000.0f);
+    float dbDifference = 0.0f;
 
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
                                                      float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
@@ -39,7 +68,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t) const
 {
-    return valueAtFrequency(t * 22050);
+    return compensatedValueAtFrequency(t * 22050);
 }
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t) const

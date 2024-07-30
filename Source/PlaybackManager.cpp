@@ -163,6 +163,7 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
+    node.amplitude += getCompensationDBAtFrequency (node.frequency);
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (node, noteDurationInSamples);
@@ -175,6 +176,7 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
+    updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (updatedNode, noteDurationInSamples);
@@ -186,7 +188,8 @@ void PlaybackManager::startTestingFreq (float freq, const Curve& curve)
 {
     isTesting = true;
     float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
-    ampl += -4.5f * std::log2(freq / 1000.0f);
+    ampl += getCompensationDBAtFrequency (freq);
+//    ampl += -4.5f * std::log2(freq / 1000.0f);
     int noteDurationInSamples = 25000;
     
     Note referenceNoteCompensated = referenceNote;
@@ -203,7 +206,8 @@ void PlaybackManager::startTestingFreq (float freq, const Curve& curve)
 void PlaybackManager::updateTestingFreq (float freq, const Curve& curve)
 {
     float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
-    ampl += -4.5f * std::log2(freq / 1000.0f);
+//    ampl += -4.5f * std::log2(freq / 1000.0f);
+    ampl += getCompensationDBAtFrequency (freq);
     int noteDurationInSamples = 25000;
     
     Note referenceNoteCompensated = referenceNote;
@@ -240,22 +244,25 @@ std::pair<float, float> PlaybackManager::getNextSample()
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
     // To compensate for music curve
-    //float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
-    float amplitudeCompensationGain = std::pow (1, std::log2(frequency / 1000.0f));
-    float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
+//    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
+//    float amplitudeCompensationGain = std::pow (1, std::log2(frequency / 1000.0f));
+//    float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
+    //float amplitudeCompensationDB = -4.5f * std::log2(frequency / 1000.0f);
+    float amplitudeCompensationDB = 0.0f;
     
     // Introduce custom slope for clarity
 //    float slope = 2.0f;
-//    float octaves = std::log2((frequency) / (referenceNote.frequency));
+    float slope = 0.0f;
+    float octaves = std::log2((frequency) / (referenceNote.frequency));
 ////    slope += octaves * -0.1f;
-//    float dbDifference = octaves * slope;
+    float dbDifference = octaves * slope;
     
 //    float slopeSlope = octaves * -0.1f;
 //    dbDifference += octaves * slopeSlope;
     
-    float dbDifference = inverseFM.valueAtFrequency (frequency, 85.0f);
+//    float dbDifference = inverseFM.valueAtFrequency (frequency, 82.5f);
     
-//    amplitudeCompensationDB += dbDifference;
+    amplitudeCompensationDB += dbDifference;
     
     return amplitudeCompensationDB;
 }
