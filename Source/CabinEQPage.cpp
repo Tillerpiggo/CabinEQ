@@ -237,6 +237,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
             g.setColour (juce::Colour::fromRGB (255, 255, 0));
         
         float dbDifference = -4.5f * std::log2((node.frequency) / 1000.0f);
+//        float dbDifference = 0.0f;
         const auto& point = coordsForEQNode (node.frequency, node.amplitude - dbDifference);
         
         float dotRadius = 4.0f;
@@ -284,6 +285,7 @@ std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForMouseEvent (const j
     float normalizedY = y / height;
     float ampl = (1.0f - normalizedY) * 48.0f - 24.0f;
     float dbDifference = -4.5f * std::log2((freq) / 1000.0f);
+//    float dbDifference = 0.0f;
     ampl += dbDifference;
     
     return { freq, ampl };

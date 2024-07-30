@@ -15,6 +15,7 @@
 #include "ArbitrarySequencer.h"
 #include "GreenNoiseGenerator.h"
 #include "SineSweepGenerator.h"
+#include "InverseFletcherMunsonCurve.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -78,4 +79,6 @@ private:
     
     float referenceVolume = 0.0f;
     float testingFreq = 1000.0f;
+    
+    InverseFletcherMunsonCurve inverseFM;
 };

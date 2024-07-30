@@ -25,6 +25,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
     float dbDifference = -4.5f * std::log2((frequency) / 1000.0f); // commented out for CabinEQ dev purposes
+//    dbDifference -= inverseFM.valueAtFrequency (frequency, 70.0f);
+//    float dbDifference = 0.0f;
 
     float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
                                                      float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);

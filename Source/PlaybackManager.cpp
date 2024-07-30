@@ -240,18 +240,22 @@ std::pair<float, float> PlaybackManager::getNextSample()
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
     // To compensate for music curve
-    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
+    //float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
+    float amplitudeCompensationGain = std::pow (1, std::log2(frequency / 1000.0f));
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce custom slope for clarity
-    float slope = 1.6f;
-    float octaves = std::log2((frequency) / (referenceNote.frequency));
-    float dbDifference = octaves * slope;
+//    float slope = 2.0f;
+//    float octaves = std::log2((frequency) / (referenceNote.frequency));
+////    slope += octaves * -0.1f;
+//    float dbDifference = octaves * slope;
     
-    float slopeSlope = octaves * -0.1f;
-    dbDifference += octaves * slopeSlope;
+//    float slopeSlope = octaves * -0.1f;
+//    dbDifference += octaves * slopeSlope;
     
-    amplitudeCompensationDB += dbDifference;
+    float dbDifference = inverseFM.valueAtFrequency (frequency, 85.0f);
+    
+//    amplitudeCompensationDB += dbDifference;
     
     return amplitudeCompensationDB;
 }
