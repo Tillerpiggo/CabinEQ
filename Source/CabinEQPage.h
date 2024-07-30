@@ -50,7 +50,6 @@ private:
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
     bool mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const;
     float mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const;
-    EQNode eqNodeForMouseEvent (const juce::MouseEvent& event) const; // returns an EQNode corresponding to the point on the curve at the frequency of the mouse event (x-value)
     
     std::optional<EQNode> getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const;
     

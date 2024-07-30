@@ -16,7 +16,7 @@ GreenNoiseGenerator::GreenNoiseGenerator()
 
 std::pair<float, float> GreenNoiseGenerator::getNextSample()
 {
-    float sample = arbitrarySequencer.getNextSample().first * 0.15f + random.nextFloat() * 0.25f;
+    float sample = arbitrarySequencer.getNextSample().first * 0.15f + random.nextFloat() * 4.0f;
    // std::cout << "sample: " << sample << std::endl;
     return { sample, sample };
 }
@@ -49,14 +49,14 @@ void GreenNoiseGenerator::updateArbitrarySequencerNotes()
     for (int i = 0; i < numNotes; ++i)
     {
         float freq = centerFreq * std::pow (noteFactor, i - numNotes / 2);
-        SequenceableNote note (freq, 0.0f, 0.0f, 0.0f, 5000, StereoGainEnvelope (500, 0));
+        SequenceableNote note (freq, 0.0f, 0.0f, 0.0f, 10000, StereoGainEnvelope (500, 0));
         notes.push_back (note);
     }
     
     for (int i = 1; i < numNotes - 1; ++i)
     {
         float freq = centerFreq * std::pow (noteFactor, numNotes / 2 - i);
-        SequenceableNote note (freq, 0.0f, 0.0f, 0.0f, 5000, StereoGainEnvelope (500, 0));
+        SequenceableNote note (freq, 0.0f, 0.0f, 0.0f, 10000, StereoGainEnvelope (500, 0));
         notes.push_back (note);
     }
     

@@ -81,6 +81,12 @@ public:
     void updateCalibratingEQNode (EQNode eqNode);
     void endCalibratingEQNode();
     
+    // Testing
+    void startTestingAt (float freq);
+    void updateTestingAt (float freq);
+    void endTesting();
+    float getCurrTestingFreq();
+    
     // Sine sweep
     void startSineSweep (float centerFreq);
     void updateSineSweep (float centerFreq);

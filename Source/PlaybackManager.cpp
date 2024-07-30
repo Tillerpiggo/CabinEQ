@@ -13,8 +13,8 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : filter (FFT_SIZE), isSweeping (false), isPlayingGreenNoise (false), isCalibrating (false), isBypassed (false),
-      hasPreparedFilter (false)
+    : filter (FFT_SIZE), isTesting (false), isSweeping (false), isPlayingGreenNoise (false), isCalibrating (false),
+      isBypassed (false), hasPreparedFilter (false)
 {
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
@@ -27,7 +27,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
     
-    if (isCalibrating)
+    if (isCalibrating || isTesting)
     {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
@@ -101,6 +101,11 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     hasPreparedFilter = true;
 }
 
+float PlaybackManager::getCurrTestingFreq() const
+{
+    return testingFreq;
+}
+
 float PlaybackManager::getCurrSineSweepFreq() const
 {
     return sineSweepGenerator.getCurrFreq();
@@ -109,6 +114,11 @@ float PlaybackManager::getCurrSineSweepFreq() const
 float PlaybackManager::getCurrGreenNoiseFreq() const
 {
     return greenNoiseGenerator.getCurrFreq();
+}
+
+void PlaybackManager::setIsTesting (bool isTesting)
+{
+    this->isTesting = isTesting;
 }
 
 void PlaybackManager::setIsSweeping (bool isSweeping)
@@ -170,6 +180,46 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
     SequenceableNote note2 (updatedNode, noteDurationInSamples);
     arbitrarySequencer.changeNoteAtIdx (0, note1.note());
     arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+}
+
+void PlaybackManager::startTestingFreq (float freq, const Curve& curve)
+{
+    isTesting = true;
+    float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
+    ampl += -4.5f * std::log2(freq / 1000.0f);
+    int noteDurationInSamples = 25000;
+    
+    Note referenceNoteCompensated = referenceNote;
+    referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
+    
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+    SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
+    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
+    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+    
+    testingFreq = freq;
+}
+
+void PlaybackManager::updateTestingFreq (float freq, const Curve& curve)
+{
+    float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
+    ampl += -4.5f * std::log2(freq / 1000.0f);
+    int noteDurationInSamples = 25000;
+    
+    Note referenceNoteCompensated = referenceNote;
+    referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
+    
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+    SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
+    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
+    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+    
+    testingFreq = freq;
+}
+
+void PlaybackManager::stopTestingFreq()
+{
+    isTesting = false;
 }
 
 void PlaybackManager::setGreenNoiseCenterFrequency (float centerFreq)

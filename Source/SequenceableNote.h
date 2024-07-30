@@ -19,7 +19,7 @@ class SequenceableNote
 {
 public:
     SequenceableNote (float frequency, float amplitude, float pan, float phase,
-                      float duration, StereoGainEnvelope envelope);
+                      float duration, StereoGainEnvelope envelope = StereoGainEnvelope());
     SequenceableNote (Note note, float duration, StereoGainEnvelope envelope = StereoGainEnvelope());
     SequenceableNote (EQNode node, float duration, StereoGainEnvelope envelope = StereoGainEnvelope());
     

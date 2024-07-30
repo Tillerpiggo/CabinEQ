@@ -337,21 +337,40 @@ void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float ampl
     clearEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
 
-void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode eqNode)
+void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
 {
-    playbackManager.setCalibratingEQNode (eqNode);
+    playbackManager.setCalibratingEQNode (node);
     playbackManager.setIsCalibrating (true);
-    std::cout << "start calibrating eq node" << std::endl;
 }
 
-void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode eqNode)
+void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node)
 {
-    playbackManager.updateCalibratingEQNode (eqNode);
+    playbackManager.updateCalibratingEQNode (node);
 }
 
 void StartupMVPAudioProcessor::endCalibratingEQNode()
 {
     playbackManager.setIsCalibrating (false);
+}
+
+void StartupMVPAudioProcessor::startTestingAt (float freq)
+{
+    playbackManager.startTestingFreq (freq, getCurve());
+}
+
+void StartupMVPAudioProcessor::updateTestingAt (float freq)
+{
+    playbackManager.updateTestingFreq (freq, getCurve());
+}
+
+void StartupMVPAudioProcessor::endTesting()
+{
+    playbackManager.stopTestingFreq();
+}
+
+float StartupMVPAudioProcessor::getCurrTestingFreq()
+{
+    return playbackManager.getCurrTestingFreq();
 }
 
 const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes() const

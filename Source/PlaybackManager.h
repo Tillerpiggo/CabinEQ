@@ -29,9 +29,11 @@ public:
     void updateFilterWithCurve (const Curve& curve); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);
     
+    float getCurrTestingFreq() const;
     float getCurrSineSweepFreq() const;
     float getCurrGreenNoiseFreq() const;
     
+    void setIsTesting (bool isTesting);
     void setIsSweeping (bool isSweeping);
     void setIsPlayingGreenNoise (bool isPlayingGreenNoise);
     void setIsCalibrating (bool isCalibrating);
@@ -40,8 +42,11 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq);
     void updateSineSweepCenterFrequency (float centerFreq);
-    void setCalibratingEQNode (EQNode calibratingNode); // changes the EQNode being compared to the reference tone and restarts interval
-    void updateCalibratingEQNode (EQNode updatedNode); // changes the EQNode being compared to the reference tone but does not restart the interval
+    void setCalibratingEQNode (EQNode node); // changes the EQNode being compared to the reference tone and restarts interval
+    void updateCalibratingEQNode (EQNode updatingNode); // changes the EQNode being compared to the reference tone but does not restart the interval
+    void startTestingFreq (float freq, const Curve& curve);
+    void updateTestingFreq (float freq, const Curve& curve);
+    void stopTestingFreq();
     void setGreenNoiseCenterFrequency (float centerFreq);
     
     void setReferenceVolume (float volume);
@@ -61,6 +66,7 @@ private:
     SineSweepGenerator sineSweepGenerator;
     Note referenceNote = Note (1000.0f, 6.0f, 0.0f, 0.0f);
     
+    bool isTesting;
     bool isSweeping;
     bool isPlayingGreenNoise;
     bool isCalibrating;
@@ -71,4 +77,5 @@ private:
     int noteLength = 25000;
     
     float referenceVolume = 0.0f;
+    float testingFreq = 1000.0f;
 };
