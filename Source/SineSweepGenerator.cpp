@@ -24,15 +24,17 @@ void SineSweepGenerator::setSampleRate (float newSampleRate)
     sineWaveGenerator.setSampleRate (newSampleRate);
 }
 
-void SineSweepGenerator::setCenterFrequency (float centerFreq)
+void SineSweepGenerator::setCenterFrequency (float centerFreq, std::optional<float> ampl)
 {
     this->centerFreq = centerFreq;
     currFreq = centerFreq;
+    currAmpl = ampl;
 }
 
-void SineSweepGenerator::updateCenterFrequency (float centerFreq)
+void SineSweepGenerator::updateCenterFrequency (float centerFreq, std::optional<float> ampl)
 {
     this->centerFreq = centerFreq;
+    currAmpl = ampl;
 }
 
 void SineSweepGenerator::incrementFreq()
@@ -48,7 +50,8 @@ void SineSweepGenerator::incrementFreq()
         if (currFreq > centerFreq)
             currFreq /= FREQ_STEP;
         
-        float dbDifference = -4.5f * std::log2 (currFreq / 1000.0f);
+        float dbDifference = currAmpl.has_value() ? currAmpl.value() : 0.0f;
+        dbDifference += -4.5f * std::log2 (currFreq / 1000.0f);
 //        float dbDifference = 0.0f;
         sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, 0.0f, 0.0f));
     }

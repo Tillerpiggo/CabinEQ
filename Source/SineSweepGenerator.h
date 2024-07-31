@@ -21,8 +21,8 @@ public:
     
     std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
-    void setCenterFrequency (float centerFreq);
-    void updateCenterFrequency (float centerFreq);
+    void setCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
+    void updateCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     float getCurrFreq() const;
     
 private:
@@ -39,5 +39,6 @@ private:
     int currStep = 0;
     float centerFreq = 1000.0f;
     float currFreq = 1000.0f;
+    std::optional<float> currAmpl;
     
 };

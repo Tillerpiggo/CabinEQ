@@ -337,6 +337,11 @@ void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float ampl
     clearEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
 
+void StartupMVPAudioProcessor::clearEQNodes()
+{
+    clearEQValueTree.resetNodes ({});
+}
+
 void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
 {
     playbackManager.setCalibratingEQNode (node);
@@ -378,15 +383,15 @@ const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes() const
     return clearEQValueTree.getEQNodes();
 }
 
-void StartupMVPAudioProcessor::startSineSweep (float centerFreq)
+void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
 {
     playbackManager.setIsSweeping (true);
-    playbackManager.setSineSweepCenterFrequency (centerFreq);
+    playbackManager.setSineSweepCenterFrequency (centerFreq, ampl);
 }
 
-void StartupMVPAudioProcessor::updateSineSweep (float centerFreq)
+void StartupMVPAudioProcessor::updateSineSweep (float centerFreq, std::optional<float> ampl)
 {
-    playbackManager.updateSineSweepCenterFrequency (centerFreq);
+    playbackManager.updateSineSweepCenterFrequency (centerFreq, ampl);
 }
 
 void StartupMVPAudioProcessor::endSineSweep()

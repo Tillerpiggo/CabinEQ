@@ -75,6 +75,7 @@ public:
     void addEQNode (float frequency, float amplitude, float pan);
     void removeEQNode (int id);
     void updateEQNode (int id, float frequency, float amplitude, float pan);
+    void clearEQNodes();
     
     // Changing points
     void startCalibratingEQNode (EQNode eqNode);
@@ -88,8 +89,8 @@ public:
     float getCurrTestingFreq();
     
     // Sine sweep
-    void startSineSweep (float centerFreq);
-    void updateSineSweep (float centerFreq);
+    void startSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);
+    void updateSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);
     void endSineSweep();
     float getCurrSineSweepFreq();
     

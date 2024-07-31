@@ -21,6 +21,10 @@
             file="Source/ClearEQValueTree.h"/>
       <FILE id="h9bYnu" name="EQNode.h" compile="0" resource="0" file="Source/EQNode.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
+        <FILE id="R3403K" name="StupidExperimentPage.cpp" compile="1" resource="0"
+              file="Source/StupidExperimentPage.cpp"/>
+        <FILE id="gRmtoE" name="StupidExperimentPage.h" compile="0" resource="0"
+              file="Source/StupidExperimentPage.h"/>
         <FILE id="GYQxO0" name="CabinEQPage.cpp" compile="1" resource="0" file="Source/CabinEQPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEQPage.h" compile="0" resource="0" file="Source/CabinEQPage.h"/>
         <FILE id="sQFMFZ" name="EQProfilePage.cpp" compile="1" resource="0"

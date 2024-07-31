@@ -29,13 +29,31 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     
     if (isCalibrating || isTesting)
     {
+//        std::cout << "Is calibrating: " << isCalibrating << std::endl;
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             const std::pair<float, float> value = getNextSample();
+//            if (sample == 0)
+//                std::cout << "sample: " << value.first << std::endl;
+//            std::cout << "sample: " << value.first << std::endl;
             leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
             
             if (rightChannel)
                 rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
+        }
+    }
+    else if (isSweeping)
+    {
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            const std::pair<float, float> value = sineSweepGenerator.getNextSample();
+            float referenceGain = juce::Decibels::decibelsToGain (referenceVolume);
+            referenceGain *= juce::Decibels::decibelsToGain (getCompensationDBAtFrequency (sineSweepGenerator.getCurrFreq()));
+            
+            leftChannel[sample] = value.first * 0.05 * 0.5 * referenceGain;
+            
+            if (rightChannel)
+                rightChannel[sample] = value.second * 0.05 * 0.5 * referenceGain;
         }
     }
     else
@@ -147,19 +165,19 @@ void PlaybackManager::setDryWetVolumeBalance (float balance)
     wetGainProcessor.setGainDecibels (+balance);
 }
 
-void PlaybackManager::setSineSweepCenterFrequency (float centerFreq)
+void PlaybackManager::setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl)
 {
-    sineSweepGenerator.setCenterFrequency (centerFreq);
+    sineSweepGenerator.setCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq)
+void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl)
 {
-    sineSweepGenerator.updateCenterFrequency (centerFreq);
+    sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
 void PlaybackManager::setCalibratingEQNode (EQNode node)
 {
-    int noteDurationInSamples = 25000;
+    int noteDurationInSamples = 20000;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
@@ -172,7 +190,7 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
 
 void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 {
-    int noteDurationInSamples = 25000;
+    int noteDurationInSamples = 20000;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
@@ -246,23 +264,24 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
     // To compensate for music curve
 //    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
 //    float amplitudeCompensationGain = std::pow (1, std::log2(frequency / 1000.0f));
-//    float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
+//    float amplitudeCompensationDB = juce::Decibels::gainToDercibels (amplitudeCompensationGain);
     //float amplitudeCompensationDB = -4.5f * std::log2(frequency / 1000.0f);
-    float amplitudeCompensationDB = 0.0f;
+//    float amplitudeCompensationDB = 0.0f;
+    float amplitudeCompensationDB = -4.5f * std::log2(frequency / 1000.0f);
     
     // Introduce custom slope for clarity
 //    float slope = 2.0f;
-    float slope = 0.0f;
-    float octaves = std::log2((frequency) / (referenceNote.frequency));
-////    slope += octaves * -0.1f;
-    float dbDifference = octaves * slope;
+//    float slope = 0.0f;
+//    float octaves = std::log2((frequency) / (referenceNote.frequency));
+//////    slope += octaves * -0.1f;
+//    float dbDifference = octaves * slope;
     
 //    float slopeSlope = octaves * -0.1f;
 //    dbDifference += octaves * slopeSlope;
     
 //    float dbDifference = inverseFM.valueAtFrequency (frequency, 82.5f);
     
-    amplitudeCompensationDB += dbDifference;
+//    amplitudeCompensationDB += dbDifference;
     
     return amplitudeCompensationDB;
 }

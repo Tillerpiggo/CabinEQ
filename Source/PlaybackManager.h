@@ -41,8 +41,8 @@ public:
     void setIsBypassed (bool isBypassed);
     void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
     
-    void setSineSweepCenterFrequency (float centerFreq);
-    void updateSineSweepCenterFrequency (float centerFreq);
+    void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
+    void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void setCalibratingEQNode (EQNode node); // changes the EQNode being compared to the reference tone and restarts interval
     void updateCalibratingEQNode (EQNode updatingNode); // changes the EQNode being compared to the reference tone but does not restart the interval
     void startTestingFreq (float freq, const Curve& curve);
