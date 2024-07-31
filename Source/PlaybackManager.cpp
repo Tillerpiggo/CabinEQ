@@ -268,6 +268,7 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
     //float amplitudeCompensationDB = -4.5f * std::log2(frequency / 1000.0f);
 //    float amplitudeCompensationDB = 0.0f;
     float amplitudeCompensationDB = -4.5f * std::log2(frequency / 1000.0f);
+    amplitudeCompensationDB = 0.0f;
     
     // Introduce custom slope for clarity
 //    float slope = 2.0f;
