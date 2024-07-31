@@ -20,7 +20,7 @@ class CabinEQPage   : public juce::Component,
 
 {
 public:
-    CabinEQPage (StartupMVPAudioProcessor& p);
+    CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId);
     ~CabinEQPage() override;
     
     void paint (juce::Graphics&) override;
@@ -36,6 +36,9 @@ public:
     void timerCallback() override;
     
 private:
+    StartupMVPAudioProcessor& processor;
+    juce::String curveId;
+    
     juce::Slider referenceSlider;
     
     static constexpr float MIN_FREQ = 20.0f;
@@ -55,7 +58,6 @@ private:
     
     void updateEQNodes();
     
-    StartupMVPAudioProcessor& processor;
     std::vector<EQNode> eqNodes;
     
     int draggingId = -1; // not currently dragging any point

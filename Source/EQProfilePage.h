@@ -15,6 +15,7 @@
 #include "EQNodeController.h"
 #include "CurveComponent.h"
 
+/*
 /// This page lets the user manage a list of EQNodes. They can use it to add, maodify, or remove EQNodes via sliders.
 class EQProfilePage   : public juce::Component,
                         public EQNodeControllerListener,
@@ -44,3 +45,4 @@ private:
     juce::Component eqNodeControllerContainer; // contains the list of all eqNodeControllers
     std::vector<std::unique_ptr<EQNodeController>> eqNodeControllers;
 };
+*/

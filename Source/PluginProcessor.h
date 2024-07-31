@@ -72,19 +72,19 @@ public:
     const std::vector<EQNode> getEQNodes() const;
     
     // Setting points
-    void addEQNode (float frequency, float amplitude, float pan);
+    void addEQNode (float frequency, float amplitude, float pan, juce::String curveId);
     void removeEQNode (int id);
-    void updateEQNode (int id, float frequency, float amplitude, float pan);
+    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId);
     void clearEQNodes();
     
     // Changing points
-    void startCalibratingEQNode (EQNode eqNode);
-    void updateCalibratingEQNode (EQNode eqNode);
+    void startCalibratingEQNode (EQNode eqNode, juce::String curveId);
+    void updateCalibratingEQNode (EQNode eqNode, juce::String curveId);
     void endCalibratingEQNode();
     
     // Testing
-    void startTestingAt (float freq);
-    void updateTestingAt (float freq);
+    void startTestingAt (float freq, juce::String curveId);
+    void updateTestingAt (float freq, juce::String curveId);
     void endTesting();
     float getCurrTestingFreq();
     
@@ -108,6 +108,7 @@ private:
 
     PlaybackManager playbackManager;
     ClearEQValueTree clearEQValueTree;
+//    ClearEQValueTree speakerEQValueTree;
     
     juce::dsp::ProcessSpec spec;
     

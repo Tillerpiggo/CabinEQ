@@ -322,7 +322,7 @@ const Curve& StartupMVPAudioProcessor::getCurve() const
     return clearEQValueTree.getCurve();
 }
 
-void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan)
+void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String curveId)
 {
     clearEQValueTree.addEQNode (frequency, amplitude, pan);
 }
@@ -332,7 +332,7 @@ void StartupMVPAudioProcessor::removeEQNode (int id)
     clearEQValueTree.removeEQNode (id);
 }
 
-void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan)
+void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId)
 {
     clearEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
@@ -342,13 +342,13 @@ void StartupMVPAudioProcessor::clearEQNodes()
     clearEQValueTree.resetNodes ({});
 }
 
-void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
+void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node, juce::String curveId)
 {
     playbackManager.setCalibratingEQNode (node);
     playbackManager.setIsCalibrating (true);
 }
 
-void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node)
+void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node, juce::String curveId)
 {
     playbackManager.updateCalibratingEQNode (node);
 }
@@ -358,12 +358,12 @@ void StartupMVPAudioProcessor::endCalibratingEQNode()
     playbackManager.setIsCalibrating (false);
 }
 
-void StartupMVPAudioProcessor::startTestingAt (float freq)
+void StartupMVPAudioProcessor::startTestingAt (float freq, juce::String curveId)
 {
     playbackManager.startTestingFreq (freq, getCurve());
 }
 
-void StartupMVPAudioProcessor::updateTestingAt (float freq)
+void StartupMVPAudioProcessor::updateTestingAt (float freq, juce::String curveId)
 {
     playbackManager.updateTestingFreq (freq, getCurve());
 }

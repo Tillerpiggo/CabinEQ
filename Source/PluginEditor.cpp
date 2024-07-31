@@ -15,14 +15,14 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioPr
     setSize(800, 620);
     
     filterPage = std::make_unique<FilterPage> (p);
-    eqProfilePage = std::make_unique<EQProfilePage> (p);
-    cabinEQPage = std::make_unique<CabinEQPage> (p);
-    stupidExperimentPage = std::make_unique<StupidExperimentPage> (p);
+    //eqProfilePage = std::make_unique<EQProfilePage> (p);
+    cabinEQPage = std::make_unique<CabinEQPage> (p, "HeadphoneEQ");
+//    stupidExperimentPage = std::make_unique<StupidExperimentPage> (p);
     
     tabbedComponent.addTab ("Filter", juce::Colours::lightgrey, filterPage.get(), false);
-    tabbedComponent.addTab ("Profile", juce::Colours::lightgrey, eqProfilePage.get(), false);
+//    tabbedComponent.addTab ("Profile", juce::Colours::lightgrey, eqProfilePage.get(), false);
     tabbedComponent.addTab ("CabinEQ", juce::Colours::lightgrey, cabinEQPage.get(), false);
-    tabbedComponent.addTab ("StupidExperimentPage", juce::Colours::lightgrey, stupidExperimentPage.get(), false);
+//    tabbedComponent.addTab ("StupidExperimentPage", juce::Colours::lightgrey, stupidExperimentPage.get(), false);
 
     addAndMakeVisible(tabbedComponent);
 }

@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+/*
 #include "EQProfilePage.h"
 
 EQProfilePage::EQProfilePage (StartupMVPAudioProcessor& p) 
@@ -117,3 +118,4 @@ void EQProfilePage::updateUIWithEQNodes (const std::vector<EQNode>& eqNodes)
     viewport.setViewedComponent (&eqNodeControllerContainer, true);
     resized();
 }
+ */

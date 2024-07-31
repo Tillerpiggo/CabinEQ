@@ -10,8 +10,8 @@
 
 #include "CabinEQPage.h"
 
-CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
-    : processor (p)
+CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
+    : processor (p), curveId (curveId)
 {
     addAndMakeVisible (referenceSlider);
     referenceSlider.setRange (-24.0f, 24.0f);
@@ -59,9 +59,7 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-        processor.startTestingAt (freq);
-//        processor.startSineSweep (freq);
-//        processor.startGreenNoise (freq);
+        processor.startTestingAt (freq, curveId);
         
         return;
     }
@@ -74,7 +72,7 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     {
         auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
         if (! event.mods.isRightButtonDown() && ampl > -24.0f)
-            processor.addEQNode (freq, ampl, 0.0f);
+            processor.addEQNode (freq, ampl, 0.0f, curveId);
         
         repaint();
     }
@@ -82,7 +80,7 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     {
         if (! event.mods.isRightButtonDown())
         {
-            processor.startCalibratingEQNode (draggingEQNode.value());
+            processor.startCalibratingEQNode (draggingEQNode.value(), curveId);
         }
         else
         {
@@ -100,7 +98,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     {
         std::cout << "mouse drag!!" << std::endl;
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-        processor.updateTestingAt (freq);
+        processor.updateTestingAt (freq, curveId);
 //        processor.updateSineSweep (freq);
 //        processor.updateGreenNoise (freq);
         
@@ -117,8 +115,8 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     node.frequency = freq;
     node.amplitude = ampl;
     
-    processor.updateEQNode (draggingId, freq, ampl, node.pan);
-    processor.updateCalibratingEQNode (node);
+    processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
+    processor.updateCalibratingEQNode (node, curveId);
     repaint();
 }
 
@@ -139,7 +137,7 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     node.frequency = freq;
     node.amplitude = ampl;
     
-    processor.updateEQNode (draggingId, freq, ampl, node.pan);
+    processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
     processor.endCalibratingEQNode();
     draggingId = -1;
     
@@ -252,8 +250,6 @@ void CabinEQPage::drawDots (juce::Graphics& g)
     g.setColour (juce::Colour::fromRGB (0, 255, 255));
     
     float freq = processor.getCurrTestingFreq();
-//    float freq = processor.getCurrSineSweepFreq();
-    //float freq = processor.getCurrGreenNoiseFreq();
     const auto& point = coordsForEQNode (freq, juce::Decibels::gainToDecibels (processor.getCurve().valueAtFrequency (freq).first.real()));
     float dotRadius = 3.0f;
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
@@ -287,7 +283,6 @@ std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForMouseEvent (const j
     float normalizedY = y / height;
     float ampl = (1.0f - normalizedY) * 48.0f - 24.0f;
     ampl += -4.5 * std::log2 (freq / 1000.0f);
-//    float dbDifference = -4.5f * std::log2((freq) / 1000.0f);
     
     return { freq, ampl };
 }
@@ -334,16 +329,13 @@ float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNo
 
 std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const
 {
-    std::cout << "ratio: " << maxFreqShowing / minFreqShowing << std::endl;
     float minDist = 0.03f * (std::log (maxFreqShowing / minFreqShowing)) / 3.0f;
-    std::cout << "minDist: " << minDist << std::endl;
     std::optional<EQNode> closestEQNode;
     
     // Get id of node within distance range
     for (const auto& eqNode : eqNodes)
     {
         float dist = mouseEventEQNodeDistance (event, eqNode);
-//        std::cout << "dist: " << dist << std::endl;
         if (mouseEventIsNearEQNode (event, eqNode) && dist < minDist)
         {
             minDist = dist;

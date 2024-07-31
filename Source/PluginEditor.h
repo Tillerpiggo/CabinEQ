@@ -11,9 +11,9 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "FilterPage.h"
-#include "EQProfilePage.h"
+//#include "EQProfilePage.h"
 #include "CabinEQPage.h"
-#include "StupidExperimentPage.h"
+//#include "StupidExperimentPage.h"
 
 //==============================================================================
 /**
@@ -34,9 +34,9 @@ private:
     juce::TabbedComponent tabbedComponent;
     
     std::unique_ptr<FilterPage> filterPage;
-    std::unique_ptr<EQProfilePage> eqProfilePage;
+    //std::unique_ptr<EQProfilePage> eqProfilePage;
     std::unique_ptr<CabinEQPage> cabinEQPage;
-    std::unique_ptr<StupidExperimentPage> stupidExperimentPage;
+//    std::unique_ptr<StupidExpersimentPage> stupidExperimentPage;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
 };
