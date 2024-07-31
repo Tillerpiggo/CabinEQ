@@ -55,7 +55,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
     /*float dbDifference = -4.5f * std::log2((frequency) / 1000.0f);*/ // commented out for CabinEQ dev purposes
-    float dbDifference = 0.0f;
+    float dbDifference = -2.0f;
 //    float dbDifference = -3.0f * std::log2((frequency) / 1000.0f);
 //    float dbDifference = 0.0f;
 
@@ -81,8 +81,8 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 //    auto res = addComplexPair (undertones, underundertones);
 //    res = addComplexPair (res, underunderundertones);
     
-    auto undertones = scaleComplexPair (compensatedValueAtFrequency(0.5 * t * 22050), 0.7);
-    auto overtones = scaleComplexPair (compensatedValueAtFrequency (2 * t * 22050), 0.3);
+    auto undertones = scaleComplexPair (compensatedValueAtFrequency(0.5 * t * 22050), 0.5);
+    auto overtones = scaleComplexPair (valueAtFrequency (2 * t * 22050), 0.5);
     auto res = addComplexPair (undertones, overtones);
 //    for (int i = 3; i <= 8; ++i)
 //    {
@@ -114,7 +114,11 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormaliz
     float logMaxFreq = std::log(maxFreq);
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
     
-    return { compensatedValueAtFrequency(freq / 2.0).first + compensatedValueAtFrequency (2 * freq).first, compensatedValueAtFrequency (freq / 2.0).second + compensatedValueAtFrequency (2 * freq).second };
+    auto undertones = scaleComplexPair ( compensatedValueAtFrequency(freq / 2.0), 1.0);
+    auto overtones = scaleComplexPair ( compensatedValueAtFrequency (freq * 2), 1.0);
+    auto res = addComplexPair (undertones, overtones);
+    
+    return undertones;
 }
 
 float Curve::catmullRom(float t, float y0, float y1, float y2, float y3) const
