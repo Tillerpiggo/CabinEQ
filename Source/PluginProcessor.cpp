@@ -230,8 +230,6 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new StartupMVPAudioProcessor();
 }
 
-
-
 juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;

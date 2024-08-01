@@ -129,8 +129,9 @@ void ClearEQValueTree::initValueTreeFromAPVTS()
         valueTree = juce::ValueTree (idProfile);
         apvts.state.addChild (valueTree, -1, nullptr);
     }
-    curve.updateWithEQNodes (getEQNodes());
+    
     hasBeenInitialized = true;
+    curve.updateWithEQNodes (getEQNodes());
 }
 
 void ClearEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)

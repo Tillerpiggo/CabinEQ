@@ -102,7 +102,7 @@ public:
     
     // misc
     void setReferenceVolume (float volume);
- 
+
 private:
     static const int FFT_SIZE = 10;
 

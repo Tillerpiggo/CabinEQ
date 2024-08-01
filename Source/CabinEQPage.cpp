@@ -52,6 +52,7 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
         hoveringId = hoveringEQNode.value().id;
     
     repaint();
+    
 }
 
 void CabinEQPage::mouseDown (const juce::MouseEvent& event)
