@@ -112,7 +112,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 //    if (t * 22050 < cutoff)
 //        scaleFactor2 *= (t * 22050) / cutoff;
     auto normaltones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, -4.5), scaleFactor2);
-    auto overtones = reciprocalComplexPair (compensatedValueAtFrequency (t * 2.5 * 22050, -4.5));
+    auto overtones = reciprocalComplexPair (compensatedValueAtFrequency (t * 2.457 * 22050, -4.5));
     auto res = multiplyComplexPair (undertones, overtones);
     
     
