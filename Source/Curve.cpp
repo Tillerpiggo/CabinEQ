@@ -30,9 +30,24 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
 //    float dbDifference = -inverseFM.valueAtFrequency (frequency, 82.5);
 //    if (frequency < 100.0)
 //        dbDifference = 0;
+    
+    float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+    float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+    
+//    if (leftDB < 0 || rightDB < 0 || 1)
+//    {
+//        amplitudeAtFrequency = interpolateValueAtFrequency (0.4079 * frequency + 10, amplitudes);
+//        panAtFrequency = interpolateValueAtFrequency (0.4079 * frequency + 10, pans);
+//        leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+//        rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+//        
+//        float factor = std::abs(leftDB) / 10.0;
+//        leftDB *= factor;
+//        rightDB *= factor;
+//    }
 
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
-                                                     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
+    float leftGain = juce::Decibels::decibelsToGain (leftDB);
+    float rightGain = juce::Decibels::decibelsToGain (rightDB);
     
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, 0.0f);
@@ -58,9 +73,24 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     float dbDifference = 0.0f;
 //    float dbDifference = -3.0f * std::log2((frequency) / 1000.0f);
 //    float dbDifference = 0.0f;
+    
+    float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+    float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+    
+//    if (1)//leftDB < 0 || rightDB < 0)
+//    {
+//        amplitudeAtFrequency = interpolateValueAtFrequency (0.4079 * frequency + 10, amplitudes);
+//        panAtFrequency = interpolateValueAtFrequency (0.4079 * frequency + 10, pans);
+//        leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+//        rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+//        
+//        float factor = 1.0f;//std::abs(leftDB) / 20.0;
+//        leftDB *= factor;
+//        rightDB *= factor;
+//    }
 
-    float leftGain = juce::Decibels::decibelsToGain (-0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
-                                                     float rightGain = juce::Decibels::decibelsToGain (0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference);
+    float leftGain = juce::Decibels::decibelsToGain (leftDB);
+    float rightGain = juce::Decibels::decibelsToGain (rightDB);
     
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, 0.0f);
@@ -74,15 +104,16 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 //    float scaleFactor1 = 0.7;
 //    if (t * 22050 > 5000)
 //        scaleFactor1 *= (22050 - (t * 22050)) / 5000;
-    auto undertones = scaleComplexPair (compensatedValueAtFrequency(0.5 * t * 17990 + 10, -4.25), 1.0);
-//    auto undertones = scaleComplexPair (compensatedValueAtFrequency (0.5 * t * 22050 + 15, -4.3), 1.0);
+    auto undertones = scaleComplexPair (compensatedValueAtFrequency(0.50 * t * 17990 + 10, -4.5), 1.0);
+//    auto undertones = scaleComplexPair (compensatedValueAtFrequency (0.5 * t * 22050, -4.5), 1.0);
     
-    float scaleFactor2 = 0.0;
+    float scaleFactor2 = 1.0;
     float cutoff = 200;
-    if (t * 22050 < cutoff)
-        scaleFactor2 *= (t * 22050) / cutoff;
-    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, -3.0), scaleFactor2);
-    auto res = addComplexPair (undertones, normaltones);
+//    if (t * 22050 < cutoff)
+//        scaleFactor2 *= (t * 22050) / cutoff;
+    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, -4.5), scaleFactor2);
+    auto overtones = reciprocalComplexPair (compensatedValueAtFrequency (t * 2.5 * 22050, -4.5));
+    auto res = multiplyComplexPair (undertones, overtones);
     
     
 //    auto undertones = scaleComplexPair (compensatedValueAtFrequency ((0.5 * t) * 17990 + 10, -4.5), 1);
@@ -92,6 +123,16 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 const std::pair<std::complex<float>, std::complex<float>> Curve::addComplexPair (std::pair<std::complex<float>, std::complex<float>> pair1, std::pair<std::complex<float>, std::complex<float>> pair2) const
 {
     return { pair1.first + pair2.first, pair1.second + pair2.second };
+}
+
+const std::pair<std::complex<float>, std::complex<float>> Curve::multiplyComplexPair (std::pair<std::complex<float>, std::complex<float>> pair1, std::pair<std::complex<float>, std::complex<float>> pair2) const
+{
+    return { pair1.first * pair2.first, pair1.second * pair2.second };
+}
+
+const std::pair<std::complex<float>, std::complex<float>> Curve::reciprocalComplexPair (std::pair<std::complex<float>, std::complex<float>> pair) const
+{
+    return { std::complex<float> (1) / pair.first, std::complex<float> (1) / pair.second };
 }
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const
@@ -110,7 +151,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormaliz
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
     
     auto undertones = scaleComplexPair (compensatedValueAtFrequency(freq / 2.0, -4.5), 1);
-    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (freq, -4.5), 1);
+    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (freq, -3.5), 1);
     auto res = addComplexPair (undertones, normaltones);
     
     undertones = scaleComplexPair (compensatedValueAtFrequency ((0.5 * t) * 22050 + 0, -3.8), 1);
