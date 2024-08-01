@@ -20,13 +20,13 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), parameters (*this, nullptr, "Params", createParameterLayout (0)),
+                       ), parameters (*this, nullptr, "Params", createParameterLayout()),
                           headphoneEQValueTree (parameters, "HeadphoneEQ"),
                           speakerEQValueTree (parameters, "SpeakerEQ")
 
 #endif
 {
-//    parameters.state = juce::ValueTree("Params");
+    
 }
 
 StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
@@ -232,54 +232,13 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 
 
-juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::createParameterLayout(int numPoints)
+juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
-//
-//    // Define range for each parameter
-//    float defaultVal = 0.f; // for everything
-//    juce::NormalisableRange<float> gainRange (-24.0f, 48.0, 0.05f, 1.0f);
-//    juce::NormalisableRange<float> panRange (-24.0f, 24.0, 0.05f, 1.0f);
-//    juce::NormalisableRange<float> phaseRange (-3.14, 3.14, 0.01f, 1.0f);
-//    //
-//
-//    // Add numPoints gain parameters
-//    for ( int i = 0; i < numPoints; i++ ) {
-//        juce::String paramID = "gain_" + std::to_string(i);
-//
-//        layout.add (std::make_unique<juce::AudioParameterFloat>(
-//            juce::ParameterID(paramID, 1),
-//            paramID,
-//            gainRange,
-//            defaultVal
-//        ));
-//    }
-//    
-//    // Add numPoints balance parameters to match
-//    for ( int i = 0; i < numPoints; i++ ) {
-//        juce::String paramID = "pan_" + std::to_string(i);
-//
-//        layout.add(std::make_unique<juce::AudioParameterFloat>(
-//            juce::ParameterID(paramID, 1),
-//            paramID,
-//            panRange,
-//            defaultVal
-//        ));
-//    }
-//    
-//    // Add numPoints phase parameters as well
-//    for ( int i = 0; i < numPoints; i++ ) {
-//        juce::String paramID = "phase_" + std::to_string(i);
-//
-//        layout.add(std::make_unique<juce::AudioParameterFloat>(
-//            juce::ParameterID(paramID, 1),
-//            paramID,
-//            phaseRange,
-//            defaultVal
-//        ));
-//    }
-
-    return {};
+    juce::NormalisableRange<float> range (-1.0f, 1.0f, 0.01f);
+    
+    juce::String paramID = "dummyParam";
+    return { std::make_unique<juce::AudioParameterFloat> (juce::ParameterID (paramID, 1), paramID, range, 0.0f) };
 }
 
 //==============================================================================

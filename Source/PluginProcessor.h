@@ -60,7 +60,7 @@ public:
     int getNoteDataSize() const;
     
     //==============================================================================
-    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout (int numPoints);
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
     void applyCurve();
