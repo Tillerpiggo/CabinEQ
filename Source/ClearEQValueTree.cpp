@@ -60,7 +60,8 @@ void ClearEQValueTree::addEQNode (const int id, const float frequency, const flo
 
 int ClearEQValueTree::addEQNode (const float frequency, const float amplitude, const float pan)
 {
-    if (! hasBeenInitialized) return -1;
+    if (! hasBeenInitialized)
+        initValueTreeFromAPVTS();
     
     int id = -1;
     for (const auto& eqNode : valueTree)
@@ -78,7 +79,8 @@ int ClearEQValueTree::addEQNode (const float frequency, const float amplitude, c
 
 void ClearEQValueTree::removeEQNode (const int id)
 {
-    if (! hasBeenInitialized) return;
+    if (! hasBeenInitialized)
+        initValueTreeFromAPVTS();
     
     juce::ValueTree nodeToRemove = valueTree.getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
@@ -89,7 +91,8 @@ void ClearEQValueTree::removeEQNode (const int id)
 
 void ClearEQValueTree::updateEQNode (const int id, const float frequency, const float amplitude, const float pan)
 {
-    if (! hasBeenInitialized) return;
+    if (! hasBeenInitialized)
+        initValueTreeFromAPVTS();
     
     juce::ValueTree nodeToModify = valueTree.getChildWithProperty (idId, id);
     
@@ -105,7 +108,8 @@ void ClearEQValueTree::updateEQNode (const int id, const float frequency, const 
 
 void ClearEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
 {
-    if (! hasBeenInitialized) return;
+    if (! hasBeenInitialized)
+        initValueTreeFromAPVTS();
     
     valueTree.removeAllChildren (nullptr);
     valueTree.removeAllProperties (nullptr);

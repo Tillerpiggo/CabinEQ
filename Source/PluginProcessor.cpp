@@ -302,12 +302,10 @@ const Curve& StartupMVPAudioProcessor::getCurve (juce::String curveId) const
 {
     if (curveId == HEADPHONE_EQ_ID)
     {
-        std::cout << "Getting headphone EQ curve" << std::endl;
         return headphoneEQValueTree.getCurve();
     }
     else
     {
-        std::cout << "Getting speaker EQ curve" << std::endl;
         return speakerEQValueTree.getCurve();
     }
 }
