@@ -111,9 +111,14 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
     
     float slopeFactor = 0.4;
     if (t > 0.12)
-        slopeFactor += 1.2 * (t - 0.12);
+        slopeFactor += (1.2 + 7*t) * (t - 0.12);
     if (t > 0.2)
-        slopeFactor += 4.0 * (t - 0.2);
+        slopeFactor += 3.0 * (t - 0.2);
+    
+    if (slopeFactor > 3.0)
+        slopeFactor = 3.0;
+    
+    std::cout << "t: " << t << ", slope factor: " << slopeFactor << std::endl;
     
     auto undertones = scaleComplexPair (compensatedValueAtFrequency(timeFactor * t * 17990 + 10, -5.5 + 3 * slopeFactor), 1.0);
 //    auto undertones = scaleComplexPair (compensatedValueAtFrequency (0.5 * t * 22050, -4.5), 1.0);
