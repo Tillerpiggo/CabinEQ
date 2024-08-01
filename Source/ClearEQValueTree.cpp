@@ -80,7 +80,7 @@ void ClearEQValueTree::removeEQNode (const int id)
 {
     if (! hasBeenInitialized) return;
     
-    juce::ValueTree nodeToRemove = valueTree.getChildWithName (idProfile).getChildWithProperty (idId, id);
+    juce::ValueTree nodeToRemove = valueTree.getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
         valueTree.removeChild (nodeToRemove, nullptr);
     
