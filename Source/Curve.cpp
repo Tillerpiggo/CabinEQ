@@ -70,28 +70,23 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t) const
 {
-//    if (t > 0.05)
-//        t -= 0.005;
     
-//    return compensatedValueAtFrequency (0.5*t * 22050);
-//    auto undertones = scaleComplexPair (compensatedValueAtFrequency(0.5 * t * 22050), 0.5);
-//    auto underundertones = scaleComplexPair (compensatedValueAtFrequency (0.333 * t * 22050), 0.333);
-//    auto underunderundertones = scaleComplexPair (compensatedValueAtFrequency (0.25 * t * 22050), 0.25);
-//    
-//    auto res = addComplexPair (undertones, underundertones);
-//    res = addComplexPair (res, underunderundertones);
+//    float scaleFactor1 = 0.7;
+//    if (t * 22050 > 5000)
+//        scaleFactor1 *= (22050 - (t * 22050)) / 5000;
+    auto undertones = scaleComplexPair (compensatedValueAtFrequency(0.5 * t * 17990 + 10, -4.25), 1.0);
+//    auto undertones = scaleComplexPair (compensatedValueAtFrequency (0.5 * t * 22050 + 15, -4.3), 1.0);
     
-    auto undertones = scaleComplexPair (compensatedValueAtFrequency(0.5 * t * 22050, -4.5), 0.7);
-    auto overtones = scaleComplexPair (compensatedValueAtFrequency (2 * t * 22050, -2.0), 0.7);
-    auto res = addComplexPair (undertones, overtones);
-//    for (int i = 3; i <= 8; ++i)
-//    {
-//        float p = 1.0f / static_cast<float> (i);
-//        auto overtones = scaleComplexPair (compensatedValueAtFrequency(p * t * 22050), p);
-//        res = addComplexPair (res, overtones);
-//    }
+    float scaleFactor2 = 0.0;
+    float cutoff = 200;
+    if (t * 22050 < cutoff)
+        scaleFactor2 *= (t * 22050) / cutoff;
+    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, -3.0), scaleFactor2);
+    auto res = addComplexPair (undertones, normaltones);
     
-    return res;
+    
+//    auto undertones = scaleComplexPair (compensatedValueAtFrequency ((0.5 * t) * 17990 + 10, -4.5), 1);
+    return undertones;
 }
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::addComplexPair (std::pair<std::complex<float>, std::complex<float>> pair1, std::pair<std::complex<float>, std::complex<float>> pair2) const
@@ -114,9 +109,11 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormaliz
     float logMaxFreq = std::log(maxFreq);
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
     
-    auto undertones = scaleComplexPair ( compensatedValueAtFrequency(freq / 2.0, -4.5), 0.5);
-    auto overtones = scaleComplexPair ( compensatedValueAtFrequency (freq * 2, -2.0), 0.5);
-    auto res = addComplexPair (undertones, overtones);
+    auto undertones = scaleComplexPair (compensatedValueAtFrequency(freq / 2.0, -4.5), 1);
+    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (freq, -4.5), 1);
+    auto res = addComplexPair (undertones, normaltones);
+    
+    undertones = scaleComplexPair (compensatedValueAtFrequency ((0.5 * t) * 22050 + 0, -3.8), 1);
     
     return undertones;
 }
