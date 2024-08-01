@@ -80,11 +80,11 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     {
         if (! event.mods.isRightButtonDown())
         {
-            processor.startCalibratingEQNode (draggingEQNode.value(), curveId);
+            processor.startCalibratingEQNode (draggingEQNode.value());
         }
         else
         {
-            processor.removeEQNode(draggingEQNode.value().id);
+            processor.removeEQNode (draggingEQNode.value().id, curveId);
         }
         
         repaint();
@@ -116,7 +116,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     node.amplitude = ampl;
     
     processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
-    processor.updateCalibratingEQNode (node, curveId);
+    processor.updateCalibratingEQNode (node);
     repaint();
 }
 

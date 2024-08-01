@@ -305,31 +305,37 @@ const Curve& StartupMVPAudioProcessor::getCurve() const
 
 void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String curveId)
 {
-    headphoneEQValueTree.addEQNode (frequency, amplitude, pan);
+    if (curveId == HEADPHONE_EQ_ID)
+        headphoneEQValueTree.addEQNode (frequency, amplitude, pan);
+    else
+        speakerEQValueTree.addEQNode (frequency, amplitude, pan);
 }
 
-void StartupMVPAudioProcessor::removeEQNode (int id)
+void StartupMVPAudioProcessor::removeEQNode (int id, juce::String curveId)
 {
-    headphoneEQValueTree.removeEQNode (id);
+    if (curveId == HEADPHONE_EQ_ID)
+        headphoneEQValueTree.removeEQNode (id);
+    else
+        speakerEQValueTree.removeEQNode (id);
 }
 
 void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId)
 {
-    headphoneEQValueTree.updateEQNode (id, frequency, amplitude, pan);
+        headphoneEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
 
-void StartupMVPAudioProcessor::clearEQNodes()
+void StartupMVPAudioProcessor::clearEQNodes (juce::String curveId)
 {
     headphoneEQValueTree.resetNodes ({});
 }
 
-void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node, juce::String curveId)
+void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
 {
     playbackManager.setCalibratingEQNode (node);
     playbackManager.setIsCalibrating (true);
 }
 
-void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node, juce::String curveId)
+void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node)
 {
     playbackManager.updateCalibratingEQNode (node);
 }

@@ -73,13 +73,13 @@ public:
     
     // Setting points
     void addEQNode (float frequency, float amplitude, float pan, juce::String curveId);
-    void removeEQNode (int id);
+    void removeEQNode (int id, juce::String curveId);
     void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId);
-    void clearEQNodes();
+    void clearEQNodes (juce::String curveId);
     
     // Changing points
-    void startCalibratingEQNode (EQNode eqNode, juce::String curveId);
-    void updateCalibratingEQNode (EQNode eqNode, juce::String curveId);
+    void startCalibratingEQNode (EQNode eqNode);
+    void updateCalibratingEQNode (EQNode eqNode);
     void endCalibratingEQNode();
     
     // Testing
@@ -109,7 +109,9 @@ private:
     PlaybackManager playbackManager;
     ClearEQValueTree headphoneEQValueTree;
     ClearEQValueTree speakerEQValueTree;
-//    ClearEQValueTree speakerEQValueTree;
+    
+    juce::String HEADPHONE_EQ_ID = "HeadphoneEQ";
+    juce::String SPEAKER_EQ_ID = "SpeakerEQ";
     
     juce::dsp::ProcessSpec spec;
     
