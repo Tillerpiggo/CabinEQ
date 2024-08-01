@@ -69,7 +69,7 @@ public:
     
    
     const Curve& getCurve (juce::String curveId) const;
-    const std::vector<EQNode> getEQNodes() const;
+    const std::vector<EQNode> getEQNodes (juce::String curveId) const;
     
     // Setting points
     void addEQNode (float frequency, float amplitude, float pan, juce::String curveId);

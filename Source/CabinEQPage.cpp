@@ -221,12 +221,12 @@ void CabinEQPage::drawCurve (juce::Graphics& g, const Curve& curve, int numPoint
 
 void CabinEQPage::updateEQNodes()
 {
-    eqNodes = processor.getEQNodes();
+    eqNodes = processor.getEQNodes (curveId);
 }
 
 void CabinEQPage::drawDots (juce::Graphics& g)
 {
-    eqNodes = processor.getEQNodes();
+    eqNodes = processor.getEQNodes (curveId);
     g.setColour (juce::Colour::fromRGB (255, 0, 255)); // Bright magenta
     
     for (const auto& node : eqNodes)

@@ -301,9 +301,15 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
 const Curve& StartupMVPAudioProcessor::getCurve (juce::String curveId) const
 {
     if (curveId == HEADPHONE_EQ_ID)
+    {
+        std::cout << "Getting headphone EQ curve" << std::endl;
         return headphoneEQValueTree.getCurve();
+    }
     else
+    {
+        std::cout << "Getting speaker EQ curve" << std::endl;
         return speakerEQValueTree.getCurve();
+    }
 }
 
 void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String curveId)
@@ -374,9 +380,12 @@ float StartupMVPAudioProcessor::getCurrTestingFreq()
     return playbackManager.getCurrTestingFreq();
 }
 
-const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes() const
+const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes (juce::String curveId) const
 {
-    return headphoneEQValueTree.getEQNodes();
+    if (curveId == HEADPHONE_EQ_ID)
+        return headphoneEQValueTree.getEQNodes();
+    else
+        return speakerEQValueTree.getEQNodes();
 }
 
 void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
