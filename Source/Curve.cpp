@@ -107,7 +107,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
     float timeFactor = 1.0;
     
     if (t < 0.2)
-        timeFactor -= 3 * std::abs (t - 0.2);
+        timeFactor -= 2.7 * std::abs (t - 0.2);
     
     float slopeFactor = 0.4;
     if (t > 0.2)
