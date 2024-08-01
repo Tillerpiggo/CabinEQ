@@ -49,7 +49,11 @@ void ClearEQValueTree::addEQNode (const int id, const float frequency, const flo
     eqNode.setProperty (idAmplitude, amplitude, nullptr);
     eqNode.setProperty (idPan, pan, nullptr);
     valueTree.appendChild (eqNode, nullptr);
-    apvts.state = valueTree;
+    
+    printValueTree (valueTree);
+    printValueTree (apvts.state.getChildWithName (idProfile));
+//    apvts.state.getChildWithName (idProfile) = valueTree;
+//    apvts.state = valueTree;
     
     curve.updateWithEQNodes (getEQNodes());
 }
@@ -76,7 +80,7 @@ void ClearEQValueTree::removeEQNode (const int id)
 {
     if (! hasBeenInitialized) return;
     
-    juce::ValueTree nodeToRemove = valueTree.getChildWithProperty (idId, id);
+    juce::ValueTree nodeToRemove = valueTree.getChildWithName (idProfile).getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
         valueTree.removeChild (nodeToRemove, nullptr);
     
@@ -116,10 +120,10 @@ void ClearEQValueTree::initValueTreeFromAPVTS()
     valueTree = apvts.state;
 
     // Initialize value tree if we can't load it
-    if (! valueTree.isValid())
+    if (! apvts.state.isValid())
     {
         valueTree = juce::ValueTree (idProfile);
-        apvts.state = valueTree;
+        apvts.state.addChild (valueTree, -1, nullptr);
     }
     
     hasBeenInitialized = true;
@@ -131,7 +135,7 @@ void ClearEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)
     apvts.state.removeAllProperties (nullptr);
 }
 
-void ClearEQValueTree::printValueTree (juce::ValueTree& valueTree) const
+void ClearEQValueTree::printValueTree (juce::ValueTree valueTree) const
 {
     if (valueTree.isValid())
     {

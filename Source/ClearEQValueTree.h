@@ -34,7 +34,7 @@ public:
     
 private:
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
-    void printValueTree (juce::ValueTree& valueTree) const;
+    void printValueTree (juce::ValueTree valueTree) const;
     
     juce::AudioProcessorValueTreeState& apvts;
     
