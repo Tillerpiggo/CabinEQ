@@ -117,10 +117,10 @@ void ClearEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
 
 void ClearEQValueTree::initValueTreeFromAPVTS()
 {
-    valueTree = apvts.state;
+    valueTree = apvts.state.getChildWithName (idProfile);
 
     // Initialize value tree if we can't load it
-    if (! apvts.state.isValid())
+    if (! valueTree.isValid())
     {
         valueTree = juce::ValueTree (idProfile);
         apvts.state.addChild (valueTree, -1, nullptr);

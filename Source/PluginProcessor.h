@@ -107,7 +107,8 @@ private:
     static const int FFT_SIZE = 10;
 
     PlaybackManager playbackManager;
-    ClearEQValueTree clearEQValueTree;
+    ClearEQValueTree headphoneEQValueTree;
+    ClearEQValueTree speakerEQValueTree;
 //    ClearEQValueTree speakerEQValueTree;
     
     juce::dsp::ProcessSpec spec;

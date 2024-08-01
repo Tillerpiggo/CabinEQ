@@ -21,7 +21,8 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), parameters (*this, nullptr, "Params", createParameterLayout (0)),
-                          clearEQValueTree (parameters, "ClearEQ")
+                          headphoneEQValueTree (parameters, "HeadphoneEQ"),
+                          speakerEQValueTree (parameters, "SpeakerEQ")
 
 #endif
 {
@@ -216,7 +217,8 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         if (xmlState->hasTagName(parameters.state.getType()))
         {
             parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-            clearEQValueTree.initValueTreeFromAPVTS();
+            headphoneEQValueTree.initValueTreeFromAPVTS();
+            speakerEQValueTree.initValueTreeFromAPVTS();
         }
     }
 }
@@ -283,28 +285,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 //==============================================================================
 void StartupMVPAudioProcessor::applyCurve()
 {
-//    if (!hasPreparedFilter)
-//    {
-//        spec.sampleRate = sampleRate;
-//        spec.maximumBlockSize = samplesPerBlock;
-//        spec.numChannels = getTotalNumInputChannels();
-//        playbackManager.prepare (spec);
-//    }
-    
-    /*
-    for (int i = 0; i < EQNodeManager::NUM_PTS; ++i)
-    {
-        std::string idx = std::to_string (i);
-        
-        double gain = parameters.getRawParameterValue ("gain_" + idx)->load();
-        double pan = parameters.getRawParameterValue ("pan_" + idx)->load();
-        
-//        playbackManager.setAmplitudeAtIdx (i, gain);
-//        playbackManager.setPanAtIdx (i, pan);
-    }
-     */
-    
-    playbackManager.updateFilterWithCurve (clearEQValueTree.getCurve());
+    playbackManager.updateFilterWithCurve (headphoneEQValueTree.getCurve());
 }
 
 void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
@@ -319,27 +300,27 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
 
 const Curve& StartupMVPAudioProcessor::getCurve() const
 {
-    return clearEQValueTree.getCurve();
+    return headphoneEQValueTree.getCurve();
 }
 
 void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String curveId)
 {
-    clearEQValueTree.addEQNode (frequency, amplitude, pan);
+    headphoneEQValueTree.addEQNode (frequency, amplitude, pan);
 }
 
 void StartupMVPAudioProcessor::removeEQNode (int id)
 {
-    clearEQValueTree.removeEQNode (id);
+    headphoneEQValueTree.removeEQNode (id);
 }
 
 void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId)
 {
-    clearEQValueTree.updateEQNode (id, frequency, amplitude, pan);
+    headphoneEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
 
 void StartupMVPAudioProcessor::clearEQNodes()
 {
-    clearEQValueTree.resetNodes ({});
+    headphoneEQValueTree.resetNodes ({});
 }
 
 void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node, juce::String curveId)
@@ -380,7 +361,7 @@ float StartupMVPAudioProcessor::getCurrTestingFreq()
 
 const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes() const
 {
-    return clearEQValueTree.getEQNodes();
+    return headphoneEQValueTree.getEQNodes();
 }
 
 void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
