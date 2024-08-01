@@ -11,7 +11,7 @@
 #include "CabinEQPage.h"
 
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
-    : processor (p), curveId (curveId)
+    : processor (p), curveId (curveId), curve (p.getCurve (curveId))
 {
     addAndMakeVisible (referenceSlider);
     referenceSlider.setRange (-24.0f, 24.0f);
@@ -31,7 +31,7 @@ CabinEQPage::~CabinEQPage()
 void CabinEQPage::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colour::fromRGB (34, 34, 34));
-    drawCurve (g, processor.getCurve(), 4000);
+    drawCurve (g, curve, 4000);
     drawDots (g);
 }
 
@@ -80,11 +80,11 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     {
         if (! event.mods.isRightButtonDown())
         {
-            processor.startCalibratingEQNode (draggingEQNode.value(), curveId);
+            processor.startCalibratingEQNode (draggingEQNode.value());
         }
         else
         {
-            processor.removeEQNode(draggingEQNode.value().id);
+            processor.removeEQNode(draggingEQNode.value().id, curveId);
         }
         
         repaint();
@@ -116,7 +116,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     node.amplitude = ampl;
     
     processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
-    processor.updateCalibratingEQNode (node, curveId);
+    processor.updateCalibratingEQNode (node);
     repaint();
 }
 
@@ -250,7 +250,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
     g.setColour (juce::Colour::fromRGB (0, 255, 255));
     
     float freq = processor.getCurrTestingFreq();
-    const auto& point = coordsForEQNode (freq, juce::Decibels::gainToDecibels (processor.getCurve().valueAtFrequency (freq).first.real()));
+    const auto& point = coordsForEQNode (freq, juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real()));
     float dotRadius = 3.0f;
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
     

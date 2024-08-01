@@ -298,7 +298,7 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
-const Curve& StartupMVPAudioProcessor::getCurve() const
+const Curve& StartupMVPAudioProcessor::getCurve (juce::String curveId) const
 {
     return headphoneEQValueTree.getCurve();
 }
@@ -308,7 +308,7 @@ void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, floa
     headphoneEQValueTree.addEQNode (frequency, amplitude, pan);
 }
 
-void StartupMVPAudioProcessor::removeEQNode (int id)
+void StartupMVPAudioProcessor::removeEQNode (int id, juce::String curveId)
 {
     headphoneEQValueTree.removeEQNode (id);
 }
@@ -318,18 +318,18 @@ void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float ampl
     headphoneEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
 
-void StartupMVPAudioProcessor::clearEQNodes()
+void StartupMVPAudioProcessor::clearEQNodes (juce::String curveId)
 {
     headphoneEQValueTree.resetNodes ({});
 }
 
-void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node, juce::String curveId)
+void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
 {
     playbackManager.setCalibratingEQNode (node);
     playbackManager.setIsCalibrating (true);
 }
 
-void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node, juce::String curveId)
+void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node)
 {
     playbackManager.updateCalibratingEQNode (node);
 }
@@ -341,12 +341,12 @@ void StartupMVPAudioProcessor::endCalibratingEQNode()
 
 void StartupMVPAudioProcessor::startTestingAt (float freq, juce::String curveId)
 {
-    playbackManager.startTestingFreq (freq, getCurve());
+    playbackManager.startTestingFreq (freq, getCurve (curveId));
 }
 
 void StartupMVPAudioProcessor::updateTestingAt (float freq, juce::String curveId)
 {
-    playbackManager.updateTestingFreq (freq, getCurve());
+    playbackManager.updateTestingFreq (freq, getCurve (curveId));
 }
 
 void StartupMVPAudioProcessor::endTesting()

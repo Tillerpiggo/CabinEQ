@@ -11,7 +11,7 @@
 #include "FilterPage.h"
 
 FilterPage::FilterPage (StartupMVPAudioProcessor& p)
-    : processor(p), curveComponent(p.getCurve()), isBypassed (false)
+    : processor(p), curveComponent(p.getCurve ("HeadphoneEQ")), isBypassed (false)
 {
     balanceSlider.setRange(-12.0, 12.0);
     balanceSlider.setTextValueSuffix(" dB");
