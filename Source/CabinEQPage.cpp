@@ -31,7 +31,7 @@ CabinEQPage::~CabinEQPage()
 void CabinEQPage::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colour::fromRGB (34, 34, 34));
-    drawCurve (g, processor.getCurve(), 4000);
+    drawCurve (g, processor.getCurve (curveId), 4000);
     drawDots (g);
 }
 
@@ -250,7 +250,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
     g.setColour (juce::Colour::fromRGB (0, 255, 255));
     
     float freq = processor.getCurrTestingFreq();
-    const auto& point = coordsForEQNode (freq, juce::Decibels::gainToDecibels (processor.getCurve().valueAtFrequency (freq).first.real()));
+    const auto& point = coordsForEQNode (freq, juce::Decibels::gainToDecibels (processor.getCurve (curveId).valueAtFrequency (freq).first.real()));
     float dotRadius = 3.0f;
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
     

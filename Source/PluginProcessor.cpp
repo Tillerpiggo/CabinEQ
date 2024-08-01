@@ -298,9 +298,12 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
-const Curve& StartupMVPAudioProcessor::getCurve() const
+const Curve& StartupMVPAudioProcessor::getCurve (juce::String curveId) const
 {
-    return headphoneEQValueTree.getCurve();
+    if (curveId == HEADPHONE_EQ_ID)
+        return headphoneEQValueTree.getCurve();
+    else
+        return speakerEQValueTree.getCurve();
 }
 
 void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String curveId)
@@ -321,12 +324,18 @@ void StartupMVPAudioProcessor::removeEQNode (int id, juce::String curveId)
 
 void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId)
 {
+    if (curveId == HEADPHONE_EQ_ID)
         headphoneEQValueTree.updateEQNode (id, frequency, amplitude, pan);
+    else
+        speakerEQValueTree.updateEQNode (id, frequency, amplitude, pan);
 }
 
 void StartupMVPAudioProcessor::clearEQNodes (juce::String curveId)
 {
-    headphoneEQValueTree.resetNodes ({});
+    if (curveId == HEADPHONE_EQ_ID)
+        headphoneEQValueTree.resetNodes ({});
+    else
+        speakerEQValueTree.resetNodes ({});
 }
 
 void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
@@ -347,12 +356,12 @@ void StartupMVPAudioProcessor::endCalibratingEQNode()
 
 void StartupMVPAudioProcessor::startTestingAt (float freq, juce::String curveId)
 {
-    playbackManager.startTestingFreq (freq, getCurve());
+    playbackManager.startTestingFreq (freq, getCurve (curveId));
 }
 
 void StartupMVPAudioProcessor::updateTestingAt (float freq, juce::String curveId)
 {
-    playbackManager.updateTestingFreq (freq, getCurve());
+    playbackManager.updateTestingFreq (freq, getCurve (curveId));
 }
 
 void StartupMVPAudioProcessor::endTesting()

@@ -68,7 +68,7 @@ public:
     void setBypassBalance (float balance);
     
    
-    const Curve& getCurve() const;
+    const Curve& getCurve (juce::String curveId) const;
     const std::vector<EQNode> getEQNodes() const;
     
     // Setting points
