@@ -16,8 +16,6 @@ ClearEQValueTree::ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, c
 
 const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
 {
-    if (! hasBeenInitialized) return {};
-    
     std::vector<EQNode> eqNodes;
     if (! valueTree.isValid())
         return eqNodes;
@@ -130,8 +128,8 @@ void ClearEQValueTree::initValueTreeFromAPVTS()
         apvts.state.addChild (valueTree, -1, nullptr);
     }
     
-    hasBeenInitialized = true;
     curve.updateWithEQNodes (getEQNodes());
+    hasBeenInitialized = true;
 }
 
 void ClearEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)

@@ -58,20 +58,20 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     }
     else
     {
-//        if (isSweeping)
-//        {
-//            for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-//            {
-//                const std::pair<float, float> value = sineSweepGenerator.getNextSample();
-//                float referenceGain = juce::Decibels::decibelsToGain (referenceVolume);
-//                referenceGain *= juce::Decibels::decibelsToGain (getCompensationDBAtFrequency (sineSweepGenerator.getCurrFreq()));
-//                
-//                leftChannel[sample] = value.first * 0.05 * 0.5 * referenceGain;
-//                
-//                if (rightChannel)
-//                    rightChannel[sample] = value.second * 0.05 * 0.5 * referenceGain;
-//            }
-//        }
+        if (isSweeping)
+        {
+            for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+            {
+                const std::pair<float, float> value = sineSweepGenerator.getNextSample();
+                float referenceGain = juce::Decibels::decibelsToGain (referenceVolume);
+                referenceGain *= juce::Decibels::decibelsToGain (getCompensationDBAtFrequency (sineSweepGenerator.getCurrFreq()));
+                
+                leftChannel[sample] = value.first * 0.05 * 0.5 * referenceGain;
+                
+                if (rightChannel)
+                    rightChannel[sample] = value.second * 0.05 * 0.5 * referenceGain;
+            }
+        }
         
         if (isPlayingGreenNoise)
         {

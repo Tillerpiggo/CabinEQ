@@ -67,7 +67,6 @@ public:
     void setIsBypassed (bool isBypassed);
     void setBypassBalance (float balance);
     
-   
     const Curve& getCurve (juce::String curveId) const;
     const std::vector<EQNode> getEQNodes (juce::String curveId) const;
     
@@ -102,6 +101,7 @@ public:
     
     // misc
     void setReferenceVolume (float volume);
+    void setActiveCurve (juce::String curveId);
 
 private:
     static const int FFT_SIZE = 10;
@@ -112,6 +112,7 @@ private:
     
     juce::String HEADPHONE_EQ_ID = "HeadphoneEQ";
     juce::String SPEAKER_EQ_ID = "SpeakerEQ";
+    juce::String activeCurveId;
     
     juce::dsp::ProcessSpec spec;
     

@@ -22,7 +22,8 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                      #endif
                        ), parameters (*this, nullptr, "Params", createParameterLayout()),
                           headphoneEQValueTree (parameters, "HeadphoneEQ"),
-                          speakerEQValueTree (parameters, "SpeakerEQ")
+                          speakerEQValueTree (parameters, "SpeakerEQ"),
+                          activeCurveId (HEADPHONE_EQ_ID)
 
 #endif
 {
@@ -389,4 +390,9 @@ float StartupMVPAudioProcessor::getCurrGreenNoiseFreq()
 void StartupMVPAudioProcessor::setReferenceVolume (float volume)
 {
     playbackManager.setReferenceVolume (volume);
+}
+
+void StartupMVPAudioProcessor::setActiveCurve (juce::String curveId)
+{
+    activeCurveId = curveId;
 }
