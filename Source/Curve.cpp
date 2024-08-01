@@ -104,15 +104,15 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 //    float scaleFactor1 = 0.7;
 //    if (t * 22050 > 5000)
 //        scaleFactor1 *= (22050 - (t * 22050)) / 5000;
-    float timeFactor = 0.9;
+    float timeFactor = 1.0;
     
     if (t < 0.4)
         timeFactor -= std::abs (t - 0.4);
     
-    if (t > 0.7)
-        timeFactor -= std::abs (t - 0.7);
+//    if (t > 0.9)
+//        timeFactor -= std::abs (t - 0.9);
     
-    auto undertones = scaleComplexPair (compensatedValueAtFrequency(timeFactor * t * 17990 + 10, -5.0 + timeFactor), 1.0);
+    auto undertones = scaleComplexPair (compensatedValueAtFrequency(timeFactor * t * 17990 + 10, -5.5 + 3 * timeFactor), 1.0);
 //    auto undertones = scaleComplexPair (compensatedValueAtFrequency (0.5 * t * 22050, -4.5), 1.0);
     
     float scaleFactor2 = 1.0;
