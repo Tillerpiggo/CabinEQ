@@ -39,8 +39,6 @@ private:
     StartupMVPAudioProcessor& processor;
     juce::String curveId;
     
-    const Curve& curve;
-    
     juce::Slider referenceSlider;
     
     static constexpr float MIN_FREQ = 20.0f;

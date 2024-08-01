@@ -68,18 +68,18 @@ public:
     void setBypassBalance (float balance);
     
    
-    const Curve& getCurve (juce::String curveId) const;
+    const Curve& getCurve() const;
     const std::vector<EQNode> getEQNodes() const;
     
     // Setting points
     void addEQNode (float frequency, float amplitude, float pan, juce::String curveId);
-    void removeEQNode (int id, juce::String curveId);
+    void removeEQNode (int id);
     void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId);
-    void clearEQNodes (juce::String curveId);
+    void clearEQNodes();
     
     // Changing points
-    void startCalibratingEQNode (EQNode eqNode);
-    void updateCalibratingEQNode (EQNode eqNode);
+    void startCalibratingEQNode (EQNode eqNode, juce::String curveId);
+    void updateCalibratingEQNode (EQNode eqNode, juce::String curveId);
     void endCalibratingEQNode();
     
     // Testing
