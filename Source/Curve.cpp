@@ -104,17 +104,27 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 //    float scaleFactor1 = 0.7;
 //    if (t * 22050 > 5000)
 //        scaleFactor1 *= (22050 - (t * 22050)) / 5000;
-    auto undertones = scaleComplexPair (compensatedValueAtFrequency(0.50 * t * 17990 + 10, -4.5), 1.0);
+    float timeFactor = 0.9;
+    
+    if (t < 0.4)
+        timeFactor -= std::abs (t - 0.4);
+    
+    if (t > 0.7)
+        timeFactor -= std::abs (t - 0.7);
+    
+    auto undertones = scaleComplexPair (compensatedValueAtFrequency(timeFactor * t * 17990 + 10, -5.0 + timeFactor), 1.0);
 //    auto undertones = scaleComplexPair (compensatedValueAtFrequency (0.5 * t * 22050, -4.5), 1.0);
     
     float scaleFactor2 = 1.0;
     float cutoff = 200;
-//    if (t * 22050 < cutoff)
-//        scaleFactor2 *= (t * 22050) / cutoff;
-    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, -4.5), scaleFactor2);
-    auto overtones = reciprocalComplexPair (compensatedValueAtFrequency (t * 2.457 * 22050, -4.5));
+    if (t * 22050 < cutoff)
+        scaleFactor2 *= (t * 22050) / cutoff;
+    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, -2.5), scaleFactor2);
+    auto overtones = scaleComplexPair (compensatedValueAtFrequency (t * 2.457 * 22050 - 10, 0.0), 1.0);
     auto res = multiplyComplexPair (undertones, overtones);
+    res = scaleComplexPair (res, 0.5);
     
+//    undertones = reciprocalComplexPair (undertones);
     
 //    auto undertones = scaleComplexPair (compensatedValueAtFrequency ((0.5 * t) * 17990 + 10, -4.5), 1);
     return undertones;
