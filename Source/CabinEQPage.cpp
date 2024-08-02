@@ -126,7 +126,6 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     processor.endTesting();
     processor.endCalibratingEQNode();
     processor.endSineSweep();
-    processor.endGreenNoise();
     
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     EQNode node (0, 0, 0, 0);

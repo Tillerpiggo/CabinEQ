@@ -54,10 +54,6 @@
               file="Source/SineSweepGenerator.cpp"/>
         <FILE id="HYovE4" name="SineSweepGenerator.h" compile="0" resource="0"
               file="Source/SineSweepGenerator.h"/>
-        <FILE id="zr6Q1b" name="GreenNoiseGenerator.cpp" compile="1" resource="0"
-              file="Source/GreenNoiseGenerator.cpp"/>
-        <FILE id="eL925G" name="GreenNoiseGenerator.h" compile="0" resource="0"
-              file="Source/GreenNoiseGenerator.h"/>
         <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
               file="Source/SequenceableNote.cpp"/>
         <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
