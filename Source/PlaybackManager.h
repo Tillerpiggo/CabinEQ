@@ -13,7 +13,6 @@
 #include <JuceHeader.h>
 #include "ArbitraryResponseFilter.h"
 #include "ArbitrarySequencer.h"
-#include "GreenNoiseGenerator.h"
 #include "SineSweepGenerator.h"
 #include "InverseFletcherMunsonCurve.h"
 #include <random>
@@ -32,11 +31,9 @@ public:
     
     float getCurrTestingFreq() const;
     float getCurrSineSweepFreq() const;
-    float getCurrGreenNoiseFreq() const;
     
     void setIsTesting (bool isTesting);
     void setIsSweeping (bool isSweeping);
-    void setIsPlayingGreenNoise (bool isPlayingGreenNoise);
     void setIsCalibrating (bool isCalibrating);
     void setIsBypassed (bool isBypassed);
     void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
@@ -48,7 +45,6 @@ public:
     void startTestingFreq (float freq, const Curve& curve);
     void updateTestingFreq (float freq, const Curve& curve);
     void stopTestingFreq();
-    void setGreenNoiseCenterFrequency (float centerFreq);
     
     void setReferenceVolume (float volume);
     
@@ -63,13 +59,11 @@ private:
     juce::dsp::Gain<float> wetGainProcessor;
     
     ArbitrarySequencer arbitrarySequencer;
-    GreenNoiseGenerator greenNoiseGenerator;
     SineSweepGenerator sineSweepGenerator;
     Note referenceNote = Note (1000.0f, 6.0f, 0.0f, 0.0f);
     
     bool isTesting;
     bool isSweeping;
-    bool isPlayingGreenNoise;
     bool isCalibrating;
     bool isBypassed;
     bool hasPreparedFilter;

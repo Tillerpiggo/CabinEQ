@@ -93,12 +93,6 @@ public:
     void endSineSweep();
     float getCurrSineSweepFreq();
     
-    // Green noise
-    void startGreenNoise (float centerFreq);
-    void updateGreenNoise (float centerFreq);
-    void endGreenNoise();
-    float getCurrGreenNoiseFreq();
-    
     // misc
     void setReferenceVolume (float volume);
     void setActiveCurve (juce::String curveId);
@@ -115,10 +109,6 @@ private:
     juce::String activeCurveId;
     
     juce::dsp::ProcessSpec spec;
-    
-    // Hacky solution to fix gainFilter bug
-    int sampleRate;
-    int samplesPerBlock;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)

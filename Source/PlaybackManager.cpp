@@ -13,7 +13,7 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : filter (FFT_SIZE), isTesting (false), isSweeping (false), isPlayingGreenNoise (false), isCalibrating (false),
+    : filter (FFT_SIZE), isTesting (false), isSweeping (false), isCalibrating (false),
       isBypassed (false), hasPreparedFilter (false)
 {
     dryGainProcessor.setGainDecibels (0.0f);
@@ -29,13 +29,9 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     
     if (isCalibrating || isTesting)
     {
-//        std::cout << "Is calibrating: " << isCalibrating << std::endl;
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             const std::pair<float, float> value = getNextSample();
-//            if (sample == 0)
-//                std::cout << "sample: " << value.first << std::endl;
-//            std::cout << "sample: " << value.first << std::endl;
             leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
             
             if (rightChannel)
@@ -58,40 +54,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     }
     else
     {
-        if (isSweeping)
-        {
-            for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-            {
-                const std::pair<float, float> value = sineSweepGenerator.getNextSample();
-                float referenceGain = juce::Decibels::decibelsToGain (referenceVolume);
-                referenceGain *= juce::Decibels::decibelsToGain (getCompensationDBAtFrequency (sineSweepGenerator.getCurrFreq()));
-                
-                leftChannel[sample] = value.first * 0.05 * 0.5 * referenceGain;
-                
-                if (rightChannel)
-                    rightChannel[sample] = value.second * 0.05 * 0.5 * referenceGain;
-            }
-        }
-        
-        if (isPlayingGreenNoise)
-        {
-            for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-            {
-                const std::pair<float, float> value = greenNoiseGenerator.getNextSample();
-                float referenceGain = 20.0f;
-                referenceGain *= juce::Decibels::decibelsToGain (referenceVolume);
-                referenceGain *= juce::Decibels::decibelsToGain (getCompensationDBAtFrequency (greenNoiseGenerator.getCurrFreq()));
-//                std::cout << "sample: " << value.first * 0.05 * 0.5 * referenceGain << std::endl;
-                
-                leftChannel[sample] = value.first * 0.05 * 0.5 * referenceGain;
-//                std::cout << "test: " << value.first * 0.05 * 0.5 * referenceGain << std::endl;
-                
-                if (rightChannel)
-                    rightChannel[sample] = value.second * 0.05 * 0.5 * referenceGain;
-            }
-        }
-        
-        // process audio through the filter
+        // Process audio through the filter
         juce::dsp::AudioBlock<float> block (buffer);
         juce::dsp::ProcessContextReplacing<float> context (block);
         
@@ -129,11 +92,6 @@ float PlaybackManager::getCurrSineSweepFreq() const
     return sineSweepGenerator.getCurrFreq();
 }
 
-float PlaybackManager::getCurrGreenNoiseFreq() const
-{
-    return greenNoiseGenerator.getCurrFreq();
-}
-
 void PlaybackManager::setIsTesting (bool isTesting)
 {
     this->isTesting = isTesting;
@@ -142,11 +100,6 @@ void PlaybackManager::setIsTesting (bool isTesting)
 void PlaybackManager::setIsSweeping (bool isSweeping)
 {
     this->isSweeping = isSweeping;
-}
-
-void PlaybackManager::setIsPlayingGreenNoise (bool isPlayingGreenNoise)
-{
-    this->isPlayingGreenNoise = isPlayingGreenNoise;
 }
 
 void PlaybackManager::setIsCalibrating (bool isCalibrating)
@@ -204,11 +157,11 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 
 void PlaybackManager::startTestingFreq (float freq, const Curve& curve)
 {
+    int noteDurationInSamples = 25000;
     isTesting = true;
+    
     float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
     ampl += getCompensationDBAtFrequency (freq);
-//    ampl += -4.5f * std::log2(freq / 1000.0f);
-    int noteDurationInSamples = 25000;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
@@ -223,10 +176,10 @@ void PlaybackManager::startTestingFreq (float freq, const Curve& curve)
 
 void PlaybackManager::updateTestingFreq (float freq, const Curve& curve)
 {
-    float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
-//    ampl += -4.5f * std::log2(freq / 1000.0f);
-    ampl += getCompensationDBAtFrequency (freq);
     int noteDurationInSamples = 25000;
+    
+    float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
+    ampl += getCompensationDBAtFrequency (freq);
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
@@ -244,11 +197,6 @@ void PlaybackManager::stopTestingFreq()
     isTesting = false;
 }
 
-void PlaybackManager::setGreenNoiseCenterFrequency (float centerFreq)
-{
-    greenNoiseGenerator.setCenterFrequency (centerFreq);
-}
-
 void PlaybackManager::setReferenceVolume (float volume)
 {
     this->referenceVolume = volume;
@@ -261,28 +209,5 @@ std::pair<float, float> PlaybackManager::getNextSample()
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
-    // To compensate for music curve
-//    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));
-//    float amplitudeCompensationGain = std::pow (1, std::log2(frequency / 1000.0f));
-//    float amplitudeCompensationDB = juce::Decibels::gainToDercibels (amplitudeCompensationGain);
-    //float amplitudeCompensationDB = -4.5f * std::log2(frequency / 1000.0f);
-//    float amplitudeCompensationDB = 0.0f;
-    float amplitudeCompensationDB = -4.5f * std::log2(frequency / 1000.0f);
-    amplitudeCompensationDB = 0.0f;
-    
-    // Introduce custom slope for clarity
-//    float slope = 2.0f;
-//    float slope = 0.0f;
-//    float octaves = std::log2((frequency) / (referenceNote.frequency));
-//////    slope += octaves * -0.1f;
-//    float dbDifference = octaves * slope;
-    
-//    float slopeSlope = octaves * -0.1f;
-//    dbDifference += octaves * slopeSlope;
-    
-//    float dbDifference = inverseFM.valueAtFrequency (frequency, 82.5f);
-    
-//    amplitudeCompensationDB += dbDifference;
-    
-    return amplitudeCompensationDB;
+    return -4.5f * std::log2(frequency / 1000.0f);
 }
