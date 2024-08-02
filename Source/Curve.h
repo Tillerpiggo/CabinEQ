@@ -16,7 +16,6 @@
 #include <cmath>
 
 #include "EQNode.h"
-#include "InverseFletcherMunsonCurve.h"
 
 class Curve
 {
@@ -43,5 +42,4 @@ protected:
     std::pair<float*, float*> frequencyResponse (int numPoints) const;
     
     std::vector<EQNode> eqNodes;
-    InverseFletcherMunsonCurve inverseFM;
 };
