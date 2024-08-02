@@ -243,11 +243,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 //==============================================================================
 void StartupMVPAudioProcessor::applyCurve()
 {
-    playbackManager.updateFilterWithCurve (headphoneEQValueTree.getCurve());
+    if (activeCurveId == HEADPHONE_EQ_ID)
+        playbackManager.updateFilterWithCurve (headphoneEQValueTree.getCurve());
+    else
+        playbackManager.updateFilterWithCurve (speakerEQValueTree.getCurve());
 }
 
 void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
 {
+    if (isBypassed) // isBypassed = true means the filter is being applied. I should probably rename this at some point.
+        applyCurve();
     playbackManager.setIsBypassed (isBypassed);
 }
 

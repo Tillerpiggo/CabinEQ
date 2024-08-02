@@ -11,7 +11,7 @@
 #include "FilterPage.h"
 
 FilterPage::FilterPage (StartupMVPAudioProcessor& p)
-    : processor(p), curveComponent(p.getCurve ("HeadphoneEQ")), isBypassed (false)
+    : processor(p), curveComponent(p.getCurve ("HeadphoneEQ"), p.getCurve ("SpeakerEQ")), isBypassed (false), isHeadphoneEQSelected (true)
 {
     balanceSlider.setRange(-12.0, 12.0);
     balanceSlider.setTextValueSuffix(" dB");
@@ -82,6 +82,11 @@ void FilterPage::buttonClicked(juce::Button* button)
 {
     if (button == &applyFilterButton)
     {
+        isHeadphoneEQSelected = ! isHeadphoneEQSelected;
+        if (isHeadphoneEQSelected)
+            processor.setActiveCurve ("HeadphoneEQ");
+        else
+            processor.setActiveCurve ("SpeakerEQ");
         processor.applyCurve();
     }
     else if (button == &bypassButton)
@@ -89,4 +94,18 @@ void FilterPage::buttonClicked(juce::Button* button)
         isBypassed = ! isBypassed;
         processor.setIsBypassed (isBypassed);
     }
+    
+    updateApplyFilterButtonText();
+}
+
+void FilterPage::updateApplyFilterButtonText()
+{
+    if (isHeadphoneEQSelected && isBypassed)
+        applyFilterButton.setButtonText ("HeadphoneEQ Active");
+    else if (isHeadphoneEQSelected && ! isBypassed)
+        applyFilterButton.setButtonText ("HeadphoneEQ Inactive");
+    else if (! isHeadphoneEQSelected && isBypassed)
+        applyFilterButton.setButtonText ("SpeakerEQ Active");
+    else
+        applyFilterButton.setButtonText ("SpeakerEQ Inactive");
 }

@@ -10,7 +10,7 @@
 
 #include "CurveComponent.h"
 
-CurveComponent::CurveComponent (const Curve& curve) : curve (curve)
+CurveComponent::CurveComponent (const Curve& curve, const Curve& curve2) : curve (curve), curve2 (curve2)
 {
     drawTrueFrequencyResponse();
 }
@@ -35,7 +35,10 @@ void CurveComponent::paint (juce::Graphics& g)
         float normalizedTime = static_cast<float>(i) / static_cast<float>(N);
         float endX = width * normalizedTime;
         
-        float val = juce::Decibels::gainToDecibels (curve.valueAtNormalizedTime (normalizedTime).first.real());
+        float val1 = juce::Decibels::gainToDecibels (curve.valueAtNormalizedTime (normalizedTime).first.real());
+        float val2 = juce::Decibels::gainToDecibels (curve2.valueAtNormalizedTime (normalizedTime).first.real());
+        
+        float val = val1 - val2;
         float endY = height * (1.0f - (val + 24.0f) / 48.0f);
         
         path.lineTo (endX, endY);

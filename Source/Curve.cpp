@@ -34,6 +34,9 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
     float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
     
+//    leftDB *= 0.6;
+//    rightDB *= 0.6;
+    
 //    if (leftDB < 0 || rightDB < 0 || 1)
 //    {
 //        amplitudeAtFrequency = interpolateValueAtFrequency (0.4079 * frequency + 10, amplitudes);
@@ -121,13 +124,14 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 //    std::cout << "t: " << t << ", slope factor: " << slopeFactor << std::endl;
     
     auto undertones = scaleComplexPair (compensatedValueAtFrequency(timeFactor * t * 17990 + 10, -5.5 + 3 * slopeFactor), 1.0);
-//    auto undertones = scaleComplexPair (compensatedValueAtFrequency (0.5 * t * 22050, -4.5), 1.0);
+    undertones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, -4.5), 1.0);
+//    undertones = scaleComplexPair (compensatedValueAtFrequency (0.5 * t * 17990 + 10, -4.5), 1.0);
     
-    float scaleFactor2 = 1.0;
-    float cutoff = 200;
-    if (t * 22050 < cutoff)
-        scaleFactor2 *= (t * 22050) / cutoff;
-    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, -2.5), scaleFactor2);
+//    float scaleFactor2 = 1.0;
+//    float cutoff = 200;
+//    if (t * 22050 < cutoff)
+//        scaleFactor2 *= (t * 22050) / cutoff;
+    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (t * 22050, 0.0), 1.0);
     auto overtones = scaleComplexPair (compensatedValueAtFrequency (t * 2.457 * 22050 - 10, 0.0), 1.0);
     auto res = multiplyComplexPair (undertones, overtones);
     res = scaleComplexPair (res, 0.5);
@@ -168,13 +172,15 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormaliz
     float logMaxFreq = std::log(maxFreq);
     float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
     
-    auto undertones = scaleComplexPair (compensatedValueAtFrequency(freq / 2.0, -4.5), 1);
-    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (freq, -3.5), 1);
-    auto res = addComplexPair (undertones, normaltones);
+//    auto undertones = scaleComplexPair (compensatedValueAtFrequency(freq / 2.0, -4.5), 1);
+    auto normaltones = scaleComplexPair (compensatedValueAtFrequency (freq, 0.0), 1);
+//    auto res = addComplexPair (undertones, normaltones);
+//    
+//    undertones = scaleComplexPair (compensatedValueAtFrequency ((0.5 * t) * 22050 + 0, -3.8), 1);
+//    
     
-    undertones = scaleComplexPair (compensatedValueAtFrequency ((0.5 * t) * 22050 + 0, -3.8), 1);
     
-    return undertones;
+    return normaltones;
 }
 
 float Curve::catmullRom(float t, float y0, float y1, float y2, float y3) const

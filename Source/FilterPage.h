@@ -31,13 +31,16 @@ public:
     void buttonClicked (juce::Button *button) override;
     
 private:
+    void updateApplyFilterButtonText();
+    
     StartupMVPAudioProcessor& processor;
     
     CurveComponent curveComponent;
     
-    juce::TextButton applyFilterButton { "Apply Filter" };
+    juce::TextButton applyFilterButton { "HeadphoneEQ Inactive" };
     juce::TextButton bypassButton { "Bypass" };
     juce::Slider balanceSlider;
     
     bool isBypassed;
+    bool isHeadphoneEQSelected;
 };
