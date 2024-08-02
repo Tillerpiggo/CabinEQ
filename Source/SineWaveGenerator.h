@@ -35,7 +35,7 @@ private:
     float sampleRate = 44100;
     std::optional<Note> note;
     
-    float phase; // where we are in the sine wave
+    float phase = 0; // where we are in the sine wave
     
     // == Constants for efficiency ==
     float phaseIncrement = 0;

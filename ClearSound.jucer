@@ -25,6 +25,9 @@
         <FILE id="ss4ShX" name="CabinEQPage.h" compile="0" resource="0" file="Source/CabinEQPage.h"/>
         <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
+        <FILE id="XecbxI" name="CabinEQGraph.cpp" compile="1" resource="0"
+              file="Source/CabinEQGraph.cpp"/>
+        <FILE id="AbBAZL" name="CabinEQGraph.h" compile="0" resource="0" file="Source/CabinEQGraph.h"/>
         <FILE id="z097qG" name="CurveComponent.cpp" compile="1" resource="0"
               file="Source/CurveComponent.cpp"/>
         <FILE id="iIKJ0i" name="CurveComponent.h" compile="0" resource="0"
