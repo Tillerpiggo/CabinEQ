@@ -8,7 +8,6 @@
   ==============================================================================
 */
 
-/*
 #include "CabinEQGraph.h"
 
 CabinEQGraph::CabinEQGraph (const Curve& curve)
@@ -51,8 +50,7 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent& event)
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-        processor.startTestingAt (freq, curveId);
-        
+        listener->testValueAt (freq);
         return;
     }
     
@@ -64,7 +62,7 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent& event)
     {
         auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
         if (! event.mods.isRightButtonDown() && ampl > -24.0f)
-            processor.addEQNode (freq, ampl, 0.0f, curveId);
+            listener->nodeAdded (freq, ampl);
         
         repaint();
     }
@@ -72,11 +70,11 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent& event)
     {
         if (! event.mods.isRightButtonDown())
         {
-            processor.startCalibratingEQNode (draggingEQNode.value());
+            listener->playValueAt (draggingEQNode->frequency, draggingEQNode->amplitude);
         }
         else
         {
-            processor.removeEQNode (draggingEQNode.value().id, curveId);
+            listener->nodeRemoved (draggingEQNode->id);
         }
         
         repaint();
@@ -84,16 +82,12 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent& event)
     }
 }
 
-void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
+void CabinEQGraph::mouseDrag (const juce::MouseEvent& event)
 {
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
-        std::cout << "mouse drag!!" << std::endl;
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-        processor.updateTestingAt (freq, curveId);
-//        processor.updateSineSweep (freq);
-//        processor.updateGreenNoise (freq);
-        
+        listener->testValueAt (freq);
         return;
     }
     
@@ -107,16 +101,14 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     node.frequency = freq;
     node.amplitude = ampl;
     
-    processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
-    processor.updateCalibratingEQNode (node);
+    listener->nodeMoved (draggingId, freq, ampl);
+    listener->playValueAt (node.frequency, node.amplitude);
     repaint();
 }
 
-void CabinEQPage::mouseUp (const juce::MouseEvent& event)
+void CabinEQGraph::mouseUp (const juce::MouseEvent& event)
 {
-    processor.endTesting();
-    processor.endCalibratingEQNode();
-    processor.endSineSweep();
+    listener->stopPlaying();
     
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     EQNode node (0, 0, 0, 0);
@@ -128,15 +120,13 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     node.frequency = freq;
     node.amplitude = ampl;
     
-    processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
-    processor.endCalibratingEQNode();
+    listener->nodeMoved (draggingId, freq, ampl);
+    listener->stopPlaying();
     draggingId = -1;
-    
-    processor.applyCurve();
     repaint();
 }
 
-void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
+void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
     
@@ -162,17 +152,8 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
     repaint();
 }
 
-void CabinEQPage::sliderValueChanged (juce::Slider *slider)
-{
-    if (slider == &referenceSlider)
-    {
-        processor.setReferenceVolume (slider->getValue());
-    }
-}
-
-
 //==========================
-void CabinEQPage::drawCurve (juce::Graphics& g, const Curve& curve, int numPoints)
+void CabinEQGraph::drawCurve (juce::Graphics& g, const Curve& curve, int numPoints)
 {
     g.setColour (juce::Colour::fromRGB(0, 255, 128));
 
@@ -193,20 +174,20 @@ void CabinEQPage::drawCurve (juce::Graphics& g, const Curve& curve, int numPoint
     g.strokePath (path, juce::PathStrokeType (1.0f));
 }
 
-void CabinEQGraph::addListener (SequencerListener* newListener)
+void CabinEQGraph::addListener (Listener* newListener)
 {
     this->listener = newListener;
 }
 
 // ============================================
-void CabinEQPage::updateEQNodes()
+void CabinEQGraph::updateEQNodes()
 {
-    eqNodes = processor.getEQNodes (curveId);
+    eqNodes = listener->getEQNodes();
 }
 
-void CabinEQPage::drawDots (juce::Graphics& g)
+void CabinEQGraph::drawDots (juce::Graphics& g)
 {
-    eqNodes = processor.getEQNodes (curveId);
+    updateEQNodes();
     g.setColour (juce::Colour::fromRGB (255, 0, 255)); // Bright magenta
     
     for (const auto& node : eqNodes)
@@ -214,9 +195,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
         if (node.id == draggingId)
             g.setColour (juce::Colour::fromRGB (255, 255, 0));
         
-//        float dbDifference = -4.5f * std::log2((node.frequency) / 1000.0f);
-        float dbDifference = 0.0f;
-        const auto& point = coordsForEQNode (node.frequency, node.amplitude - dbDifference);
+        const auto& point = coordsForEQNode (node.frequency, node.amplitude);
         
         float dotRadius = 4.0f;
         if (node.id == hoveringId)
@@ -229,15 +208,15 @@ void CabinEQPage::drawDots (juce::Graphics& g)
     
     g.setColour (juce::Colour::fromRGB (0, 255, 255));
     
-    float freq = processor.getCurrTestingFreq();
-    const auto& point = coordsForEQNode (freq, juce::Decibels::gainToDecibels (processor.getCurve (curveId).valueAtFrequency (freq).first.real()));
+    float freq = listener->getCurrPlayingFreq();
+    const auto& point = coordsForEQNode (freq, juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real()));
     float dotRadius = 3.0f;
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
     
     
 }
 
-juce::Point<float> CabinEQPage::coordsForEQNode (float frequency, float amplitude)
+juce::Point<float> CabinEQGraph::coordsForEQNode (float frequency, float amplitude)
 {
     float width = getWidth();
     float height = getHeight();
@@ -250,7 +229,7 @@ juce::Point<float> CabinEQPage::coordsForEQNode (float frequency, float amplitud
     return { x, y };
 }
 
-std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const
+std::pair<float, float> CabinEQGraph::frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const
 {
     float x = event.getPosition().x;
     float y = event.getPosition().y;
@@ -267,7 +246,7 @@ std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForMouseEvent (const j
     return { freq, ampl };
 }
 
-float CabinEQPage::frequencyAtTime (float t) const
+float CabinEQGraph::frequencyAtTime (float t) const
 {
     // Scale logarithmically (should this be here?)
     float logMinFreq = std::log(minFreqShowing);
@@ -277,7 +256,7 @@ float CabinEQPage::frequencyAtTime (float t) const
     return freq;
 }
 
-float CabinEQPage::timeAtFrequency (float freq) const
+float CabinEQGraph::timeAtFrequency (float freq) const
 {
     float logMinFreq = std::log(minFreqShowing);
     float logMaxFreq = std::log(maxFreqShowing);
@@ -288,7 +267,7 @@ float CabinEQPage::timeAtFrequency (float freq) const
     return t;
 }
 
-bool CabinEQPage::mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const
+bool CabinEQGraph::mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const
 {
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
@@ -298,7 +277,7 @@ bool CabinEQPage::mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode 
     return freqRatio > 0.9 && freqRatio < 1.1 && amplDiff < 2.0;
 }
 
-float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const
+float CabinEQGraph::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const
 {
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
@@ -307,7 +286,7 @@ float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNo
     return std::abs (1.0f - freqRatio);
 }
 
-std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const
+std::optional<EQNode> CabinEQGraph::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const
 {
     float minDist = 0.03f * (std::log (maxFreqShowing / minFreqShowing)) / 3.0f;
     std::optional<EQNode> closestEQNode;
@@ -326,5 +305,3 @@ std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::Mou
     return closestEQNode;
 }
 
-
-*/

@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-/*
+
 #pragma once
 
 #include <JuceHeader.h>
@@ -23,9 +23,13 @@ public:
         virtual ~Listener() = default;
         virtual void nodeAdded (float freq, float ampl);
         virtual void nodeMoved (int id, float freq, float ampl);
-        virtual void nodeDeleted (int id);
+        virtual void nodeRemoved (int id);
         virtual void playValueAt (float freq, float ampl); // the tone while dragging nodes
         virtual void testValueAt (float freq); // for probing
+        virtual void stopPlaying(); // stops both play/testing from making noise
+        
+        virtual std::vector<EQNode> getEQNodes();
+        virtual float getCurrPlayingFreq();
     };
     
     CabinEQGraph (const Curve& curve);
@@ -40,7 +44,7 @@ public:
     void mouseUp (const juce::MouseEvent &event) override;
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
     
-    void addListener (SequencerListener* newListener);
+    void addListener (Listener* newListener);
     void removeListener();
     
 private:
@@ -71,4 +75,4 @@ private:
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
 };
-*/
+
