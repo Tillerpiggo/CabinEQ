@@ -26,8 +26,6 @@ void CurveComponent::paint (juce::Graphics& g)
     float width = getWidth();
     float height = getHeight();
     
-    float windowFactor = 0.03;
-    
     int N = 4000;
     
     for (int i = 0; i < N; ++i)

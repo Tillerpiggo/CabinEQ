@@ -34,10 +34,7 @@ public:
     const std::pair<float*, float*> getStereoImpulse (int fft_size) const; // This hands ownership of the float*'s to whoever calls it!!
 
 protected:
-    const std::pair<std::complex<float>, std::complex<float>> addComplexPair (std::pair<std::complex<float>, std::complex<float>> pair1, std::pair<std::complex<float>, std::complex<float>> pair2) const;
-    const std::pair<std::complex<float>, std::complex<float>> multiplyComplexPair (std::pair<std::complex<float>, std::complex<float>> pair1, std::pair<std::complex<float>, std::complex<float>> pair2) const;
     const std::pair<std::complex<float>, std::complex<float>> scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const;
-    const std::pair<std::complex<float>, std::complex<float>> reciprocalComplexPair (std::pair<std::complex<float>, std::complex<float>> pair) const;
     const float interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const;
     std::pair<float*, float*> frequencyResponse (int numPoints) const;
     
