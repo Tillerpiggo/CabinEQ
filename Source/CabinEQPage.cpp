@@ -173,21 +173,33 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
     }
 }
 
-
-//==========================
+// ===================================================
 void CabinEQPage::drawCurve(juce::Graphics& g, const Curve& curve, int numPoints)
 {
-    // Define a gradient that transitions through purple to green
+    float minFreqLog = std::log10(minFreqShowing);
+    float maxFreqLog = std::log10(maxFreqShowing);
+
+    // Get colors for min and max frequencies
+    juce::Colour startColor = getColorForFrequency(minFreqShowing);
+    juce::Colour endColor = getColorForFrequency(maxFreqShowing);
+
+    // Define a gradient that transitions through the colors dynamically
     juce::ColourGradient gradient(
-        juce::Colour::fromFloatRGBA(0.5f, 0.0f, 0.5f, 1.0f), // Purple (bass)
+        startColor, // Color at minFreqShowing
         0, 0,
-        juce::Colour::fromFloatRGBA(0.5f, 1.0f, 0.5f, 1.0f), // Light green (high end)
+        endColor, // Color at maxFreqShowing
         getWidth(), getHeight(),
         false
     );
-    gradient.addColour(0.25, juce::Colour::fromFloatRGBA(0.4f, 0.4f, 1.0f, 1.0f)); // Light blue
-    gradient.addColour(0.5, juce::Colour::fromFloatRGBA(0.7f, 0.9f, 1.0f, 1.0f)); // Light sky blue
-    gradient.addColour(0.75, juce::Colour::fromFloatRGBA(0.6f, 1.0f, 0.6f, 1.0f)); // Light green
+
+    // Add intermediate colors based on logarithmic positions within the visible range
+    float quarterFreq = std::pow(10, minFreqLog + 0.25f * (maxFreqLog - minFreqLog));
+    float halfFreq = std::pow(10, minFreqLog + 0.5f * (maxFreqLog - minFreqLog));
+    float threeQuarterFreq = std::pow(10, minFreqLog + 0.75f * (maxFreqLog - minFreqLog));
+
+    gradient.addColour(0.25f, getColorForFrequency(quarterFreq));
+    gradient.addColour(0.5f, getColorForFrequency(halfFreq));
+    gradient.addColour(0.75f, getColorForFrequency(threeQuarterFreq));
 
     g.setGradientFill(gradient);
 
@@ -207,7 +219,7 @@ void CabinEQPage::drawCurve(juce::Graphics& g, const Curve& curve, int numPoints
     }
     
     // Draw the main line
-    g.strokePath(path, juce::PathStrokeType(2.0f));
+    g.strokePath(path, juce::PathStrokeType(2.5f));
 }
 
 void CabinEQPage::updateEQNodes()
@@ -223,26 +235,26 @@ juce::Colour CabinEQPage::getColorForFrequency(float frequency)
 
     if (freqLogNorm < 0.25f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.5f, 0.0f, 0.5f, 1.0f); // Purple
-        endColor = juce::Colour::fromFloatRGBA(0.4f, 0.4f, 1.0f, 1.0f); // Light blue
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.4f, 1.0f, 1.0f); // Vibrant blue
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.6f, 1.0f, 1.0f); // Sky blue
         segmentLogNorm = freqLogNorm / 0.25f;
     }
     else if (freqLogNorm < 0.5f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.4f, 0.4f, 1.0f, 1.0f); // Light blue
-        endColor = juce::Colour::fromFloatRGBA(0.7f, 0.9f, 1.0f, 1.0f); // Light sky blue
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.6f, 1.0f, 1.0f); // Sky blue
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.8f, 0.8f, 1.0f); // Teal
         segmentLogNorm = (freqLogNorm - 0.25f) / 0.25f;
     }
     else if (freqLogNorm < 0.75f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.7f, 0.9f, 1.0f, 1.0f); // Light sky blue
-        endColor = juce::Colour::fromFloatRGBA(0.6f, 1.0f, 0.6f, 1.0f); // Light green
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.8f, 0.8f, 1.0f); // Teal
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.6f, 1.0f); // Turquoise
         segmentLogNorm = (freqLogNorm - 0.5f) / 0.25f;
     }
     else
     {
-        startColor = juce::Colour::fromFloatRGBA(0.6f, 1.0f, 0.6f, 1.0f); // Light green
-        endColor = juce::Colour::fromFloatRGBA(0.5f, 1.0f, 0.5f, 1.0f); // Green
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.6f, 1.0f); // Turquoise
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.4f, 1.0f); // Bright green
         segmentLogNorm = (freqLogNorm - 0.75f) / 0.25f;
     }
 
@@ -266,9 +278,11 @@ void CabinEQPage::drawDots(juce::Graphics& g)
         if (node.id == hoveringId)
             dotRadius = 8.0f;
         
+        float dotPadding = 3.0f;
+        
         // Draw background color ellipse (assuming the background color is the same)
         g.setColour(backgroundColor);
-        g.fillEllipse(point.x - dotRadius - 2, point.y - dotRadius - 2, (dotRadius + 2) * 2, (dotRadius + 2) * 2);
+        g.fillEllipse(point.x - dotRadius - dotPadding, point.y - dotRadius - dotPadding, (dotRadius + dotPadding) * 2, (dotRadius + dotPadding) * 2);
 
         // Draw the dot
         g.setColour(dotColor);
@@ -280,8 +294,10 @@ void CabinEQPage::drawDots(juce::Graphics& g)
     
     // Draw the testing frequency dot
     float freq = processor.getCurrTestingFreq();
-    juce::Colour dotColor = juce::Colour::fromFloatRGBA(1.0f, 0.6f, 0.0f, 1.0f).withAlpha(0.8f); // Bright orange for current testing frequency
-
+    
+    // Get the color for the testing frequency
+    juce::Colour testDotColor = getColorForFrequency(freq).brighter(0.5f); // Make it brighter
+    
     const auto& point = coordsForEQNode(freq, juce::Decibels::gainToDecibels(processor.getCurve(curveId).valueAtFrequency(freq).first.real()));
     float dotRadius = 5.0f;
     
@@ -290,7 +306,7 @@ void CabinEQPage::drawDots(juce::Graphics& g)
     g.fillEllipse(point.x - dotRadius - 2, point.y - dotRadius - 2, (dotRadius + 2) * 2, (dotRadius + 2) * 2);
 
     // Draw the testing frequency dot
-    g.setColour(dotColor);
+    g.setColour(testDotColor);
     g.fillEllipse(point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
 }
 
@@ -347,27 +363,28 @@ float CabinEQPage::timeAtFrequency (float freq) const
 
 bool CabinEQPage::mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const
 {
-    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
-    
-    float freqRatio = freq / eqNode.frequency;
-    float amplDiff = std::abs (ampl - eqNode.amplitude);
-    
-    return freqRatio > 0.9 && freqRatio < 1.1 && amplDiff < 2.0;
+    return mouseEventEQNodeDistance (event, eqNode) < 0.5f;
 }
 
 float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const
 {
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
-    float freqRatio = freq / eqNode.frequency;
-    freqRatio *= std::log2 (maxFreqShowing / minFreqShowing);
+    float xDist = (std::abs (timeAtFrequency (freq) - timeAtFrequency (eqNode.frequency))) * 39;
+    float yDist = std::abs (ampl - eqNode.amplitude) * 0.5;
+    float dist = std::sqrt (xDist * xDist + yDist * yDist);
     
-    return std::abs (1.0f - freqRatio);
+    if (dist < 0.5f)
+    {
+        std::cout << "eqNode freq: " << timeAtFrequency (eqNode.frequency) << " freq: " << timeAtFrequency (freq) << ", xDist: " << xDist << ", yDist: " << yDist << std::endl;
+    }
+    
+    return dist;
 }
 
 std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const
 {
-    float minDist = 0.3;
+    float minDist = 5.0f;
     std::optional<EQNode> closestEQNode;
     
     // Get id of node within distance range
