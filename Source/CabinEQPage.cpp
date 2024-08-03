@@ -183,23 +183,27 @@ void CabinEQPage::drawCurve(juce::Graphics& g, const Curve& curve, int numPoints
     juce::Colour startColor = getColorForFrequency(minFreqShowing);
     juce::Colour endColor = getColorForFrequency(maxFreqShowing);
 
-    // Define a gradient that transitions through the colors dynamically
+    // Define a gradient that transitions through the colors dynamically along the x-axis
     juce::ColourGradient gradient(
         startColor, // Color at minFreqShowing
         0, 0,
         endColor, // Color at maxFreqShowing
-        getWidth(), getHeight(),
+        getWidth(), 0, // Gradient is horizontal
         false
     );
 
-    // Add intermediate colors based on logarithmic positions within the visible range
-    float quarterFreq = std::pow(10, minFreqLog + 0.25f * (maxFreqLog - minFreqLog));
-    float halfFreq = std::pow(10, minFreqLog + 0.5f * (maxFreqLog - minFreqLog));
-    float threeQuarterFreq = std::pow(10, minFreqLog + 0.75f * (maxFreqLog - minFreqLog));
+    // Calculate x positions for intermediate frequencies based on logarithmic positions
+    float quarterFreqLog = minFreqLog + 0.25f * (maxFreqLog - minFreqLog);
+    float halfFreqLog = minFreqLog + 0.5f * (maxFreqLog - minFreqLog);
+    float threeQuarterFreqLog = minFreqLog + 0.75f * (maxFreqLog - minFreqLog);
 
-    gradient.addColour(0.25f, getColorForFrequency(quarterFreq));
-    gradient.addColour(0.5f, getColorForFrequency(halfFreq));
-    gradient.addColour(0.75f, getColorForFrequency(threeQuarterFreq));
+    float quarterFreqX = (quarterFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+    float halfFreqX = (halfFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+    float threeQuarterFreqX = (threeQuarterFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+
+    gradient.addColour(quarterFreqX / getWidth(), getColorForFrequency(std::pow(10, quarterFreqLog)));
+    gradient.addColour(halfFreqX / getWidth(), getColorForFrequency(std::pow(10, halfFreqLog)));
+    gradient.addColour(threeQuarterFreqX / getWidth(), getColorForFrequency(std::pow(10, threeQuarterFreqLog)));
 
     g.setGradientFill(gradient);
 
