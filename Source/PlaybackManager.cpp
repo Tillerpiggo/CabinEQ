@@ -29,14 +29,21 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     
     if (isCalibrating || isTesting)
     {
+        std::cout << "isCalibrating: " << isCalibrating << ", isTesting: " << isTesting << std::endl;
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             const std::pair<float, float> value = getNextSample();
+            if (sample == 0)
+            {
+                std::cout << "sample (left: " << value.first << ", right: " << value.second << ")" << std::endl;
+            }
             leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
             
             if (rightChannel)
                 rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
         }
+        
+        
     }
     else if (isSweeping)
     {

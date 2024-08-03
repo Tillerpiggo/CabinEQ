@@ -76,10 +76,13 @@ void ArbitrarySequencer::changeNoteAtIdx (int idx, Note newNote)
     notes.at (idx).setAmplitude (newNote.gain);
     notes.at (idx).setPan (newNote.pan);
     
-    if (currNoteIdx == idx)
-    {
-        sineWaveGenerator.setNote (newNote);
-    }
+//    if (currNoteIdx == idx)
+//    {
+//        sineWaveGenerator.setFrequency (newNote.frequency);
+//        sineWaveGenerator.setVolume (newNote.gain);
+//        sineWaveGenerator.setPan (newNote.pan);
+//        sineWaveGenerator.setPhase (newNote.phase);
+//    }
 }
 
 void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)

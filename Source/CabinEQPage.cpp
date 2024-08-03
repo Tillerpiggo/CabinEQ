@@ -329,7 +329,7 @@ float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNo
 
 std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const
 {
-    float minDist = 0.03f * (std::log (maxFreqShowing / minFreqShowing)) / 3.0f;
+    float minDist = 0.03f * (std::log2 (maxFreqShowing / minFreqShowing)) / 10.0f;
     std::optional<EQNode> closestEQNode;
     
     // Get id of node within distance range

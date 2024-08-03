@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+/*
 #include "CabinEQGraph.h"
 
 CabinEQGraph::CabinEQGraph (const Curve& curve)
@@ -305,3 +306,4 @@ std::optional<EQNode> CabinEQGraph::getClosestEQNodeToMouseEvent (const juce::Mo
     return closestEQNode;
 }
 
+*/

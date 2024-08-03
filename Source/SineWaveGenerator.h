@@ -22,6 +22,7 @@ public:
     const std::pair<float, float> getNextSample();
     
     void setNote (Note note);
+    void setFrequency (float frequency);
     void setVolume (float gainInDecibels); // changes the volume of the currently playing note
     void setPan (float panInDecibels); // changes the pan of the currently playing note
     void setPhase (float phaseInRadians); // changes left/right phase relationship of current playing note
@@ -41,6 +42,15 @@ private:
     float phaseIncrement = 0;
     float leftAmplitudeCompensation = 0;
     float rightAmplitudeCompensation = 0;
+    
+    // == Vars to reduce clicking
+    static constexpr float FREQ_STEP = 1.0001f;
+    static constexpr float AMPL_STEP = 1.0001f;
+    std::optional<float> targetFrequency;
+    std::optional<float> targetAmplitude;
+    
+    
+    
     
     bool applyCompensation;
 };

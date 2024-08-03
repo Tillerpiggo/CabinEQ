@@ -22,6 +22,45 @@ void SineWaveGenerator::setSampleRate (float newSampleRate)
 
 const std::pair<float, float> SineWaveGenerator::getNextSample()
 {
+    if (targetFrequency.has_value())
+    {
+        if (targetFrequency.value() > note->frequency)
+        {
+            note->frequency *= FREQ_STEP;
+        }
+        else
+        {
+            note->frequency /= FREQ_STEP;
+        }
+        
+        float ratio = note->frequency / targetFrequency.value();
+        if (ratio < FREQ_STEP && ratio > 1.0f / FREQ_STEP)
+        {
+            targetFrequency.reset();
+        }
+        updatePhaseIncrementAndAmplitudeCompensation();
+    }
+    
+    if (targetAmplitude.has_value())
+    {
+        if (targetAmplitude.value() > note->gain)
+        {
+            note->gain *= AMPL_STEP;
+        }
+        else
+        {
+            note->gain /= AMPL_STEP;
+        }
+        
+        float ratio = note->gain / targetAmplitude.value();
+        if (ratio < AMPL_STEP && ratio > 1.0f / AMPL_STEP)
+        {
+            targetAmplitude.reset();
+        }
+        updatePhaseIncrementAndAmplitudeCompensation();
+    }
+    
+    
     float leftSample = std::sin (phase) * leftAmplitudeCompensation;
     float rightSample = std::sin (phase + note->phase) * rightAmplitudeCompensation;
     
@@ -38,12 +77,18 @@ void SineWaveGenerator::setNote (Note newNote)
 {
     note = newNote;
     updatePhaseIncrementAndAmplitudeCompensation();
+    targetFrequency.reset();
+    targetAmplitude.reset();
+}
+
+void SineWaveGenerator::setFrequency (float frequency)
+{
+    targetFrequency = frequency;
 }
 
 void SineWaveGenerator::setVolume (float gainInDecibels)
 {
-    note->gain = gainInDecibels;
-    updatePhaseIncrementAndAmplitudeCompensation();
+    targetAmplitude = gainInDecibels;
 }
 
 void SineWaveGenerator::setPan (float panInDecibels)
@@ -67,12 +112,15 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
         throw std::runtime_error("updatePhaseIncrementAndAmplitudeCompensation() called in SineWaveGenerator before setting the note to be played");
     }
     
-    phaseIncrement = 2.0 * juce::MathConstants<float>::pi * note->frequency / sampleRate;
-    float amplitudeCompensation = std::pow (TILT, std::log2(note->frequency / REFERENCE_FREQ));
+    float freq = note->frequency;
+    float ampl = note->gain;
+    
+    phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
+    float amplitudeCompensation = std::pow (TILT, std::log2(freq / REFERENCE_FREQ));
     if (! applyCompensation)
         amplitudeCompensation = 1.0f;
     
-    float noteGain = juce::Decibels::decibelsToGain (note->gain + 8.0f);//30.0f);
+    float noteGain = juce::Decibels::decibelsToGain (ampl + 8.0f);
     amplitudeCompensation *= noteGain;
     
     leftAmplitudeCompensation = amplitudeCompensation;
