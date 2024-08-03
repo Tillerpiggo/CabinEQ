@@ -15,8 +15,7 @@
 #include "EQNode.h"
 
 class CabinEQPage   : public juce::Component,
-                      public juce::Slider::Listener,
-                      public juce::Timer
+                      public juce::Slider::Listener
 
 {
 public:
@@ -33,7 +32,6 @@ public:
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
     
     void sliderValueChanged (juce::Slider *slider) override;
-    void timerCallback() override;
     
 private:
     StartupMVPAudioProcessor& processor;
@@ -45,6 +43,7 @@ private:
     static constexpr float MAX_FREQ = 20000.0f;
     
     void drawCurve (juce::Graphics& g, const Curve& curve, int numPoints);
+    juce::Colour getColorForFrequency(float frequency);
     void drawDots (juce::Graphics& g);
     juce::Point<float> coordsForEQNode (float frequency, float amplitude);
     
