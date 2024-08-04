@@ -150,12 +150,10 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     
     processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
     processor.updateCalibratingEQNode (node);
-//    repaint();
 }
 
 void CabinEQPage::mouseUp (const juce::MouseEvent& event)
 {
-    isScrolling = false;
     isTestingFreq = false;
     processor.endTesting();
     processor.endCalibratingEQNode();
@@ -179,12 +177,11 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
-    isScrolling = true;
+    isScrollingTimer = 1;
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
     
     float p = 1 - (wheel.deltaY);
     float dx = wheel.deltaX * -0.3f;
-    p = 1;
     
     float t = timeAtFrequency (freq);
     float leftChunkSize = t;
@@ -200,18 +197,24 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
     {
         float ratio = std::pow ((std::max (minFreqShowing, 0.0f) / MIN_FREQ), 4);
         dx *= ratio;
+        p = 1 - (wheel.deltaY * ratio);
         leftSideOfWindow = t - (leftChunkSize * p) + dx;
         rightSideOfWindow = t + (rightChunkSize * p) + dx;
     }
     else if (projectedMaxFreqVal > MAX_FREQ)
     {
-        dx *= (MAX_FREQ / maxFreqShowing) * (MAX_FREQ / maxFreqShowing);
+        float ratio = std::pow ((MAX_FREQ / maxFreqShowing), 4);
+        dx *= ratio;
+        p = 1 - (wheel.deltaY * ratio);
         leftSideOfWindow = t - (leftChunkSize * p) + dx;
         rightSideOfWindow = t + (rightChunkSize * p) + dx;
     }
     
     minFreqShowing = frequencyAtTime (leftSideOfWindow);
     maxFreqShowing = frequencyAtTime (rightSideOfWindow);
+    
+    std::cout << "minFreqShowing: " << minFreqShowing << std::endl;
+    std::cout << "maxFreqShowing: " << maxFreqShowing << std::endl;
 }
 
 void CabinEQPage::sliderValueChanged (juce::Slider *slider)
@@ -226,6 +229,9 @@ void CabinEQPage::timerCallback()
 {
     rubberbandIfNotScrolling();
     repaint();
+    
+    if (isScrollingTimer > 0)
+        isScrollingTimer--;
 }
 
 // ===================================================
@@ -320,32 +326,44 @@ void CabinEQPage::updateSelectedDotSize()
 
 void CabinEQPage::rubberbandIfNotScrolling()
 {
-    if (isScrolling)
+    if (isScrollingTimer > 0)
         return;
     
-    std::cout << "not scrolling no more" << std::endl;
+    
     float t_minFreqShowing = timeAtFrequency (minFreqShowing);
     float t_maxFreqShowing = timeAtFrequency (maxFreqShowing);
     float t_minFreqShowingAfter = t_minFreqShowing;
     float t_maxFreqShowingAfter = t_maxFreqShowing;
     
+    std::cout << "minFreqShowing: " << minFreqShowing << std::endl;
+    std::cout << "MIN_FREQ: " << MIN_FREQ << std::endl;
+    
+    std::cout << "maxFreqShowing: " << maxFreqShowing << std::endl;
+    std::cout << "MAX_FREQ: " << MAX_FREQ << std::endl;
+//    minFreqShowing = 200;
+//    maxFreqShowing = 2000;
+    
     if (minFreqShowing < MIN_FREQ)
     {
         float t_MIN_FREQ = timeAtFrequency (MIN_FREQ);
-        t_minFreqShowingAfter = (t_minFreqShowing + t_MIN_FREQ) / 2.0f;
+        t_minFreqShowingAfter = (t_minFreqShowing * 2.0f + t_MIN_FREQ) / 3.0f;
         float dt = t_minFreqShowing - t_minFreqShowingAfter;
-        t_maxFreqShowingAfter = t_maxFreqShowing + dt;
+        std::cout << "dt: " << dt << std::endl;
+        t_maxFreqShowingAfter = t_maxFreqShowing - dt;
+        minFreqShowing = frequencyAtTime (t_minFreqShowingAfter);
+        maxFreqShowing = frequencyAtTime (t_maxFreqShowingAfter);
     }
     if (maxFreqShowing > MAX_FREQ)
     {
         float t_MAX_FREQ = timeAtFrequency (MAX_FREQ);
-        t_maxFreqShowingAfter = (t_maxFreqShowing + t_MAX_FREQ) / 2.0f;
+        t_maxFreqShowingAfter = (t_maxFreqShowing * 2.0f + t_MAX_FREQ) / 3.0f;
         float dt = t_maxFreqShowingAfter - t_maxFreqShowing;
         t_minFreqShowingAfter = t_minFreqShowing + dt;
+        minFreqShowing = frequencyAtTime (t_minFreqShowingAfter);
+        maxFreqShowing = frequencyAtTime (t_maxFreqShowingAfter);
     }
     
-    minFreqShowing = frequencyAtTime (t_minFreqShowingAfter);
-    maxFreqShowing = frequencyAtTime (t_maxFreqShowingAfter);
+    
 }
 
 juce::Colour CabinEQPage::getColorForFrequency(float frequency)

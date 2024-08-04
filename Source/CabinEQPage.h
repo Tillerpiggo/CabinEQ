@@ -71,7 +71,7 @@ private:
     float minFreqShowing = 20.0f;
     float maxFreqShowing = 20000.0f;
     float zoom = 5.0f;
-    float isScrolling = false;
+    float isScrollingTimer = 1;
     
     juce::OpenGLContext openGLContext;
     bool isTestingFreq = false;
