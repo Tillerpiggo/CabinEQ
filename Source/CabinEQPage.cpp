@@ -30,7 +30,11 @@ CabinEQPage::~CabinEQPage()
 
 void CabinEQPage::paint (juce::Graphics& g)
 {
+    float currFreq = processor.getCurrPlayingFreq();
     g.fillAll (juce::Colour::fromFloatRGBA(0.1f, 0.1f, 0.1f, 1.0f));
+    if (currFreq != 1000.0f)
+        g.fillAll (getColorForFrequency (currFreq).withAlpha (0.2f));
+    
     drawCurve (g, processor.getCurve (curveId), 4000);
     drawDots (g);
 }
@@ -54,7 +58,7 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
     }
     else
     {
-//        processor.endTesting();
+        processor.endTesting();
     }
     
     isTestingFreq = false;
@@ -106,7 +110,6 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
             draggingId = processor.addEQNode (freq, ampl, 0.0f, curveId);
         }
         
-//        repaint();
     }
     else
     {
@@ -119,7 +122,6 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
             processor.removeEQNode (draggingEQNode.value().id, curveId);
         }
         
-//        repaint();
         return;
     }
 }
@@ -133,7 +135,6 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
         processor.updateTestingAt (freq, curveId);
 //        processor.updateSineSweep (freq);
 //        processor.updateGreenNoise (freq);
-//        repaint();
         return;
     }
     isTestingFreq = false;
@@ -172,7 +173,6 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
     processor.endCalibratingEQNode();
     draggingId = -1;
-//    repaint();
 }
 
 void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)

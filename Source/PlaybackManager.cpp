@@ -89,6 +89,11 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     hasPreparedFilter = true;
 }
 
+float PlaybackManager::getCurrPlayingFreq() const
+{
+    return arbitrarySequencer.currentlyPlayingFrequency();
+}
+
 float PlaybackManager::getCurrTestingFreq() const
 {
     return testingFreq;
@@ -208,6 +213,7 @@ void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
 void PlaybackManager::stopTestingFreq()
 {
     isTesting = false;
+    arbitrarySequencer.setNotes ({ SequenceableNote (referenceNote, 25000) });
 }
 
 void PlaybackManager::setReferenceVolume (float volume)

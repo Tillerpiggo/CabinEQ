@@ -318,6 +318,11 @@ void StartupMVPAudioProcessor::endCalibratingEQNode()
     playbackManager.setIsCalibrating (false);
 }
 
+float StartupMVPAudioProcessor::getCurrPlayingFreq()
+{
+    return playbackManager.getCurrPlayingFreq();
+}
+
 void StartupMVPAudioProcessor::startTestingAt (float freq, juce::String curveId)
 {
     playbackManager.startTestingFreq (freq, getCurve (curveId));

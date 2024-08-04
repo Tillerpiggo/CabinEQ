@@ -28,6 +28,7 @@ public:
     void updateFilterWithCurve (Curve& curve); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);
     
+    float getCurrPlayingFreq() const;
     float getCurrTestingFreq() const;
     float getCurrSineSweepFreq() const;
     

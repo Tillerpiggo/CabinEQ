@@ -80,6 +80,7 @@ public:
     void startCalibratingEQNode (EQNode eqNode);
     void updateCalibratingEQNode (EQNode eqNode);
     void endCalibratingEQNode();
+    float getCurrPlayingFreq();
     
     // Testing
     void startTestingAt (float freq, juce::String curveId);
