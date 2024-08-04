@@ -15,7 +15,8 @@
 #include "EQNode.h"
 
 class CabinEQPage   : public juce::Component,
-                      public juce::Slider::Listener
+                      public juce::Slider::Listener,
+                      public juce::Timer
 
 {
 public:
@@ -32,6 +33,7 @@ public:
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
     
     void sliderValueChanged (juce::Slider *slider) override;
+    void timerCallback() override;
     
 private:
     StartupMVPAudioProcessor& processor;
@@ -65,4 +67,6 @@ private:
     float minFreqShowing = 20.0f;
     float maxFreqShowing = 20000.0f;
     float zoom = 5.0f;
+    
+    juce::OpenGLContext openGLContext;
 };

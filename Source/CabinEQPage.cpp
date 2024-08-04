@@ -19,10 +19,12 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
     referenceSlider.addListener (this);
     
     updateEQNodes();
+    startTimer (5);
 }
 
 CabinEQPage::~CabinEQPage()
 {
+    openGLContext.detach();
     referenceSlider.removeListener (this);
 }
 
@@ -49,7 +51,7 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
     if (hoveringEQNode.has_value())
         hoveringId = hoveringEQNode.value().id;
     
-    repaint();
+//    repaint();
 }
 
 void CabinEQPage::mouseDown (const juce::MouseEvent& event)
@@ -72,7 +74,7 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
         if (! event.mods.isRightButtonDown() && ampl > -24.0f)
             processor.addEQNode (freq, ampl, 0.0f, curveId);
         
-        repaint();
+//        repaint();
     }
     else
     {
@@ -85,7 +87,7 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
             processor.removeEQNode (draggingEQNode.value().id, curveId);
         }
         
-        repaint();
+//        repaint();
         return;
     }
 }
@@ -99,7 +101,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
         processor.updateTestingAt (freq, curveId);
 //        processor.updateSineSweep (freq);
 //        processor.updateGreenNoise (freq);
-        repaint();
+//        repaint();
         return;
     }
     
@@ -115,7 +117,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     
     processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
     processor.updateCalibratingEQNode (node);
-    repaint();
+//    repaint();
 }
 
 void CabinEQPage::mouseUp (const juce::MouseEvent& event)
@@ -137,7 +139,7 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
     processor.endCalibratingEQNode();
     draggingId = -1;
-    repaint();
+//    repaint();
 }
 
 void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
@@ -162,7 +164,7 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
     if (maxFreqShowing > MAX_FREQ)
         maxFreqShowing = MAX_FREQ;
     
-    repaint();
+//    repaint();
 }
 
 void CabinEQPage::sliderValueChanged (juce::Slider *slider)
@@ -171,6 +173,11 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
     {
         processor.setReferenceVolume (slider->getValue());
     }
+}
+
+void CabinEQPage::timerCallback()
+{
+    repaint();
 }
 
 // ===================================================
@@ -210,7 +217,7 @@ void CabinEQPage::drawCurve(juce::Graphics& g, const Curve& curve, int numPoints
     juce::Path path;
     path.startNewSubPath(0, 0);
     
-    int N = 4000;
+    int N = 200;
     
     for (int i = 0; i < N; ++i)
     {
