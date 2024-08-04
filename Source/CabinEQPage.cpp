@@ -349,6 +349,10 @@ std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForMouseEvent (const j
     float ampl = (1.0f - normalizedY) * 48.0f - 24.0f;
     ampl += -4.5 * std::log2 (freq / 1000.0f);
     
+    // Bound mouse events inside the visible window
+    freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
+    ampl = std::min (std::max (ampl, -24.0f + -4.5f * std::log2 (freq / 1000.0f)), 24.0f + -4.5f * std::log2 (freq / 1000.0f));
+    
     return { freq, ampl };
 }
 
