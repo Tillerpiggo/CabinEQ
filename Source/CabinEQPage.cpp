@@ -146,7 +146,7 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
 {
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
     
-    float p = 1 + (wheel.deltaY);
+    float p = 1 - (wheel.deltaY);
     float dx = wheel.deltaX * -0.3f;
     
     float t = timeAtFrequency (freq);

@@ -60,6 +60,20 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     // don't apply any extra compensation
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency;
     float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency;
+    
+    // Make it render as flat
+    float minNodeFreq = eqNodes[0].frequency;
+    float maxNodeFreq = eqNodes[eqNodes.size() - 1].frequency;
+    float slope = -4.5;
+    float dbDifference = 0;
+    if (frequency < eqNodes[0].frequency)
+        dbDifference = slope * std::log2 (frequency / minNodeFreq);
+    if (frequency > eqNodes[eqNodes.size() - 1].frequency)
+        dbDifference = slope * std::log2 (frequency / maxNodeFreq);
+    leftDB += dbDifference;
+    rightDB += dbDifference;
+    
+    
 
     float leftGain = juce::Decibels::decibelsToGain (leftDB);
     float rightGain = juce::Decibels::decibelsToGain (rightDB);
