@@ -70,10 +70,10 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
         dbDifference = slope * std::log2 (frequency / minNodeFreq);
     if (frequency > eqNodes[eqNodes.size() - 1].frequency)
         dbDifference = slope * std::log2 (frequency / maxNodeFreq);
+    
+//    dbDifference = slope * std::log2 (frequency / 1000.0f);
     leftDB += dbDifference;
     rightDB += dbDifference;
-    
-    
 
     float leftGain = juce::Decibels::decibelsToGain (leftDB);
     float rightGain = juce::Decibels::decibelsToGain (rightDB);
@@ -116,6 +116,32 @@ float Curve::catmullRom(float t, float y0, float y1, float y2, float y3) const
     float y = 0.5f * ((2.f * y1) + (-y0 + y2) * t + (2.f * y0 - 5.f * y1 + 4.f * y2 - y3) * t2 + (-y0 + 3.f * y1 - 3.f * y2 + y3) * t3);
     return y;
 }
+
+/*
+using Point = std::array<float, 2>;
+Point Curve::catmullRom(const Point& P0, const Point& P1, const Point& P2, const Point& P3, double t) {
+    double t2 = t * t;
+    double t3 = t2 * t;
+
+    Point result;
+
+    result[0] = 0.5 * (
+        (2 * P1[0]) +
+        (-P0[0] + P2[0]) * t +
+        (2 * P0[0] - 5 * P1[0] + 4 * P2[0] - P3[0]) * t2 +
+        (-P0[0] + 3 * P1[0] - 3 * P2[0] + P3[0]) * t3
+    );
+
+    result[1] = 0.5 * (
+        (2 * P1[1]) +
+        (-P0[1] + P2[1]) * t +
+        (2 * P0[1] - 5 * P1[1] + 4 * P2[1] - P3[1]) * t2 +
+        (-P0[1] + 3 * P1[1] - 3 * P2[1] + P3[1]) * t3
+    );
+
+    return result;
+}
+ */
 
 void Curve::updateWithEQNodes (std::vector<EQNode> eqNodes)
 {
@@ -174,7 +200,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
     if (frequency < eqNodes.at (0).frequency) return values.at (0);
     if (frequency > eqNodes.at(numPoints - 1).frequency) return values.at (numPoints - 1);
     
-    float freq1 = 0, freq2 = 0;
+    float freq0 = 0, freq1 = 0, freq2 = 0, freq3 = 0;
     float gain0 = 0, gain1 = 0, gain2 = 0, gain3 = 0;
     
     for (size_t i = 0; i < numPoints; ++i)
@@ -188,18 +214,27 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
         if (frequency < currFreq)
         {
             freq1 = eqNodes.at(i - 1).frequency;
-            freq2 = eqNodes.at(i).frequency;
             gain1 = values.at(i - 1);
+            freq2 = eqNodes.at(i).frequency;
             gain2 = values.at(i);
             
-            gain0 = (i > 1) ? values.at(i - 2) : gain1;
-            gain3 = (i < numPoints - 1) ? values.at(i + 1) : gain2;
+            gain0 = (i > 1) ? values.at (i - 2) : gain1;
+            freq0 = (i > 1) ? eqNodes.at (i - 2).frequency : freq1;
+            gain3 = (i < numPoints - 1) ? values.at (i + 1) : gain2;
+            freq3 = (i < numPoints - 1) ? eqNodes.at (i + 1).frequency : freq2;
             
             break;
         }
     }
     
-    float t = (frequency - freq1) / (freq2 - freq1);
+    float logMinFreq = std::log(freq1);
+    float logMaxFreq = std::log(freq2);
+    float logFreq = std::log(frequency);
+
+    // Normalize the log frequency
+    float t = (logFreq - logMinFreq) / (logMaxFreq - logMinFreq);
+    
+//    float t = (frequency - freq1) / (freq2 - freq1);
     float gainAtFrequency = catmullRom (t, gain0, gain1, gain2, gain3);
     
     return gainAtFrequency;

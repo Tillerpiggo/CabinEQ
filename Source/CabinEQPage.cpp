@@ -217,7 +217,7 @@ void CabinEQPage::drawCurve(juce::Graphics& g, Curve& curve, int numPoints)
     juce::Path path;
     path.startNewSubPath(0, 0);
     
-    int N = 500;
+    int N = 100;
     
     for (int i = 0; i < N; ++i)
     {
@@ -226,11 +226,15 @@ void CabinEQPage::drawCurve(juce::Graphics& g, Curve& curve, int numPoints)
         float freq = frequencyAtTime(t);
         float ampl = juce::Decibels::gainToDecibels(curve.valueAtFrequency(freq).first.real());
         
+        juce::Point<float> point = coordsForEQNode (freq, ampl);
         path.lineTo(coordsForEQNode(freq, ampl));
+        
+        float dotRadius = 4.0f;
+        g.fillEllipse(point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
     }
     
     // Draw the main line
-    g.strokePath(path, juce::PathStrokeType(2.5f));
+//    g.strokePath(path, juce::PathStrokeType(2.5f));
 }
 
 void CabinEQPage::updateEQNodes()
@@ -326,7 +330,7 @@ juce::Point<float> CabinEQPage::coordsForEQNode (float frequency, float amplitud
     float width = getWidth();
     float height = getHeight();
     
-    amplitude -= -4.5 * std::log2 (frequency / 1000.0f);
+//    amplitude -= -4.5 * std::log2 (frequency / 1000.0f);
     
     float x = width * timeAtFrequency (frequency);
     float y = height * (1.0f - (amplitude + 24.0f) / 48.0f);
@@ -346,7 +350,7 @@ std::pair<float, float> CabinEQPage::frequencyAndAmplitudeForMouseEvent (const j
     float height = getHeight();
     float normalizedY = y / height;
     float ampl = (1.0f - normalizedY) * 48.0f - 24.0f;
-    ampl += -4.5 * std::log2 (freq / 1000.0f);
+//    ampl += -4.5 * std::log2 (freq / 1000.0f);
     
     return { freq, ampl };
 }
