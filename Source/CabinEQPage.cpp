@@ -200,6 +200,8 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
         p = 1 - (wheel.deltaY * ratio);
         leftSideOfWindow = t - (leftChunkSize * p) + dx;
         rightSideOfWindow = t + (rightChunkSize * p) + dx;
+        minFreqShowing = frequencyAtTime (leftSideOfWindow);
+        maxFreqShowing = frequencyAtTime (rightSideOfWindow);
     }
     else if (projectedMaxFreqVal > MAX_FREQ)
     {
@@ -208,13 +210,14 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
         p = 1 - (wheel.deltaY * ratio);
         leftSideOfWindow = t - (leftChunkSize * p) + dx;
         rightSideOfWindow = t + (rightChunkSize * p) + dx;
+        minFreqShowing = frequencyAtTime (leftSideOfWindow);
+        maxFreqShowing = frequencyAtTime (rightSideOfWindow);
     }
-    
-    minFreqShowing = frequencyAtTime (leftSideOfWindow);
-    maxFreqShowing = frequencyAtTime (rightSideOfWindow);
-    
-    std::cout << "minFreqShowing: " << minFreqShowing << std::endl;
-    std::cout << "maxFreqShowing: " << maxFreqShowing << std::endl;
+    else
+    {
+        minFreqShowing = frequencyAtTime (leftSideOfWindow);
+        maxFreqShowing = frequencyAtTime (rightSideOfWindow);
+    }
 }
 
 void CabinEQPage::sliderValueChanged (juce::Slider *slider)
@@ -336,7 +339,7 @@ void CabinEQPage::rubberbandIfNotScrolling()
         float t_MIN_FREQ = timeAtFrequency (MIN_FREQ);
         t_minFreqShowingAfter = (t_minFreqShowing + t_MIN_FREQ) / (2.0f);
         float dt = (t_minFreqShowing - t_minFreqShowingAfter);
-        dt *= (4 - isScrollingTimer) / 10.0f;
+        dt *= std::pow ((4 - isScrollingTimer) / 5.0f, 2.0f);
         t_minFreqShowingAfter = t_minFreqShowing - dt;
         t_maxFreqShowingAfter = t_maxFreqShowing - dt;
         minFreqShowing = frequencyAtTime (t_minFreqShowingAfter);
@@ -347,7 +350,7 @@ void CabinEQPage::rubberbandIfNotScrolling()
         float t_MAX_FREQ = timeAtFrequency (MAX_FREQ);
         t_maxFreqShowingAfter = (t_maxFreqShowing + t_MAX_FREQ) / (2.0f);
         float dt = t_maxFreqShowingAfter - t_maxFreqShowing;
-        dt *= (4 - isScrollingTimer) / 10.0f;
+        dt *= std::pow ((4 - isScrollingTimer) / 5.0f, 2.0f);
         t_minFreqShowingAfter = t_minFreqShowing + dt;
         t_maxFreqShowingAfter = t_maxFreqShowing + dt;
         minFreqShowing = frequencyAtTime (t_minFreqShowingAfter);

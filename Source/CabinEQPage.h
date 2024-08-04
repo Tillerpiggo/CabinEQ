@@ -70,6 +70,8 @@ private:
     
     float minFreqShowing = 20.0f;
     float maxFreqShowing = 20000.0f;
+    float pendingMinFreqShowing = 20.0f;
+    float pendingMaxFreqShowing = 20000.0f;
     float zoom = 5.0f;
     float isScrollingTimer = 3;
     
@@ -77,8 +79,8 @@ private:
     bool isTestingFreq = false;
     
     static constexpr float ANIM_STEP = 1.05f;
-    static constexpr float DOT_SIZE_SELECTED = 8.0f;
-    static constexpr float DOT_SIZE_DRAGGING = 8.0f;
+    static constexpr float DOT_SIZE_SELECTED = 6.4f;
+    static constexpr float DOT_SIZE_DRAGGING = 6.4f;
     static constexpr float DOT_SIZE_DEFAULT = 4.0f;
     static constexpr float CURVE_THICKNESS = 2.5f;
     float selectedDotSize = DOT_SIZE_DEFAULT;
