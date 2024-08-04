@@ -71,17 +71,20 @@ private:
     float minFreqShowing = 20.0f;
     float maxFreqShowing = 20000.0f;
     float zoom = 5.0f;
-    float isScrollingTimer = 1;
+    float isScrollingTimer = 3;
     
     juce::OpenGLContext openGLContext;
     bool isTestingFreq = false;
     
     static constexpr float ANIM_STEP = 1.05f;
-    static constexpr float DOT_SIZE_SELECTED = 6.0f;
-    static constexpr float DOT_SIZE_DRAGGING = 6.0f;
-    static constexpr float DOT_SIZE_DEFAULT = 3.5f;
+    static constexpr float DOT_SIZE_SELECTED = 8.0f;
+    static constexpr float DOT_SIZE_DRAGGING = 8.0f;
+    static constexpr float DOT_SIZE_DEFAULT = 4.0f;
+    static constexpr float CURVE_THICKNESS = 2.5f;
     float selectedDotSize = DOT_SIZE_DEFAULT;
+    
     std::optional<float> targetSelectedDotSize;
     
     const juce::Colour I_LIKE_THE_ORANGE = juce::Colour::fromRGB(255, 180, 0);
+    juce::Colour backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2);
 };

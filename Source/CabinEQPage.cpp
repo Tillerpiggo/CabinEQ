@@ -31,7 +31,7 @@ CabinEQPage::~CabinEQPage()
 void CabinEQPage::paint (juce::Graphics& g)
 {
     float currFreq = processor.getCurrPlayingFreq();
-    g.fillAll (juce::Colour::fromFloatRGBA(0.1f, 0.1f, 0.1f, 1.0f));
+    g.fillAll (juce::Colour::fromFloatRGBA(0.04f, 0.04f, 0.04f, 1.0f));
     if (currFreq != 1000.0f)
         g.fillAll (getColorForFrequency (currFreq).withAlpha (0.2f));
     
@@ -177,7 +177,7 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
-    isScrollingTimer = 1;
+    isScrollingTimer = 3;
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
     
     float p = 1 - (wheel.deltaY);
@@ -230,7 +230,7 @@ void CabinEQPage::timerCallback()
     rubberbandIfNotScrolling();
     repaint();
     
-    if (isScrollingTimer > 0)
+    if (isScrollingTimer > 1)
         isScrollingTimer--;
 }
 
@@ -295,7 +295,7 @@ void CabinEQPage::drawCurve(juce::Graphics& g, Curve& curve, int numPoints)
     }
     
     // Draw the main line
-    g.strokePath(path, juce::PathStrokeType(2.0f));
+    g.strokePath(path, juce::PathStrokeType(CURVE_THICKNESS));
 }
 
 void CabinEQPage::updateEQNodes()
@@ -326,29 +326,18 @@ void CabinEQPage::updateSelectedDotSize()
 
 void CabinEQPage::rubberbandIfNotScrolling()
 {
-    if (isScrollingTimer > 0)
-        return;
-    
-    
     float t_minFreqShowing = timeAtFrequency (minFreqShowing);
     float t_maxFreqShowing = timeAtFrequency (maxFreqShowing);
     float t_minFreqShowingAfter = t_minFreqShowing;
     float t_maxFreqShowingAfter = t_maxFreqShowing;
     
-    std::cout << "minFreqShowing: " << minFreqShowing << std::endl;
-    std::cout << "MIN_FREQ: " << MIN_FREQ << std::endl;
-    
-    std::cout << "maxFreqShowing: " << maxFreqShowing << std::endl;
-    std::cout << "MAX_FREQ: " << MAX_FREQ << std::endl;
-//    minFreqShowing = 200;
-//    maxFreqShowing = 2000;
-    
     if (minFreqShowing < MIN_FREQ)
     {
         float t_MIN_FREQ = timeAtFrequency (MIN_FREQ);
-        t_minFreqShowingAfter = (t_minFreqShowing * 2.0f + t_MIN_FREQ) / 3.0f;
-        float dt = t_minFreqShowing - t_minFreqShowingAfter;
-        std::cout << "dt: " << dt << std::endl;
+        t_minFreqShowingAfter = (t_minFreqShowing + t_MIN_FREQ) / (2.0f);
+        float dt = (t_minFreqShowing - t_minFreqShowingAfter);
+        dt *= (4 - isScrollingTimer) / 10.0f;
+        t_minFreqShowingAfter = t_minFreqShowing - dt;
         t_maxFreqShowingAfter = t_maxFreqShowing - dt;
         minFreqShowing = frequencyAtTime (t_minFreqShowingAfter);
         maxFreqShowing = frequencyAtTime (t_maxFreqShowingAfter);
@@ -356,9 +345,11 @@ void CabinEQPage::rubberbandIfNotScrolling()
     if (maxFreqShowing > MAX_FREQ)
     {
         float t_MAX_FREQ = timeAtFrequency (MAX_FREQ);
-        t_maxFreqShowingAfter = (t_maxFreqShowing * 2.0f + t_MAX_FREQ) / 3.0f;
+        t_maxFreqShowingAfter = (t_maxFreqShowing + t_MAX_FREQ) / (2.0f);
         float dt = t_maxFreqShowingAfter - t_maxFreqShowing;
+        dt *= (4 - isScrollingTimer) / 10.0f;
         t_minFreqShowingAfter = t_minFreqShowing + dt;
+        t_maxFreqShowingAfter = t_maxFreqShowing + dt;
         minFreqShowing = frequencyAtTime (t_minFreqShowingAfter);
         maxFreqShowing = frequencyAtTime (t_maxFreqShowingAfter);
     }
@@ -374,26 +365,26 @@ juce::Colour CabinEQPage::getColorForFrequency(float frequency)
 
     if (freqLogNorm < 0.25f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.4f, 1.0f, 1.0f); // Vibrant blue
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.6f, 1.0f, 1.0f); // Sky blue
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.5f, 1.0f, 1.0f); // Deep blue
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
         segmentLogNorm = freqLogNorm / 0.25f;
     }
     else if (freqLogNorm < 0.5f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.6f, 1.0f, 1.0f); // Sky blue
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.8f, 0.8f, 1.0f); // Teal
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
         segmentLogNorm = (freqLogNorm - 0.25f) / 0.25f;
     }
     else if (freqLogNorm < 0.75f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.8f, 0.8f, 1.0f); // Teal
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.6f, 1.0f); // Turquoise
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
         segmentLogNorm = (freqLogNorm - 0.5f) / 0.25f;
     }
     else
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.6f, 1.0f); // Turquoise
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.4f, 1.0f); // Bright green
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
+        endColor = juce::Colour::fromFloatRGBA(1.0f, 0.6f, 0.0f, 1.0f); // Warm orange
         segmentLogNorm = (freqLogNorm - 0.75f) / 0.25f;
     }
 
@@ -403,8 +394,6 @@ juce::Colour CabinEQPage::getColorForFrequency(float frequency)
 void CabinEQPage::drawDots(juce::Graphics& g)
 {
     eqNodes = processor.getEQNodes(curveId);
-    juce::Colour backgroundColor = juce::Colour::fromFloatRGBA(0.1f, 0.1f, 0.1f, 1.0f); // Dark background color
-    
     for (const auto& node : eqNodes)
     {
         float dbDifference = 0.0f;
