@@ -72,7 +72,9 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     {
         auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
         if (! event.mods.isRightButtonDown() && ampl > -24.0f)
-            processor.addEQNode (freq, ampl, 0.0f, curveId);
+        {
+            draggingId = processor.addEQNode (freq, ampl, 0.0f, curveId);
+        }
         
 //        repaint();
     }

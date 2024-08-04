@@ -71,7 +71,7 @@ public:
     const std::vector<EQNode> getEQNodes (juce::String curveId) const;
     
     // Setting points
-    void addEQNode (float frequency, float amplitude, float pan, juce::String curveId);
+    int addEQNode (float frequency, float amplitude, float pan, juce::String curveId);
     void removeEQNode (int id, juce::String curveId);
     void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId);
     void clearEQNodes (juce::String curveId);

@@ -270,12 +270,12 @@ Curve& StartupMVPAudioProcessor::getCurve (juce::String curveId)
     }
 }
 
-void StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String curveId)
+int StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String curveId)
 {
     if (curveId == HEADPHONE_EQ_ID)
-        headphoneEQValueTree.addEQNode (frequency, amplitude, pan);
+        return headphoneEQValueTree.addEQNode (frequency, amplitude, pan);
     else
-        speakerEQValueTree.addEQNode (frequency, amplitude, pan);
+        return speakerEQValueTree.addEQNode (frequency, amplitude, pan);
 }
 
 void StartupMVPAudioProcessor::removeEQNode (int id, juce::String curveId)
