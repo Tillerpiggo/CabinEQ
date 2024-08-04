@@ -52,7 +52,7 @@ private:
     std::pair<float, float> getNextSample();
     float getCompensationDBAtFrequency (float frequency);
     
-    const int FFT_SIZE = 18;
+    const int FFT_SIZE = 14;
     
     ArbitraryResponseFilter filter;
     juce::dsp::Gain<float> dryGainProcessor;

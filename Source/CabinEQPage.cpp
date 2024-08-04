@@ -195,27 +195,29 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
     
     if (projectedMinFreqVal < MIN_FREQ)
     {
-        float ratio = std::pow ((std::max (minFreqShowing, 0.0f) / MIN_FREQ), 4);
-        dx *= ratio;
-        p = 1 - (wheel.deltaY * ratio);
-        leftSideOfWindow = t - (leftChunkSize * p) + dx;
-        rightSideOfWindow = t + (rightChunkSize * p) + dx;
-        minFreqShowing = frequencyAtTime (leftSideOfWindow);
-        maxFreqShowing = frequencyAtTime (rightSideOfWindow);
+//        float ratio = std::pow ((std::max (minFreqShowing, 0.0f) / MIN_FREQ), 4);
+//        dx *= 0;//ratio;
+//        //leftSideOfWindow = 0;//t - (leftChunkSize * p) + dx;
+//        rightSideOfWindow = std::min (t + (rightChunkSize * p) + dx, MAX_FREQ);
+        minFreqShowing = MIN_FREQ;//frequencyAtTime (leftSideOfWindow);
+//        maxFreqShowing = frequencyAtTime (rightSideOfWindow);
     }
-    else if (projectedMaxFreqVal > MAX_FREQ)
+    if (projectedMaxFreqVal > MAX_FREQ)
     {
-        float ratio = std::pow ((MAX_FREQ / maxFreqShowing), 4);
-        dx *= ratio;
-        p = 1 - (wheel.deltaY * ratio);
-        leftSideOfWindow = t - (leftChunkSize * p) + dx;
-        rightSideOfWindow = t + (rightChunkSize * p) + dx;
-        minFreqShowing = frequencyAtTime (leftSideOfWindow);
-        maxFreqShowing = frequencyAtTime (rightSideOfWindow);
+//        float ratio = std::pow ((MAX_FREQ / maxFreqShowing), 4);
+//        dx *= 0;//ratio;
+//        leftSideOfWindow = std::max (t - (leftChunkSize * p) + dx, MIN_FREQ);
+//        //rightSideOfWindow = 1;//t + (rightChunkSize * p) + dx;
+//        minFreqShowing = frequencyAtTime (leftSideOfWindow);
+        maxFreqShowing = MAX_FREQ;//frequencyAtTime (rightSideOfWindow);
     }
-    else
+    
+    if (projectedMinFreqVal >= MIN_FREQ)
     {
         minFreqShowing = frequencyAtTime (leftSideOfWindow);
+    }
+    if (projectedMaxFreqVal <= MAX_FREQ)
+    {
         maxFreqShowing = frequencyAtTime (rightSideOfWindow);
     }
 }
@@ -230,7 +232,7 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
 
 void CabinEQPage::timerCallback()
 {
-    rubberbandIfNotScrolling();
+    //rubberbandIfNotScrolling();
     repaint();
     
     if (isScrollingTimer > 1)
