@@ -52,13 +52,25 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
         processor.startTestingAt (freq, curveId);
         return;
     }
+    else
+    {
+//        processor.endTesting();
+    }
+    
     isTestingFreq = false;
     
     std::optional<EQNode> hoveringEQNode = getClosestEQNodeToMouseEvent (event);
     if (hoveringEQNode.has_value())
     {
         hoveringId = hoveringEQNode.value().id;
-        targetSelectedDotSize = DOT_SIZE_SELECTED;
+        if (draggingId == -1)
+        {
+            targetSelectedDotSize = DOT_SIZE_SELECTED;
+        }
+        else
+        {
+            targetSelectedDotSize = DOT_SIZE_DRAGGING;
+        }
     }
     else
     {
@@ -83,6 +95,7 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     if (draggingEQNode.has_value())
     {
         draggingId = draggingEQNode.value().id;
+        targetSelectedDotSize = DOT_SIZE_DRAGGING;
     }
     
     if (! draggingEQNode.has_value())
@@ -142,6 +155,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseUp (const juce::MouseEvent& event)
 {
+    isScrolling = false;
     isTestingFreq = false;
     processor.endTesting();
     processor.endCalibratingEQNode();
@@ -165,10 +179,12 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
+    isScrolling = true;
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
     
     float p = 1 - (wheel.deltaY);
     float dx = wheel.deltaX * -0.3f;
+    p = 1;
     
     float t = timeAtFrequency (freq);
     float leftChunkSize = t;
@@ -177,19 +193,25 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
     float leftSideOfWindow = t - (leftChunkSize * p) + dx;
     float rightSideOfWindow = t + (rightChunkSize * p) + dx;
     
+    float projectedMinFreqVal = frequencyAtTime (leftSideOfWindow);
+    float projectedMaxFreqVal = frequencyAtTime (rightSideOfWindow);
+    
+    if (projectedMinFreqVal < MIN_FREQ)
+    {
+        float ratio = std::pow ((std::max (minFreqShowing, 0.0f) / MIN_FREQ), 4);
+        dx *= ratio;
+        leftSideOfWindow = t - (leftChunkSize * p) + dx;
+        rightSideOfWindow = t + (rightChunkSize * p) + dx;
+    }
+    else if (projectedMaxFreqVal > MAX_FREQ)
+    {
+        dx *= (MAX_FREQ / maxFreqShowing) * (MAX_FREQ / maxFreqShowing);
+        leftSideOfWindow = t - (leftChunkSize * p) + dx;
+        rightSideOfWindow = t + (rightChunkSize * p) + dx;
+    }
+    
     minFreqShowing = frequencyAtTime (leftSideOfWindow);
     maxFreqShowing = frequencyAtTime (rightSideOfWindow);
-    
-    if (minFreqShowing < MIN_FREQ)
-    {
-        minFreqShowing = MIN_FREQ;
-    }
-    if (maxFreqShowing > MAX_FREQ)
-    {
-        maxFreqShowing = MAX_FREQ;
-    }
-    
-//    repaint();
 }
 
 void CabinEQPage::sliderValueChanged (juce::Slider *slider)
@@ -202,6 +224,7 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
 
 void CabinEQPage::timerCallback()
 {
+    rubberbandIfNotScrolling();
     repaint();
 }
 
@@ -252,7 +275,7 @@ void CabinEQPage::drawCurve(juce::Graphics& g, Curve& curve, int numPoints)
     juce::Path path;
     path.startNewSubPath(0, 0);
     
-    int N = 200;
+    int N = 300;
     
     for (int i = 0; i < N; ++i)
     {
@@ -276,7 +299,6 @@ void CabinEQPage::updateEQNodes()
 
 void CabinEQPage::updateSelectedDotSize()
 {
-    std::cout << "selectedDotSize: " << selectedDotSize << ", targetSelectedDotSize: " << targetSelectedDotSize.value_or (-1) << std::endl;
     if (targetSelectedDotSize.has_value())
     {
         if (selectedDotSize < targetSelectedDotSize.value())
@@ -294,6 +316,36 @@ void CabinEQPage::updateSelectedDotSize()
             targetSelectedDotSize.reset();
         }
     }
+}
+
+void CabinEQPage::rubberbandIfNotScrolling()
+{
+    if (isScrolling)
+        return;
+    
+    std::cout << "not scrolling no more" << std::endl;
+    float t_minFreqShowing = timeAtFrequency (minFreqShowing);
+    float t_maxFreqShowing = timeAtFrequency (maxFreqShowing);
+    float t_minFreqShowingAfter = t_minFreqShowing;
+    float t_maxFreqShowingAfter = t_maxFreqShowing;
+    
+    if (minFreqShowing < MIN_FREQ)
+    {
+        float t_MIN_FREQ = timeAtFrequency (MIN_FREQ);
+        t_minFreqShowingAfter = (t_minFreqShowing + t_MIN_FREQ) / 2.0f;
+        float dt = t_minFreqShowing - t_minFreqShowingAfter;
+        t_maxFreqShowingAfter = t_maxFreqShowing + dt;
+    }
+    if (maxFreqShowing > MAX_FREQ)
+    {
+        float t_MAX_FREQ = timeAtFrequency (MAX_FREQ);
+        t_maxFreqShowingAfter = (t_maxFreqShowing + t_MAX_FREQ) / 2.0f;
+        float dt = t_maxFreqShowingAfter - t_maxFreqShowing;
+        t_minFreqShowingAfter = t_minFreqShowing + dt;
+    }
+    
+    minFreqShowing = frequencyAtTime (t_minFreqShowingAfter);
+    maxFreqShowing = frequencyAtTime (t_maxFreqShowingAfter);
 }
 
 juce::Colour CabinEQPage::getColorForFrequency(float frequency)
@@ -350,11 +402,11 @@ void CabinEQPage::drawDots(juce::Graphics& g)
 //            dotColor = dotColor.brighter();
         }
         
-        if (node.id == draggingId)
-        {
-            dotRadius = DOT_SIZE_SELECTED * 0.92;
-//            dotColor = I_LIKE_THE_ORANGE;
-        }
+//        if (node.id == draggingId)
+//        {
+//            dotRadius = DOT_SIZE_SELECTED * 0.9;
+////            dotColor = I_LIKE_THE_ORANGE;
+//        }
             
         updateSelectedDotSize();
         
@@ -454,11 +506,6 @@ float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNo
     float xDist = (std::abs (timeAtFrequency (freq) - timeAtFrequency (eqNode.frequency))) * 39;
     float yDist = std::abs (ampl - eqNode.amplitude) * 0.5;
     float dist = std::sqrt (xDist * xDist + yDist * yDist);
-    
-    if (dist < 0.5f)
-    {
-        std::cout << "eqNode freq: " << timeAtFrequency (eqNode.frequency) << " freq: " << timeAtFrequency (freq) << ", xDist: " << xDist << ", yDist: " << yDist << std::endl;
-    }
     
     return dist;
 }

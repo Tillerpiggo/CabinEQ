@@ -164,6 +164,12 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
 {
+    if (isTesting)
+    {
+        updateTestingFreq (freq, curve);
+        return;
+    }
+    
     int noteDurationInSamples = 25000;
     isTesting = true;
     
