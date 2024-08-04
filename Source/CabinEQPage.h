@@ -79,4 +79,6 @@ private:
     static constexpr float DOT_SIZE_DEFAULT = 3.5f;
     float selectedDotSize = DOT_SIZE_DEFAULT;
     std::optional<float> targetSelectedDotSize;
+    
+    const juce::Colour I_LIKE_THE_ORANGE = juce::Colour::fromRGB(255, 180, 0);
 };

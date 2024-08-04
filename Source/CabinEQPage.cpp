@@ -236,6 +236,16 @@ void CabinEQPage::drawCurve(juce::Graphics& g, Curve& curve, int numPoints)
     gradient.addColour(quarterFreqX / getWidth(), getColorForFrequency(std::pow(10, quarterFreqLog)));
     gradient.addColour(halfFreqX / getWidth(), getColorForFrequency(std::pow(10, halfFreqLog)));
     gradient.addColour(threeQuarterFreqX / getWidth(), getColorForFrequency(std::pow(10, threeQuarterFreqLog)));
+    
+//    if (draggingId != -1)
+//    {
+//        EQNode node (0, 0, 0, 0);
+//        for (const auto& eqNode : eqNodes)
+//            if (eqNode.id == draggingId)
+//                node = eqNode;
+//        float xVal = timeAtFrequency (node.frequency);
+//        gradient.addColour (xVal, I_LIKE_THE_ORANGE);
+//    }
 
     g.setGradientFill(gradient);
 
@@ -337,7 +347,15 @@ void CabinEQPage::drawDots(juce::Graphics& g)
         if (node.id == hoveringId)
         {
             dotRadius = selectedDotSize;
+//            dotColor = dotColor.brighter();
         }
+        
+        if (node.id == draggingId)
+        {
+            dotRadius = DOT_SIZE_SELECTED * 0.92;
+//            dotColor = I_LIKE_THE_ORANGE;
+        }
+            
         updateSelectedDotSize();
         
         float dotPadding = 3.0f;
@@ -345,13 +363,14 @@ void CabinEQPage::drawDots(juce::Graphics& g)
         // Draw background color ellipse (assuming the background color is the same)
         g.setColour(backgroundColor);
         g.fillEllipse(point.x - dotRadius - dotPadding, point.y - dotRadius - dotPadding, (dotRadius + dotPadding) * 2, (dotRadius + dotPadding) * 2);
+        
+        //dotColor.withSaturation (245);// Bright orange for dragging
 
         // Draw the dot
         g.setColour(dotColor);
         g.fillEllipse(point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
         
-        if (node.id == draggingId)
-            dotColor = juce::Colour::fromFloatRGBA(1.0f, 0.6f, 0.0f, 1.0f); // Bright orange for dragging
+        
     }
     
     // Draw the testing frequency dot
