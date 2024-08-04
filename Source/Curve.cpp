@@ -38,8 +38,13 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     return { leftVal, rightVal };
 }
 
-const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequency (float frequency) const
+const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequency (float frequency)
 {
+    if (cache.find(frequency) != cache.end())
+    {
+        return cache[frequency];
+    }
+    
     std::vector<float> amplitudes;
     std::vector<float> pans;
     
@@ -62,10 +67,12 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, 0.0f);
     
+    cache[frequency] = { leftVal, rightVal };
+    
     return { leftVal, rightVal };
 }
 
-const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t) const
+const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t)
 {
     return compensatedValueAtFrequency (t * 22050, -4.5);
 }
@@ -75,7 +82,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::scaleComplexPai
     return { pair.first * scalar, pair.second * scalar };
 }
 
-const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t) const
+const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t)
 {
     float minFreq = 20;
     float maxFreq = 22050;
@@ -104,9 +111,10 @@ void Curve::updateWithEQNodes (std::vector<EQNode> eqNodes)
     });
     
     this->eqNodes = eqNodes;
+    cache.clear();
 }
 
-const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size) const
+const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size)
 {
     // Perform an IFFT on the desired frequency response
     juce::dsp::FFT fft (fft_size);
@@ -183,7 +191,7 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
     return gainAtFrequency;
 }
 
-std::pair<float*, float*> Curve::frequencyResponse (int numPoints) const
+std::pair<float*, float*> Curve::frequencyResponse (int numPoints)
 {
     float maxFreq = 60.0f;
     float minFreq = -48.0f;

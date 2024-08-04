@@ -44,7 +44,7 @@ private:
     static constexpr float MIN_FREQ = 20.0f;
     static constexpr float MAX_FREQ = 20000.0f;
     
-    void drawCurve (juce::Graphics& g, const Curve& curve, int numPoints);
+    void drawCurve (juce::Graphics& g, Curve& curve, int numPoints);
     juce::Colour getColorForFrequency(float frequency);
     void drawDots (juce::Graphics& g);
     juce::Point<float> coordsForEQNode (float frequency, float amplitude);

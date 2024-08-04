@@ -77,7 +77,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     }
 }
 
-void PlaybackManager::updateFilterWithCurve (const Curve& curve)
+void PlaybackManager::updateFilterWithCurve (Curve& curve)
 {
     filter.updateWithCurve (curve, FFT_SIZE);
 }
@@ -162,7 +162,7 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
     arbitrarySequencer.changeNoteAtIdx (1, note2.note());
 }
 
-void PlaybackManager::startTestingFreq (float freq, const Curve& curve)
+void PlaybackManager::startTestingFreq (float freq, Curve& curve)
 {
     int noteDurationInSamples = 25000;
     isTesting = true;
@@ -181,7 +181,7 @@ void PlaybackManager::startTestingFreq (float freq, const Curve& curve)
     testingFreq = freq;
 }
 
-void PlaybackManager::updateTestingFreq (float freq, const Curve& curve)
+void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
 {
     int noteDurationInSamples = 25000;
     

@@ -181,7 +181,7 @@ void CabinEQPage::timerCallback()
 }
 
 // ===================================================
-void CabinEQPage::drawCurve(juce::Graphics& g, const Curve& curve, int numPoints)
+void CabinEQPage::drawCurve(juce::Graphics& g, Curve& curve, int numPoints)
 {
     float minFreqLog = std::log10(minFreqShowing);
     float maxFreqLog = std::log10(maxFreqShowing);
@@ -217,7 +217,7 @@ void CabinEQPage::drawCurve(juce::Graphics& g, const Curve& curve, int numPoints
     juce::Path path;
     path.startNewSubPath(0, 0);
     
-    int N = 200;
+    int N = 500;
     
     for (int i = 0; i < N; ++i)
     {

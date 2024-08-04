@@ -22,7 +22,7 @@ public:
     ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier);
     
     const std::vector<EQNode> getEQNodes() const; // constructs set points matching the set points we have in memory
-    const Curve& getCurve() const;
+    Curve& getCurve();
     
     void addEQNode (const int id, const float frequency, const float amplitude, const float pan);
     int addEQNode (const float frequency, const float amplitude, const float pan); // returns id of new node

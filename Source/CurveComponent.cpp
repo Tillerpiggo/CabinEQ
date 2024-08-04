@@ -10,7 +10,7 @@
 
 #include "CurveComponent.h"
 
-CurveComponent::CurveComponent (const Curve& curve, const Curve& curve2) : curve (curve), curve2 (curve2)
+CurveComponent::CurveComponent (Curve& curve, Curve& curve2) : curve (curve), curve2 (curve2)
 {
     drawTrueFrequencyResponse();
 }

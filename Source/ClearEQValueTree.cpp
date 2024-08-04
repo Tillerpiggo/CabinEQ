@@ -32,7 +32,7 @@ const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
     return eqNodes;
 }
 
-const Curve& ClearEQValueTree::getCurve() const
+Curve& ClearEQValueTree::getCurve()
 {
     return curve;
 }

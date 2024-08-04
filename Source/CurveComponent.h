@@ -16,7 +16,7 @@
 class CurveComponent : public juce::Component
 {
 public:
-    CurveComponent (const Curve& curve, const Curve& curve2);
+    CurveComponent (Curve& curve, Curve& curve2);
     CurveComponent& operator=(CurveComponent&& other) noexcept {
         return *this;
     }
@@ -27,8 +27,8 @@ public:
     void drawTrueFrequencyResponse();
     
 private:
-    const Curve& curve;
-    const Curve& curve2;
+    Curve& curve;
+    Curve& curve2;
     std::vector<float> trueFreqResponse;
     
     int fftSize = 12;

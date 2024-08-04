@@ -258,7 +258,7 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
-const Curve& StartupMVPAudioProcessor::getCurve (juce::String curveId) const
+Curve& StartupMVPAudioProcessor::getCurve (juce::String curveId)
 {
     if (curveId == HEADPHONE_EQ_ID)
     {
