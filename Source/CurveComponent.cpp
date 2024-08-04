@@ -9,7 +9,7 @@
 */
 
 #include "CurveComponent.h"
-
+/*
 CurveComponent::CurveComponent (Curve& curve, Curve& curve2) : curve (curve), curve2 (curve2)
 {
     drawTrueFrequencyResponse();
@@ -74,7 +74,7 @@ void CurveComponent::paint (juce::Graphics& g)
         trueFreqResponsePath.lineTo (endX, endY);
     }
     g.strokePath (trueFreqResponsePath, juce::PathStrokeType (1.0f));
-     */
+    
 }
 
 void CurveComponent::resized()
@@ -123,3 +123,4 @@ void CurveComponent::drawTrueFrequencyResponse()
     delete[] rightImpulseResponse;
     delete[] zeroPaddedImpulse;
 }
+*/

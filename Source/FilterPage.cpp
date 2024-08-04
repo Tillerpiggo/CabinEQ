@@ -11,7 +11,7 @@
 #include "FilterPage.h"
 
 FilterPage::FilterPage (StartupMVPAudioProcessor& p)
-    : processor(p), curveComponent(p.getCurve ("HeadphoneEQ"), p.getCurve ("SpeakerEQ")), isBypassed (false), isHeadphoneEQSelected (true)
+    : processor(p), isBypassed (false), isHeadphoneEQSelected (true)
 {
     balanceSlider.setRange(-12.0, 12.0);
     balanceSlider.setTextValueSuffix(" dB");
@@ -21,8 +21,7 @@ FilterPage::FilterPage (StartupMVPAudioProcessor& p)
     applyFilterButton.addListener(this);
     bypassButton.addListener(this);
     balanceSlider.addListener(this);
-
-    addAndMakeVisible(curveComponent);
+    
     addAndMakeVisible(applyFilterButton);
     addAndMakeVisible(bypassButton);
     addAndMakeVisible(balanceSlider);
@@ -43,8 +42,6 @@ void FilterPage::resized()
     auto buttonHeight = 100;
     auto sliderHeight = 50;
     auto buttonWidth = area.getWidth() / 2;
-
-    curveComponent.setBounds(area.removeFromTop(halfHeight));
 
     auto buttonArea = area.removeFromTop(buttonHeight).reduced(10);
     applyFilterButton.setBounds(buttonArea.removeFromLeft(buttonWidth - 10));

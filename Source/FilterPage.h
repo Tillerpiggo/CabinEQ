@@ -35,8 +35,6 @@ private:
     
     StartupMVPAudioProcessor& processor;
     
-    CurveComponent curveComponent;
-    
     juce::TextButton applyFilterButton { "HeadphoneEQ Inactive" };
     juce::TextButton bypassButton { "Bypass" };
     juce::Slider balanceSlider;

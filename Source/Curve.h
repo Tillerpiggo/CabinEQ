@@ -26,7 +26,6 @@ public:
     const std::pair<std::complex<float>, std::complex<float>> compensatedValueAtFrequency (float frequency, float compensationSlope) const;
     const std::pair<std::complex<float>, std::complex<float>> valueAtFrequency (float frequency);
     const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time);
-    const std::pair<std::complex<float>, std::complex<float>> valueAtNormalizedTime (float time);
     
     float catmullRom (float t, float y0, float y1, float y2, float y3) const;
 //    using Point = std::array<float, 2>;
@@ -39,6 +38,7 @@ public:
 protected:
     const std::pair<std::complex<float>, std::complex<float>> scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const;
     const float interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const;
+    const float visualInterpolateAmplitudeAtFrequency (const float frequency) const; // for display on graph
     std::pair<float*, float*> frequencyResponse (int numPoints);
     
     std::vector<EQNode> eqNodes;

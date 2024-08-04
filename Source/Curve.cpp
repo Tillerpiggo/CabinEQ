@@ -54,26 +54,28 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
         pans.push_back (eqNode.pan);
     }
     
-    float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
-    float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
+    float amplitudeAtFrequency = visualInterpolateAmplitudeAtFrequency(frequency);
+    float panAtFrequency = 0.0f;//interpolateValueAtFrequency (frequency, pans);
     
     // don't apply any extra compensation
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency;
     float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency;
     
-    // Make it render as flat
-    float minNodeFreq = eqNodes[0].frequency;
-    float maxNodeFreq = eqNodes[eqNodes.size() - 1].frequency;
-    float slope = -4.5;
-    float dbDifference = 0;
-    if (frequency < eqNodes[0].frequency)
-        dbDifference = slope * std::log2 (frequency / minNodeFreq);
-    if (frequency > eqNodes[eqNodes.size() - 1].frequency)
-        dbDifference = slope * std::log2 (frequency / maxNodeFreq);
-    
-//    dbDifference = slope * std::log2 (frequency / 1000.0f);
-    leftDB += dbDifference;
-    rightDB += dbDifference;
+//    // Make it render as flat
+//    if (eqNodes.size() > 0)
+//    {
+//        float minNodeFreq = eqNodes[0].frequency;
+//        float maxNodeFreq = eqNodes[eqNodes.size() - 1].frequency;
+//        float slope = -4.5;
+//        float dbDifference = 0;
+//        if (frequency < eqNodes[0].frequency)
+//            dbDifference = slope * std::log2 (frequency / minNodeFreq);
+//        if (frequency > eqNodes[eqNodes.size() - 1].frequency)
+//            dbDifference = slope * std::log2 (frequency / maxNodeFreq);
+//        
+//        leftDB += dbDifference;
+//        rightDB += dbDifference;
+//    }
 
     float leftGain = juce::Decibels::decibelsToGain (leftDB);
     float rightGain = juce::Decibels::decibelsToGain (rightDB);
@@ -94,19 +96,6 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (fl
 const std::pair<std::complex<float>, std::complex<float>> Curve::scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const
 {
     return { pair.first * scalar, pair.second * scalar };
-}
-
-const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtNormalizedTime (float t)
-{
-    float minFreq = 20;
-    float maxFreq = 22050;
-    
-    // Scale logarithmically (should this be here?)
-    float logMinFreq = std::log(minFreq);
-    float logMaxFreq = std::log(maxFreq);
-    float freq = std::exp(logMinFreq + t * (logMaxFreq - logMinFreq));
-    
-    return scaleComplexPair (compensatedValueAtFrequency (freq, -4.5), 1);
 }
 
 float Curve::catmullRom(float t, float y0, float y1, float y2, float y3) const
@@ -233,11 +222,58 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
 
     // Normalize the log frequency
     float t = (logFreq - logMinFreq) / (logMaxFreq - logMinFreq);
-    
-//    float t = (frequency - freq1) / (freq2 - freq1);
     float gainAtFrequency = catmullRom (t, gain0, gain1, gain2, gain3);
     
     return gainAtFrequency;
+}
+
+const float Curve::visualInterpolateAmplitudeAtFrequency (const float frequency) const
+{
+    size_t numPoints = eqNodes.size();
+    
+    auto logCompensation = [](float freq) { return -4.5 * std::log2(freq / 1000); };
+    
+    // Edge case checks
+    if (eqNodes.size() == 0) return 0.0f;
+    if (frequency < eqNodes.at(0).frequency) return eqNodes.at(0).amplitude + logCompensation (frequency) - logCompensation (eqNodes.at(0).frequency);
+    if (frequency > eqNodes.at(numPoints - 1).frequency) return eqNodes.at(numPoints - 1).amplitude + logCompensation (frequency) - logCompensation (eqNodes.at(numPoints - 1).frequency);
+    
+    float freq0 = 0, freq1 = 0, freq2 = 0, freq3 = 0;
+    float gain0 = 0, gain1 = 0, gain2 = 0, gain3 = 0;
+    
+    for (size_t i = 0; i < numPoints; ++i)
+    {
+        float currFreq = eqNodes.at(i).frequency;
+        if (frequency == currFreq)
+        {
+            return eqNodes.at(i).amplitude;
+        }
+        
+        if (frequency < currFreq)
+        {
+            freq1 = eqNodes.at(i - 1).frequency;
+            gain1 = eqNodes.at(i - 1).amplitude - logCompensation(freq1);
+            freq2 = eqNodes.at(i).frequency;
+            gain2 = eqNodes.at(i).amplitude - logCompensation(freq2);
+            
+            freq0 = (i > 1) ? eqNodes.at(i - 2).frequency : freq1 / 2;
+            gain0 = (i > 1) ? eqNodes.at(i - 2).amplitude - logCompensation(freq0) : gain1;
+            freq3 = (i < numPoints - 1) ? eqNodes.at(i + 1).frequency : freq2 * 2;
+            gain3 = (i < numPoints - 1) ? eqNodes.at(i + 1).amplitude - logCompensation(freq3) : gain2;
+            
+            break;
+        }
+    }
+    
+    float logMinFreq = std::log(freq1);
+    float logMaxFreq = std::log(freq2);
+    float logFreq = std::log(frequency);
+
+    // Normalize the log frequency
+    float t = (logFreq - logMinFreq) / (logMaxFreq - logMinFreq);
+    float gainAtFrequency = catmullRom(t, gain0, gain1, gain2, gain3);
+    
+    return gainAtFrequency + logCompensation (frequency);
 }
 
 std::pair<float*, float*> Curve::frequencyResponse (int numPoints)
