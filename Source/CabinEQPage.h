@@ -59,6 +59,9 @@ private:
     
     void updateEQNodes();
     
+    // Animation
+    void updateSelectedDotSize();
+    
     std::vector<EQNode> eqNodes;
     
     int draggingId = -1; // not currently dragging any point
@@ -69,4 +72,11 @@ private:
     float zoom = 5.0f;
     
     juce::OpenGLContext openGLContext;
+    bool isTestingFreq = false;
+    
+    static constexpr float ANIM_STEP = 1.05f;
+    static constexpr float DOT_SIZE_SELECTED = 6.0f;
+    static constexpr float DOT_SIZE_DEFAULT = 3.5f;
+    float selectedDotSize = DOT_SIZE_DEFAULT;
+    std::optional<float> targetSelectedDotSize;
 };

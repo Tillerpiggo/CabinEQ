@@ -45,11 +45,25 @@ void CabinEQPage::resized()
 
 void CabinEQPage::mouseMove (const juce::MouseEvent& event)
 {
-    hoveringId = -1;
+    if (event.mods.isCtrlDown() || event.mods.isAltDown())
+    {
+        isTestingFreq = true;
+        auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
+        processor.startTestingAt (freq, curveId);
+        return;
+    }
+    isTestingFreq = false;
     
     std::optional<EQNode> hoveringEQNode = getClosestEQNodeToMouseEvent (event);
     if (hoveringEQNode.has_value())
+    {
         hoveringId = hoveringEQNode.value().id;
+        targetSelectedDotSize = DOT_SIZE_SELECTED;
+    }
+    else
+    {
+        targetSelectedDotSize = DOT_SIZE_DEFAULT;
+    }
     
 //    repaint();
 }
@@ -58,15 +72,18 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
 {
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
+        isTestingFreq = true;
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
         processor.startTestingAt (freq, curveId);
-        
         return;
     }
+    isTestingFreq = false;
     
     std::optional<EQNode> draggingEQNode = getClosestEQNodeToMouseEvent (event);
     if (draggingEQNode.has_value())
+    {
         draggingId = draggingEQNode.value().id;
+    }
     
     if (! draggingEQNode.has_value())
     {
@@ -98,7 +115,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
 {
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
-        std::cout << "mouse drag!!" << std::endl;
+        isTestingFreq = true;
         auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
         processor.updateTestingAt (freq, curveId);
 //        processor.updateSineSweep (freq);
@@ -106,6 +123,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
 //        repaint();
         return;
     }
+    isTestingFreq = false;
     
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     EQNode node (-1, 0, 0, 0);
@@ -124,6 +142,7 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseUp (const juce::MouseEvent& event)
 {
+    isTestingFreq = false;
     processor.endTesting();
     processor.endCalibratingEQNode();
     processor.endSineSweep();
@@ -162,9 +181,13 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
     maxFreqShowing = frequencyAtTime (rightSideOfWindow);
     
     if (minFreqShowing < MIN_FREQ)
+    {
         minFreqShowing = MIN_FREQ;
+    }
     if (maxFreqShowing > MAX_FREQ)
+    {
         maxFreqShowing = MAX_FREQ;
+    }
     
 //    repaint();
 }
@@ -233,12 +256,34 @@ void CabinEQPage::drawCurve(juce::Graphics& g, Curve& curve, int numPoints)
     }
     
     // Draw the main line
-    g.strokePath(path, juce::PathStrokeType(2.5f));
+    g.strokePath(path, juce::PathStrokeType(2.0f));
 }
 
 void CabinEQPage::updateEQNodes()
 {
     eqNodes = processor.getEQNodes(curveId);
+}
+
+void CabinEQPage::updateSelectedDotSize()
+{
+    std::cout << "selectedDotSize: " << selectedDotSize << ", targetSelectedDotSize: " << targetSelectedDotSize.value_or (-1) << std::endl;
+    if (targetSelectedDotSize.has_value())
+    {
+        if (selectedDotSize < targetSelectedDotSize.value())
+            selectedDotSize *= ANIM_STEP;
+        else
+            selectedDotSize /= ANIM_STEP;
+        
+        if (selectedDotSize > targetSelectedDotSize.value() / ANIM_STEP && selectedDotSize < targetSelectedDotSize.value() * ANIM_STEP)
+        {
+            if (targetSelectedDotSize.value() == DOT_SIZE_DEFAULT) 
+            {
+                hoveringId = -1;
+            }
+            selectedDotSize = targetSelectedDotSize.value();
+            targetSelectedDotSize.reset();
+        }
+    }
 }
 
 juce::Colour CabinEQPage::getColorForFrequency(float frequency)
@@ -288,9 +333,12 @@ void CabinEQPage::drawDots(juce::Graphics& g)
         // Determine color based on frequency
         juce::Colour dotColor = getColorForFrequency(node.frequency);
 
-        float dotRadius = 6.0f;
+        float dotRadius = 3.5f;
         if (node.id == hoveringId)
-            dotRadius = 8.0f;
+        {
+            dotRadius = selectedDotSize;
+        }
+        updateSelectedDotSize();
         
         float dotPadding = 3.0f;
         
@@ -307,21 +355,17 @@ void CabinEQPage::drawDots(juce::Graphics& g)
     }
     
     // Draw the testing frequency dot
-    float freq = processor.getCurrTestingFreq();
-    
-    // Get the color for the testing frequency
-    juce::Colour testDotColor = getColorForFrequency(freq).brighter(0.5f); // Make it brighter
-    
-    const auto& point = coordsForEQNode(freq, juce::Decibels::gainToDecibels(processor.getCurve(curveId).valueAtFrequency(freq).first.real()));
-    float dotRadius = 5.0f;
-    
-    // Draw background color ellipse for testing frequency dot
-    g.setColour(backgroundColor);
-    g.fillEllipse(point.x - dotRadius - 2, point.y - dotRadius - 2, (dotRadius + 2) * 2, (dotRadius + 2) * 2);
-
-    // Draw the testing frequency dot
-    g.setColour(testDotColor);
-    g.fillEllipse(point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
+    if (isTestingFreq)
+    {
+        float freq = processor.getCurrTestingFreq();
+        juce::Colour testDotColor = getColorForFrequency(freq).brighter(0.5f); // Make it brighter
+        const auto& point = coordsForEQNode(freq, juce::Decibels::gainToDecibels(processor.getCurve(curveId).valueAtFrequency(freq).first.real()));
+        float dotRadius = 5.0f;
+        g.setColour(backgroundColor);
+        g.fillEllipse(point.x - dotRadius - 2, point.y - dotRadius - 2, (dotRadius + 2) * 2, (dotRadius + 2) * 2);
+        g.setColour(testDotColor);
+        g.fillEllipse(point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
+    }
 }
 
 juce::Point<float> CabinEQPage::coordsForEQNode (float frequency, float amplitude)
