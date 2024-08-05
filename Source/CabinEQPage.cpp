@@ -31,7 +31,7 @@ CabinEQPage::~CabinEQPage()
 void CabinEQPage::paint (juce::Graphics& g)
 {
     float currFreq = processor.getCurrPlayingFreq();
-    g.fillAll (juce::Colour::fromFloatRGBA(0.04f, 0.04f, 0.04f, 1.0f));
+    g.fillAll (backgroundColor);
     if (currFreq != 1000.0f)
         g.fillAll (getColorForFrequency (currFreq).withAlpha (0.2f));
     
@@ -172,8 +172,13 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
         float tMaxFreq = timeAtFrequency (maxFreqShowing);
         float t = (static_cast<float> (event.getDistanceFromDragStartX()) - lastDistanceFromDragStartX) / getWidth();
         lastDistanceFromDragStartX = static_cast<float> (event.getDistanceFromDragStartX());
-        minFreqShowing = frequencyAtTime (tMinFreq - t);
-        maxFreqShowing = frequencyAtTime (tMaxFreq - t);
+        float projectedMinFreqShowing = frequencyAtTime (tMinFreq - t);
+        float projectedMaxFreqShowing = frequencyAtTime (tMaxFreq - t);
+        if (projectedMinFreqShowing > MIN_FREQ && projectedMaxFreqShowing < MAX_FREQ)
+        {
+            minFreqShowing = projectedMinFreqShowing;
+            maxFreqShowing = projectedMaxFreqShowing;
+        }
     }
 }
 
@@ -415,7 +420,7 @@ juce::Colour CabinEQPage::getColorForFrequency(float frequency)
     else
     {
         startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
-        endColor = juce::Colour::fromFloatRGBA(1.0f, 0.6f, 0.0f, 1.0f); // Warm orange
+        endColor = juce::Colour::fromFloatRGBA(0.7f, 1.0f, 0.3f, 1.0f); // Pastel yellow-green
         segmentLogNorm = (freqLogNorm - 0.75f) / 0.25f;
     }
 
@@ -433,7 +438,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
         // Determine color based on frequency
         juce::Colour dotColor = getColorForFrequency(node.frequency);
 
-        float dotRadius = 3.5f;
+        float dotRadius = DOT_SIZE_DEFAULT;
         if (node.id == hoveringId || node.id == draggingId)
         {
             dotRadius = selectedDotSize;
@@ -441,7 +446,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
             
         updateSelectedDotSize();
         
-        float dotPadding = 3.0f;
+        float dotPadding = DOT_PADDING;
         
         // Draw background color ellipse (assuming the background color is the same)
         g.setColour(backgroundColor);
@@ -473,7 +478,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
     {
         juce::Colour addingDotColor = getColorForFrequency (addingFreq.value()).withAlpha (0.5f);
         const auto& point = coordsForEQNode(addingFreq.value(), juce::Decibels::gainToDecibels(processor.getCurve(curveId).valueAtFrequency(addingFreq.value()).first.real()));
-        float dotRadius = DOT_SIZE_DEFAULT;
+        float dotRadius = DOT_SIZE_SELECTED;
         g.setColour(backgroundColor);
         g.fillEllipse(point.x - dotRadius - 3, point.y - dotRadius - 3, (dotRadius + 3) * 2, (dotRadius + 3) * 2);
         g.setColour(addingDotColor);

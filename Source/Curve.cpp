@@ -234,7 +234,7 @@ const float Curve::visualInterpolateAmplitudeAtFrequency (const float frequency)
     auto logCompensation = [](float freq) { return -4.5 * std::log2(freq / 1000); };
     
     // Edge case checks
-    if (eqNodes.size() == 0) return 0.0f;
+    if (eqNodes.size() == 0) return logCompensation (frequency);
     if (frequency < eqNodes.at(0).frequency) return eqNodes.at(0).amplitude + logCompensation (frequency) - logCompensation (eqNodes.at(0).frequency);
     if (frequency > eqNodes.at(numPoints - 1).frequency) return eqNodes.at(numPoints - 1).amplitude + logCompensation (frequency) - logCompensation (eqNodes.at(numPoints - 1).frequency);
     
