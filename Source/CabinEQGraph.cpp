@@ -107,12 +107,46 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
 
 void CabinEQGraph::mouseDrag (const juce::MouseEvent &event)
 {
+    // Useful constants
+    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
+    // If we're dragging a node, update it to our mouse position
+    listener->updateNode (draggingId, freq, ampl);
+    listener->playValueAt (freq, ampl);
+    
+    // If we're not dragging a node, we're dragging in the blackspace and should drag the curve itself
+    if (draggingId == -1)
+    {
+        float minFreqShowing_t = timeAtFrequency (minFreqShowing);
+        float maxFreqShowing_t = timeAtFrequency (maxFreqShowing);
+        float dt = (static_cast<float> (event.getDistanceFromDragStartX()) / - lastDistanceFromDragStartX) / getWidth();
+        
+        float projectedMinFreqShowing = frequencyAtTime (minFreqShowing_t - dt);
+        float projectedMaxFreqShowing = frequencyAtTime (maxFreqShowing_t - dt);
+        
+        // Apply changes if we are within the bounds
+        if (projectedMinFreqShowing >= MIN_FREQ &&
+            projectedMaxFreqShowing <= MAX_FREQ)
+        {
+            minFreqShowing = projectedMinFreqShowing;
+            maxFreqShowing = projectedMaxFreqShowing;
+        }
+    }
 }
 
 void CabinEQGraph::mouseUp (const juce::MouseEvent &event)
 {
+    // Useful constants
+    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
+    // Update dragging node a final time
+    listener->updateNode (draggingId, freq, ampl);
+    
+    // Change the dot size
+    targetSelectedDotSize = DOT_SIZE_DEFAULT;
+    
+    // We stopped dragging, so stop playing tones
+    listener->stopPlaying();
 }
 
 void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
@@ -127,7 +161,7 @@ void CabinEQGraph::timerCallback()
 
 void CabinEQGraph::addListener (CabinEQGraphListener* listener)
 {
-    this->listener = listener
+    this->listener = listener;
 }
 
 void CabinEQGraph::removeListener()
