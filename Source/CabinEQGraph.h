@@ -14,6 +14,23 @@
 #include "PluginProcessor.h"
 #include "EQNode.h"
 
+class CabinEQGraphListener
+{
+public:
+    virtual ~CabinEQGraphListener() = default;
+
+    virtual int addNode (float freq, float ampl);
+    virtual void updateNode (int id, float freq, float ampl);
+    virtual void removeNode (int id);
+    virtual void playValueAt (float freq, float ampl); // the tone while dragging nodes
+    virtual void testValueAt (float freq); // for probing
+    virtual void stopPlaying(); // stops playing the calibration tones
+    virtual void stopTesting(); // stops playing the testing tones (that are played when holding down ctrl/alt)
+    
+    virtual std::vector<EQNode> getEQNodes();
+    virtual float getCurrPlayingFreq();
+};
+
 class CabinEQGraph   : public juce::Component,
                        public juce::Timer
 
@@ -33,9 +50,13 @@ public:
     
     void timerCallback() override;
     
+    void addListener (CabinEQGraphListener* listener);
+    void removeListener();
+    
 private:
     Curve& curve;
     std::vector<EQNode> eqNodes;
+    CabinEQGraphListener* listener;
     
     // Drawing/animation
     void drawCurve (juce::Graphics& g, Curve& curve, int numPoints);
