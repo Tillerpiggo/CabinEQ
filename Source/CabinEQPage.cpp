@@ -185,6 +185,8 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
     processor.endCalibratingEQNode();
     draggingId = -1;
+    
+    targetSelectedDotSize = DOT_SIZE_DEFAULT;
 }
 
 void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)

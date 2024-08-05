@@ -80,7 +80,7 @@ private:
     bool isTestingFreq = false;
     
     static constexpr float ANIM_STEP = 1.05f;
-    static constexpr float DOT_SIZE_SELECTED = 6.4f;
+    static constexpr float DOT_SIZE_SELECTED = 4.5f;
     static constexpr float DOT_SIZE_DRAGGING = 6.4f;
     static constexpr float DOT_SIZE_DEFAULT = 4.0f;
     static constexpr float CURVE_THICKNESS = 2.5f;
@@ -91,6 +91,6 @@ private:
     const juce::Colour I_LIKE_THE_ORANGE = juce::Colour::fromRGB(255, 180, 0);
     juce::Colour backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2);
     
-    static constexpr float DIST_TO_ADD_DB = 0.5f;
+    static constexpr float DIST_TO_ADD_DB = 0.8f;
     std::optional<float> addingFreq;
 };
