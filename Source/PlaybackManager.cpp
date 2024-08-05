@@ -186,8 +186,9 @@ void PlaybackManager::startTestingFreq (float freq, Curve& curve)
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
-    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+    arbitrarySequencer.setNotes ({ note1, note2 });
+//    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
+//    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
     
     testingFreq = freq;
 }

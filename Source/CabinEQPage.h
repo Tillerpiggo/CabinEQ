@@ -92,7 +92,7 @@ private:
     const juce::Colour I_LIKE_THE_ORANGE = juce::Colour::fromRGB(255, 180, 0);
     juce::Colour backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2);
     
-    static constexpr float DIST_TO_ADD_DB = 1.5f;
+    static constexpr float DIST_TO_ADD_DB = 1.0f;
     std::optional<float> addingFreq;
     
     float lastDistanceFromDragStartX = 0;

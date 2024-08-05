@@ -32,11 +32,6 @@ void CabinEQPage::paint (juce::Graphics& g)
 {
     float currFreq = processor.getCurrPlayingFreq();
     g.fillAll (backgroundColor);
-    if (currFreq != 1000.0f)
-        backgroundColor = getColorForFrequency (currFreq).darker (0.8f);
-    else
-        backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2);
-    
     drawCurve (g, processor.getCurve (curveId), 4000);
     drawDots (g);
 }
@@ -447,6 +442,15 @@ void CabinEQPage::drawDots (juce::Graphics& g)
         if (node.id == hoveringId || node.id == draggingId)
         {
             dotRadius = selectedDotSize;
+            if (processor.getCurrPlayingFreq() != 1000.0f)
+            {
+                dotColor = dotColor.interpolatedWith(juce::Colours::orange, 0.5);
+                targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
+            }
+            else
+            {
+                targetSelectedDotSize = DOT_SIZE_DRAGGING;
+            }
         }
             
         updateSelectedDotSize();
@@ -482,6 +486,10 @@ void CabinEQPage::drawDots (juce::Graphics& g)
     if (addingFreq.has_value())
     {
         juce::Colour addingDotColor = getColorForFrequency (addingFreq.value()).withAlpha (0.5f);
+        if (processor.getCurrPlayingFreq() != 1000.0f)
+        {
+            addingDotColor = addingDotColor.withHue (60);
+        }
         const auto& point = coordsForEQNode(addingFreq.value(), juce::Decibels::gainToDecibels(processor.getCurve(curveId).valueAtFrequency(addingFreq.value()).first.real()));
         float dotRadius = DOT_SIZE_DEFAULT;
         g.setColour(backgroundColor);
