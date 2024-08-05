@@ -76,46 +76,19 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
             targetSelectedDotSize = DOT_SIZE_DRAGGING;
         }
         
-        if (addingNodeId.has_value())
-        {
-            if (hoveringId == addingNodeId.value())
-            {
-                hoveringId = -1;
-            }
-            else
-            {
-                processor.removeEQNode (addingNodeId.value(), curveId);
-                addingNodeId.reset();
-            }
-        }
+        if (addingFreq.has_value())
+            addingFreq.reset();
     }
     else
     {
-        targetSelectedDotSize = DOT_SIZE_DEFAULT;
-        if (dbDistanceFromCurve (freq, ampl) < DIST_TO_ADD_DB)
+        if (dbDistanceFromCurve (freq, ampl) <= DIST_TO_ADD_DB)
         {
-            if (! addingNodeId.has_value())
-            {
-                addingNodeId = processor.addEQNode (freq, ampl, 0.0f, curveId);
-            }
-            else
-            {
-                processor.updateEQNode (addingNodeId.value(), freq, ampl, 0.0f, curveId);
-            }
+            addingFreq = freq;
         }
         else
         {
-            if (addingNodeId.has_value())
-            {
-                processor.removeEQNode (addingNodeId.value(), curveId);
-                addingNodeId.reset();
-            }
+            addingFreq.reset();
         }
-    }
-    
-    if (addingNodeId.has_value())
-    {
-        processor.updateEQNode (addingNodeId.value(), freq, ampl, 0.0f, curveId);
     }
     
 //    repaint();
@@ -449,10 +422,6 @@ void CabinEQPage::drawDots(juce::Graphics& g)
             dotRadius = selectedDotSize;
 //            dotColor = dotColor.brighter();
         }
-        else if (node.id == addingNodeId.value_or (-1))
-        {
-            dotColor = dotColor.darker();
-        }
         
 //        if (node.id == draggingId)
 //        {
@@ -487,6 +456,17 @@ void CabinEQPage::drawDots(juce::Graphics& g)
         g.setColour(backgroundColor);
         g.fillEllipse(point.x - dotRadius - 2, point.y - dotRadius - 2, (dotRadius + 2) * 2, (dotRadius + 2) * 2);
         g.setColour(testDotColor);
+        g.fillEllipse(point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
+    }
+    
+    if (addingFreq.has_value())
+    {
+        juce::Colour addingDotColor = getColorForFrequency (addingFreq.value()).withAlpha (0.5f);
+        const auto& point = coordsForEQNode(addingFreq.value(), juce::Decibels::gainToDecibels(processor.getCurve(curveId).valueAtFrequency(addingFreq.value()).first.real()));
+        float dotRadius = 5.0f;
+        g.setColour(backgroundColor);
+        g.fillEllipse(point.x - dotRadius - 2, point.y - dotRadius - 2, (dotRadius + 2) * 2, (dotRadius + 2) * 2);
+        g.setColour(addingDotColor);
         g.fillEllipse(point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
     }
 }
