@@ -93,4 +93,6 @@ private:
     
     static constexpr float DIST_TO_ADD_DB = 0.8f;
     std::optional<float> addingFreq;
+    
+    float lastDistanceFromDragStartX = 0;
 };

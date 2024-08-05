@@ -97,6 +97,7 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
 
 void CabinEQPage::mouseDown (const juce::MouseEvent& event)
 {
+    lastDistanceFromDragStartX = 0;
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
         isTestingFreq = true;
@@ -163,6 +164,17 @@ void CabinEQPage::mouseDrag (const juce::MouseEvent& event)
     
     processor.updateEQNode (draggingId, freq, ampl, node.pan, curveId);
     processor.updateCalibratingEQNode (node);
+    
+    // Drag white space if we aren't dragging a point
+    if (draggingId == -1)
+    {
+        float tMinFreq = timeAtFrequency (minFreqShowing);
+        float tMaxFreq = timeAtFrequency (maxFreqShowing);
+        float t = (static_cast<float> (event.getDistanceFromDragStartX()) - lastDistanceFromDragStartX) / getWidth();
+        lastDistanceFromDragStartX = static_cast<float> (event.getDistanceFromDragStartX());
+        minFreqShowing = frequencyAtTime (tMinFreq - t);
+        maxFreqShowing = frequencyAtTime (tMaxFreq - t);
+    }
 }
 
 void CabinEQPage::mouseUp (const juce::MouseEvent& event)
