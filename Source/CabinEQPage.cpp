@@ -63,6 +63,7 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
     
     isTestingFreq = false;
     
+    hoveringId = -1;
     std::optional<EQNode> hoveringEQNode = getClosestEQNodeToMouseEvent (event);
     if (hoveringEQNode.has_value())
     {
@@ -118,6 +119,8 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
         if (! event.mods.isRightButtonDown() && ampl > -24.0f && dbDistanceFromCurve (freq, ampl) < DIST_TO_ADD_DB)
         {
             draggingId = processor.addEQNode (freq, ampl, 0.0f, curveId);
+            targetSelectedDotSize = DOT_SIZE_DRAGGING;
+            addingFreq.reset();
         }
     }
     else
@@ -405,7 +408,7 @@ juce::Colour CabinEQPage::getColorForFrequency(float frequency)
     return startColor.interpolatedWith(endColor, segmentLogNorm);
 }
 
-void CabinEQPage::drawDots(juce::Graphics& g)
+void CabinEQPage::drawDots (juce::Graphics& g)
 {
     eqNodes = processor.getEQNodes(curveId);
     for (const auto& node : eqNodes)
@@ -417,17 +420,10 @@ void CabinEQPage::drawDots(juce::Graphics& g)
         juce::Colour dotColor = getColorForFrequency(node.frequency);
 
         float dotRadius = 3.5f;
-        if (node.id == hoveringId)
+        if (node.id == hoveringId || node.id == draggingId)
         {
             dotRadius = selectedDotSize;
-//            dotColor = dotColor.brighter();
         }
-        
-//        if (node.id == draggingId)
-//        {
-//            dotRadius = DOT_SIZE_SELECTED * 0.9;
-////            dotColor = I_LIKE_THE_ORANGE;
-//        }
             
         updateSelectedDotSize();
         
@@ -463,9 +459,9 @@ void CabinEQPage::drawDots(juce::Graphics& g)
     {
         juce::Colour addingDotColor = getColorForFrequency (addingFreq.value()).withAlpha (0.5f);
         const auto& point = coordsForEQNode(addingFreq.value(), juce::Decibels::gainToDecibels(processor.getCurve(curveId).valueAtFrequency(addingFreq.value()).first.real()));
-        float dotRadius = 5.0f;
+        float dotRadius = DOT_SIZE_DEFAULT;
         g.setColour(backgroundColor);
-        g.fillEllipse(point.x - dotRadius - 2, point.y - dotRadius - 2, (dotRadius + 2) * 2, (dotRadius + 2) * 2);
+        g.fillEllipse(point.x - dotRadius - 3, point.y - dotRadius - 3, (dotRadius + 3) * 2, (dotRadius + 3) * 2);
         g.setColour(addingDotColor);
         g.fillEllipse(point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
     }
