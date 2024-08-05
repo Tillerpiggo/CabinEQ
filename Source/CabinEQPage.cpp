@@ -33,7 +33,9 @@ void CabinEQPage::paint (juce::Graphics& g)
     float currFreq = processor.getCurrPlayingFreq();
     g.fillAll (backgroundColor);
     if (currFreq != 1000.0f)
-        g.fillAll (getColorForFrequency (currFreq).withAlpha (0.2f));
+        backgroundColor = getColorForFrequency (currFreq).darker (0.8f);
+    else
+        backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2);
     
     drawCurve (g, processor.getCurve (curveId), 4000);
     drawDots (g);
@@ -121,10 +123,13 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
         {
             draggingId = processor.addEQNode (freq, ampl, 0.0f, curveId);
             targetSelectedDotSize = DOT_SIZE_DRAGGING;
+            processor.startCalibratingEQNode (EQNode (draggingId, freq, ampl, 0.0f));
             addingFreq.reset();
         }
     }
-    else
+    
+    // The previous if statement can make draggingEQNode have value...
+    if (draggingEQNode.has_value())
     {
         if (! event.mods.isRightButtonDown())
         {
@@ -478,7 +483,7 @@ void CabinEQPage::drawDots (juce::Graphics& g)
     {
         juce::Colour addingDotColor = getColorForFrequency (addingFreq.value()).withAlpha (0.5f);
         const auto& point = coordsForEQNode(addingFreq.value(), juce::Decibels::gainToDecibels(processor.getCurve(curveId).valueAtFrequency(addingFreq.value()).first.real()));
-        float dotRadius = DOT_SIZE_SELECTED;
+        float dotRadius = DOT_SIZE_DEFAULT;
         g.setColour(backgroundColor);
         g.fillEllipse(point.x - dotRadius - 3, point.y - dotRadius - 3, (dotRadius + 3) * 2, (dotRadius + 3) * 2);
         g.setColour(addingDotColor);
