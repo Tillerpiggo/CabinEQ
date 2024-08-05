@@ -67,7 +67,7 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
         hoveringId = hoveringEQNode.value().id;
         if (draggingId == -1)
         {
-            targetSelectedDotSize = DOT_SIZE_SELECTED;
+            targetSelectedDotSize = DOT_SIZE_DRAGGING;
         }
         else
         {
@@ -204,6 +204,7 @@ void CabinEQPage::mouseUp (const juce::MouseEvent& event)
     draggingId = -1;
     
     targetSelectedDotSize = DOT_SIZE_DEFAULT;
+    std::cout << "made it default" << std::endl;
 }
 
 void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
@@ -343,20 +344,22 @@ void CabinEQPage::updateSelectedDotSize()
 {
     if (targetSelectedDotSize.has_value())
     {
-        if (selectedDotSize < targetSelectedDotSize.value())
-            selectedDotSize *= ANIM_STEP;
-        else
-            selectedDotSize /= ANIM_STEP;
-        
+        std::cout << "targetSelectedDotSize: " << targetSelectedDotSize.value() << std::endl;
         if (selectedDotSize > targetSelectedDotSize.value() / ANIM_STEP && selectedDotSize < targetSelectedDotSize.value() * ANIM_STEP)
         {
-            if (targetSelectedDotSize.value() == DOT_SIZE_DEFAULT) 
+            if (targetSelectedDotSize.value() == DOT_SIZE_DEFAULT)
             {
                 hoveringId = -1;
             }
             selectedDotSize = targetSelectedDotSize.value();
             targetSelectedDotSize.reset();
+            return;
         }
+        
+        if (selectedDotSize < targetSelectedDotSize.value())
+            selectedDotSize *= ANIM_STEP;
+        else
+            selectedDotSize /= ANIM_STEP;
     }
 }
 

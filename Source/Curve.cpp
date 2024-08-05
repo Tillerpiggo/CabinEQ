@@ -90,7 +90,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t)
 {
-    return compensatedValueAtFrequency (t * 22050, -3.5);
+    return compensatedValueAtFrequency (t * 22050, -3.55);
 }
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const
