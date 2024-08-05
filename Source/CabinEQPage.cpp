@@ -49,10 +49,10 @@ void CabinEQPage::resized()
 
 void CabinEQPage::mouseMove (const juce::MouseEvent& event)
 {
+    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
         isTestingFreq = true;
-        auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
         processor.startTestingAt (freq, curveId);
         return;
     }
@@ -75,10 +75,47 @@ void CabinEQPage::mouseMove (const juce::MouseEvent& event)
         {
             targetSelectedDotSize = DOT_SIZE_DRAGGING;
         }
+        
+        if (addingNodeId.has_value())
+        {
+            if (hoveringId == addingNodeId.value())
+            {
+                hoveringId = -1;
+            }
+            else
+            {
+                processor.removeEQNode (addingNodeId.value(), curveId);
+                addingNodeId.reset();
+            }
+        }
     }
     else
     {
         targetSelectedDotSize = DOT_SIZE_DEFAULT;
+        if (dbDistanceFromCurve (freq, ampl) < DIST_TO_ADD_DB)
+        {
+            if (! addingNodeId.has_value())
+            {
+                addingNodeId = processor.addEQNode (freq, ampl, 0.0f, curveId);
+            }
+            else
+            {
+                processor.updateEQNode (addingNodeId.value(), freq, ampl, 0.0f, curveId);
+            }
+        }
+        else
+        {
+            if (addingNodeId.has_value())
+            {
+                processor.removeEQNode (addingNodeId.value(), curveId);
+                addingNodeId.reset();
+            }
+        }
+    }
+    
+    if (addingNodeId.has_value())
+    {
+        processor.updateEQNode (addingNodeId.value(), freq, ampl, 0.0f, curveId);
     }
     
 //    repaint();
@@ -105,11 +142,10 @@ void CabinEQPage::mouseDown (const juce::MouseEvent& event)
     if (! draggingEQNode.has_value())
     {
         auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
-        if (! event.mods.isRightButtonDown() && ampl > -24.0f)
+        if (! event.mods.isRightButtonDown() && ampl > -24.0f && dbDistanceFromCurve (freq, ampl) < DIST_TO_ADD_DB)
         {
             draggingId = processor.addEQNode (freq, ampl, 0.0f, curveId);
         }
-        
     }
     else
     {
@@ -413,6 +449,10 @@ void CabinEQPage::drawDots(juce::Graphics& g)
             dotRadius = selectedDotSize;
 //            dotColor = dotColor.brighter();
         }
+        else if (node.id == addingNodeId.value_or (-1))
+        {
+            dotColor = dotColor.darker();
+        }
         
 //        if (node.id == draggingId)
 //        {
@@ -520,6 +560,13 @@ float CabinEQPage::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNo
     float dist = std::sqrt (xDist * xDist + yDist * yDist);
     
     return dist;
+}
+
+float CabinEQPage::dbDistanceFromCurve (const float freq, const float ampl) const
+{
+    float curveGainAtFreq = processor.getCurve (curveId).valueAtFrequency (freq).first.real();
+    float curveDBAtFreq = juce::Decibels::gainToDecibels (curveGainAtFreq);
+    return std::abs (ampl - curveDBAtFreq);
 }
 
 std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const

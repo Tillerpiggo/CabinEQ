@@ -54,6 +54,7 @@ private:
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
     bool mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const;
     float mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const;
+    float dbDistanceFromCurve (const float freq, const float ampl) const;
     
     std::optional<EQNode> getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const;
     
@@ -89,4 +90,7 @@ private:
     
     const juce::Colour I_LIKE_THE_ORANGE = juce::Colour::fromRGB(255, 180, 0);
     juce::Colour backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2);
+    
+    static constexpr float DIST_TO_ADD_DB = 3.0f;
+    std::optional<int> addingNodeId = -1;
 };
