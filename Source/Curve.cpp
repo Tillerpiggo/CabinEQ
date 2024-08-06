@@ -24,13 +24,19 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
-//    // Apply compensationSlope of "tilt" - db/oct
-//    float dbDifference = compensationSlope * std::log2((frequency) / 1000.0f);
+    // Apply compensationSlope of "tilt" - db/oct
+    float dbDifference = compensationSlope * std::log2((frequency) / 1000.0f);
     
-    // Apply compensation of average
-    float dbDifference = avgValueAtFrequency (frequency, 0.0f).first.real();
+//    // Apply compensation of average
+//    float dbDifference = juce::Decibels::gainToDecibels (avgValueAtFrequency (frequency, 0.0f).first.real());
+//    if (frequency < 20.0f)
+//    {
+//        dbDifference = amplitudeAtFrequency;
+//    }
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
     float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+    
+    
 
     float leftGain = juce::Decibels::decibelsToGain (leftDB);
     float rightGain = juce::Decibels::decibelsToGain (rightDB);
@@ -43,7 +49,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::avgValueAtFrequency (float frequency, float compensationSlope) const
 {
-    float freqStep = 1.05;
+    float freqStep = 1.04;
     float avg = 0.0f;
     int numFreqs = 20;
     for (int i = -numFreqs / 2; i <= numFreqs / 2; ++i)
