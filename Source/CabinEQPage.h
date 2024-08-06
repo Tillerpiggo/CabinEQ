@@ -19,7 +19,6 @@ class CabinEQPage   : public juce::Component,
                       public juce::Slider::Listener,
                       public juce::Timer,
                       public CabinEQGraphListener
-
 {
 public:
     CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId);
@@ -49,6 +48,8 @@ public:
     float getCurrPlayingFreq() override;
     
 private:
+    CabinEQGraph cabinEQGraph;
+    
     StartupMVPAudioProcessor& processor;
     juce::String curveId;
     

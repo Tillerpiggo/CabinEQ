@@ -11,7 +11,7 @@
 #include "CabinEQPage.h"
 
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
-    : processor (p), curveId (curveId)
+    : cabinEQGraph (p.getCurve (curveId)), processor (p), curveId (curveId)
 {
     addAndMakeVisible (referenceSlider);
     referenceSlider.setRange (-24.0f, 24.0f);
@@ -20,28 +20,33 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
     
     updateEQNodes();
     startTimer (5);
+    
+    addAndMakeVisible (cabinEQGraph);
+    cabinEQGraph.addListener (this);
 }
 
 CabinEQPage::~CabinEQPage()
 {
     openGLContext.detach();
     referenceSlider.removeListener (this);
+    cabinEQGraph.removeListener();
 }
 
 void CabinEQPage::paint (juce::Graphics& g)
 {
-    float currFreq = processor.getCurrPlayingFreq();
+//    float currFreq = processor.getCurrPlayingFreq();
     g.fillAll (backgroundColor);
-    drawCurve (g, processor.getCurve (curveId), 4000);
-    drawDots (g);
+//    drawCurve (g, processor.getCurve (curveId), 4000);
+//    drawDots (g);
 }
 
 void CabinEQPage::resized()
 {
     setBounds (0, 0, getWidth(), getHeight());
-    
-    int sliderHeight = 50; // Set the height for the slider
-    referenceSlider.setBounds (10, getHeight() - sliderHeight - 10, getWidth() - 20, sliderHeight);
+//    
+//    int sliderHeight = 50; // Set the height for the slider
+//    referenceSlider.setBounds (10, getHeight() - sliderHeight - 10, getWidth() - 20, sliderHeight);
+    cabinEQGraph.setBounds (0, 0, getWidth(), getHeight());
 }
 
 void CabinEQPage::mouseMove (const juce::MouseEvent& event)

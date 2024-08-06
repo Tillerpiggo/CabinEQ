@@ -60,10 +60,13 @@ private:
     
     // Drawing/animation
     void drawCurve (juce::Graphics& g, Curve& curve, int numPoints);
-    juce::Colour getColorForFrequency(float frequency);
     void drawDots (juce::Graphics& g);
-    juce::Point<float> coordsForEQNode (float frequency, float amplitude);
+    void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color);
     void updateSelectedDotSize();
+    juce::ColourGradient getCurveGradient();
+    juce::Colour getColorForFrequency(float frequency);
+    juce::Point<float> coordsForEQNode (float frequency, float amplitude);
+    
     
     // Utils
     float frequencyAtTime (float t) const;

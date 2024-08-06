@@ -174,6 +174,7 @@ void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::Mo
 
 void CabinEQGraph::timerCallback()
 {
+    updateSelectedDotSize();
     repaint();
 }
 
@@ -188,6 +189,91 @@ void CabinEQGraph::removeListener()
 }
 
 // =============================================
+void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
+{
+    // Get the gradient for the curve
+    juce::ColourGradient gradient = getCurveGradient();
+    juce::Path path;
+    path.startNewSubPath (0, 0);
+    
+    // Draw curve with numPoints points
+    for (int i = 0; i < numPoints; ++i)
+    {
+        float t = static_cast<float> (i) / static_cast<float> (numPoints);
+        
+        float freq = frequencyAtTime (t);
+        float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
+        path.lineTo (coordsForEQNode (freq, ampl));
+    }
+    g.strokePath (path, juce::PathStrokeType (CURVE_THICKNESS));
+}
+
+void CabinEQGraph::drawDots (juce::Graphics& g)
+{
+    updateEQNodes();
+    for (const auto& node : eqNodes)
+    {
+        // Draw a dot corresponding to the node
+        juce::Point<float> point = coordsForEQNode (node.frequency, node.amplitude);
+        juce::Colour dotColor = getColorForFrequency (node.frequency);
+        
+        // Figure out the radius - it's different if it's hovering vs. draggin
+        float dotRadius = DOT_SIZE_DEFAULT;
+    }
+}
+
+void CabinEQGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color)
+{
+    
+}
+
+void CabinEQGraph::updateSelectedDotSize()
+{
+    
+}
+
+juce::ColourGradient CabinEQGraph::getCurveGradient()
+{
+    // Create initial gradient with start/end colors
+    juce::Colour startColor = getColorForFrequency (minFreqShowing);
+    juce::Colour endColor = getColorForFrequency (maxFreqShowing);
+    juce::ColourGradient gradient (startColor, 0, 0, endColor, getWidth(), 0, false);
+    
+    // Useful helper to get color at specific point on screen
+    float minFreqLog = std::log2 (minFreqShowing);
+    float maxFreqLog = std::log2 (maxFreqShowing);
+    auto calculateFreqLog = [minFreqLog, maxFreqLog](float factor) -> float
+    {
+        return minFreqLog + factor * (maxFreqLog - minFreqLog);
+    };
+    
+    // Calculate colors at 25%, 50%, and 75%
+    float quarterFreqLog = calculateFreqLog (0.25f);
+    float halfFreqLog = calculateFreqLog (0.5f);
+    float threeQuarterFreqLog = calculateFreqLog (0.75f);
+    float quarterFreqX = (quarterFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+    float halfFreqX = (halfFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+    float threeQuarterFreqX = (threeQuarterFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+    
+    // Add the colors
+    gradient.addColour (quarterFreqX / getWidth(), getColorForFrequency (std::pow (2, quarterFreqLog)));
+    gradient.addColour (halfFreqX / getWidth(), getColorForFrequency (std::pow (2, halfFreqLog)));
+    gradient.addColour (threeQuarterFreqX / getWidth(), getColorForFrequency (std::pow (2, threeQuarterFreqLog)));
+    
+    return gradient;
+}
+
+juce::Colour getColorForFrequency(float frequency)
+{
+    
+}
+
+juce::Point<float> coordsForEQNode (float frequency, float amplitude)
+{
+    
+}
+
+// ====================================================
 float CabinEQGraph::frequencyAtTime (float t) const
 {
     // Scale logarithmically based on the visible window
