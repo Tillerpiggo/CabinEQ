@@ -22,6 +22,7 @@ public:
     virtual int addNode (float freq, float ampl) = 0;
     virtual void updateNode (int id, float freq, float ampl) = 0;
     virtual void removeNode (int id) = 0;
+    virtual void startPlayingValueAt (float freq, float ampl) = 0;
     virtual void playValueAt (float freq, float ampl) = 0; // the tone while dragging nodes
     virtual void testValueAt (float freq) = 0; // for probing
     virtual void stopPlaying() = 0; // stops playing the calibration tones
@@ -80,6 +81,7 @@ private:
     int addNode (float freq, float ampl);
     void updateNode (int id, float freq, float ampl);
     void removeNode (int id);
+    void startPlayingValueAt (float freq, float ampl);
     void playValueAt (float freq, float ampl); // the tone while dragging nodes
     void testValueAt (float freq); // for probing
     void stopPlaying(); // stops playing the calibration tones

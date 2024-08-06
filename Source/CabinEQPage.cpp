@@ -49,6 +49,7 @@ void CabinEQPage::resized()
     cabinEQGraph.setBounds (0, 0, getWidth(), getHeight());
 }
 
+/*
 void CabinEQPage::mouseMove (const juce::MouseEvent& event)
 {
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
@@ -258,6 +259,7 @@ void CabinEQPage::mouseWheelMove (const juce::MouseEvent &event, const juce::Mou
         maxFreqShowing = frequencyAtTime (rightSideOfWindow);
     }
 }
+ */
 
 void CabinEQPage::sliderValueChanged (juce::Slider *slider)
 {
@@ -620,9 +622,14 @@ void CabinEQPage::removeNode (int id)
     processor.removeEQNode (id, curveId);
 }
 
-void CabinEQPage::playValueAt (float freq, float ampl)
+void CabinEQPage::startPlayingValueAt (float freq, float ampl)
 {
     processor.startCalibratingEQNode (EQNode (-1, freq, ampl, 0.0f));
+}
+
+void CabinEQPage::playValueAt (float freq, float ampl)
+{
+    processor.updateCalibratingEQNode (EQNode (-1, freq, ampl, 0.0f));
 }
 
 void CabinEQPage::testValueAt (float freq)

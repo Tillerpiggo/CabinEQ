@@ -97,7 +97,7 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
         
     // If we ended up dragging a node, start playing tones
     if (draggingId != -1)
-        playValueAt (freq, ampl);
+        startPlayingValueAt (freq, ampl);
         
 }
 
@@ -107,8 +107,11 @@ void CabinEQGraph::mouseDrag (const juce::MouseEvent &event)
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     // If we're dragging a node, update it to our mouse position
-    updateNode (draggingId, freq, ampl);
-    playValueAt (freq, ampl);
+    if (draggingId != -1)
+    {
+        updateNode (draggingId, freq, ampl);
+        playValueAt (freq, ampl);
+    }
     
     // If we're not dragging a node, we're dragging in the blackspace and should drag the curve itself
     if (draggingId == -1)
@@ -498,6 +501,12 @@ void CabinEQGraph::removeNode (int id)
 {
     if (listener != nullptr)
         listener->removeNode (id);
+}
+
+void CabinEQGraph::startPlayingValueAt (float freq, float ampl)
+{
+    if (listener != nullptr)
+        listener->startPlayingValueAt (freq, ampl);
 }
 
 void CabinEQGraph::playValueAt (float freq, float ampl)

@@ -27,11 +27,13 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
+    /*
     void mouseMove (const juce::MouseEvent &event) override;
     void mouseDown (const juce::MouseEvent &event) override;
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
+     */
     
     void sliderValueChanged (juce::Slider *slider) override;
     void timerCallback() override;
@@ -40,6 +42,7 @@ public:
     int addNode (float freq, float ampl) override;
     void updateNode (int id, float freq, float ampl) override;
     void removeNode (int id) override;
+    void startPlayingValueAt (float freq, float ampl) override;
     void playValueAt (float freq, float ampl) override;
     void testValueAt (float freq) override;
     void stopPlaying() override;
