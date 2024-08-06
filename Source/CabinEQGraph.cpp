@@ -37,14 +37,6 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
 {
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
-    // If ctrl/alt is held down, start testing
-    if (event.mods.isCtrlDown() || event.mods.isAltDown())
-    {
-        isTestingFreq = true;
-        testValueAt (freq);
-        return;
-    }
-    
     // Show the ghost node to add if the mouse is on the curve
     if (dbDistanceFromCurve (freq, ampl) <= DIST_TO_ADD_DB)
         addingFreq = freq;
@@ -62,6 +54,18 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
         // If we're hovering, we don't want to show the ghost node to add
         if (addingFreq.has_value())
             addingFreq.reset();
+    }
+    else
+    {
+        targetSelectedDotSize = DOT_SIZE_DEFAULT;
+    }
+    
+    // If ctrl/alt is held down, start testing
+    if (event.mods.isCtrlDown() || event.mods.isAltDown())
+    {
+        isTestingFreq = true;
+        testValueAt (freq);
+        return;
     }
     
     // Since ctrl/alt isn't held down, stop testing
@@ -89,6 +93,7 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
         draggingId = addNode (freq, ampl);
         targetSelectedDotSize = DOT_SIZE_DRAGGING;
         addingFreq.reset();
+        std::cout << "add node with id: " << draggingId << std::endl;
     }
     
     // If we right click and are hovering, delete the node
@@ -98,13 +103,20 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
     // If we ended up dragging a node, start playing tones
     if (draggingId != -1)
         startPlayingValueAt (freq, ampl);
-        
 }
 
 void CabinEQGraph::mouseDrag (const juce::MouseEvent &event)
 {
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    
+    // So that testing keeps moving when clicking
+    if (event.mods.isCtrlDown() || event.mods.isAltDown())
+    {
+        isTestingFreq = true;
+        testValueAt (freq);
+        return;
+    }
     
     // If we're dragging a node, update it to our mouse position
     if (draggingId != -1)
@@ -140,12 +152,14 @@ void CabinEQGraph::mouseUp (const juce::MouseEvent &event)
     
     // Update dragging node a final time
     updateNode (draggingId, freq, ampl);
+    draggingId = -1;
     
     // Change the dot size
     targetSelectedDotSize = DOT_SIZE_DEFAULT;
     
     // We stopped dragging, so stop playing tones
     stopPlaying();
+    stopTesting();
 }
 
 void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
@@ -250,19 +264,20 @@ void CabinEQGraph::drawDots (juce::Graphics& g)
         {
             testDotColor = testDotColor.interpolatedWith (juce::Colours::orange, 0.4);
             targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
+            std::cout << "currPlayingFreq != 1000.0f" << std::endl;
         }
         else
         {
             targetSelectedDotSize = DOT_SIZE_DRAGGING;
+            std::cout << "currPlayingFreq == 1000.0f" << std::endl;
         }
         
         // Calculate coordinates of node
         float testingFreq = getCurrTestingFreq();
         juce::Point<float> point = coordsForEQNode (testingFreq, juce::Decibels::gainToDecibels (curve.valueAtFrequency (testingFreq).first.real()));
-        float testDotRadius = DOT_SIZE_DRAGGING;
         
         // Draw node
-        drawDot (g, point, testDotRadius, testDotColor);
+        drawDot (g, point, selectedDotSize, testDotColor);
         
     }
     

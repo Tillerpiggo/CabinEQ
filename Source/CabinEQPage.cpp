@@ -609,7 +609,7 @@ std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::Mou
 
 int CabinEQPage::addNode (float freq, float ampl)
 {
-    processor.addEQNode (freq, ampl, 0.0f, curveId);
+    return processor.addEQNode (freq, ampl, 0.0f, curveId);
 }
 
 void CabinEQPage::updateNode (int id, float freq, float ampl)

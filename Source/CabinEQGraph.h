@@ -99,7 +99,7 @@ private:
     // Constants
     static constexpr float MIN_FREQ = 20.0f;
     static constexpr float MAX_FREQ = 20000.0f;
-    static constexpr float ANIM_STEP = 1.05f;
+    static constexpr float ANIM_STEP = 1.3f; // very fast animations for now
     static constexpr float DOT_SIZE_SELECTED = 5.5f;
     static constexpr float DOT_SIZE_DRAGGING = 8.0f;
     static constexpr float DOT_SIZE_DEFAULT = 3.5f;
