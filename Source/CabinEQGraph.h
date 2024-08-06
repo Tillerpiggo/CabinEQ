@@ -26,8 +26,6 @@ public:
     virtual void testValueAt (float freq) = 0; // for probing
     virtual void stopPlaying() = 0; // stops playing the calibration tones
     virtual void stopTesting() = 0; // stops playing the testing tones (that are played when holding down ctrl/alt)
-    
-    virtual std::vector<EQNode> getEQNodes() = 0;
     virtual float getCurrPlayingFreq() = 0;
 };
 
@@ -77,6 +75,16 @@ private:
     float dbDistanceFromCurve (const float freq, const float ampl) const;
     std::optional<EQNode> getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const;
     void updateEQNodes();
+    
+    // Utils to handle listener being nullptr
+    int addNode (float freq, float ampl);
+    void updateNode (int id, float freq, float ampl);
+    void removeNode (int id);
+    void playValueAt (float freq, float ampl); // the tone while dragging nodes
+    void testValueAt (float freq); // for probing
+    void stopPlaying(); // stops playing the calibration tones
+    void stopTesting(); // stops playing the testing tones (that are played when holding down ctrl/alt)
+    float getCurrPlayingFreq();
     
     // Dragging/zooming
     float minFreqShowing = 20.0f;

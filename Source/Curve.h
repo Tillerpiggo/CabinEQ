@@ -28,9 +28,8 @@ public:
     const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time);
     
     float catmullRom (float t, float y0, float y1, float y2, float y3) const;
-//    using Point = std::array<float, 2>;
-//    Point catmullRom(const Point& P0, const Point& P1, const Point& P2, const Point& P3, double t);
     
+    const std::vector<EQNode>& getEQNodes();
     void updateWithEQNodes (std::vector<EQNode> eqNodes);
     
     const std::pair<float*, float*> getStereoImpulse (int fft_size); // This hands ownership of the float*'s to whoever calls it!!

@@ -640,11 +640,6 @@ void CabinEQPage::stopTesting()
     processor.endTesting();
 }
 
-std::vector<EQNode> CabinEQPage::getEQNodes()
-{
-    return processor.getEQNodes (curveId);
-}
-
 float CabinEQPage::getCurrPlayingFreq()
 {
     return processor.getCurrPlayingFreq();

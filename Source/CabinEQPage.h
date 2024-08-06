@@ -44,7 +44,6 @@ public:
     void testValueAt (float freq) override;
     void stopPlaying() override;
     void stopTesting() override;
-    std::vector<EQNode> getEQNodes() override;
     float getCurrPlayingFreq() override;
     
 private:

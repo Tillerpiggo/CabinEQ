@@ -41,7 +41,7 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
     if (event.mods.isCtrlDown() || event.mods.isAltDown())
     {
         isTestingFreq = true;
-        listener->testValueAt (freq);
+        testValueAt (freq);
         return;
     }
     
@@ -66,7 +66,7 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
     
     // Since ctrl/alt isn't held down, stop testing
     isTestingFreq = false;
-    listener->stopTesting();
+    stopTesting();
 }
 
 void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
@@ -86,22 +86,18 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
     if (addingFreq.has_value() && ! event.mods.isRightButtonDown())
     {
         // Add the curve where we click
-        draggingId = listener->addNode (freq, ampl);
+        draggingId = addNode (freq, ampl);
         targetSelectedDotSize = DOT_SIZE_DRAGGING;
         addingFreq.reset();
     }
     
     // If we right click and are hovering, delete the node
     if (hoveringId != -1 && event.mods.isRightButtonDown())
-    {
-        listener->removeNode (hoveringId);
-    }
+        removeNode (hoveringId);
         
     // If we ended up dragging a node, start playing tones
     if (draggingId != -1)
-    {
-        listener->playValueAt (freq, ampl);
-    }
+        playValueAt (freq, ampl);
         
 }
 
@@ -111,8 +107,8 @@ void CabinEQGraph::mouseDrag (const juce::MouseEvent &event)
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     // If we're dragging a node, update it to our mouse position
-    listener->updateNode (draggingId, freq, ampl);
-    listener->playValueAt (freq, ampl);
+    updateNode (draggingId, freq, ampl);
+    playValueAt (freq, ampl);
     
     // If we're not dragging a node, we're dragging in the blackspace and should drag the curve itself
     if (draggingId == -1)
@@ -140,13 +136,13 @@ void CabinEQGraph::mouseUp (const juce::MouseEvent &event)
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     // Update dragging node a final time
-    listener->updateNode (draggingId, freq, ampl);
+    updateNode (draggingId, freq, ampl);
     
     // Change the dot size
     targetSelectedDotSize = DOT_SIZE_DEFAULT;
     
     // We stopped dragging, so stop playing tones
-    listener->stopPlaying();
+    stopPlaying();
 }
 
 void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
@@ -217,19 +213,104 @@ void CabinEQGraph::drawDots (juce::Graphics& g)
         juce::Point<float> point = coordsForEQNode (node.frequency, node.amplitude);
         juce::Colour dotColor = getColorForFrequency (node.frequency);
         
-        // Figure out the radius - it's different if it's hovering vs. draggin
+        // Figure out the radius - it's different if it's hovering vs. dragging
         float dotRadius = DOT_SIZE_DEFAULT;
+        if (node.id == hoveringId || node.id == draggingId)
+        {
+            dotRadius = selectedDotSize;
+            
+            // We also need to change the selected dot size to sync with the reference tone playing
+            if (getCurrPlayingFreq() != 1000.0f)
+            {
+                dotColor = dotColor.interpolatedWith (juce::Colours::orange, 0.4);
+                targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
+            }
+            else
+            {
+                targetSelectedDotSize = DOT_SIZE_DRAGGING;
+            }
+        }
+        
+        drawDot (g, point, dotRadius, dotColor);
+    }
+    
+    // Draw the frequency testing dot
+    if (isTestingFreq)
+    {
+        // Figure out color of node
+        juce::Colour testDotColor = getColorForFrequency (getCurrPlayingFreq()).interpolatedWith (juce::Colours::pink, 0.4f);
+        
+        // Make node pulse w/ tones
+        if (getCurrPlayingFreq() != 1000.0f)
+        {
+            testDotColor = testDotColor.interpolatedWith (juce::Colours::orange, 0.4);
+            targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
+        }
+        else
+        {
+            targetSelectedDotSize = DOT_SIZE_DRAGGING;
+        }
+        
+        // Calculate coordinates of node
+        float testingFreq = getCurrPlayingFreq();
+        juce::Point<float> point = coordsForEQNode (testingFreq, curve.valueAtFrequency (testingFreq).first.real());
+        float testDotRadius = DOT_SIZE_DRAGGING;
+        
+        // Draw node
+        drawDot (g, point, testDotRadius, testDotColor);
+        
+    }
+    
+    // Draw the ghost node for adding
+    if (addingFreq.has_value())
+    {
+        // Figure out color of node
+        juce::Colour addingDotColor = getColorForFrequency (addingFreq.value()).withAlpha (0.5f);
+        
+        // Calculate coordinates of node
+        float addingAmpl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (addingFreq.value()).first.real());
+        juce::Point<float> point = coordsForEQNode (addingFreq.value(), addingAmpl);
+        float addingDotRadius = DOT_SIZE_DEFAULT;
+        
+        // Draw node
+        drawDot (g, point, addingDotRadius, addingDotColor);
     }
 }
 
-void CabinEQGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color)
+void CabinEQGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColor)
 {
+    // Draw padding around dot w/ background color
+    g.setColour (BACKGROUND_COLOR);
+    g.fillEllipse (point.x - dotRadius - DOT_PADDING, point.y - dotRadius - DOT_PADDING, (dotRadius + DOT_PADDING) * 2, (dotRadius + DOT_PADDING) * 2);
     
+    // Draw the center of the dot
+    g.setColour (dotColor);
+    g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
 }
 
 void CabinEQGraph::updateSelectedDotSize()
 {
+    // Only update if there is currently a target selected dot size
+    if (! targetSelectedDotSize.has_value())
+        return;
     
+    // If we're close enough to the target size, just become the target size and stop updating
+    if (selectedDotSize > targetSelectedDotSize.value() / ANIM_STEP &&
+        selectedDotSize < targetSelectedDotSize.value() * ANIM_STEP)
+    {
+        if (targetSelectedDotSize.value() == DOT_SIZE_DEFAULT)
+            hoveringId = -1; // tbh not sure what this does, should see what happens if it's removed
+        
+        selectedDotSize = targetSelectedDotSize.value();
+        targetSelectedDotSize.reset();
+        return;
+    }
+    
+    // Increment size towards target size
+    if (selectedDotSize < targetSelectedDotSize.value())
+        selectedDotSize *= ANIM_STEP;
+    else
+        selectedDotSize /= ANIM_STEP;
 }
 
 juce::ColourGradient CabinEQGraph::getCurveGradient()
@@ -263,14 +344,53 @@ juce::ColourGradient CabinEQGraph::getCurveGradient()
     return gradient;
 }
 
-juce::Colour getColorForFrequency(float frequency)
+juce::Colour CabinEQGraph::getColorForFrequency(float frequency)
 {
+    juce::Colour startColor;
+    juce::Colour endColor;
     
+    float t = (std::log2 (frequency) - std::log2 (MIN_FREQ) / (std::log2 (MAX_FREQ) - std::log2 (MIN_FREQ)));
+    float segment_t;
+    
+    // Interpolate color from the start/end colors in each section
+    if (t < 0.25f)
+    {
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.5f, 1.0f, 1.0f); // Deep blue
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
+        segment_t = t / 0.25f;
+    }
+    else if (t < 0.5f)
+    {
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
+        segment_t = (t - 0.25f) / 0.25f;
+    }
+    else if (t < 0.75f)
+    {
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
+        segment_t = (t - 0.5f) / 0.25f;
+    }
+    else
+    {
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
+        endColor = juce::Colour::fromFloatRGBA(0.7f, 1.0f, 0.3f, 1.0f); // Pastel yellow-green
+        segment_t = (t - 0.75f) / 0.25f;
+    }
+    
+    return startColor.interpolatedWith (endColor, segment_t);
 }
 
-juce::Point<float> coordsForEQNode (float frequency, float amplitude)
+juce::Point<float> CabinEQGraph::coordsForEQNode (float frequency, float amplitude)
 {
+    // Offset amplitude to account for tilt
+    float compensationDB = -4.5 * std::log2 (frequency / 1000.0f);
+    amplitude -= compensationDB;
     
+    // Calculate (x, y) coords and return
+    float x = getWidth() * timeAtFrequency (frequency);
+    float y = getHeight() * (1.0f - (amplitude +  24.0f) / 48.0f);
+    return { x, y };
 }
 
 // ====================================================
@@ -356,5 +476,55 @@ std::optional<EQNode> CabinEQGraph::getClosestEQNodeToMouseEvent (const juce::Mo
 
 void CabinEQGraph::updateEQNodes()
 {
-    eqNodes = listener->getEQNodes();
+    eqNodes = curve.getEQNodes();
+}
+
+int CabinEQGraph::addNode (float freq, float ampl)
+{
+    if (listener == nullptr)
+        return -1;
+    return listener->addNode (freq, ampl);
+}
+
+void CabinEQGraph::updateNode (int id, float freq, float ampl)
+{
+    if (listener != nullptr)
+        listener->updateNode (id, freq, ampl);
+}
+
+void CabinEQGraph::removeNode (int id)
+{
+    if (listener != nullptr)
+        listener->removeNode (id);
+}
+
+void CabinEQGraph::playValueAt (float freq, float ampl)
+{
+    if (listener != nullptr)
+        listener->playValueAt (freq, ampl);
+}
+
+void CabinEQGraph::testValueAt (float freq)
+{
+    if (listener != nullptr)
+        listener->testValueAt (freq);
+}
+
+void CabinEQGraph::stopPlaying()
+{
+    if (listener != nullptr)
+        listener->stopPlaying();
+}
+
+void CabinEQGraph::stopTesting()
+{
+    if (listener != nullptr)
+        listener->stopTesting();
+}
+
+float CabinEQGraph::getCurrPlayingFreq()
+{
+    if (listener == nullptr)
+        return 1000.0f;
+    return listener->getCurrPlayingFreq();
 }

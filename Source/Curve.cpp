@@ -98,6 +98,11 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::scaleComplexPai
     return { pair.first * scalar, pair.second * scalar };
 }
 
+const std::vector<EQNode>& Curve::getEQNodes()
+{
+    return eqNodes;
+}
+
 float Curve::catmullRom(float t, float y0, float y1, float y2, float y3) const
 {
     float t2 = t * t;
