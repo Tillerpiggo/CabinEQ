@@ -192,6 +192,8 @@ void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
     juce::Path path;
     path.startNewSubPath (0, 0);
     
+    g.setGradientFill (gradient);
+    
     // Draw curve with numPoints points
     for (int i = 0; i < numPoints; ++i)
     {
@@ -344,12 +346,12 @@ juce::ColourGradient CabinEQGraph::getCurveGradient()
     return gradient;
 }
 
-juce::Colour CabinEQGraph::getColorForFrequency(float frequency)
+juce::Colour CabinEQGraph::getColorForFrequency (float frequency)
 {
     juce::Colour startColor;
     juce::Colour endColor;
     
-    float t = (std::log2 (frequency) - std::log2 (MIN_FREQ) / (std::log2 (MAX_FREQ) - std::log2 (MIN_FREQ)));
+    float t = (std::log2 (frequency) - std::log2 (MIN_FREQ)) / (std::log2 (MAX_FREQ) - std::log2 (MIN_FREQ));
     float segment_t;
     
     // Interpolate color from the start/end colors in each section

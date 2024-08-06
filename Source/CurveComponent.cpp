@@ -8,8 +8,9 @@
   ==============================================================================
 */
 
-#include "CurveComponent.h"
 /*
+#include "CurveComponent.h"
+
 CurveComponent::CurveComponent (Curve& curve, Curve& curve2) : curve (curve), curve2 (curve2)
 {
     drawTrueFrequencyResponse();
@@ -123,4 +124,5 @@ void CurveComponent::drawTrueFrequencyResponse()
     delete[] rightImpulseResponse;
     delete[] zeroPaddedImpulse;
 }
+
 */

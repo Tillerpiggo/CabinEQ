@@ -35,4 +35,5 @@ private:
     int fftSize = 12;
     int numFreqResponsePoints = std::pow (2, fftSize);
 };
+
 */

@@ -25,7 +25,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
     // Apply compensationSlope of "tilt" - db/oct
-    float dbDifference = compensationSlope * std::log2((frequency) / 1000.0f); // commented out for CabinEQ dev
+    float dbDifference = compensationSlope * std::log2((frequency) / 1000.0f);
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
     float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
 
@@ -90,6 +90,9 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t)
 {
+//    float minFreq = eqNodes[0].frequency;
+//    float maxFreq = eqNodes[eqNodes.size() - 1].frequency;
+//    return compensatedValueAtFrequency (t * (maxFreq - minFreq) + minFreq, -3.55);
     return compensatedValueAtFrequency (t * 22050, -3.55);
 }
 
