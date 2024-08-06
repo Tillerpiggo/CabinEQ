@@ -24,6 +24,51 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
+//    // Apply compensationSlope of "tilt" - db/oct
+//    float dbDifference = compensationSlope * std::log2((frequency) / 1000.0f);
+    
+    // Apply compensation of average
+    float dbDifference = avgValueAtFrequency (frequency, 0.0f).first.real();
+    float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+    float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
+
+    float leftGain = juce::Decibels::decibelsToGain (leftDB);
+    float rightGain = juce::Decibels::decibelsToGain (rightDB);
+    
+    std::complex<float> leftVal = std::polar(leftGain, 0.0f);
+    std::complex<float> rightVal = std::polar(rightGain, 0.0f);
+    
+    return { leftVal, rightVal };
+}
+
+const std::pair<std::complex<float>, std::complex<float>> Curve::avgValueAtFrequency (float frequency, float compensationSlope) const
+{
+    float freqStep = 1.05;
+    float avg = 0.0f;
+    int numFreqs = 20;
+    for (int i = -numFreqs / 2; i <= numFreqs / 2; ++i)
+    {
+        avg += utilValueAtFrequency (frequency * std::pow (freqStep, i), compensationSlope).first.real();
+    }
+    avg /= static_cast<float> (numFreqs);
+    
+    return { std::complex<float> (avg), std::complex<float> (avg) };
+}
+
+const std::pair<std::complex<float>, std::complex<float>> Curve::utilValueAtFrequency (float frequency, float compensationSlope) const
+{
+    std::vector<float> amplitudes;
+    std::vector<float> pans;
+    
+    for (const auto& eqNode : eqNodes)
+    {
+        amplitudes.push_back (eqNode.amplitude);
+        pans.push_back (eqNode.pan);
+    }
+    
+    float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
+    float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
+    
     // Apply compensationSlope of "tilt" - db/oct
     float dbDifference = compensationSlope * std::log2((frequency) / 1000.0f);
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
@@ -90,9 +135,6 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t)
 {
-//    float minFreq = eqNodes[0].frequency;
-//    float maxFreq = eqNodes[eqNodes.size() - 1].frequency;
-//    return compensatedValueAtFrequency (t * (maxFreq - minFreq) + minFreq, -3.55);
     return compensatedValueAtFrequency (t * 22050, -3.55);
 }
 

@@ -25,6 +25,8 @@ public:
     virtual ~Curve() = default;
 
     const std::pair<std::complex<float>, std::complex<float>> compensatedValueAtFrequency (float frequency, float compensationSlope) const;
+    const std::pair<std::complex<float>, std::complex<float>> avgValueAtFrequency (float frequency, float compensationSlope) const;
+    const std::pair<std::complex<float>, std::complex<float>> utilValueAtFrequency (float frequency, float compensationSlope) const;
     const std::pair<std::complex<float>, std::complex<float>> valueAtFrequency (float frequency);
     const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time);
     

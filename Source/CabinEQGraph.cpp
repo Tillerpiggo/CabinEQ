@@ -42,6 +42,7 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
     {
         isTestingFreq = true;
         testValueAt (freq);
+        hoveringId = -1;
         return;
     }
     else 
