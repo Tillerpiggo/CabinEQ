@@ -91,6 +91,7 @@ private:
     static constexpr float DOT_PADDING = 3.0f;
     static constexpr float DIST_TO_ADD_DB = 1.0f;
     static constexpr float CURVE_THICKNESS = 2.5f;
+    static constexpr float HOVER_MIN_DIST = 0.5f;
     const juce::Colour BACKGROUND_COLOR = juce::Colour::fromRGB (0.1, 0.1, 0.2);
     
     // Micro-animation values

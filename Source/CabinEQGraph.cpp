@@ -151,12 +151,30 @@ void CabinEQGraph::mouseUp (const juce::MouseEvent &event)
 
 void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
+    // Useful constants
+    auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
     
+    // Math to figure out how much left/right side of window should move
+    float p = 1 - (wheel.deltaY); // % change in window width
+    float dx = wheel.deltaX * -0.3f; // amount window is shifted horizontally
+    float t = timeAtFrequency (freq); // the position of your mouse, in linear space
+    float leftChunkSize = t;
+    float rightChunkSize = 1 - t;
+    float leftSideOfWindow = t - (leftChunkSize * p) + dx;
+    float rightSideOfWindow = t + (rightChunkSize * p) + dx;
+    
+    // Where we're projected to scroll to
+    float projectedMinFreqVal = frequencyAtTime (leftSideOfWindow);
+    float projectedMaxFreqVal = frequencyAtTime (rightSideOfWindow);
+    
+    // Limit scrolling to within MIN_FREQ and MAX_FREQ
+    minFreqShowing = projectedMinFreqVal >= MIN_FREQ ? frequencyAtTime (leftSideOfWindow) : MIN_FREQ;
+    maxFreqShowing = projectedMaxFreqVal <= MAX_FREQ ? frequencyAtTime (rightSideOfWindow) : MAX_FREQ;
 }
 
 void CabinEQGraph::timerCallback()
 {
-    
+    repaint();
 }
 
 void CabinEQGraph::addListener (CabinEQGraphListener* listener)
@@ -169,42 +187,88 @@ void CabinEQGraph::removeListener()
     this->listener = nullptr;
 }
 
+// =============================================
 float CabinEQGraph::frequencyAtTime (float t) const
 {
-    
+    // Scale logarithmically based on the visible window
+    float logMinFreqShowing = std::log (minFreqShowing);
+    float logMaxFreqShowing = std::log (maxFreqShowing);
+    float freq = std::exp (logMinFreqShowing + t * (logMaxFreqShowing - logMinFreqShowing));
+    return freq;
 }
 
 float CabinEQGraph::timeAtFrequency (float freq) const
 {
-    
+    // Scale back to linear based on the visible window
+    float logMinFreqShowing = std::log (minFreqShowing);
+    float logMaxFreqShowing = std::log (maxFreqShowing);
+    float logFreq = std::log (freq);
+    float t = (logFreq - logMinFreqShowing) / (logMaxFreqShowing - logMinFreqShowing);
+    return t;
 }
 
 std::pair<float, float> CabinEQGraph::frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const
 {
+    // Get mouse coords
+    float x = event.getPosition().x;
+    float y = event.getPosition().y;
     
-}
-
-bool CabinEQGraph::mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const
-{
-
+    // Calculate frequency of mouse event
+    float freq = frequencyAtTime (x / getWidth());
+    
+    // Calculate amplitude of mouse event
+    float normalizedY = y / getHeight();
+    float ampl = (1.0f - normalizedY) * 48.0f - 24.0f;
+    
+    // Compensate for tilt
+    float compensationDB = -4.5 * std::log2 (freq / 1000.0f);
+    ampl += compensationDB;
+    
+    // Bound freq/ampl inside the visible window
+    freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
+    ampl = std::min (std::max (ampl, -24.0f + compensationDB), 24.0f + compensationDB);
+    
+    return { freq, ampl };
 }
 
 float CabinEQGraph::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const
 {
+    // Calculate distance based on arbitrary scale factors that weigh freq and ampl about the same
+    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    float dx = std::abs (timeAtFrequency (freq) - timeAtFrequency (eqNode.frequency));
+    float dy = std::abs (ampl - eqNode.amplitude);
+    dx *= 39;
+    dy *= 0.5;
     
+    float distance = std::sqrt (dx * dx + dy * dy);
+    return distance;
 }
 
 float CabinEQGraph::dbDistanceFromCurve (const float freq, const float ampl) const
 {
-    
+    float curveGainAtFreq = curve.valueAtFrequency (freq).first.real();
+    float curveDBAtFreq = juce::Decibels::gainToDecibels (curveGainAtFreq);
+    return std::abs (ampl - curveDBAtFreq);
 }
 
 std::optional<EQNode> CabinEQGraph::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const
 {
+    float minDist = 10.0f; // arbitrary # higher than HOVER_MIN_DIST
+    std::optional<EQNode> closestEQNode;
+    for (const auto& eqNode : eqNodes)
+    {
+        float dist = mouseEventEQNodeDistance (event, eqNode);
+        if (dist < std::min (minDist, HOVER_MIN_DIST))
+        {
+            minDist = dist;
+            closestEQNode = eqNode;
+        }
+    }
     
+    return closestEQNode;
 }
 
 void CabinEQGraph::updateEQNodes()
 {
-    
+    eqNodes = listener->getEQNodes();
 }
