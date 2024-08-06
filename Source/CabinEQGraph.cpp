@@ -51,28 +51,7 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
         stopTesting();
     }
     
-    // Show the ghost node to add if the mouse is on the curve
-    if (dbDistanceFromCurve (freq, ampl) <= DIST_TO_ADD_DB)
-        addingFreq = freq;
-    else
-        addingFreq.reset();
-    
-    // Figure out which node, if any, we're hovering over
-    hoveringId = -1;
-    std::optional<EQNode> hoveringEQNode = getClosestEQNodeToMouseEvent (event);
-    if (hoveringEQNode.has_value())
-    {
-        hoveringId = hoveringEQNode.value().id;
-        targetSelectedDotSize = DOT_SIZE_DRAGGING;
-        
-        // If we're hovering, we don't want to show the ghost node to add
-        if (addingFreq.has_value())
-            addingFreq.reset();
-    }
-    else
-    {
-        targetSelectedDotSize = DOT_SIZE_DEFAULT;
-    }
+    updateHoveringAndAddingNode (event);
 }
 
 void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
@@ -185,6 +164,8 @@ void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::Mo
     // Limit scrolling to within MIN_FREQ and MAX_FREQ
     minFreqShowing = projectedMinFreqVal >= MIN_FREQ ? frequencyAtTime (leftSideOfWindow) : MIN_FREQ;
     maxFreqShowing = projectedMaxFreqVal <= MAX_FREQ ? frequencyAtTime (rightSideOfWindow) : MAX_FREQ;
+    
+    updateHoveringAndAddingNode (event);
 }
 
 void CabinEQGraph::timerCallback()
@@ -333,6 +314,34 @@ void CabinEQGraph::updateSelectedDotSize()
         selectedDotSize *= ANIM_STEP;
     else
         selectedDotSize /= ANIM_STEP;
+}
+
+void CabinEQGraph::updateHoveringAndAddingNode (const juce::MouseEvent& event)
+{
+    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    
+    // Show the ghost node to add if the mouse is on the curve
+    if (dbDistanceFromCurve (freq, ampl) <= DIST_TO_ADD_DB)
+        addingFreq = freq;
+    else
+        addingFreq.reset();
+    
+    // Figure out which node, if any, we're hovering over
+    hoveringId = -1;
+    std::optional<EQNode> hoveringEQNode = getClosestEQNodeToMouseEvent (event);
+    if (hoveringEQNode.has_value())
+    {
+        hoveringId = hoveringEQNode.value().id;
+        targetSelectedDotSize = DOT_SIZE_DRAGGING;
+        
+        // If we're hovering, we don't want to show the ghost node to add
+        if (addingFreq.has_value())
+            addingFreq.reset();
+    }
+    else
+    {
+        targetSelectedDotSize = DOT_SIZE_DEFAULT;
+    }
 }
 
 juce::ColourGradient CabinEQGraph::getCurveGradient()

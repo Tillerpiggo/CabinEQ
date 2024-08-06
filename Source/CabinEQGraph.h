@@ -63,6 +63,7 @@ private:
     void drawDots (juce::Graphics& g);
     void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color);
     void updateSelectedDotSize();
+    void updateHoveringAndAddingNode (const juce::MouseEvent& event);
     juce::ColourGradient getCurveGradient();
     juce::Colour getColorForFrequency(float frequency);
     juce::Point<float> coordsForEQNode (float frequency, float amplitude);
