@@ -28,6 +28,7 @@ public:
     virtual void stopPlaying() = 0; // stops playing the calibration tones
     virtual void stopTesting() = 0; // stops playing the testing tones (that are played when holding down ctrl/alt)
     virtual float getCurrPlayingFreq() = 0;
+    virtual float getCurrTestingFreq() = 0;
 };
 
 class CabinEQGraph   : public juce::Component,
@@ -87,6 +88,7 @@ private:
     void stopPlaying(); // stops playing the calibration tones
     void stopTesting(); // stops playing the testing tones (that are played when holding down ctrl/alt)
     float getCurrPlayingFreq();
+    float getCurrTestingFreq();
     
     // Dragging/zooming
     float minFreqShowing = 20.0f;

@@ -651,3 +651,8 @@ float CabinEQPage::getCurrPlayingFreq()
 {
     return processor.getCurrPlayingFreq();
 }
+
+float CabinEQPage::getCurrTestingFreq()
+{
+    return processor.getCurrTestingFreq();
+}

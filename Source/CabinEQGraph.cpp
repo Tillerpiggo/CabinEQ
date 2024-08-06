@@ -257,8 +257,8 @@ void CabinEQGraph::drawDots (juce::Graphics& g)
         }
         
         // Calculate coordinates of node
-        float testingFreq = getCurrPlayingFreq();
-        juce::Point<float> point = coordsForEQNode (testingFreq, curve.valueAtFrequency (testingFreq).first.real());
+        float testingFreq = getCurrTestingFreq();
+        juce::Point<float> point = coordsForEQNode (testingFreq, juce::Decibels::gainToDecibels (curve.valueAtFrequency (testingFreq).first.real()));
         float testDotRadius = DOT_SIZE_DRAGGING;
         
         // Draw node
@@ -538,4 +538,11 @@ float CabinEQGraph::getCurrPlayingFreq()
     if (listener == nullptr)
         return 1000.0f;
     return listener->getCurrPlayingFreq();
+}
+
+float CabinEQGraph::getCurrTestingFreq()
+{
+    if (listener == nullptr)
+        return 1000.0f;
+    return listener->getCurrTestingFreq();
 }

@@ -48,6 +48,7 @@ public:
     void stopPlaying() override;
     void stopTesting() override;
     float getCurrPlayingFreq() override;
+    float getCurrTestingFreq() override;
     
 private:
     CabinEQGraph cabinEQGraph;
