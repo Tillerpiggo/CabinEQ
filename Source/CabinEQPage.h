@@ -13,10 +13,12 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "EQNode.h"
+#include "CabinEQGraph.h"
 
 class CabinEQPage   : public juce::Component,
                       public juce::Slider::Listener,
-                      public juce::Timer
+                      public juce::Timer,
+                      public CabinEQGraphListener
 
 {
 public:
@@ -34,6 +36,17 @@ public:
     
     void sliderValueChanged (juce::Slider *slider) override;
     void timerCallback() override;
+    
+    // CabinEQGraphListener methods
+    int addNode (float freq, float ampl) override;
+    void updateNode (int id, float freq, float ampl) override;
+    void removeNode (int id) override;
+    void playValueAt (float freq, float ampl) override;
+    void testValueAt (float freq) override;
+    void stopPlaying() override;
+    void stopTesting() override;
+    std::vector<EQNode> getEQNodes() override;
+    float getCurrPlayingFreq() override;
     
 private:
     StartupMVPAudioProcessor& processor;

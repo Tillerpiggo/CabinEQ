@@ -19,16 +19,16 @@ class CabinEQGraphListener
 public:
     virtual ~CabinEQGraphListener() = default;
 
-    virtual int addNode (float freq, float ampl);
-    virtual void updateNode (int id, float freq, float ampl);
-    virtual void removeNode (int id);
-    virtual void playValueAt (float freq, float ampl); // the tone while dragging nodes
-    virtual void testValueAt (float freq); // for probing
-    virtual void stopPlaying(); // stops playing the calibration tones
-    virtual void stopTesting(); // stops playing the testing tones (that are played when holding down ctrl/alt)
+    virtual int addNode (float freq, float ampl) = 0;
+    virtual void updateNode (int id, float freq, float ampl) = 0;
+    virtual void removeNode (int id) = 0;
+    virtual void playValueAt (float freq, float ampl) = 0; // the tone while dragging nodes
+    virtual void testValueAt (float freq) = 0; // for probing
+    virtual void stopPlaying() = 0; // stops playing the calibration tones
+    virtual void stopTesting() = 0; // stops playing the testing tones (that are played when holding down ctrl/alt)
     
-    virtual std::vector<EQNode> getEQNodes();
-    virtual float getCurrPlayingFreq();
+    virtual std::vector<EQNode> getEQNodes() = 0;
+    virtual float getCurrPlayingFreq() = 0;
 };
 
 class CabinEQGraph   : public juce::Component,

@@ -598,3 +598,49 @@ std::optional<EQNode> CabinEQPage::getClosestEQNodeToMouseEvent (const juce::Mou
     
     return closestEQNode;
 }
+
+
+int CabinEQPage::addNode (float freq, float ampl)
+{
+    processor.addEQNode (freq, ampl, 0.0f, curveId);
+}
+
+void CabinEQPage::updateNode (int id, float freq, float ampl)
+{
+    processor.updateEQNode (id, freq, ampl, 0.0f, curveId);
+}
+
+void CabinEQPage::removeNode (int id)
+{
+    processor.removeEQNode (id, curveId);
+}
+
+void CabinEQPage::playValueAt (float freq, float ampl)
+{
+    processor.startCalibratingEQNode (EQNode (-1, freq, ampl, 0.0f));
+}
+
+void CabinEQPage::testValueAt (float freq)
+{
+    processor.startTestingAt (freq, curveId);
+}
+
+void CabinEQPage::stopPlaying()
+{
+    processor.endCalibratingEQNode();
+}
+
+void CabinEQPage::stopTesting()
+{
+    processor.endTesting();
+}
+
+std::vector<EQNode> CabinEQPage::getEQNodes()
+{
+    return processor.getEQNodes (curveId);
+}
+
+float CabinEQPage::getCurrPlayingFreq()
+{
+    return processor.getCurrPlayingFreq();
+}
