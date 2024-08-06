@@ -37,6 +37,20 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
 {
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
+    // If ctrl/alt is held down, start testing
+    if (event.mods.isCtrlDown() || event.mods.isAltDown())
+    {
+        isTestingFreq = true;
+        testValueAt (freq);
+        return;
+    }
+    else 
+    {
+        // Since ctrl/alt isn't held down, stop testing
+        isTestingFreq = false;
+        stopTesting();
+    }
+    
     // Show the ghost node to add if the mouse is on the curve
     if (dbDistanceFromCurve (freq, ampl) <= DIST_TO_ADD_DB)
         addingFreq = freq;
@@ -59,18 +73,6 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
     {
         targetSelectedDotSize = DOT_SIZE_DEFAULT;
     }
-    
-    // If ctrl/alt is held down, start testing
-    if (event.mods.isCtrlDown() || event.mods.isAltDown())
-    {
-        isTestingFreq = true;
-        testValueAt (freq);
-        return;
-    }
-    
-    // Since ctrl/alt isn't held down, stop testing
-    isTestingFreq = false;
-    stopTesting();
 }
 
 void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
