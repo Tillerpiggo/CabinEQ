@@ -13,13 +13,17 @@
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
     : processor (p), cabinEQGraph()
 {
-    addAndMakeVisible (referenceSlider);
+    dropdownProfiles.addItem ("+ Add Profile", 1);
     referenceSlider.setRange (-24.0f, 24.0f);
     referenceSlider.setValue (0.0f);
+    
+    cabinEQGraph.addListener (this);
+    dropdownProfiles.addListener (this);
     referenceSlider.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
-    cabinEQGraph.addListener (this);
+    addAndMakeVisible (dropdownProfiles);
+    addAndMakeVisible (referenceSlider);
 }
 
 CabinEQPage::~CabinEQPage()
@@ -36,16 +40,10 @@ void CabinEQPage::paint (juce::Graphics& g)
 void CabinEQPage::resized()
 {
     int padding = 10;
-    int sliderHeight = 50;
-    
-    // Calculate available height for the graph
-    int graphHeight = getHeight() - sliderHeight - (3 * padding); // Extra padding for top and bottom
-    
-    // Set bounds for the cabinEQGraph with padding on all sides
+    int graphHeight = getHeight() - (2 * padding) - 30; // Adjust for dropdown height
+
     cabinEQGraph.setBounds(0, 0, getWidth(), graphHeight);
-    
-    // Set bounds for the referenceSlider with padding
-    referenceSlider.setBounds(padding, getHeight() - sliderHeight - padding, getWidth() - (2 * padding), sliderHeight);
+    dropdownProfiles.setBounds(padding, getHeight() - padding - 30, getWidth() - (2 * padding), 30);
 }
 
 // ====================================================
@@ -105,5 +103,13 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
     if (slider == &referenceSlider)
     {
         processor.setReferenceVolume (slider->getValue());
+    }
+}
+
+void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
+{
+    if (comboBoxThatHasChanged == &dropdownProfiles)
+    {
+        // Do some action because something was selected...
     }
 }

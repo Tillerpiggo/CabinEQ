@@ -17,6 +17,7 @@
 
 class CabinEQPage   : public juce::Component,
                       public juce::Slider::Listener,
+                      public juce::ComboBox::Listener,
                       public CabinEQGraph::Listener
 {
 public:
@@ -39,12 +40,14 @@ public:
     float getCurrTestingFreq() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
+    void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
     
 private:
     StartupMVPAudioProcessor& processor;
     juce::String curveId;
     
     CabinEQGraph cabinEQGraph;
+    juce::ComboBox dropdownProfiles;
     juce::Slider referenceSlider;
     
     juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);

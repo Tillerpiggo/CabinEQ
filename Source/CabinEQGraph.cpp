@@ -207,11 +207,6 @@ void CabinEQGraph::removeListener()
     this->listener = nullptr;
 }
 
-void CabinEQGraph::setCurve (Curve& curve)
-{
-    this->curve = curve;
-}
-
 // =============================================
 void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
 {
