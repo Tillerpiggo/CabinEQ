@@ -146,39 +146,6 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         buffer.clear (i, 0, buffer.getNumSamples());
     
     playbackManager.processBlock (buffer);
-    /*
-    auto* leftChannel = buffer.getWritePointer(0);
-    auto* rightChannel = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : nullptr;
-    
-    if (playbackManager.getIsCalibrating())
-    {
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-        {
-            const std::pair<float, float> value = playbackManager.getNextSample();
-            leftChannel[sample] = value.first * 0.05 * 0.5;
-            
-            if (rightChannel)
-                rightChannel[sample] = value.second * 0.05 * 0.5;
-        }
-    }
-    else
-    {
-        // process audio through the filter
-        juce::dsp::AudioBlock<float> block (buffer);
-        juce::dsp::ProcessContextReplacing<float> context (block);
-        
-        if (isBypassed && hasPreparedFilter)
-        {
-//            gainFilter.process (context);
-            // TODO: Fix this
-            wetGainProcessor.process (context);
-        }
-        else
-        {
-            dryGainProcessor.process (context);
-        }
-    }
-     */
 }
 
 //==============================================================================
@@ -237,7 +204,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 //==============================================================================
 void StartupMVPAudioProcessor::applyCurve (juce::String profileName)
 {
-    playbackManager.updateFilterWithCurve (profileNamed (profileName).getCurve());
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        playbackManager.updateFilterWithCurve (profile->get().getCurve());
 }
 
 void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
@@ -250,29 +219,41 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
-Curve& StartupMVPAudioProcessor::getCurve (juce::String profileName)
+std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getCurve (juce::String profileName)
 {
-    return profileNamed (profileName).getCurve();
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().getCurve();
+    return std::nullopt;
 }
 
 int StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String profileName)
 {
-    return profileNamed (profileName).addEQNode (frequency, amplitude, pan);
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().addEQNode (frequency, amplitude, pan);
+    return -1;
 }
 
 void StartupMVPAudioProcessor::removeEQNode (int id, juce::String profileName)
 {
-    return profileNamed (profileName).removeEQNode (id);
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().removeEQNode (id);
 }
 
 void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName)
 {
-    return profileNamed (profileName).updateEQNode (id, frequency, amplitude, pan);
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().updateEQNode (id, frequency, amplitude, pan);
 }
 
 void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
 {
-    profileNamed (profileName).resetNodes ({});
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().resetNodes ({});
 }
 
 void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
@@ -296,14 +277,18 @@ float StartupMVPAudioProcessor::getCurrPlayingFreq()
     return playbackManager.getCurrPlayingFreq();
 }
 
-void StartupMVPAudioProcessor::startTestingAt (float freq, juce::String curveId)
+void StartupMVPAudioProcessor::startTestingAt (float freq, juce::String profileName)
 {
-    playbackManager.startTestingFreq (freq, getCurve (curveId));
+    auto curve = getCurve (profileName);
+    if (curve.has_value())
+        playbackManager.startTestingFreq (freq, curve->get());
 }
 
-void StartupMVPAudioProcessor::updateTestingAt (float freq, juce::String curveId)
+void StartupMVPAudioProcessor::updateTestingAt (float freq, juce::String profileName)
 {
-    playbackManager.updateTestingFreq (freq, getCurve (curveId));
+    auto curve = getCurve (profileName);
+    if (curve.has_value())
+        playbackManager.updateTestingFreq (freq, curve->get());
 }
 
 void StartupMVPAudioProcessor::endTesting()
@@ -318,7 +303,10 @@ float StartupMVPAudioProcessor::getCurrTestingFreq()
 
 const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes (juce::String profileName) const
 {
-    return profileNamed (profileName).getEQNodes();
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().getEQNodes();
+    return {};
 }
 
 void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
@@ -347,7 +335,7 @@ void StartupMVPAudioProcessor::setReferenceVolume (float volume)
     playbackManager.setReferenceVolume (volume);
 }
 
-CabinEQValueTree& StartupMVPAudioProcessor::profileNamed (juce::String profileName) const
+std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::profileNamed (juce::String profileName) const
 {
-    return cabinEQValueTreeManager.getProfileNamed (profileName)->get();
+    cabinEQValueTreeManager.getProfileNamed (profileName);
 }

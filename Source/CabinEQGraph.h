@@ -36,8 +36,10 @@ public:
         virtual float getCurrTestingFreq() = 0;
     };
     
-    CabinEQGraph (Curve& curve);
+    CabinEQGraph();
     ~CabinEQGraph() override;
+    
+    void setCurve (Curve& curve);
     
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -54,13 +56,13 @@ public:
     void removeListener();
     
 private:
-    Curve& curve;
+    std::optional<std::reference_wrapper<Curve>> curve;
     std::vector<EQNode> eqNodes;
     Listener* listener;
     
     // Drawing/animation
     void drawCurve (juce::Graphics& g, Curve& curve, int numPoints);
-    void drawDots (juce::Graphics& g);
+    void drawDots (juce::Graphics& g, Curve& curve);
     void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color);
     void updateSelectedDotSize();
     void updateHoveringAndAddingNode (const juce::MouseEvent& event);
@@ -74,7 +76,7 @@ private:
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
     bool mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const;
     float mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const;
-    float dbDistanceFromCurve (const float freq, const float ampl) const;
+    float dbDistanceFromCurve (const float freq, const float ampl, Curve& curve) const;
     std::optional<EQNode> getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const;
     void updateEQNodes();
     

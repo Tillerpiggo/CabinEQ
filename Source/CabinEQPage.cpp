@@ -11,7 +11,7 @@
 #include "CabinEQPage.h"
 
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
-    : processor (p), curveId (curveId), cabinEQGraph (p.getCurve (curveId))
+    : processor (p), cabinEQGraph()
 {
     addAndMakeVisible (referenceSlider);
     referenceSlider.setRange (-24.0f, 24.0f);

@@ -10,7 +10,7 @@
 
 #include "CabinEQGraph.h"
 
-CabinEQGraph::CabinEQGraph (Curve& curve) : curve (curve)
+CabinEQGraph::CabinEQGraph()
 {
     updateEQNodes();
     startTimer (5);
@@ -21,11 +21,21 @@ CabinEQGraph::~CabinEQGraph()
     removeListener();
 }
 
+void CabinEQGraph::setCurve (Curve& curve)
+{
+    this->curve = curve;
+}
+
 void CabinEQGraph::paint (juce::Graphics& g)
 {
     g.fillAll (BACKGROUND_COLOR);
-    drawCurve (g, curve, 300);
-    drawDots (g);
+    
+    if (curve.has_value())
+    {
+        drawCurve (g, curve->get(), 300);
+        drawDots (g, curve->get());
+    }
+    
 }
 
 void CabinEQGraph::resized()
@@ -222,7 +232,7 @@ void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
     g.strokePath (path, juce::PathStrokeType (CURVE_THICKNESS));
 }
 
-void CabinEQGraph::drawDots (juce::Graphics& g)
+void CabinEQGraph::drawDots (juce::Graphics& g, Curve& curve)
 {
     updateEQNodes();
     for (const auto& node : eqNodes)
@@ -334,10 +344,13 @@ void CabinEQGraph::updateSelectedDotSize()
 
 void CabinEQGraph::updateHoveringAndAddingNode (const juce::MouseEvent& event)
 {
+    if (! curve.has_value())
+        return;
+    
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     // Show the ghost node to add if the mouse is on the curve
-    if (dbDistanceFromCurve (freq, ampl) <= DIST_TO_ADD_DB)
+    if (dbDistanceFromCurve (freq, ampl, curve->get()) <= DIST_TO_ADD_DB)
         addingFreq = freq;
     else
         addingFreq.reset();
@@ -498,7 +511,7 @@ float CabinEQGraph::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQN
     return distance;
 }
 
-float CabinEQGraph::dbDistanceFromCurve (const float freq, const float ampl) const
+float CabinEQGraph::dbDistanceFromCurve (const float freq, const float ampl, Curve& curve) const
 {
     float curveGainAtFreq = curve.valueAtFrequency (freq).first.real();
     float curveDBAtFreq = juce::Decibels::gainToDecibels (curveGainAtFreq);
@@ -524,7 +537,8 @@ std::optional<EQNode> CabinEQGraph::getClosestEQNodeToMouseEvent (const juce::Mo
 
 void CabinEQGraph::updateEQNodes()
 {
-    eqNodes = curve.getEQNodes();
+    if (curve.has_value())
+        eqNodes = curve->get().getEQNodes();
 }
 
 int CabinEQGraph::addNode (float freq, float ampl)

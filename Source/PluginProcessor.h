@@ -67,7 +67,7 @@ public:
     void setIsBypassed (bool isBypassed);
     void setBypassBalance (float balance);
     
-    Curve& getCurve (juce::String profileName);
+    std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName);
     const std::vector<EQNode> getEQNodes (juce::String profileName) const;
     
     // Setting points
@@ -98,7 +98,7 @@ public:
     void setReferenceVolume (float volume);
 
 private:
-    CabinEQValueTree& profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
+    std::optional<std::reference_wrapper<CabinEQValueTree>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
     
     static const int FFT_SIZE = 10;
 
