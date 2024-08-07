@@ -16,7 +16,6 @@
 #include <cmath>
 
 #include "EQNode.h"
-#include "InverseFletcherMunsonCurve.h"
 
 class Curve
 {
@@ -46,6 +45,4 @@ protected:
     std::vector<EQNode> eqNodes;
     
     std::unordered_map<float, std::pair<std::complex<float>, std::complex<float>>> cache;
-    
-    InverseFletcherMunsonCurve inverseFM;
 };
