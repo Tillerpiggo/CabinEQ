@@ -14,16 +14,20 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()
 {
     dropdownProfiles.addItem ("+ Add Profile", 1);
+    
     referenceSlider.setRange (-24.0f, 24.0f);
     referenceSlider.setValue (0.0f);
     
     cabinEQGraph.addListener (this);
     dropdownProfiles.addListener (this);
     referenceSlider.addListener (this);
+    processor.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
     addAndMakeVisible (dropdownProfiles);
     addAndMakeVisible (referenceSlider);
+    
+    didLoadData();
 }
 
 CabinEQPage::~CabinEQPage()
@@ -138,4 +142,21 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             cabinEQGraph.setCurve (processor.getCurve (profileIdSelected)->get());
         }
     }
+}
+
+void CabinEQPage::didLoadData()
+{
+    dropdownProfiles.clear();
+    dropdownProfiles.addItem ("+ Add Profile", 1);
+    
+    // Add existing profiles to dropdown menu
+    int i = 2;
+    for (const auto& name : processor.getProfileNames())
+    {
+        dropdownProfiles.addItem (name, i);
+        i++;
+    }
+    
+    if (dropdownProfiles.getNumItems() > 1)
+        dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (2));
 }

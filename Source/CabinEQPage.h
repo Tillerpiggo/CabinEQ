@@ -18,7 +18,8 @@
 class CabinEQPage   : public juce::Component,
                       public juce::Slider::Listener,
                       public juce::ComboBox::Listener,
-                      public CabinEQGraph::Listener
+                      public CabinEQGraph::Listener,
+                      public StartupMVPAudioProcessor::Listener
 {
 public:
     CabinEQPage (StartupMVPAudioProcessor& p);
@@ -41,6 +42,8 @@ public:
     
     void sliderValueChanged (juce::Slider *slider) override;
     void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
+    
+    void didLoadData() override;
     
 private:
     StartupMVPAudioProcessor& processor;

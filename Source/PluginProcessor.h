@@ -19,6 +19,13 @@
 class StartupMVPAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() = default;
+        virtual void didLoadData() = 0;
+    };
+    
     //==============================================================================
     StartupMVPAudioProcessor();
     ~StartupMVPAudioProcessor() override;
@@ -102,6 +109,10 @@ public:
     
     // misc
     void setReferenceVolume (float volume);
+    
+    // Listener
+    void addListener (Listener* listener);
+    void removeListener();
 
 private:
     std::optional<std::reference_wrapper<CabinEQValueTree>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
@@ -112,6 +123,9 @@ private:
     CabinEQValueTreeManager cabinEQValueTreeManager;
     
     juce::dsp::ProcessSpec spec;
+    
+    Listener* listener = nullptr;
+    bool hasLoadedData = false;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)

@@ -181,6 +181,13 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         {
             parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
             cabinEQValueTreeManager.initProfiles();
+            
+            if (! hasLoadedData)
+            {
+                if (listener != nullptr)
+                    listener->didLoadData();
+                hasLoadedData = true;
+            }
         }
     }
 }
@@ -354,6 +361,16 @@ float StartupMVPAudioProcessor::getCurrSineSweepFreq()
 void StartupMVPAudioProcessor::setReferenceVolume (float volume)
 {
     playbackManager.setReferenceVolume (volume);
+}
+
+void StartupMVPAudioProcessor::addListener (Listener* listener)
+{
+    this->listener = listener;
+}
+
+void StartupMVPAudioProcessor::removeListener()
+{
+    this->listener = nullptr;
 }
 
 std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::profileNamed (juce::String profileName) const

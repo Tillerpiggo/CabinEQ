@@ -34,6 +34,13 @@ void CabinEQValueTreeManager::removeProfile (juce::String profileName)
 
 void CabinEQValueTreeManager::initProfiles()
 {
+    for (const auto& node : apvts.state)
+    {
+        std::cout << "node: " << node.getType().toString() << std::endl;
+        profiles.push_back (std::make_unique<CabinEQValueTree> (apvts, node.getType().toString()));
+    }
+        
+    
     for (const auto& profile : profiles)
         profile->initValueTreeFromAPVTS();
 }
@@ -48,12 +55,8 @@ const std::vector<juce::String> CabinEQValueTreeManager::getProfileNames() const
 
 std::optional<std::reference_wrapper<CabinEQValueTree>> CabinEQValueTreeManager::getProfileNamed (juce::String profileName) const
 {
-    std::cout << "getting profile named: " << profileName << std::endl;
     for (int i = 0; i < profiles.size(); ++i)
         if (profiles[i]->getName() == profileName)
             return std::ref (*profiles[i]);
-    
-    std::cout << "couldn't find any profile named " << profileName << std::endl;
-    
     return std::nullopt;
 }
