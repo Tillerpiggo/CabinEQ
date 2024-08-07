@@ -21,9 +21,7 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), parameters (*this, nullptr, "Params", createParameterLayout()),
-                          headphoneEQValueTree (parameters, "HeadphoneEQ"),
-                          speakerEQValueTree (parameters, "SpeakerEQ"),
-                          activeCurveId (HEADPHONE_EQ_ID)
+                          cabinEQValueTreeManager (parameters)
 
 #endif
 {
@@ -215,8 +213,7 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
         if (xmlState->hasTagName(parameters.state.getType()))
         {
             parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-            headphoneEQValueTree.initValueTreeFromAPVTS();
-            speakerEQValueTree.initValueTreeFromAPVTS();
+            cabinEQValueTreeManager.initProfiles();
         }
     }
 }
@@ -238,18 +235,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
-void StartupMVPAudioProcessor::applyCurve()
+void StartupMVPAudioProcessor::applyCurve (juce::String profileName)
 {
-    if (activeCurveId == HEADPHONE_EQ_ID)
-        playbackManager.updateFilterWithCurve (headphoneEQValueTree.getCurve());
-    else
-        playbackManager.updateFilterWithCurve (speakerEQValueTree.getCurve());
+    playbackManager.updateFilterWithCurve (profileNamed (profileName).getCurve());
 }
 
 void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
 {
-    if (isBypassed) // isBypassed = true means the filter is being applied. I should probably rename this at some point.
-        applyCurve();
     playbackManager.setIsBypassed (isBypassed);
 }
 
@@ -258,48 +250,29 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
-Curve& StartupMVPAudioProcessor::getCurve (juce::String curveId)
+Curve& StartupMVPAudioProcessor::getCurve (juce::String profileName)
 {
-    if (curveId == HEADPHONE_EQ_ID)
-    {
-        return headphoneEQValueTree.getCurve();
-    }
-    else
-    {
-        return speakerEQValueTree.getCurve();
-    }
+    return profileNamed (profileName).getCurve();
 }
 
-int StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String curveId)
+int StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String profileName)
 {
-    if (curveId == HEADPHONE_EQ_ID)
-        return headphoneEQValueTree.addEQNode (frequency, amplitude, pan);
-    else
-        return speakerEQValueTree.addEQNode (frequency, amplitude, pan);
+    return profileNamed (profileName).addEQNode (frequency, amplitude, pan);
 }
 
-void StartupMVPAudioProcessor::removeEQNode (int id, juce::String curveId)
+void StartupMVPAudioProcessor::removeEQNode (int id, juce::String profileName)
 {
-    if (curveId == HEADPHONE_EQ_ID)
-        headphoneEQValueTree.removeEQNode (id);
-    else
-        speakerEQValueTree.removeEQNode (id);
+    return profileNamed (profileName).removeEQNode (id);
 }
 
-void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId)
+void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName)
 {
-    if (curveId == HEADPHONE_EQ_ID)
-        headphoneEQValueTree.updateEQNode (id, frequency, amplitude, pan);
-    else
-        speakerEQValueTree.updateEQNode (id, frequency, amplitude, pan);
+    return profileNamed (profileName).updateEQNode (id, frequency, amplitude, pan);
 }
 
-void StartupMVPAudioProcessor::clearEQNodes (juce::String curveId)
+void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
 {
-    if (curveId == HEADPHONE_EQ_ID)
-        headphoneEQValueTree.resetNodes ({});
-    else
-        speakerEQValueTree.resetNodes ({});
+    profileNamed (profileName).resetNodes ({});
 }
 
 void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
@@ -343,12 +316,9 @@ float StartupMVPAudioProcessor::getCurrTestingFreq()
     return playbackManager.getCurrTestingFreq();
 }
 
-const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes (juce::String curveId) const
+const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes (juce::String profileName) const
 {
-    if (curveId == HEADPHONE_EQ_ID)
-        return headphoneEQValueTree.getEQNodes();
-    else
-        return speakerEQValueTree.getEQNodes();
+    return profileNamed (profileName).getEQNodes();
 }
 
 void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
@@ -377,7 +347,7 @@ void StartupMVPAudioProcessor::setReferenceVolume (float volume)
     playbackManager.setReferenceVolume (volume);
 }
 
-void StartupMVPAudioProcessor::setActiveCurve (juce::String curveId)
+CabinEQValueTree& StartupMVPAudioProcessor::profileNamed (juce::String profileName) const
 {
-    activeCurveId = curveId;
+    return cabinEQValueTreeManager.getProfileNamed (profileName)->get();
 }

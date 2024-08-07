@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 #include "PlaybackManager.h"
-#include "CabinEQValueTree.h"
+#include "CabinEQValueTreeManager.h"
 
 //==============================================================================
 /**
@@ -63,18 +63,18 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
-    void applyCurve();
+    void applyCurve (juce::String profileName);
     void setIsBypassed (bool isBypassed);
     void setBypassBalance (float balance);
     
-    Curve& getCurve (juce::String curveId);
-    const std::vector<EQNode> getEQNodes (juce::String curveId) const;
+    Curve& getCurve (juce::String profileName);
+    const std::vector<EQNode> getEQNodes (juce::String profileName) const;
     
     // Setting points
-    int addEQNode (float frequency, float amplitude, float pan, juce::String curveId);
-    void removeEQNode (int id, juce::String curveId);
-    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String curveId);
-    void clearEQNodes (juce::String curveId);
+    int addEQNode (float frequency, float amplitude, float pan, juce::String profileName);
+    void removeEQNode (int id, juce::String profileName);
+    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName);
+    void clearEQNodes (juce::String profileName);
     
     // Changing points
     void startCalibratingEQNode (EQNode eqNode);
@@ -83,8 +83,8 @@ public:
     float getCurrPlayingFreq();
     
     // Testing
-    void startTestingAt (float freq, juce::String curveId);
-    void updateTestingAt (float freq, juce::String curveId);
+    void startTestingAt (float freq, juce::String profileName);
+    void updateTestingAt (float freq, juce::String profileName);
     void endTesting();
     float getCurrTestingFreq();
     
@@ -96,18 +96,14 @@ public:
     
     // misc
     void setReferenceVolume (float volume);
-    void setActiveCurve (juce::String curveId);
 
 private:
+    CabinEQValueTree& profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
+    
     static const int FFT_SIZE = 10;
 
     PlaybackManager playbackManager;
-    CabinEQValueTree headphoneEQValueTree;
-    CabinEQValueTree speakerEQValueTree;
-    
-    juce::String HEADPHONE_EQ_ID = "HeadphoneEQ";
-    juce::String SPEAKER_EQ_ID = "SpeakerEQ";
-    juce::String activeCurveId;
+    CabinEQValueTreeManager cabinEQValueTreeManager;
     
     juce::dsp::ProcessSpec spec;
     

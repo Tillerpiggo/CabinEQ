@@ -16,28 +16,36 @@ CabinEQValueTreeManager::CabinEQValueTreeManager (juce::AudioProcessorValueTreeS
 
 void CabinEQValueTreeManager::addProfile (juce::String profileName)
 {
-    profiles.push_back (std::make_unique<CabinEQValueTree> (apvts, profileName));
+//    profiles.push_back (std::make_unique<CabinEQValueTree> (apvts, profileName));
 }
 
 void CabinEQValueTreeManager::removeProfile (juce::String profileName)
 {
-    for (int i = 0; i < profiles.size(); ++i)
-        if (profiles[i]->getName() == profileName)
-            profiles.erase (profiles.begin() + i);
+//    for (int i = 0; i < profiles.size(); ++i)
+//        if (profiles[i]->getName() == profileName)
+//            profiles.erase (profiles.begin() + i);
+}
+
+void CabinEQValueTreeManager::initProfiles()
+{
+//    for (const auto& profile : profiles)
+//        profile->initValueTreeFromAPVTS();
 }
 
 const std::vector<juce::String> CabinEQValueTreeManager::getProfileNames() const
 {
-    std::vector<juce::String> profileNames;
-    for (const auto& profile : profiles)
-        profileNames.push_back (profile->getName());
-    return profileNames;
+    return { "hello" };
+//    std::vector<juce::String> profileNames;
+//    for (const auto& profile : profiles)
+//        profileNames.push_back (profile->getName());
+//    return profileNames;
 }
 
 std::optional<std::reference_wrapper<CabinEQValueTree>> CabinEQValueTreeManager::getProfileNamed (juce::String profileName) const
 {
-    for (int i = 0; i < profiles.size(); ++i)
-        if (profiles[i]->getName() == profileName)
-            return std::ref (*profiles[i]);
     return std::nullopt;
+//    for (int i = 0; i < profiles.size(); ++i)
+//        if (profiles[i]->getName() == profileName)
+//            return std::ref (*profiles[i]);
+//    return std::nullopt;
 }

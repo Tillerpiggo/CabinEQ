@@ -68,7 +68,6 @@ private:
     juce::Colour getColorForFrequency(float frequency);
     juce::Point<float> coordsForEQNode (float frequency, float amplitude);
     
-    
     // Utils
     float frequencyAtTime (float t) const;
     float timeAtFrequency (float freq) const;

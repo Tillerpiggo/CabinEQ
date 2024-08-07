@@ -79,11 +79,11 @@ void FilterPage::buttonClicked(juce::Button* button)
     if (button == &applyFilterButton)
     {
         isHeadphoneEQSelected = ! isHeadphoneEQSelected;
-        if (isHeadphoneEQSelected)
-            processor.setActiveCurve ("HeadphoneEQ");
-        else
-            processor.setActiveCurve ("SpeakerEQ");
-        processor.applyCurve();
+//        if (isHeadphoneEQSelected)
+//            processor.setActiveCurve ("HeadphoneEQ");
+//        else
+//            processor.setActiveCurve ("SpeakerEQ");
+//        processor.applyCurve();
     }
     else if (button == &bypassButton)
     {
