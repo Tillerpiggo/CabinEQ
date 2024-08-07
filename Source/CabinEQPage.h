@@ -21,7 +21,7 @@ class CabinEQPage   : public juce::Component,
                       public CabinEQGraph::Listener
 {
 public:
-    CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId);
+    CabinEQPage (StartupMVPAudioProcessor& p);
     ~CabinEQPage() override;
     
     void paint (juce::Graphics&) override;
@@ -44,7 +44,7 @@ public:
     
 private:
     StartupMVPAudioProcessor& processor;
-    juce::String curveId;
+    juce::String profileId;
     
     CabinEQGraph cabinEQGraph;
     juce::ComboBox dropdownProfiles;

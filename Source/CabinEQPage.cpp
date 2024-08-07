@@ -10,8 +10,8 @@
 
 #include "CabinEQPage.h"
 
-CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
-    : processor (p), cabinEQGraph()
+CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
+    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()
 {
     dropdownProfiles.addItem ("+ Add Profile", 1);
     referenceSlider.setRange (-24.0f, 24.0f);
@@ -49,17 +49,17 @@ void CabinEQPage::resized()
 // ====================================================
 int CabinEQPage::addNode (float freq, float ampl)
 {
-    return processor.addEQNode (freq, ampl, 0.0f, curveId);
+    return processor.addEQNode (freq, ampl, 0.0f, profileId);
 }
 
 void CabinEQPage::updateNode (int id, float freq, float ampl)
 {
-    processor.updateEQNode (id, freq, ampl, 0.0f, curveId);
+    processor.updateEQNode (id, freq, ampl, 0.0f, profileId);
 }
 
 void CabinEQPage::removeNode (int id)
 {
-    processor.removeEQNode (id, curveId);
+    processor.removeEQNode (id, profileId);
 }
 
 void CabinEQPage::startPlayingValueAt (float freq, float ampl)
@@ -74,7 +74,7 @@ void CabinEQPage::playValueAt (float freq, float ampl)
 
 void CabinEQPage::testValueAt (float freq)
 {
-    processor.startTestingAt (freq, curveId);
+    processor.startTestingAt (freq, profileId);
 }
 
 void CabinEQPage::stopPlaying()
@@ -111,5 +111,22 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == &dropdownProfiles)
     {
         // Do some action because something was selected...
+        if (dropdownProfiles.getSelectedId() == 1)
+        {
+            // Helpful constants
+            int numItems = dropdownProfiles.getNumItems();
+            juce::String profileName = "Profile" + std::to_string (numItems);
+            
+            // Add profile to dropdown
+            if (numItems == 1)
+                dropdownProfiles.addSeparator();
+            dropdownProfiles.addItem (profileName, numItems + 1);
+            dropdownProfiles.setSelectedId (0, juce::NotificationType::dontSendNotification);
+            
+            // Add & retrieve profile from processor
+            processor.addProfile (profileName);
+            profileId = profileName;
+            cabinEQGraph.setCurve (processor.getCurve (profileName)->get());
+        }
     }
 }

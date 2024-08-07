@@ -224,6 +224,7 @@ std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getCurve 
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         return profile->get().getCurve();
+    std::cout << "unable to get curve in pluginProcessor for profile named " << profileName << std::endl;
     return std::nullopt;
 }
 
@@ -324,6 +325,11 @@ const std::vector<juce::String> StartupMVPAudioProcessor::getProfileNames() cons
     return cabinEQValueTreeManager.getProfileNames();
 }
 
+std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::getProfileNamed (juce::String profileName) const
+{
+    return cabinEQValueTreeManager.getProfileNamed (profileName);
+}
+
 void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
 {
     playbackManager.setIsSweeping (true);
@@ -352,5 +358,5 @@ void StartupMVPAudioProcessor::setReferenceVolume (float volume)
 
 std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::profileNamed (juce::String profileName) const
 {
-    cabinEQValueTreeManager.getProfileNamed (profileName);
+    return cabinEQValueTreeManager.getProfileNamed (profileName);
 }
