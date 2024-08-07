@@ -110,7 +110,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 {
     if (comboBoxThatHasChanged == &dropdownProfiles)
     {
-        // Do some action because something was selected...
+        // Add a profile if you select "+ Add Profile"
         if (dropdownProfiles.getSelectedId() == 1)
         {
             // Helpful constants
@@ -121,12 +121,21 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             if (numItems == 1)
                 dropdownProfiles.addSeparator();
             dropdownProfiles.addItem (profileName, numItems + 1);
-            dropdownProfiles.setSelectedId (0, juce::NotificationType::dontSendNotification);
+            dropdownProfiles.setSelectedId (numItems + 1, juce::NotificationType::dontSendNotification);
             
             // Add & retrieve profile from processor
             processor.addProfile (profileName);
             profileId = profileName;
             cabinEQGraph.setCurve (processor.getCurve (profileName)->get());
+        }
+        
+        // Go to a profile if you select the profile
+        else
+        {
+            int selectedIndex = dropdownProfiles.indexOfItemId (dropdownProfiles.getSelectedId());
+            juce::String profileIdSelected = dropdownProfiles.getItemText (selectedIndex);
+            profileId = profileIdSelected;
+            cabinEQGraph.setCurve (processor.getCurve (profileIdSelected)->get());
         }
     }
 }
