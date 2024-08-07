@@ -12,7 +12,6 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "CurveComponent.h"
 
 // This page displays the curve of the current filter, contains a slider to adjust the balance of volumes
 // and and buttons to apply the filter and bypass it

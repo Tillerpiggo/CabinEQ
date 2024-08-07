@@ -38,7 +38,6 @@ void FilterPage::resized()
 {
     auto area = getLocalBounds();
 
-    auto halfHeight = area.getHeight() / 2;
     auto buttonHeight = 100;
     auto sliderHeight = 50;
     auto buttonWidth = area.getWidth() / 2;
