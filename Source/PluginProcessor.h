@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 #include "PlaybackManager.h"
-#include "ClearEQValueTree.h"
+#include "CabinEQValueTree.h"
 
 //==============================================================================
 /**
@@ -102,8 +102,8 @@ private:
     static const int FFT_SIZE = 10;
 
     PlaybackManager playbackManager;
-    ClearEQValueTree headphoneEQValueTree;
-    ClearEQValueTree speakerEQValueTree;
+    CabinEQValueTree headphoneEQValueTree;
+    CabinEQValueTree speakerEQValueTree;
     
     juce::String HEADPHONE_EQ_ID = "HeadphoneEQ";
     juce::String SPEAKER_EQ_ID = "SpeakerEQ";

@@ -26,8 +26,6 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    void sliderValueChanged (juce::Slider *slider) override;
-    
     // CabinEQGraphListener methods
     int addNode (float freq, float ampl) override;
     void updateNode (int id, float freq, float ampl) override;
@@ -40,19 +38,14 @@ public:
     float getCurrPlayingFreq() override;
     float getCurrTestingFreq() override;
     
-private:
-    CabinEQGraph cabinEQGraph;
+    void sliderValueChanged (juce::Slider *slider) override;
     
+private:
     StartupMVPAudioProcessor& processor;
     juce::String curveId;
     
+    CabinEQGraph cabinEQGraph;
     juce::Slider referenceSlider;
     
-    static constexpr float MIN_FREQ = 20.0f;
-    static constexpr float MAX_FREQ = 20000.0f;
-    
-    void updateEQNodes();
-    
-    std::vector<EQNode> eqNodes;
     juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
 };

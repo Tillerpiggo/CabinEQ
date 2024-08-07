@@ -15,10 +15,14 @@
             file="Source/PlaybackManager.cpp"/>
       <FILE id="amZ4ZY" name="PlaybackManager.h" compile="0" resource="0"
             file="Source/PlaybackManager.h"/>
-      <FILE id="tErBau" name="ClearEQValueTree.cpp" compile="1" resource="0"
-            file="Source/ClearEQValueTree.cpp"/>
-      <FILE id="ZDls9P" name="ClearEQValueTree.h" compile="0" resource="0"
-            file="Source/ClearEQValueTree.h"/>
+      <FILE id="tErBau" name="CabinEQValueTree.cpp" compile="1" resource="0"
+            file="Source/CabinEQValueTree.cpp"/>
+      <FILE id="ZDls9P" name="CabinEQValueTree.h" compile="0" resource="0"
+            file="Source/CabinEQValueTree.h"/>
+      <FILE id="y7TFzS" name="CabinEQValueTreeManager.cpp" compile="1" resource="0"
+            file="Source/CabinEQValueTreeManager.cpp"/>
+      <FILE id="NXPdqU" name="CabinEQValueTreeManager.h" compile="0" resource="0"
+            file="Source/CabinEQValueTreeManager.h"/>
       <FILE id="h9bYnu" name="EQNode.h" compile="0" resource="0" file="Source/EQNode.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="GYQxO0" name="CabinEQPage.cpp" compile="1" resource="0" file="Source/CabinEQPage.cpp"/>

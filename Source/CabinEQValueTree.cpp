@@ -8,13 +8,13 @@
   ==============================================================================
 */
 
-#include "ClearEQValueTree.h"
+#include "CabinEQValueTree.h"
 
-ClearEQValueTree::ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
+CabinEQValueTree::CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
     : apvts (apvts), idProfile (identifier), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
 {}
 
-const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
+const std::vector<EQNode> CabinEQValueTree::getEQNodes() const
 {
     std::vector<EQNode> eqNodes;
     if (! valueTree.isValid())
@@ -32,12 +32,12 @@ const std::vector<EQNode> ClearEQValueTree::getEQNodes() const
     return eqNodes;
 }
 
-Curve& ClearEQValueTree::getCurve()
+Curve& CabinEQValueTree::getCurve()
 {
     return curve;
 }
 
-void ClearEQValueTree::addEQNode (const int id, const float frequency, const float amplitude, const float pan)
+void CabinEQValueTree::addEQNode (const int id, const float frequency, const float amplitude, const float pan)
 {
     if (! hasBeenInitialized) return;
     
@@ -56,7 +56,7 @@ void ClearEQValueTree::addEQNode (const int id, const float frequency, const flo
     curve.updateWithEQNodes (getEQNodes());
 }
 
-int ClearEQValueTree::addEQNode (const float frequency, const float amplitude, const float pan)
+int CabinEQValueTree::addEQNode (const float frequency, const float amplitude, const float pan)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -75,7 +75,7 @@ int ClearEQValueTree::addEQNode (const float frequency, const float amplitude, c
     return id;
 }
 
-void ClearEQValueTree::removeEQNode (const int id)
+void CabinEQValueTree::removeEQNode (const int id)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -87,7 +87,7 @@ void ClearEQValueTree::removeEQNode (const int id)
     curve.updateWithEQNodes (getEQNodes());
 }
 
-void ClearEQValueTree::updateEQNode (const int id, const float frequency, const float amplitude, const float pan)
+void CabinEQValueTree::updateEQNode (const int id, const float frequency, const float amplitude, const float pan)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -104,7 +104,7 @@ void ClearEQValueTree::updateEQNode (const int id, const float frequency, const 
     curve.updateWithEQNodes (getEQNodes());
 }
 
-void ClearEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
+void CabinEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -117,7 +117,7 @@ void ClearEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
     curve.updateWithEQNodes (getEQNodes());
 }
 
-void ClearEQValueTree::initValueTreeFromAPVTS()
+void CabinEQValueTree::initValueTreeFromAPVTS()
 {
     valueTree = apvts.state.getChildWithName (idProfile);
 
@@ -132,13 +132,18 @@ void ClearEQValueTree::initValueTreeFromAPVTS()
     hasBeenInitialized = true;
 }
 
-void ClearEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)
+const juce::String CabinEQValueTree::getName() const
+{
+    return idProfile.toString();
+}
+
+void CabinEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)
 {
     apvts.state.removeAllChildren (nullptr);
     apvts.state.removeAllProperties (nullptr);
 }
 
-void ClearEQValueTree::printValueTree (juce::ValueTree valueTree) const
+void CabinEQValueTree::printValueTree (juce::ValueTree valueTree) const
 {
     if (valueTree.isValid())
     {

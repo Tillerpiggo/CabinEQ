@@ -16,10 +16,10 @@
 
 /// This class wraps and provides helper methods on a ValueTree to persist the set points of a single profile. It should be used to initially load and save
 /// this data, rather than to actively manage it.
-class ClearEQValueTree
+class CabinEQValueTree
 {
 public:
-    ClearEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier);
+    CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier);
     
     const std::vector<EQNode> getEQNodes() const; // constructs set points matching the set points we have in memory
     Curve& getCurve();
@@ -31,6 +31,7 @@ public:
     void resetNodes (const std::vector<EQNode>& eqNodes); // makes this value tree store the given set points
     
     void initValueTreeFromAPVTS(); // sets value tree to match the one in apvts
+    const juce::String getName() const;
     
 private:
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);

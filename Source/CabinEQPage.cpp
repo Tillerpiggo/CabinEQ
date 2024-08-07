@@ -18,8 +18,6 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId)
     referenceSlider.setValue (0.0f);
     referenceSlider.addListener (this);
     
-    updateEQNodes();
-    
     addAndMakeVisible (cabinEQGraph);
     cabinEQGraph.addListener (this);
 }
@@ -32,10 +30,7 @@ CabinEQPage::~CabinEQPage()
 
 void CabinEQPage::paint (juce::Graphics& g)
 {
-//    float currFreq = processor.getCurrPlayingFreq();
     g.fillAll (backgroundColor);
-//    drawCurve (g, processor.getCurve (curveId), 4000);
-//    drawDots (g);
 }
 
 void CabinEQPage::resized()
@@ -51,19 +46,6 @@ void CabinEQPage::resized()
     
     // Set bounds for the referenceSlider with padding
     referenceSlider.setBounds(padding, getHeight() - sliderHeight - padding, getWidth() - (2 * padding), sliderHeight);
-}
-
-void CabinEQPage::sliderValueChanged (juce::Slider *slider)
-{
-    if (slider == &referenceSlider)
-    {
-        processor.setReferenceVolume (slider->getValue());
-    }
-}
-
-void CabinEQPage::updateEQNodes()
-{
-    eqNodes = processor.getEQNodes(curveId);
 }
 
 // ====================================================
@@ -115,4 +97,13 @@ float CabinEQPage::getCurrPlayingFreq()
 float CabinEQPage::getCurrTestingFreq()
 {
     return processor.getCurrTestingFreq();
+}
+
+// ====================================================
+void CabinEQPage::sliderValueChanged (juce::Slider *slider)
+{
+    if (slider == &referenceSlider)
+    {
+        processor.setReferenceVolume (slider->getValue());
+    }
 }
