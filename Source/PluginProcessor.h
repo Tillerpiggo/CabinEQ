@@ -70,6 +70,11 @@ public:
     std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName);
     const std::vector<EQNode> getEQNodes (juce::String profileName) const;
     
+    // Profiles
+    void addProfile (juce::String profileName);
+    void removeProfile (juce::String profileName);
+    const std::vector<juce::String> getProfileNames() const;
+    
     // Setting points
     int addEQNode (float frequency, float amplitude, float pan, juce::String profileName);
     void removeEQNode (int id, juce::String profileName);

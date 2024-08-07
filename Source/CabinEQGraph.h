@@ -54,6 +54,7 @@ public:
     
     void addListener (Listener* listener);
     void removeListener();
+    void setCurve (Curve& curve);
     
 private:
     std::optional<std::reference_wrapper<Curve>> curve;

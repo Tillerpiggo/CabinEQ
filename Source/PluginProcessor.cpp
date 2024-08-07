@@ -309,6 +309,21 @@ const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes (juce::String pro
     return {};
 }
 
+void StartupMVPAudioProcessor::addProfile (juce::String profileName)
+{
+    cabinEQValueTreeManager.addProfile (profileName);
+}
+
+void StartupMVPAudioProcessor::removeProfile (juce::String profileName)
+{
+    cabinEQValueTreeManager.removeProfile (profileName);
+}
+
+const std::vector<juce::String> StartupMVPAudioProcessor::getProfileNames() const
+{
+    return cabinEQValueTreeManager.getProfileNames();
+}
+
 void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
 {
     playbackManager.setIsSweeping (true);
