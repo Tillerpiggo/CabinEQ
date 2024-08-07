@@ -191,6 +191,18 @@ void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::Mo
     updateHoveringAndAddingNode (event);
 }
 
+bool CabinEQGraph::keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent)
+{
+    return true;
+}
+
+bool CabinEQGraph::keyStateChanged (bool isKeyDown, juce::Component *originatingComponent)
+{
+    isTestingFreq = false;
+    stopTesting();
+    return true;
+}
+
 void CabinEQGraph::timerCallback()
 {
     updateSelectedDotSize();

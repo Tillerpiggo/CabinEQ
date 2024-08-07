@@ -15,6 +15,7 @@
 #include "EQNode.h"
 
 class CabinEQGraph   : public juce::Component,
+                       public juce::KeyListener,
                        public juce::Timer
 
 {
@@ -49,6 +50,9 @@ public:
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
+    
+    bool keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent) override;
+    bool keyStateChanged (bool isKeyDown, juce::Component *originatingComponent) override;
     
     void timerCallback() override;
     
