@@ -43,6 +43,7 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
         isTestingFreq = true;
         testValueAt (freq);
         hoveringId = -1;
+        addingFreq.reset();
         return;
     }
     else 
@@ -97,6 +98,8 @@ void CabinEQGraph::mouseDrag (const juce::MouseEvent &event)
     {
         isTestingFreq = true;
         testValueAt (freq);
+        hoveringId = -1;
+        addingFreq.reset();
         return;
     }
     
@@ -148,6 +151,15 @@ void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::Mo
 {
     // Useful constants
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
+    
+    // So that testing keeps moving when clicking
+    if (event.mods.isCtrlDown() || event.mods.isAltDown())
+    {
+        isTestingFreq = true;
+        testValueAt (freq);
+        hoveringId = -1;
+        addingFreq.reset();
+    }
     
     // Math to figure out how much left/right side of window should move
     float p = 1 - (wheel.deltaY); // % change in window width
@@ -339,7 +351,7 @@ void CabinEQGraph::updateHoveringAndAddingNode (const juce::MouseEvent& event)
         if (addingFreq.has_value())
             addingFreq.reset();
     }
-    else
+    else if (! (event.mods.isCtrlDown() || event.mods.isAltDown()))
     {
         targetSelectedDotSize = DOT_SIZE_DEFAULT;
     }
