@@ -18,7 +18,7 @@
 class CabinEQPage   : public juce::Component,
                       public juce::Slider::Listener,
                       public juce::Timer,
-                      public CabinEQGraphListener
+                      public CabinEQGraph::Listener
 {
 public:
     CabinEQPage (StartupMVPAudioProcessor& p, juce::String curveId);
@@ -26,14 +26,6 @@ public:
     
     void paint (juce::Graphics&) override;
     void resized() override;
-    
-    /*
-    void mouseMove (const juce::MouseEvent &event) override;
-    void mouseDown (const juce::MouseEvent &event) override;
-    void mouseDrag (const juce::MouseEvent &event) override;
-    void mouseUp (const juce::MouseEvent &event) override;
-    void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
-     */
     
     void sliderValueChanged (juce::Slider *slider) override;
     void timerCallback() override;
@@ -107,7 +99,7 @@ private:
     std::optional<float> targetSelectedDotSize;
     
     const juce::Colour I_LIKE_THE_ORANGE = juce::Colour::fromRGB(255, 180, 0);
-    juce::Colour backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2);
+    juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
     
     static constexpr float DIST_TO_ADD_DB = 1.0f;
     std::optional<float> addingFreq;

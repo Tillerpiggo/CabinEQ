@@ -187,7 +187,7 @@ void CabinEQGraph::timerCallback()
     repaint();
 }
 
-void CabinEQGraph::addListener (CabinEQGraphListener* listener)
+void CabinEQGraph::addListener (Listener* listener)
 {
     this->listener = listener;
 }
@@ -203,7 +203,6 @@ void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
     // Get the gradient for the curve
     juce::ColourGradient gradient = getCurveGradient();
     juce::Path path;
-    path.startNewSubPath (0, 0);
     
     g.setGradientFill (gradient);
     
@@ -214,7 +213,11 @@ void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
         
         float freq = frequencyAtTime (t);
         float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
-        path.lineTo (coordsForEQNode (freq, ampl));
+        juce::Point<float> coords = coordsForEQNode (freq, ampl);
+        if (i == 0)
+            path.startNewSubPath (coords);
+        else
+            path.lineTo (coords);
     }
     g.strokePath (path, juce::PathStrokeType (CURVE_THICKNESS));
 }
@@ -434,6 +437,7 @@ juce::Point<float> CabinEQGraph::coordsForEQNode (float frequency, float amplitu
     // Calculate (x, y) coords and return
     float x = getWidth() * timeAtFrequency (frequency);
     float y = getHeight() * (1.0f - (amplitude +  24.0f) / 48.0f);
+    
     return { x, y };
 }
 

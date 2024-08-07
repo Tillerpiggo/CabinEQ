@@ -14,28 +14,28 @@
 #include "PluginProcessor.h"
 #include "EQNode.h"
 
-class CabinEQGraphListener
-{
-public:
-    virtual ~CabinEQGraphListener() = default;
-
-    virtual int addNode (float freq, float ampl) = 0;
-    virtual void updateNode (int id, float freq, float ampl) = 0;
-    virtual void removeNode (int id) = 0;
-    virtual void startPlayingValueAt (float freq, float ampl) = 0;
-    virtual void playValueAt (float freq, float ampl) = 0; // the tone while dragging nodes
-    virtual void testValueAt (float freq) = 0; // for probing
-    virtual void stopPlaying() = 0; // stops playing the calibration tones
-    virtual void stopTesting() = 0; // stops playing the testing tones (that are played when holding down ctrl/alt)
-    virtual float getCurrPlayingFreq() = 0;
-    virtual float getCurrTestingFreq() = 0;
-};
-
 class CabinEQGraph   : public juce::Component,
                        public juce::Timer
 
 {
 public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() = default;
+
+        virtual int addNode (float freq, float ampl) = 0;
+        virtual void updateNode (int id, float freq, float ampl) = 0;
+        virtual void removeNode (int id) = 0;
+        virtual void startPlayingValueAt (float freq, float ampl) = 0;
+        virtual void playValueAt (float freq, float ampl) = 0; // the tone while dragging nodes
+        virtual void testValueAt (float freq) = 0; // for probing
+        virtual void stopPlaying() = 0; // stops playing the calibration tones
+        virtual void stopTesting() = 0; // stops playing the testing tones (that are played when holding down ctrl/alt)
+        virtual float getCurrPlayingFreq() = 0;
+        virtual float getCurrTestingFreq() = 0;
+    };
+    
     CabinEQGraph (Curve& curve);
     ~CabinEQGraph() override;
     
@@ -50,13 +50,13 @@ public:
     
     void timerCallback() override;
     
-    void addListener (CabinEQGraphListener* listener);
+    void addListener (Listener* listener);
     void removeListener();
     
 private:
     Curve& curve;
     std::vector<EQNode> eqNodes;
-    CabinEQGraphListener* listener;
+    Listener* listener;
     
     // Drawing/animation
     void drawCurve (juce::Graphics& g, Curve& curve, int numPoints);
