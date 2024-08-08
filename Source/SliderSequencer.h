@@ -34,5 +34,5 @@ public:
     
 private:
     ArbitrarySequencer arbitrarySequencer;
-    Note referenceNote = Note (1000.0f, 6.0f, 0.0f, 0.0f);
+    Note referenceNote = Note (3100.0f, 6.0f, 0.0f, 0.0f);
 };

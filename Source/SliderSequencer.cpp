@@ -15,7 +15,7 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
 {
     int noteDurationInSamples = noteLength;
     
-    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 1000.0f));    
+    float amplitudeCompensationGain = std::pow (0.59, std::log2(frequency / 3100.0f));
     float amplitudeCompensationDB = juce::Decibels::gainToDecibels (amplitudeCompensationGain);
     
     // Introduce custom slope for clarity
@@ -31,7 +31,7 @@ void SliderSequencer::playInterval (float frequency, float amplitude, float pan,
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (Note (frequency, amplitude, pan, 0.0f), noteDurationInSamples);
-    SequenceableNote spacingNote (1000.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+    SequenceableNote spacingNote (3100.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
     
     arbitrarySequencer.setNotes ({ note1, note2 }, true);
 }

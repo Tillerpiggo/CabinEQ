@@ -37,8 +37,8 @@ private:
     bool increasingFreq = true;
     
     int currStep = 0;
-    float centerFreq = 1000.0f;
-    float currFreq = 1000.0f;
+    float centerFreq = 3100.0f;
+    float currFreq = 3100.0f;
     std::optional<float> currAmpl;
     
 };

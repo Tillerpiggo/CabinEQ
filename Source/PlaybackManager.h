@@ -60,7 +60,7 @@ private:
     
     ArbitrarySequencer arbitrarySequencer;
     SineSweepGenerator sineSweepGenerator;
-    Note referenceNote = Note (1000.0f, 6.0f, 0.0f, 0.0f);
+    Note referenceNote = Note (3100.0f, 6.0f, 0.0f, 0.0f);
     
     bool isTesting;
     bool isSweeping;
@@ -72,5 +72,5 @@ private:
     int noteLength = 25000;
     
     float referenceVolume = 0.0f;
-    float testingFreq = 1000.0f;
+    float testingFreq = 3100.0f;
 };
