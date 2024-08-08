@@ -209,9 +209,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
-void StartupMVPAudioProcessor::applyCurve (juce::String profileName)
+void StartupMVPAudioProcessor::applyCurve()
 {
-    auto profile = profileNamed (profileName);
+    auto profile = profileNamed (currProfileName);
     if (profile.has_value())
         playbackManager.updateFilterWithCurve (profile->get().getCurve());
 }
@@ -252,6 +252,8 @@ void StartupMVPAudioProcessor::removeEQNode (int id, juce::String profileName)
 
 void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName)
 {
+    currProfileName = profileName; // super hacky
+    std::cout << "currProfileName: " << profileName << std::endl;
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().updateEQNode (id, frequency, amplitude, pan);

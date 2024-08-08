@@ -70,7 +70,7 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
-    void applyCurve (juce::String profileName);
+    void applyCurve();
     void setIsBypassed (bool isBypassed);
     void setBypassBalance (float balance);
     
@@ -126,6 +126,7 @@ private:
     
     Listener* listener = nullptr;
     bool hasLoadedData = false;
+    juce::String currProfileName { "" };
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)
