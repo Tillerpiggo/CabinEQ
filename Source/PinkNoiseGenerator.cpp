@@ -86,7 +86,7 @@ void PinkNoiseGenerator::populateBuffer()
 
 void PinkNoiseGenerator::updateAmplitudeCompensation()
 {
-    float tiltInDB = 3.0 * std::log2 (centerFrequency / 1000.0f);
+    float tiltInDB = -1.5 * std::log2 (centerFrequency / 1000.0f);
     amplitudeCompensation = tiltInDB + volumeInDB + 30.0f;
     amplitudeCompensation = juce::Decibels::decibelsToGain (amplitudeCompensation);
 }
@@ -116,7 +116,15 @@ void PinkNoiseGenerator::updateCutFilter(ChainType& chain, const CoefficientType
     chain.template setBypassed<1>(true);
     chain.template setBypassed<2>(true);
     chain.template setBypassed<3>(true);
+    chain.template setBypassed<4>(true);
+    chain.template setBypassed<5>(true);
+    chain.template setBypassed<6>(true);
+    chain.template setBypassed<7>(true);
     
+    update<7>(chain, coefficients);
+    update<6>(chain, coefficients);
+    update<5>(chain, coefficients);
+    update<4>(chain, coefficients);
     update<3>(chain, coefficients);
     update<2>(chain, coefficients);
     update<1>(chain, coefficients);
