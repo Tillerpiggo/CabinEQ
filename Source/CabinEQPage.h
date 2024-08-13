@@ -18,6 +18,7 @@
 class CabinEQPage   : public juce::Component,
                       public juce::Slider::Listener,
                       public juce::ComboBox::Listener,
+                      public juce::TextEditor::Listener,
                       public CabinEQGraph::Listener,
                       public StartupMVPAudioProcessor::Listener
 {
@@ -41,6 +42,7 @@ public:
     float getCurrTestingFreq() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
+    void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
     void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
     
     void didLoadData() override;
@@ -52,6 +54,8 @@ private:
     CabinEQGraph cabinEQGraph;
     juce::ComboBox dropdownProfiles;
     juce::Slider referenceSlider;
+    juce::AlertWindow alertWindow;
     
-    juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
+    const juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
+    const juce::String textEditorName = "ProfileEditor";
 };

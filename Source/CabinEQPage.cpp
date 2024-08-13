@@ -11,12 +11,17 @@
 #include "CabinEQPage.h"
 
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()
+    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph(),
+      alertWindow ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon)
 {
     dropdownProfiles.addItem ("+ Add Profile", 1);
     
     referenceSlider.setRange (-24.0f, 24.0f);
     referenceSlider.setValue (0.0f);
+    
+    alertWindow.addTextEditor (textEditorName, "");
+    alertWindow.getTextEditor (textEditorName)->addListener (this);
+    alertWindow.setEscapeKeyCancels (true);
     
     cabinEQGraph.addListener (this);
     dropdownProfiles.addListener (this);
@@ -33,6 +38,7 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
 CabinEQPage::~CabinEQPage()
 {
     referenceSlider.removeListener (this);
+    alertWindow.getTextEditor (textEditorName)->removeListener (this);
     cabinEQGraph.removeListener();
 }
 
@@ -110,6 +116,24 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
     }
 }
 
+void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
+{
+    // Add the profile and dismiss the window
+    juce::String profileName = textEditor.getText();
+    
+    // Add profile to dropdown
+    int numItems = dropdownProfiles.getNumItems();
+    dropdownProfiles.addItem (profileName, numItems + 1);
+    dropdownProfiles.setSelectedId (numItems + 1, juce::NotificationType::dontSendNotification);
+
+    // Add & retrieve profile from processor
+    processor.addProfile (profileName);
+    profileId = profileName;
+    cabinEQGraph.setCurve (processor.getCurve (profileName)->get());
+
+    alertWindow.exitModalState();
+}
+
 void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 {
     if (comboBoxThatHasChanged == &dropdownProfiles)
@@ -117,20 +141,21 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
         // Add a profile if you select "+ Add Profile"
         if (dropdownProfiles.getSelectedId() == 1)
         {
-            // Helpful constants
-            int numItems = dropdownProfiles.getNumItems();
-            juce::String profileName = "Profile" + std::to_string (numItems);
-            
-            // Add profile to dropdown
-            if (numItems == 1)
-                dropdownProfiles.addSeparator();
-            dropdownProfiles.addItem (profileName, numItems + 1);
-            dropdownProfiles.setSelectedId (numItems + 1, juce::NotificationType::dontSendNotification);
-            
-            // Add & retrieve profile from processor
-            processor.addProfile (profileName);
-            profileId = profileName;
-            cabinEQGraph.setCurve (processor.getCurve (profileName)->get());
+            alertWindow.enterModalState();
+//            // Helpful constants
+//            int numItems = dropdownProfiles.getNumItems();
+//            juce::String profileName = "Profile" + std::to_string (numItems);
+//            
+//            // Add profile to dropdown
+//            if (numItems == 1)
+//                dropdownProfiles.addSeparator();
+//            dropdownProfiles.addItem (profileName, numItems + 1);
+//            dropdownProfiles.setSelectedId (numItems + 1, juce::NotificationType::dontSendNotification);
+//            
+//            // Add & retrieve profile from processor
+//            processor.addProfile (profileName);
+//            profileId = profileName;
+//            cabinEQGraph.setCurve (processor.getCurve (profileName)->get());
         }
         
         // Go to a profile if you select the profile
