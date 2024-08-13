@@ -14,6 +14,7 @@
 #include "ArbitraryResponseFilter.h"
 #include "ArbitrarySequencer.h"
 #include "SineSweepGenerator.h"
+#include "PinkNoiseGenerator.h"
 #include "Constants.h"
 #include <random>
 

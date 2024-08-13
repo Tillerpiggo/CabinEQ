@@ -29,8 +29,6 @@ public:
     void setPhase (float phaseInRadians) override;
     
 private:
-    static constexpr float REFERENCE_FREQ = 1000; // freq in hz whexsre amplitudeCompensation = 0
-    
     void updatePhaseIncrementAndAmplitudeCompensation();
     
     float sampleRate = 44100;

@@ -62,6 +62,7 @@
               file="Source/PinkNoiseGenerator.cpp"/>
         <FILE id="P9K6rT" name="PinkNoiseGenerator.h" compile="0" resource="0"
               file="Source/PinkNoiseGenerator.h"/>
+        <FILE id="HRJ5VK" name="PinkNoise.h" compile="0" resource="0" file="Source/PinkNoise.h"/>
         <FILE id="ipHh6l" name="SineSweepGenerator.cpp" compile="1" resource="0"
               file="Source/SineSweepGenerator.cpp"/>
         <FILE id="HYovE4" name="SineSweepGenerator.h" compile="0" resource="0"

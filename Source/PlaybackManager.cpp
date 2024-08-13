@@ -13,7 +13,7 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : filter (FFT_SIZE), arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())), 
+    : filter (FFT_SIZE), arbitrarySequencer (std::make_unique<PinkNoiseGenerator> (PinkNoiseGenerator())), 
       isTesting (false),
       isSweeping (false),
       isCalibrating (false),
