@@ -12,8 +12,9 @@
 
 
 PinkNoiseGenerator::PinkNoiseGenerator()
+    : bufferSize (2048), buffer (1, bufferSize)
 {
-    populateHeapBlock();
+    populateBuffer();
 }
 
 void PinkNoiseGenerator::setSampleRate (float newSampleRate)
@@ -23,14 +24,14 @@ void PinkNoiseGenerator::setSampleRate (float newSampleRate)
 
 const std::pair<float, float> PinkNoiseGenerator::getNextSample()
 {
-    if (heapBlockIdx >= heapBlockSize)
+    if (bufferIdx >= bufferSize)
     {
-        populateHeapBlock();
-        heapBlockIdx = 0;
+        populateBuffer();
+        bufferIdx = 0;
     }
     
-    float val = heapBlock[heapBlockIdx];
-    heapBlockIdx++;
+    float val = buffer.getReadPointer (0)[bufferIdx];
+    bufferIdx++;
     return { val, val };
 }
 
@@ -60,12 +61,16 @@ void PinkNoiseGenerator::setPhase (float phaseInDecibels)
 }
 
 //==============================================
-void PinkNoiseGenerator::populateHeapBlock()
+void PinkNoiseGenerator::populateBuffer()
 {
+    buffer.clear();
+    
     // Reset the heap block and fill it with new pink noise
-    heapBlock = juce::HeapBlock<float> (heapBlockSize);
-    for (int i = 0; i < heapBlockSize; ++i)
-        heapBlock[i] = pinkNoise.generate();
+    auto bufferPtr = buffer.getWritePointer (0);
+    for (int i = 0; i < bufferSize; ++i)
+    {
+        bufferPtr[i] = pinkNoise.generate();
+    }
     
     // Do other processing as needed...
 }
