@@ -121,16 +121,13 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     // Add the profile and dismiss the window
     juce::String profileName = textEditor.getText();
     
-    // Add profile to dropdown
-    int numItems = dropdownProfiles.getNumItems();
-    dropdownProfiles.addItem (profileName, numItems + 1);
-    dropdownProfiles.setSelectedId (numItems + 1, juce::NotificationType::dontSendNotification);
-
     // Add & retrieve profile from processor
     processor.addProfile (profileName);
-    profileId = profileName;
-    cabinEQGraph.setCurve (processor.getCurve (profileName)->get());
-
+    loadDropdownOptions();
+    
+    // Select the new profile
+    dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (dropdownProfiles.getNumItems() - 2));
+    
     alertWindow.exitModalState();
 }
 
@@ -139,23 +136,9 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == &dropdownProfiles)
     {
         // Add a profile if you select "+ Add Profile"
-        if (dropdownProfiles.getSelectedId() == 1)
+        if (dropdownProfiles.getSelectedId() == dropdownProfiles.getNumItems())
         {
             alertWindow.enterModalState();
-//            // Helpful constants
-//            int numItems = dropdownProfiles.getNumItems();
-//            juce::String profileName = "Profile" + std::to_string (numItems);
-//            
-//            // Add profile to dropdown
-//            if (numItems == 1)
-//                dropdownProfiles.addSeparator();
-//            dropdownProfiles.addItem (profileName, numItems + 1);
-//            dropdownProfiles.setSelectedId (numItems + 1, juce::NotificationType::dontSendNotification);
-//            
-//            // Add & retrieve profile from processor
-//            processor.addProfile (profileName);
-//            profileId = profileName;
-//            cabinEQGraph.setCurve (processor.getCurve (profileName)->get());
         }
         
         // Go to a profile if you select the profile
@@ -171,17 +154,40 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 
 void CabinEQPage::didLoadData()
 {
+    loadDropdownOptions();
+//    dropdownProfiles.clear();
+//    dropdownProfiles.addItem ("+ Add Profile", 1);
+//    
+//    // Add existing profiles to dropdown menu
+//    int i = 2;
+//    for (const auto& name : processor.getProfileNames())
+//    {
+//        dropdownProfiles.addItem (name, i);
+//        i++;
+//    }
+//    
+//    if (dropdownProfiles.getNumItems() > 1)
+//        dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (2));
+}
+
+//=========================================
+void CabinEQPage::loadDropdownOptions()
+{
     dropdownProfiles.clear();
-    dropdownProfiles.addItem ("+ Add Profile", 1);
     
     // Add existing profiles to dropdown menu
-    int i = 2;
+    int i = 1;
     for (const auto& name : processor.getProfileNames())
     {
         dropdownProfiles.addItem (name, i);
         i++;
     }
     
-    if (dropdownProfiles.getNumItems() > 1)
-        dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (2));
+    if (dropdownProfiles.getNumItems() > 0)
+    {
+        dropdownProfiles.addSeparator();
+        dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (1));
+    }
+    
+    dropdownProfiles.addItem ("+ Add Profile", i);
 }

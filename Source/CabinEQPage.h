@@ -48,6 +48,8 @@ public:
     void didLoadData() override;
     
 private:
+    void loadDropdownOptions();
+    
     StartupMVPAudioProcessor& processor;
     juce::String profileId;
     
