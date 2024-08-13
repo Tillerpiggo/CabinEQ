@@ -10,9 +10,8 @@
 
 #include "SineWaveGenerator.h"
 
-SineWaveGenerator::SineWaveGenerator (bool applyCompensation) : applyCompensation (applyCompensation)
+SineWaveGenerator::SineWaveGenerator()
 {
-   // currentGain.reset (rampLengthInSamples);
 }
 
 void SineWaveGenerator::setSampleRate (float newSampleRate)
@@ -116,15 +115,10 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     float ampl = note->gain;
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
-    float amplitudeCompensation = std::pow (TILT, std::log2(freq / REFERENCE_FREQ));
-    if (! applyCompensation)
-        amplitudeCompensation = 1.0f;
     
     float noteGain = juce::Decibels::decibelsToGain (ampl + 8.0f);
-    amplitudeCompensation *= noteGain;
-    
-    leftAmplitudeCompensation = amplitudeCompensation;
-    rightAmplitudeCompensation = amplitudeCompensation;
+    leftAmplitudeCompensation = noteGain;
+    rightAmplitudeCompensation = noteGain;
     
     // Apply panning
     leftAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / -2.0);

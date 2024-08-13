@@ -13,10 +13,11 @@
 #include <JuceHeader.h>
 #include "Note.h"
 
+// Generates sine waves at a certain frequency, volume, pan, and phase.
 class SineWaveGenerator
 {
 public:
-    SineWaveGenerator (bool applyCompensation = true);
+    SineWaveGenerator();
     
     void setSampleRate (float newSampleRate);
     const std::pair<float, float> getNextSample();
@@ -28,7 +29,7 @@ public:
     void setPhase (float phaseInRadians); // changes left/right phase relationship of current playing note
     
 private:
-    static constexpr float TILT = 1;//0.79433;//0.59566214;//0.59566214;//1;//0.7079; // 6 db/oct slope //0.59566214; // 4.5 db/oct slope
+    static constexpr float TILT = 1;
     static constexpr float REFERENCE_FREQ = 1000; // freq in hz whexsre amplitudeCompensation = 0
     
     void updatePhaseIncrementAndAmplitudeCompensation();
@@ -48,9 +49,4 @@ private:
     static constexpr float AMPL_STEP = 1.0001f;
     std::optional<float> targetFrequency;
     std::optional<float> targetAmplitude;
-    
-    
-    
-    
-    bool applyCompensation;
 };

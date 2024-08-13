@@ -10,8 +10,8 @@
 
 #include "ArbitrarySequencer.h"
 
-ArbitrarySequencer::ArbitrarySequencer (bool applyCompensation)
-    : sineWaveGenerator (applyCompensation), currNoteIdx(0), numSamplesNoteHasBeenPlaying(0), listener(nullptr)
+ArbitrarySequencer::ArbitrarySequencer()
+    : currNoteIdx(0), numSamplesNoteHasBeenPlaying(0), listener(nullptr)
 {}
 
 std::pair<float, float> ArbitrarySequencer::getNextSample()

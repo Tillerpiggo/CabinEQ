@@ -46,6 +46,10 @@
               file="Source/SineWaveGenerator.cpp"/>
         <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
               file="Source/SineWaveGenerator.h"/>
+        <FILE id="vTw5w7" name="PinkNoiseGenerator.cpp" compile="1" resource="0"
+              file="Source/PinkNoiseGenerator.cpp"/>
+        <FILE id="P9K6rT" name="PinkNoiseGenerator.h" compile="0" resource="0"
+              file="Source/PinkNoiseGenerator.h"/>
         <FILE id="VLnqpz" name="StereoGainEnvelope.cpp" compile="1" resource="0"
               file="Source/StereoGainEnvelope.cpp"/>
         <FILE id="Yfy4sY" name="StereoGainEnvelope.h" compile="0" resource="0"
