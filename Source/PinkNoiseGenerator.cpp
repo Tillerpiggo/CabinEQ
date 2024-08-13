@@ -15,7 +15,7 @@ PinkNoiseGenerator::PinkNoiseGenerator()
     : bufferSize (2048), buffer (1, bufferSize)
 {
     populateBuffer();
-    gainProcessor.setGainDecibels (-20.0f);
+    updateFilters();
 }
 
 void PinkNoiseGenerator::setSampleRate (float newSampleRate)
@@ -76,5 +76,44 @@ void PinkNoiseGenerator::populateBuffer()
     // Do other processing as needed...
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::ProcessContextReplacing<float> context (block);
-    gainProcessor.process (context);
+    leftChain.process (context);
+}
+
+void PinkNoiseGenerator::updateLowCutFilters(const ChainSettings& chainSettings)
+{
+    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
+                                                                                                       sampleRate,
+                                                                                                       2 * (chainSettings.lowCutSlope + 1));
+    
+    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
+    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+    
+    updateCutFilter(leftLowCut, lowCutCoefficients, chainSettings.lowCutSlope);
+    updateCutFilter(rightLowCut, lowCutCoefficients, chainSettings.lowCutSlope);
+}
+
+void PinkNoiseGenerator::updateHighCutFilters(const ChainSettings& chainSettings)
+{
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCutFreq,
+                                                                                                       sampleRate,
+                                                                                                       2 * (chainSettings.highCutSlope + 1));
+    
+    auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
+    auto& rightHighCut = rightChain.get<ChainPositions::HighCut>();
+    
+    updateCutFilter(leftHighCut, highCutCoefficients, chainSettings.highCutSlope);
+    updateCutFilter(rightHighCut, highCutCoefficients, chainSettings.highCutSlope);
+}
+
+void PinkNoiseGenerator::updateFilters()
+{
+    auto chainSettings = ChainSettings();
+    
+    updateLowCutFilters(chainSettings);
+    updateHighCutFilters(chainSettings);
+}
+
+void PinkNoiseGenerator::updateCoefficients(Coefficients& old, const Coefficients& replacements)
+{
+    *old = *replacements;
 }
