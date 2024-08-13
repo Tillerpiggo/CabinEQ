@@ -44,7 +44,7 @@ void PinkNoiseGenerator::setNote (Note note)
 
 void PinkNoiseGenerator::setFrequency (float frequencyInHz)
 {
-    float bandwidthFactor = 1.1;
+    float bandwidthFactor = 1;
     updateBandpassFilter (frequencyInHz / bandwidthFactor, frequencyInHz * bandwidthFactor);
     centerFrequency = frequencyInHz;
     updateAmplitudeCompensation();
@@ -96,7 +96,7 @@ void PinkNoiseGenerator::updateBandpassFilter (const float lowCutFreq, const flo
     // Update the low cut filter
     auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod (lowCutFreq,
                                                                                                        sampleRate,
-                                                                                                       2 * (4));
+                                                                                                       2 * (8));
     
     auto& lowCut = bandpass.get<ChainPositions::LowCut>();
     updateCutFilter(lowCut, lowCutCoefficients);
@@ -104,7 +104,7 @@ void PinkNoiseGenerator::updateBandpassFilter (const float lowCutFreq, const flo
     // Update the high cut filter
     auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod (highCutFreq,
                                                                                                        sampleRate,
-                                                                                                       2 * (4));
+                                                                                                       2 * (8));
     auto& highCut = bandpass.get<ChainPositions::HighCut>();
     updateCutFilter(highCut, highCutCoefficients);
 }

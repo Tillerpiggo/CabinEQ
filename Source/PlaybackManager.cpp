@@ -146,7 +146,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::setCalibratingEQNode (EQNode node)
 {
-    int noteDurationInSamples = 20000;
+    int noteDurationInSamples = 60000;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
@@ -162,7 +162,7 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
 
 void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 {
-    int noteDurationInSamples = 20000;
+    int noteDurationInSamples = 60000;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);

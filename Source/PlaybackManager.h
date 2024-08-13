@@ -71,7 +71,7 @@ private:
     bool hasPreparedFilter;
     
     int currIdx = -1;
-    int noteLength = 25000;
+    int noteLength = 60000;
     
     float referenceVolume = 0.0f;
     float testingFreq = REFERENCE_FREQ;
