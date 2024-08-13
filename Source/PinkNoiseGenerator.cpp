@@ -15,6 +15,7 @@ PinkNoiseGenerator::PinkNoiseGenerator()
     : bufferSize (2048), buffer (1, bufferSize)
 {
     populateBuffer();
+    gainProcessor.setGainDecibels (-20.0f);
 }
 
 void PinkNoiseGenerator::setSampleRate (float newSampleRate)
@@ -73,4 +74,7 @@ void PinkNoiseGenerator::populateBuffer()
     }
     
     // Do other processing as needed...
+    juce::dsp::AudioBlock<float> block (buffer);
+    juce::dsp::ProcessContextReplacing<float> context (block);
+    gainProcessor.process (context);
 }

@@ -36,6 +36,7 @@ private:
     int bufferSize;
     int bufferIdx = 0;
     juce::AudioBuffer<float> buffer;
+    juce::dsp::Gain<float> gainProcessor;
     
     float sampleRate = 44100;
     std::optional<Note> note;
