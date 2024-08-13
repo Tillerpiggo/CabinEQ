@@ -75,7 +75,7 @@ void PinkNoiseGenerator::populateBuffer()
     auto bufferPtr = buffer.getWritePointer (0);
     for (int i = 0; i < bufferSize; ++i)
     {
-        bufferPtr[i] = pinkNoise.generate();
+        bufferPtr[i] = noiseSrc.nextFloat();
     }
     
     // Do other processing as needed...
@@ -86,7 +86,7 @@ void PinkNoiseGenerator::populateBuffer()
 
 void PinkNoiseGenerator::updateAmplitudeCompensation()
 {
-    float tiltInDB = -1.5 * std::log2 (centerFrequency / 1000.0f);
+    float tiltInDB = -4.5 * std::log2 (centerFrequency / 1000.0f);
     amplitudeCompensation = tiltInDB + volumeInDB + 30.0f;
     amplitudeCompensation = juce::Decibels::decibelsToGain (amplitudeCompensation);
 }

@@ -47,6 +47,7 @@ private:
     
     // Pink noise generation
     PinkNoise pinkNoise;
+    juce::Random noiseSrc;
     BandpassFilter bandpass;
     
     float centerFrequency = 1000.0f;
