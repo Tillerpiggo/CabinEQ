@@ -46,11 +46,13 @@ public:
     void textEditorEscapeKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorFocusLost (juce::TextEditor& textEditor) override;
     void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
+    void inputAttemptWhenModal() override;
     
     void didLoadData() override;
     
 private:
     void loadDropdownOptions();
+    void dismissAlertWindow();
     
     StartupMVPAudioProcessor& processor;
     juce::String profileId;

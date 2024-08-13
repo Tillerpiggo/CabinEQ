@@ -125,25 +125,17 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     // Select the new profile
     dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (dropdownProfiles.getNumItems() - 2));
     
-    textEditor.setText ("");
-    
-    // To dismiss the window, delete it
-    alertWindow->getTextEditor (textEditorName)->removeListener (this);
-    alertWindow.reset();
+    dismissAlertWindow();
 }
 
 void CabinEQPage::textEditorEscapeKeyPressed (juce::TextEditor& textEditor)
 {
-    // Dismiss alert window
-    alertWindow->getTextEditor (textEditorName)->removeListener (this);
-    alertWindow.reset();
+    dismissAlertWindow();
 }
 
 void CabinEQPage::textEditorFocusLost (juce::TextEditor& textEditor)
 {
-    // Dismiss alert window
-    alertWindow->getTextEditor (textEditorName)->removeListener (this);
-    alertWindow.reset();
+    dismissAlertWindow();
 }
 
 void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
@@ -178,6 +170,11 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
     }
 }
 
+void CabinEQPage::inputAttemptWhenModal()
+{
+    dismissAlertWindow();
+}
+
 void CabinEQPage::didLoadData()
 {
     loadDropdownOptions();
@@ -203,4 +200,10 @@ void CabinEQPage::loadDropdownOptions()
     }
     
     dropdownProfiles.addItem ("+ Add Profile", i);
+}
+
+void CabinEQPage::dismissAlertWindow()
+{
+    alertWindow->getTextEditor (textEditorName)->removeListener (this);
+    alertWindow.reset();
 }
