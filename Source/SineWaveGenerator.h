@@ -46,4 +46,10 @@ private:
     static constexpr float AMPL_STEP = 1.0001f;
     std::optional<float> targetFrequency;
     std::optional<float> targetAmplitude;
+    
+    // == Vibrato ==
+    float vibratoPhase = 0; // 0 to 1
+    float vibratoStep = 0.0002;
+    float vibratoMaxDB = 0.0f;
+    float vibratoMinDB = -15.0f;
 };

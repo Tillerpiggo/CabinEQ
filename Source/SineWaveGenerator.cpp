@@ -59,9 +59,15 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
         updatePhaseIncrementAndAmplitudeCompensation();
     }
     
+    // Vibrato
+    vibratoPhase += vibratoStep;
+    if (vibratoPhase < 0 || vibratoPhase > 1)
+        vibratoStep *= -1;
+    float vibratoChange = (vibratoMaxDB - vibratoMinDB) * vibratoPhase + vibratoMinDB;
+    vibratoChange = juce::Decibels::decibelsToGain (vibratoChange);
     
-    float leftSample = std::sin (phase) * leftAmplitudeCompensation;
-    float rightSample = std::sin (phase + note->phase) * rightAmplitudeCompensation;
+    float leftSample = std::sin (phase) * leftAmplitudeCompensation * vibratoChange;
+    float rightSample = std::sin (phase + note->phase) * rightAmplitudeCompensation * vibratoChange;
     
     phase += phaseIncrement;
     if (phase > 2.0 * juce::MathConstants<float>::pi)
@@ -116,7 +122,7 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
     
-    float noteGain = juce::Decibels::decibelsToGain (ampl + 8.0f);
+    float noteGain = juce::Decibels::decibelsToGain (ampl);
     leftAmplitudeCompensation = noteGain;
     rightAmplitudeCompensation = noteGain;
     

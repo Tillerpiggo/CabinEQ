@@ -13,7 +13,7 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : filter (FFT_SIZE), arbitrarySequencer (std::make_unique<PinkNoiseGenerator> (PinkNoiseGenerator())),
+    : filter (FFT_SIZE), arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       isTesting (false),
       isSweeping (false),
       isCalibrating (false),
@@ -146,7 +146,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::setCalibratingEQNode (EQNode node)
 {
-    int noteDurationInSamples = 60000;
+    int noteDurationInSamples = 35000;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
@@ -162,7 +162,7 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
 
 void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 {
-    int noteDurationInSamples = 60000;
+    int noteDurationInSamples = 35000;
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
