@@ -11,22 +11,22 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Note.h"
+#include "PitchedGenerator.h"
 
 // Generates sine waves at a certain frequency, volume, pan, and phase.
-class SineWaveGenerator
+class SineWaveGenerator   : public PitchedGenerator
 {
 public:
     SineWaveGenerator();
     
-    void setSampleRate (float newSampleRate);
-    const std::pair<float, float> getNextSample();
+    void setSampleRate (float newSampleRate) override;
+    const std::pair<float, float> getNextSample() override;
     
-    void setNote (Note note);
-    void setFrequency (float frequency);
-    void setVolume (float gainInDecibels); // changes the volume of the currently playing note
-    void setPan (float panInDecibels); // changes the pan of the currently playing note
-    void setPhase (float phaseInRadians); // changes left/right phase relationship of current playing note
+    void setNote (Note note) override;
+    void setFrequency (float frequencyInHz) override;
+    void setVolume (float volumeInDecibels) override;
+    void setPan (float panInDecibels) override;
+    void setPhase (float phaseInRadians) override;
     
 private:
     static constexpr float TILT = 1;

@@ -13,8 +13,12 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : filter (FFT_SIZE), isTesting (false), isSweeping (false), isCalibrating (false),
-      isBypassed (false), hasPreparedFilter (false)
+    : filter (FFT_SIZE), arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())), 
+      isTesting (false),
+      isSweeping (false),
+      isCalibrating (false),
+      isBypassed (false),
+      hasPreparedFilter (false)
 {
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);

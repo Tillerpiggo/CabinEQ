@@ -10,8 +10,8 @@
 
 #include "ArbitrarySequencer.h"
 
-ArbitrarySequencer::ArbitrarySequencer()
-    : currNoteIdx(0), numSamplesNoteHasBeenPlaying(0), listener(nullptr)
+ArbitrarySequencer::ArbitrarySequencer (std::unique_ptr<PitchedGenerator> pitchedGenerator)
+    : pitchedGenerator (std::move (pitchedGenerator)), currNoteIdx(0), numSamplesNoteHasBeenPlaying(0), listener (nullptr)
 {}
 
 std::pair<float, float> ArbitrarySequencer::getNextSample()
@@ -20,7 +20,7 @@ std::pair<float, float> ArbitrarySequencer::getNextSample()
     
     SequenceableNote currNote = notes.at (currNoteIdx);
     
-    auto [leftSample, rightSample] = sineWaveGenerator.getNextSample();
+    auto [leftSample, rightSample] = pitchedGenerator->getNextSample();
     auto [leftGain, rightGain] = currNote.getGainAtSample (numSamplesNoteHasBeenPlaying);
     
     numSamplesNoteHasBeenPlaying++;
@@ -45,7 +45,7 @@ float ArbitrarySequencer::currentlyPlayingFrequency() const
 
 void ArbitrarySequencer::setSampleRate (float newSampleRate)
 {
-    sineWaveGenerator.setSampleRate (newSampleRate);
+    pitchedGenerator->setSampleRate (newSampleRate);
 }
 
 void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote>& newNotes, bool repeating)
@@ -54,7 +54,7 @@ void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote>& newNotes
     currNoteIdx = 0;
     numSamplesNoteHasBeenPlaying = 0;
     
-    sineWaveGenerator.setNote (getCurrNote().note());
+    pitchedGenerator->setNote (getCurrNote().note());
     
     this->isRepeating = repeating;
 }
@@ -75,14 +75,6 @@ void ArbitrarySequencer::changeNoteAtIdx (int idx, Note newNote)
     notes.at (idx).setFrequency (newNote.frequency);
     notes.at (idx).setAmplitude (newNote.gain);
     notes.at (idx).setPan (newNote.pan);
-    
-//    if (currNoteIdx == idx)
-//    {
-//        sineWaveGenerator.setFrequency (newNote.frequency);
-//        sineWaveGenerator.setVolume (newNote.gain);
-//        sineWaveGenerator.setPan (newNote.pan);
-//        sineWaveGenerator.setPhase (newNote.phase);
-//    }
 }
 
 void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)
@@ -96,7 +88,7 @@ void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)
     notes.at (idx).setAmplitude(noteGain);
     if (currNoteIdx == idx)
     {
-        sineWaveGenerator.setVolume (noteGain);
+        pitchedGenerator->setVolume (noteGain);
     }
 }
 
@@ -111,7 +103,7 @@ void ArbitrarySequencer::changeNotePanAtIdx (int idx, float notePan)
     notes.at (idx).setPan(notePan);
     if (currNoteIdx == idx)
     {
-        sineWaveGenerator.setPan (notePan);
+        pitchedGenerator->setPan (notePan);
     }
 }
 
@@ -148,7 +140,7 @@ void ArbitrarySequencer::goToNextNote()
         notifyListener();
     }
     
-    sineWaveGenerator.setNote (getCurrNote().note());
+    pitchedGenerator->setNote (getCurrNote().note());
 }
 
 const SequenceableNote& ArbitrarySequencer::getCurrNote() const

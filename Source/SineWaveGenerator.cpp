@@ -80,14 +80,14 @@ void SineWaveGenerator::setNote (Note newNote)
     targetAmplitude.reset();
 }
 
-void SineWaveGenerator::setFrequency (float frequency)
+void SineWaveGenerator::setFrequency (float frequencyInHz)
 {
-    targetFrequency = frequency;
+    targetFrequency = frequencyInHz;
 }
 
-void SineWaveGenerator::setVolume (float gainInDecibels)
+void SineWaveGenerator::setVolume (float volumeInDecibels)
 {
-    targetAmplitude = gainInDecibels;
+    targetAmplitude = volumeInDecibels;
 }
 
 void SineWaveGenerator::setPan (float panInDecibels)

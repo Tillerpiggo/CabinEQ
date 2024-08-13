@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "SequenceableNote.h"
 #include "SineWaveGenerator.h"
+#include "PitchedGenerator.h"
 
 class SequencerListener
 {
@@ -24,7 +25,7 @@ public:
 class ArbitrarySequencer
 {
 public:
-    ArbitrarySequencer();
+    ArbitrarySequencer (std::unique_ptr<PitchedGenerator> pitchedGenerator);
     
     std::pair<float, float> getNextSample();
     bool isPlayingFirstNote() const;
@@ -45,7 +46,7 @@ private:
     const SequenceableNote& getCurrNote() const;
     void notifyListener();
     
-    SineWaveGenerator sineWaveGenerator;
+    std::unique_ptr<PitchedGenerator> pitchedGenerator;
     std::vector<SequenceableNote> notes;
     
     int currNoteIdx;
