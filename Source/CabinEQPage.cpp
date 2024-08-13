@@ -132,6 +132,20 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     alertWindow.reset();
 }
 
+void CabinEQPage::textEditorEscapeKeyPressed (juce::TextEditor& textEditor)
+{
+    // Dismiss alert window
+    alertWindow->getTextEditor (textEditorName)->removeListener (this);
+    alertWindow.reset();
+}
+
+void CabinEQPage::textEditorFocusLost (juce::TextEditor& textEditor)
+{
+    // Dismiss alert window
+    alertWindow->getTextEditor (textEditorName)->removeListener (this);
+    alertWindow.reset();
+}
+
 void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 {
     if (comboBoxThatHasChanged == &dropdownProfiles)
@@ -147,6 +161,8 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             alertWindow->setEscapeKeyCancels (true);
             
             alertWindow->enterModalState();
+            
+            dropdownProfiles.setSelectedId (lastSelectedId);
         }
         
         // Go to a profile if you select the profile
@@ -157,6 +173,8 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             profileId = profileIdSelected;
             cabinEQGraph.setCurve (processor.getCurve (profileIdSelected)->get());
         }
+        
+        lastSelectedId = dropdownProfiles.getSelectedId();
     }
 }
 

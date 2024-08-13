@@ -43,6 +43,8 @@ public:
     
     void sliderValueChanged (juce::Slider *slider) override;
     void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
+    void textEditorEscapeKeyPressed (juce::TextEditor& textEditor) override;
+    void textEditorFocusLost (juce::TextEditor& textEditor) override;
     void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
     
     void didLoadData() override;
@@ -60,4 +62,6 @@ private:
     
     const juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
     const juce::String textEditorName = "ProfileEditor";
+    
+    int lastSelectedId = 1;
 };
