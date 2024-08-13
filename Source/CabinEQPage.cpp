@@ -11,17 +11,12 @@
 #include "CabinEQPage.h"
 
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph(),
-      alertWindow ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon)
+    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()
 {
     dropdownProfiles.addItem ("+ Add Profile", 1);
     
     referenceSlider.setRange (-24.0f, 24.0f);
     referenceSlider.setValue (0.0f);
-    
-    alertWindow.addTextEditor (textEditorName, "");
-    alertWindow.getTextEditor (textEditorName)->addListener (this);
-    alertWindow.setEscapeKeyCancels (true);
     
     cabinEQGraph.addListener (this);
     dropdownProfiles.addListener (this);
@@ -38,7 +33,6 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
 CabinEQPage::~CabinEQPage()
 {
     referenceSlider.removeListener (this);
-    alertWindow.getTextEditor (textEditorName)->removeListener (this);
     cabinEQGraph.removeListener();
 }
 
@@ -118,6 +112,9 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
 
 void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
 {
+    if (textEditor.getText().isEmpty())
+        return;
+    
     // Add the profile and dismiss the window
     juce::String profileName = textEditor.getText();
     
@@ -128,7 +125,11 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     // Select the new profile
     dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (dropdownProfiles.getNumItems() - 2));
     
-    alertWindow.exitModalState();
+    textEditor.setText ("");
+    
+    // To dismiss the window, delete it
+    alertWindow->getTextEditor (textEditorName)->removeListener (this);
+    alertWindow.reset();
 }
 
 void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
@@ -138,7 +139,14 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
         // Add a profile if you select "+ Add Profile"
         if (dropdownProfiles.getSelectedId() == dropdownProfiles.getNumItems())
         {
-            alertWindow.enterModalState();
+            // Create a present an alert for the user to enter the profile name into
+            alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+            
+            alertWindow->addTextEditor (textEditorName, "");
+            alertWindow->getTextEditor (textEditorName)->addListener (this);
+            alertWindow->setEscapeKeyCancels (true);
+            
+            alertWindow->enterModalState();
         }
         
         // Go to a profile if you select the profile
@@ -155,19 +163,6 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 void CabinEQPage::didLoadData()
 {
     loadDropdownOptions();
-//    dropdownProfiles.clear();
-//    dropdownProfiles.addItem ("+ Add Profile", 1);
-//    
-//    // Add existing profiles to dropdown menu
-//    int i = 2;
-//    for (const auto& name : processor.getProfileNames())
-//    {
-//        dropdownProfiles.addItem (name, i);
-//        i++;
-//    }
-//    
-//    if (dropdownProfiles.getNumItems() > 1)
-//        dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (2));
 }
 
 //=========================================

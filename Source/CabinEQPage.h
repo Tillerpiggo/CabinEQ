@@ -56,7 +56,7 @@ private:
     CabinEQGraph cabinEQGraph;
     juce::ComboBox dropdownProfiles;
     juce::Slider referenceSlider;
-    juce::AlertWindow alertWindow;
+    std::unique_ptr<juce::AlertWindow> alertWindow;
     
     const juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
     const juce::String textEditorName = "ProfileEditor";
