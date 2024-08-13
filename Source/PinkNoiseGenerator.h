@@ -31,45 +31,37 @@ public:
     
 private:
     void populateBuffer(); // fill heap block with next samples
-
-    struct ChainSettings
-    {
-        float lowCutFreq { 500 }, highCutFreq { 700 };
-    };
+    void updateAmplitudeCompensation();
     
     using Filter = juce::dsp::IIR::Filter<float>;
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
     using BandpassFilter = juce::dsp::ProcessorChain<CutFilter, CutFilter>;
-    
-    BandpassFilter bandpass;
-    
     using Coefficients = Filter::CoefficientsPtr;
-    static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
-    
-    template<int Index, typename ChainType, typename CoefficientType>
-    void update(ChainType& chain, CoefficientType& coefficients)
-    {
-        updateCoefficients (chain.template get<Index>().coefficients, coefficients[Index]);
-        chain.template setBypassed<Index>(false);
-    }
-    
-    enum ChainPositions
-    {
-        LowCut,
-        HighCut
-    };
     
     template<typename ChainType, typename CoefficientType>
-    void updateCutFilter(ChainType& chain, const CoefficientType& coefficients);
+    void updateCutFilter (ChainType& chain, const CoefficientType& coefficients);
+    template<int Index, typename ChainType, typename CoefficientType>
+    void update (ChainType& chain, CoefficientType& coefficients);
     void updateBandpassFilter (const float lowCutFreq, const float highCutFreq);
+    static void updateCoefficients (Coefficients& old, const Coefficients& replacements);
     
     // Pink noise generation
     PinkNoise pinkNoise;
+    BandpassFilter bandpass;
+    
+    float centerFrequency = 1000.0f;
+    float volumeInDB = 0.0f;
+    float amplitudeCompensation = 0.0f; // the total amplitude change, in DB, from the base value
     int bufferSize;
     int bufferIdx = 0;
     juce::AudioBuffer<float> buffer;
     juce::dsp::Gain<float> gainProcessor;
     
     float sampleRate = 44100;
-    std::optional<Note> note;
+    
+    enum ChainPositions
+    {
+        LowCut,
+        HighCut
+    };
 };

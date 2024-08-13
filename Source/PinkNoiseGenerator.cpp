@@ -15,7 +15,7 @@ PinkNoiseGenerator::PinkNoiseGenerator()
     : bufferSize (2048), buffer (1, bufferSize)
 {
     populateBuffer();
-    updateBandpassFilter (900, 1100);
+    setFrequency (1000.0f);
 }
 
 void PinkNoiseGenerator::setSampleRate (float newSampleRate)
@@ -31,24 +31,29 @@ const std::pair<float, float> PinkNoiseGenerator::getNextSample()
         bufferIdx = 0;
     }
     
-    float val = buffer.getReadPointer (0)[bufferIdx];
+    float val = buffer.getReadPointer (0)[bufferIdx] * amplitudeCompensation;
     bufferIdx++;
     return { val, val };
 }
 
 void PinkNoiseGenerator::setNote (Note note)
 {
-    // TODO
+    setFrequency (note.frequency);
+    setVolume (note.gain);
 }
 
 void PinkNoiseGenerator::setFrequency (float frequencyInHz)
 {
-    // TODO
+    float bandwidthFactor = 1.1;
+    updateBandpassFilter (frequencyInHz / bandwidthFactor, frequencyInHz * bandwidthFactor);
+    centerFrequency = frequencyInHz;
+    updateAmplitudeCompensation();
 }
 
 void PinkNoiseGenerator::setVolume (float volumeInDecibels)
 {
-    // TODO
+    volumeInDB = volumeInDecibels;
+    updateAmplitudeCompensation();
 }
 
 void PinkNoiseGenerator::setPan (float panInDecibels)
@@ -61,7 +66,7 @@ void PinkNoiseGenerator::setPhase (float phaseInDecibels)
     // TODO
 }
 
-//==============================================
+//==============================================================
 void PinkNoiseGenerator::populateBuffer()
 {
     buffer.clear();
@@ -77,6 +82,13 @@ void PinkNoiseGenerator::populateBuffer()
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::ProcessContextReplacing<float> context (block);
     bandpass.process (context);
+}
+
+void PinkNoiseGenerator::updateAmplitudeCompensation()
+{
+    float tiltInDB = 3.0 * std::log2 (centerFrequency / 1000.0f);
+    amplitudeCompensation = tiltInDB + volumeInDB + 30.0f;
+    amplitudeCompensation = juce::Decibels::decibelsToGain (amplitudeCompensation);
 }
 
 void PinkNoiseGenerator::updateBandpassFilter (const float lowCutFreq, const float highCutFreq)
@@ -109,6 +121,13 @@ void PinkNoiseGenerator::updateCutFilter(ChainType& chain, const CoefficientType
     update<2>(chain, coefficients);
     update<1>(chain, coefficients);
     update<0>(chain, coefficients);
+}
+
+template<int Index, typename ChainType, typename CoefficientType>
+void PinkNoiseGenerator::update (ChainType& chain, CoefficientType& coefficients)
+{
+    updateCoefficients (chain.template get<Index>().coefficients, coefficients[Index]);
+    chain.template setBypassed<Index>(false);
 }
 
 void PinkNoiseGenerator::updateCoefficients(Coefficients& old, const Coefficients& replacements)
