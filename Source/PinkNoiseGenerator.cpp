@@ -15,7 +15,7 @@ PinkNoiseGenerator::PinkNoiseGenerator()
     : bufferSize (2048), buffer (1, bufferSize)
 {
     populateBuffer();
-    updateFilters();
+    updateBandpassFilter (900, 1100);
 }
 
 void PinkNoiseGenerator::setSampleRate (float newSampleRate)
@@ -79,32 +79,36 @@ void PinkNoiseGenerator::populateBuffer()
     bandpass.process (context);
 }
 
-void PinkNoiseGenerator::updateLowCutFilters(const ChainSettings& chainSettings)
+void PinkNoiseGenerator::updateBandpassFilter (const float lowCutFreq, const float highCutFreq)
 {
-    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
+    // Update the low cut filter
+    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod (lowCutFreq,
                                                                                                        sampleRate,
-                                                                                                       2 * (chainSettings.lowCutSlope + 1));
+                                                                                                       2 * (4));
     
     auto& lowCut = bandpass.get<ChainPositions::LowCut>();
-    updateCutFilter(lowCut, lowCutCoefficients, chainSettings.lowCutSlope);
-}
-
-void PinkNoiseGenerator::updateHighCutFilters(const ChainSettings& chainSettings)
-{
-    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCutFreq,
+    updateCutFilter(lowCut, lowCutCoefficients);
+    
+    // Update the high cut filter
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod (highCutFreq,
                                                                                                        sampleRate,
-                                                                                                       2 * (chainSettings.highCutSlope + 1));
-    
+                                                                                                       2 * (4));
     auto& highCut = bandpass.get<ChainPositions::HighCut>();
-    updateCutFilter(highCut, highCutCoefficients, chainSettings.highCutSlope);
+    updateCutFilter(highCut, highCutCoefficients);
 }
 
-void PinkNoiseGenerator::updateFilters()
+template<typename ChainType, typename CoefficientType>
+void PinkNoiseGenerator::updateCutFilter(ChainType& chain, const CoefficientType& coefficients)
 {
-    auto chainSettings = ChainSettings();
+    chain.template setBypassed<0>(true);
+    chain.template setBypassed<1>(true);
+    chain.template setBypassed<2>(true);
+    chain.template setBypassed<3>(true);
     
-    updateLowCutFilters(chainSettings);
-    updateHighCutFilters(chainSettings);
+    update<3>(chain, coefficients);
+    update<2>(chain, coefficients);
+    update<1>(chain, coefficients);
+    update<0>(chain, coefficients);
 }
 
 void PinkNoiseGenerator::updateCoefficients(Coefficients& old, const Coefficients& replacements)
