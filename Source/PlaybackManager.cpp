@@ -148,6 +148,9 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
     node.amplitude += getCompensationDBAtFrequency (node.frequency);
     
+//    if (node.frequency > 2000.0f)
+//        referenceNoteCompensated.gain += 0.5 * std::log2 (node.frequency / 2000.0f);
+    
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (node, noteDurationInSamples);
     arbitrarySequencer.setNotes ({ note1, note2 }, true);
@@ -160,6 +163,9 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
     updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
+    
+//    if (updatedNode.frequency > 2000.0f)
+//        referenceNoteCompensated.gain += 0.5 * std::log2 (updatedNode.frequency / 2000.0f);
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (updatedNode, noteDurationInSamples);
@@ -183,6 +189,9 @@ void PlaybackManager::startTestingFreq (float freq, Curve& curve)
     
     Note referenceNoteCompensated = referenceNote;
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
+    
+//    if (freq > 2000.0f)
+//        referenceNoteCompensated.gain += 0.5 * std::log2 (freq / 2000.0f);
     
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);

@@ -456,12 +456,12 @@ juce::Colour CabinEQGraph::getColorForFrequency (float frequency)
 juce::Point<float> CabinEQGraph::coordsForEQNode (float frequency, float amplitude)
 {
     // Offset amplitude to account for tilt
-    float compensationDB = -4.5 * std::log2 (frequency / 3100.0f);
-    amplitude -= compensationDB;
+//    float compensationDB = -4.5 * std::log2 (frequency / 3100.0f);
+//    amplitude -= compensationDB;
     
     // Calculate (x, y) coords and return
     float x = getWidth() * timeAtFrequency (frequency);
-    float y = getHeight() * (1.0f - (amplitude +  24.0f) / 48.0f);
+    float y = getHeight() * (1.0f - (amplitude + 12.0f) / 48.0f);
     
     return { x, y };
 }
@@ -497,15 +497,15 @@ std::pair<float, float> CabinEQGraph::frequencyAndAmplitudeForMouseEvent (const 
     
     // Calculate amplitude of mouse event
     float normalizedY = y / getHeight();
-    float ampl = (1.0f - normalizedY) * 48.0f - 24.0f;
+    float ampl = (1.0f - normalizedY) * 48.0f - 12.0f;
     
     // Compensate for tilt
-    float compensationDB = -4.5 * std::log2 (freq / 3100.0f);
-    ampl += compensationDB;
+//    float compensationDB = -4.5 * std::log2 (freq / 3100.0f);
+//    ampl += compensationDB;
     
     // Bound freq/ampl inside the visible window
     freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
-    ampl = std::min (std::max (ampl, -24.0f + compensationDB), 24.0f + compensationDB);
+    ampl = std::min (std::max (ampl, -12.0f), 36.0f);
     
     return { freq, ampl };
 }

@@ -27,11 +27,11 @@
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="GYQxO0" name="CabinEQPage.cpp" compile="1" resource="0" file="Source/CabinEQPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEQPage.h" compile="0" resource="0" file="Source/CabinEQPage.h"/>
-        <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
-        <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
         <FILE id="XecbxI" name="CabinEQGraph.cpp" compile="1" resource="0"
               file="Source/CabinEQGraph.cpp"/>
         <FILE id="AbBAZL" name="CabinEQGraph.h" compile="0" resource="0" file="Source/CabinEQGraph.h"/>
+        <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
+        <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
         <FILE id="tFPxFE" name="SliderSequencer.cpp" compile="1" resource="0"
