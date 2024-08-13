@@ -25,8 +25,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
     // Apply compensationSlope of "tilt" - db/oct
-//    float compensationSlopeDiff = 0.0 * std::log2 ((frequency) / 1000.0f);
-    float dbDifference = -compensationSlope * std::log2 ((frequency) / 3100.0f);
+    float dbDifference = -compensationSlope * std::log2 ((frequency) / REFERENCE_FREQ);
     
     amplitudeAtFrequency += dbDifference;
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency;
@@ -70,7 +69,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::utilValueAtFreq
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
     // Apply compensationSlope of "tilt" - db/oct
-    float dbDifference = compensationSlope * std::log2((frequency) / 3100.0f);
+    float dbDifference = compensationSlope * std::log2((frequency) / REFERENCE_FREQ);
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
     float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
 

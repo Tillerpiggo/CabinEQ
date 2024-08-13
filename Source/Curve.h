@@ -15,6 +15,7 @@
 #include <complex>
 #include <cmath>
 
+#include "Constants.h"
 #include "EQNode.h"
 
 class Curve

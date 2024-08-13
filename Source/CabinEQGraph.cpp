@@ -260,7 +260,7 @@ void CabinEQGraph::drawDots (juce::Graphics& g, Curve& curve)
             dotRadius = selectedDotSize;
             
             // We also need to change the selected dot size to sync with the reference tone playing
-            if (getCurrPlayingFreq() != 3100.0f)
+            if (getCurrPlayingFreq() != REFERENCE_FREQ)
             {
                 dotColor = dotColor.interpolatedWith (juce::Colours::orange, 0.4);
                 targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
@@ -281,7 +281,7 @@ void CabinEQGraph::drawDots (juce::Graphics& g, Curve& curve)
         juce::Colour testDotColor = getColorForFrequency (getCurrPlayingFreq()).interpolatedWith (juce::Colours::pink, 0.4f);
         
         // Make node pulse w/ tones
-        if (getCurrPlayingFreq() != 3100.0f)
+        if (getCurrPlayingFreq() != REFERENCE_FREQ)
         {
             testDotColor = testDotColor.interpolatedWith (juce::Colours::orange, 0.4);
             targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
@@ -455,10 +455,6 @@ juce::Colour CabinEQGraph::getColorForFrequency (float frequency)
 
 juce::Point<float> CabinEQGraph::coordsForEQNode (float frequency, float amplitude)
 {
-    // Offset amplitude to account for tilt
-//    float compensationDB = -4.5 * std::log2 (frequency / 3100.0f);
-//    amplitude -= compensationDB;
-    
     // Calculate (x, y) coords and return
     float x = getWidth() * timeAtFrequency (frequency);
     float y = getHeight() * (1.0f - (amplitude + 12.0f) / 48.0f);
@@ -498,10 +494,6 @@ std::pair<float, float> CabinEQGraph::frequencyAndAmplitudeForMouseEvent (const 
     // Calculate amplitude of mouse event
     float normalizedY = y / getHeight();
     float ampl = (1.0f - normalizedY) * 48.0f - 12.0f;
-    
-    // Compensate for tilt
-//    float compensationDB = -4.5 * std::log2 (freq / 3100.0f);
-//    ampl += compensationDB;
     
     // Bound freq/ampl inside the visible window
     freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
@@ -605,13 +597,13 @@ void CabinEQGraph::stopTesting()
 float CabinEQGraph::getCurrPlayingFreq()
 {
     if (listener == nullptr)
-        return 3100.0f;
+        return REFERENCE_FREQ;
     return listener->getCurrPlayingFreq();
 }
 
 float CabinEQGraph::getCurrTestingFreq()
 {
     if (listener == nullptr)
-        return 3100.0f;
+        return REFERENCE_FREQ;
     return listener->getCurrTestingFreq();
 }

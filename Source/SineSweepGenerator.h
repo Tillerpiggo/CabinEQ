@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "SineWaveGenerator.h"
+#include "Constants.h"
 
 /// This class provides an easy interface to generate a sine sweep in a given frequency range.
 class SineSweepGenerator
@@ -37,8 +38,8 @@ private:
     bool increasingFreq = true;
     
     int currStep = 0;
-    float centerFreq = 3100.0f;
-    float currFreq = 3100.0f;
+    float centerFreq = REFERENCE_FREQ;
+    float currFreq = REFERENCE_FREQ;
     std::optional<float> currAmpl;
     
 };

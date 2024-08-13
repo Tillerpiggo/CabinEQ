@@ -14,6 +14,7 @@
 #include "ArbitraryResponseFilter.h"
 #include "ArbitrarySequencer.h"
 #include "SineSweepGenerator.h"
+#include "Constants.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -60,7 +61,7 @@ private:
     
     ArbitrarySequencer arbitrarySequencer;
     SineSweepGenerator sineSweepGenerator;
-    Note referenceNote = Note (3100.0f, 6.0f, 0.0f, 0.0f);
+    Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f, 0.0f);
     
     bool isTesting;
     bool isSweeping;
@@ -72,5 +73,5 @@ private:
     int noteLength = 25000;
     
     float referenceVolume = 0.0f;
-    float testingFreq = 3100.0f;
+    float testingFreq = REFERENCE_FREQ;
 };

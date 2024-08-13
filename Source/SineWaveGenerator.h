@@ -29,7 +29,6 @@ public:
     void setPhase (float phaseInRadians) override;
     
 private:
-    static constexpr float TILT = 1;
     static constexpr float REFERENCE_FREQ = 1000; // freq in hz whexsre amplitudeCompensation = 0
     
     void updatePhaseIncrementAndAmplitudeCompensation();

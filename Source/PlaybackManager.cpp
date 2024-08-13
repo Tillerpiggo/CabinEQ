@@ -23,7 +23,7 @@ PlaybackManager::PlaybackManager()
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
     
-    setCalibratingEQNode (EQNode (-1, 3100.0f, 0.0f, 0.0f)); // placeholder to avoid errors
+    setCalibratingEQNode (EQNode (-1, REFERENCE_FREQ, 0.0f, 0.0f)); // placeholder to avoid errors
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
@@ -242,5 +242,5 @@ std::pair<float, float> PlaybackManager::getNextSample()
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
-    return -4.5f * std::log2 (frequency / 3100.0f);
+    return -4.5f * std::log2 (frequency / REFERENCE_FREQ);
 }
