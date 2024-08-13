@@ -30,7 +30,12 @@ public:
     void setPhase (float phaseInDecibels) override;
     
 private:
+    void populateHeapBlock(); // fill heap block with next samples
+    
     PinkNoise pinkNoise;
+    juce::HeapBlock<float> heapBlock;
+    int heapBlockSize = 2000;
+    int heapBlockIdx = 0;
     
     float sampleRate = 44100;
     std::optional<Note> note;
