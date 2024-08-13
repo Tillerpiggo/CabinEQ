@@ -33,15 +33,25 @@
         <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
       </GROUP>
-      <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
-        <FILE id="tFPxFE" name="SliderSequencer.cpp" compile="1" resource="0"
-              file="Source/SliderSequencer.cpp"/>
-        <FILE id="BXO2gB" name="SliderSequencer.h" compile="0" resource="0"
-              file="Source/SliderSequencer.h"/>
+      <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Sequencers">
         <FILE id="dgYCTx" name="ArbitrarySequencer.cpp" compile="1" resource="0"
               file="Source/ArbitrarySequencer.cpp"/>
         <FILE id="bX0MJX" name="ArbitrarySequencer.h" compile="0" resource="0"
               file="Source/ArbitrarySequencer.h"/>
+        <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
+              file="Source/SequenceableNote.h"/>
+        <FILE id="VLnqpz" name="StereoGainEnvelope.cpp" compile="1" resource="0"
+              file="Source/StereoGainEnvelope.cpp"/>
+        <FILE id="Yfy4sY" name="StereoGainEnvelope.h" compile="0" resource="0"
+              file="Source/StereoGainEnvelope.h"/>
+        <FILE id="WOTg5b" name="GainEnvelope.cpp" compile="1" resource="0"
+              file="Source/GainEnvelope.cpp"/>
+        <FILE id="fGlITw" name="GainEnvelope.h" compile="0" resource="0" file="Source/GainEnvelope.h"/>
+        <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
+              file="Source/SequenceableNote.cpp"/>
+        <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
+      </GROUP>
+      <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
         <FILE id="u9ZaeK" name="SineWaveGenerator.cpp" compile="1" resource="0"
               file="Source/SineWaveGenerator.cpp"/>
         <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
@@ -50,22 +60,10 @@
               file="Source/PinkNoiseGenerator.cpp"/>
         <FILE id="P9K6rT" name="PinkNoiseGenerator.h" compile="0" resource="0"
               file="Source/PinkNoiseGenerator.h"/>
-        <FILE id="VLnqpz" name="StereoGainEnvelope.cpp" compile="1" resource="0"
-              file="Source/StereoGainEnvelope.cpp"/>
-        <FILE id="Yfy4sY" name="StereoGainEnvelope.h" compile="0" resource="0"
-              file="Source/StereoGainEnvelope.h"/>
-        <FILE id="WOTg5b" name="GainEnvelope.cpp" compile="1" resource="0"
-              file="Source/GainEnvelope.cpp"/>
-        <FILE id="fGlITw" name="GainEnvelope.h" compile="0" resource="0" file="Source/GainEnvelope.h"/>
         <FILE id="ipHh6l" name="SineSweepGenerator.cpp" compile="1" resource="0"
               file="Source/SineSweepGenerator.cpp"/>
         <FILE id="HYovE4" name="SineSweepGenerator.h" compile="0" resource="0"
               file="Source/SineSweepGenerator.h"/>
-        <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
-              file="Source/SequenceableNote.cpp"/>
-        <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
-              file="Source/SequenceableNote.h"/>
-        <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{BBD4AE00-CC92-9DE7-D5E8-A037D1509C11}" name="Audio Processing">
         <FILE id="a7IuV6" name="ArbitraryResponseFilter.cpp" compile="1" resource="0"
