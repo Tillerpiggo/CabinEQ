@@ -50,9 +50,9 @@ private:
     
     using Filter = juce::dsp::IIR::Filter<float>;
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+    using BandpassFilter = juce::dsp::ProcessorChain<CutFilter, CutFilter>;
     
-    MonoChain leftChain, rightChain;
+    BandpassFilter bandpass;
     
     using Coefficients = Filter::CoefficientsPtr;
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
@@ -67,7 +67,6 @@ private:
     enum ChainPositions
     {
         LowCut,
-        Peak,
         HighCut
     };
     

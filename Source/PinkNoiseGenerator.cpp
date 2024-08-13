@@ -76,7 +76,7 @@ void PinkNoiseGenerator::populateBuffer()
     // Do other processing as needed...
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::ProcessContextReplacing<float> context (block);
-    leftChain.process (context);
+    bandpass.process (context);
 }
 
 void PinkNoiseGenerator::updateLowCutFilters(const ChainSettings& chainSettings)
@@ -85,11 +85,8 @@ void PinkNoiseGenerator::updateLowCutFilters(const ChainSettings& chainSettings)
                                                                                                        sampleRate,
                                                                                                        2 * (chainSettings.lowCutSlope + 1));
     
-    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
-    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
-    
-    updateCutFilter(leftLowCut, lowCutCoefficients, chainSettings.lowCutSlope);
-    updateCutFilter(rightLowCut, lowCutCoefficients, chainSettings.lowCutSlope);
+    auto& lowCut = bandpass.get<ChainPositions::LowCut>();
+    updateCutFilter(lowCut, lowCutCoefficients, chainSettings.lowCutSlope);
 }
 
 void PinkNoiseGenerator::updateHighCutFilters(const ChainSettings& chainSettings)
@@ -98,11 +95,8 @@ void PinkNoiseGenerator::updateHighCutFilters(const ChainSettings& chainSettings
                                                                                                        sampleRate,
                                                                                                        2 * (chainSettings.highCutSlope + 1));
     
-    auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
-    auto& rightHighCut = rightChain.get<ChainPositions::HighCut>();
-    
-    updateCutFilter(leftHighCut, highCutCoefficients, chainSettings.highCutSlope);
-    updateCutFilter(rightHighCut, highCutCoefficients, chainSettings.highCutSlope);
+    auto& highCut = bandpass.get<ChainPositions::HighCut>();
+    updateCutFilter(highCut, highCutCoefficients, chainSettings.highCutSlope);
 }
 
 void PinkNoiseGenerator::updateFilters()
