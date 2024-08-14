@@ -53,6 +53,7 @@ public:
 private:
     std::pair<float, float> getNextSample();
     float getCompensationDBAtFrequency (float frequency);
+    float getReferenceCompensationDBAtFrequency (float frequency);
     
     const int FFT_SIZE = 18;
     
@@ -75,4 +76,6 @@ private:
     
     float referenceVolume = 0.0f;
     float testingFreq = REFERENCE_FREQ;
+    
+    Curve targetCurve;
 };
