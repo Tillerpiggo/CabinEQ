@@ -95,7 +95,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
 
 void PlaybackManager::updateFilterWithCurve (Curve& curve)
 {
-    filter.updateWithCurve (curve, FFT_SIZE);
+    filter.updateWithCurve (curve, targetCurve, FFT_SIZE);
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
@@ -257,7 +257,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
-    return -4.5f * std::log2 (frequency / REFERENCE_FREQ);
+    return -4.5f * std::log2 (frequency / REFERENCE_FREQ);// + targetCurve.valueAtFrequency (frequency).first.real();;
 }
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)

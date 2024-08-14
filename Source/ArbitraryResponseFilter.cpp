@@ -10,9 +10,9 @@
 
 #include "ArbitraryResponseFilter.h"
 
-void ArbitraryResponseFilter::updateWithCurve (Curve& curve, int fft_size)
+void ArbitraryResponseFilter::updateWithCurve (Curve& curve, Curve& targetCurve, int fft_size)
 {
-    auto [leftImpulseData, rightImpulseData] = curve.getStereoImpulse (fft_size);
+    auto [leftImpulseData, rightImpulseData] = curve.getStereoImpulse (fft_size, targetCurve);
     
     // Load the IR into the convolution
     int numSamples = std::pow (2, fft_size);
