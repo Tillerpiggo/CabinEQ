@@ -269,5 +269,5 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
 {
-    return 0.0f;//targetCurve.valueAtFrequency (frequency).first.real();
+    return targetCurve.valueAtFrequency (frequency).first.real();
 }
