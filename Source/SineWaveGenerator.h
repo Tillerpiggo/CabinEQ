@@ -48,8 +48,8 @@ private:
     std::optional<float> targetAmplitude;
     
     // == Vibrato ==
-    float vibratoPhase = 0; // 0 to 1
+    float vibratoPhase = 0; // 0 to 2pi
     float vibratoStep = 0.001;
     float vibratoMaxDB = 0.0f;
-    float vibratoMinDB = -40.0f;
+    float vibratoMinDB = 0.0f;//-40.0f;
 };

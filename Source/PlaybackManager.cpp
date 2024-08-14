@@ -173,6 +173,7 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
 //    if (node.frequency > 2000.0f)
 //        referenceNoteCompensated.gain += 0.5 * std::log2 (node.frequency / 2000.0f);
     
+    
     SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
     SequenceableNote note2 (node, noteDurationInSamples);
     arbitrarySequencer.setNotes ({ note1, note2 }, true);
@@ -269,5 +270,5 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
 {
-    return targetCurve.valueAtFrequency (frequency).first.real();
+    return juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency).first.real());
 }

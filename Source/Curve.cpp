@@ -28,7 +28,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     float dbDifference = -compensationSlope * std::log2 ((frequency) / REFERENCE_FREQ);
     
     amplitudeAtFrequency += dbDifference;
-//    amplitudeAtFrequency += targetCurve.valueAtFrequency (frequency).first.real();
+//    amplitudeAtFrequency += juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency).first.real());
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency;
     float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency;
     
