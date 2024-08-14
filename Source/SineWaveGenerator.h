@@ -51,5 +51,5 @@ private:
     float vibratoPhase = 0; // 0 to 1
     float vibratoStep = 0.001;
     float vibratoMaxDB = 0.0f;
-    float vibratoMinDB = -10.0f;
+    float vibratoMinDB = 0.0f;//-10.0f;
 };
