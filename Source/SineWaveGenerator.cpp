@@ -122,7 +122,7 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
     
-    float noteGain = juce::Decibels::decibelsToGain (ampl + 6.0f);
+    float noteGain = juce::Decibels::decibelsToGain (ampl);
     leftAmplitudeCompensation = noteGain;
     rightAmplitudeCompensation = noteGain;
     

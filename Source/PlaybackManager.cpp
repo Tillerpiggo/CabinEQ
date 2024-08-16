@@ -161,53 +161,51 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 void PlaybackManager::setCalibratingEQNode (EQNode node)
 {
     int noteDurationInSamples = 20000;
-    
-    Note referenceNoteCompensated = referenceNote;
-    referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
-    referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (node.frequency);
     node.amplitude += getCompensationDBAtFrequency (node.frequency);
+    StereoGainEnvelope hardLeft = StereoGainEnvelope (StereoGainEnvelopeType::HARD_LEFT);
+    StereoGainEnvelope hardRight = StereoGainEnvelope (StereoGainEnvelopeType::HARD_RIGHT);
     
-//    if (node.frequency > 2000.0f)
-//        referenceNoteCompensated.gain += 0.5 * std::log2 (node.frequency / 2000.0f);
+    SequenceableNote referenceNoteLeft (referenceNote, noteDurationInSamples, hardLeft);
+    SequenceableNote referenceNoteRight (referenceNote, noteDurationInSamples, hardRight);
+    SequenceableNote controlledNoteLeft (node, noteDurationInSamples, hardLeft);
+    SequenceableNote controlledNoteRight (node, noteDurationInSamples, hardRight);
+    
+    arbitrarySequencer.setNotes ({ referenceNoteLeft, referenceNoteRight,
+                                   controlledNoteLeft, controlledNoteRight });
     
     
-    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-    SequenceableNote note2 (node, noteDurationInSamples);
-    arbitrarySequencer.setNotes ({ note1, note2 }, true);
     
-//    node.amplitude -= 3.0f;
-//    SequenceableNote quieterNote (node, noteDurationInSamples);
-//    SequenceableNote refNote (referenceNoteCompensated, noteDurationInSamples);
-//    node.amplitude += 6.0f;
-//    SequenceableNote louderNote (node, noteDurationInSamples);
-    
+//    Note referenceNoteCompensated = referenceNote;
+//    referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
+//    referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (node.frequency);
+//    node.amplitude += getCompensationDBAtFrequency (node.frequency);
 //    
-//    arbitrarySequencer.setNotes ({ quieterNote, refNote, louderNote, silentNote }, true);
-    
-//    float volumeStep = 3.0f;
-//    volumeStep += 0.2 * std::log2 (node.frequency / 1000.0f);
-//    referenceNoteCompensated.gain -= volumeStep;
-//    SequenceableNote quietRef (referenceNoteCompensated, noteDurationInSamples);
-//    SequenceableNote controlledNote (node, noteDurationInSamples);
-//    referenceNoteCompensated.gain += volumeStep * 2;
-//    SequenceableNote loudRef (referenceNoteCompensated, noteDurationInSamples);
-//    SequenceableNote silentNote (referenceNoteCompensated, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
-//    arbitrarySequencer.setNotes ({ quietRef, controlledNote, silentNote, controlledNote, loudRef, silentNote }, true);
+//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+//    SequenceableNote note2 (node, noteDurationInSamples);
+//    arbitrarySequencer.setNotes ({ note1, note2 }, true);
 }
 
 void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 {
     int noteDurationInSamples = 20000;
-    
-    Note referenceNoteCompensated = referenceNote;
-    referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
-    referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (updatedNode.frequency);
     updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
+    StereoGainEnvelope hardLeft = StereoGainEnvelope (StereoGainEnvelopeType::HARD_LEFT);
+    StereoGainEnvelope hardRight = StereoGainEnvelope (StereoGainEnvelopeType::HARD_RIGHT);
+    SequenceableNote controlledNoteLeft (updatedNode, noteDurationInSamples, hardLeft);
+    SequenceableNote controlledNoteRight (updatedNode, noteDurationInSamples, hardRight);
     
-    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-    SequenceableNote note2 (updatedNode, noteDurationInSamples);
-    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
-    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+    arbitrarySequencer.changeNoteAtIdx (2, controlledNoteLeft.note());
+    arbitrarySequencer.changeNoteAtIdx (3, controlledNoteRight.note());
+    
+//    Note referenceNoteCompensated = referenceNote;
+//    referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
+//    referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (updatedNode.frequency);
+//    updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
+//    
+//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+//    SequenceableNote note2 (updatedNode, noteDurationInSamples);
+//    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
+//    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
     
 //    updatedNode.amplitude -= 3.0f;
 //    SequenceableNote quieterNote (updatedNode, noteDurationInSamples);
@@ -362,7 +360,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
 //    return -4.5f * std::log2 (frequency / REFERENCE_FREQ) + targetCurve.valueAtFrequency (frequency).first.real() - 6.0f;
-    return -4.5f * std::log2 (frequency / REFERENCE_FREQ);
+    return 0.0f;//-4.5f * std::log2 (frequency / REFERENCE_FREQ);
 }
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
