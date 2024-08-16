@@ -29,14 +29,33 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
 //    if (frequency > 800.0f)
 //        compensationSlope += 0.5 * std::log10 ((frequency) / REFERENCE_FREQ);
     float dbDifference = -compensationSlope * std::log2 ((frequency) / REFERENCE_FREQ);
+    
+    if (frequency < REFERENCE_FREQ)
+        compensationSlope *= 0.75;
 //    dbDifference = 0.0f;
     if (frequency < 600.0f)
         dbDifference = -compensationSlope * std::log2 ((600.0f) / REFERENCE_FREQ) + 4.5 * std::log2 ((frequency) / 600.0f);
     
-    if (frequency < 350.0f)
-        dbDifference = -compensationSlope * std::log2 ((600.0f) / REFERENCE_FREQ) + 4.5 * std::log2 ((350.0f) / 600.0f);
+    if (frequency < 500.0f)
+        dbDifference = -compensationSlope * std::log2 ((600.0f) / REFERENCE_FREQ) + 4.5 * std::log2 ((500.0f) / 600.0f) + 4.5 * std::log2 (frequency / 500.0f);
     
-    dbDifference += (3700.0f - std::max (std::abs (3700.0f - frequency), 3700.0f)) / 800.0f;
+    dbDifference += (5000.0f - std::max (std::abs (4000.0f - frequency), 5000.0f)) / 600.0f;
+    
+    // Nullify stupid curve
+    dbDifference = 0.0f;
+    
+    // Even stupider curve
+    float dumbslope = 5.0f;
+    float midpoint = 3100.0f;
+//    dumbslope -= 0.5 * std::abs (std::log2 ((frequency / midpoint)));
+    if (frequency < 300.0f)
+        frequency = 300.0f;
+    dbDifference = -dumbslope * std::abs (std::log2 ((frequency) / midpoint));
+    
+    if (frequency < 300.0f)
+        dbDifference += 6.0 * std::abs (std::log2 ((frequency) / 300.0f));
+    
+    if (frequency < 500)
     
     amplitudeAtFrequency += dbDifference;
 //    amplitudeAtFrequency += juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency).first.real());
