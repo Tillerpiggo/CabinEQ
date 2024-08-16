@@ -324,6 +324,11 @@ void StartupMVPAudioProcessor::addProfile (juce::String profileName)
     cabinEQValueTreeManager.addProfile (profileName);
 }
 
+void StartupMVPAudioProcessor::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
+{
+    cabinEQValueTreeManager.addDuplicateProfile (profileName, oldProfileName);
+}
+
 void StartupMVPAudioProcessor::removeProfile (juce::String profileName)
 {
     cabinEQValueTreeManager.removeProfile (profileName);

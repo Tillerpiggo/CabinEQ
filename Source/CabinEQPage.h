@@ -184,8 +184,10 @@ private:
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
     juce::TextButton unlockButton { "UNLOCK" };
+    juce::TextButton duplicateButton { "COPY" };
     bool isBypassed = true;
     bool hasFilterChanged = true;
+    bool creatingDuplicate = false;
     
     CabinEQGraph cabinEQGraph;
     juce::ComboBox dropdownProfiles;

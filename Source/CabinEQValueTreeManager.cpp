@@ -18,11 +18,14 @@ void CabinEQValueTreeManager::addProfile (juce::String profileName)
 {
     if (getProfileNamed (profileName) == std::nullopt)
         profiles.push_back (std::make_unique<CabinEQValueTree> (apvts, profileName));
+}
+
+void CabinEQValueTreeManager::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
+{
+    addProfile (profileName);
     
-    std::cout << "Added profile named " << profileName << std::endl;
-    std::cout << "Current profile list: " << std::endl;
-    for (const auto& profile : profiles)
-        std::cout << "Profile: " << profile->getName() << std::endl;
+    // Copy over old profile to new profile
+    getProfileNamed (profileName)->get().copyFrom (getProfileNamed (oldProfileName)->get());
 }
 
 void CabinEQValueTreeManager::removeProfile (juce::String profileName)

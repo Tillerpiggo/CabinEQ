@@ -20,6 +20,7 @@ public:
     CabinEQValueTreeManager (juce::AudioProcessorValueTreeState& apvts);
     
     void addProfile (juce::String profileName);
+    void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
     void removeProfile (juce::String profileName);
     void initProfiles(); // Initializes the profiles using the apvts
     const std::vector<juce::String> getProfileNames() const;

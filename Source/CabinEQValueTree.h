@@ -33,6 +33,8 @@ public:
     void initValueTreeFromAPVTS(); // sets value tree to match the one in apvts
     const juce::String getName() const;
     
+    void copyFrom (CabinEQValueTree& other);
+    
 private:
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
     void printValueTree (juce::ValueTree valueTree) const;

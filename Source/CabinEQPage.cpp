@@ -25,6 +25,7 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     referenceSlider.addListener (this);
     bypassButton.addListener (this);
     unlockButton.addListener (this);
+    duplicateButton.addListener (this);
     processor.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
@@ -32,6 +33,7 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     addAndMakeVisible (referenceSlider);
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (unlockButton);
+    addAndMakeVisible (duplicateButton);
     addAndMakeVisible (unlockForm);
     
     didLoadData();
@@ -54,24 +56,31 @@ void CabinEQPage::resized()
     int dropdownHeight = 30;
     int buttonWidth = 100;
     int unlockButtonWidth = 100;
-    int graphHeight = getHeight() - (2 * padding) - dropdownHeight;
-    int dropdownWidth = getWidth() - (2 * padding) - buttonWidth;
-
+    int duplicateButtonWidth = 100;
+    int totalButtonWidth = buttonWidth + duplicateButtonWidth;
+    
     if (!isUnlocked)
     {
-        dropdownWidth -= unlockButtonWidth;
+        totalButtonWidth += unlockButtonWidth;
     }
 
+    int graphHeight = getHeight() - (2 * padding) - dropdownHeight;
+    int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
     int bottomY = getHeight() - padding - dropdownHeight;
 
     cabinEQGraph.setBounds(0, padding, getWidth(), graphHeight);
     dropdownProfiles.setBounds(padding, bottomY, dropdownWidth, dropdownHeight);
     bypassButton.setBounds(padding + dropdownWidth, bottomY, buttonWidth, dropdownHeight);
 
+    int currentX = padding + dropdownWidth + buttonWidth;
+    
     if (!isUnlocked)
     {
-        unlockButton.setBounds(padding + dropdownWidth + buttonWidth, bottomY, unlockButtonWidth, dropdownHeight);
+        unlockButton.setBounds(currentX, bottomY, unlockButtonWidth, dropdownHeight);
+        currentX += unlockButtonWidth;
     }
+
+    duplicateButton.setBounds(currentX, bottomY, duplicateButtonWidth, dropdownHeight);
 }
 
 // ====================================================
@@ -151,7 +160,15 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     juce::String profileName = textEditor.getText();
     
     // Add & retrieve profile from processor
-    processor.addProfile (profileName);
+    if (! creatingDuplicate)
+    {
+        processor.addProfile (profileName);
+    }
+    else
+    {
+        processor.addDuplicateProfile (profileName, profileId);
+    }
+    
     loadDropdownOptions();
     
     // Select the new profile
@@ -179,6 +196,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
         {
             // Create a present an alert for the user to enter the profile name into
             alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+            creatingDuplicate = false;
             
             alertWindow->addTextEditor (textEditorName, "");
             alertWindow->getTextEditor (textEditorName)->addListener (this);
@@ -222,6 +240,23 @@ void CabinEQPage::buttonClicked (juce::Button *button)
     else if (button == &unlockButton)
     {
         showForm();
+    }
+    else if (button == &duplicateButton)
+    {
+        // Present option to add duplicate profile, and opportunity to name it
+        // Create a present an alert for the user to enter the profile name into
+        alertWindow = std::make_unique<juce::AlertWindow> ("Create Duplicate Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+        creatingDuplicate = true;
+        
+        alertWindow->addTextEditor (textEditorName, "");
+        alertWindow->getTextEditor (textEditorName)->addListener (this);
+        alertWindow->setEscapeKeyCancels (true);
+        
+        alertWindow->enterModalState();
+        
+        dropdownProfiles.setSelectedId (lastSelectedId);
+        flagFilterChanged();
+        applyFilterIfProcessing();
     }
 }
 

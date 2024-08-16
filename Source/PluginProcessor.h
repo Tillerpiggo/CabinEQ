@@ -79,6 +79,7 @@ public:
     
     // Profiles
     void addProfile (juce::String profileName);
+    void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
     void removeProfile (juce::String profileName);
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEQValueTree>> getProfileNamed (juce::String profileName) const;
