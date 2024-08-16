@@ -11,23 +11,28 @@
 #include "CabinEQPage.h"
 
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()
+    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph(), unlockForm (marketplaceStatus)
 {
     dropdownProfiles.addItem ("+ Add Profile", 1);
     
     referenceSlider.setRange (-24.0f, 24.0f);
     referenceSlider.setValue (0.0f);
     
+    bypassButton.setEnabled (false);
+    
     cabinEQGraph.addListener (this);
     dropdownProfiles.addListener (this);
     referenceSlider.addListener (this);
     bypassButton.addListener (this);
+    unlockButton.addListener (this);
     processor.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
     addAndMakeVisible (dropdownProfiles);
     addAndMakeVisible (referenceSlider);
     addAndMakeVisible (bypassButton);
+    addAndMakeVisible (unlockButton);
+    addAndMakeVisible (unlockForm);
     
     didLoadData();
 }
@@ -48,13 +53,25 @@ void CabinEQPage::resized()
     int padding = 10;
     int dropdownHeight = 30;
     int buttonWidth = 100;
+    int unlockButtonWidth = 100;
     int graphHeight = getHeight() - (2 * padding) - dropdownHeight;
     int dropdownWidth = getWidth() - (2 * padding) - buttonWidth;
+
+    if (!isUnlocked)
+    {
+        dropdownWidth -= unlockButtonWidth;
+    }
+
     int bottomY = getHeight() - padding - dropdownHeight;
 
     cabinEQGraph.setBounds(0, padding, getWidth(), graphHeight);
     dropdownProfiles.setBounds(padding, bottomY, dropdownWidth, dropdownHeight);
     bypassButton.setBounds(padding + dropdownWidth, bottomY, buttonWidth, dropdownHeight);
+
+    if (!isUnlocked)
+    {
+        unlockButton.setBounds(padding + dropdownWidth + buttonWidth, bottomY, unlockButtonWidth, dropdownHeight);
+    }
 }
 
 // ====================================================
@@ -202,6 +219,10 @@ void CabinEQPage::buttonClicked (juce::Button *button)
         processor.setIsProcessing (! isBypassed);
         applyFilterIfProcessing();
     }
+    else if (button == &unlockButton)
+    {
+        showForm();
+    }
 }
 
 void CabinEQPage::didLoadData()
@@ -209,6 +230,15 @@ void CabinEQPage::didLoadData()
     loadDropdownOptions();
     applyFilterIfProcessing();
     processor.setIsProcessing (! isBypassed);
+}
+
+void CabinEQPage::timerCallback()
+{
+    if (! isUnlocked && marketplaceStatus.isUnlocked())
+    {
+        isUnlocked = true;
+        unlockApp();
+    }
 }
 
 //=========================================
@@ -260,4 +290,17 @@ void CabinEQPage::dismissAlertWindow()
 {
     alertWindow->getTextEditor (textEditorName)->removeListener (this);
     alertWindow.reset();
+}
+
+void CabinEQPage::showForm()
+{
+    unlockForm.setVisible (true);
+    bypassButton.setEnabled (true);
+}
+
+void CabinEQPage::unlockApp()
+{
+    bypassButton.setEnabled (true);
+//    unlockLabel.setText ("Status: Unlocked", juce::dontSendNotification);
+//    unlockLabel.setColour (juce::Label::textColourId, juce::Colours::green);
 }
