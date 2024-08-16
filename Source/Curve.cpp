@@ -28,8 +28,9 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     
 //    if (frequency > 800.0f)
 //        compensationSlope += 0.5 * std::log10 ((frequency) / REFERENCE_FREQ);
-    float dbDifference = -compensationSlope * std::log2 ((frequency) / REFERENCE_FREQ);
     
+    float dbDifference = -compensationSlope * std::log2 ((frequency) / REFERENCE_FREQ);
+    /*
     if (frequency < REFERENCE_FREQ)
         compensationSlope *= 0.75;
 //    dbDifference = 0.0f;
@@ -46,18 +47,23 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     
     // Even stupider curve
     float dumbslope = 5.0f;
-    float midpoint = 3100.0f;
+    float midpoint = 600.0f;
 //    dumbslope -= 0.5 * std::abs (std::log2 ((frequency / midpoint)));
-    if (frequency < 300.0f)
-        frequency = 300.0f;
     dbDifference = -dumbslope * std::abs (std::log2 ((frequency) / midpoint));
     
-    if (frequency < 300.0f)
-        dbDifference += 6.0 * std::abs (std::log2 ((frequency) / 300.0f));
+//    if (frequency > 6000.0f)
+//        dbDifference += 5.0 * std::abs (std::log2 ((frequency) / 6000.0f));
     
-    if (frequency < 500)
+//    float slopePoint = 500.0f;
+//    if (frequency < slopePoint)
+//        dbDifference = 4.0 * std::abs (std::log2 ((frequency) / slopePoint)) + -dumbslope * std::abs (std::log2 ((slopePoint) / midpoint));
+    // Exponential bass curve
+//    if (frequency < 700.0f && frequency > 19.0f)
+//        dbDifference += (3.0 + 0.5 * std::abs (std::log2 ((frequency / 700.0f)))) * std::abs (std::log2 ((frequency / 700.0f)));
+     */
     
     amplitudeAtFrequency += dbDifference;
+//    amplitudeAtFrequency += dbDifference * 0.3f;
 //    amplitudeAtFrequency += juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency).first.real());
     float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency;
     float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency;
@@ -165,7 +171,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t, Curve& targetCurve)
 {
-    return compensatedValueAtFrequency (t * 22050, -6.0, targetCurve);
+    return compensatedValueAtFrequency (t * 22050, 0.0, targetCurve);
 }
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const
