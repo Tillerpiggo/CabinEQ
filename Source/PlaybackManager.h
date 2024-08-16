@@ -37,7 +37,7 @@ public:
     void setIsTesting (bool isTesting);
     void setIsSweeping (bool isSweeping);
     void setIsCalibrating (bool isCalibrating);
-    void setIsBypassed (bool isBypassed);
+    void setIsProcessing (bool isProcessing);
     void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
@@ -68,7 +68,7 @@ private:
     bool isTesting;
     bool isSweeping;
     bool isCalibrating;
-    bool isBypassed;
+    bool isProcessing;
     bool hasPreparedFilter;
     
     int currIdx = -1;

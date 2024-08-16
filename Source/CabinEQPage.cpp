@@ -21,11 +21,13 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     cabinEQGraph.addListener (this);
     dropdownProfiles.addListener (this);
     referenceSlider.addListener (this);
+    bypassButton.addListener (this);
     processor.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
     addAndMakeVisible (dropdownProfiles);
     addAndMakeVisible (referenceSlider);
+    addAndMakeVisible (bypassButton);
     
     didLoadData();
 }
@@ -44,25 +46,33 @@ void CabinEQPage::paint (juce::Graphics& g)
 void CabinEQPage::resized()
 {
     int padding = 10;
-    int graphHeight = getHeight() - (2 * padding) - 30; // Adjust for dropdown height
+    int dropdownHeight = 30;
+    int buttonWidth = 100;
+    int graphHeight = getHeight() - (2 * padding) - dropdownHeight;
+    int dropdownWidth = getWidth() - (2 * padding) - buttonWidth;
+    int bottomY = getHeight() - padding - dropdownHeight;
 
-    cabinEQGraph.setBounds(0, 0, getWidth(), graphHeight);
-    dropdownProfiles.setBounds(padding, getHeight() - padding - 30, getWidth() - (2 * padding), 30);
+    cabinEQGraph.setBounds(0, padding, getWidth(), graphHeight);
+    dropdownProfiles.setBounds(padding, bottomY, dropdownWidth, dropdownHeight);
+    bypassButton.setBounds(padding + dropdownWidth, bottomY, buttonWidth, dropdownHeight);
 }
 
 // ====================================================
 int CabinEQPage::addNode (float freq, float ampl)
 {
+    flagFilterChanged();
     return processor.addEQNode (freq, ampl, 0.0f, profileId);
 }
 
 void CabinEQPage::updateNode (int id, float freq, float ampl)
 {
+    flagFilterChanged();
     processor.updateEQNode (id, freq, ampl, 0.0f, profileId);
 }
 
 void CabinEQPage::removeNode (int id)
 {
+    flagFilterChanged();
     processor.removeEQNode (id, profileId);
 }
 
@@ -99,6 +109,11 @@ float CabinEQPage::getCurrPlayingFreq()
 float CabinEQPage::getCurrTestingFreq()
 {
     return processor.getCurrTestingFreq();
+}
+
+void CabinEQPage::userStoppedDoingShit()
+{
+    applyFilterIfProcessing();
 }
 
 // ====================================================
@@ -155,6 +170,8 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             alertWindow->enterModalState();
             
             dropdownProfiles.setSelectedId (lastSelectedId);
+            flagFilterChanged();
+            applyFilterIfProcessing();
         }
         
         // Go to a profile if you select the profile
@@ -164,6 +181,8 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             juce::String profileIdSelected = dropdownProfiles.getItemText (selectedIndex);
             profileId = profileIdSelected;
             cabinEQGraph.setCurve (processor.getCurve (profileIdSelected)->get());
+            flagFilterChanged();
+            applyFilterIfProcessing();
         }
         
         lastSelectedId = dropdownProfiles.getSelectedId();
@@ -175,12 +194,47 @@ void CabinEQPage::inputAttemptWhenModal()
     dismissAlertWindow();
 }
 
+void CabinEQPage::buttonClicked (juce::Button *button)
+{
+    if (button == &bypassButton)
+    {
+        toggleBypass();
+        processor.setIsProcessing (! isBypassed);
+        applyFilterIfProcessing();
+    }
+}
+
 void CabinEQPage::didLoadData()
 {
     loadDropdownOptions();
+    applyFilterIfProcessing();
+    processor.setIsProcessing (! isBypassed);
 }
 
 //=========================================
+void CabinEQPage::flagFilterChanged()
+{
+    hasFilterChanged = true;
+    bypassButton.setButtonText ("ON*");
+}
+
+void CabinEQPage::toggleBypass()
+{
+    isBypassed = ! isBypassed;
+    cabinEQGraph.setGrayscale (isBypassed);
+    bypassButton.setButtonText (isBypassed ? "OFF" : "ON");
+}
+
+void CabinEQPage::applyFilterIfProcessing()
+{
+    if (! isBypassed && hasFilterChanged)
+    {
+        processor.applyCurve (profileId);
+        hasFilterChanged = false;
+        bypassButton.setButtonText ("ON");
+    }
+}
+
 void CabinEQPage::loadDropdownOptions()
 {
     dropdownProfiles.clear();

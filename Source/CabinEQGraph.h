@@ -35,6 +35,8 @@ public:
         virtual void stopTesting() = 0; // stops playing the testing tones (that are played when holding down ctrl/alt)
         virtual float getCurrPlayingFreq() = 0;
         virtual float getCurrTestingFreq() = 0;
+        
+        virtual void userStoppedDoingShit() = 0;
     };
     
     CabinEQGraph();
@@ -58,6 +60,8 @@ public:
     
     void addListener (Listener* listener);
     void removeListener();
+    
+    void setGrayscale (bool grayscale);
     
 private:
     std::optional<std::reference_wrapper<Curve>> curve;
@@ -95,6 +99,7 @@ private:
     void stopTesting(); // stops playing the testing tones (that are played when holding down ctrl/alt)
     float getCurrPlayingFreq();
     float getCurrTestingFreq();
+    void userStoppedDoingShit();
     
     // Dragging/zooming
     float minFreqShowing = 20.0f;
@@ -122,4 +127,8 @@ private:
     std::optional<float> addingFreq;
     float selectedDotSize = DOT_SIZE_DEFAULT;
     std::optional<float> targetSelectedDotSize;
+    
+    bool grayscale = false;
+    
+    int cyclesSinceUserStoppedDoingShit = 0;
 };

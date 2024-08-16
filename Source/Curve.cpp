@@ -25,7 +25,18 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     
     // Apply compensationSlope of "tilt" - db/oct
+    
+//    if (frequency > 800.0f)
+//        compensationSlope += 0.5 * std::log10 ((frequency) / REFERENCE_FREQ);
     float dbDifference = -compensationSlope * std::log2 ((frequency) / REFERENCE_FREQ);
+//    dbDifference = 0.0f;
+    if (frequency < 600.0f)
+        dbDifference = -compensationSlope * std::log2 ((600.0f) / REFERENCE_FREQ) + 4.5 * std::log2 ((frequency) / 600.0f);
+    
+    if (frequency < 350.0f)
+        dbDifference = -compensationSlope * std::log2 ((600.0f) / REFERENCE_FREQ) + 4.5 * std::log2 ((350.0f) / 600.0f);
+    
+    dbDifference += (3700.0f - std::max (std::abs (3700.0f - frequency), 3700.0f)) / 800.0f;
     
     amplitudeAtFrequency += dbDifference;
 //    amplitudeAtFrequency += juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency).first.real());
@@ -135,7 +146,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtTime (float t, Curve& targetCurve)
 {
-    return compensatedValueAtFrequency (t * 22050, 0.0, targetCurve);
+    return compensatedValueAtFrequency (t * 22050, -6.0, targetCurve);
 }
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const
@@ -228,6 +239,37 @@ const std::pair<float*, float*> Curve::getStereoImpulse (int fft_size, Curve& ta
     window.multiplyWithWindowingTable(rightImpulseData, numPoints);
     
     return { leftImpulseData, rightImpulseData };
+}
+
+const std::optional<std::pair<float, float>> Curve::nodeBelowFreq (float frequency)
+{
+    int numNodes = static_cast<int> (eqNodes.size());
+    for (int i = numNodes - 1; i >= 0; --i)
+    {
+        if (eqNodes[i].frequency < frequency)
+        {
+            float freq = eqNodes[i].frequency;
+            float ampl = eqNodes[i].amplitude;
+            return std::optional<std::pair<float, float>> ({ freq, ampl });
+        }
+    }
+    
+    return std::nullopt;
+}
+
+const std::optional<std::pair<float, float>> Curve::nodeAboveFreq (float frequency)
+{
+    for (int i = 0; i < eqNodes.size(); ++i)
+    {
+        if (eqNodes[i].frequency > frequency)
+        {
+            float freq = eqNodes[i].frequency;
+            float ampl = eqNodes[i].amplitude;
+            return std::optional<std::pair<float, float>> ({ freq, ampl });
+        }
+    }
+    
+    return std::nullopt;
 }
 
 const float Curve::interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const

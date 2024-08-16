@@ -19,6 +19,7 @@ class CabinEQPage   : public juce::Component,
                       public juce::Slider::Listener,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
+                      public juce::Button::Listener,
                       public CabinEQGraph::Listener,
                       public StartupMVPAudioProcessor::Listener
 {
@@ -40,6 +41,7 @@ public:
     void stopTesting() override;
     float getCurrPlayingFreq() override;
     float getCurrTestingFreq() override;
+    void userStoppedDoingShit() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
     void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
@@ -48,14 +50,22 @@ public:
     void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
     void inputAttemptWhenModal() override;
     
+    void buttonClicked (juce::Button *button) override;
+    
     void didLoadData() override;
     
 private:
+    void flagFilterChanged();
+    void toggleBypass();
+    void applyFilterIfProcessing();
     void loadDropdownOptions();
     void dismissAlertWindow();
     
     StartupMVPAudioProcessor& processor;
     juce::String profileId;
+    juce::TextButton bypassButton { "ON" };
+    bool isBypassed = false;
+    bool hasFilterChanged = true;
     
     CabinEQGraph cabinEQGraph;
     juce::ComboBox dropdownProfiles;

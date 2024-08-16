@@ -17,7 +17,7 @@ PlaybackManager::PlaybackManager()
       isTesting (false),
       isSweeping (false),
       isCalibrating (false),
-      isBypassed (false),
+      isProcessing (false),
       hasPreparedFilter (false)
 {
     dryGainProcessor.setGainDecibels (0.0f);
@@ -52,14 +52,9 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
     
     if (isCalibrating || isTesting)
     {
-        std::cout << "isCalibrating: " << isCalibrating << ", isTesting: " << isTesting << std::endl;
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             const std::pair<float, float> value = getNextSample();
-            if (sample == 0)
-            {
-                std::cout << "sample (left: " << value.first << ", right: " << value.second << ")" << std::endl;
-            }
             leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
             
             if (rightChannel)
@@ -88,7 +83,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer)
         juce::dsp::AudioBlock<float> block (buffer);
         juce::dsp::ProcessContextReplacing<float> context (block);
         
-        if ((isBypassed && hasPreparedFilter) || isSweeping)
+        if ((isProcessing && hasPreparedFilter) || isSweeping)
         {
             filter.process (context);
             wetGainProcessor.process (context);
@@ -142,9 +137,9 @@ void PlaybackManager::setIsCalibrating (bool isCalibrating)
     this->isCalibrating = isCalibrating;
 }
 
-void PlaybackManager::setIsBypassed (bool isBypassed)
+void PlaybackManager::setIsProcessing (bool isProcessing)
 {
-    this->isBypassed = isBypassed;
+    this->isProcessing = isProcessing;
 }
 
 void PlaybackManager::setDryWetVolumeBalance (float balance)
@@ -176,9 +171,9 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
 //        referenceNoteCompensated.gain += 0.5 * std::log2 (node.frequency / 2000.0f);
     
     
-//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-//    SequenceableNote note2 (node, noteDurationInSamples);
-//    arbitrarySequencer.setNotes ({ note1, note2 }, true);
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+    SequenceableNote note2 (node, noteDurationInSamples);
+    arbitrarySequencer.setNotes ({ note1, note2 }, true);
     
 //    node.amplitude -= 3.0f;
 //    SequenceableNote quieterNote (node, noteDurationInSamples);
@@ -188,13 +183,16 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
     
 //    
 //    arbitrarySequencer.setNotes ({ quieterNote, refNote, louderNote, silentNote }, true);
-    referenceNoteCompensated.gain -= 3.0f;
-    SequenceableNote quietRef (referenceNoteCompensated, noteDurationInSamples);
-    SequenceableNote controlledNote (node, noteDurationInSamples);
-    referenceNoteCompensated.gain += 6.0f;
-    SequenceableNote loudRef (referenceNoteCompensated, noteDurationInSamples);
-    SequenceableNote silentNote (referenceNoteCompensated, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
-    arbitrarySequencer.setNotes ({ quietRef, controlledNote, silentNote, controlledNote, loudRef, silentNote }, true);
+    
+//    float volumeStep = 3.0f;
+//    volumeStep += 0.2 * std::log2 (node.frequency / 1000.0f);
+//    referenceNoteCompensated.gain -= volumeStep;
+//    SequenceableNote quietRef (referenceNoteCompensated, noteDurationInSamples);
+//    SequenceableNote controlledNote (node, noteDurationInSamples);
+//    referenceNoteCompensated.gain += volumeStep * 2;
+//    SequenceableNote loudRef (referenceNoteCompensated, noteDurationInSamples);
+//    SequenceableNote silentNote (referenceNoteCompensated, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+//    arbitrarySequencer.setNotes ({ quietRef, controlledNote, silentNote, controlledNote, loudRef, silentNote }, true);
 }
 
 void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
@@ -206,10 +204,10 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
     referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (updatedNode.frequency);
     updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
     
-//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-//    SequenceableNote note2 (updatedNode, noteDurationInSamples);
-//    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
-//    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+    SequenceableNote note2 (updatedNode, noteDurationInSamples);
+    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
+    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
     
 //    updatedNode.amplitude -= 3.0f;
 //    SequenceableNote quieterNote (updatedNode, noteDurationInSamples);
@@ -217,16 +215,17 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
 //    updatedNode.amplitude += 6.0f;
 //    SequenceableNote louderNote (updatedNode, noteDurationInSamples);
 //    SequenceableNote silentNote (referenceNoteCompensated, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
-    
-    referenceNoteCompensated.gain -= 3.0f;
-    SequenceableNote quietRef (referenceNoteCompensated, noteDurationInSamples);
-    SequenceableNote updatedNote (updatedNode, noteDurationInSamples);
-    referenceNoteCompensated.gain += 6.0f;
-    SequenceableNote loudRef (referenceNoteCompensated, noteDurationInSamples);
-    arbitrarySequencer.changeNoteAtIdx (0, quietRef.note());
-    arbitrarySequencer.changeNoteAtIdx (1, updatedNote.note());
-    arbitrarySequencer.changeNoteAtIdx (3, updatedNote.note());
-    arbitrarySequencer.changeNoteAtIdx (4, loudRef.note());
+//    float volumeStep = 3.0f;
+//    volumeStep += 0.2 * std::log2 (updatedNode.frequency / 1000.0f);
+//    referenceNoteCompensated.gain -= volumeStep;
+//    SequenceableNote quietRef (referenceNoteCompensated, noteDurationInSamples);
+//    SequenceableNote updatedNote (updatedNode, noteDurationInSamples);
+//    referenceNoteCompensated.gain += volumeStep * 2;
+//    SequenceableNote loudRef (referenceNoteCompensated, noteDurationInSamples);
+//    arbitrarySequencer.changeNoteAtIdx (0, quietRef.note());
+//    arbitrarySequencer.changeNoteAtIdx (1, updatedNote.note());
+//    arbitrarySequencer.changeNoteAtIdx (3, updatedNote.note());
+//    arbitrarySequencer.changeNoteAtIdx (4, loudRef.note());
 //
 //    arbitrarySequencer.changeNoteAtIdx (0, quieterNote.note());
 //    arbitrarySequencer.changeNoteAtIdx (1, refNote.note());
@@ -251,14 +250,44 @@ void PlaybackManager::startTestingFreq (float freq, Curve& curve)
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
     referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (freq);
     
-//    if (freq > 2000.0f)
-//        referenceNoteCompensated.gain += 0.5 * std::log2 (freq / 2000.0f);
+//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+//    SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
+//    arbitrarySequencer.setNotes ({ note1, note2 });
     
-    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-    SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    arbitrarySequencer.setNotes ({ note1, note2 });
-//    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
-//    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+//    float bandwidth = 1.1;
+//    float freqBelow = freq / bandwidth;
+//    float freqAbove = freq * bandwidth;
+//    float amplBelow = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freqBelow).first.real()) + getCompensationDBAtFrequency (freqBelow);
+//    float amplAbove = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freqAbove).first.real()) + getCompensationDBAtFrequency (freqAbove);
+//    
+//    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples);
+//    SequenceableNote noteMid (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
+//    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples);
+//    
+//    arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove });
+    
+    auto nodeBelow = curve.nodeBelowFreq (freq);
+    auto nodeAbove = curve.nodeAboveFreq (freq);
+    
+    if (! nodeBelow.has_value() || ! nodeAbove.has_value())
+    {
+        // for now, do nothing
+        return;
+    }
+    
+    std::cout << "NodeBelow: " << nodeBelow->first << ", " << nodeBelow->second << std::endl;
+    std::cout << "NodeAbove: " << nodeAbove->first << ", " << nodeAbove->second << std::endl;
+    
+    auto [freqBelow, amplBelow] = nodeBelow.value();
+    auto [freqAbove, amplAbove] = nodeAbove.value();
+    amplBelow += getCompensationDBAtFrequency (freqBelow);
+    amplAbove += getCompensationDBAtFrequency (freqAbove);
+    
+    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote noteMid (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+    arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove, silentNote });
     
     testingFreq = freq;
 }
@@ -274,10 +303,42 @@ void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
     referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (freq);
     
-    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-    SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
-    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
+//    SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
+//    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
+//    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
+    
+//    float bandwidth = 1.05;
+//    float freqBelow = freq / bandwidth;
+//    float freqAbove = freq * bandwidth;
+//    float amplBelow = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freqBelow).first.real()) + getCompensationDBAtFrequency (freqBelow);
+//    float amplAbove = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freqAbove).first.real()) + getCompensationDBAtFrequency (freqAbove);
+//    
+//    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples);
+//    SequenceableNote noteMid (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
+//    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples);
+//    
+//    arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove });
+    
+    auto nodeBelow = curve.nodeBelowFreq (freq);
+    auto nodeAbove = curve.nodeAboveFreq (freq);
+    
+    if (! nodeBelow.has_value() || ! nodeAbove.has_value())
+    {
+        // for now, do nothing
+        return;
+    }
+    
+    auto [freqBelow, amplBelow] = nodeBelow.value();
+    auto [freqAbove, amplAbove] = nodeAbove.value();
+    amplBelow += getCompensationDBAtFrequency (freqBelow);
+    amplAbove += getCompensationDBAtFrequency (freqAbove);
+    
+    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote noteMid (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+    arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove, silentNote });
     
     testingFreq = freq;
 }
@@ -301,7 +362,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
 //    return -4.5f * std::log2 (frequency / REFERENCE_FREQ) + targetCurve.valueAtFrequency (frequency).first.real() - 6.0f;
-    return -4.5f * std::log2 (frequency / REFERENCE_FREQ) - 6.0f;
+    return 0.0f;//-4.5f * std::log2 (frequency / REFERENCE_FREQ) - 6.0f;
 }
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)

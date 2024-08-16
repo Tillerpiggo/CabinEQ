@@ -45,6 +45,7 @@ void CabinEQGraph::resized()
 
 void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
 {
+    cyclesSinceUserStoppedDoingShit = 0;
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     // If ctrl/alt is held down, start testing
@@ -68,6 +69,8 @@ void CabinEQGraph::mouseMove (const juce::MouseEvent &event)
 
 void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
 {
+    cyclesSinceUserStoppedDoingShit = 0;
+    
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
@@ -100,6 +103,8 @@ void CabinEQGraph::mouseDown (const juce::MouseEvent &event)
 
 void CabinEQGraph::mouseDrag (const juce::MouseEvent &event)
 {
+    cyclesSinceUserStoppedDoingShit = 0;
+    
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
@@ -142,6 +147,8 @@ void CabinEQGraph::mouseDrag (const juce::MouseEvent &event)
 
 void CabinEQGraph::mouseUp (const juce::MouseEvent &event)
 {
+    cyclesSinceUserStoppedDoingShit = 0;
+    
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
@@ -159,6 +166,8 @@ void CabinEQGraph::mouseUp (const juce::MouseEvent &event)
 
 void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
+    cyclesSinceUserStoppedDoingShit = 0;
+    
     // Useful constants
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
     
@@ -193,11 +202,13 @@ void CabinEQGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::Mo
 
 bool CabinEQGraph::keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent)
 {
+    cyclesSinceUserStoppedDoingShit = 0;
     return true;
 }
 
 bool CabinEQGraph::keyStateChanged (bool isKeyDown, juce::Component *originatingComponent)
 {
+    cyclesSinceUserStoppedDoingShit = 0;
     isTestingFreq = false;
     stopTesting();
     return true;
@@ -207,6 +218,9 @@ void CabinEQGraph::timerCallback()
 {
     updateSelectedDotSize();
     repaint();
+    cyclesSinceUserStoppedDoingShit++;
+    if (cyclesSinceUserStoppedDoingShit == 200)
+        userStoppedDoingShit();
 }
 
 void CabinEQGraph::addListener (Listener* listener)
@@ -217,6 +231,11 @@ void CabinEQGraph::addListener (Listener* listener)
 void CabinEQGraph::removeListener()
 {
     this->listener = nullptr;
+}
+
+void CabinEQGraph::setGrayscale (bool grayscale)
+{
+    this->grayscale = grayscale;
 }
 
 // =============================================
@@ -285,12 +304,10 @@ void CabinEQGraph::drawDots (juce::Graphics& g, Curve& curve)
         {
             testDotColor = testDotColor.interpolatedWith (juce::Colours::orange, 0.4);
             targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
-            std::cout << "currPlayingFreq != 1000.0f" << std::endl;
         }
         else
         {
             targetSelectedDotSize = DOT_SIZE_DRAGGING;
-            std::cout << "currPlayingFreq == 1000.0f" << std::endl;
         }
         
         // Calculate coordinates of node
@@ -418,6 +435,9 @@ juce::ColourGradient CabinEQGraph::getCurveGradient()
 
 juce::Colour CabinEQGraph::getColorForFrequency (float frequency)
 {
+    if (grayscale)
+        return juce::Colour::fromFloatRGBA (0.3f, 0.3f, 0.3f, 1.0f);
+    
     juce::Colour startColor;
     juce::Colour endColor;
     
@@ -606,4 +626,10 @@ float CabinEQGraph::getCurrTestingFreq()
     if (listener == nullptr)
         return REFERENCE_FREQ;
     return listener->getCurrTestingFreq();
+}
+
+void CabinEQGraph::userStoppedDoingShit()
+{
+    if (listener != nullptr)
+        listener->userStoppedDoingShit();
 }

@@ -70,8 +70,8 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
-    void applyCurve();
-    void setIsBypassed (bool isBypassed);
+    void applyCurve (juce::String profileName);
+    void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
     
     std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName);

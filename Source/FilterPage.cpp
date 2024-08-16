@@ -83,12 +83,12 @@ void FilterPage::buttonClicked(juce::Button* button)
 //            processor.setActiveCurve ("HeadphoneEQ");
 //        else
 //            processor.setActiveCurve ("SpeakerEQ");
-        processor.applyCurve();
+        processor.applyCurve ("TestEQ");
     }
     else if (button == &bypassButton)
     {
         isBypassed = ! isBypassed;
-        processor.setIsBypassed (isBypassed);
+        processor.setIsProcessing (! isBypassed);
     }
     
     updateApplyFilterButtonText();

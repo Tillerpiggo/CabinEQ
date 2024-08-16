@@ -209,16 +209,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
-void StartupMVPAudioProcessor::applyCurve()
+void StartupMVPAudioProcessor::applyCurve (juce::String profileName)
 {
-    auto profile = profileNamed (currProfileName);
+    auto profile = profileNamed (profileName);
     if (profile.has_value())
         playbackManager.updateFilterWithCurve (profile->get().getCurve());
 }
 
-void StartupMVPAudioProcessor::setIsBypassed (bool isBypassed)
+void StartupMVPAudioProcessor::setIsProcessing (bool isProcessing)
 {
-    playbackManager.setIsBypassed (isBypassed);
+    playbackManager.setIsProcessing (isProcessing);
 }
 
 void StartupMVPAudioProcessor::setBypassBalance (float balance)

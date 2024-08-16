@@ -36,6 +36,9 @@ public:
     void updateWithEQNodes (std::vector<EQNode> eqNodes);
     
     const std::pair<float*, float*> getStereoImpulse (int fft_size, Curve& targetCurve); // This hands ownership of the float*'s to whoever calls it!!
+    
+    const std::optional<std::pair<float, float>> nodeBelowFreq (float frequency);
+    const std::optional<std::pair<float, float>> nodeAboveFreq (float frequency);
 
 protected:
     const std::pair<std::complex<float>, std::complex<float>> scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const;
