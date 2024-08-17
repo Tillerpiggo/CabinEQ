@@ -14,7 +14,7 @@
 
 PlaybackManager::PlaybackManager()
     : filter (FFT_SIZE),
-      crossfeedFilter (FFT_SIZE, 44000),
+      crossfeedFilter (FFT_SIZE, 350),
       arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       arbitrarySequencer2 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       isTesting (false),
@@ -79,7 +79,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         {
             filter.process (mainContext);
             crossfeedFilter.process (crossfeedContext);
-            crossfeedBlock *= 0.3; // make it quieter
+            crossfeedBlock *= 0.2; // make it quieter
             mainBlock += crossfeedBlock;
             ioBlock.replaceWithSumOf(mainBlock, ioBlock);
             wetGainProcessor.process (ioContext);
