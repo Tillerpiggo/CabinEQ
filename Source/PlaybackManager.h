@@ -54,14 +54,21 @@ private:
     std::pair<float, float> getNextSample();
     float getCompensationDBAtFrequency (float frequency);
     float getReferenceCompensationDBAtFrequency (float frequency);
+    juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
     
     const int FFT_SIZE = 14;
     
+    // Audio processing
     ArbitraryResponseFilter filter;
+    ArbitraryResponseFilter crossfeedFilter;
     juce::dsp::Gain<float> dryGainProcessor;
     juce::dsp::Gain<float> wetGainProcessor;
+    juce::dsp::AudioBlock<float> mainBlock, crossfeedBlock;
+    juce::AudioBuffer<float> mainBuffer, crossfeedBuffer;
     
+    // Sound generation
     ArbitrarySequencer arbitrarySequencer;
+    ArbitrarySequencer arbitrarySequencer2;
     SineSweepGenerator sineSweepGenerator;
     Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f, 0.0f);
     
@@ -76,6 +83,4 @@ private:
     
     float referenceVolume = 0.0f;
     float testingFreq = REFERENCE_FREQ;
-    
-    Curve targetCurve;
 };

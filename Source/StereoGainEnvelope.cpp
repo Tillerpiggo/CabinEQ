@@ -44,6 +44,12 @@ StereoGainEnvelope::StereoGainEnvelope (StereoGainEnvelopeType type, int rampDur
         case StereoGainEnvelopeType::HARD_RIGHT:
             leftRamp.setTargetGain (0.0f);
             break;
+        case StereoGainEnvelopeType::SOFT_LEFT:
+            rightRamp.setTargetGain (0.5f);
+            break;
+        case StereoGainEnvelopeType::SOFT_RIGHT:
+            leftRamp.setTargetGain (0.5f);
+            break;
         case StereoGainEnvelopeType::SILENT:
             leftRamp.setTargetGain (0.0f);
             rightRamp.setTargetGain (0.0f);

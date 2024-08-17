@@ -17,6 +17,8 @@ enum class StereoGainEnvelopeType
 {
     HARD_LEFT,
     HARD_RIGHT,
+    SOFT_LEFT,
+    SOFT_RIGHT,
     SILENT
 };
 

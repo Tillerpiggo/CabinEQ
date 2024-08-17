@@ -16,8 +16,8 @@
 class ArbitraryResponseFilter
 {
 public:
-    ArbitraryResponseFilter (int fftSize)
-        : latency { static_cast<int> (pow (2, fftSize / 2)) }
+    ArbitraryResponseFilter (int fftSize, int delayInMs = 0)
+        : latency { static_cast<int> (pow (2, fftSize / 2)) + delayInMs }
     {
         std::unique_ptr<juce::dsp::Convolution> newConvolver (new juce::dsp::Convolution ());
         convolution = std::move (newConvolver);
@@ -27,7 +27,7 @@ public:
     
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept { convolution->process (context); }
-    void updateWithCurve (Curve& curve, Curve& targetCurve, int fft_size = 4); // update the filter to match the curve
+    void updateWithCurve (Curve& curve, int fft_size = 4); // update the filter to match the curve
     
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
