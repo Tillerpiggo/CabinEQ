@@ -14,7 +14,7 @@
 
 PlaybackManager::PlaybackManager()
     : filter (FFT_SIZE),
-      crossfeedFilter (FFT_SIZE, 1000),
+      crossfeedFilter (FFT_SIZE, 44000),
       arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       arbitrarySequencer2 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       isTesting (false),
