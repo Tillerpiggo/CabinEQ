@@ -14,7 +14,7 @@ CabinEQValueTree::CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, c
     : apvts (apvts), idProfile (identifier), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
 {}
 
-const std::vector<EQNode> CabinEQValueTree::getEQNodes() const
+const std::vector<EQNode> CabinEQValueTree::getEQNodes (Channel channel) const
 {
     std::vector<EQNode> eqNodes;
     if (! valueTree.isValid())
@@ -32,12 +32,18 @@ const std::vector<EQNode> CabinEQValueTree::getEQNodes() const
     return eqNodes;
 }
 
-Curve& CabinEQValueTree::getCurve()
+Curve& CabinEQValueTree::getCurve (Channel channel)
 {
-    return curve;
+    switch (channel)
+    {
+        case Channel::LEFT:
+            return leftCurve;
+        case Channel::RIGHT:
+            return rightCurve;
+    }
 }
 
-void CabinEQValueTree::addEQNode (const int id, const float frequency, const float amplitude, const float pan)
+void CabinEQValueTree::addEQNode (const int id, const float frequency, const float amplitude, const float pan, Channel channel)
 {
     if (! hasBeenInitialized) return;
     
@@ -53,10 +59,10 @@ void CabinEQValueTree::addEQNode (const int id, const float frequency, const flo
 //    apvts.state.getChildWithName (idProfile) = valueTree;
 //    apvts.state = valueTree;
     
-    curve.updateWithEQNodes (getEQNodes());
+    getCurve (channel).updateWithEQNodes (getEQNodes (channel));
 }
 
-int CabinEQValueTree::addEQNode (const float frequency, const float amplitude, const float pan)
+int CabinEQValueTree::addEQNode (const float frequency, const float amplitude, const float pan, Channel channel)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -68,14 +74,14 @@ int CabinEQValueTree::addEQNode (const float frequency, const float amplitude, c
     }
     id++;
     
-    addEQNode (id, frequency, amplitude, pan);
+    addEQNode (id, frequency, amplitude, pan, channel);
     
-    curve.updateWithEQNodes (getEQNodes());
+    getCurve (channel).updateWithEQNodes (getEQNodes (channel));
     
     return id;
 }
 
-void CabinEQValueTree::removeEQNode (const int id)
+void CabinEQValueTree::removeEQNode (const int id, Channel channel)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -84,10 +90,10 @@ void CabinEQValueTree::removeEQNode (const int id)
     if (nodeToRemove.isValid())
         valueTree.removeChild (nodeToRemove, nullptr);
     
-    curve.updateWithEQNodes (getEQNodes());
+    getCurve (channel).updateWithEQNodes (getEQNodes (channel));
 }
 
-void CabinEQValueTree::updateEQNode (const int id, const float frequency, const float amplitude, const float pan)
+void CabinEQValueTree::updateEQNode (const int id, const float frequency, const float amplitude, const float pan, Channel channel)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -101,7 +107,8 @@ void CabinEQValueTree::updateEQNode (const int id, const float frequency, const 
         nodeToModify.setProperty (idPan, pan, nullptr);
     }
     
-    curve.updateWithEQNodes (getEQNodes());
+    leftCurve.updateWithEQNodes (getEQNodes (Channel::LEFT));
+    rightCurve.updateWithEQNodes (getEQNodes (Channel::RIGHT));
 }
 
 void CabinEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
@@ -112,9 +119,13 @@ void CabinEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
     valueTree.removeAllChildren (nullptr);
     valueTree.removeAllProperties (nullptr);
     for (const auto& eqNode : eqNodes)
-        addEQNode (eqNode.id, eqNode.frequency, eqNode.amplitude, eqNode.pan);
+    {
+        addEQNode (eqNode.id, eqNode.frequency, eqNode.amplitude, eqNode.pan, Channel::LEFT);
+        addEQNode (eqNode.id, eqNode.frequency, eqNode.amplitude, eqNode.pan, Channel::RIGHT);
+    }
     
-    curve.updateWithEQNodes (getEQNodes());
+    leftCurve.updateWithEQNodes (getEQNodes (Channel::LEFT));
+    rightCurve.updateWithEQNodes (getEQNodes (Channel::RIGHT));
 }
 
 void CabinEQValueTree::initValueTreeFromAPVTS()
@@ -128,7 +139,8 @@ void CabinEQValueTree::initValueTreeFromAPVTS()
         apvts.state.addChild (valueTree, -1, nullptr);
     }
     
-    curve.updateWithEQNodes (getEQNodes());
+    leftCurve.updateWithEQNodes (getEQNodes (Channel::LEFT));
+    rightCurve.updateWithEQNodes (getEQNodes (Channel::RIGHT));
     hasBeenInitialized = true;
 }
 

@@ -87,19 +87,19 @@ void CabinEQPage::resized()
 int CabinEQPage::addNode (float freq, float ampl)
 {
     flagFilterChanged();
-    return processor.addEQNode (freq, ampl, 0.0f, profileId);
+    return processor.addEQNode (freq, ampl, 0.0f, profileId, currChannel);
 }
 
 void CabinEQPage::updateNode (int id, float freq, float ampl)
 {
     flagFilterChanged();
-    processor.updateEQNode (id, freq, ampl, 0.0f, profileId);
+    processor.updateEQNode (id, freq, ampl, 0.0f, profileId, currChannel);
 }
 
 void CabinEQPage::removeNode (int id)
 {
     flagFilterChanged();
-    processor.removeEQNode (id, profileId);
+    processor.removeEQNode (id, profileId, currChannel);
 }
 
 void CabinEQPage::startPlayingValueAt (float freq, float ampl)
@@ -114,7 +114,7 @@ void CabinEQPage::playValueAt (float freq, float ampl)
 
 void CabinEQPage::testValueAt (float freq)
 {
-    processor.startTestingAt (freq, profileId);
+    processor.startTestingAt (freq, profileId, currChannel);
 }
 
 void CabinEQPage::stopPlaying()
@@ -215,7 +215,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             int selectedIndex = dropdownProfiles.indexOfItemId (dropdownProfiles.getSelectedId());
             juce::String profileIdSelected = dropdownProfiles.getItemText (selectedIndex);
             profileId = profileIdSelected;
-            cabinEQGraph.setCurve (processor.getCurve (profileIdSelected)->get());
+            cabinEQGraph.setCurve (processor.getCurve (profileIdSelected, currChannel)->get());
             flagFilterChanged();
             applyFilterIfProcessing();
         }

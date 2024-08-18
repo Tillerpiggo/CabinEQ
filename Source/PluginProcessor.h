@@ -75,8 +75,8 @@ public:
     void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
     
-    std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName);
-    const std::vector<EQNode> getEQNodes (juce::String profileName) const;
+    std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName, Channel channel);
+    const std::vector<EQNode> getEQNodes (juce::String profileName, Channel channel) const;
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -86,9 +86,9 @@ public:
     std::optional<std::reference_wrapper<CabinEQValueTree>> getProfileNamed (juce::String profileName) const;
     
     // Setting points
-    int addEQNode (float frequency, float amplitude, float pan, juce::String profileName);
-    void removeEQNode (int id, juce::String profileName);
-    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName);
+    int addEQNode (float frequency, float amplitude, float pan, juce::String profileName, Channel channel);
+    void removeEQNode (int id, juce::String profileName, Channel channel);
+    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName, Channel channel);
     void clearEQNodes (juce::String profileName);
     
     // Changing points
@@ -102,8 +102,8 @@ public:
     float getCurrPlayingFreq();
     
     // Testing
-    void startTestingAt (float freq, juce::String profileName);
-    void updateTestingAt (float freq, juce::String profileName);
+    void startTestingAt (float freq, juce::String profileName, Channel channel);
+    void updateTestingAt (float freq, juce::String profileName, Channel channel);
     void endTesting();
     float getCurrTestingFreq();
     
