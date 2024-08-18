@@ -13,5 +13,6 @@
 enum Channel
 {
     LEFT,
-    RIGHT
+    RIGHT,
+    CENTER // essentially both channels
 };
