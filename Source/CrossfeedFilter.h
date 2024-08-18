@@ -30,8 +30,8 @@ private:
     std::queue<float> leftBuffer; // stores audio from left channel and is added to right channel
     std::queue<float> rightBuffer; // stores audio from right channel and is added to left channel
     
-    int delayInSeconds = 0.05;
+    int delayInSeconds = 0.0007;
     int numSamplesToDelay = 0;
-    float crossfeedGain = 0.5;
+    float crossfeedGain = 0.3;
     Channel currChannel;
 };

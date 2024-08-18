@@ -14,7 +14,7 @@
 
 PlaybackManager::PlaybackManager()
     : filter (FFT_SIZE),
-      crossfeedFilter (FFT_SIZE, 500),
+      crossfeedFilter (FFT_SIZE, 30),
       arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       arbitrarySequencer2 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       isTesting (false),
@@ -80,8 +80,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         {
             filter.process (mainContext);
             crossfeedFilter.process (crossfeedContext);
-            mainBlock += crossfeedBlock.multiplyBy (0.2);
-            ioBlock.replaceWithSumOf(mainBlock, crossfeedBlock.multiplyBy (0.5));
+            mainBlock += crossfeedBlock.multiplyBy (0.3);
+            ioBlock.replaceWithSumOf(mainBlock, crossfeedBlock.multiplyBy (0.0));
             wetGainProcessor.process (ioContext);
         }
         else
@@ -190,7 +190,7 @@ void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode, Channel chann
     updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
     SequenceableNote controlledNote (updatedNode, noteDurationInSamples);
     arbitrarySequencer.changeNoteAtIdx (0, referenceNote);
-    arbitrarySequencer2.changeNoteAtIdx (1, controlledNote.note());
+    arbitrarySequencer2.changeNoteAtIdx (0, controlledNote.note());
     
     setCrossfeed (channel);
 }
