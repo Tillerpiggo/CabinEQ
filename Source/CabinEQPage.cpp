@@ -272,6 +272,12 @@ void CabinEQPage::buttonClicked (juce::Button *button)
         flagFilterChanged();
         applyFilterIfProcessing();
     }
+    else if (button == &leftRightButton)
+    {
+        currChannel = (currChannel == Channel::LEFT) ? Channel::RIGHT : Channel::LEFT;
+        leftRightButton.setButtonText (currChannel == Channel::LEFT ? "LEFT" : "RIGHT");
+        cabinEQGraph.setCurve (processor.getCurve (profileId, currChannel)->get());
+    }
 }
 
 void CabinEQPage::didLoadData()
