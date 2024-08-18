@@ -23,6 +23,16 @@ SequenceableNote::SequenceableNote (EQNode node, float duration, StereoGainEnvel
     : note (node.frequency, node.amplitude), duration (duration), envelope (envelope)
 {}
 
+void SequenceableNote::applyLeftCrossfeed (float crossfeedGain, float delayInMs)
+{
+    note = note.withLeftCrossfeed (crossfeedGain, delayInMs);
+}
+
+void SequenceableNote::applyRightCrossfeed (float crossfeedGain, float delayInMs)
+{
+    note = note.withRightCrossfeed (crossfeedGain, delayInMs);
+}
+
 const float SequenceableNote::getFrequency() const
 {
     return note.frequency;
@@ -78,7 +88,7 @@ void SequenceableNote::setCrossfeedDelayInMs (float delayInMs)
     this->note.crossfeedDelayInMs = delayInMs;
 }
 
-void SequenceableNote::setCrossfeedChanenl (Channel channel)
+void SequenceableNote::setCrossfeedChannel (Channel channel)
 {
     this->note.crossfeedChannel = channel;
 }

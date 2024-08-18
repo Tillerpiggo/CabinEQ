@@ -44,7 +44,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
         
         // Apply crossfeed to the calibration
-        crossfeedFilterForCalibration.processBlock (ioBuffer);
+//        crossfeedFilterForCalibration.processBlock (ioBuffer);
     }
     else if (isSweeping)
     {
@@ -105,7 +105,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     filter.prepare (spec);
     crossfeedFilter.prepare (spec);
-    crossfeedFilterForCalibration.prepare (spec);
+//    crossfeedFilterForCalibration.prepare (spec);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
@@ -189,11 +189,15 @@ void PlaybackManager::setCalibratingEQNode (EQNode node, Channel channel)
         
         SequenceableNote referenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
         SequenceableNote referenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
+        referenceNote1.applyLeftCrossfeed (0.3, 1000);
+        referenceNote2.applyLeftCrossfeed (0.3, 1000);
+        
+        std::cout << "applying left crossfeed" << std::endl;
         
         arbitrarySequencer.setNotes ({ referenceNote1 });
         arbitrarySequencer2.setNotes ({ referenceNote2 });
-        setCrossfeed (channel);
-        crossfeedFilterForCalibration.clear();
+//        setCrossfeed (channel);
+//        crossfeedFilterForCalibration.clear();
     }
     else
     {
@@ -202,11 +206,13 @@ void PlaybackManager::setCalibratingEQNode (EQNode node, Channel channel)
         
         SequenceableNote referenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
         SequenceableNote referenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
+        referenceNote1.applyRightCrossfeed (0.3, 1000);
+        referenceNote2.applyRightCrossfeed (0.3, 1000);
         
         arbitrarySequencer.setNotes ({ referenceNote1 });
         arbitrarySequencer2.setNotes ({ referenceNote2 });
-        setCrossfeed (channel);
-        crossfeedFilterForCalibration.clear();
+//        setCrossfeed (channel);
+//        crossfeedFilterForCalibration.clear();
     }
 }
 
@@ -229,10 +235,12 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node, Channel channel)
         
         SequenceableNote referenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
         SequenceableNote referenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
+        referenceNote1.applyLeftCrossfeed (0.3, 1000);
+        referenceNote2.applyLeftCrossfeed (0.3, 1000);
         
-        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1.getNote());
-        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2.getNote());
-        setCrossfeed (channel);
+        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1);
+        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2);
+//        setCrossfeed (channel);
     }
     else
     {
@@ -241,10 +249,12 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node, Channel channel)
         
         SequenceableNote referenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
         SequenceableNote referenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
+        referenceNote1.applyRightCrossfeed (0.3, 1000);
+        referenceNote2.applyRightCrossfeed (0.3, 1000);
         
-        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1.getNote());
-        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2.getNote());
-        setCrossfeed (channel);
+        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1);
+        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2);
+//        setCrossfeed (channel);
     }
 }
 
@@ -381,10 +391,10 @@ void PlaybackManager::setReferenceAmplRight2 (float ampl)
     this->referenceAmplRight2 = ampl;
 }
 
-void PlaybackManager::setCrossfeed (Channel channel)
-{
-    crossfeedFilterForCalibration.setChannelPlaying (channel);
-}
+//void PlaybackManager::setCrossfeed (Channel channel)
+//{
+//    crossfeedFilterForCalibration.setChannelPlaying (channel);
+//}
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {

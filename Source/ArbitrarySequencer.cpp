@@ -76,6 +76,21 @@ void ArbitrarySequencer::changeNoteAtIdx (int idx, Note newNote)
     notes.at (idx).setAmplitude (newNote.amplitude);
 }
 
+void ArbitrarySequencer::changeNoteAtIdx (int idx, SequenceableNote newNote)
+{
+    if (idx < 0 || idx >= notes.size())
+    {
+        std::cerr << "WARNING: changing note gain at idx out of bounds" << std::endl;
+        return;
+    }
+    notes.at (idx).setFrequency (newNote.getFrequency());
+    notes.at (idx).setAmplitude (newNote.getAmplitude());
+    notes.at (idx).setDuration (newNote.getDuration());
+    notes.at (idx).setCrossfeedGain (newNote.getCrossfeedGain());
+    notes.at (idx).setCrossfeedDelayInMs (newNote.getCrossfeedDelayInMs());
+    notes.at (idx).setCrossfeedChannel (newNote.getCrossfeedChannel());
+}
+
 void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)
 {
     if (idx < 0 || idx >= notes.size())

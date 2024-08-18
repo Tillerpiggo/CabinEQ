@@ -17,6 +17,7 @@ SineWaveGenerator::SineWaveGenerator()
 void SineWaveGenerator::setSampleRate (float newSampleRate)
 {
     sampleRate = newSampleRate;
+    crossfeedFilter.setSampleRate (newSampleRate);
 }
 
 const std::pair<float, float> SineWaveGenerator::getNextSample()
@@ -84,6 +85,7 @@ void SineWaveGenerator::setNote (Note newNote)
 {
     note = newNote;
     updatePhaseIncrementAndAmplitudeCompensation();
+    updateCrossfeedFilter();
     targetFrequency.reset();
     targetAmplitude.reset();
 }
@@ -132,4 +134,16 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     float noteGain = juce::Decibels::decibelsToGain (ampl);
     leftAmplitudeCompensation = noteGain;
     rightAmplitudeCompensation = noteGain;
+}
+
+void SineWaveGenerator::updateCrossfeedFilter()
+{
+    if (! note)
+    {
+        throw std::runtime_error("updateCrossfeedFilter() called in SineWaveGenerator before setting the note to be played");
+    }
+    
+    crossfeedFilter.setCrossfeedGain (note->crossfeedGain);
+    crossfeedFilter.setDelay (note->crossfeedDelayInMs);
+    crossfeedFilter.setChannelPlaying (note->crossfeedChannel);
 }

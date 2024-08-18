@@ -32,6 +32,7 @@ public:
     
 private:
     void updatePhaseIncrementAndAmplitudeCompensation();
+    void updateCrossfeedFilter();
     
     float sampleRate = 44100;
     std::optional<Note> note;

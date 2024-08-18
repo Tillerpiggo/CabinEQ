@@ -17,9 +17,13 @@ std::pair<float, float> CrossfeedFilter::processSample (std::pair<float, float> 
 {
     auto [leftSample, rightSample] = sample;
     if (currChannel == Channel::LEFT)
+    {
         rightSample = 0.0f;
+    }
     if (currChannel == Channel::RIGHT)
+    {
         leftSample = 0.0f;
+    }
     
     float delayedLeft = 0.0f;
     float delayedRight = 0.0f;
@@ -67,9 +71,9 @@ void CrossfeedFilter::processBlock (juce::AudioBuffer<float>& buffer)
     }
 }
 
-void CrossfeedFilter::prepare (const juce::dsp::ProcessSpec& spec)
+void CrossfeedFilter::setSampleRate (const float newSampleRate)
 {
-    sampleRate = spec.sampleRate;
+    this->sampleRate = newSampleRate;
     updateNumSamplesToDelay();
 }
 

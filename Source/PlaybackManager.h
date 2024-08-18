@@ -63,7 +63,7 @@ public:
     
     
 private:
-    void setCrossfeed (Channel channel);
+//    void setCrossfeed (Channel channel);
     std::pair<float, float> getNextSample();
     float getCompensationDBAtFrequency (float frequency);
     float getReferenceCompensationDBAtFrequency (float frequency);
@@ -74,7 +74,7 @@ private:
     // Audio processing
     ArbitraryResponseFilter filter;
     ArbitraryResponseFilter crossfeedFilter;
-    CrossfeedFilter crossfeedFilterForCalibration;
+//    CrossfeedFilter crossfeedFilterForCalibration;
     juce::dsp::Gain<float> dryGainProcessor;
     juce::dsp::Gain<float> wetGainProcessor;
     juce::dsp::AudioBlock<float> mainBlock, crossfeedBlock;

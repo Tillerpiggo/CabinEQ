@@ -21,7 +21,7 @@ public:
     
     std::pair<float, float> processSample (std::pair<float, float> sample); // processes a single sample and returns the next sample
     void processBlock (juce::AudioBuffer<float>& buffer);
-    void prepare (const juce::dsp::ProcessSpec& spec);
+    void setSampleRate (const float newSampleRate);
     void clear(); // clears the buffers that store the delay
     
     void setCrossfeedGain (float crossfeedGain);
