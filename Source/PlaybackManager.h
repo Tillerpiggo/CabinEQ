@@ -61,6 +61,7 @@ public:
     void setReferenceAmplLeft2 (float ampl);
     void setReferenceAmplRight2 (float ampl);
     
+    
 private:
     void setCrossfeed (Channel channel);
     std::pair<float, float> getNextSample();

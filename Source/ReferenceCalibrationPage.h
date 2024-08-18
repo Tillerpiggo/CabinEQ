@@ -25,6 +25,8 @@ public:
     void resized() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
+    void sliderDragStarted (juce::Slider *slider) override;
+    void sliderDragEnded (juce::Slider *slider) override;
     
 private:
     StartupMVPAudioProcessor& processor;

@@ -13,13 +13,31 @@
 ReferenceCalibrationPage::ReferenceCalibrationPage (StartupMVPAudioProcessor& p)
     : processor (p)
 {
-    juce::Slider slider_referenceFreq1;
-    juce::Slider slider_referenceFreq2;
-    juce::Slider slider_referenceAmplLeft1;
-    juce::Slider slider_referenceAmplLeft2;
-    juce::Slider slider_referenceAmplRight1;
-    juce::Slider slider_referenceAmplRight2;
+    // Set ranges for each slider
+    slider_referenceFreq1.setRange (20.0f, 20000.0f);
+    slider_referenceFreq2.setRange (20.0f, 20000.0f);
+    slider_referenceAmplLeft1.setRange (-12.0f, 12.0f);
+    slider_referenceAmplLeft2.setRange (-12.0f, 12.0f);
+    slider_referenceAmplRight1.setRange (-12.0f, 12.0f);
+    slider_referenceAmplRight2.setRange (-12.0f, 12.0f);
     
+    // Make each slider horizontal
+    slider_referenceFreq1.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceFreq2.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceAmplLeft1.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceAmplLeft2.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceAmplRight1.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceAmplRight2.setSliderStyle (juce::Slider::LinearHorizontal);
+    
+    // TODO: Add labels to each slider (figure out how to do this)
+    slider_referenceFreq1.setHelpText("help");
+    slider_referenceFreq2.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceAmplLeft1.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceAmplLeft2.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceAmplRight1.setSliderStyle (juce::Slider::LinearHorizontal);
+    slider_referenceAmplRight2.setSliderStyle (juce::Slider::LinearHorizontal);
+    
+    // Add ourselves as a listener to each slider
     slider_referenceFreq1.addListener (this);
     slider_referenceFreq2.addListener (this);
     slider_referenceAmplLeft1.addListener (this);
@@ -27,6 +45,7 @@ ReferenceCalibrationPage::ReferenceCalibrationPage (StartupMVPAudioProcessor& p)
     slider_referenceAmplRight1.addListener (this);
     slider_referenceAmplRight2.addListener (this);
     
+    // Make each slider visible
     addAndMakeVisible (slider_referenceFreq1);
     addAndMakeVisible (slider_referenceFreq2);
     addAndMakeVisible (slider_referenceAmplLeft1);
@@ -90,4 +109,16 @@ void ReferenceCalibrationPage::sliderValueChanged (juce::Slider *slider)
     {
         processor.setReferenceAmplRight2 (slider_referenceAmplRight2.getValue());
     }
+    
+    processor.updateCalibratingEQNode (EQNode (0, 0, 0), Channel::LEFT);
+}
+
+void ReferenceCalibrationPage::sliderDragStarted (juce::Slider *slider)
+{
+    processor.startCalibratingEQNode (EQNode (0, 0, 0), Channel::LEFT);
+}
+
+void ReferenceCalibrationPage::sliderDragEnded (juce::Slider *slider)
+{
+    processor.endCalibratingEQNode();
 }
