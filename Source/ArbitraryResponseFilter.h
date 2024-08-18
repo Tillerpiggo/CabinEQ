@@ -28,6 +28,7 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept { convolution->process (context); }
     void updateWithCurve (Curve& curve, int fft_size = 4); // update the filter to match the curve
+    void updateWithCurves (Curve& leftCurve, Curve& rightCurve, int fft_size = 4);
     
     void prepare (const juce::dsp::ProcessSpec& spec)
     {

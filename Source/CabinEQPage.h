@@ -170,7 +170,7 @@ public:
     
     void timerCallback() override;
     
-private:
+protected:
     void flagFilterChanged();
     void toggleBypass();
     void applyFilterIfProcessing();

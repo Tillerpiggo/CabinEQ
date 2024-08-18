@@ -28,6 +28,7 @@ public:
     void processBlock (juce::AudioBuffer<float>& buffer);
     
     void updateFilterWithCurve (Curve& curve); // update the current filter with the curve
+    void updateFilterWithCurves (Curve& leftCurve, Curve& rightCurve); // update the main filter with leftCurve and rightCurve (and crossfeed as well, for now)
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     float getCurrPlayingFreq() const;
@@ -49,6 +50,12 @@ public:
     void stopTestingFreq();
     
     void setReferenceVolume (float volume);
+    
+    // Cross
+    void setCalibratingEQNodeWithLeftCrossfeed (EQNode node, float crossfeedGain, float crossfeedDelay);
+    void updateCalibratingEQNodeWithLeftCrossfeed (EQNode updatingNode, float crossfeedGain, float crossfeedDelay);
+    void setCalibratingEQNodeWithRightCrossfeed (EQNode node, float crossfeedGain, float crossfeedDelay);
+    void updateCalibratingEQNodeWithRightCrossfeed (EQNode updatingNode, float crossfeedGain, float crossfeedDelay);
     
 private:
     std::pair<float, float> getNextSample();

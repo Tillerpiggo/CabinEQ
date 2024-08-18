@@ -14,7 +14,7 @@
 
 PlaybackManager::PlaybackManager()
     : filter (FFT_SIZE),
-      crossfeedFilter (FFT_SIZE, 350),
+      crossfeedFilter (FFT_SIZE, 500),
       arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       arbitrarySequencer2 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       isTesting (false),
@@ -79,7 +79,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         {
             filter.process (mainContext);
             crossfeedFilter.process (crossfeedContext);
-            crossfeedBlock *= 0.2; // make it quieter
+            crossfeedBlock *= 0.05; // make it quieter
             mainBlock += crossfeedBlock;
             ioBlock.replaceWithSumOf(mainBlock, ioBlock);
             wetGainProcessor.process (ioContext);
@@ -95,6 +95,12 @@ void PlaybackManager::updateFilterWithCurve (Curve& curve)
 {
     filter.updateWithCurve (curve, FFT_SIZE);
     crossfeedFilter.updateWithCurve (curve, FFT_SIZE);
+}
+
+void PlaybackManager::updateFilterWithCurves (Curve& leftCurve, Curve& rightCurve)
+{
+    filter.updateWithCurves (leftCurve, rightCurve, FFT_SIZE);
+    crossfeedFilter.updateWithCurves (leftCurve, rightCurve, FFT_SIZE);
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
@@ -354,6 +360,27 @@ void PlaybackManager::stopTestingFreq()
 void PlaybackManager::setReferenceVolume (float volume)
 {
     this->referenceVolume = volume;
+}
+
+// Crossfeed
+void PlaybackManager::setCalibratingEQNodeWithLeftCrossfeed (EQNode node, float crossfeedGain, float crossfeedDelay)
+{
+    setCalibratingEQNode (node);
+}
+
+void PlaybackManager::updateCalibratingEQNodeWithLeftCrossfeed (EQNode updatingNode, float crossfeedGain, float crossfeedDelay)
+{
+    updateCalibratingEQNode (updatingNode);
+}
+
+void PlaybackManager::setCalibratingEQNodeWithRightCrossfeed (EQNode node, float crossfeedGain, float crossfeedDelay)
+{
+    setCalibratingEQNode (node);
+}
+
+void PlaybackManager::updateCalibratingEQNodeWithRightCrossfeed (EQNode updatingNode, float crossfeedGain, float crossfeedDelay)
+{
+    updateCalibratingEQNode (updatingNode);
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

@@ -216,6 +216,14 @@ void StartupMVPAudioProcessor::applyCurve (juce::String profileName)
         playbackManager.updateFilterWithCurve (profile->get().getCurve());
 }
 
+void StartupMVPAudioProcessor::applyCurves (juce::String leftCurveName, juce::String rightCurveName)
+{
+    auto leftProfile = profileNamed (leftCurveName);
+    auto rightProfile = profileNamed (rightCurveName);
+    if (leftProfile.has_value() && rightProfile.has_value())
+        playbackManager.updateFilterWithCurves (leftProfile->get().getCurve(), rightProfile->get().getCurve());
+}
+
 void StartupMVPAudioProcessor::setIsProcessing (bool isProcessing)
 {
     playbackManager.setIsProcessing (isProcessing);
@@ -275,6 +283,26 @@ void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
 void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node)
 {
     playbackManager.updateCalibratingEQNode (node);
+}
+
+void StartupMVPAudioProcessor::startCalibratingEQNodeWithLeftCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay)
+{
+    playbackManager.setCalibratingEQNodeWithLeftCrossfeed (eqNode, crossfeedGain, crossfeedDelay);
+}
+
+void StartupMVPAudioProcessor::updateCalibratingEQNodeWithLeftCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay)
+{
+    playbackManager.updateCalibratingEQNodeWithLeftCrossfeed (eqNode, crossfeedGain, crossfeedDelay);
+}
+
+void StartupMVPAudioProcessor::startCalibratingEQNodeWithRightCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay)
+{
+    playbackManager.setCalibratingEQNodeWithRightCrossfeed (eqNode, crossfeedGain, crossfeedDelay);
+}
+
+void StartupMVPAudioProcessor::updateCalibratingEQNodeWithRightCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay)
+{
+    playbackManager.updateCalibratingEQNodeWithRightCrossfeed (eqNode, crossfeedGain, crossfeedDelay);
 }
 
 void StartupMVPAudioProcessor::endCalibratingEQNode()

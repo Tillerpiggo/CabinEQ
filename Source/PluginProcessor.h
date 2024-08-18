@@ -71,6 +71,7 @@ public:
     juce::AudioProcessorValueTreeState parameters;
     
     void applyCurve (juce::String profileName);
+    void applyCurves (juce::String leftCurveName, juce::String rightCurveName);
     void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
     
@@ -93,6 +94,10 @@ public:
     // Changing points
     void startCalibratingEQNode (EQNode eqNode);
     void updateCalibratingEQNode (EQNode eqNode);
+    void startCalibratingEQNodeWithLeftCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay);
+    void updateCalibratingEQNodeWithLeftCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay);
+    void startCalibratingEQNodeWithRightCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay);
+    void updateCalibratingEQNodeWithRightCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay);
     void endCalibratingEQNode();
     float getCurrPlayingFreq();
     
