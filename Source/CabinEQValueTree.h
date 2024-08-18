@@ -42,12 +42,13 @@ public:
     void copyFrom (CabinEQValueTree& other);
     
 private:
+    juce::ValueTree valueTreeForChannel (Channel channel) const;
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
     void printValueTree (juce::ValueTree valueTree) const;
     
     juce::AudioProcessorValueTreeState& apvts;
     
-    juce::Identifier idProfile, idEQNode, idId, idFrequency, idAmplitude, idPan;
+    juce::Identifier idProfile, idLeftCurve, idRightCurve, idEQNode, idId, idFrequency, idAmplitude, idPan;
     juce::ValueTree valueTree;
     
     Curve leftCurve;

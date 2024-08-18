@@ -11,16 +11,18 @@
 #include "CabinEQValueTree.h"
 
 CabinEQValueTree::CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
-    : apvts (apvts), idProfile (identifier), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
+    : apvts (apvts), idProfile (identifier), idLeftCurve ("LeftCurve"), idRightCurve ("RightCurve"), idEQNode ("EQNode"), idId ("id"), idFrequency ("frequency"), idAmplitude ("amplitude"), idPan ("pan")
 {}
 
 const std::vector<EQNode> CabinEQValueTree::getEQNodes (Channel channel) const
 {
+    auto curveValueTree = valueTreeForChannel (channel);
+    
     std::vector<EQNode> eqNodes;
-    if (! valueTree.isValid())
+    if (! curveValueTree.isValid())
         return eqNodes;
     
-    for (const auto& eqNode : valueTree)
+    for (const auto& eqNode : curveValueTree)
     {
         int id = eqNode.getProperty (idId);
         float freq = eqNode.getProperty (idFrequency);
@@ -52,12 +54,11 @@ void CabinEQValueTree::addEQNode (const int id, const float frequency, const flo
     eqNode.setProperty (idFrequency, frequency, nullptr);
     eqNode.setProperty (idAmplitude, amplitude, nullptr);
     eqNode.setProperty (idPan, pan, nullptr);
-    valueTree.appendChild (eqNode, nullptr);
+    
+    valueTreeForChannel (channel).appendChild (eqNode, nullptr);
     
     printValueTree (valueTree);
     printValueTree (apvts.state.getChildWithName (idProfile));
-//    apvts.state.getChildWithName (idProfile) = valueTree;
-//    apvts.state = valueTree;
     
     getCurve (channel).updateWithEQNodes (getEQNodes (channel));
 }
@@ -67,8 +68,10 @@ int CabinEQValueTree::addEQNode (const float frequency, const float amplitude, c
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
+    auto curveValueTree = valueTreeForChannel (channel);
+    
     int id = -1;
-    for (const auto& eqNode : valueTree)
+    for (const auto& eqNode : curveValueTree)
     {
         id = std::max ((int) eqNode.getProperty (idId), id);
     }
@@ -86,9 +89,10 @@ void CabinEQValueTree::removeEQNode (const int id, Channel channel)
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    juce::ValueTree nodeToRemove = valueTree.getChildWithProperty (idId, id);
+    auto curveValueTree = valueTreeForChannel (channel);
+    juce::ValueTree nodeToRemove = curveValueTree.getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
-        valueTree.removeChild (nodeToRemove, nullptr);
+        curveValueTree.removeChild (nodeToRemove, nullptr);
     
     getCurve (channel).updateWithEQNodes (getEQNodes (channel));
 }
@@ -98,7 +102,7 @@ void CabinEQValueTree::updateEQNode (const int id, const float frequency, const 
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    juce::ValueTree nodeToModify = valueTree.getChildWithProperty (idId, id);
+    juce::ValueTree nodeToModify = valueTreeForChannel (channel).getChildWithProperty (idId, id);
     
     if (nodeToModify.isValid())
     {
@@ -136,6 +140,10 @@ void CabinEQValueTree::initValueTreeFromAPVTS()
     if (! valueTree.isValid())
     {
         valueTree = juce::ValueTree (idProfile);
+        auto leftValueTree = juce::ValueTree (idLeftCurve);
+        auto rightValueTree = juce::ValueTree (idRightCurve);
+        valueTree.addChild (leftValueTree, 0, nullptr);
+        valueTree.addChild (rightValueTree, 1, nullptr);
         apvts.state.addChild (valueTree, -1, nullptr);
     }
     
@@ -153,6 +161,17 @@ void CabinEQValueTree::copyFrom (CabinEQValueTree& other)
 {
     initValueTreeFromAPVTS();
     valueTree.copyPropertiesAndChildrenFrom (other.valueTree, nullptr);
+}
+
+juce::ValueTree CabinEQValueTree::valueTreeForChannel (Channel channel) const
+{
+    switch (channel)
+    {
+        case Channel::LEFT:
+            return valueTree.getChildWithName (idLeftCurve);
+        case Channel::RIGHT:
+            return valueTree.getChildWithName (idRightCurve);
+    }
 }
 
 void CabinEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)
