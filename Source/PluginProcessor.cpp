@@ -392,6 +392,37 @@ void StartupMVPAudioProcessor::removeListener()
     this->listener = nullptr;
 }
 
+//=== Calibrate reference chords ===========================================
+void StartupMVPAudioProcessor::setReferenceFreq1 (float freq)
+{
+    playbackManager.setReferenceFreq1 (freq);
+}
+
+void StartupMVPAudioProcessor::setReferenceFreq2 (float freq)
+{
+    playbackManager.setReferenceFreq2 (freq);
+}
+
+void StartupMVPAudioProcessor::setReferenceAmplLeft1 (float ampl)
+{
+    playbackManager.setReferenceAmplLeft1 (ampl);
+}
+
+void StartupMVPAudioProcessor::setReferenceAmplRight1 (float ampl)
+{
+    playbackManager.setReferenceAmplRight1 (ampl);
+}
+
+void StartupMVPAudioProcessor::setReferenceAmplLeft2 (float ampl)
+{
+    playbackManager.setReferenceAmplLeft2 (ampl);
+}
+
+void StartupMVPAudioProcessor::setReferenceAmplRight2 (float ampl)
+{
+    playbackManager.setReferenceAmplRight2 (ampl);
+}
+
 std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::profileNamed (juce::String profileName) const
 {
     return cabinEQValueTreeManager.getProfileNamed (profileName);

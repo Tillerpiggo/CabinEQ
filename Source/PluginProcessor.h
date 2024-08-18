@@ -115,6 +115,14 @@ public:
     // Listener
     void addListener (Listener* listener);
     void removeListener();
+    
+    // Reference values
+    void setReferenceFreq1 (float freq);
+    void setReferenceFreq2 (float freq);
+    void setReferenceAmplLeft1 (float ampl);
+    void setReferenceAmplRight1 (float ampl);
+    void setReferenceAmplLeft2 (float ampl);
+    void setReferenceAmplRight2 (float ampl);
 
 private:
     std::optional<std::reference_wrapper<CabinEQValueTree>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.

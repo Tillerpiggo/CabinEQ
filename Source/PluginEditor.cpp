@@ -16,9 +16,11 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioPr
     
     filterPage = std::make_unique<FilterPage> (p);
     cabinEQPage = std::make_unique<CabinEQPage> (p);
+    referenceCalibrationPage = std::make_unique<ReferenceCalibrationPage> (p);
     
     tabbedComponent.addTab ("Filter", juce::Colours::lightgrey, filterPage.get(), false);
     tabbedComponent.addTab ("CabinEQ", juce::Colours::lightgrey, cabinEQPage.get(), false);
+    tabbedComponent.addTab ("Reference Calibration", juce::Colours::lightgrey, referenceCalibrationPage.get(), false);
 
     addAndMakeVisible(tabbedComponent);
 }
