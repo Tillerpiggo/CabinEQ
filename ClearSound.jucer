@@ -43,8 +43,6 @@
               file="Source/ArbitrarySequencer.cpp"/>
         <FILE id="bX0MJX" name="ArbitrarySequencer.h" compile="0" resource="0"
               file="Source/ArbitrarySequencer.h"/>
-        <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
-              file="Source/SequenceableNote.h"/>
         <FILE id="VLnqpz" name="StereoGainEnvelope.cpp" compile="1" resource="0"
               file="Source/StereoGainEnvelope.cpp"/>
         <FILE id="Yfy4sY" name="StereoGainEnvelope.h" compile="0" resource="0"
@@ -54,6 +52,8 @@
         <FILE id="fGlITw" name="GainEnvelope.h" compile="0" resource="0" file="Source/GainEnvelope.h"/>
         <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
               file="Source/SequenceableNote.cpp"/>
+        <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
+              file="Source/SequenceableNote.h"/>
         <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">

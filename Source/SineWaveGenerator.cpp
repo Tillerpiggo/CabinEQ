@@ -42,16 +42,16 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
     
     if (targetAmplitude.has_value())
     {
-        if (targetAmplitude.value() > note->gain)
+        if (targetAmplitude.value() > note->amplitude)
         {
-            note->gain *= AMPL_STEP;
+            note->amplitude *= AMPL_STEP;
         }
         else
         {
-            note->gain /= AMPL_STEP;
+            note->amplitude /= AMPL_STEP;
         }
         
-        float ratio = note->gain / targetAmplitude.value();
+        float ratio = note->amplitude / targetAmplitude.value();
         if (ratio < AMPL_STEP && ratio > 1.0f / AMPL_STEP)
         {
             targetAmplitude.reset();
@@ -125,7 +125,7 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     }
     
     float freq = note->frequency;
-    float ampl = note->gain;
+    float ampl = note->amplitude;
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
     

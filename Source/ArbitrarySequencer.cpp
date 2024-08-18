@@ -54,7 +54,7 @@ void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote>& newNotes
     currNoteIdx = 0;
     numSamplesNoteHasBeenPlaying = 0;
     
-    pitchedGenerator->setNote (getCurrNote().note());
+    pitchedGenerator->setNote (getCurrNote().getNote());
     
     this->isRepeating = repeating;
 }
@@ -73,7 +73,7 @@ void ArbitrarySequencer::changeNoteAtIdx (int idx, Note newNote)
     }
     
     notes.at (idx).setFrequency (newNote.frequency);
-    notes.at (idx).setAmplitude (newNote.gain);
+    notes.at (idx).setAmplitude (newNote.amplitude);
 }
 
 void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)
@@ -113,7 +113,7 @@ void ArbitrarySequencer::goToNextNote()
         notifyListener();
     }
     
-    pitchedGenerator->setNote (getCurrNote().note());
+    pitchedGenerator->setNote (getCurrNote().getNote());
 }
 
 const SequenceableNote& ArbitrarySequencer::getCurrNote() const

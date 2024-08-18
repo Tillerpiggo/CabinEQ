@@ -39,7 +39,7 @@ const std::pair<float, float> PinkNoiseGenerator::getNextSample()
 void PinkNoiseGenerator::setNote (Note note)
 {
     setFrequency (note.frequency);
-    setVolume (note.gain);
+    setVolume (note.amplitude);
 }
 
 void PinkNoiseGenerator::setFrequency (float frequencyInHz)

@@ -230,8 +230,8 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node, Channel channel)
         SequenceableNote referenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
         SequenceableNote referenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
         
-        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1.note());
-        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2.note());
+        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1.getNote());
+        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2.getNote());
         setCrossfeed (channel);
     }
     else
@@ -242,8 +242,8 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node, Channel channel)
         SequenceableNote referenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
         SequenceableNote referenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
         
-        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1.note());
-        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2.note());
+        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1.getNote());
+        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2.getNote());
         setCrossfeed (channel);
     }
 }
@@ -263,8 +263,8 @@ void PlaybackManager::startTestingFreq (float freq, Curve& curve)
     ampl += getCompensationDBAtFrequency (freq);
     
     Note referenceNoteCompensated = referenceNote;
-    referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
-    referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (freq);
+    referenceNoteCompensated.amplitude += getCompensationDBAtFrequency (freq);
+    referenceNoteCompensated.amplitude += getReferenceCompensationDBAtFrequency (freq);
     
     auto nodeBelow = curve.nodeBelowFreq (freq);
     auto nodeAbove = curve.nodeAboveFreq (freq);
@@ -297,8 +297,8 @@ void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
     ampl += getCompensationDBAtFrequency (freq);
     
     Note referenceNoteCompensated = referenceNote;
-    referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
-    referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (freq);
+    referenceNoteCompensated.amplitude += getCompensationDBAtFrequency (freq);
+    referenceNoteCompensated.amplitude += getReferenceCompensationDBAtFrequency (freq);
     
 //    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
 //    SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);

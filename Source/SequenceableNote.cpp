@@ -12,28 +12,25 @@
 
 SequenceableNote::SequenceableNote (float frequency, float amplitude,
                   float duration, StereoGainEnvelope envelope)
-    : frequency (frequency), amplitude (amplitude),
-      duration (duration), envelope (envelope)
+    : note (frequency, amplitude), duration (duration), envelope (envelope)
 {}
 
 SequenceableNote::SequenceableNote (Note note, float duration, StereoGainEnvelope envelope)
-    : frequency (note.frequency), amplitude (note.gain),
-      duration (duration), envelope (envelope)
+    : note (note), duration (duration), envelope (envelope)
 {}
 
 SequenceableNote::SequenceableNote (EQNode node, float duration, StereoGainEnvelope envelope)
-    : frequency (node.frequency), amplitude (node.amplitude),
-      duration (duration), envelope (envelope)
+    : note (node.frequency, node.amplitude), duration (duration), envelope (envelope)
 {}
 
 const float SequenceableNote::getFrequency() const
 {
-    return frequency;
+    return note.frequency;
 }
 
 const float SequenceableNote::getAmplitude() const
 {
-    return amplitude;
+    return note.amplitude;
 }
 
 const float SequenceableNote::getDuration() const
@@ -41,14 +38,49 @@ const float SequenceableNote::getDuration() const
     return duration;
 }
 
+const float SequenceableNote::getCrossfeedGain() const
+{
+    return note.crossfeedGain;
+}
+
+const float SequenceableNote::getCrossfeedDelayInMs() const
+{
+    return note.crossfeedDelayInMs;
+}
+
+const Channel SequenceableNote::getCrossfeedChannel() const
+{
+    return note.crossfeedChannel;
+}
+
 void SequenceableNote::setFrequency (float newFrequency)
 {
-    frequency = newFrequency;
+    this->note.frequency = newFrequency;
 }
 
 void SequenceableNote::setAmplitude (float newAmplitude)
 {
-    amplitude = newAmplitude;
+    this->note.amplitude = newAmplitude;
+}
+
+void SequenceableNote::setDuration (float newDuration)
+{
+    this->duration = newDuration;
+}
+
+void SequenceableNote::setCrossfeedGain (float crossfeedGain)
+{
+    this->note.crossfeedGain = crossfeedGain;
+}
+
+void SequenceableNote::setCrossfeedDelayInMs (float delayInMs)
+{
+    this->note.crossfeedDelayInMs = delayInMs;
+}
+
+void SequenceableNote::setCrossfeedChanenl (Channel channel)
+{
+    this->note.crossfeedChannel = channel;
 }
 
 const std::pair<float, float> SequenceableNote::getGainAtSample (int sample) const
@@ -56,7 +88,7 @@ const std::pair<float, float> SequenceableNote::getGainAtSample (int sample) con
     return envelope.getGainAtSample (sample, duration);
 }
 
-const Note SequenceableNote::note() const
+const Note SequenceableNote::getNote() const
 {
-    return Note (frequency, amplitude);
+    return note;
 }

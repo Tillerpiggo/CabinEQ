@@ -26,17 +26,23 @@ public:
     const float getFrequency() const;
     const float getAmplitude() const;
     const float getDuration() const;
+    const float getCrossfeedGain() const;
+    const float getCrossfeedDelayInMs() const;
+    const Channel getCrossfeedChannel() const;
     
     void setFrequency (float newFrequency);
     void setAmplitude (float newAmplitude);
+    void setDuration (float newDuration);
+    void setCrossfeedGain (float crossfeedGain);
+    void setCrossfeedDelayInMs (float delayInMs);
+    void setCrossfeedChanenl (Channel channel);
     
     const std::pair<float, float> getGainAtSample (int sample) const;
     
-    const Note note() const;
+    const Note getNote() const;
     
 private:
-    float frequency;
-    float amplitude;
+    Note note;
     float duration;
     
     StereoGainEnvelope envelope;
