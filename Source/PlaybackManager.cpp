@@ -361,27 +361,6 @@ void PlaybackManager::setReferenceVolume (float volume)
     this->referenceVolume = volume;
 }
 
-// Crossfeed
-void PlaybackManager::setCalibratingEQNodeWithLeftCrossfeed (EQNode node, float crossfeedGain, float crossfeedDelay)
-{
-    setCalibratingEQNode (node);
-}
-
-void PlaybackManager::updateCalibratingEQNodeWithLeftCrossfeed (EQNode updatingNode, float crossfeedGain, float crossfeedDelay)
-{
-    updateCalibratingEQNode (updatingNode);
-}
-
-void PlaybackManager::setCalibratingEQNodeWithRightCrossfeed (EQNode node, float crossfeedGain, float crossfeedDelay)
-{
-    setCalibratingEQNode (node);
-}
-
-void PlaybackManager::updateCalibratingEQNodeWithRightCrossfeed (EQNode updatingNode, float crossfeedGain, float crossfeedDelay)
-{
-    updateCalibratingEQNode (updatingNode);
-}
-
 std::pair<float, float> PlaybackManager::getNextSample()
 {
     auto [leftSample1, rightSample1] = arbitrarySequencer.getNextSample();

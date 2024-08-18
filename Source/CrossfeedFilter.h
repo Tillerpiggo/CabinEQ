@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Channel.h"
 
 // This class takes in audio a block at a time and applies a crossfeed effect to it
 class CrossfeedFilter
@@ -20,6 +21,7 @@ public:
     
     void processBlock (juce::AudioBuffer<float>& buffer);
     void prepare (const juce::dsp::ProcessSpec& spec);
+    void setChannelPlaying (Channel channel); // sets the channel that sound comes through; mutes the other channel
     
 private:
     // Pushes everything from the buffer into the queue, and returns what is popped
@@ -31,4 +33,5 @@ private:
     int delayInSeconds = 0.2;
     int numSamplesToDelay = 0.2 * 44100;
     float crossfeedGain = 0.3;
+    Channel currChannel;
 };

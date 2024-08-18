@@ -13,12 +13,7 @@
 #include <JuceHeader.h>
 #include "EQNode.h"
 #include "Curve.h"
-
-enum Channel
-{
-    LEFT,
-    RIGHT
-};
+#include "Channel.h"
 
 /// This class wraps and provides helper methods on a ValueTree to persist the set points of a single profile. It should be used to initially load and save
 /// this data, rather than to actively manage it.

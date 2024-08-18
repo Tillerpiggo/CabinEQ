@@ -15,38 +15,21 @@ CrossfeedFilter::CrossfeedFilter()
 
 void CrossfeedFilter::processBlock (juce::AudioBuffer<float>& buffer)
 {
+    // Mute channel if it's not the one playing
+    if (currChannel == Channel::LEFT)
+    {
+        buffer.clear (1, 0, buffer.getNumSamples()); // clear the right channel
+    }
+    else
+    {
+        buffer.clear (0, 0, buffer.getNumSamples()); // clear the left channel
+    }
+    
     // Store delayed signals before adding back to channel
-    int blockSize = buffer.getNumSamples();
-    std::vector<float> delayedLeft (blockSize);
-    std::vector<float> delayedRight (blockSize);
+    auto delayedLeft = pushAndPop (leftBuffer, buffer);
+    auto delayedRight = pushAndPop (rightBuffer, buffer);
     
-    // Push left channel into leftBuffer and pop leftBuffer into delayedLeft
-    auto buf = buffer.getReadPointer (0);
-    for (int i = 0; i < blockSize; ++i)
-    {
-        // as we do this, add what we pop off to the right buffer in reverse
-        leftBuffer.push (buf[i]);
-        
-        if (leftBuffer.size() >= numSamplesToDelay)
-        {
-            delayedLeft[i] = leftBuffer.front();
-            leftBuffer.pop();
-        }
-    }
-    
-    // Push right channel into rightBuffer and pop rightBuffer into delayedRight
-    for (int i = 0; i < buffer.getNumSamples(); ++i)
-    {
-        // as we do this, add what we pop off to the left buffer in reverse
-        rightBuffer.push (buf[i]);
-        
-        if (rightBuffer.size() >= numSamplesToDelay)
-        {
-            delayedRight[i] = rightBuffer.front();
-            rightBuffer.pop();
-        }
-    }
-    
+    // Perform the crossfeed
     auto leftPtr = buffer.getWritePointer (0); // get write pointer to the left channel
     auto rightPtr = buffer.getWritePointer (1); // get write pointer to the right channel
     for (int i = 0; i < buffer.getNumSamples(); ++i)
@@ -61,6 +44,12 @@ void CrossfeedFilter::prepare (const juce::dsp::ProcessSpec& spec)
     numSamplesToDelay = spec.sampleRate * delayInSeconds;
 }
 
+void CrossfeedFilter::setChannelPlaying (Channel channel)
+{
+    currChannel = channel;
+}
+
+//=================================================================
 std::vector<float> CrossfeedFilter::pushAndPop (std::queue<float>& queue, juce::AudioBuffer<float>& buffer)
 {
     std::vector<float> poppedData (buffer.getNumSamples());

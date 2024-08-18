@@ -51,12 +51,6 @@ public:
     
     void setReferenceVolume (float volume);
     
-    // Cross
-    void setCalibratingEQNodeWithLeftCrossfeed (EQNode node, float crossfeedGain, float crossfeedDelay);
-    void updateCalibratingEQNodeWithLeftCrossfeed (EQNode updatingNode, float crossfeedGain, float crossfeedDelay);
-    void setCalibratingEQNodeWithRightCrossfeed (EQNode node, float crossfeedGain, float crossfeedDelay);
-    void updateCalibratingEQNodeWithRightCrossfeed (EQNode updatingNode, float crossfeedGain, float crossfeedDelay);
-    
 private:
     std::pair<float, float> getNextSample();
     float getCompensationDBAtFrequency (float frequency);

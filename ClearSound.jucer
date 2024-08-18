@@ -24,11 +24,8 @@
       <FILE id="NXPdqU" name="CabinEQValueTreeManager.h" compile="0" resource="0"
             file="Source/CabinEQValueTreeManager.h"/>
       <FILE id="h9bYnu" name="EQNode.h" compile="0" resource="0" file="Source/EQNode.h"/>
+      <FILE id="PcLYTI" name="Channel.h" compile="0" resource="0" file="Source/Channel.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
-        <FILE id="MkHgTL" name="CrossfeedEQPages.cpp" compile="1" resource="0"
-              file="Source/CrossfeedEQPages.cpp"/>
-        <FILE id="wyQYCo" name="CrossfeedEQPages.h" compile="0" resource="0"
-              file="Source/CrossfeedEQPages.h"/>
         <FILE id="GYQxO0" name="CabinEQPage.cpp" compile="1" resource="0" file="Source/CabinEQPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEQPage.h" compile="0" resource="0" file="Source/CabinEQPage.h"/>
         <FILE id="XecbxI" name="CabinEQGraph.cpp" compile="1" resource="0"
