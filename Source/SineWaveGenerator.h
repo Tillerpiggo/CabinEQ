@@ -26,6 +26,9 @@ public:
     void setNote (Note note) override;
     void setFrequency (float frequencyInHz) override;
     void setVolume (float volumeInDecibels) override;
+    void setCrossfeedGain (float crossfeedGain) override;
+    void setCrossfeedDelayInMs (float delayInMs) override;
+    void setCrossfeedChannel (Channel channel) override;
     
 private:
     void updatePhaseIncrementAndAmplitudeCompensation();

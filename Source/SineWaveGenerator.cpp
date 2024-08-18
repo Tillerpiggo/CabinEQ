@@ -73,7 +73,9 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
     if (phase > 2.0 * juce::MathConstants<float>::pi)
         phase -= 2.0 * juce::MathConstants<float>::pi;
     
-    return { leftSample, rightSample };
+    std::pair<float, float> sample { leftSample, rightSample };
+    
+    return crossfeedFilter.processSample (sample);
 }
 
 // Sets the note to the newNote, and also "plays" it by ending the last note
@@ -94,6 +96,24 @@ void SineWaveGenerator::setFrequency (float frequencyInHz)
 void SineWaveGenerator::setVolume (float volumeInDecibels)
 {
     targetAmplitude = volumeInDecibels;
+}
+
+void SineWaveGenerator::setCrossfeedGain (float crossfeedGain)
+{
+    note->crossfeedGain = crossfeedGain;
+    crossfeedFilter.setCrossfeedGain (crossfeedGain);
+}
+
+void SineWaveGenerator::setCrossfeedDelayInMs (float delayInMs)
+{
+    note->crossfeedDelayInMs = delayInMs;
+    crossfeedFilter.setDelay (delayInMs);
+}
+
+void SineWaveGenerator::setCrossfeedChannel (Channel channel)
+{
+    note->crossfeedChannel = channel;
+    crossfeedFilter.setChannelPlaying (channel);
 }
 
 // ============================================
