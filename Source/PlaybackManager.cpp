@@ -79,9 +79,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         {
             filter.process (mainContext);
             crossfeedFilter.process (crossfeedContext);
-            crossfeedBlock *= 0.05; // make it quieter
-            mainBlock += crossfeedBlock;
-            ioBlock.replaceWithSumOf(mainBlock, ioBlock);
+            ioBlock.replaceWithSumOf(mainBlock, crossfeedBlock.multiplyBy (0.1));
             wetGainProcessor.process (ioContext);
         }
         else

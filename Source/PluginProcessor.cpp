@@ -215,7 +215,7 @@ void StartupMVPAudioProcessor::applyCurve (juce::String profileName)
     if (profile.has_value())
     {
         playbackManager.updateFilterWithCurves (profile->get().getCurve (Channel::LEFT),
-                                                profile->get().getCurve (Channel::RIGHT));
+                                                profile->get().getCurve (Channel::LEFT));
     }
         
 }
