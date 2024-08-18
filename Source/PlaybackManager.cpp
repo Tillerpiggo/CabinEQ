@@ -98,7 +98,7 @@ void PlaybackManager::updateFilterWithCurve (Curve& curve)
 void PlaybackManager::updateFilterWithCurves (Curve& leftCurve, Curve& rightCurve)
 {
     filter.updateWithCurves (leftCurve, rightCurve, FFT_SIZE);
-    crossfeedFilter.updateWithCurves (leftCurve, rightCurve, FFT_SIZE);
+    crossfeedFilter.updateWithCurves (rightCurve, leftCurve, FFT_SIZE); // swapped for now, because we're using main curves for the crossfeed curves for now
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)

@@ -185,6 +185,7 @@ protected:
     juce::TextButton bypassButton { "ON" };
     juce::TextButton unlockButton { "UNLOCK" };
     juce::TextButton duplicateButton { "COPY" };
+    juce::TextButton leftRightButton { "LEFT" };
     bool isBypassed = true;
     bool hasFilterChanged = true;
     bool creatingDuplicate = false;

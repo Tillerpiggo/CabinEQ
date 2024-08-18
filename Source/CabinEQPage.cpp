@@ -26,6 +26,7 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     bypassButton.addListener (this);
     unlockButton.addListener (this);
     duplicateButton.addListener (this);
+    leftRightButton.addListener (this);
     processor.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
@@ -34,6 +35,7 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (unlockButton);
     addAndMakeVisible (duplicateButton);
+    addAndMakeVisible (leftRightButton);
     addAndMakeVisible (unlockForm);
     
     didLoadData();
@@ -42,7 +44,16 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
 CabinEQPage::~CabinEQPage()
 {
     referenceSlider.removeListener (this);
+    
+    dropdownProfiles.removeListener (this);
+    referenceSlider.removeListener (this);
+    bypassButton.removeListener (this);
+    unlockButton.removeListener (this);
+    duplicateButton.removeListener (this);
+    leftRightButton.removeListener (this);
+    
     cabinEQGraph.removeListener();
+    processor.removeListener();
 }
 
 void CabinEQPage::paint (juce::Graphics& g)
@@ -57,7 +68,8 @@ void CabinEQPage::resized()
     int buttonWidth = 100;
     int unlockButtonWidth = 100;
     int duplicateButtonWidth = 100;
-    int totalButtonWidth = buttonWidth + duplicateButtonWidth;
+    int leftRightButtonWidth = 100;
+    int totalButtonWidth = buttonWidth + duplicateButtonWidth + leftRightButtonWidth;
     
     if (!isUnlocked)
     {
@@ -81,6 +93,8 @@ void CabinEQPage::resized()
     }
 
     duplicateButton.setBounds(currentX, bottomY, duplicateButtonWidth, dropdownHeight);
+    currentX += leftRightButtonWidth;
+    leftRightButton.setBounds(currentX, bottomY, leftRightButtonWidth, dropdownHeight);
 }
 
 // ====================================================
