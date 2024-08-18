@@ -16,6 +16,8 @@
 #include "SineSweepGenerator.h"
 #include "PinkNoiseGenerator.h"
 #include "Constants.h"
+#include "Channel.h"
+#include "CrossfeedFilter.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -43,8 +45,8 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void setCalibratingEQNode (EQNode node); // changes the EQNode being compared to the reference tone and restarts interval
-    void updateCalibratingEQNode (EQNode updatingNode); // changes the EQNode being compared to the reference tone but does not restart the interval
+    void setCalibratingEQNode (EQNode node, Channel channel); // changes the EQNode being compared to the reference tone and restarts interval
+    void updateCalibratingEQNode (EQNode updatingNode, Channel channel); // changes the EQNode being compared to the reference tone but does not restart the interval
     void startTestingFreq (float freq, Curve& curve);
     void updateTestingFreq (float freq, Curve& curve);
     void stopTestingFreq();
@@ -52,6 +54,7 @@ public:
     void setReferenceVolume (float volume);
     
 private:
+    void setCrossfeed (Channel channel);
     std::pair<float, float> getNextSample();
     float getCompensationDBAtFrequency (float frequency);
     float getReferenceCompensationDBAtFrequency (float frequency);
@@ -62,6 +65,7 @@ private:
     // Audio processing
     ArbitraryResponseFilter filter;
     ArbitraryResponseFilter crossfeedFilter;
+    CrossfeedFilter crossfeedFilterForCalibration;
     juce::dsp::Gain<float> dryGainProcessor;
     juce::dsp::Gain<float> wetGainProcessor;
     juce::dsp::AudioBlock<float> mainBlock, crossfeedBlock;

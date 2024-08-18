@@ -26,7 +26,7 @@ PlaybackManager::PlaybackManager()
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
     
-    setCalibratingEQNode (EQNode (-1, REFERENCE_FREQ, 0.0f, 0.0f)); // placeholder to avoid errors
+    setCalibratingEQNode (EQNode (-1, REFERENCE_FREQ, 0.0f, 0.0f), Channel::LEFT); // placeholder to avoid errors
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -45,7 +45,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
                 rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
         }
         
-        
+        // Apply crossfeed to the calibration
+        crossfeedFilterForCalibration.processBlock (ioBuffer);
     }
     else if (isSweeping)
     {
@@ -167,76 +168,29 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
     sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::setCalibratingEQNode (EQNode node)
+void PlaybackManager::setCalibratingEQNode (EQNode node, Channel channel)
 {
+    // Play the reference note and controlled note at the same time
     int noteDurationInSamples = 20000;
     node.amplitude += getCompensationDBAtFrequency (node.frequency);
-    StereoGainEnvelope hardLeft = StereoGainEnvelope (StereoGainEnvelopeType::SOFT_LEFT);
-    StereoGainEnvelope hardRight = StereoGainEnvelope (StereoGainEnvelopeType::SOFT_RIGHT);
+    SequenceableNote refNote (referenceNote, noteDurationInSamples);
+    SequenceableNote controlledNote (node, noteDurationInSamples);
+    arbitrarySequencer.setNotes ({ refNote });
+    arbitrarySequencer2.setNotes ({ controlledNote });
     
-    SequenceableNote referenceNoteLeft (referenceNote, noteDurationInSamples, hardLeft);
-    SequenceableNote referenceNoteRight (referenceNote, noteDurationInSamples, hardRight);
-    SequenceableNote controlledNoteLeft (node, noteDurationInSamples, hardLeft);
-    SequenceableNote controlledNoteRight (node, noteDurationInSamples, hardRight);
-    
-    arbitrarySequencer.setNotes ({ referenceNoteLeft, referenceNoteRight });
-    arbitrarySequencer2.setNotes ({ controlledNoteLeft, controlledNoteRight });
-//
-    
-    
-//    Note referenceNoteCompensated = referenceNote;
-//    referenceNoteCompensated.gain += getCompensationDBAtFrequency (node.frequency);
-//    referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (node.frequency);
-//    node.amplitude += getCompensationDBAtFrequency (node.frequency);
-//    
-//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-//    SequenceableNote note2 (node, noteDurationInSamples);
-//    arbitrarySequencer.setNotes ({ note1, note2 }, true);
+    setCrossfeed (channel);
 }
 
-void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode)
+void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode, Channel channel)
 {
+    // Play the reference note and controlled note at the same time
     int noteDurationInSamples = 20000;
     updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
-    StereoGainEnvelope hardLeft = StereoGainEnvelope (StereoGainEnvelopeType::SOFT_LEFT);
-    StereoGainEnvelope hardRight = StereoGainEnvelope (StereoGainEnvelopeType::SOFT_RIGHT);
-    SequenceableNote controlledNoteLeft (updatedNode, noteDurationInSamples, hardLeft);
-    SequenceableNote controlledNoteRight (updatedNode, noteDurationInSamples, hardRight);
+    SequenceableNote controlledNote (updatedNode, noteDurationInSamples);
+    arbitrarySequencer.changeNoteAtIdx (0, referenceNote);
+    arbitrarySequencer2.changeNoteAtIdx (1, controlledNote.note());
     
-    arbitrarySequencer2.changeNoteAtIdx (0, controlledNoteLeft.note());
-    arbitrarySequencer2.changeNoteAtIdx (1, controlledNoteRight.note());
-    
-    Note referenceNoteCompensated = referenceNote;
-    referenceNoteCompensated.gain += getCompensationDBAtFrequency (updatedNode.frequency);
-    referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (updatedNode.frequency);
-    updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
-    
-//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-//    SequenceableNote note2 (updatedNode, noteDurationInSamples);
-//    arbitrarySequencer.changeNoteAtIdx (0, note1.note());
-//    arbitrarySequencer.changeNoteAtIdx (1, note2.note());
-    
-//    updatedNode.amplitude -= 3.0f;
-//    SequenceableNote quieterNote (updatedNode, noteDurationInSamples);
-//    SequenceableNote refNote (referenceNoteCompensated, noteDurationInSamples);
-//    updatedNode.amplitude += 6.0f;
-//    SequenceableNote louderNote (updatedNode, noteDurationInSamples);
-//    SequenceableNote silentNote (referenceNoteCompensated, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
-//    float volumeStep = 3.0f;
-//    volumeStep += 0.2 * std::log2 (updatedNode.frequency / 1000.0f);
-//    referenceNoteCompensated.gain -= volumeStep;
-//    SequenceableNote quietRef (referenceNoteCompensated, noteDurationInSamples);
-//    SequenceableNote updatedNote (updatedNode, noteDurationInSamples);
-//    referenceNoteCompensated.gain += volumeStep * 2;
-//    SequenceableNote loudRef (referenceNoteCompensated, noteDurationInSamples);
-//    arbitrarySequencer.changeNoteAtIdx (0, quietRef.note());
-//    arbitrarySequencer.changeNoteAtIdx (1, updatedNote.note());
-//    arbitrarySequencer.changeNoteAtIdx (3, updatedNote.note());
-//    arbitrarySequencer.changeNoteAtIdx (4, loudRef.note());
-//
-//    arbitrarySequencer.changeNoteAtIdx (0, quieterNote.note());
-//    arbitrarySequencer.changeNoteAtIdx (1, refNote.note());
-//    arbitrarySequencer.changeNoteAtIdx (2, louderNote.note());
+    setCrossfeed (channel);
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -359,6 +313,11 @@ void PlaybackManager::stopTestingFreq()
 void PlaybackManager::setReferenceVolume (float volume)
 {
     this->referenceVolume = volume;
+}
+
+void PlaybackManager::setCrossfeed (Channel channel)
+{
+    crossfeedFilterForCalibration.setChannelPlaying (channel);
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

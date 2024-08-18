@@ -278,15 +278,15 @@ void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
         profile->get().resetNodes ({});
 }
 
-void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
+void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node, Channel channel)
 {
-    playbackManager.setCalibratingEQNode (node);
+    playbackManager.setCalibratingEQNode (node, channel);
     playbackManager.setIsCalibrating (true);
 }
 
-void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node)
+void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node, Channel channel)
 {
-    playbackManager.updateCalibratingEQNode (node);
+    playbackManager.updateCalibratingEQNode (node, channel);
 }
 
 void StartupMVPAudioProcessor::endCalibratingEQNode()

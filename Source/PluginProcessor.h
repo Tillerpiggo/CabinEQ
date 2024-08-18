@@ -92,12 +92,8 @@ public:
     void clearEQNodes (juce::String profileName);
     
     // Changing points
-    void startCalibratingEQNode (EQNode eqNode);
-    void updateCalibratingEQNode (EQNode eqNode);
-    void startCalibratingEQNodeWithLeftCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay);
-    void updateCalibratingEQNodeWithLeftCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay);
-    void startCalibratingEQNodeWithRightCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay);
-    void updateCalibratingEQNodeWithRightCrossfeed (EQNode eqNode, float crossfeedGain, float crossfeedDelay);
+    void startCalibratingEQNode (EQNode eqNode, Channel channel);
+    void updateCalibratingEQNode (EQNode eqNode, Channel channel);
     void endCalibratingEQNode();
     float getCurrPlayingFreq();
     

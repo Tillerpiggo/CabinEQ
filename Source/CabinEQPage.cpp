@@ -118,12 +118,12 @@ void CabinEQPage::removeNode (int id)
 
 void CabinEQPage::startPlayingValueAt (float freq, float ampl)
 {
-    processor.startCalibratingEQNode (EQNode (-1, freq, ampl, 0.0f));
+    processor.startCalibratingEQNode (EQNode (-1, freq, ampl, 0.0f), currChannel);
 }
 
 void CabinEQPage::playValueAt (float freq, float ampl)
 {
-    processor.updateCalibratingEQNode (EQNode (-1, freq, ampl, 0.0f));
+    processor.updateCalibratingEQNode (EQNode (-1, freq, ampl, 0.0f), currChannel);
 }
 
 void CabinEQPage::testValueAt (float freq)
