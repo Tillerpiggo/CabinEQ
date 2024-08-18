@@ -25,8 +25,6 @@ PlaybackManager::PlaybackManager()
 {
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
-    
-    setCalibratingEQNode (EQNode (-1, REFERENCE_FREQ, 0.0f), Channel::LEFT); // placeholder to avoid errors
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -172,27 +170,82 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 void PlaybackManager::setCalibratingEQNode (EQNode node, Channel channel)
 {
     // Play the reference note and controlled note at the same time
-    int noteDurationInSamples = 20000;
-    node.amplitude += getCompensationDBAtFrequency (node.frequency);
-    SequenceableNote refNote (referenceNote, noteDurationInSamples);
-    SequenceableNote controlledNote (node, noteDurationInSamples);
-    arbitrarySequencer.setNotes ({ refNote });
-    arbitrarySequencer2.setNotes ({ controlledNote });
+//    int noteDurationInSamples = 20000;
+//    node.amplitude += getCompensationDBAtFrequency (node.frequency);
+//    SequenceableNote refNote (referenceNote, noteDurationInSamples);
+//    SequenceableNote controlledNote (node, noteDurationInSamples);
+//    arbitrarySequencer.setNotes ({ refNote });
+//    arbitrarySequencer2.setNotes ({ controlledNote });
+//    
+//    setCrossfeed (channel);
+//    crossfeedFilterForCalibration.clear();
     
-    setCrossfeed (channel);
-    crossfeedFilterForCalibration.clear();
+    // Play the reference chord alternating with the controlled chord
+    int noteDurationInSamples = 20000;
+    if (channel == Channel::LEFT)
+    {
+        node.amplitude += getCompensationDBAtFrequency (node.frequency);
+        SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
+        
+        SequenceableNote referenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
+        SequenceableNote referenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
+        
+        arbitrarySequencer.setNotes ({ referenceNote1 });
+        arbitrarySequencer2.setNotes ({ referenceNote2 });
+        setCrossfeed (channel);
+        crossfeedFilterForCalibration.clear();
+    }
+    else
+    {
+        node.amplitude += getCompensationDBAtFrequency (node.frequency);
+        SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
+        
+        SequenceableNote referenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
+        SequenceableNote referenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
+        
+        arbitrarySequencer.setNotes ({ referenceNote1 });
+        arbitrarySequencer2.setNotes ({ referenceNote2 });
+        setCrossfeed (channel);
+        crossfeedFilterForCalibration.clear();
+    }
 }
 
-void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode, Channel channel)
+void PlaybackManager::updateCalibratingEQNode (EQNode node, Channel channel)
 {
     // Play the reference note and controlled note at the same time
-    int noteDurationInSamples = 20000;
-    updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
-    SequenceableNote controlledNote (updatedNode, noteDurationInSamples);
-    arbitrarySequencer.changeNoteAtIdx (0, referenceNote);
-    arbitrarySequencer2.changeNoteAtIdx (0, controlledNote.note());
+//    int noteDurationInSamples = 20000;
+//    updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
+//    SequenceableNote controlledNote (updatedNode, noteDurationInSamples);
+//    arbitrarySequencer.changeNoteAtIdx (0, referenceNote);
+//    arbitrarySequencer2.changeNoteAtIdx (0, controlledNote.note());
+//    
+//    setCrossfeed (channel);
     
-    setCrossfeed (channel);
+    int noteDurationInSamples = 20000;
+    if (channel == Channel::LEFT)
+    {
+        node.amplitude += getCompensationDBAtFrequency (node.frequency);
+        SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
+        
+        SequenceableNote referenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
+        SequenceableNote referenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
+        
+        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1.note());
+        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2.note());
+        setCrossfeed (channel);
+    }
+    else
+    {
+        node.amplitude += getCompensationDBAtFrequency (node.frequency);
+        SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
+        
+        SequenceableNote referenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
+        SequenceableNote referenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
+        
+        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1.note());
+        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2.note());
+        setCrossfeed (channel);
+    }
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -298,6 +351,36 @@ void PlaybackManager::setReferenceVolume (float volume)
     this->referenceVolume = volume;
 }
 
+void PlaybackManager::setReferenceFreq1 (float freq)
+{
+    this->referenceFreq1 = freq;
+}
+
+void PlaybackManager::setReferenceFreq2 (float freq)
+{
+    this->referenceFreq2 = freq;
+}
+
+void PlaybackManager::setReferenceAmplLeft1 (float ampl)
+{
+    this->referenceAmplLeft1 = ampl;
+}
+
+void PlaybackManager::setReferenceAmplRight1 (float ampl)
+{
+    this->referenceAmplRight1 = ampl;
+}
+
+void PlaybackManager::setReferenceAmplLeft2 (float ampl)
+{
+    this->referenceAmplLeft2 = ampl;
+}
+
+void PlaybackManager::setReferenceAmplRight2 (float ampl)
+{
+    this->referenceAmplRight2 = ampl;
+}
+
 void PlaybackManager::setCrossfeed (Channel channel)
 {
     crossfeedFilterForCalibration.setChannelPlaying (channel);
@@ -312,7 +395,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
-    return -4.5f * std::log2 (frequency / REFERENCE_FREQ);
+    return -4.5f * std::log2 (frequency / 1000.0f);
 }
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)

@@ -17,7 +17,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
     for (const auto& eqNode : eqNodes) amplitudes.push_back (eqNode.amplitude);
     
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
-    float dbDifference = -compensationSlope * std::log2 ((frequency) / REFERENCE_FREQ);
+    float dbDifference = -compensationSlope * std::log2 ((frequency) / 1000.0f);
     
     amplitudeAtFrequency += dbDifference;
     float leftDB = amplitudeAtFrequency;

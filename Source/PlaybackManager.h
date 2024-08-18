@@ -53,6 +53,14 @@ public:
     
     void setReferenceVolume (float volume);
     
+    // Reference calibration
+    void setReferenceFreq1 (float freq);
+    void setReferenceFreq2 (float freq);
+    void setReferenceAmplLeft1 (float ampl);
+    void setReferenceAmplRight1 (float ampl);
+    void setReferenceAmplLeft2 (float ampl);
+    void setReferenceAmplRight2 (float ampl);
+    
 private:
     void setCrossfeed (Channel channel);
     std::pair<float, float> getNextSample();
@@ -88,4 +96,15 @@ private:
     
     float referenceVolume = 0.0f;
     float testingFreq = REFERENCE_FREQ;
+    
+    float referenceFreq1 = 800.0f;
+    float referenceFreq2 = 2000.0f;
+    float referenceAmplLeft1 = 0.0f;
+    float referenceAmplRight1 = 0.0f;
+    float referenceAmplLeft2 = 0.0f;
+    float referenceAmplRight2 = 0.0f;
+    float referenceCrossfeedGainLeft1 = 0.3f; // crossfeed while left is playing
+    float referenceCrossfeedGainRight1 = 0.3f; // crossfeed while right is playing
+    float referenceCrossfeedGainLeft2 = 0.3f; // crossfeed while left is playing
+    float referenceCrossfeedGainRight2 = 0.3f; // crossfeed while right is playing
 };
