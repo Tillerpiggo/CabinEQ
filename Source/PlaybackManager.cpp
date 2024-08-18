@@ -26,7 +26,7 @@ PlaybackManager::PlaybackManager()
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
     
-    setCalibratingEQNode (EQNode (-1, REFERENCE_FREQ, 0.0f, 0.0f), Channel::LEFT); // placeholder to avoid errors
+    setCalibratingEQNode (EQNode (-1, REFERENCE_FREQ, 0.0f), Channel::LEFT); // placeholder to avoid errors
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -80,7 +80,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         {
             filter.process (mainContext);
             crossfeedFilter.process (crossfeedContext);
-            mainBlock += crossfeedBlock.multiplyBy (0.3);
+            mainBlock += crossfeedBlock.multiplyBy (0.5);
             ioBlock.replaceWithSumOf(mainBlock, crossfeedBlock.multiplyBy (0.0));
             wetGainProcessor.process (ioContext);
         }
@@ -213,22 +213,6 @@ void PlaybackManager::startTestingFreq (float freq, Curve& curve)
     referenceNoteCompensated.gain += getCompensationDBAtFrequency (freq);
     referenceNoteCompensated.gain += getReferenceCompensationDBAtFrequency (freq);
     
-//    SequenceableNote note1 (referenceNoteCompensated, noteDurationInSamples);
-//    SequenceableNote note2 (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-//    arbitrarySequencer.setNotes ({ note1, note2 });
-    
-//    float bandwidth = 1.1;
-//    float freqBelow = freq / bandwidth;
-//    float freqAbove = freq * bandwidth;
-//    float amplBelow = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freqBelow).first.real()) + getCompensationDBAtFrequency (freqBelow);
-//    float amplAbove = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freqAbove).first.real()) + getCompensationDBAtFrequency (freqAbove);
-//    
-//    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples);
-//    SequenceableNote noteMid (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-//    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples);
-//    
-//    arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove });
-    
     auto nodeBelow = curve.nodeBelowFreq (freq);
     auto nodeAbove = curve.nodeAboveFreq (freq);
     
@@ -238,18 +222,15 @@ void PlaybackManager::startTestingFreq (float freq, Curve& curve)
         return;
     }
     
-    std::cout << "NodeBelow: " << nodeBelow->first << ", " << nodeBelow->second << std::endl;
-    std::cout << "NodeAbove: " << nodeAbove->first << ", " << nodeAbove->second << std::endl;
-    
     auto [freqBelow, amplBelow] = nodeBelow.value();
     auto [freqAbove, amplAbove] = nodeAbove.value();
     amplBelow += getCompensationDBAtFrequency (freqBelow);
     amplAbove += getCompensationDBAtFrequency (freqAbove);
     
-    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote noteMid (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, noteDurationInSamples);
+    SequenceableNote noteMid (freq, ampl, 0.0f, noteDurationInSamples);
+    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, noteDurationInSamples);
+    SequenceableNote silentNote (0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
     arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove, silentNote });
     
     testingFreq = freq;
@@ -297,10 +278,10 @@ void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
     amplBelow += getCompensationDBAtFrequency (freqBelow);
     amplAbove += getCompensationDBAtFrequency (freqAbove);
     
-    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote noteMid (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+    SequenceableNote noteBelow (freqBelow, amplBelow, noteDurationInSamples);
+    SequenceableNote noteMid (freq, ampl, noteDurationInSamples);
+    SequenceableNote noteAbove (freqAbove, amplAbove, noteDurationInSamples);
+    SequenceableNote silentNote (0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
     arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove, silentNote });
     
     testingFreq = freq;

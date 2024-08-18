@@ -10,19 +10,19 @@
 
 #include "SequenceableNote.h"
 
-SequenceableNote::SequenceableNote (float frequency, float amplitude, float pan, float phase,
+SequenceableNote::SequenceableNote (float frequency, float amplitude,
                   float duration, StereoGainEnvelope envelope)
-    : frequency (frequency), amplitude (amplitude), pan (pan), phase (phase),
+    : frequency (frequency), amplitude (amplitude),
       duration (duration), envelope (envelope)
 {}
 
 SequenceableNote::SequenceableNote (Note note, float duration, StereoGainEnvelope envelope)
-    : frequency (note.frequency), amplitude (note.gain), pan (note.pan), phase (note.phase),
+    : frequency (note.frequency), amplitude (note.gain),
       duration (duration), envelope (envelope)
 {}
 
 SequenceableNote::SequenceableNote (EQNode node, float duration, StereoGainEnvelope envelope)
-    : frequency (node.frequency), amplitude (node.amplitude), pan (node.pan), phase (0.0f),
+    : frequency (node.frequency), amplitude (node.amplitude),
       duration (duration), envelope (envelope)
 {}
 
@@ -34,16 +34,6 @@ const float SequenceableNote::getFrequency() const
 const float SequenceableNote::getAmplitude() const
 {
     return amplitude;
-}
-
-const float SequenceableNote::getPan() const
-{
-    return pan;
-}
-
-const float SequenceableNote::getPhase() const
-{
-    return phase;
 }
 
 const float SequenceableNote::getDuration() const
@@ -61,11 +51,6 @@ void SequenceableNote::setAmplitude (float newAmplitude)
     amplitude = newAmplitude;
 }
 
-void SequenceableNote::setPan (float newPan)
-{
-    pan = newPan;
-}
-
 const std::pair<float, float> SequenceableNote::getGainAtSample (int sample) const
 {
     return envelope.getGainAtSample (sample, duration);
@@ -73,5 +58,5 @@ const std::pair<float, float> SequenceableNote::getGainAtSample (int sample) con
 
 const Note SequenceableNote::note() const
 {
-    return Note (frequency, amplitude, pan, phase);
+    return Note (frequency, amplitude);
 }

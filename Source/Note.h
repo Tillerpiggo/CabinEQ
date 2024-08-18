@@ -15,11 +15,10 @@
 class Note
 {
 public:
-    Note (float frequency, float gain, float pan, float phase)
-        : frequency (frequency), gain (gain), pan (pan), phase (phase) {}
+    Note (float frequency, float gain)
+        : frequency (frequency), gain (gain)
+    {}
     
     float frequency; // hz
     float gain; // in dB
-    float pan; // in dB; - is left, + is right (ex. -4 would mean +2 dB on the left, -2 dB on the right)
-    float phase; // in radian offset of right channel
 };

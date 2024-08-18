@@ -56,16 +56,6 @@ void PinkNoiseGenerator::setVolume (float volumeInDecibels)
     updateAmplitudeCompensation();
 }
 
-void PinkNoiseGenerator::setPan (float panInDecibels)
-{
-    // TODO
-}
-
-void PinkNoiseGenerator::setPhase (float phaseInDecibels)
-{
-    // TODO
-}
-
 //==============================================================
 void PinkNoiseGenerator::populateBuffer()
 {

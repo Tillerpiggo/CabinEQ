@@ -25,8 +25,6 @@ public:
     void setNote (Note note) override;
     void setFrequency (float frequencyInHz) override;
     void setVolume (float volumeInDecibels) override;
-    void setPan (float panInDecibels) override;
-    void setPhase (float phaseInRadians) override;
     
 private:
     void updatePhaseIncrementAndAmplitudeCompensation();

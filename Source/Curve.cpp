@@ -12,102 +12,17 @@
 
 const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValueAtFrequency (float frequency, float compensationSlope) const
 {
+    // Create amplitudes from eqNodes
     std::vector<float> amplitudes;
-    std::vector<float> pans;
-    
-    for (const auto& eqNode : eqNodes)
-    {
-        amplitudes.push_back (eqNode.amplitude);
-        pans.push_back (eqNode.pan);
-    }
+    for (const auto& eqNode : eqNodes) amplitudes.push_back (eqNode.amplitude);
     
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
-    float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
-    
-    // Apply compensationSlope of "tilt" - db/oct
-    
-//    if (frequency > 800.0f)
-//        compensationSlope += 0.5 * std::log10 ((frequency) / REFERENCE_FREQ);
-    
     float dbDifference = -compensationSlope * std::log2 ((frequency) / REFERENCE_FREQ);
-    /*
-    if (frequency < REFERENCE_FREQ)
-        compensationSlope *= 0.75;
-//    dbDifference = 0.0f;
-    if (frequency < 600.0f)
-        dbDifference = -compensationSlope * std::log2 ((600.0f) / REFERENCE_FREQ) + 4.5 * std::log2 ((frequency) / 600.0f);
-    
-    if (frequency < 500.0f)
-        dbDifference = -compensationSlope * std::log2 ((600.0f) / REFERENCE_FREQ) + 4.5 * std::log2 ((500.0f) / 600.0f) + 4.5 * std::log2 (frequency / 500.0f);
-    
-    dbDifference += (5000.0f - std::max (std::abs (4000.0f - frequency), 5000.0f)) / 600.0f;
-    
-    // Nullify stupid curve
-    dbDifference = 0.0f;
-    
-    // Even stupider curve
-    float dumbslope = 5.0f;
-    float midpoint = 600.0f;
-//    dumbslope -= 0.5 * std::abs (std::log2 ((frequency / midpoint)));
-    dbDifference = -dumbslope * std::abs (std::log2 ((frequency) / midpoint));
-    
-//    if (frequency > 6000.0f)
-//        dbDifference += 5.0 * std::abs (std::log2 ((frequency) / 6000.0f));
-    
-//    float slopePoint = 500.0f;
-//    if (frequency < slopePoint)
-//        dbDifference = 4.0 * std::abs (std::log2 ((frequency) / slopePoint)) + -dumbslope * std::abs (std::log2 ((slopePoint) / midpoint));
-    // Exponential bass curve
-//    if (frequency < 700.0f && frequency > 19.0f)
-//        dbDifference += (3.0 + 0.5 * std::abs (std::log2 ((frequency / 700.0f)))) * std::abs (std::log2 ((frequency / 700.0f)));
-     */
     
     amplitudeAtFrequency += dbDifference;
-    float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency;
-    float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency;
+    float leftDB = amplitudeAtFrequency;
+    float rightDB = amplitudeAtFrequency;
     
-    float leftGain = juce::Decibels::decibelsToGain (leftDB);
-    float rightGain = juce::Decibels::decibelsToGain (rightDB);
-    
-    std::complex<float> leftVal = std::polar(leftGain, 0.0f);
-    std::complex<float> rightVal = std::polar(rightGain, 0.0f);
-    
-    return { leftVal, rightVal };
-}
-
-const std::pair<std::complex<float>, std::complex<float>> Curve::avgValueAtFrequency (float frequency, float compensationSlope) const
-{
-    float freqStep = 1.04;
-    float avg = 0.0f;
-    int numFreqs = 20;
-    for (int i = -numFreqs / 2; i <= numFreqs / 2; ++i)
-    {
-        avg += utilValueAtFrequency (frequency * std::pow (freqStep, i), compensationSlope).first.real();
-    }
-    avg /= static_cast<float> (numFreqs);
-    
-    return { std::complex<float> (avg), std::complex<float> (avg) };
-}
-
-const std::pair<std::complex<float>, std::complex<float>> Curve::utilValueAtFrequency (float frequency, float compensationSlope) const
-{
-    std::vector<float> amplitudes;
-    std::vector<float> pans;
-    
-    for (const auto& eqNode : eqNodes)
-    {
-        amplitudes.push_back (eqNode.amplitude);
-        pans.push_back (eqNode.pan);
-    }
-    
-    float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
-    float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
-    
-    // Apply compensationSlope of "tilt" - db/oct
-    float dbDifference = compensationSlope * std::log2((frequency) / REFERENCE_FREQ);
-    float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
-    float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency - dbDifference;
-
     float leftGain = juce::Decibels::decibelsToGain (leftDB);
     float rightGain = juce::Decibels::decibelsToGain (rightDB);
     
@@ -130,32 +45,14 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     for (const auto& eqNode : eqNodes)
     {
         amplitudes.push_back (eqNode.amplitude);
-        pans.push_back (eqNode.pan);
     }
     
     float amplitudeAtFrequency = visualInterpolateAmplitudeAtFrequency(frequency);
-    float panAtFrequency = 0.0f;//interpolateValueAtFrequency (frequency, pans);
     
     // don't apply any extra compensation
-    float leftDB = -0.5 * panAtFrequency + amplitudeAtFrequency;
-    float rightDB = 0.5 * panAtFrequency + amplitudeAtFrequency;
+    float leftDB = amplitudeAtFrequency;
+    float rightDB = amplitudeAtFrequency;
     
-//    // Make it render as flat
-//    if (eqNodes.size() > 0)
-//    {
-//        float minNodeFreq = eqNodes[0].frequency;
-//        float maxNodeFreq = eqNodes[eqNodes.size() - 1].frequency;
-//        float slope = -4.5;
-//        float dbDifference = 0;
-//        if (frequency < eqNodes[0].frequency)
-//            dbDifference = slope * std::log2 (frequency / minNodeFreq);
-//        if (frequency > eqNodes[eqNodes.size() - 1].frequency)
-//            dbDifference = slope * std::log2 (frequency / maxNodeFreq);
-//        
-//        leftDB += dbDifference;
-//        rightDB += dbDifference;
-//    }
-
     float leftGain = juce::Decibels::decibelsToGain (leftDB);
     float rightGain = juce::Decibels::decibelsToGain (rightDB);
     

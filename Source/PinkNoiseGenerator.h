@@ -26,8 +26,6 @@ public:
     void setNote (Note note) override;
     void setFrequency (float frequencyInHz) override;
     void setVolume (float volumeInDecibels) override;
-    void setPan (float panInDecibels) override;
-    void setPhase (float phaseInDecibels) override;
     
 private:
     void populateBuffer(); // fill heap block with next samples

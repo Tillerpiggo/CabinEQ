@@ -75,7 +75,7 @@ private:
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
     SineSweepGenerator sineSweepGenerator;
-    Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f, 0.0f);
+    Note referenceNote = Note (REFERENCE_FREQ, 6.0f);
     
     bool isTesting;
     bool isSweeping;

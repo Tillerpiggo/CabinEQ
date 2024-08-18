@@ -32,6 +32,6 @@ private:
     
     int delayInSeconds = 0.0007;
     int numSamplesToDelay = 0;
-    float crossfeedGain = 0.3;
+    float crossfeedGain = 0.5;
     Channel currChannel;
 };

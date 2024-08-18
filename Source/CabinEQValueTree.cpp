@@ -28,7 +28,7 @@ const std::vector<EQNode> CabinEQValueTree::getEQNodes (Channel channel) const
         float freq = eqNode.getProperty (idFrequency);
         float ampl = eqNode.getProperty (idAmplitude);
         float pan = eqNode.getProperty (idPan);
-        eqNodes.emplace_back (id, freq, ampl, pan);
+        eqNodes.emplace_back (id, freq, ampl);
     }
     
     return eqNodes;
@@ -124,8 +124,8 @@ void CabinEQValueTree::resetNodes (const std::vector<EQNode>& eqNodes)
     valueTree.removeAllProperties (nullptr);
     for (const auto& eqNode : eqNodes)
     {
-        addEQNode (eqNode.id, eqNode.frequency, eqNode.amplitude, eqNode.pan, Channel::LEFT);
-        addEQNode (eqNode.id, eqNode.frequency, eqNode.amplitude, eqNode.pan, Channel::RIGHT);
+        addEQNode (eqNode.id, eqNode.frequency, eqNode.amplitude, Channel::LEFT);
+        addEQNode (eqNode.id, eqNode.frequency, eqNode.amplitude, Channel::RIGHT);
     }
     
     leftCurve.updateWithEQNodes (getEQNodes (Channel::LEFT));

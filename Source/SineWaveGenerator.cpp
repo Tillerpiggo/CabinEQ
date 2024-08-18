@@ -67,7 +67,7 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
     vibratoChange = juce::Decibels::decibelsToGain (vibratoChange);
     
     float leftSample = std::sin (phase) * leftAmplitudeCompensation * vibratoChange;
-    float rightSample = std::sin (phase + note->phase) * rightAmplitudeCompensation * vibratoChange;
+    float rightSample = std::sin (phase) * rightAmplitudeCompensation * vibratoChange;
     
     phase += phaseIncrement;
     if (phase > 2.0 * juce::MathConstants<float>::pi)
@@ -96,19 +96,6 @@ void SineWaveGenerator::setVolume (float volumeInDecibels)
     targetAmplitude = volumeInDecibels;
 }
 
-void SineWaveGenerator::setPan (float panInDecibels)
-{
-    // TODO: create gain ramp
-    note->pan = panInDecibels;
-    updatePhaseIncrementAndAmplitudeCompensation();
-}
-
-void SineWaveGenerator::setPhase (float phaseInRadians)
-{
-    note->phase = phase;
-    updatePhaseIncrementAndAmplitudeCompensation();
-}
-
 // ============================================
 void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
 {
@@ -125,8 +112,4 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     float noteGain = juce::Decibels::decibelsToGain (ampl);
     leftAmplitudeCompensation = noteGain;
     rightAmplitudeCompensation = noteGain;
-    
-    // Apply panning
-    leftAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / -2.0);
-    rightAmplitudeCompensation *= juce::Decibels::decibelsToGain (note->pan / 2.0);
 }
