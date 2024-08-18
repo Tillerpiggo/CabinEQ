@@ -107,6 +107,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     filter.prepare (spec);
     crossfeedFilter.prepare (spec);
+    crossfeedFilterForCalibration.prepare (spec);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
@@ -179,6 +180,7 @@ void PlaybackManager::setCalibratingEQNode (EQNode node, Channel channel)
     arbitrarySequencer2.setNotes ({ controlledNote });
     
     setCrossfeed (channel);
+    crossfeedFilterForCalibration.clear();
 }
 
 void PlaybackManager::updateCalibratingEQNode (EQNode updatedNode, Channel channel)

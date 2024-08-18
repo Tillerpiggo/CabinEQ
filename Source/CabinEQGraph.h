@@ -17,7 +17,6 @@
 class CabinEQGraph   : public juce::Component,
                        public juce::KeyListener,
                        public juce::Timer
-
 {
 public:
     class Listener
