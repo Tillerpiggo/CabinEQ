@@ -69,18 +69,29 @@ void CrossfeedFilter::processBlock (juce::AudioBuffer<float>& buffer)
 
 void CrossfeedFilter::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    numSamplesToDelay = spec.sampleRate * delayInSeconds;
-}
-
-void CrossfeedFilter::setChannelPlaying (Channel channel)
-{
-    currChannel = channel;
+    sampleRate = spec.sampleRate;
+    updateNumSamplesToDelay();
 }
 
 void CrossfeedFilter::clear()
 {
     while (! leftBuffer.empty()) leftBuffer.pop();
     while (! rightBuffer.empty()) rightBuffer.pop();
+}
+
+void CrossfeedFilter::setCrossfeedGain (float crossfeedGain)
+{
+    this->crossfeedGain = crossfeedGain;
+}
+
+void CrossfeedFilter::setDelay (float delayInMs)
+{
+    this->delayInMs = delayInMs;
+}
+
+void CrossfeedFilter::setChannelPlaying (Channel channel)
+{
+    this->currChannel = channel;
 }
 
 //=================================================================
@@ -99,4 +110,9 @@ std::vector<float> CrossfeedFilter::pushAndPop (std::queue<float>& queue, const 
     }
     
     return poppedData;
+}
+
+void CrossfeedFilter::updateNumSamplesToDelay()
+{
+    numSamplesToDelay = sampleRate * delayInMs * 0.001;
 }

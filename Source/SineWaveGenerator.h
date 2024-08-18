@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "PitchedGenerator.h"
+#include "CrossfeedFilter.h"
 
 // Generates sine waves at a certain frequency, volume, pan, and phase.
 class SineWaveGenerator   : public PitchedGenerator
@@ -50,4 +51,7 @@ private:
     float vibratoStep = 0.001;
     float vibratoMaxDB = 0.0f;
     float vibratoMinDB = 0.0f;//-40.0f;
+    
+    // == Crossfeed ==
+    CrossfeedFilter crossfeedFilter;
 };
