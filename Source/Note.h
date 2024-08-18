@@ -17,7 +17,7 @@
 class Note
 {
 public:
-    Note (float frequency, float gain, float crossfeedGain = 0.0f, float crossfeedDelayInMs = 6.0f, float crossfeedChannel = Channel::CENTER)
+    Note (float frequency, float gain, float crossfeedGain = 0.0f, float crossfeedDelayInMs = 6.0f, Channel crossfeedChannel = Channel::CENTER)
         : frequency (frequency), gain (gain), crossfeedGain (crossfeedGain), crossfeedDelayInMs (crossfeedDelayInMs), crossfeedChannel (crossfeedChannel)
     {}
     

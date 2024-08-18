@@ -13,6 +13,34 @@
 CrossfeedFilter::CrossfeedFilter()
 {}
 
+std::pair<float, float> CrossfeedFilter::processSample (std::pair<float, float> sample)
+{
+    auto [leftSample, rightSample] = sample;
+    if (currChannel == Channel::LEFT)
+        rightSample = 0.0f;
+    if (currChannel == Channel::RIGHT)
+        leftSample = 0.0f;
+    
+    float delayedLeft = 0.0f;
+    float delayedRight = 0.0f;
+    leftBuffer.push (leftSample);
+    rightBuffer.push (rightSample);
+
+    if (leftBuffer.size() >= numSamplesToDelay)
+    {
+        delayedLeft = leftBuffer.front();
+        leftBuffer.pop();
+    }
+    
+    if (rightBuffer.size() >= numSamplesToDelay)
+    {
+        delayedRight = rightBuffer.front();
+        rightBuffer.pop();
+    }
+    
+    return { leftSample + delayedRight, rightSample + delayedLeft };
+}
+
 void CrossfeedFilter::processBlock (juce::AudioBuffer<float>& buffer)
 {
     // Mute channel if it's not the one playing

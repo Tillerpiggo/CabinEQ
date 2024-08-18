@@ -19,6 +19,7 @@ class CrossfeedFilter
 public:
     CrossfeedFilter();
     
+    std::pair<float, float> processSample (std::pair<float, float> sample); // processes a single sample and returns the next sample
     void processBlock (juce::AudioBuffer<float>& buffer);
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setChannelPlaying (Channel channel); // sets the channel that sound comes through; mutes the other channel
