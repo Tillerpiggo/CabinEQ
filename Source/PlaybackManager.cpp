@@ -79,7 +79,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         {
             filter.process (mainContext);
             crossfeedFilter.process (crossfeedContext);
-            ioBlock.replaceWithSumOf(mainBlock, crossfeedBlock.multiplyBy (0.1));
+            mainBlock += crossfeedBlock.multiplyBy (0.2);
+            ioBlock.replaceWithSumOf(mainBlock, crossfeedBlock.multiplyBy (0.5));
             wetGainProcessor.process (ioContext);
         }
         else
@@ -98,7 +99,7 @@ void PlaybackManager::updateFilterWithCurve (Curve& curve)
 void PlaybackManager::updateFilterWithCurves (Curve& leftCurve, Curve& rightCurve)
 {
     filter.updateWithCurves (leftCurve, rightCurve, FFT_SIZE);
-    crossfeedFilter.updateWithCurves (rightCurve, leftCurve, FFT_SIZE); // swapped for now, because we're using main curves for the crossfeed curves for now
+    crossfeedFilter.updateWithCurves (rightCurve, leftCurve, FFT_SIZE);
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
