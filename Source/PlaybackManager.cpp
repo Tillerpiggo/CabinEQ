@@ -193,13 +193,16 @@ void PlaybackManager::setCalibratingEQNode (EQNode leftNode, EQNode rightNode, C
     leftNode.amplitude += getCompensationDBAtFrequency (leftNode.frequency);
     rightNode.amplitude += getCompensationDBAtFrequency (rightNode.frequency);
     
-    SequenceableNote leftControlledNote (leftNode.frequency, leftNode.amplitude, noteDurationInSamples);
-    SequenceableNote rightControlledNote (rightNode.frequency, rightNode.amplitude, noteDurationInSamples);
+    StereoGainEnvelope hardLeft (StereoGainEnvelopeType::HARD_LEFT);
+    StereoGainEnvelope hardRight (StereoGainEnvelopeType::HARD_RIGHT);
     
-    SequenceableNote leftReferenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
-    SequenceableNote leftReferenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
-    SequenceableNote rightReferenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
-    SequenceableNote rightReferenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
+    SequenceableNote leftControlledNote (leftNode.frequency, leftNode.amplitude, noteDurationInSamples, hardLeft);
+    SequenceableNote rightControlledNote (rightNode.frequency, rightNode.amplitude, noteDurationInSamples, hardRight);
+    
+    SequenceableNote leftReferenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples, hardLeft);
+    SequenceableNote leftReferenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples, hardRight);
+    SequenceableNote rightReferenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples, hardRight);
     
     arbitrarySequencer.setNotes ({ leftReferenceNote1, leftReferenceNote1, rightReferenceNote1, rightReferenceNote1 });
     arbitrarySequencer2.setNotes ({ leftReferenceNote2, leftControlledNote, rightReferenceNote2, rightControlledNote });
@@ -257,13 +260,16 @@ void PlaybackManager::updateCalibratingEQNode (EQNode leftNode, EQNode rightNode
     leftNode.amplitude += getCompensationDBAtFrequency (leftNode.frequency);
     rightNode.amplitude += getCompensationDBAtFrequency (rightNode.frequency);
     
-    SequenceableNote leftControlledNote (leftNode.frequency, leftNode.amplitude, noteDurationInSamples);
-    SequenceableNote rightControlledNote (rightNode.frequency, rightNode.amplitude, noteDurationInSamples);
+    StereoGainEnvelope hardLeft (StereoGainEnvelopeType::HARD_LEFT);
+    StereoGainEnvelope hardRight (StereoGainEnvelopeType::HARD_RIGHT);
     
-    SequenceableNote leftReferenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
-    SequenceableNote leftReferenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
-    SequenceableNote rightReferenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
-    SequenceableNote rightReferenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
+    SequenceableNote leftControlledNote (leftNode.frequency, leftNode.amplitude, noteDurationInSamples, hardLeft);
+    SequenceableNote rightControlledNote (rightNode.frequency, rightNode.amplitude, noteDurationInSamples, hardRight);
+    
+    SequenceableNote leftReferenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples, hardLeft);
+    SequenceableNote leftReferenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples, hardRight);
+    SequenceableNote rightReferenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples, hardRight);
     
     arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNote1);
     arbitrarySequencer.changeNoteAtIdx (1, leftReferenceNote1);
