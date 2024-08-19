@@ -22,6 +22,7 @@ public:
     CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier);
     
     const std::vector<EQNode> getEQNodes() const; // constructs set points matching the set points we have in memory
+    const std::optional<EQNode> getEQNodeWithId (const int id) const;
     Curve& getCurve();
     
     void addEQNode (const int id, const float frequency, const float amplitude, const float pan);

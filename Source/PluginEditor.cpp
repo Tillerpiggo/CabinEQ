@@ -16,9 +16,11 @@ StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioPr
     
     filterPage = std::make_unique<FilterPage> (p);
     cabinEQPage = std::make_unique<CabinEQPage> (p);
+    spatialCalibrationPage = std::make_unique<SpatialCalibrationPage> (p);
     
     tabbedComponent.addTab ("Filter", juce::Colours::lightgrey, filterPage.get(), false);
     tabbedComponent.addTab ("CabinEQ", juce::Colours::lightgrey, cabinEQPage.get(), false);
+    tabbedComponent.addTab ("Spatial", juce::Colours::lightgrey, spatialCalibrationPage.get(), false);
 
     addAndMakeVisible(tabbedComponent);
 }

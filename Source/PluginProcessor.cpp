@@ -322,6 +322,14 @@ const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes (juce::String pro
     return {};
 }
 
+const std::optional<EQNode> StartupMVPAudioProcessor::getEQNodeWithId (juce::String profileName, int id) const
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().getEQNodeWithId (id);
+    return std::nullopt;
+}
+
 void StartupMVPAudioProcessor::addProfile (juce::String profileName)
 {
     cabinEQValueTreeManager.addProfile (profileName);

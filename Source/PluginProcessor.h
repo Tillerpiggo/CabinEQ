@@ -76,6 +76,7 @@ public:
     
     std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName);
     const std::vector<EQNode> getEQNodes (juce::String profileName) const;
+    const std::optional<EQNode> getEQNodeWithId (juce::String profileName, int id) const;
     
     // Profiles
     void addProfile (juce::String profileName);

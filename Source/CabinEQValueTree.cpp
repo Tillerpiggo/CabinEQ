@@ -32,6 +32,26 @@ const std::vector<EQNode> CabinEQValueTree::getEQNodes() const
     return eqNodes;
 }
 
+const std::optional<EQNode> CabinEQValueTree::getEQNodeWithId (const int id) const
+{
+    if (! valueTree.isValid())
+        return std::nullopt;
+    
+    auto eqNode = valueTree.getChildWithProperty (idId, id);
+    
+    if (eqNode.isValid())
+    {
+        return EQNode (eqNode.getProperty (idId),
+                       eqNode.getProperty (idFrequency),
+                       eqNode.getProperty (idAmplitude),
+                       eqNode.getProperty (idPan));
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
 Curve& CabinEQValueTree::getCurve()
 {
     return curve;
