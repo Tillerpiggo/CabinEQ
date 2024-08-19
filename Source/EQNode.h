@@ -13,7 +13,7 @@
 /// This stores the raw data for each set point in a given EQ curve.
 struct EQNode
 {
-    EQNode (int id, float frequency, float amplitude, float pan)
+    EQNode (int id, float frequency, float amplitude, float pan = 0.0f)
         : id (id), frequency (frequency), amplitude (amplitude), pan (pan)
     {}
     

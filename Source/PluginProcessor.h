@@ -114,20 +114,6 @@ public:
     // Listener
     void addListener (Listener* listener);
     void removeListener();
-    
-    // Reference values
-    void setReferenceFreq1 (float freq);
-    void setReferenceFreq2 (float freq);
-    void setReferenceAmplLeft1 (float ampl);
-    void setReferenceAmplRight1 (float ampl);
-    void setReferenceAmplLeft2 (float ampl);
-    void setReferenceAmplRight2 (float ampl);
-    void setReferenceCrossfeedGainLeft1 (float gain);
-    void setReferenceCrossfeedGainRight1 (float gain);
-    void setReferenceCrossfeedGainLeft2 (float gain);
-    void setReferenceCrossfeedGainRight2 (float gain);
-    
-    void setCrossfeedDelayInMs (float delayInMs);
 
 private:
     std::optional<std::reference_wrapper<CabinEQValueTree>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.

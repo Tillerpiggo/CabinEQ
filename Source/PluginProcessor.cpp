@@ -271,7 +271,7 @@ void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
 
 void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
 {
-    playbackManager.setCalibratingEQNode (node, channel);
+    playbackManager.setCalibratingEQNode (node);
     playbackManager.setIsCalibrating (true);
 }
 
@@ -381,62 +381,6 @@ void StartupMVPAudioProcessor::addListener (Listener* listener)
 void StartupMVPAudioProcessor::removeListener()
 {
     this->listener = nullptr;
-}
-
-//=== Calibrate reference chords ===========================================
-void StartupMVPAudioProcessor::setReferenceFreq1 (float freq)
-{
-    playbackManager.setReferenceFreq1 (freq);
-}
-
-void StartupMVPAudioProcessor::setReferenceFreq2 (float freq)
-{
-    playbackManager.setReferenceFreq2 (freq);
-}
-
-void StartupMVPAudioProcessor::setReferenceAmplLeft1 (float ampl)
-{
-    playbackManager.setReferenceAmplLeft1 (ampl);
-}
-
-void StartupMVPAudioProcessor::setReferenceAmplRight1 (float ampl)
-{
-    playbackManager.setReferenceAmplRight1 (ampl);
-}
-
-void StartupMVPAudioProcessor::setReferenceAmplLeft2 (float ampl)
-{
-    playbackManager.setReferenceAmplLeft2 (ampl);
-}
-
-void StartupMVPAudioProcessor::setReferenceAmplRight2 (float ampl)
-{
-    playbackManager.setReferenceAmplRight2 (ampl);
-}
-
-void StartupMVPAudioProcessor::setReferenceCrossfeedGainLeft1 (float gain)
-{
-    playbackManager.setReferenceCrossfeedGainLeft1 (gain);
-}
-
-void StartupMVPAudioProcessor::setReferenceCrossfeedGainRight1 (float gain)
-{
-    playbackManager.setReferenceCrossfeedGainRight1 (gain);
-}
-
-void StartupMVPAudioProcessor::setReferenceCrossfeedGainLeft2 (float gain)
-{
-    playbackManager.setReferenceCrossfeedGainLeft2 (gain);
-}
-
-void StartupMVPAudioProcessor::setReferenceCrossfeedGainRight2 (float gain)
-{
-    playbackManager.setReferenceCrossfeedGainRight2 (gain);
-}
-
-void StartupMVPAudioProcessor::setCrossfeedDelayInMs (float delayInMs)
-{
-    playbackManager.setCrossfeedDelayInMs (delayInMs);
 }
 
 std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::profileNamed (juce::String profileName) const

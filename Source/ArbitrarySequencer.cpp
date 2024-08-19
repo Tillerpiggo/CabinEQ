@@ -86,9 +86,6 @@ void ArbitrarySequencer::changeNoteAtIdx (int idx, SequenceableNote newNote)
     notes.at (idx).setFrequency (newNote.getFrequency());
     notes.at (idx).setAmplitude (newNote.getAmplitude());
     notes.at (idx).setDuration (newNote.getDuration());
-    notes.at (idx).setCrossfeedGain (newNote.getCrossfeedGain());
-    notes.at (idx).setCrossfeedDelayInMs (newNote.getCrossfeedDelayInMs());
-    notes.at (idx).setCrossfeedChannel (newNote.getCrossfeedChannel());
 }
 
 void ArbitrarySequencer::changeNoteGainAtIdx (int idx, float noteGain)
@@ -129,13 +126,6 @@ void ArbitrarySequencer::goToNextNote()
     }
     
     Note nextNote = getCurrNote().getNote();
-    std::cout << "NEXT NOTE" << std::endl;
-    std::cout << "freq: " << nextNote.frequency;
-    std::cout << ", ampl: " << nextNote.amplitude;
-    std::cout << ", xfeedGain: " << nextNote.crossfeedGain;
-    std::cout << ", xfeedDelay: " << nextNote.crossfeedDelayInMs;
-    std::cout << std::endl;
-    
     pitchedGenerator->setNote (nextNote);
 }
 

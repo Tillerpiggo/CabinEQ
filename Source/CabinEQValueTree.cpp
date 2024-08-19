@@ -137,6 +137,12 @@ const juce::String CabinEQValueTree::getName() const
     return idProfile.toString();
 }
 
+void CabinEQValueTree::copyFrom (CabinEQValueTree& other)
+{
+    initValueTreeFromAPVTS();
+    valueTree.copyPropertiesAndChildrenFrom (other.valueTree, nullptr);
+}
+
 void CabinEQValueTree::resetAPVTS (juce::AudioProcessorValueTreeState& apvts)
 {
     apvts.state.removeAllChildren (nullptr);

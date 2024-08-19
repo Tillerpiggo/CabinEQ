@@ -26,7 +26,6 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     bypassButton.addListener (this);
     unlockButton.addListener (this);
     duplicateButton.addListener (this);
-    leftRightButton.addListener (this);
     processor.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
@@ -35,7 +34,6 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (unlockButton);
     addAndMakeVisible (duplicateButton);
-    addAndMakeVisible (leftRightButton);
     addAndMakeVisible (unlockForm);
     
     didLoadData();
@@ -50,7 +48,6 @@ CabinEQPage::~CabinEQPage()
     bypassButton.removeListener (this);
     unlockButton.removeListener (this);
     duplicateButton.removeListener (this);
-    leftRightButton.removeListener (this);
     
     cabinEQGraph.removeListener();
     processor.removeListener();
@@ -68,8 +65,7 @@ void CabinEQPage::resized()
     int buttonWidth = 100;
     int unlockButtonWidth = 100;
     int duplicateButtonWidth = 100;
-    int leftRightButtonWidth = 100;
-    int totalButtonWidth = buttonWidth + duplicateButtonWidth + leftRightButtonWidth;
+    int totalButtonWidth = buttonWidth + duplicateButtonWidth;
     
     if (!isUnlocked)
     {
@@ -93,44 +89,40 @@ void CabinEQPage::resized()
     }
 
     duplicateButton.setBounds(currentX, bottomY, duplicateButtonWidth, dropdownHeight);
-    currentX += leftRightButtonWidth;
-    leftRightButton.setBounds(currentX, bottomY, leftRightButtonWidth, dropdownHeight);
 }
 
 // ====================================================
 int CabinEQPage::addNode (float freq, float ampl)
 {
     flagFilterChanged();
-    return processor.addEQNode (freq, ampl, 0.0f, profileId, currChannel);
+    return processor.addEQNode (freq, ampl, 0.0f, profileId);
 }
 
 void CabinEQPage::updateNode (int id, float freq, float ampl)
 {
     flagFilterChanged();
-    processor.updateEQNode (id, freq, ampl, 0.0f, profileId, currChannel);
+    processor.updateEQNode (id, freq, ampl, 0.0f, profileId);
 }
 
 void CabinEQPage::removeNode (int id)
 {
     flagFilterChanged();
-    processor.removeEQNode (id, profileId, currChannel);
+    processor.removeEQNode (id, profileId);
 }
 
 void CabinEQPage::startPlayingValueAt (float freq, float ampl)
 {
-    
-    
-    processor.startCalibratingEQNode (EQNode (-1, freq, ampl), currChannel, profileId);
+    processor.startCalibratingEQNode (EQNode (-1, freq, ampl));
 }
 
 void CabinEQPage::playValueAt (float freq, float ampl)
 {
-    processor.updateCalibratingEQNode (EQNode (-1, freq, ampl), currChannel, profileId);
+    processor.updateCalibratingEQNode (EQNode (-1, freq, ampl));
 }
 
 void CabinEQPage::testValueAt (float freq)
 {
-    processor.startTestingAt (freq, profileId, currChannel);
+    processor.startTestingAt (freq, profileId);
 }
 
 void CabinEQPage::stopPlaying()
@@ -231,7 +223,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             int selectedIndex = dropdownProfiles.indexOfItemId (dropdownProfiles.getSelectedId());
             juce::String profileIdSelected = dropdownProfiles.getItemText (selectedIndex);
             profileId = profileIdSelected;
-            cabinEQGraph.setCurve (processor.getCurve (profileIdSelected, currChannel)->get());
+            cabinEQGraph.setCurve (processor.getCurve (profileIdSelected)->get());
             flagFilterChanged();
             applyFilterIfProcessing();
         }
@@ -273,12 +265,6 @@ void CabinEQPage::buttonClicked (juce::Button *button)
         dropdownProfiles.setSelectedId (lastSelectedId);
         flagFilterChanged();
         applyFilterIfProcessing();
-    }
-    else if (button == &leftRightButton)
-    {
-        currChannel = (currChannel == Channel::LEFT) ? Channel::RIGHT : Channel::LEFT;
-        leftRightButton.setButtonText (currChannel == Channel::LEFT ? "LEFT" : "RIGHT");
-        cabinEQGraph.setCurve (processor.getCurve (profileId, currChannel)->get());
     }
 }
 
