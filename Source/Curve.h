@@ -16,7 +16,7 @@
 #include <cmath>
 
 #include "Constants.h"
-#include "EQNode.h"
+#include "CurvePt.h"
 
 class Curve
 {
@@ -24,37 +24,33 @@ public:
     Curve() = default;
     virtual ~Curve() = default;
 
-    const std::pair<std::complex<float>, std::complex<float>> compensatedValueAtFrequency (float frequency, float compensationSlope) const;
-    const std::pair<std::complex<float>, std::complex<float>> valueAtFrequency (float frequency);
-    virtual const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time);
+    const float compensatedValueAtFrequency (float frequency, float compensationSlope) const;
+    const float valueAtFrequency (float frequency);
+    virtual const float valueAtTime (float time);
     
     float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     
-    const std::vector<EQNode>& getEQNodes();
-    void updateWithEQNodes (std::vector<EQNode> eqNodes);
+    const std::vector<CurvePt>& getCurvePts();
+    void updateWithCurvePts (std::vector<CurvePt> curvePts);
     
-    const std::pair<float*, float*> getStereoImpulse (int fft_size); // This hands ownership of the float*'s to whoever calls it!!
-    
-    const std::optional<std::pair<float, float>> nodeBelowFreq (float frequency);
-    const std::optional<std::pair<float, float>> nodeAboveFreq (float frequency);
+//    const float* getImpulse (int fft_size); // This hands ownership of the float*'s to whoever calls it!!
 
 protected:
-    const std::pair<std::complex<float>, std::complex<float>> scaleComplexPair (std::pair<std::complex<float>, std::complex<float>> pair, float scalar) const;
     const float interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const;
     const float visualInterpolateAmplitudeAtFrequency (const float frequency) const; // for display on graph
-    std::pair<float*, float*> frequencyResponse (int numPoints);
+//    float* frequencyResponse (int numPoints);
     
-    std::vector<EQNode> eqNodes;
+    std::vector<CurvePt> curvePts;
     
-    std::unordered_map<float, std::pair<std::complex<float>, std::complex<float>>> cache;
+    std::unordered_map<float, float> cache;
 };
 
 class FlatCurve   : public Curve
 {
 public:
     using Curve::Curve;
-    const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time) override
+    const float valueAtTime (float time) override
     {
-        return { std::complex<float> (1), std::complex<float> (1) };
+        return 1.0f;
     }
 };

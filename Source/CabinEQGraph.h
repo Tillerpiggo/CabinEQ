@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "EQNode.h"
+#include "CurvePt.h"
 
 class CabinEQGraph   : public juce::Component,
                        public juce::KeyListener,
@@ -64,7 +64,7 @@ public:
     
 private:
     std::optional<std::reference_wrapper<Curve>> curve;
-    std::vector<EQNode> eqNodes;
+    std::vector<CurvePt> curvePts;
     Listener* listener;
     
     // Drawing/animation
