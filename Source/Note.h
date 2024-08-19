@@ -12,30 +12,13 @@
 
 #include <JuceHeader.h>
 
-#include "Channel.h"
-
 class Note
 {
 public:
-    Note (float frequency, float gain, float crossfeedGain = 0.0f, float crossfeedDelayInMs = 6.0f, Channel crossfeedChannel = Channel::CENTER)
-        : frequency (frequency), amplitude (gain), crossfeedGain (crossfeedGain), crossfeedDelayInMs (crossfeedDelayInMs), crossfeedChannel (crossfeedChannel)
+    Note (float frequency, float gain)
+        : frequency (frequency), amplitude (gain)
     {}
-    
-    Note withLeftCrossfeed (float crossfeedGain = 0.3f, float crossfeedDelayInMs = 6.0f)
-    {
-        return Note (frequency, amplitude, crossfeedGain, crossfeedDelayInMs, Channel::LEFT);
-    }
-    
-    Note withRightCrossfeed (float crossfeedGain = 0.3f, float crossfeedDelayInMs = 6.0f)
-    {
-        return Note (frequency, amplitude, crossfeedGain, crossfeedDelayInMs, Channel::RIGHT);
-    }
     
     float frequency; // hz
     float amplitude; // in dB
-    
-    // For crossfeed
-    float crossfeedGain;
-    float crossfeedDelayInMs;
-    Channel crossfeedChannel;
 };

@@ -23,20 +23,6 @@ SequenceableNote::SequenceableNote (EQNode node, float duration, StereoGainEnvel
     : note (node.frequency, node.amplitude), duration (duration), envelope (envelope)
 {}
 
-void SequenceableNote::applyLeftCrossfeed (float crossfeedGain, float delayInMs)
-{
-    note = note.withLeftCrossfeed (crossfeedGain, delayInMs);
-    std::cout << "AFTER LEFT CROSSFEED" << std::endl;
-    std::cout << "crossfeedGain: " << crossfeedGain;
-    std::cout << "delayInMs: " << delayInMs;
-    std::cout << std::endl;
-}
-
-void SequenceableNote::applyRightCrossfeed (float crossfeedGain, float delayInMs)
-{
-    note = note.withRightCrossfeed (crossfeedGain, delayInMs);
-}
-
 const float SequenceableNote::getFrequency() const
 {
     return note.frequency;
@@ -52,21 +38,6 @@ const float SequenceableNote::getDuration() const
     return duration;
 }
 
-const float SequenceableNote::getCrossfeedGain() const
-{
-    return note.crossfeedGain;
-}
-
-const float SequenceableNote::getCrossfeedDelayInMs() const
-{
-    return note.crossfeedDelayInMs;
-}
-
-const Channel SequenceableNote::getCrossfeedChannel() const
-{
-    return note.crossfeedChannel;
-}
-
 void SequenceableNote::setFrequency (float newFrequency)
 {
     this->note.frequency = newFrequency;
@@ -80,21 +51,6 @@ void SequenceableNote::setAmplitude (float newAmplitude)
 void SequenceableNote::setDuration (float newDuration)
 {
     this->duration = newDuration;
-}
-
-void SequenceableNote::setCrossfeedGain (float crossfeedGain)
-{
-    this->note.crossfeedGain = crossfeedGain;
-}
-
-void SequenceableNote::setCrossfeedDelayInMs (float delayInMs)
-{
-    this->note.crossfeedDelayInMs = delayInMs;
-}
-
-void SequenceableNote::setCrossfeedChannel (Channel channel)
-{
-    this->note.crossfeedChannel = channel;
 }
 
 const std::pair<float, float> SequenceableNote::getGainAtSample (int sample) const

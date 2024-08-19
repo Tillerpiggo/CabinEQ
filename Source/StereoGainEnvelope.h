@@ -32,6 +32,16 @@ public:
     
     const std::pair<float, float> getGainAtSample (int sample, int noteDurationInSamples) const;
     
+    static StereoGainEnvelope hardLeft()
+    {
+        return StereoGainEnvelope (StereoGainEnvelopeType::HARD_LEFT);
+    }
+    
+    static StereoGainEnvelope hardRight()
+    {
+        return StereoGainEnvelope (StereoGainEnvelopeType::HARD_RIGHT);
+    }
+    
 private:
     GainEnvelope leftRamp;
     GainEnvelope rightRamp;

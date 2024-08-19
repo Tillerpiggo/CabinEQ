@@ -204,6 +204,4 @@ protected:
     TutorialUnlockForm unlockForm;
  
     bool isUnlocked = false;
-    
-    Channel currChannel = Channel::LEFT;
 };

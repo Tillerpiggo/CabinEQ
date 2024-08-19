@@ -14,7 +14,6 @@
 
 PlaybackManager::PlaybackManager()
     : filter (FFT_SIZE),
-      crossfeedFilter (FFT_SIZE),
       arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       arbitrarySequencer2 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       isTesting (false),
@@ -25,9 +24,6 @@ PlaybackManager::PlaybackManager()
 {
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
-    myCrossfeedFilter.setCrossfeedGain (0.0f); // Let's disable it for now
-    myCrossfeedFilter.setDelay (0.7);
-    myCrossfeedFilter.setChannelPlaying (Channel::CENTER);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -45,9 +41,6 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
             if (rightChannel)
                 rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
         }
-        
-        // Apply crossfeed to the calibration
-//        crossfeedFilterForCalibration.processBlock (ioBuffer);
     }
     else if (isSweeping)
     {
@@ -69,24 +62,9 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         
         juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
         auto ioContext = juce::dsp::ProcessContextReplacing<float> (ioBlock);
-        
-        
-        
-        // Send main signal to mainBlock, and L/R inverted signal to crossfeedBuffer
-        mainBlock.copyFrom (ioBlock);
-        crossfeedBuffer.copyFrom(0, 0, ioBuffer, 1, 0, numSamples); // copy in-R to aux-L
-        crossfeedBuffer.copyFrom(1, 0, ioBuffer, 0, 0, numSamples); // copy in-L to aux-R
-        
-        auto mainContext = juce::dsp::ProcessContextReplacing<float> (mainBlock);
-        auto crossfeedContext = juce::dsp::ProcessContextReplacing<float> (crossfeedBlock);
-        
         if ((isProcessing && hasPreparedFilter) || isSweeping)
         {
-            myCrossfeedFilter.processBlock (ioBuffer);
             filter.process (ioContext);
-//            crossfeedFilter.process (crossfeedContext);
-//            mainBlock += crossfeedBlock.multiplyBy (0.5);
-//            ioBlock.replaceWithSumOf(mainBlock, crossfeedBlock.multiplyBy (0.0));
             wetGainProcessor.process (ioContext);
         }
         else
@@ -99,28 +77,14 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 void PlaybackManager::updateFilterWithCurve (Curve& curve)
 {
     filter.updateWithCurve (curve, FFT_SIZE);
-    crossfeedFilter.updateWithCurve (curve, FFT_SIZE);
-}
-
-void PlaybackManager::updateFilterWithCurves (Curve& leftCurve, Curve& rightCurve)
-{
-    filter.updateWithCurves (leftCurve, rightCurve, FFT_SIZE);
-    crossfeedFilter.updateWithCurves (flatCurve, flatCurve, FFT_SIZE);
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     filter.prepare (spec);
-    crossfeedFilter.prepare (spec);
-//    crossfeedFilterForCalibration.prepare (spec);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
-    
-    mainBuffer = juce::AudioBuffer<float>(2, spec.maximumBlockSize);
-    mainBlock = juce::dsp::AudioBlock<float>(mainBuffer);
-    crossfeedBuffer = juce::AudioBuffer<float>(2, spec.maximumBlockSize);
-    crossfeedBlock = juce::dsp::AudioBlock<float>(crossfeedBuffer);
 }
 
 float PlaybackManager::getCurrPlayingFreq() const
@@ -174,150 +138,41 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
     sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::setCalibratingEQNode (EQNode leftNode, EQNode rightNode, Channel channel)
+void PlaybackManager::setCalibratingEQNode (EQNode node)
 {
-    // Play the reference note and controlled note at the same time
-//    int noteDurationInSamples = 20000;
-//    node.amplitude += getCompensationDBAtFrequency (node.frequency);
-//    SequenceableNote refNote (referenceNote, noteDurationInSamples);
-//    SequenceableNote controlledNote (node, noteDurationInSamples);
-//    arbitrarySequencer.setNotes ({ refNote });
-//    arbitrarySequencer2.setNotes ({ controlledNote });
-//    
-//    setCrossfeed (channel);
-//    crossfeedFilterForCalibration.clear();
-    
-    // Play the reference chord alternating with the controlled chord on both sides, with no crossfeed for now
+    // Play the reference note and controlled note, alternating between left and right
     int noteDurationInSamples = 20000;
     
-    leftNode.amplitude += getCompensationDBAtFrequency (leftNode.frequency);
-    rightNode.amplitude += getCompensationDBAtFrequency (rightNode.frequency);
+    auto hardLeft = StereoGainEnvelope::hardLeft();
+    auto hardRight = StereoGainEnvelope::hardRight();
     
-    StereoGainEnvelope hardLeft (StereoGainEnvelopeType::HARD_LEFT);
-    StereoGainEnvelope hardRight (StereoGainEnvelopeType::HARD_RIGHT);
+    node.amplitude += getCompensationDBAtFrequency (node.frequency);
+    SequenceableNote leftReferenceNote (referenceNote, noteDurationInSamples, hardLeft);
+    SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNote (referenceNote, noteDurationInSamples, hardRight);
+    SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
     
-    SequenceableNote leftControlledNote (leftNode.frequency, leftNode.amplitude, noteDurationInSamples, hardLeft);
-    SequenceableNote rightControlledNote (rightNode.frequency, rightNode.amplitude, noteDurationInSamples, hardRight);
-    
-    SequenceableNote leftReferenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples, hardLeft);
-    SequenceableNote leftReferenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples, hardLeft);
-    SequenceableNote rightReferenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples, hardRight);
-    SequenceableNote rightReferenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples, hardRight);
-    
-    arbitrarySequencer.setNotes ({ leftReferenceNote1, leftReferenceNote1, rightReferenceNote1, rightReferenceNote1 });
-    arbitrarySequencer2.setNotes ({ leftReferenceNote2, leftControlledNote, rightReferenceNote2, rightControlledNote });
-    /*
-    int noteDurationInSamples = 20000;
-    if (channel == Channel::LEFT)
-    {
-        node.amplitude += getCompensationDBAtFrequency (node.frequency);
-        SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
-        controlledNote.applyLeftCrossfeed (0.3, crossfeedDelayInMs);
-        
-        SequenceableNote referenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
-        SequenceableNote referenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
-        referenceNote1.applyLeftCrossfeed (referenceCrossfeedGainLeft1, crossfeedDelayInMs);
-        referenceNote2.applyLeftCrossfeed (referenceCrossfeedGainLeft2, crossfeedDelayInMs);
-        
-        std::cout << "applying left crossfeed" << std::endl;
-        
-        arbitrarySequencer.setNotes ({ referenceNote1, referenceNote1 });
-        arbitrarySequencer2.setNotes ({ referenceNote2, controlledNote });
-    }
-    else
-    {
-        node.amplitude += getCompensationDBAtFrequency (node.frequency);
-        SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
-        controlledNote.applyRightCrossfeed (0.3, crossfeedDelayInMs);
-        
-        SequenceableNote referenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
-        SequenceableNote referenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
-        referenceNote1.applyRightCrossfeed (referenceCrossfeedGainRight1, crossfeedDelayInMs);
-        referenceNote2.applyRightCrossfeed (referenceCrossfeedGainRight2, crossfeedDelayInMs);
-        
-        arbitrarySequencer.setNotes ({ referenceNote1, referenceNote1 });
-        arbitrarySequencer2.setNotes ({ referenceNote2, controlledNote });
-//        setCrossfeed (channel);
-//        crossfeedFilterForCalibration.clear();
-    }
-     */
+    arbitrarySequencer.setNotes ({ leftReferenceNote, rightReferenceNote });
+    arbitrarySequencer2.setNotes ({ leftControlledNote, rightControlledNote });
 }
 
-void PlaybackManager::updateCalibratingEQNode (EQNode leftNode, EQNode rightNode, Channel channel)
+void PlaybackManager::updateCalibratingEQNode (EQNode node)
 {
-    // Play the reference note and controlled note at the same time
-//    int noteDurationInSamples = 20000;
-//    updatedNode.amplitude += getCompensationDBAtFrequency (updatedNode.frequency);
-//    SequenceableNote controlledNote (updatedNode, noteDurationInSamples);
-//    arbitrarySequencer.changeNoteAtIdx (0, referenceNote);
-//    arbitrarySequencer2.changeNoteAtIdx (0, controlledNote.note());
-//    
-//    setCrossfeed (channel);
-    
-    // Play the reference chord alternating with the controlled chord on both sides, with no crossfeed for now
     int noteDurationInSamples = 20000;
     
-    leftNode.amplitude += getCompensationDBAtFrequency (leftNode.frequency);
-    rightNode.amplitude += getCompensationDBAtFrequency (rightNode.frequency);
+    auto hardLeft = StereoGainEnvelope::hardLeft();
+    auto hardRight = StereoGainEnvelope::hardRight();
     
-    StereoGainEnvelope hardLeft (StereoGainEnvelopeType::HARD_LEFT);
-    StereoGainEnvelope hardRight (StereoGainEnvelopeType::HARD_RIGHT);
+    node.amplitude += getCompensationDBAtFrequency (node.frequency);
+    SequenceableNote leftReferenceNote (referenceNote, noteDurationInSamples, hardLeft);
+    SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNote (referenceNote, noteDurationInSamples, hardRight);
+    SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
     
-    SequenceableNote leftControlledNote (leftNode.frequency, leftNode.amplitude, noteDurationInSamples, hardLeft);
-    SequenceableNote rightControlledNote (rightNode.frequency, rightNode.amplitude, noteDurationInSamples, hardRight);
-    
-    SequenceableNote leftReferenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples, hardLeft);
-    SequenceableNote leftReferenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples, hardLeft);
-    SequenceableNote rightReferenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples, hardRight);
-    SequenceableNote rightReferenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples, hardRight);
-    
-    arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNote1);
-    arbitrarySequencer.changeNoteAtIdx (1, leftReferenceNote1);
-    arbitrarySequencer.changeNoteAtIdx (2, rightReferenceNote1);
-    arbitrarySequencer.changeNoteAtIdx (3, rightReferenceNote1);
-    
-    arbitrarySequencer2.changeNoteAtIdx (0, leftReferenceNote2);
-    arbitrarySequencer2.changeNoteAtIdx (1, leftControlledNote);
-    arbitrarySequencer2.changeNoteAtIdx (2, rightReferenceNote2);
-    arbitrarySequencer2.changeNoteAtIdx (3, rightControlledNote);
-    
-    /*
-    int noteDurationInSamples = 20000;
-    if (channel == Channel::LEFT)
-    {
-        node.amplitude += getCompensationDBAtFrequency (node.frequency);
-        SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
-        controlledNote.applyLeftCrossfeed (0.3, crossfeedDelayInMs);
-        
-        SequenceableNote referenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
-        SequenceableNote referenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
-        referenceNote1.applyLeftCrossfeed (referenceCrossfeedGainLeft1, crossfeedDelayInMs);
-        referenceNote2.applyLeftCrossfeed (referenceCrossfeedGainLeft2, crossfeedDelayInMs);
-        
-        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1);
-        arbitrarySequencer.changeNoteAtIdx (1, referenceNote1);
-        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2);
-        arbitrarySequencer2.changeNoteAtIdx (1, controlledNote);
-//        setCrossfeed (channel);
-    }
-    else
-    {
-        node.amplitude += getCompensationDBAtFrequency (node.frequency);
-        SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
-        controlledNote.applyRightCrossfeed (0.3, crossfeedDelayInMs);
-        
-        SequenceableNote referenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
-        SequenceableNote referenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
-        referenceNote1.applyRightCrossfeed (referenceCrossfeedGainRight1, crossfeedDelayInMs);
-        referenceNote2.applyRightCrossfeed (referenceCrossfeedGainRight2, crossfeedDelayInMs);
-        
-        arbitrarySequencer.changeNoteAtIdx (0, referenceNote1);
-        arbitrarySequencer.changeNoteAtIdx (1, referenceNote1);
-        arbitrarySequencer2.changeNoteAtIdx (0, referenceNote2);
-        arbitrarySequencer2.changeNoteAtIdx (1, controlledNote);
-//        setCrossfeed (channel);
-    }
-     */
+    arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNote);
+    arbitrarySequencer.changeNoteAtIdx (1, rightReferenceNote);
+    arbitrarySequencer.changeNoteAtIdx (0, leftControlledNote);
+    arbitrarySequencer.changeNoteAtIdx (1, rightControlledNote);
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -423,65 +278,10 @@ void PlaybackManager::setReferenceVolume (float volume)
     this->referenceVolume = volume;
 }
 
-void PlaybackManager::setReferenceFreq1 (float freq)
+void PlaybackManager::setReferencePan (float pan)
 {
-    this->referenceFreq1 = freq;
+    this->referencePan = pan;
 }
-
-void PlaybackManager::setReferenceFreq2 (float freq)
-{
-    this->referenceFreq2 = freq;
-}
-
-void PlaybackManager::setReferenceAmplLeft1 (float ampl)
-{
-    this->referenceAmplLeft1 = ampl;
-}
-
-void PlaybackManager::setReferenceAmplRight1 (float ampl)
-{
-    this->referenceAmplRight1 = ampl;
-}
-
-void PlaybackManager::setReferenceAmplLeft2 (float ampl)
-{
-    this->referenceAmplLeft2 = ampl;
-}
-
-void PlaybackManager::setReferenceAmplRight2 (float ampl)
-{
-    this->referenceAmplRight2 = ampl;
-}
-
-void PlaybackManager::setReferenceCrossfeedGainLeft1 (float gain)
-{
-    this->referenceCrossfeedGainLeft1 = gain;
-}
-
-void PlaybackManager::setReferenceCrossfeedGainRight1 (float gain)
-{
-    this->referenceCrossfeedGainRight1 = gain;
-}
-
-void PlaybackManager::setReferenceCrossfeedGainLeft2 (float gain)
-{
-    this->referenceCrossfeedGainLeft2 = gain;
-}
-
-void PlaybackManager::setReferenceCrossfeedGainRight2 (float gain)
-{
-    this->referenceCrossfeedGainRight2 = gain;
-}
-
-void PlaybackManager::setCrossfeedDelayInMs (float delayInMs)
-{
-    this->crossfeedDelayInMs = delayInMs;
-}
-
-//void PlaybackManager::setCrossfeed (Channel channel)
-//{
-//    crossfeedFilterForCalibration.setChannelPlaying (channel);
-//}
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {

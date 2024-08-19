@@ -13,7 +13,6 @@
 #include <JuceHeader.h>
 #include "EQNode.h"
 #include "Curve.h"
-#include "Channel.h"
 
 /// This class wraps and provides helper methods on a ValueTree to persist the set points of a single profile. It should be used to initially load and save
 /// this data, rather than to actively manage it.
@@ -22,31 +21,27 @@ class CabinEQValueTree
 public:
     CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier);
     
-    const std::vector<EQNode> getEQNodes (Channel channel) const; // constructs set points matching the set points we have in memory
-    Curve& getCurve (Channel channel);
+    const std::vector<EQNode> getEQNodes() const; // constructs set points matching the set points we have in memory
+    Curve& getCurve();
     
-    void addEQNode (const int id, const float frequency, const float amplitude, const float pan, Channel channel);
-    int addEQNode (const float frequency, const float amplitude, const float pan, Channel channel); // returns id of new node
-    void removeEQNode (const int id, Channel channel);
-    void updateEQNode (const int id, const float frequency, const float amplitude, const float pan, Channel channel);
+    void addEQNode (const int id, const float frequency, const float amplitude, const float pan);
+    int addEQNode (const float frequency, const float amplitude, const float pan); // returns id of new node
+    void removeEQNode (const int id);
+    void updateEQNode (const int id, const float frequency, const float amplitude, const float pan);
     void resetNodes (const std::vector<EQNode>& eqNodes); // makes this value tree store the given set points
     
     void initValueTreeFromAPVTS(); // sets value tree to match the one in apvts
     const juce::String getName() const;
     
-    void copyFrom (CabinEQValueTree& other);
-    
 private:
-    juce::ValueTree valueTreeForChannel (Channel channel) const;
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
     void printValueTree (juce::ValueTree valueTree) const;
     
     juce::AudioProcessorValueTreeState& apvts;
     
-    juce::Identifier idProfile, idLeftCurve, idRightCurve, idEQNode, idId, idFrequency, idAmplitude, idPan;
+    juce::Identifier idProfile, idEQNode, idId, idFrequency, idAmplitude, idPan;
     juce::ValueTree valueTree;
     
-    Curve leftCurve;
-    Curve rightCurve;
+    Curve curve;
     bool hasBeenInitialized = false;
 };

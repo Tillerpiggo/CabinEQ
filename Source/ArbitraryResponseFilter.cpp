@@ -27,25 +27,3 @@ void ArbitraryResponseFilter::updateWithCurve (Curve& curve, int fft_size)
     delete[] leftImpulseData;
     delete[] rightImpulseData;
 }
-
-void ArbitraryResponseFilter::updateWithCurves (Curve& leftCurve, Curve& rightCurve, int fft_size)
-{
-    // Assume each curve is in mono for now
-    auto [leftImpulseData, _] = leftCurve.getStereoImpulse (fft_size);
-    auto [rightImpulseData, __] = rightCurve.getStereoImpulse (fft_size);
-    
-    // Load the IR into the convolution
-    int numSamples = std::pow (2, fft_size);
-    juce::AudioBuffer<float> impulseBuffer (numChannels, numSamples);
-    
-    impulseBuffer.copyFrom(0, 0, leftImpulseData, numSamples);
-    impulseBuffer.copyFrom(1, 0, rightImpulseData, numSamples);
-    
-    convolution->reset();
-    convolution->loadImpulseResponse(std::move(impulseBuffer), sampleRate, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, juce::dsp::Convolution::Normalise::no);
-    
-    delete[] leftImpulseData;
-    delete[] rightImpulseData;
-    delete[] _;
-    delete[] __;
-}

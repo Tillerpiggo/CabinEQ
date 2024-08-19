@@ -17,7 +17,6 @@ SineWaveGenerator::SineWaveGenerator()
 void SineWaveGenerator::setSampleRate (float newSampleRate)
 {
     sampleRate = newSampleRate;
-    crossfeedFilter.setSampleRate (newSampleRate);
 }
 
 const std::pair<float, float> SineWaveGenerator::getNextSample()
@@ -74,9 +73,7 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
     if (phase > 2.0 * juce::MathConstants<float>::pi)
         phase -= 2.0 * juce::MathConstants<float>::pi;
     
-    std::pair<float, float> sample { leftSample, rightSample };
-    
-    return crossfeedFilter.processSample (sample);
+    return { leftSample, rightSample };
 }
 
 // Sets the note to the newNote, and also "plays" it by ending the last note
@@ -85,7 +82,6 @@ void SineWaveGenerator::setNote (Note newNote)
 {
     note = newNote;
     updatePhaseIncrementAndAmplitudeCompensation();
-    updateCrossfeedFilter();
     targetFrequency.reset();
     targetAmplitude.reset();
 }
@@ -98,24 +94,6 @@ void SineWaveGenerator::setFrequency (float frequencyInHz)
 void SineWaveGenerator::setVolume (float volumeInDecibels)
 {
     targetAmplitude = volumeInDecibels;
-}
-
-void SineWaveGenerator::setCrossfeedGain (float crossfeedGain)
-{
-    note->crossfeedGain = crossfeedGain;
-    crossfeedFilter.setCrossfeedGain (crossfeedGain);
-}
-
-void SineWaveGenerator::setCrossfeedDelayInMs (float delayInMs)
-{
-    note->crossfeedDelayInMs = delayInMs;
-    crossfeedFilter.setDelay (delayInMs);
-}
-
-void SineWaveGenerator::setCrossfeedChannel (Channel channel)
-{
-    note->crossfeedChannel = channel;
-    crossfeedFilter.setChannelPlaying (channel);
 }
 
 // ============================================
@@ -134,17 +112,4 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     float noteGain = juce::Decibels::decibelsToGain (ampl);
     leftAmplitudeCompensation = noteGain;
     rightAmplitudeCompensation = noteGain;
-}
-
-void SineWaveGenerator::updateCrossfeedFilter()
-{
-    if (! note)
-    {
-        throw std::runtime_error("updateCrossfeedFilter() called in SineWaveGenerator before setting the note to be played");
-    }
-    
-    crossfeedFilter.setCrossfeedGain (note->crossfeedGain);
-    crossfeedFilter.setDelay (note->crossfeedDelayInMs);
-    crossfeedFilter.setChannelPlaying (note->crossfeedChannel);
-    crossfeedFilter.clear();
 }

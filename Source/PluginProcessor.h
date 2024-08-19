@@ -71,12 +71,11 @@ public:
     juce::AudioProcessorValueTreeState parameters;
     
     void applyCurve (juce::String profileName);
-    void applyCurves (juce::String leftCurveName, juce::String rightCurveName);
     void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
     
-    std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName, Channel channel);
-    const std::vector<EQNode> getEQNodes (juce::String profileName, Channel channel) const;
+    std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName);
+    const std::vector<EQNode> getEQNodes (juce::String profileName) const;
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -86,20 +85,20 @@ public:
     std::optional<std::reference_wrapper<CabinEQValueTree>> getProfileNamed (juce::String profileName) const;
     
     // Setting points
-    int addEQNode (float frequency, float amplitude, float pan, juce::String profileName, Channel channel);
-    void removeEQNode (int id, juce::String profileName, Channel channel);
-    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName, Channel channel);
+    int addEQNode (float frequency, float amplitude, float pan, juce::String profileName);
+    void removeEQNode (int id, juce::String profileName);
+    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName);
     void clearEQNodes (juce::String profileName);
     
     // Changing points
-    void startCalibratingEQNode (EQNode node, Channel channel, juce::String profileId);
-    void updateCalibratingEQNode (EQNode node, Channel channel, juce::String profileId);
+    void startCalibratingEQNode (EQNode node);
+    void updateCalibratingEQNode (EQNode node);
     void endCalibratingEQNode();
     float getCurrPlayingFreq();
     
     // Testing
-    void startTestingAt (float freq, juce::String profileName, Channel channel);
-    void updateTestingAt (float freq, juce::String profileName, Channel channel);
+    void startTestingAt (float freq, juce::String profileName);
+    void updateTestingAt (float freq, juce::String profileName);
     void endTesting();
     float getCurrTestingFreq();
     
