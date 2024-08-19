@@ -14,17 +14,23 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::compensatedValu
 {
     // Create amplitudes from eqNodes
     std::vector<float> amplitudes;
-    for (const auto& eqNode : eqNodes) amplitudes.push_back (eqNode.amplitude);
+    std::vector<float> pans;
+    for (const auto& eqNode : eqNodes)
+    {
+        amplitudes.push_back (eqNode.amplitude);
+        pans.push_back (eqNode.pan);
+    }
     
     float amplitudeAtFrequency = interpolateValueAtFrequency (frequency, amplitudes);
+    float panAtFrequency = interpolateValueAtFrequency (frequency, pans);
     float dbDifference = -compensationSlope * std::log2 ((frequency) / 1000.0f);
     
     amplitudeAtFrequency += dbDifference;
     float leftDB = amplitudeAtFrequency;
     float rightDB = amplitudeAtFrequency;
     
-    float leftGain = juce::Decibels::decibelsToGain (leftDB);
-    float rightGain = juce::Decibels::decibelsToGain (rightDB);
+    float leftGain = juce::Decibels::decibelsToGain (leftDB - 0.5 * panAtFrequency);
+    float rightGain = juce::Decibels::decibelsToGain (rightDB + 0.5 * panAtFrequency);
     
     std::complex<float> leftVal = std::polar(leftGain, 0.0f);
     std::complex<float> rightVal = std::polar(rightGain, 0.0f);
@@ -45,6 +51,7 @@ const std::pair<std::complex<float>, std::complex<float>> Curve::valueAtFrequenc
     for (const auto& eqNode : eqNodes)
     {
         amplitudes.push_back (eqNode.amplitude);
+        pans.push_back (eqNode.pan);
     }
     
     float amplitudeAtFrequency = visualInterpolateAmplitudeAtFrequency(frequency);
