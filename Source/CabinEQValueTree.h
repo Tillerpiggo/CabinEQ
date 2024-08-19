@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "EQNode.h"
+#include "CurvePt.h"
 #include "Curve.h"
 
 /// This class wraps and provides helper methods on a ValueTree to persist the set points of a single profile. It should be used to initially load and save
@@ -21,15 +21,21 @@ class CabinEQValueTree
 public:
     CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier);
     
-    const std::vector<EQNode> getEQNodes() const; // constructs set points matching the set points we have in memory
-    const std::optional<EQNode> getEQNodeWithId (const int id) const;
-    Curve& getCurve();
+    const std::vector<CurvePt> getAmplPts() const; // constructs curve pts matching the ones in memory
+    const std::vector<CurvePt> getPanPts() const; // constructs curve pts matching the ones in memory
+    const std::optional<CurvePt> getAmplPtWithId (const int id) const;
+    const std::optional<CurvePt> getPanPtWithId (const int id) const;
+    Curve& getAmplCurve();
+    Curve& getPanCurve();
     
-    void addEQNode (const int id, const float frequency, const float amplitude, const float pan);
-    int addEQNode (const float frequency, const float amplitude, const float pan); // returns id of new node
-    void removeEQNode (const int id);
-    void updateEQNode (const int id, const float frequency, const float amplitude, const float pan);
-    void resetNodes (const std::vector<EQNode>& eqNodes); // makes this value tree store the given set points
+    void addAmplPt (const float freq, const float ampl);
+    void addPanPt (const float freq, const float pan);
+    void removeAmplPt (const int id);
+    void removePanPt (const int id);
+    void updateAmplPt (const int id, const float freq, const float ampl);
+    void updatePanPt (const int id, const float freq, const float pan);
+    
+    void resetNodes(); // makes this value tree store the given set points
     
     void initValueTreeFromAPVTS(); // sets value tree to match the one in apvts
     const juce::String getName() const;
@@ -37,14 +43,19 @@ public:
     void copyFrom (CabinEQValueTree& other);
     
 private:
+    void addCurvePtToTree (int id, float freq, float val, juce::ValueTree curvePtTree);
+    void updateCurvePtInTree (int id, float freq, float val, juce::ValueTree curvePtTree);
+    int getNextIdForCurvePtTree (juce::ValueTree curvePtTree);
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
     void printValueTree (juce::ValueTree valueTree) const;
+    std::vector<CurvePt> getCurvePtsForValueTree (juce::ValueTree valueTree) const;
     
     juce::AudioProcessorValueTreeState& apvts;
     
-    juce::Identifier idProfile, idEQNode, idId, idFrequency, idAmplitude, idPan;
+    juce::Identifier idProfile, idCurvePt, idId, idFreq, idAmplTree, idPanTree, idVal;
     juce::ValueTree valueTree;
     
-    Curve curve;
+    Curve amplCurve;
+    Curve panCurve;
     bool hasBeenInitialized = false;
 };
