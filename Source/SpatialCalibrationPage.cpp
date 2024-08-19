@@ -27,6 +27,7 @@ SpatialCalibrationPage::SpatialCalibrationPage (StartupMVPAudioProcessor& p)
     panSlider.addListener (this);
     prevButton.addListener (this);
     nextButton.addListener (this);
+    processor.addListener (this);
     
     // Initialize freqs to have 30 evenly spaced frequencies across the spectrum (20hz - 15000hz)
     float startFreq = 20.0f;
@@ -41,6 +42,8 @@ SpatialCalibrationPage::SpatialCalibrationPage (StartupMVPAudioProcessor& p)
     }
     
     prevButton.setEnabled (false);
+    
+    didLoadData();
 }
 
 SpatialCalibrationPage::~SpatialCalibrationPage()
@@ -76,13 +79,14 @@ void SpatialCalibrationPage::resized()
 void SpatialCalibrationPage::sliderDragStarted (juce::Slider *slider)
 {
     float ampl = volumeSlider.getValue();
-    float pan = volumeSlider.getValue();
+    float pan = panSlider.getValue();
     processor.startCalibratingEQNode (EQNode (currNodeId, freqs[currNodeId], ampl, pan));
 }
 
 void SpatialCalibrationPage::sliderDragEnded (juce::Slider *slider)
 {
     processor.endCalibratingEQNode();
+    processor.updateEQNode (currNodeId, freqs[currNodeId], volumeSlider.getValue(), panSlider.getValue(), profileId);
 }
 
 void SpatialCalibrationPage::sliderValueChanged (juce::Slider *slider)
@@ -110,4 +114,19 @@ void SpatialCalibrationPage::buttonClicked (juce::Button *button)
     
     prevButton.setEnabled (currNodeId > 0);
     nextButton.setEnabled (currNodeId < freqs.size() - 1);
+}
+
+void SpatialCalibrationPage::didLoadData()
+{
+    auto eqNodes = processor.getEQNodes (profileId);
+    std::cout << "didLoadData()" << std::endl;
+    if (eqNodes.size() == 0)
+    {
+        std::cout << "initializing data" << std::endl;
+        processor.addProfile (profileId);
+        for (const auto freq : freqs)
+        {
+            processor.addEQNode (freq, 0.0f, 0.0f, profileId);
+        }
+    }
 }

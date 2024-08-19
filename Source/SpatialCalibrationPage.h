@@ -15,7 +15,8 @@
 
 class SpatialCalibrationPage   : public juce::Component,
                                  public juce::Slider::Listener,
-                                 public juce::Button::Listener
+                                 public juce::Button::Listener,
+                                 public StartupMVPAudioProcessor::Listener
 {
 public:
     SpatialCalibrationPage (StartupMVPAudioProcessor& p);
@@ -28,6 +29,8 @@ public:
     void sliderDragEnded (juce::Slider *slider) override;
     void sliderValueChanged (juce::Slider *slider) override;
     void buttonClicked (juce::Button *button) override;
+    
+    void didLoadData() override;
     
 private:
     StartupMVPAudioProcessor& processor;

@@ -111,6 +111,7 @@ public:
     
     // misc
     void setReferenceVolume (float volume);
+    void setReferencePan (float pan);
     
     // Listener
     void addListener (Listener* listener);
@@ -126,7 +127,7 @@ private:
     
     juce::dsp::ProcessSpec spec;
     
-    Listener* listener = nullptr;
+    std::vector<Listener*> listeners;
     bool hasLoadedData = false;
     juce::String currProfileName { "" };
     

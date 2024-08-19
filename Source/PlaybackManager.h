@@ -86,4 +86,7 @@ private:
     
     float referenceFreq = 1000.0f;
     float referencePan = 0.0f;
+    
+    Note leftRefNote { REFERENCE_FREQ, 6.0f };
+    Note rightRefNote { REFERENCE_FREQ, 6.0f };
 };

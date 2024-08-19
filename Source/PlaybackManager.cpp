@@ -147,9 +147,9 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
     auto hardRight = StereoGainEnvelope::hardRight();
     
     node.amplitude += getCompensationDBAtFrequency (node.frequency);
-    SequenceableNote leftReferenceNote (referenceNote, noteDurationInSamples, hardLeft);
+    SequenceableNote leftReferenceNote (leftRefNote, noteDurationInSamples, hardLeft);
     SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
-    SequenceableNote rightReferenceNote (referenceNote, noteDurationInSamples, hardRight);
+    SequenceableNote rightReferenceNote (rightRefNote, noteDurationInSamples, hardRight);
     SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
     
     arbitrarySequencer.setNotes ({ leftReferenceNote, rightReferenceNote });
@@ -164,9 +164,9 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node)
     auto hardRight = StereoGainEnvelope::hardRight();
     
     node.amplitude += getCompensationDBAtFrequency (node.frequency);
-    SequenceableNote leftReferenceNote (referenceNote, noteDurationInSamples, hardLeft);
+    SequenceableNote leftReferenceNote (leftRefNote, noteDurationInSamples, hardLeft);
     SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
-    SequenceableNote rightReferenceNote (referenceNote, noteDurationInSamples, hardRight);
+    SequenceableNote rightReferenceNote (rightRefNote, noteDurationInSamples, hardRight);
     SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
     
     arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNote);
@@ -281,6 +281,8 @@ void PlaybackManager::setReferenceVolume (float volume)
 void PlaybackManager::setReferencePan (float pan)
 {
     this->referencePan = pan;
+    this->leftRefNote.amplitude = referenceNote.amplitude - 0.5 * pan;
+    this->rightRefNote.amplitude = referenceNote.amplitude + 0.5 * pan;
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

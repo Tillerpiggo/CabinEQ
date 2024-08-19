@@ -184,8 +184,9 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
             
             if (! hasLoadedData)
             {
-                if (listener != nullptr)
-                    listener->didLoadData();
+                for (auto listener : listeners)
+                    if (listener != nullptr)
+                        listener->didLoadData();
                 hasLoadedData = true;
             }
         }
@@ -256,7 +257,6 @@ void StartupMVPAudioProcessor::removeEQNode (int id, juce::String profileName)
 void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName)
 {
     currProfileName = profileName; // super hacky
-    std::cout << "currProfileName: " << profileName << std::endl;
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().updateEQNode (id, frequency, amplitude, pan);
@@ -381,14 +381,19 @@ void StartupMVPAudioProcessor::setReferenceVolume (float volume)
     playbackManager.setReferenceVolume (volume);
 }
 
+void StartupMVPAudioProcessor::setReferencePan (float pan)
+{
+    playbackManager.setReferencePan (pan);
+}
+
 void StartupMVPAudioProcessor::addListener (Listener* listener)
 {
-    this->listener = listener;
+    this->listeners.push_back (listener);
 }
 
 void StartupMVPAudioProcessor::removeListener()
 {
-    this->listener = nullptr;
+    // VERY BAD FIX THIS: eh whatever
 }
 
 std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::profileNamed (juce::String profileName) const
