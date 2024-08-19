@@ -171,8 +171,8 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node)
     
     arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNote);
     arbitrarySequencer.changeNoteAtIdx (1, rightReferenceNote);
-    arbitrarySequencer.changeNoteAtIdx (0, leftControlledNote);
-    arbitrarySequencer.changeNoteAtIdx (1, rightControlledNote);
+    arbitrarySequencer2.changeNoteAtIdx (0, leftControlledNote);
+    arbitrarySequencer2.changeNoteAtIdx (1, rightControlledNote);
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
