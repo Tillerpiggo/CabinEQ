@@ -278,15 +278,45 @@ void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
         profile->get().resetNodes ({});
 }
 
-void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node, Channel channel)
+void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node, Channel channel, juce::String profileId)
 {
-    playbackManager.setCalibratingEQNode (node, channel);
+    // DRY VIOLATION w/ below
+    EQNode leftNode, rightNode;
+    if (channel == Channel::LEFT)
+    {
+        leftNode = node;
+        rightNode.frequency = node.frequency;
+        rightNode.amplitude = juce::Decibels::gainToDecibels (getCurve (profileId, Channel::RIGHT)->get().valueAtFrequency (node.frequency).first.real());
+    }
+    else if (channel == Channel::RIGHT)
+    {
+        rightNode = node;
+        leftNode.frequency = node.frequency;
+        leftNode.amplitude = juce::Decibels::gainToDecibels (getCurve (profileId, Channel::LEFT)->get().valueAtFrequency (node.frequency).first.real());
+    }
+    
+    playbackManager.setCalibratingEQNode (leftNode, rightNode, channel);
     playbackManager.setIsCalibrating (true);
 }
 
-void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node, Channel channel)
+void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node, Channel channel, juce::String profileId)
 {
-    playbackManager.updateCalibratingEQNode (node, channel);
+    // DRY VIOLATION w/ above
+    EQNode leftNode, rightNode;
+    if (channel == Channel::LEFT)
+    {
+        leftNode = node;
+        rightNode.frequency = node.frequency;
+        rightNode.amplitude = juce::Decibels::gainToDecibels (getCurve (profileId, Channel::RIGHT)->get().valueAtFrequency (node.frequency).first.real());
+    }
+    else if (channel == Channel::RIGHT)
+    {
+        rightNode = node;
+        leftNode.frequency = node.frequency;
+        leftNode.amplitude = juce::Decibels::gainToDecibels (getCurve (profileId, Channel::LEFT)->get().valueAtFrequency (node.frequency).first.real());
+    }
+    
+    playbackManager.updateCalibratingEQNode (leftNode, rightNode, channel);
 }
 
 void StartupMVPAudioProcessor::endCalibratingEQNode()

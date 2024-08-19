@@ -25,7 +25,7 @@ PlaybackManager::PlaybackManager()
 {
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
-    myCrossfeedFilter.setCrossfeedGain (0.3f);
+    myCrossfeedFilter.setCrossfeedGain (0.0f); // Let's disable it for now
     myCrossfeedFilter.setDelay (0.7);
     myCrossfeedFilter.setChannelPlaying (Channel::CENTER);
 }
@@ -174,7 +174,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
     sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::setCalibratingEQNode (EQNode node, Channel channel)
+void PlaybackManager::setCalibratingEQNode (EQNode leftNode, EQNode rightNode, Channel channel)
 {
     // Play the reference note and controlled note at the same time
 //    int noteDurationInSamples = 20000;
@@ -187,7 +187,23 @@ void PlaybackManager::setCalibratingEQNode (EQNode node, Channel channel)
 //    setCrossfeed (channel);
 //    crossfeedFilterForCalibration.clear();
     
-    // Play the reference chord alternating with the controlled chord
+    // Play the reference chord alternating with the controlled chord on both sides, with no crossfeed for now
+    int noteDurationInSamples = 20000;
+    
+    leftNode.amplitude += getCompensationDBAtFrequency (leftNode.frequency);
+    rightNode.amplitude += getCompensationDBAtFrequency (rightNode.frequency);
+    
+    SequenceableNote leftControlledNote (leftNode.frequency, leftNode.amplitude, noteDurationInSamples);
+    SequenceableNote rightControlledNote (rightNode.frequency, rightNode.amplitude, noteDurationInSamples);
+    
+    SequenceableNote leftReferenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
+    SequenceableNote leftReferenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
+    SequenceableNote rightReferenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
+    SequenceableNote rightReferenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
+    
+    arbitrarySequencer.setNotes ({ leftReferenceNote1, leftReferenceNote1, rightReferenceNote1, rightReferenceNote1 });
+    arbitrarySequencer2.setNotes ({ leftReferenceNote2, leftControlledNote, rightReferenceNote2, rightControlledNote });
+    /*
     int noteDurationInSamples = 20000;
     if (channel == Channel::LEFT)
     {
@@ -221,9 +237,10 @@ void PlaybackManager::setCalibratingEQNode (EQNode node, Channel channel)
 //        setCrossfeed (channel);
 //        crossfeedFilterForCalibration.clear();
     }
+     */
 }
 
-void PlaybackManager::updateCalibratingEQNode (EQNode node, Channel channel)
+void PlaybackManager::updateCalibratingEQNode (EQNode leftNode, EQNode rightNode, Channel channel)
 {
     // Play the reference note and controlled note at the same time
 //    int noteDurationInSamples = 20000;
@@ -234,6 +251,31 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node, Channel channel)
 //    
 //    setCrossfeed (channel);
     
+    // Play the reference chord alternating with the controlled chord on both sides, with no crossfeed for now
+    int noteDurationInSamples = 20000;
+    
+    leftNode.amplitude += getCompensationDBAtFrequency (leftNode.frequency);
+    rightNode.amplitude += getCompensationDBAtFrequency (rightNode.frequency);
+    
+    SequenceableNote leftControlledNote (leftNode.frequency, leftNode.amplitude, noteDurationInSamples);
+    SequenceableNote rightControlledNote (rightNode.frequency, rightNode.amplitude, noteDurationInSamples);
+    
+    SequenceableNote leftReferenceNote1 (referenceFreq1, referenceAmplLeft1, noteDurationInSamples);
+    SequenceableNote leftReferenceNote2 (referenceFreq2, referenceAmplLeft2, noteDurationInSamples);
+    SequenceableNote rightReferenceNote1 (referenceFreq1, referenceAmplRight1, noteDurationInSamples);
+    SequenceableNote rightReferenceNote2 (referenceFreq2, referenceAmplRight2, noteDurationInSamples);
+    
+    arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNote1);
+    arbitrarySequencer.changeNoteAtIdx (1, leftReferenceNote1);
+    arbitrarySequencer.changeNoteAtIdx (2, rightReferenceNote1);
+    arbitrarySequencer.changeNoteAtIdx (3, rightReferenceNote1);
+    
+    arbitrarySequencer2.changeNoteAtIdx (0, leftReferenceNote2);
+    arbitrarySequencer2.changeNoteAtIdx (1, leftControlledNote);
+    arbitrarySequencer2.changeNoteAtIdx (2, rightReferenceNote2);
+    arbitrarySequencer2.changeNoteAtIdx (3, rightControlledNote);
+    
+    /*
     int noteDurationInSamples = 20000;
     if (channel == Channel::LEFT)
     {
@@ -269,6 +311,7 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node, Channel channel)
         arbitrarySequencer2.changeNoteAtIdx (1, controlledNote);
 //        setCrossfeed (channel);
     }
+     */
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)

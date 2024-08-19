@@ -194,12 +194,12 @@ void ReferenceCalibrationPage::sliderValueChanged (juce::Slider *slider)
         processor.setCrossfeedDelayInMs (slider_delayInMs.getValue());
     }
     
-    processor.updateCalibratingEQNode (EQNode (0, 0, 0), currChannel);
+    processor.updateCalibratingEQNode (EQNode (0, 0, 0), Channel::CENTER, "");
 }
 
 void ReferenceCalibrationPage::sliderDragStarted (juce::Slider *slider)
 {
-    processor.startCalibratingEQNode (EQNode (0, 0, 0), currChannel);
+    processor.startCalibratingEQNode (EQNode (0, 0, 0), Channel::CENTER, "");
 }
 
 void ReferenceCalibrationPage::sliderDragEnded (juce::Slider *slider)

@@ -92,8 +92,8 @@ public:
     void clearEQNodes (juce::String profileName);
     
     // Changing points
-    void startCalibratingEQNode (EQNode eqNode, Channel channel);
-    void updateCalibratingEQNode (EQNode eqNode, Channel channel);
+    void startCalibratingEQNode (EQNode node, Channel channel, juce::String profileId);
+    void updateCalibratingEQNode (EQNode node, Channel channel, juce::String profileId);
     void endCalibratingEQNode();
     float getCurrPlayingFreq();
     

@@ -45,8 +45,8 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void setCalibratingEQNode (EQNode node, Channel channel); // changes the EQNode being compared to the reference tone and restarts interval
-    void updateCalibratingEQNode (EQNode updatingNode, Channel channel); // changes the EQNode being compared to the reference tone but does not restart the interval
+    void setCalibratingEQNode (EQNode leftNode, EQNode rightNode, Channel channel); // changes the EQNode being compared to the reference tone and restarts interval
+    void updateCalibratingEQNode (EQNode leftNode, EQNode rightNode, Channel channel); // changes the EQNode being compared to the reference tone but does not restart the interval
     void startTestingFreq (float freq, Curve& curve);
     void updateTestingFreq (float freq, Curve& curve);
     void stopTestingFreq();

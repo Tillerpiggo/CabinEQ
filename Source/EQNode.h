@@ -17,6 +17,11 @@ struct EQNode
         : id (id), frequency (frequency), amplitude (amplitude)
     {}
     
+    // Default constructor for convenience
+    EQNode()
+        : id (-1), frequency (0), amplitude (0)
+    {}
+    
     int id;
     float frequency;
     float amplitude; // in DB
