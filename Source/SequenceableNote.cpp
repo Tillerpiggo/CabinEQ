@@ -26,6 +26,10 @@ SequenceableNote::SequenceableNote (EQNode node, float duration, StereoGainEnvel
 void SequenceableNote::applyLeftCrossfeed (float crossfeedGain, float delayInMs)
 {
     note = note.withLeftCrossfeed (crossfeedGain, delayInMs);
+    std::cout << "AFTER LEFT CROSSFEED" << std::endl;
+    std::cout << "crossfeedGain: " << crossfeedGain;
+    std::cout << "delayInMs: " << delayInMs;
+    std::cout << std::endl;
 }
 
 void SequenceableNote::applyRightCrossfeed (float crossfeedGain, float delayInMs)

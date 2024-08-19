@@ -60,7 +60,12 @@ public:
     void setReferenceAmplRight1 (float ampl);
     void setReferenceAmplLeft2 (float ampl);
     void setReferenceAmplRight2 (float ampl);
+    void setReferenceCrossfeedGainLeft1 (float gain);
+    void setReferenceCrossfeedGainRight1 (float gain);
+    void setReferenceCrossfeedGainLeft2 (float gain);
+    void setReferenceCrossfeedGainRight2 (float gain);
     
+    void setCrossfeedDelayInMs (float delayInMs);
     
 private:
 //    void setCrossfeed (Channel channel);
@@ -108,4 +113,9 @@ private:
     float referenceCrossfeedGainRight1 = 0.3f; // crossfeed while right is playing
     float referenceCrossfeedGainLeft2 = 0.3f; // crossfeed while left is playing
     float referenceCrossfeedGainRight2 = 0.3f; // crossfeed while right is playing
+    
+    float crossfeedDelayInMs = 7;
+    
+    FlatCurve flatCurve;
+    CrossfeedFilter myCrossfeedFilter;
 };

@@ -26,7 +26,7 @@ public:
 
     const std::pair<std::complex<float>, std::complex<float>> compensatedValueAtFrequency (float frequency, float compensationSlope) const;
     const std::pair<std::complex<float>, std::complex<float>> valueAtFrequency (float frequency);
-    const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time);
+    virtual const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time);
     
     float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     
@@ -47,4 +47,14 @@ protected:
     std::vector<EQNode> eqNodes;
     
     std::unordered_map<float, std::pair<std::complex<float>, std::complex<float>>> cache;
+};
+
+class FlatCurve   : public Curve
+{
+public:
+    using Curve::Curve;
+    const std::pair<std::complex<float>, std::complex<float>> valueAtTime (float time) override
+    {
+        return { std::complex<float> (1), std::complex<float> (1) };
+    }
 };

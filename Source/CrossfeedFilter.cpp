@@ -42,7 +42,7 @@ std::pair<float, float> CrossfeedFilter::processSample (std::pair<float, float> 
         rightBuffer.pop();
     }
     
-    return { leftSample + delayedRight, rightSample + delayedLeft };
+    return { leftSample + delayedRight * crossfeedGain, rightSample + delayedLeft * crossfeedGain };
 }
 
 void CrossfeedFilter::processBlock (juce::AudioBuffer<float>& buffer)
@@ -52,7 +52,7 @@ void CrossfeedFilter::processBlock (juce::AudioBuffer<float>& buffer)
     {
         buffer.clear (1, 0, buffer.getNumSamples()); // clear the right channel
     }
-    else
+    else if (currChannel == Channel::RIGHT)
     {
         buffer.clear (0, 0, buffer.getNumSamples()); // clear the left channel
     }
@@ -91,6 +91,7 @@ void CrossfeedFilter::setCrossfeedGain (float crossfeedGain)
 void CrossfeedFilter::setDelay (float delayInMs)
 {
     this->delayInMs = delayInMs;
+    updateNumSamplesToDelay();
 }
 
 void CrossfeedFilter::setChannelPlaying (Channel channel)

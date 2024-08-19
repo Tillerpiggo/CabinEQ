@@ -37,4 +37,24 @@ private:
     juce::Slider slider_referenceAmplLeft2;
     juce::Slider slider_referenceAmplRight1;
     juce::Slider slider_referenceAmplRight2;
+    juce::Slider slider_referenceCrossfeedGainLeft1;
+    juce::Slider slider_referenceCrossfeedGainRight1;
+    juce::Slider slider_referenceCrossfeedGainLeft2;
+    juce::Slider slider_referenceCrossfeedGainRight2;
+    
+    juce::Label label_referenceFreq1;
+    juce::Label label_referenceFreq2;
+    juce::Label label_referenceAmplLeft1;
+    juce::Label label_referenceAmplLeft2;
+    juce::Label label_referenceAmplRight1;
+    juce::Label label_referenceAmplRight2;
+    juce::Label label_referenceCrossfeedGainLeft1;
+    juce::Label label_referenceCrossfeedGainRight1;
+    juce::Label label_referenceCrossfeedGainLeft2;
+    juce::Label label_referenceCrossfeedGainRight2;
+    
+    juce::Slider slider_delayInMs;
+    juce::Label label_delayInMs;
+    
+    Channel currChannel = Channel::LEFT;
 };

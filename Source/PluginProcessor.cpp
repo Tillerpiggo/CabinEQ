@@ -423,6 +423,31 @@ void StartupMVPAudioProcessor::setReferenceAmplRight2 (float ampl)
     playbackManager.setReferenceAmplRight2 (ampl);
 }
 
+void StartupMVPAudioProcessor::setReferenceCrossfeedGainLeft1 (float gain)
+{
+    playbackManager.setReferenceCrossfeedGainLeft1 (gain);
+}
+
+void StartupMVPAudioProcessor::setReferenceCrossfeedGainRight1 (float gain)
+{
+    playbackManager.setReferenceCrossfeedGainRight1 (gain);
+}
+
+void StartupMVPAudioProcessor::setReferenceCrossfeedGainLeft2 (float gain)
+{
+    playbackManager.setReferenceCrossfeedGainLeft2 (gain);
+}
+
+void StartupMVPAudioProcessor::setReferenceCrossfeedGainRight2 (float gain)
+{
+    playbackManager.setReferenceCrossfeedGainRight2 (gain);
+}
+
+void StartupMVPAudioProcessor::setCrossfeedDelayInMs (float delayInMs)
+{
+    playbackManager.setCrossfeedDelayInMs (delayInMs);
+}
+
 std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::profileNamed (juce::String profileName) const
 {
     return cabinEQValueTreeManager.getProfileNamed (profileName);

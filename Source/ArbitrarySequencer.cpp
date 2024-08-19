@@ -128,7 +128,15 @@ void ArbitrarySequencer::goToNextNote()
         notifyListener();
     }
     
-    pitchedGenerator->setNote (getCurrNote().getNote());
+    Note nextNote = getCurrNote().getNote();
+    std::cout << "NEXT NOTE" << std::endl;
+    std::cout << "freq: " << nextNote.frequency;
+    std::cout << ", ampl: " << nextNote.amplitude;
+    std::cout << ", xfeedGain: " << nextNote.crossfeedGain;
+    std::cout << ", xfeedDelay: " << nextNote.crossfeedDelayInMs;
+    std::cout << std::endl;
+    
+    pitchedGenerator->setNote (nextNote);
 }
 
 const SequenceableNote& ArbitrarySequencer::getCurrNote() const

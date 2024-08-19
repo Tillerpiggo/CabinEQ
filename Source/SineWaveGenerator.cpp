@@ -146,4 +146,10 @@ void SineWaveGenerator::updateCrossfeedFilter()
     crossfeedFilter.setCrossfeedGain (note->crossfeedGain);
     crossfeedFilter.setDelay (note->crossfeedDelayInMs);
     crossfeedFilter.setChannelPlaying (note->crossfeedChannel);
+    crossfeedFilter.clear();
+    
+    std::cout << "Updating crossfeedFilter" << std::endl;
+    std::cout << "crossfeedGain: " << note->crossfeedGain;
+    std::cout << ", crossfeedDelayInMs: " << note->crossfeedDelayInMs;
+    std::cout << ", crossfeedChannel: " << note->crossfeedChannel;
 }
