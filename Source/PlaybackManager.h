@@ -27,7 +27,7 @@ public:
 
     void processBlock (juce::AudioBuffer<float>& buffer);
     
-    void updateFilterWithCurve (Curve& curve); // update the current filter with the curve
+    void updateFilterWithCurves (Curve& amplCurve, Curve& panCurve); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     float getCurrPlayingFreq() const;
@@ -42,8 +42,9 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void setCalibratingEQNode (EQNode node); // changes the EQNode being compared to the reference tone and restarts interval
-    void updateCalibratingEQNode (EQNode node); // changes the EQNode being compared to the reference tone but does not restart the interval
+    void startPlayingFreq (float freq, float ampl);
+    void updatePlayingFreq (float freq, float ampl);
+    // TODO: add diff functions for other kinds of tests
     void startTestingFreq (float freq, Curve& curve);
     void updateTestingFreq (float freq, Curve& curve);
     void stopTestingFreq();

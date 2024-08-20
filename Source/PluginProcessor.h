@@ -74,9 +74,12 @@ public:
     void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
     
-    std::optional<std::reference_wrapper<Curve>> getCurve (juce::String profileName);
-    const std::vector<EQNode> getEQNodes (juce::String profileName) const;
-    const std::optional<EQNode> getEQNodeWithId (juce::String profileName, int id) const;
+    std::optional<std::reference_wrapper<Curve>> getAmplCurve (juce::String profileName);
+    std::optional<std::reference_wrapper<Curve>> getPanCurve (juce::String profileName);
+    const std::vector<CurvePt> getAmplPts (juce::String profileName) const;
+    const std::vector<CurvePt> getPanPts (juce::String profileName) const;
+    const std::optional<CurvePt> getAmplPtWithId (juce::String profileName) const;
+    const std::optional<CurvePt> getPanPtWithId (juce::String profileName) const;
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -86,14 +89,23 @@ public:
     std::optional<std::reference_wrapper<CabinEQValueTree>> getProfileNamed (juce::String profileName) const;
     
     // Setting points
-    int addEQNode (float frequency, float amplitude, float pan, juce::String profileName);
-    void removeEQNode (int id, juce::String profileName);
-    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName);
+//    int addEQNode (float frequency, float amplitude, float pan, juce::String profileName);
+//    void removeEQNode (int id, juce::String profileName);
+//    void updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName);
+//    void clearEQNodes (juce::String profileName);
+    
+    // Setting points (new)
+    void addAmplPt (const float freq, const float ampl, juce::String profileName);
+    void addPanPt (const float freq, const float pan, juce::String profileName);
+    void removeAmplPt (const int id, juce::String profileName);
+    void removePanPt (const int id, juce::String profileName);
+    void updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName);
+    void updatePanPt (const int id, const float freq, const float pan, juce::String profileName);
     void clearEQNodes (juce::String profileName);
     
     // Changing points
-    void startCalibratingEQNode (EQNode node);
-    void updateCalibratingEQNode (EQNode node);
+    void startPlayingFreq (float freq, float ampl);
+    void updatePlayingFreq (float freq, float ampl);
     void endCalibratingEQNode();
     float getCurrPlayingFreq();
     

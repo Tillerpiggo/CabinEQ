@@ -215,7 +215,7 @@ void StartupMVPAudioProcessor::applyCurve (juce::String profileName)
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.updateFilterWithCurve (profile->get().getCurve());
+        playbackManager.updateFilterWithCurves (profile->get().getAmplCurve(), profile->get().getPanCurve());
     }
         
 }
@@ -230,54 +230,112 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
-std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getCurve (juce::String profileName)
+std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getAmplCurve (juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getCurve();
-    std::cout << "unable to get curve in pluginProcessor for profile named " << profileName << std::endl;
+        return profile->get().getAmplCurve();
+    std::cout << "unable to get ampl curve in pluginProcessor for profile named " << profileName << std::endl;
     return std::nullopt;
 }
 
-int StartupMVPAudioProcessor::addEQNode (float frequency, float amplitude, float pan, juce::String profileName)
+std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getPanCurve (juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().addEQNode (frequency, amplitude, pan);
-    return -1;
+        return profile->get().getPanCurve();
+    std::cout << "unable to get pan curve in pluginProcessor for profile named " << profileName << std::endl;
+    return std::nullopt;
 }
 
-void StartupMVPAudioProcessor::removeEQNode (int id, juce::String profileName)
+const std::vector<CurvePt> StartupMVPAudioProcessor::getAmplPts (juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().removeEQNode (id);
+        return profile->get().getAmplPts();
 }
 
-void StartupMVPAudioProcessor::updateEQNode (int id, float frequency, float amplitude, float pan, juce::String profileName)
+const std::vector<CurvePt> StartupMVPAudioProcessor::getPanPts (juce::String profileName) const
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().getPanPts();
+}
+
+const std::optional<CurvePt> StartupMVPAudioProcessor::getAmplPtWithId (juce::String profileName) const
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().getAmplPtWithId();
+}
+
+const std::optional<CurvePt> StartupMVPAudioProcessor::getPanPtWithId (juce::String profileName) const
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().getPanPtWithId();
+}
+
+void StartupMVPAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().addAmplPt (freq, ampl);
+}
+
+void StartupMVPAudioProcessor::addPanPt (const float freq, const float pan, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().addPanPt (freq, pan);
+}
+
+void StartupMVPAudioProcessor::removeAmplPt (const int id, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().removeAmplPt (id);
+}
+
+void StartupMVPAudioProcessor::removePanPt (const int id, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().removePanPt (id);
+}
+
+void StartupMVPAudioProcessor::updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName)
 {
     currProfileName = profileName; // super hacky
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().updateEQNode (id, frequency, amplitude, pan);
+        profile->get().updateAmplPt (id, freq, ampl);
+}
+
+void StartupMVPAudioProcessor::updatePanPt (const int id, const float freq, const float pan, juce::String profileName)
+{
+    currProfileName = profileName; // super hacky
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().updatePanPt (id, freq, pan);
 }
 
 void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().resetNodes ({});
+        profile->get().resetNodes();
 }
 
-void StartupMVPAudioProcessor::startCalibratingEQNode (EQNode node)
+void StartupMVPAudioProcessor::startPlayingFreq (float freq, float ampl)
 {
-    playbackManager.setCalibratingEQNode (node);
+    playbackManager.startPlayingFreq (freq, ampl);
     playbackManager.setIsCalibrating (true);
 }
 
-void StartupMVPAudioProcessor::updateCalibratingEQNode (EQNode node)
+void StartupMVPAudioProcessor::updatePlayingFreq (float freq, float ampl)
 {
-    playbackManager.updateCalibratingEQNode (node);
+    playbackManager.updatePlayingFreq (freq, ampl);
 }
 
 void StartupMVPAudioProcessor::endCalibratingEQNode()
@@ -292,14 +350,14 @@ float StartupMVPAudioProcessor::getCurrPlayingFreq()
 
 void StartupMVPAudioProcessor::startTestingAt (float freq, juce::String profileName)
 {
-    auto curve = getCurve (profileName);
+    auto curve = getAmplCurve (profileName); // hacky for now
     if (curve.has_value())
         playbackManager.startTestingFreq (freq, curve->get());
 }
 
 void StartupMVPAudioProcessor::updateTestingAt (float freq, juce::String profileName)
 {
-    auto curve = getCurve (profileName);
+    auto curve = getAmplCurve (profileName); // hacky for now
     if (curve.has_value())
         playbackManager.updateTestingFreq (freq, curve->get());
 }
