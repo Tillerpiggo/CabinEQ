@@ -52,7 +52,7 @@ void SineSweepGenerator::incrementFreq()
         
         float dbDifference = currAmpl.has_value() ? currAmpl.value() : 0.0f;
         dbDifference += -4.5f * std::log2 (currFreq / REFERENCE_FREQ);
-        sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference));
+        sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, 0.0f));
     }
     
     currStep++;

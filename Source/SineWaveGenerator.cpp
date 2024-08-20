@@ -59,6 +59,25 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
         updatePhaseIncrementAndAmplitudeCompensation();
     }
     
+    if (targetPan.has_value())
+    {
+        if (targetPan.value() > note->pan)
+        {
+            note->pan *= AMPL_STEP;
+        }
+        else
+        {
+            note->pan /= AMPL_STEP;
+        }
+        
+        float ratio = note->pan / targetPan.value();
+        if (ratio < AMPL_STEP && ratio > 1.0f / AMPL_STEP)
+        {
+            targetPan.reset();
+        }
+        updatePhaseIncrementAndAmplitudeCompensation();
+    }
+    
     // Vibrato
     vibratoPhase += vibratoStep;
     if (vibratoPhase < 0 || vibratoPhase > 2 * M_PI)
@@ -84,6 +103,7 @@ void SineWaveGenerator::setNote (Note newNote)
     updatePhaseIncrementAndAmplitudeCompensation();
     targetFrequency.reset();
     targetAmplitude.reset();
+    targetPan.reset();
 }
 
 void SineWaveGenerator::setFrequency (float frequencyInHz)
@@ -96,6 +116,11 @@ void SineWaveGenerator::setVolume (float volumeInDecibels)
     targetAmplitude = volumeInDecibels;
 }
 
+void SineWaveGenerator::setPan (float panInDecibels)
+{
+    targetPan = panInDecibels;
+}
+
 // ============================================
 void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
 {
@@ -106,10 +131,14 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     
     float freq = note->frequency;
     float ampl = note->amplitude;
+    float pan = note->pan;
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
     
-    float noteGain = juce::Decibels::decibelsToGain (ampl);
-    leftAmplitudeCompensation = noteGain;
-    rightAmplitudeCompensation = noteGain;
+    std::cout << "pan: " << pan << std::endl;
+    
+    float leftDB = ampl - 0.5 * pan;
+    float rightDB = ampl + 0.5 * pan;
+    leftAmplitudeCompensation = juce::Decibels::decibelsToGain (leftDB);
+    rightAmplitudeCompensation = juce::Decibels::decibelsToGain (rightDB);
 }

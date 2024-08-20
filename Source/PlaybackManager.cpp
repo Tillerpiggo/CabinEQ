@@ -138,21 +138,21 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
     sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::startPlayingFreq (float freq, float ampl)
+void PlaybackManager::startPlayingFreq (float freq, float ampl, float pan)
 {
     // Play the reference note and controlled note, alternating between left and right
     int noteDurationInSamples = 20000;
     ampl += getCompensationDBAtFrequency (freq);
-    SequenceableNote controlledNote (freq, ampl, noteDurationInSamples);
+    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
     arbitrarySequencer.setNotes ({ controlledNote });
 }
 
 // TODO: Add panning here
-void PlaybackManager::updatePlayingFreq (float freq, float ampl)
+void PlaybackManager::updatePlayingFreq (float freq, float ampl, float pan)
 {
     int noteDurationInSamples = 20000;
     ampl += getCompensationDBAtFrequency (freq);
-    SequenceableNote controlledNote (freq, ampl, noteDurationInSamples);
+    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
     arbitrarySequencer.changeNoteAtIdx (0, controlledNote);
 }
 

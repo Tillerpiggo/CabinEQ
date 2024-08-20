@@ -104,8 +104,8 @@ public:
     void clearEQNodes (juce::String profileName);
     
     // Changing points
-    void startPlayingFreq (float freq, float ampl);
-    void updatePlayingFreq (float freq, float ampl);
+    void startPlayingFreq (float freq, float ampl, float pan);
+    void updatePlayingFreq (float freq, float ampl, float pan);
     void endCalibratingEQNode();
     float getCurrPlayingFreq();
     

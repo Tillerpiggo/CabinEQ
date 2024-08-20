@@ -42,8 +42,8 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void startPlayingFreq (float freq, float ampl);
-    void updatePlayingFreq (float freq, float ampl);
+    void startPlayingFreq (float freq, float ampl, float pan);
+    void updatePlayingFreq (float freq, float ampl, float pan);
     // TODO: add diff functions for other kinds of tests
     void startTestingFreq (float freq, Curve& curve);
     void updateTestingFreq (float freq, Curve& curve);
@@ -71,7 +71,7 @@ private:
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
     SineSweepGenerator sineSweepGenerator;
-    Note referenceNote = Note (REFERENCE_FREQ, 6.0f);
+    Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f);
     
     bool isTesting;
     bool isSweeping;
@@ -88,6 +88,6 @@ private:
     float referenceFreq = 1000.0f;
     float referencePan = 0.0f;
     
-    Note leftRefNote { REFERENCE_FREQ, 6.0f };
-    Note rightRefNote { REFERENCE_FREQ, 6.0f };
+    Note leftRefNote { REFERENCE_FREQ, 6.0f, 0.0f };
+    Note rightRefNote { REFERENCE_FREQ, 6.0f, 0.0f };
 };

@@ -15,10 +15,11 @@
 class Note
 {
 public:
-    Note (float frequency, float gain)
-        : frequency (frequency), amplitude (gain)
+    Note (float frequency, float ampl, float pan)
+        : frequency (frequency), amplitude (ampl), pan (pan)
     {}
     
     float frequency; // hz
     float amplitude; // in dB
+    float pan; // dB difference between channels; -3 means +1.5db on the left, -1.5db on the right
 };

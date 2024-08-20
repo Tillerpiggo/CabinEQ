@@ -333,15 +333,15 @@ void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
         profile->get().resetNodes();
 }
 
-void StartupMVPAudioProcessor::startPlayingFreq (float freq, float ampl)
+void StartupMVPAudioProcessor::startPlayingFreq (float freq, float ampl, float pan)
 {
-    playbackManager.startPlayingFreq (freq, ampl);
+    playbackManager.startPlayingFreq (freq, ampl, pan);
     playbackManager.setIsCalibrating (true);
 }
 
-void StartupMVPAudioProcessor::updatePlayingFreq (float freq, float ampl)
+void StartupMVPAudioProcessor::updatePlayingFreq (float freq, float ampl, float pan)
 {
-    playbackManager.updatePlayingFreq (freq, ampl);
+    playbackManager.updatePlayingFreq (freq, ampl, pan);
 }
 
 void StartupMVPAudioProcessor::endCalibratingEQNode()

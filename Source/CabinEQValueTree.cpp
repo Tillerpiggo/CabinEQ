@@ -232,7 +232,7 @@ int CabinEQValueTree::getNextIdForCurvePtTree (juce::ValueTree curvePtTree)
     int id = -1;
     for (const auto& curvePt : curvePtTree)
     {
-        id = std::max ((int) curvePtTree.getProperty (idId), id);
+        id = std::max ((int) curvePt.getProperty (idId), id);
     }
     id++;
     

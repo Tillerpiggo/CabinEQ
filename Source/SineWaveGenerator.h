@@ -25,6 +25,7 @@ public:
     void setNote (Note note) override;
     void setFrequency (float frequencyInHz) override;
     void setVolume (float volumeInDecibels) override;
+    void setPan (float panInDecibels) override;
     
 private:
     void updatePhaseIncrementAndAmplitudeCompensation();
@@ -44,6 +45,7 @@ private:
     static constexpr float AMPL_STEP = 1.0001f;
     std::optional<float> targetFrequency;
     std::optional<float> targetAmplitude;
+    std::optional<float> targetPan;
     
     // == Vibrato ==
     float vibratoPhase = 0; // 0 to 2pi

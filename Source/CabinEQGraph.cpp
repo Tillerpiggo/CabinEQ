@@ -563,13 +563,6 @@ void CabinEQGraph::updateCurvePts()
 {
     if (curve.has_value())
         curvePts = curve->get().getCurvePts();
-    
-    std::cout << "CURVE PTS" << std::endl;
-    for (auto& curvePt : curvePts)
-    {
-        std::cout << "CurvePt (freq: " << curvePt.freq << ", val: " << curvePt.val << std::endl;
-    }
-    std::cout << std::endl;
 }
 
 int CabinEQGraph::addNode (float freq, float ampl)
