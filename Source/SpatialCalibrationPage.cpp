@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+/*
 #include "SpatialCalibrationPage.h"
 
 SpatialCalibrationPage::SpatialCalibrationPage (StartupMVPAudioProcessor& p)
@@ -130,3 +131,5 @@ void SpatialCalibrationPage::didLoadData()
         }
     }
 }
+
+*/

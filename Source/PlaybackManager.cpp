@@ -138,86 +138,68 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
     sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::setCalibratingEQNode (EQNode node)
+void PlaybackManager::startPlayingFreq (float freq, float ampl)
 {
     // Play the reference note and controlled note, alternating between left and right
     int noteDurationInSamples = 20000;
-    
-    auto hardLeft = StereoGainEnvelope::hardLeft();
-    auto hardRight = StereoGainEnvelope::hardRight();
-    
-    node.amplitude += getCompensationDBAtFrequency (node.frequency);
-    SequenceableNote leftReferenceNote (leftRefNote, noteDurationInSamples, hardLeft);
-    SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
-    SequenceableNote rightReferenceNote (rightRefNote, noteDurationInSamples, hardRight);
-    SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
-    
-    arbitrarySequencer.setNotes ({ leftReferenceNote, rightReferenceNote });
-    arbitrarySequencer2.setNotes ({ leftControlledNote, rightControlledNote });
+    ampl += getCompensationDBAtFrequency (freq);
+    SequenceableNote controlledNote (freq, ampl, noteDurationInSamples);
+    arbitrarySequencer.setNotes ({ controlledNote });
 }
 
-void PlaybackManager::updateCalibratingEQNode (EQNode node)
+// TODO: Add panning here
+void PlaybackManager::updatePlayingFreq (float freq, float ampl)
 {
     int noteDurationInSamples = 20000;
-    
-    auto hardLeft = StereoGainEnvelope::hardLeft();
-    auto hardRight = StereoGainEnvelope::hardRight();
-    
-    node.amplitude += getCompensationDBAtFrequency (node.frequency);
-    SequenceableNote leftReferenceNote (leftRefNote, noteDurationInSamples, hardLeft);
-    SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
-    SequenceableNote rightReferenceNote (rightRefNote, noteDurationInSamples, hardRight);
-    SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
-    
-    arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNote);
-    arbitrarySequencer.changeNoteAtIdx (1, rightReferenceNote);
-    arbitrarySequencer2.changeNoteAtIdx (0, leftControlledNote);
-    arbitrarySequencer2.changeNoteAtIdx (1, rightControlledNote);
+    ampl += getCompensationDBAtFrequency (freq);
+    SequenceableNote controlledNote (freq, ampl, noteDurationInSamples);
+    arbitrarySequencer.changeNoteAtIdx (0, controlledNote);
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
 {
-    if (isTesting)
-    {
-        updateTestingFreq (freq, curve);
-        return;
-    }
-    
-    int noteDurationInSamples = 20000;
-    isTesting = true;
-    
-    float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
-    ampl += getCompensationDBAtFrequency (freq);
-    
-    Note referenceNoteCompensated = referenceNote;
-    referenceNoteCompensated.amplitude += getCompensationDBAtFrequency (freq);
-    referenceNoteCompensated.amplitude += getReferenceCompensationDBAtFrequency (freq);
-    
-    auto nodeBelow = curve.nodeBelowFreq (freq);
-    auto nodeAbove = curve.nodeAboveFreq (freq);
-    
-    if (! nodeBelow.has_value() || ! nodeAbove.has_value())
-    {
-        // for now, do nothing
-        return;
-    }
-    
-    auto [freqBelow, amplBelow] = nodeBelow.value();
-    auto [freqAbove, amplAbove] = nodeAbove.value();
-    amplBelow += getCompensationDBAtFrequency (freqBelow);
-    amplAbove += getCompensationDBAtFrequency (freqAbove);
-    
-    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, noteDurationInSamples);
-    SequenceableNote noteMid (freq, ampl, 0.0f, noteDurationInSamples);
-    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, noteDurationInSamples);
-    SequenceableNote silentNote (0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
-    arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove, silentNote });
-    
-    testingFreq = freq;
+//    if (isTesting)
+//    {
+//        updateTestingFreq (freq, curve);
+//        return;
+//    }
+//    
+//    int noteDurationInSamples = 20000;
+//    isTesting = true;
+//    
+//    float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq));
+//    ampl += getCompensationDBAtFrequency (freq);
+//    
+//    Note referenceNoteCompensated = referenceNote;
+//    referenceNoteCompensated.amplitude += getCompensationDBAtFrequency (freq);
+//    referenceNoteCompensated.amplitude += getReferenceCompensationDBAtFrequency (freq);
+//    
+//    auto nodeBelow = curve.nodeBelowFreq (freq);
+//    auto nodeAbove = curve.nodeAboveFreq (freq);
+//    
+//    if (! nodeBelow.has_value() || ! nodeAbove.has_value())
+//    {
+//        // for now, do nothing
+//        return;
+//    }
+//    
+//    auto [freqBelow, amplBelow] = nodeBelow.value();
+//    auto [freqAbove, amplAbove] = nodeAbove.value();
+//    amplBelow += getCompensationDBAtFrequency (freqBelow);
+//    amplAbove += getCompensationDBAtFrequency (freqAbove);
+//    
+//    SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, noteDurationInSamples);
+//    SequenceableNote noteMid (freq, ampl, 0.0f, noteDurationInSamples);
+//    SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, noteDurationInSamples);
+//    SequenceableNote silentNote (0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+//    arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove, silentNote });
+//    
+//    testingFreq = freq;
 }
 
 void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
 {
+    /*
     int noteDurationInSamples = 20000;
     
     float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
@@ -265,6 +247,7 @@ void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
     arbitrarySequencer.setNotes ({ noteBelow, noteMid, noteAbove, silentNote });
     
     testingFreq = freq;
+    */
 }
 
 void PlaybackManager::stopTestingFreq()

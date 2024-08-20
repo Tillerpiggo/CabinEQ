@@ -78,8 +78,8 @@ public:
     std::optional<std::reference_wrapper<Curve>> getPanCurve (juce::String profileName);
     const std::vector<CurvePt> getAmplPts (juce::String profileName) const;
     const std::vector<CurvePt> getPanPts (juce::String profileName) const;
-    const std::optional<CurvePt> getAmplPtWithId (juce::String profileName) const;
-    const std::optional<CurvePt> getPanPtWithId (juce::String profileName) const;
+    const std::optional<CurvePt> getAmplPtWithId (int id, juce::String profileName) const;
+    const std::optional<CurvePt> getPanPtWithId (int id, juce::String profileName) const;
     
     // Profiles
     void addProfile (juce::String profileName);

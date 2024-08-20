@@ -33,12 +33,14 @@ public:
     const std::vector<CurvePt>& getCurvePts();
     void updateWithCurvePts (std::vector<CurvePt> curvePts);
     
+    std::vector<float> getFrequencyResponse (int numPoints); // Returns frequency response in a float* representing gain for each freq at each point w/ len 2 * numPoints
+    
 //    const float* getImpulse (int fft_size); // This hands ownership of the float*'s to whoever calls it!!
 
 protected:
     const float interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const;
     const float visualInterpolateAmplitudeAtFrequency (const float frequency) const; // for display on graph
-//    float* frequencyResponse (int numPoints);
+    
     
     std::vector<CurvePt> curvePts;
     

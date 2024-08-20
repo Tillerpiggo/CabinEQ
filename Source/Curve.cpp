@@ -209,35 +209,27 @@ const float Curve::visualInterpolateAmplitudeAtFrequency (const float frequency)
     return gainAtFrequency + logCompensation (frequency);
 }
 
-/*
-std::pair<float*, float*> Curve::frequencyResponse (int numPoints)
+std::vector<float> Curve::getFrequencyResponse (int numPoints)
 {
     float maxFreq = 60.0f;
     float minFreq = -48.0f;
     
-    float* leftFreqResponse = new float[2 * numPoints];
-    float* rightFreqResponse = new float[2 * numPoints];
+    std::vector<float> freqResponse (2 * numPoints, 0);
     for (int i = 0; i < numPoints; ++i)
     {
         float t = static_cast<float>(i) / (numPoints);
         
-        auto [val, val2] = valueAtTime (t);
+        auto val = valueAtTime (t);
         
         if (i % 2 == 0)
         {
-            leftFreqResponse[i] = val.real();
-            rightFreqResponse[i] = val2.real();
-            
-            // Limit freq response
-            if (leftFreqResponse[i] > maxFreq) leftFreqResponse[i] = maxFreq;
-            if (leftFreqResponse[i] < minFreq) leftFreqResponse[i] = minFreq;
-            if (rightFreqResponse[i] > maxFreq) rightFreqResponse[i] = maxFreq;
-            if (rightFreqResponse[i] < minFreq) rightFreqResponse[i] = minFreq;
+            if (val > maxFreq) val = maxFreq;
+            if (val < minFreq) val = minFreq;
+            freqResponse[i] = val;
         }
         else
         {
-            leftFreqResponse[i] = val.imag();
-            rightFreqResponse[i] = val2.imag();
+            freqResponse[i] = 0;
         }
     }
     
@@ -245,27 +237,19 @@ std::pair<float*, float*> Curve::frequencyResponse (int numPoints)
     {
         float t = static_cast<float>(i) / (numPoints);
         
-        auto [val, val2] = valueAtTime (1 - t);
+        auto val = valueAtTime (1 - t);
         
         if (i % 2 == 0)
         {
-            leftFreqResponse[i + numPoints] = val.real();
-            rightFreqResponse[i + numPoints] = val2.real();
-            
-            // Limit freq response
-            if (leftFreqResponse[i + numPoints] > maxFreq) leftFreqResponse[i + numPoints] = maxFreq;
-            if (leftFreqResponse[i + numPoints] < minFreq) leftFreqResponse[i + numPoints] = minFreq;
-            if (rightFreqResponse[i + numPoints] > maxFreq) rightFreqResponse[i + numPoints] = maxFreq;
-            if (rightFreqResponse[i + numPoints] < minFreq) rightFreqResponse[i + numPoints] = minFreq;
+            if (val > maxFreq) val = maxFreq;
+            if (val < minFreq) val = minFreq;
+            freqResponse[i + numPoints] = val;
         }
         else
         {
-            leftFreqResponse[i + numPoints] = val.imag();
-            rightFreqResponse[i + numPoints] = val2.imag();
+            freqResponse[i] = 0;
         }
     }
     
-    return { leftFreqResponse, rightFreqResponse };
+    return freqResponse;
 }
-
-*/

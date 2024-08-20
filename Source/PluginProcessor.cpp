@@ -253,6 +253,7 @@ const std::vector<CurvePt> StartupMVPAudioProcessor::getAmplPts (juce::String pr
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         return profile->get().getAmplPts();
+    return {};
 }
 
 const std::vector<CurvePt> StartupMVPAudioProcessor::getPanPts (juce::String profileName) const
@@ -260,20 +261,23 @@ const std::vector<CurvePt> StartupMVPAudioProcessor::getPanPts (juce::String pro
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         return profile->get().getPanPts();
+    return {};
 }
 
-const std::optional<CurvePt> StartupMVPAudioProcessor::getAmplPtWithId (juce::String profileName) const
+const std::optional<CurvePt> StartupMVPAudioProcessor::getAmplPtWithId (int id, juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getAmplPtWithId();
+        return profile->get().getAmplPtWithId (id);
+    return std::nullopt;
 }
 
-const std::optional<CurvePt> StartupMVPAudioProcessor::getPanPtWithId (juce::String profileName) const
+const std::optional<CurvePt> StartupMVPAudioProcessor::getPanPtWithId (int id, juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getPanPtWithId();
+        return profile->get().getPanPtWithId (id);
+    return std::nullopt;
 }
 
 void StartupMVPAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)

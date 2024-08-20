@@ -10,9 +10,56 @@
 
 #include "ArbitraryResponseFilter.h"
 
-void ArbitraryResponseFilter::updateWithCurve (Curve& curve, int fft_size)
+void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurve, int fft_size)
 {
-    auto [leftImpulseData, rightImpulseData] = curve.getStereoImpulse (fft_size);
+    // Get left & right impulse data
+    juce::dsp::FFT fft (fft_size);
+    int numPoints = fft.getSize();
+    
+    auto amplResponse = amplCurve.getFrequencyResponse (numPoints);
+    auto panResponse = panCurve.getFrequencyResponse (numPoints);
+    
+    float* leftFreqResponse = new float[2 * numPoints];
+    float* rightFreqResponse = new float[2 * numPoints];
+    
+    for (int i = 0; i < 2 * numPoints; ++i)
+    {
+        if (i % 2 == 0)
+        {
+            leftFreqResponse[i] = amplResponse[i] / std::sqrt (panResponse[i]);
+            rightFreqResponse[i] = amplResponse[i] * std::sqrt (panResponse[i]);
+        }
+        else
+        {
+            leftFreqResponse[i] = 0;
+            rightFreqResponse[i] = 0;
+        }
+    }
+    
+    fft.performRealOnlyInverseTransform (leftFreqResponse);
+    fft.performRealOnlyInverseTransform (rightFreqResponse);
+    
+    float* leftImpulseData = leftFreqResponse;
+    float* rightImpulseData = rightFreqResponse;
+    
+    // idk if this is necessary or if it even does anything
+    for (int i = 0; i < numPoints * 2; ++i)
+    {
+        leftImpulseData[i] = leftFreqResponse[i];
+        rightImpulseData[i] = rightFreqResponse[i];
+    }
+
+    // Transform post-ringing into pre-ringing
+    for (int i = 0; i < numPoints / 2; ++i)
+    {
+        std::swap(leftImpulseData[i], leftImpulseData[i + numPoints / 2]);
+        std::swap(rightImpulseData[i], rightImpulseData[i + numPoints / 2]);
+    }
+    
+    // Window the impulse
+    juce::dsp::WindowingFunction<float> window(numPoints, juce::dsp::WindowingFunction<float>::rectangular, true);
+    window.multiplyWithWindowingTable(leftImpulseData, numPoints);
+    window.multiplyWithWindowingTable(rightImpulseData, numPoints);
     
     // Load the IR into the convolution
     int numSamples = std::pow (2, fft_size);
@@ -26,9 +73,4 @@ void ArbitraryResponseFilter::updateWithCurve (Curve& curve, int fft_size)
     
     delete[] leftImpulseData;
     delete[] rightImpulseData;
-}
-
-void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurve, int fft_size)
-{
-    // TODO: Figure out how to do this
 }

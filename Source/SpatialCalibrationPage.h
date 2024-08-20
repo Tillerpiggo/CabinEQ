@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+/*
 #pragma once
 
 #include <JuceHeader.h>
@@ -45,3 +46,5 @@ private:
     std::vector<float> freqs;
     int currNodeId = 0;
 };
+
+*/
