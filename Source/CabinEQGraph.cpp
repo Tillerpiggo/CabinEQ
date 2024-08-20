@@ -12,7 +12,7 @@
 
 CabinEQGraph::CabinEQGraph()
 {
-    updateEQNodes();
+    updateCurvePts();
     startTimer (5);
 }
 
@@ -253,8 +253,8 @@ void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
         float t = static_cast<float> (i) / static_cast<float> (numPoints);
         
         float freq = frequencyAtTime (t);
-        float ampl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq).first.real());
-        juce::Point<float> coords = coordsForEQNode (freq, ampl);
+        float val = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq));
+        juce::Point<float> coords = coordsForCurvePt (freq, val);
         if (i == 0)
             path.startNewSubPath (coords);
         else
@@ -265,16 +265,16 @@ void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
 
 void CabinEQGraph::drawDots (juce::Graphics& g, Curve& curve)
 {
-    updateEQNodes();
-    for (const auto& node : eqNodes)
+    updateCurvePts();
+    for (const auto& curvePt : curvePts)
     {
         // Draw a dot corresponding to the node
-        juce::Point<float> point = coordsForEQNode (node.frequency, node.amplitude);
-        juce::Colour dotColor = getColorForFrequency (node.frequency);
+        juce::Point<float> point = coordsForCurvePt (curvePt.freq, curvePt.val);
+        juce::Colour dotColor = getColorForFrequency (curvePt.freq);
         
         // Figure out the radius - it's different if it's hovering vs. dragging
         float dotRadius = DOT_SIZE_DEFAULT;
-        if (node.id == hoveringId || node.id == draggingId)
+        if (curvePt.id == hoveringId || curvePt.id == draggingId)
         {
             dotRadius = selectedDotSize;
             
@@ -312,7 +312,7 @@ void CabinEQGraph::drawDots (juce::Graphics& g, Curve& curve)
         
         // Calculate coordinates of node
         float testingFreq = getCurrTestingFreq();
-        juce::Point<float> point = coordsForEQNode (testingFreq, juce::Decibels::gainToDecibels (curve.valueAtFrequency (testingFreq).first.real()));
+        juce::Point<float> point = coordsForCurvePt (testingFreq, juce::Decibels::gainToDecibels (curve.valueAtFrequency (testingFreq)));
         
         // Draw node
         drawDot (g, point, selectedDotSize, testDotColor);
@@ -326,8 +326,8 @@ void CabinEQGraph::drawDots (juce::Graphics& g, Curve& curve)
         juce::Colour addingDotColor = getColorForFrequency (addingFreq.value()).withAlpha (0.5f);
         
         // Calculate coordinates of node
-        float addingAmpl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (addingFreq.value()).first.real());
-        juce::Point<float> point = coordsForEQNode (addingFreq.value(), addingAmpl);
+        float addingAmpl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (addingFreq.value()));
+        juce::Point<float> point = coordsForCurvePt (addingFreq.value(), addingAmpl);
         float addingDotRadius = DOT_SIZE_DEFAULT;
         
         // Draw node
@@ -386,10 +386,10 @@ void CabinEQGraph::updateHoveringAndAddingNode (const juce::MouseEvent& event)
     
     // Figure out which node, if any, we're hovering over
     hoveringId = -1;
-    std::optional<EQNode> hoveringEQNode = getClosestEQNodeToMouseEvent (event);
-    if (hoveringEQNode.has_value())
+    std::optional<CurvePt> hoveringCurvePt = getClosestCurvePtToMouseEvent (event);
+    if (hoveringCurvePt.has_value())
     {
-        hoveringId = hoveringEQNode.value().id;
+        hoveringId = hoveringCurvePt.value().id;
         targetSelectedDotSize = DOT_SIZE_DRAGGING;
         
         // If we're hovering, we don't want to show the ghost node to add
@@ -473,7 +473,7 @@ juce::Colour CabinEQGraph::getColorForFrequency (float frequency)
     return startColor.interpolatedWith (endColor, segment_t);
 }
 
-juce::Point<float> CabinEQGraph::coordsForEQNode (float frequency, float amplitude)
+juce::Point<float> CabinEQGraph::coordsForCurvePt (float frequency, float amplitude)
 {
     // Calculate (x, y) coords and return
     float x = getWidth() * timeAtFrequency (frequency);
@@ -522,12 +522,12 @@ std::pair<float, float> CabinEQGraph::frequencyAndAmplitudeForMouseEvent (const 
     return { freq, ampl };
 }
 
-float CabinEQGraph::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const
+float CabinEQGraph::mouseEventDistanceFromCurvePt (const juce::MouseEvent& event, CurvePt curvePt) const
 {
     // Calculate distance based on arbitrary scale factors that weigh freq and ampl about the same
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
-    float dx = std::abs (timeAtFrequency (freq) - timeAtFrequency (eqNode.frequency));
-    float dy = std::abs (ampl - eqNode.amplitude);
+    float dx = std::abs (timeAtFrequency (freq) - timeAtFrequency (curvePt.freq));
+    float dy = std::abs (ampl - curvePt.val);
     dx *= 39;
     dy *= 0.5;
     
@@ -537,32 +537,32 @@ float CabinEQGraph::mouseEventEQNodeDistance (const juce::MouseEvent& event, EQN
 
 float CabinEQGraph::dbDistanceFromCurve (const float freq, const float ampl, Curve& curve) const
 {
-    float curveGainAtFreq = curve.valueAtFrequency (freq).first.real();
+    float curveGainAtFreq = curve.valueAtFrequency (freq);
     float curveDBAtFreq = juce::Decibels::gainToDecibels (curveGainAtFreq);
     return std::abs (ampl - curveDBAtFreq);
 }
 
-std::optional<EQNode> CabinEQGraph::getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const
+std::optional<CurvePt> CabinEQGraph::getClosestCurvePtToMouseEvent (const juce::MouseEvent& event) const
 {
     float minDist = 10.0f; // arbitrary # higher than HOVER_MIN_DIST
-    std::optional<EQNode> closestEQNode;
-    for (const auto& eqNode : eqNodes)
+    std::optional<CurvePt> closestCurvePt;
+    for (const auto& curvePt : curvePts)
     {
-        float dist = mouseEventEQNodeDistance (event, eqNode);
+        float dist = mouseEventDistanceFromCurvePt (event, curvePt);
         if (dist < std::min (minDist, HOVER_MIN_DIST))
         {
             minDist = dist;
-            closestEQNode = eqNode;
+            closestCurvePt = curvePt;
         }
     }
     
-    return closestEQNode;
+    return closestCurvePt;
 }
 
-void CabinEQGraph::updateEQNodes()
+void CabinEQGraph::updateCurvePts()
 {
     if (curve.has_value())
-        eqNodes = curve->get().getEQNodes();
+        curvePts = curve->get().getCurvePts();
 }
 
 int CabinEQGraph::addNode (float freq, float ampl)

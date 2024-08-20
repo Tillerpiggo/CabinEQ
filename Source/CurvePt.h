@@ -20,4 +20,4 @@ struct CurvePt
     int id;
     float freq;
     float val;
-}
+};

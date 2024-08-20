@@ -75,17 +75,17 @@ private:
     void updateHoveringAndAddingNode (const juce::MouseEvent& event);
     juce::ColourGradient getCurveGradient();
     juce::Colour getColorForFrequency(float frequency);
-    juce::Point<float> coordsForEQNode (float frequency, float amplitude);
+    juce::Point<float> coordsForCurvePt (float frequency, float val);
     
     // Utils
     float frequencyAtTime (float t) const;
     float timeAtFrequency (float freq) const;
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
-    bool mouseEventIsNearEQNode (const juce::MouseEvent& event, EQNode eqNode) const;
-    float mouseEventEQNodeDistance (const juce::MouseEvent& event, EQNode eqNode) const;
+    bool mouseEventIsNearCurvePt (const juce::MouseEvent& event, CurvePt curvePt) const;
+    float mouseEventDistanceFromCurvePt (const juce::MouseEvent& event, CurvePt curvePt) const;
     float dbDistanceFromCurve (const float freq, const float ampl, Curve& curve) const;
-    std::optional<EQNode> getClosestEQNodeToMouseEvent (const juce::MouseEvent& event) const;
-    void updateEQNodes();
+    std::optional<CurvePt> getClosestCurvePtToMouseEvent (const juce::MouseEvent& event) const;
+    void updateCurvePts();
     
     // Utils to handle listener being nullptr
     int addNode (float freq, float ampl);

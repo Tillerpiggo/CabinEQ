@@ -115,19 +115,19 @@ const float* Curve::getImpulse (int fft_size)
 
 const float Curve::interpolateValueAtFrequency (const float frequency, const std::vector<float>& values) const
 {
-    size_t numPoints = eqNodes.size();
+    size_t numPoints = curvePts.size();
     
     // Edge case checks
-    if (eqNodes.size() == 0) return 0.0f;
-    if (frequency < eqNodes.at (0).frequency) return values.at (0);
-    if (frequency > eqNodes.at(numPoints - 1).frequency) return values.at (numPoints - 1);
+    if (curvePts.size() == 0) return 0.0f;
+    if (frequency < curvePts.at (0).freq) return values.at (0);
+    if (frequency > curvePts.at(numPoints - 1).freq) return values.at (numPoints - 1);
     
     float freq0 = 0, freq1 = 0, freq2 = 0, freq3 = 0;
     float gain0 = 0, gain1 = 0, gain2 = 0, gain3 = 0;
     
     for (size_t i = 0; i < numPoints; ++i)
     {
-        float currFreq = eqNodes.at (i).frequency;
+        float currFreq = curvePts.at (i).freq;
         if (frequency == currFreq)
         {
             return values.at(i);
@@ -135,15 +135,15 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
         
         if (frequency < currFreq)
         {
-            freq1 = eqNodes.at(i - 1).frequency;
+            freq1 = curvePts.at(i - 1).freq;
             gain1 = values.at(i - 1);
-            freq2 = eqNodes.at(i).frequency;
+            freq2 = curvePts.at(i).freq;
             gain2 = values.at(i);
             
             gain0 = (i > 1) ? values.at (i - 2) : gain1;
-            freq0 = (i > 1) ? eqNodes.at (i - 2).frequency : freq1;
+            freq0 = (i > 1) ? curvePts.at (i - 2).freq : freq1;
             gain3 = (i < numPoints - 1) ? values.at (i + 1) : gain2;
-            freq3 = (i < numPoints - 1) ? eqNodes.at (i + 1).frequency : freq2;
+            freq3 = (i < numPoints - 1) ? curvePts.at (i + 1).freq : freq2;
             
             break;
         }
@@ -162,37 +162,37 @@ const float Curve::interpolateValueAtFrequency (const float frequency, const std
 
 const float Curve::visualInterpolateAmplitudeAtFrequency (const float frequency) const
 {
-    size_t numPoints = eqNodes.size();
+    size_t numPoints = curvePts.size();
     
     auto logCompensation = [](float freq) { return 0.0f; };//-4.5 * std::log2(freq / 1000); };
     
     // Edge case checks
-    if (eqNodes.size() == 0) return logCompensation (frequency);
-    if (frequency < eqNodes.at(0).frequency) return eqNodes.at(0).amplitude + logCompensation (frequency) - logCompensation (eqNodes.at(0).frequency);
-    if (frequency > eqNodes.at(numPoints - 1).frequency) return eqNodes.at(numPoints - 1).amplitude + logCompensation (frequency) - logCompensation (eqNodes.at(numPoints - 1).frequency);
+    if (curvePts.size() == 0) return logCompensation (frequency);
+    if (frequency < curvePts.at(0).freq) return curvePts.at(0).val + logCompensation (frequency) - logCompensation (curvePts.at(0).freq);
+    if (frequency > curvePts.at(numPoints - 1).freq) return curvePts.at(numPoints - 1).val + logCompensation (frequency) - logCompensation (curvePts.at(numPoints - 1).freq);
     
     float freq0 = 0, freq1 = 0, freq2 = 0, freq3 = 0;
     float gain0 = 0, gain1 = 0, gain2 = 0, gain3 = 0;
     
     for (size_t i = 0; i < numPoints; ++i)
     {
-        float currFreq = eqNodes.at(i).frequency;
+        float currFreq = curvePts.at(i).freq;
         if (frequency == currFreq)
         {
-            return eqNodes.at(i).amplitude;
+            return curvePts.at(i).val;
         }
         
         if (frequency < currFreq)
         {
-            freq1 = eqNodes.at(i - 1).frequency;
-            gain1 = eqNodes.at(i - 1).amplitude - logCompensation(freq1);
-            freq2 = eqNodes.at(i).frequency;
-            gain2 = eqNodes.at(i).amplitude - logCompensation(freq2);
+            freq1 = curvePts.at(i - 1).freq;
+            gain1 = curvePts.at(i - 1).val - logCompensation(freq1);
+            freq2 = curvePts.at(i).freq;
+            gain2 = curvePts.at(i).val - logCompensation(freq2);
             
-            freq0 = (i > 1) ? eqNodes.at(i - 2).frequency : freq1 / 2;
-            gain0 = (i > 1) ? eqNodes.at(i - 2).amplitude - logCompensation(freq0) : gain1;
-            freq3 = (i < numPoints - 1) ? eqNodes.at(i + 1).frequency : freq2 * 2;
-            gain3 = (i < numPoints - 1) ? eqNodes.at(i + 1).amplitude - logCompensation(freq3) : gain2;
+            freq0 = (i > 1) ? curvePts.at(i - 2).freq : freq1 / 2;
+            gain0 = (i > 1) ? curvePts.at(i - 2).val - logCompensation(freq0) : gain1;
+            freq3 = (i < numPoints - 1) ? curvePts.at(i + 1).freq : freq2 * 2;
+            gain3 = (i < numPoints - 1) ? curvePts.at(i + 1).val - logCompensation(freq3) : gain2;
             
             break;
         }
