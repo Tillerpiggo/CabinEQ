@@ -28,8 +28,8 @@ public:
     Curve& getAmplCurve();
     Curve& getPanCurve();
     
-    void addAmplPt (const float freq, const float ampl);
-    void addPanPt (const float freq, const float pan);
+    int addAmplPt (const float freq, const float ampl);
+    int addPanPt (const float freq, const float pan);
     void removeAmplPt (const int id);
     void removePanPt (const int id);
     void updateAmplPt (const int id, const float freq, const float ampl);

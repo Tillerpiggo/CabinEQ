@@ -86,7 +86,7 @@ Curve& CabinEQValueTree::getPanCurve()
     return panCurve;
 }
 
-void CabinEQValueTree::addAmplPt (const float freq, const float ampl)
+int CabinEQValueTree::addAmplPt (const float freq, const float ampl)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -94,9 +94,11 @@ void CabinEQValueTree::addAmplPt (const float freq, const float ampl)
     auto amplPtTree = valueTree.getChildWithName (idAmplTree);
     int id = getNextIdForCurvePtTree (amplPtTree);
     addCurvePtToTree (id, freq, ampl, amplPtTree);
+    
+    return id;
 }
 
-void CabinEQValueTree::addPanPt (const float freq, const float pan)
+int CabinEQValueTree::addPanPt (const float freq, const float pan)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -104,6 +106,8 @@ void CabinEQValueTree::addPanPt (const float freq, const float pan)
     auto panPtTree = valueTree.getChildWithName (idPanTree);
     int id = getNextIdForCurvePtTree (panPtTree);
     addCurvePtToTree (id, freq, pan, panPtTree);
+    
+    return id;
 }
 
 void CabinEQValueTree::removeAmplPt (const int id)

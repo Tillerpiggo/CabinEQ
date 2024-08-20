@@ -145,7 +145,7 @@ public:
     void resized() override;
     
     // CabinEQGraphListener methods
-    void addCurvePt (float freq, float ampl, CabinEQGraph* sender) override;
+    int addCurvePt (float freq, float ampl, CabinEQGraph* sender) override;
     void updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender) override;
     void removeCurvePt (int id, CabinEQGraph* sender) override;
     void startPlayingValueAt (float freq, float ampl) override;

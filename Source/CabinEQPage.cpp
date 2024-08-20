@@ -92,10 +92,10 @@ void CabinEQPage::resized()
 }
 
 // ====================================================
-void CabinEQPage::addCurvePt (float freq, float ampl, CabinEQGraph* sender)
+int CabinEQPage::addCurvePt (float freq, float ampl, CabinEQGraph* sender)
 {
     flagFilterChanged();
-    processor.addPanPt (freq, ampl, profileId); // TODO: FIX, I'M JUST DOING PAN FOR NOW
+    return processor.addPanPt (freq, ampl, profileId); // TODO: FIX, I'M JUST DOING PAN FOR NOW
 }
 
 void CabinEQPage::updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender)

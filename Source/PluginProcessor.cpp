@@ -280,18 +280,20 @@ const std::optional<CurvePt> StartupMVPAudioProcessor::getPanPtWithId (int id, j
     return std::nullopt;
 }
 
-void StartupMVPAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)
+int StartupMVPAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().addAmplPt (freq, ampl);
+        return profile->get().addAmplPt (freq, ampl);
+    return -1;
 }
 
-void StartupMVPAudioProcessor::addPanPt (const float freq, const float pan, juce::String profileName)
+int StartupMVPAudioProcessor::addPanPt (const float freq, const float pan, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().addPanPt (freq, pan);
+        return profile->get().addPanPt (freq, pan);
+    return -1;
 }
 
 void StartupMVPAudioProcessor::removeAmplPt (const int id, juce::String profileName)
@@ -374,22 +376,6 @@ void StartupMVPAudioProcessor::endTesting()
 float StartupMVPAudioProcessor::getCurrTestingFreq()
 {
     return playbackManager.getCurrTestingFreq();
-}
-
-const std::vector<EQNode> StartupMVPAudioProcessor::getEQNodes (juce::String profileName) const
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getEQNodes();
-    return {};
-}
-
-const std::optional<EQNode> StartupMVPAudioProcessor::getEQNodeWithId (juce::String profileName, int id) const
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getEQNodeWithId (id);
-    return std::nullopt;
 }
 
 void StartupMVPAudioProcessor::addProfile (juce::String profileName)

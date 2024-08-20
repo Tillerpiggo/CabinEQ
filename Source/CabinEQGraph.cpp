@@ -565,7 +565,7 @@ void CabinEQGraph::updateCurvePts()
         curvePts = curve->get().getCurvePts();
 }
 
-void CabinEQGraph::addNode (float freq, float ampl)
+int CabinEQGraph::addNode (float freq, float ampl)
 {
     if (listener == nullptr)
         return -1;

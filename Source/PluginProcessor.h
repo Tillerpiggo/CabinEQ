@@ -95,8 +95,8 @@ public:
 //    void clearEQNodes (juce::String profileName);
     
     // Setting points (new)
-    void addAmplPt (const float freq, const float ampl, juce::String profileName);
-    void addPanPt (const float freq, const float pan, juce::String profileName);
+    int addAmplPt (const float freq, const float ampl, juce::String profileName);
+    int addPanPt (const float freq, const float pan, juce::String profileName);
     void removeAmplPt (const int id, juce::String profileName);
     void removePanPt (const int id, juce::String profileName);
     void updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName);
