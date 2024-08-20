@@ -48,6 +48,9 @@ private:
     int getNextIdForCurvePtTree (juce::ValueTree curvePtTree);
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
     void printValueTree (juce::ValueTree valueTree) const;
+    void updateCurves(); // updates both curves to match the current state of the value tree
+    void updateAmplCurve();
+    void updatePanCurve();
     std::vector<CurvePt> getCurvePtsForValueTree (juce::ValueTree valueTree) const;
     
     juce::AudioProcessorValueTreeState& apvts;
