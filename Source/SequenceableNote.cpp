@@ -19,10 +19,6 @@ SequenceableNote::SequenceableNote (Note note, float duration, StereoGainEnvelop
     : note (note), duration (duration), envelope (envelope)
 {}
 
-SequenceableNote::SequenceableNote (EQNode node, float duration, StereoGainEnvelope envelope)
-    : note (node.frequency, node.amplitude), duration (duration), envelope (envelope)
-{}
-
 const float SequenceableNote::getFrequency() const
 {
     return note.frequency;

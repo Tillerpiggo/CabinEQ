@@ -565,23 +565,23 @@ void CabinEQGraph::updateCurvePts()
         curvePts = curve->get().getCurvePts();
 }
 
-int CabinEQGraph::addNode (float freq, float ampl)
+void CabinEQGraph::addNode (float freq, float ampl)
 {
     if (listener == nullptr)
         return -1;
-    return listener->addNode (freq, ampl);
+    listener->addCurvePt (freq, ampl, this);
 }
 
 void CabinEQGraph::updateNode (int id, float freq, float ampl)
 {
     if (listener != nullptr)
-        listener->updateNode (id, freq, ampl);
+        listener->updateCurvePt (id, freq, ampl, this);
 }
 
 void CabinEQGraph::removeNode (int id)
 {
     if (listener != nullptr)
-        listener->removeNode (id);
+        listener->removeCurvePt (id, this);
 }
 
 void CabinEQGraph::startPlayingValueAt (float freq, float ampl)

@@ -27,3 +27,8 @@ void ArbitraryResponseFilter::updateWithCurve (Curve& curve, int fft_size)
     delete[] leftImpulseData;
     delete[] rightImpulseData;
 }
+
+void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurve, int fft_size)
+{
+    // TODO: Figure out how to do this
+}

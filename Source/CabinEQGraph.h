@@ -24,9 +24,9 @@ public:
     public:
         virtual ~Listener() = default;
 
-        virtual int addNode (float freq, float ampl) = 0;
-        virtual void updateNode (int id, float freq, float ampl) = 0;
-        virtual void removeNode (int id) = 0;
+        virtual void addCurvePt (float freq, float ampl, CabinEQGraph* sender) = 0;
+        virtual void updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender) = 0;
+        virtual void removeCurvePt (int id, CabinEQGraph* sender) = 0;
         virtual void startPlayingValueAt (float freq, float ampl) = 0;
         virtual void playValueAt (float freq, float ampl) = 0; // the tone while dragging nodes
         virtual void testValueAt (float freq) = 0; // for probing
@@ -88,7 +88,7 @@ private:
     void updateCurvePts();
     
     // Utils to handle listener being nullptr
-    int addNode (float freq, float ampl);
+    void addNode (float freq, float ampl);
     void updateNode (int id, float freq, float ampl);
     void removeNode (int id);
     void startPlayingValueAt (float freq, float ampl);

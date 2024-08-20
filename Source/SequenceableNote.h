@@ -21,7 +21,6 @@ public:
     SequenceableNote (float frequency, float amplitude,
                       float duration, StereoGainEnvelope envelope = StereoGainEnvelope());
     SequenceableNote (Note note, float duration, StereoGainEnvelope envelope = StereoGainEnvelope());
-    SequenceableNote (EQNode node, float duration, StereoGainEnvelope envelope = StereoGainEnvelope());
     
     const float getFrequency() const;
     const float getAmplitude() const;

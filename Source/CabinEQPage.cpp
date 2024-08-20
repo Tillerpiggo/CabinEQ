@@ -92,32 +92,32 @@ void CabinEQPage::resized()
 }
 
 // ====================================================
-int CabinEQPage::addNode (float freq, float ampl)
+void CabinEQPage::addCurvePt (float freq, float ampl, CabinEQGraph* sender)
 {
     flagFilterChanged();
-    return processor.addEQNode (freq, ampl, 0.0f, profileId);
+    processor.addPanPt (freq, ampl, profileId); // TODO: FIX, I'M JUST DOING PAN FOR NOW
 }
 
-void CabinEQPage::updateNode (int id, float freq, float ampl)
+void CabinEQPage::updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender)
 {
     flagFilterChanged();
-    processor.updateEQNode (id, freq, ampl, 0.0f, profileId);
+    processor.updatePanPt (id, freq, ampl, profileId);
 }
 
-void CabinEQPage::removeNode (int id)
+void CabinEQPage::removeCurvePt (int id, CabinEQGraph* sender)
 {
     flagFilterChanged();
-    processor.removeEQNode (id, profileId);
+    processor.removeAmplPt (id, profileId);
 }
 
 void CabinEQPage::startPlayingValueAt (float freq, float ampl)
 {
-    processor.startCalibratingEQNode (EQNode (-1, freq, ampl));
+    processor.startPlayingFreq (freq, ampl);
 }
 
 void CabinEQPage::playValueAt (float freq, float ampl)
 {
-    processor.updateCalibratingEQNode (EQNode (-1, freq, ampl));
+    processor.updatePlayingFreq (freq, ampl);
 }
 
 void CabinEQPage::testValueAt (float freq)
