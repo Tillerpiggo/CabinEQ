@@ -32,13 +32,13 @@ const std::pair<float, float> PinkNoiseGenerator::getNextSample()
     }
     bufferIdx++;
     
-    float leftVal = leftBuffer.getReadPointer (0)[bufferIdx];
-    float rightVal = rightBuffer.getReadPointer (0)[bufferIdx];
+    float leftVal = leftBuffer.getReadPointer (0)[bufferIdx] * leftAmplitudeCompensation;
+    float rightVal = rightBuffer.getReadPointer (0)[bufferIdx] * rightAmplitudeCompensation;
 //    float leftVal = val * leftAmplitudeCompensation;
 //    float rightVal = val * rightAmplitudeCompensation;
     
 //    return delayFilter.processSample ({ leftVal, rightVal });
-    return { leftVal, rightVal };
+    return { leftVal, leftVal };
 }
 
 void PinkNoiseGenerator::setNote (Note note)
@@ -77,12 +77,16 @@ void PinkNoiseGenerator::populateBuffers()
     
     // Reset the heap block and fill it with new pink noise
     auto leftBufferPtr = leftBuffer.getWritePointer (0);
-    auto rightBufferPtr = rightBuffer.getWritePointer (0);
     for (int i = 0; i < bufferSize; ++i)
     {
         leftBufferPtr[i] = pinkNoise.generate();
+    }
+    auto rightBufferPtr = rightBuffer.getWritePointer (0);
+    for (int i = 0; i < bufferSize; ++i)
+    {
         rightBufferPtr[i] = pinkNoise.generate();
     }
+    
     
     // Do other processing as needed...
     juce::dsp::AudioBlock<float> leftBlock (leftBuffer);
