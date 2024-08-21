@@ -138,7 +138,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
     sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::setCalibratingEQNode (EQNode node)
+void PlaybackManager::setCalibratingEQNode (EQNode node, Curve& curve)
 {
     // Play the reference note and controlled note, alternating between left and right
     int noteDurationInSamples = 20000;
@@ -146,17 +146,27 @@ void PlaybackManager::setCalibratingEQNode (EQNode node)
     auto hardLeft = StereoGainEnvelope::hardLeft();
     auto hardRight = StereoGainEnvelope::hardRight();
     
-    node.amplitude += getCompensationDBAtFrequency (node.frequency);
-    SequenceableNote leftReferenceNote (leftRefNote, noteDurationInSamples, hardLeft);
-    SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
-    SequenceableNote rightReferenceNote (rightRefNote, noteDurationInSamples, hardRight);
-    SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
     
-    arbitrarySequencer.setNotes ({ leftReferenceNote, rightReferenceNote });
-    arbitrarySequencer2.setNotes ({ leftControlledNote, rightControlledNote });
+    
+//    float freq = node.frequency * 2.5;
+    node.amplitude += getCompensationDBAtFrequency (node.frequency);
+    SequenceableNote lowReferenceNote (lowRefNote, noteDurationInSamples);
+    SequenceableNote highReferenceNote (highRefNote, noteDurationInSamples);
+    SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
+    SequenceableNote silentNote (0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+    
+    SequenceableNote leftReferenceNoteLow (lowRefNote, noteDurationInSamples, hardLeft);
+    SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNoteLow (lowRefNote, noteDurationInSamples, hardRight);
+    SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
+    SequenceableNote leftReferenceNoteHigh (highRefNote, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNoteHigh (highRefNote, noteDurationInSamples, hardRight);
+    
+    arbitrarySequencer.setNotes ({ leftReferenceNoteLow, lowReferenceNote, rightReferenceNoteLow, silentNote, silentNote, silentNote });
+    arbitrarySequencer2.setNotes ({ leftReferenceNoteHigh, highReferenceNote, rightReferenceNoteHigh, leftControlledNote, controlledNote, rightControlledNote });
 }
 
-void PlaybackManager::updateCalibratingEQNode (EQNode node)
+void PlaybackManager::updateCalibratingEQNode (EQNode node, Curve& curve)
 {
     int noteDurationInSamples = 20000;
     
@@ -164,15 +174,46 @@ void PlaybackManager::updateCalibratingEQNode (EQNode node)
     auto hardRight = StereoGainEnvelope::hardRight();
     
     node.amplitude += getCompensationDBAtFrequency (node.frequency);
-    SequenceableNote leftReferenceNote (leftRefNote, noteDurationInSamples, hardLeft);
+    SequenceableNote lowReferenceNote (lowRefNote, noteDurationInSamples);
+    SequenceableNote highReferenceNote (highRefNote, noteDurationInSamples);
+    SequenceableNote controlledNote (node.frequency, node.amplitude, noteDurationInSamples);
+    SequenceableNote silentNote (0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope (StereoGainEnvelopeType::SILENT));
+    SequenceableNote leftReferenceNoteLow (lowRefNote, noteDurationInSamples, hardLeft);
     SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
-    SequenceableNote rightReferenceNote (rightRefNote, noteDurationInSamples, hardRight);
+    SequenceableNote rightReferenceNoteLow (lowRefNote, noteDurationInSamples, hardRight);
     SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
+    SequenceableNote leftReferenceNoteHigh (highRefNote, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNoteHigh (highRefNote, noteDurationInSamples, hardRight);
     
-    arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNote);
-    arbitrarySequencer.changeNoteAtIdx (1, rightReferenceNote);
-    arbitrarySequencer2.changeNoteAtIdx (0, leftControlledNote);
-    arbitrarySequencer2.changeNoteAtIdx (1, rightControlledNote);
+    arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNoteLow);
+    arbitrarySequencer.changeNoteAtIdx (1, lowReferenceNote);
+    arbitrarySequencer.changeNoteAtIdx (2, rightReferenceNoteLow);
+    arbitrarySequencer.changeNoteAtIdx (3, silentNote);
+    arbitrarySequencer.changeNoteAtIdx (4, silentNote);
+    arbitrarySequencer.changeNoteAtIdx (5, silentNote);
+    arbitrarySequencer2.changeNoteAtIdx (0, leftReferenceNoteHigh);
+    arbitrarySequencer2.changeNoteAtIdx (1, highReferenceNote);
+    arbitrarySequencer2.changeNoteAtIdx (2, rightReferenceNoteHigh);
+    arbitrarySequencer2.changeNoteAtIdx (3, leftControlledNote);
+    arbitrarySequencer2.changeNoteAtIdx (4, controlledNote);
+    arbitrarySequencer2.changeNoteAtIdx (5, rightControlledNote);
+    /*
+    SequenceableNote leftReferenceNoteLow (lowRefNote, noteDurationInSamples, hardLeft);
+    SequenceableNote leftControlledNote (node.frequency, node.amplitude - 0.5 * node.pan, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNoteLow (lowRefNote, noteDurationInSamples, hardRight);
+    SequenceableNote rightControlledNote (node.frequency, node.amplitude + 0.5 * node.pan, noteDurationInSamples, hardRight);
+    SequenceableNote leftReferenceNoteHigh (highRefNote, noteDurationInSamples, hardLeft);
+    SequenceableNote rightReferenceNoteHigh (highRefNote, noteDurationInSamples, hardRight);
+    
+    arbitrarySequencer.changeNoteAtIdx (0, leftReferenceNoteLow);
+    arbitrarySequencer.changeNoteAtIdx (1, rightReferenceNoteLow);
+    arbitrarySequencer.changeNoteAtIdx (2, leftReferenceNoteLow);
+    arbitrarySequencer.changeNoteAtIdx (3, rightReferenceNoteLow);
+    arbitrarySequencer2.changeNoteAtIdx (0, leftReferenceNoteHigh);
+    arbitrarySequencer2.changeNoteAtIdx (1, rightReferenceNoteHigh);
+    arbitrarySequencer2.changeNoteAtIdx (2, leftControlledNote);
+    arbitrarySequencer2.changeNoteAtIdx (3, rightControlledNote);
+    */
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -281,8 +322,8 @@ void PlaybackManager::setReferenceVolume (float volume)
 void PlaybackManager::setReferencePan (float pan)
 {
     this->referencePan = pan;
-    this->leftRefNote.amplitude = referenceNote.amplitude - 0.5 * pan;
-    this->rightRefNote.amplitude = referenceNote.amplitude + 0.5 * pan;
+//    this->leftRefNote.amplitude = referenceNote.amplitude - 0.5 * pan;
+//    this->rightRefNote.amplitude = referenceNote.amplitude + 0.5 * pan;
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

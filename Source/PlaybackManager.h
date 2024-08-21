@@ -42,8 +42,8 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void setCalibratingEQNode (EQNode node); // changes the EQNode being compared to the reference tone and restarts interval
-    void updateCalibratingEQNode (EQNode node); // changes the EQNode being compared to the reference tone but does not restart the interval
+    void setCalibratingEQNode (EQNode node, Curve& curve); // changes the EQNode being compared to the reference tone and restarts interval
+    void updateCalibratingEQNode (EQNode node, Curve& curve); // changes the EQNode being compared to the reference tone but does not restart the interval
     void startTestingFreq (float freq, Curve& curve);
     void updateTestingFreq (float freq, Curve& curve);
     void stopTestingFreq();
@@ -59,7 +59,7 @@ private:
     float getReferenceCompensationDBAtFrequency (float frequency);
     juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
     
-    const int FFT_SIZE = 14;
+    const int FFT_SIZE = 16;
     
     // Audio processing
     ArbitraryResponseFilter filter;
@@ -87,6 +87,6 @@ private:
     float referenceFreq = 1000.0f;
     float referencePan = 0.0f;
     
-    Note leftRefNote { REFERENCE_FREQ, 6.0f };
-    Note rightRefNote { REFERENCE_FREQ, 6.0f };
+    Note lowRefNote { REFERENCE_FREQ, 6.0f };
+    Note highRefNote { REFERENCE_FREQ * 8, -5.0f };
 };

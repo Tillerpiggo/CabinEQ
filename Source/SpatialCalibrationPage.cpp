@@ -80,7 +80,7 @@ void SpatialCalibrationPage::sliderDragStarted (juce::Slider *slider)
 {
     float ampl = volumeSlider.getValue();
     float pan = panSlider.getValue();
-    processor.startCalibratingEQNode (EQNode (currNodeId, freqs[currNodeId], ampl, pan));
+    processor.startCalibratingEQNode (EQNode (currNodeId, freqs[currNodeId], ampl, pan), profileId);
 }
 
 void SpatialCalibrationPage::sliderDragEnded (juce::Slider *slider)
@@ -93,7 +93,7 @@ void SpatialCalibrationPage::sliderValueChanged (juce::Slider *slider)
 {
     float ampl = volumeSlider.getValue();
     float pan = panSlider.getValue();
-    processor.updateCalibratingEQNode (EQNode (currNodeId, freqs[currNodeId], ampl, pan));
+    processor.updateCalibratingEQNode (EQNode (currNodeId, freqs[currNodeId], ampl, pan), profileId);
     processor.updateEQNode (currNodeId, freqs[currNodeId], volumeSlider.getValue(), panSlider.getValue(), profileId);
 }
 
