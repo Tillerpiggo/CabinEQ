@@ -95,13 +95,13 @@ void CabinEQPage::resized()
 int CabinEQPage::addCurvePt (float freq, float ampl, CabinEQGraph* sender)
 {
     flagFilterChanged();
-    return processor.addPanPt (freq, ampl, profileId); // TODO: FIX, I'M JUST DOING PAN FOR NOW
+    return processor.addAmplPt (freq, ampl, profileId); // TODO: FIX, I'M JUST DOING AMPL FOR NOW
 }
 
 void CabinEQPage::updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender)
 {
     flagFilterChanged();
-    processor.updatePanPt (id, freq, ampl, profileId);
+    processor.updateAmplPt (id, freq, ampl, profileId);
 }
 
 void CabinEQPage::removeCurvePt (int id, CabinEQGraph* sender)
@@ -226,7 +226,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             int selectedIndex = dropdownProfiles.indexOfItemId (dropdownProfiles.getSelectedId());
             juce::String profileIdSelected = dropdownProfiles.getItemText (selectedIndex);
             profileId = profileIdSelected;
-            cabinEQGraph.setCurve (processor.getPanCurve (profileIdSelected)->get());
+            cabinEQGraph.setCurve (processor.getAmplCurve (profileIdSelected)->get());
             flagFilterChanged();
             applyFilterIfProcessing();
         }

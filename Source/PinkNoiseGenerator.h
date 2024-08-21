@@ -30,7 +30,7 @@ public:
     void setPan (float panInDecibels) override;
     
 private:
-    void populateBuffer(); // fill heap block with next samples
+    void populateBuffers(); // fill heap block with next samples
     void updateAmplitudeCompensation();
     
     using Filter = juce::dsp::IIR::Filter<float>;
@@ -58,7 +58,8 @@ private:
     float rightAmplitudeCompensation = 0.0f;
     int bufferSize;
     int bufferIdx = 0;
-    juce::AudioBuffer<float> buffer;
+    juce::AudioBuffer<float> leftBuffer;
+    juce::AudioBuffer<float> rightBuffer;
     juce::dsp::Gain<float> gainProcessor;
     
     float sampleRate = 44100;

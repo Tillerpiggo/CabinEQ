@@ -12,9 +12,9 @@
 
 
 PinkNoiseGenerator::PinkNoiseGenerator()
-    : bufferSize (2048), buffer (1, bufferSize)
+    : bufferSize (2048), leftBuffer (1, bufferSize), rightBuffer (1, bufferSize)
 {
-    populateBuffer();
+    populateBuffers();
     setFrequency (1000.0f);
 }
 
@@ -27,14 +27,15 @@ const std::pair<float, float> PinkNoiseGenerator::getNextSample()
 {
     if (bufferIdx >= bufferSize)
     {
-        populateBuffer();
+        populateBuffers();
         bufferIdx = 0;
     }
     bufferIdx++;
     
-    float val = buffer.getReadPointer (0)[bufferIdx];
-    float leftVal = val * leftAmplitudeCompensation;
-    float rightVal = val * rightAmplitudeCompensation;
+    float leftVal = leftBuffer.getReadPointer (0)[bufferIdx];
+    float rightVal = rightBuffer.getReadPointer (0)[bufferIdx];
+//    float leftVal = val * leftAmplitudeCompensation;
+//    float rightVal = val * rightAmplitudeCompensation;
     
 //    return delayFilter.processSample ({ leftVal, rightVal });
     return { leftVal, rightVal };
@@ -69,21 +70,27 @@ void PinkNoiseGenerator::setPan (float panInDecibels)
 }
 
 //==============================================================
-void PinkNoiseGenerator::populateBuffer()
+void PinkNoiseGenerator::populateBuffers()
 {
-    buffer.clear();
+    leftBuffer.clear();
+    rightBuffer.clear();
     
     // Reset the heap block and fill it with new pink noise
-    auto bufferPtr = buffer.getWritePointer (0);
+    auto leftBufferPtr = leftBuffer.getWritePointer (0);
+    auto rightBufferPtr = rightBuffer.getWritePointer (0);
     for (int i = 0; i < bufferSize; ++i)
     {
-        bufferPtr[i] = pinkNoise.generate();
+        leftBufferPtr[i] = pinkNoise.generate();
+        rightBufferPtr[i] = pinkNoise.generate();
     }
     
     // Do other processing as needed...
-    juce::dsp::AudioBlock<float> block (buffer);
-    juce::dsp::ProcessContextReplacing<float> context (block);
-    bandpass.process (context);
+    juce::dsp::AudioBlock<float> leftBlock (leftBuffer);
+    juce::dsp::AudioBlock<float> rightBlock (rightBuffer);
+    juce::dsp::ProcessContextReplacing<float> leftContext (leftBlock);
+    juce::dsp::ProcessContextReplacing<float> rightContext (rightBlock);
+    bandpass.process (leftContext);
+    bandpass.process (rightContext);
 }
 
 void PinkNoiseGenerator::updateAmplitudeCompensation()
