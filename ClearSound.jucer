@@ -72,6 +72,8 @@
               file="Source/SineSweepGenerator.cpp"/>
         <FILE id="HYovE4" name="SineSweepGenerator.h" compile="0" resource="0"
               file="Source/SineSweepGenerator.h"/>
+        <FILE id="x9xTTc" name="DelayFilter.cpp" compile="1" resource="0" file="Source/DelayFilter.cpp"/>
+        <FILE id="HyCYjf" name="DelayFilter.h" compile="0" resource="0" file="Source/DelayFilter.h"/>
       </GROUP>
       <GROUP id="{BBD4AE00-CC92-9DE7-D5E8-A037D1509C11}" name="Audio Processing">
         <FILE id="a7IuV6" name="ArbitraryResponseFilter.cpp" compile="1" resource="0"

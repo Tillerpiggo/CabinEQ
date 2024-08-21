@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "PitchedGenerator.h"
 #include "PinkNoise.h"
+#include "DelayFilter.h"
 
 // Generates banded pink noise at a certain frequency, volume, pan, and phase.
 class PinkNoiseGenerator   : public PitchedGenerator
@@ -67,4 +68,6 @@ private:
         LowCut,
         HighCut
     };
+    
+    DelayFilter delayFilter;
 };

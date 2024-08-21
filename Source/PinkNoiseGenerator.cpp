@@ -35,6 +35,8 @@ const std::pair<float, float> PinkNoiseGenerator::getNextSample()
     float val = buffer.getReadPointer (0)[bufferIdx];
     float leftVal = val * leftAmplitudeCompensation;
     float rightVal = val * rightAmplitudeCompensation;
+    
+//    return delayFilter.processSample ({ leftVal, rightVal });
     return { leftVal, rightVal };
 }
 
@@ -62,6 +64,7 @@ void PinkNoiseGenerator::setVolume (float volumeInDecibels)
 void PinkNoiseGenerator::setPan (float panInDecibels)
 {
     panInDB = panInDecibels;
+//    delayFilter.setDelay (panInDecibels * 2);
     updateAmplitudeCompensation();
 }
 

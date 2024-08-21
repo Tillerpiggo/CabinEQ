@@ -146,6 +146,7 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
     pan = juce::Decibels::gainToDecibels (pan);
+    ampl += getCompensationDBAtFrequency (freq);
     SequenceableNote refNote (referenceNote, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
     arbitrarySequencer.setNotes ({ controlledNote });
@@ -160,6 +161,7 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
     pan = juce::Decibels::gainToDecibels (pan);
+    ampl += getCompensationDBAtFrequency (freq);
     SequenceableNote refNote (referenceNote, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
     arbitrarySequencer.changeNoteAtIdx (0, controlledNote);
