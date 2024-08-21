@@ -109,7 +109,7 @@ int CabinEQValueTree::addPanPt (const float freq, const float pan)
     int id = getNextIdForCurvePtTree (panPtTree);
     addCurvePtToTree (id, freq, pan, panPtTree);
     
-    printValueTree (panPtTree);
+//    printValueTree (panPtTree);
     
     updatePanCurve();
     
