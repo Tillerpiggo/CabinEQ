@@ -24,17 +24,33 @@ void SineSweepGenerator::setSampleRate (float newSampleRate)
     sineWaveGenerator.setSampleRate (newSampleRate);
 }
 
-void SineSweepGenerator::setCenterFrequency (float centerFreq, std::optional<float> ampl)
+//void SineSweepGenerator::setCenterFrequency (float centerFreq, std::optional<float> ampl)
+//{
+//    this->centerFreq = centerFreq;
+//    currFreq = centerFreq;
+//    currAmpl = ampl;
+//}
+//
+//void SineSweepGenerator::updateCenterFrequency (float centerFreq, std::optional<float> ampl)
+//{
+//    this->centerFreq = centerFreq;
+//    currAmpl = ampl;
+//}
+
+void SineSweepGenerator::setSweep (float centerFreq, Curve amplCurve, Curve panCurve)
 {
     this->centerFreq = centerFreq;
+    this->amplCurve = amplCurve;
+    this->panCurve = panCurve;
+    
     currFreq = centerFreq;
-    currAmpl = ampl;
 }
 
-void SineSweepGenerator::updateCenterFrequency (float centerFreq, std::optional<float> ampl)
+void SineSweepGenerator::updateSweep (float centerFreq, Curve amplCurve, Curve panCurve)
 {
     this->centerFreq = centerFreq;
-    currAmpl = ampl;
+    this->amplCurve = amplCurve;
+    this->panCurve = panCurve;
 }
 
 void SineSweepGenerator::incrementFreq()
@@ -43,16 +59,24 @@ void SineSweepGenerator::incrementFreq()
     {
         currStep = 0;
         
-        if (currFreq >= centerFreq / FREQ_STEP && currFreq <= centerFreq * FREQ_STEP)
-            currFreq = centerFreq;
-        if (currFreq < centerFreq)
-            currFreq *= FREQ_STEP;
-        if (currFreq > centerFreq)
-            currFreq /= FREQ_STEP;
+//        if (currFreq >= centerFreq / FREQ_STEP && currFreq <= centerFreq * FREQ_STEP)
+//            currFreq = centerFreq;
+        if (currFreq > centerFreq * FREQ_RANGE_FACTOR)
+        {
+            increasingFreq = false;
+        }
+        if (currFreq < centerFreq / FREQ_RANGE_FACTOR)
+        {
+            increasingFreq = true;
+        }
         
-        float dbDifference = currAmpl.has_value() ? currAmpl.value() : 0.0f;
-        dbDifference += -4.5f * std::log2 (currFreq / REFERENCE_FREQ);
-        sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, 0.0f));
+        if (increasingFreq) currFreq *= FREQ_STEP;
+        else currFreq /= FREQ_STEP;
+        
+//        float dbDifference = currAmpl.has_value() ? currAmpl.value() : 0.0f;
+        float dbDifference = juce::Decibels::gainToDecibels (amplCurve.valueAtFrequency (currFreq));
+        float pan = juce::Decibels::gainToDecibels (panCurve.valueAtFrequency (currFreq));
+        sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, pan));
     }
     
     currStep++;

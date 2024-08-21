@@ -99,9 +99,9 @@ void FilterPage::updateApplyFilterButtonText()
     if (isHeadphoneEQSelected && isBypassed)
         applyFilterButton.setButtonText ("HeadphoneEQ Active");
     else if (isHeadphoneEQSelected && ! isBypassed)
-        applyFilterButton.setButtonText ("HeadphoneEQ Inactive");
+        applyFilterButton.setButtonText ("HeadphoneEQ Active");
     else if (! isHeadphoneEQSelected && isBypassed)
         applyFilterButton.setButtonText ("SpeakerEQ Active");
     else
-        applyFilterButton.setButtonText ("SpeakerEQ Inactive");
+        applyFilterButton.setButtonText ("SpeakerEQ Active");
 }

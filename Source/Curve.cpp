@@ -40,7 +40,7 @@ const float Curve::valueAtFrequency (float frequency)
     }
     
     float valueAtFrequency = juce::Decibels::decibelsToGain (visualInterpolateAmplitudeAtFrequency(frequency));
-    cache[frequency] = valueAtFrequency;
+//    cache[frequency] = valueAtFrequency;
     
     return valueAtFrequency;
 }
@@ -252,4 +252,35 @@ std::vector<float> Curve::getFrequencyResponse (int numPoints)
     }
     
     return freqResponse;
+}
+
+const std::optional<std::pair<float, float>> Curve::nodeBelowFreq (float frequency)
+{
+    int numNodes = static_cast<int> (curvePts.size());
+    for (int i = numNodes - 1; i >= 0; --i)
+    {
+        if (curvePts[i].freq < frequency)
+        {
+            float freq = curvePts[i].freq;
+            float val = curvePts[i].val;
+            return std::optional<std::pair<float, float>> ({ freq, val });
+        }
+    }
+    
+    return std::nullopt;
+}
+
+const std::optional<std::pair<float, float>> Curve::nodeAboveFreq (float frequency)
+{
+    for (int i = 0; i < curvePts.size(); ++i)
+    {
+        if (curvePts[i].freq > frequency)
+        {
+            float freq = curvePts[i].freq;
+            float val = curvePts[i].val;
+            return std::optional<std::pair<float, float>> ({ freq, val });
+        }
+    }
+    
+    return std::nullopt;
 }

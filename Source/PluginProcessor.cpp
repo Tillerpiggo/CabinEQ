@@ -333,15 +333,28 @@ void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
         profile->get().resetNodes();
 }
 
-void StartupMVPAudioProcessor::startPlayingFreq (float freq, float ampl, float pan)
+void StartupMVPAudioProcessor::startPlayingFreq (float freq, juce::String profileName)
 {
-    playbackManager.startPlayingFreq (freq, ampl, pan);
-    playbackManager.setIsCalibrating (true);
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        playbackManager.startPlayingFreq (freq,
+                                          profile->get().getAmplCurve(),
+                                          profile->get().getPanCurve());
+        playbackManager.setIsCalibrating (true);
+    }
+    
 }
 
-void StartupMVPAudioProcessor::updatePlayingFreq (float freq, float ampl, float pan)
+void StartupMVPAudioProcessor::updatePlayingFreq (float freq, juce::String profileName)
 {
-    playbackManager.updatePlayingFreq (freq, ampl, pan);
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        playbackManager.updatePlayingFreq (freq,
+                                          profile->get().getAmplCurve(),
+                                          profile->get().getPanCurve());
+    }
 }
 
 void StartupMVPAudioProcessor::endCalibratingEQNode()
@@ -403,15 +416,39 @@ std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor
     return cabinEQValueTreeManager.getProfileNamed (profileName);
 }
 
-void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
+//void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
+//{
+//    playbackManager.setIsSweeping (true);
+//    playbackManager.setSineSweepCenterFrequency (centerFreq, ampl);
+//}
+//
+//void StartupMVPAudioProcessor::updateSineSweep (float centerFreq, std::optional<float> ampl)
+//{
+//    playbackManager.updateSineSweepCenterFrequency (centerFreq, ampl);
+//}
+
+void StartupMVPAudioProcessor::startSineSweep (float centerFreq, juce::String profileName)
 {
-    playbackManager.setIsSweeping (true);
-    playbackManager.setSineSweepCenterFrequency (centerFreq, ampl);
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        playbackManager.setIsSweeping (true);
+        playbackManager.startSineSweep (centerFreq,
+                                        profile->get().getAmplCurve(),
+                                        profile->get().getPanCurve());
+    }
 }
 
-void StartupMVPAudioProcessor::updateSineSweep (float centerFreq, std::optional<float> ampl)
+void StartupMVPAudioProcessor::updateSineSweep (float centerFreq, juce::String profileName)
 {
-    playbackManager.updateSineSweepCenterFrequency (centerFreq, ampl);
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        playbackManager.setIsSweeping (true);
+        playbackManager.updateSineSweep (centerFreq,
+                                         profile->get().getAmplCurve(),
+                                         profile->get().getPanCurve());
+    }
 }
 
 void StartupMVPAudioProcessor::endSineSweep()

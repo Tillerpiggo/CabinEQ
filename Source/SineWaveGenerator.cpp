@@ -135,10 +135,9 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
     
-    std::cout << "pan: " << pan << std::endl;
-    
     float leftDB = ampl - 0.5 * pan;
     float rightDB = ampl + 0.5 * pan;
+    
     leftAmplitudeCompensation = juce::Decibels::decibelsToGain (leftDB);
     rightAmplitudeCompensation = juce::Decibels::decibelsToGain (rightDB);
 }

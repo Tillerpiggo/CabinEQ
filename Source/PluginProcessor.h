@@ -104,8 +104,8 @@ public:
     void clearEQNodes (juce::String profileName);
     
     // Changing points
-    void startPlayingFreq (float freq, float ampl, float pan);
-    void updatePlayingFreq (float freq, float ampl, float pan);
+    void startPlayingFreq (float freq, juce::String profileName);
+    void updatePlayingFreq (float freq, juce::String profileName);
     void endCalibratingEQNode();
     float getCurrPlayingFreq();
     
@@ -116,8 +116,10 @@ public:
     float getCurrTestingFreq();
     
     // Sine sweep
-    void startSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void updateSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);
+//    void startSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);
+//    void updateSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);
+    void startSineSweep (float centerFreq, juce::String profileName);
+    void updateSineSweep (float centerFreq, juce::String profileName);
     void endSineSweep();
     float getCurrSineSweepFreq();
     

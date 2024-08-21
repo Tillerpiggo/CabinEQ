@@ -14,8 +14,8 @@
 
 PlaybackManager::PlaybackManager()
     : filter (FFT_SIZE),
-      arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
-      arbitrarySequencer2 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
+      arbitrarySequencer (std::make_unique<PinkNoiseGenerator> (PinkNoiseGenerator())),
+      arbitrarySequencer2 (std::make_unique<PinkNoiseGenerator> (PinkNoiseGenerator())),
       isTesting (false),
       isSweeping (false),
       isCalibrating (false),
@@ -76,7 +76,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 
 void PlaybackManager::updateFilterWithCurves (Curve& amplCurve, Curve& panCurve)
 {
-    filter.updateWithCurves (amplCurve, panCurve);
+    filter.updateWithCurves (amplCurve, panCurve, FFT_SIZE);
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
@@ -130,30 +130,113 @@ void PlaybackManager::setDryWetVolumeBalance (float balance)
 
 void PlaybackManager::setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl)
 {
-    sineSweepGenerator.setCenterFrequency (centerFreq, ampl);
+//    sineSweepGenerator.setCenterFrequency (centerFreq, ampl);
 }
 
 void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl)
 {
-    sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
+//    sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::startPlayingFreq (float freq, float ampl, float pan)
+void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
     // Play the reference note and controlled note, alternating between left and right
-    int noteDurationInSamples = 20000;
-    ampl += getCompensationDBAtFrequency (freq);
-    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
-    arbitrarySequencer.setNotes ({ controlledNote });
+    int noteDurationInSamples = 30000;
+    /* old code
+    float ampl = juce::Decibels::gainToDecibels (amplCurve.valueAtFrequency (freq));
+    float pan = juce::Decibels::gainToDecibels (panCurve.valueAtFrequency (freq));
+    auto nodeBelow = panCurve.nodeBelowFreq (freq);
+    auto nodeAbove = panCurve.nodeAboveFreq (freq);
+    if (nodeBelow.has_value() && nodeAbove.has_value())
+    {
+        StereoGainEnvelope fastAttack = StereoGainEnvelope (400);
+        auto [freqBelow, panBelow] = nodeBelow.value();
+        auto [freqAbove, panAbove] = nodeAbove.value();
+        float amplBelow = amplCurve.valueAtFrequency (freqBelow);
+        float amplAbove = amplCurve.valueAtFrequency (freqAbove);
+        ampl += getCompensationDBAtFrequency (freq);
+        amplBelow += getCompensationDBAtFrequency (freqBelow);
+        amplAbove += getCompensationDBAtFrequency (freqAbove);
+        std::cout << "freqBelow: " << freqBelow << std::endl;
+        std::cout << "freq: " << freq << std::endl;
+        std::cout << "freqAbove: " << freqAbove << std::endl;
+        SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples, fastAttack);
+        SequenceableNote noteBelow (freqBelow, amplBelow, panBelow, noteDurationInSamples, fastAttack);
+        SequenceableNote noteAbove (freqAbove, amplAbove, panAbove, noteDurationInSamples, fastAttack);
+        arbitrarySequencer.setNotes ({ noteBelow, controlledNote, noteAbove });
+        
+        arbitrarySequencer.changeNoteAtIdx (0, noteBelow);
+        arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
+        arbitrarySequencer.changeNoteAtIdx (2, noteAbove);
+    }
+     */
+//    int noteDurationInSamples = 30000;
+    float ampl = juce::Decibels::gainToDecibels (amplCurve.valueAtFrequency (freq));
+    float pan = juce::Decibels::gainToDecibels (panCurve.valueAtFrequency (freq));
+    auto nodeBelow = panCurve.nodeBelowFreq (freq);
+    auto nodeAbove = panCurve.nodeAboveFreq (freq);
+    if (nodeBelow.has_value() && nodeAbove.has_value())
+    {
+        StereoGainEnvelope fastAttack = StereoGainEnvelope (400);
+        auto [freqBelow, panBelow] = nodeBelow.value();
+        auto [freqAbove, panAbove] = nodeAbove.value();
+        float amplBelow = amplCurve.valueAtFrequency (freqBelow);
+        float amplAbove = amplCurve.valueAtFrequency (freqAbove);
+        ampl += getCompensationDBAtFrequency (freq);
+        amplBelow += getCompensationDBAtFrequency (freqBelow);
+        amplAbove += getCompensationDBAtFrequency (freqAbove);
+        SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples, fastAttack);
+        SequenceableNote noteBelow (freqBelow, amplBelow, panBelow, noteDurationInSamples, fastAttack);
+        SequenceableNote noteAbove (freqAbove, amplAbove, panAbove, noteDurationInSamples, fastAttack);
+        arbitrarySequencer.setNotes ({ noteBelow, controlledNote, noteAbove });
+    }
+//    auto hardLeft = StereoGainEnvelope::hardLeft();
+//    auto hardRight = StereoGainEnvelope::hardRight();
+//    SequenceableNote leftNote (freq, ampl, pan, noteDurationInSamples, hardLeft);
+//    SequenceableNote rightNote (freq, ampl, pan, noteDurationInSamples, hardRight);
+//    arbitrarySequencer.setNotes ({ leftNote, rightNote });
 }
 
 // TODO: Add panning here
-void PlaybackManager::updatePlayingFreq (float freq, float ampl, float pan)
+void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    int noteDurationInSamples = 20000;
-    ampl += getCompensationDBAtFrequency (freq);
-    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
-    arbitrarySequencer.changeNoteAtIdx (0, controlledNote);
+//    int noteDurationInSamples = 20000;
+//    ampl += getCompensationDBAtFrequency (freq);
+//    StereoGainEnvelope fastAttack = StereoGainEnvelope (400);
+//    SequenceableNote refNote (referenceNote, noteDurationInSamples, fastAttack);
+//    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
+//    arbitrarySequencer.changeNoteAtIdx (0, refNote);
+//    arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
+    
+    int noteDurationInSamples = 30000;
+    float ampl = juce::Decibels::gainToDecibels (amplCurve.valueAtFrequency (freq));
+    float pan = juce::Decibels::gainToDecibels (panCurve.valueAtFrequency (freq));
+    auto nodeBelow = panCurve.nodeBelowFreq (freq);
+    auto nodeAbove = panCurve.nodeAboveFreq (freq);
+    if (nodeBelow.has_value() && nodeAbove.has_value())
+    {
+        StereoGainEnvelope fastAttack = StereoGainEnvelope (400);
+        auto [freqBelow, panBelow] = nodeBelow.value();
+        auto [freqAbove, panAbove] = nodeAbove.value();
+        float amplBelow = amplCurve.valueAtFrequency (freqBelow);
+        float amplAbove = amplCurve.valueAtFrequency (freqAbove);
+        ampl += getCompensationDBAtFrequency (freq);
+        amplBelow += getCompensationDBAtFrequency (freqBelow);
+        amplAbove += getCompensationDBAtFrequency (freqAbove);
+        SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples, fastAttack);
+        SequenceableNote noteBelow (freqBelow, amplBelow, panBelow, noteDurationInSamples, fastAttack);
+        SequenceableNote noteAbove (freqAbove, amplAbove, panAbove, noteDurationInSamples, fastAttack);
+        arbitrarySequencer.changeNoteAtIdx (0, noteBelow);
+        arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
+        arbitrarySequencer.changeNoteAtIdx (2, noteAbove);
+    }
+//    auto hardLeft = StereoGainEnvelope::hardLeft();
+//    auto hardRight = StereoGainEnvelope::hardRight();
+//    SequenceableNote leftNote (freq, ampl, pan, noteDurationInSamples, hardLeft);
+//    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
+//    SequenceableNote rightNote (freq, ampl, pan, noteDurationInSamples, hardRight);
+//    arbitrarySequencer.changeNoteAtIdx (0, leftNote);
+//    arbitrarySequencer.changeNoteAtIdx (1, rightNote);
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -248,6 +331,16 @@ void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
     
     testingFreq = freq;
     */
+}
+
+void PlaybackManager::startSineSweep (float centerFreq, Curve amplCurve, Curve panCurve)
+{
+    sineSweepGenerator.setSweep (centerFreq, amplCurve, panCurve);
+}
+
+void PlaybackManager::updateSineSweep (float centerFreq, Curve amplCurve, Curve panCurve)
+{
+    sineSweepGenerator.updateSweep (centerFreq, amplCurve, panCurve);
 }
 
 void PlaybackManager::stopTestingFreq()

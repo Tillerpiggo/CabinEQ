@@ -86,6 +86,7 @@ void ArbitrarySequencer::changeNoteAtIdx (int idx, SequenceableNote newNote)
     }
     notes.at (idx).setFrequency (newNote.getFrequency());
     notes.at (idx).setAmplitude (newNote.getAmplitude());
+    notes.at (idx).setPan (newNote.getPan());
     notes.at (idx).setDuration (newNote.getDuration());
 }
 

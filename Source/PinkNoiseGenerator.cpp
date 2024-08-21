@@ -30,16 +30,19 @@ const std::pair<float, float> PinkNoiseGenerator::getNextSample()
         populateBuffer();
         bufferIdx = 0;
     }
-    
-    float val = buffer.getReadPointer (0)[bufferIdx] * amplitudeCompensation;
     bufferIdx++;
-    return { val, val };
+    
+    float val = buffer.getReadPointer (0)[bufferIdx];
+    float leftVal = val * leftAmplitudeCompensation;
+    float rightVal = val * rightAmplitudeCompensation;
+    return { leftVal, rightVal };
 }
 
 void PinkNoiseGenerator::setNote (Note note)
 {
     setFrequency (note.frequency);
     setVolume (note.amplitude);
+    setPan (note.pan);
 }
 
 void PinkNoiseGenerator::setFrequency (float frequencyInHz)
@@ -53,6 +56,12 @@ void PinkNoiseGenerator::setFrequency (float frequencyInHz)
 void PinkNoiseGenerator::setVolume (float volumeInDecibels)
 {
     volumeInDB = volumeInDecibels;
+    updateAmplitudeCompensation();
+}
+
+void PinkNoiseGenerator::setPan (float panInDecibels)
+{
+    panInDB = panInDecibels;
     updateAmplitudeCompensation();
 }
 
@@ -77,8 +86,9 @@ void PinkNoiseGenerator::populateBuffer()
 void PinkNoiseGenerator::updateAmplitudeCompensation()
 {
     float tiltInDB = -1.5 * std::log2 (centerFrequency / 1000.0f);
-    amplitudeCompensation = tiltInDB + volumeInDB + 30.0f;
-    amplitudeCompensation = juce::Decibels::decibelsToGain (amplitudeCompensation);
+    float amplitudeCompensation = tiltInDB + volumeInDB + 30.0f;
+    leftAmplitudeCompensation = juce::Decibels::decibelsToGain (amplitudeCompensation - 0.5 * panInDB);
+    rightAmplitudeCompensation = juce::Decibels::decibelsToGain (amplitudeCompensation + 0.5 * panInDB);
 }
 
 void PinkNoiseGenerator::updateBandpassFilter (const float lowCutFreq, const float highCutFreq)

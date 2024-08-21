@@ -26,6 +26,7 @@ public:
     void setNote (Note note) override;
     void setFrequency (float frequencyInHz) override;
     void setVolume (float volumeInDecibels) override;
+    void setPan (float panInDecibels) override;
     
 private:
     void populateBuffer(); // fill heap block with next samples
@@ -50,7 +51,9 @@ private:
     
     float centerFrequency = 1000.0f;
     float volumeInDB = 0.0f;
-    float amplitudeCompensation = 0.0f; // the total amplitude change, in DB, from the base value
+    float panInDB = 0.0f;
+    float leftAmplitudeCompensation = 0.0f;
+    float rightAmplitudeCompensation = 0.0f;
     int bufferSize;
     int bufferIdx = 0;
     juce::AudioBuffer<float> buffer;

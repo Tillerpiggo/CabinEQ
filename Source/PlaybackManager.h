@@ -42,11 +42,13 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void startPlayingFreq (float freq, float ampl, float pan);
-    void updatePlayingFreq (float freq, float ampl, float pan);
+    void startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve);
+    void updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve);
     // TODO: add diff functions for other kinds of tests
     void startTestingFreq (float freq, Curve& curve);
     void updateTestingFreq (float freq, Curve& curve);
+    void startSineSweep (float centerFreq, Curve amplCurve, Curve panCurve);
+    void updateSineSweep (float centerFreq, Curve amplCurve, Curve panCurve);
     void stopTestingFreq();
     
     void setReferenceVolume (float volume);

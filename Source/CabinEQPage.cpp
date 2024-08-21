@@ -112,12 +112,14 @@ void CabinEQPage::removeCurvePt (int id, CabinEQGraph* sender)
 
 void CabinEQPage::startPlayingValueAt (float freq, float ampl)
 {
-    processor.startPlayingFreq (freq, 6.0f, ampl); // hacky way to make this impact pan
+    processor.startPlayingFreq (freq, profileId); // hacky way to make this impact pan
+//    processor.startSineSweep (freq, profileId);
 }
 
 void CabinEQPage::playValueAt (float freq, float ampl)
 {
-    processor.updatePlayingFreq (freq, 6.0f, ampl); // hacky way to make this impact pan
+    processor.updatePlayingFreq (freq, profileId); // hacky way to make this impact pan
+//    processor.updateSineSweep (freq, profileId);
 }
 
 void CabinEQPage::testValueAt (float freq)
@@ -128,6 +130,7 @@ void CabinEQPage::testValueAt (float freq)
 void CabinEQPage::stopPlaying()
 {
     processor.endCalibratingEQNode();
+    processor.endSineSweep();
 }
 
 void CabinEQPage::stopTesting()

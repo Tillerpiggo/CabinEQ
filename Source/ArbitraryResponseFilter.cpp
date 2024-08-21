@@ -26,8 +26,10 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurv
     {
         if (i % 2 == 0)
         {
-            leftFreqResponse[i] = amplResponse[i] / std::sqrt (panResponse[i]);
-            rightFreqResponse[i] = amplResponse[i] * std::sqrt (panResponse[i]);
+            float pan = panResponse[i];
+            if (pan == 0) pan = 1;
+            leftFreqResponse[i] = amplResponse[i] / std::sqrt (pan);
+            rightFreqResponse[i] = amplResponse[i] * std::sqrt (pan);
         }
         else
         {

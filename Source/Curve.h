@@ -35,6 +35,10 @@ public:
     
     std::vector<float> getFrequencyResponse (int numPoints); // Returns frequency response in a float* representing gain for each freq at each point w/ len 2 * numPoints
     
+    const std::optional<std::pair<float, float>> nodeBelowFreq (float frequency);
+    const std::optional<std::pair<float, float>> nodeAboveFreq (float frequency);
+
+    
 //    const float* getImpulse (int fft_size); // This hands ownership of the float*'s to whoever calls it!!
 
 protected:
