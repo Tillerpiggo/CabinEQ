@@ -333,6 +333,11 @@ void CabinEQGraph::drawDots (juce::Graphics& g, Curve& curve)
         // Draw node
         drawDot (g, point, addingDotRadius, addingDotColor);
     }
+    
+    if (isTestingFreq || draggingId != -1 || hoveringId != -1)
+    {
+        cyclesSinceUserStoppedDoingShit = 0;
+    }
 }
 
 void CabinEQGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColor)
