@@ -48,8 +48,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
         {
             std::pair<float, float> value = getNextSample();
-            value.first += pinkNoise.generate() * 8.0;
-            value.second += pinkNoise.generate() * 8.0;
+            value.first += pinkNoise.generate() * 4.0;
+            value.second += pinkNoise.generate() * 4.0;
             leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
             
             if (rightChannel)
