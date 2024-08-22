@@ -72,6 +72,7 @@ private:
     // Sound generation
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
+    PinkNoise pinkNoise;
     SineSweepGenerator sineSweepGenerator;
     Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f);
     
