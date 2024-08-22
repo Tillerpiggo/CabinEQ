@@ -19,6 +19,8 @@ public:
                   float targetGain = 1.0f, int startDelayInSamples = 0, int endEarlyInSamples = 0);
     const float gainAtSample (int sample, int noteDurationInSamples) const;
     
+    float getStartDurationInSamples() const;
+    
     void setRampDurationInSamples (int duration);
     void setStartDurationInSamples (int startDuration);
     void setEndDurationInSamples (int endDuration);

@@ -33,6 +33,19 @@ StereoGainEnvelope::StereoGainEnvelope (int rampDurationInSamples, int rightDela
     rightRamp.setStartDelayInSamples(rightDelayInSamples);
 }
 
+StereoGainEnvelope::StereoGainEnvelope (float pan, int rampDurationInSamples)
+{
+    leftRamp.setRampDurationInSamples (rampDurationInSamples);
+    rightRamp.setRampDurationInSamples (rampDurationInSamples);
+    
+    // Assume normal target gain of 1.0 in left and right
+    float angle = pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
+    float leftGain = std::sqrt (2.0f) / 2.0f * (std::cos (angle) - std::sin(angle));
+    float rightGain = std::sqrt (2.0f) / 2.0f * (std::cos(angle) + std::sin(angle));
+    leftRamp.setTargetGain (leftGain);
+    rightRamp.setTargetGain (rightGain);
+}
+
 StereoGainEnvelope::StereoGainEnvelope (StereoGainEnvelopeType type, int rampDurationInSamples)
 : StereoGainEnvelope (rampDurationInSamples)
 {
@@ -64,5 +77,7 @@ const std::pair<float, float> StereoGainEnvelope::getGainAtSample (int sample, i
     return { leftSample, rightSample };
 }
 
-
-
+StereoGainEnvelope StereoGainEnvelope::withPan (float pan) const
+{
+    return StereoGainEnvelope (pan, leftRamp.getStartDurationInSamples());
+}

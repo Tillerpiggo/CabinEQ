@@ -14,7 +14,7 @@
 
 PlaybackManager::PlaybackManager()
     : filter (FFT_SIZE),
-      arbitrarySequencer (std::make_unique<PinkNoiseGenerator> (PinkNoiseGenerator())),
+      arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       arbitrarySequencer2 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       isTesting (false),
       isSweeping (false),
@@ -149,8 +149,8 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     ampl += getCompensationDBAtFrequency (freq);
     SequenceableNote refNote (referenceNote, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
-    arbitrarySequencer.setNotes ({ controlledNote });
-//    arbitrarySequencer2.setNotes ({ refNote, controlledNote });
+//    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
+    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote, controlledNote });
 }
 
 // TODO: Add panning here
@@ -164,11 +164,7 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     ampl += getCompensationDBAtFrequency (freq);
     SequenceableNote refNote (referenceNote, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
-    arbitrarySequencer.changeNoteAtIdx (0, controlledNote);
-//    arbitrarySequencer.changeNoteAtIdx (0, refNote);
-//    arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
-//    arbitrarySequencer2.changeNoteAtIdx (0, refNote);
-//    arbitrarySequencer2.changeNoteAtIdx (1, controlledNote);
+    arbitrarySequencer.updateNotesForSpatialCalibration({ refNote, controlledNote });
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)

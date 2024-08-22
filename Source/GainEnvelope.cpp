@@ -16,6 +16,11 @@ GainEnvelope::GainEnvelope (int startDurationInSamples, int endDurationInSamples
 {
 }
 
+float GainEnvelope::getStartDurationInSamples() const
+{
+    return startDurationInSamples;
+}
+
 const float GainEnvelope::gainAtSample (int sample, int noteDurationInSamples) const
 {
     int startRampEnd = startDelayInSamples + startDurationInSamples;

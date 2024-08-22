@@ -33,7 +33,10 @@ public:
     
     void setSampleRate (float newSampleRate);
     void setNotes (const std::vector<SequenceableNote>& notes, bool repeating = true);
+    void setNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes, bool repeating = true); // plays each note repeated, from 5 different angles (hard right, soft right, center, soft left, hard left)
     void setListener (SequencerListener* newListener);
+    
+    void updateNotesForSpatialCalibration (const std::vector<SequenceableNote>& newNotes);
     
     void changeNoteAtIdx (int idx, Note newNote);
     void changeNoteAtIdx (int idx, SequenceableNote newNote);
@@ -46,6 +49,7 @@ private:
     void goToNextNote();
     const SequenceableNote& getCurrNote() const;
     void notifyListener();
+    std::vector<SequenceableNote> getNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes);
     
     std::unique_ptr<PitchedGenerator> pitchedGenerator;
     std::vector<SequenceableNote> notes;

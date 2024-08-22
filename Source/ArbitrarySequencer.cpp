@@ -59,9 +59,24 @@ void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote>& newNotes
     this->isRepeating = repeating;
 }
 
+void ArbitrarySequencer::setNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes, bool repeating)
+{
+    auto spatialNotes = getNotesForSpatialCalibration (notes);
+    setNotes (spatialNotes, repeating);
+}
+
 void ArbitrarySequencer::setListener(SequencerListener* newListener)
 {
     listener = newListener;
+}
+
+void ArbitrarySequencer::updateNotesForSpatialCalibration (const std::vector<SequenceableNote>& newNotes)
+{
+    auto spatialNotes = getNotesForSpatialCalibration (newNotes);
+    for (int i = 0; i < spatialNotes.size(); ++i)
+    {
+        changeNoteAtIdx (i, spatialNotes[i]);
+    }
 }
 
 void ArbitrarySequencer::changeNoteAtIdx (int idx, Note newNote)
@@ -143,4 +158,21 @@ void ArbitrarySequencer::notifyListener()
     {
         listener->sequenceDidFinish();
     }
+}
+
+std::vector<SequenceableNote> ArbitrarySequencer::getNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes)
+{
+    std::vector<SequenceableNote> spatialNotes;
+    std::vector<float> pans { -1, -0.3, 0.3, 1 };
+    
+    for (const auto& note : notes)
+    {
+        // Create a note for each pan
+        for (const auto& pan : pans)
+        {
+            spatialNotes.emplace_back (note.withPan (pan));
+        }
+    }
+    
+    return spatialNotes;
 }

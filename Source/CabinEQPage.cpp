@@ -226,7 +226,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             int selectedIndex = dropdownProfiles.indexOfItemId (dropdownProfiles.getSelectedId());
             juce::String profileIdSelected = dropdownProfiles.getItemText (selectedIndex);
             profileId = profileIdSelected;
-            cabinEQGraph.setCurve (processor.getAmplCurve (profileIdSelected)->get());
+            cabinEQGraph.setCurve (processor.getAmplCurve (profileIdSelected)->get()); // HARD CODING AMPL FOR NOW
             flagFilterChanged();
             applyFilterIfProcessing();
         }

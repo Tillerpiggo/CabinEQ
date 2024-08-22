@@ -68,3 +68,8 @@ const Note SequenceableNote::getNote() const
 {
     return note;
 }
+
+const SequenceableNote SequenceableNote::withPan (float pan) const
+{
+    return SequenceableNote (getNote(), getDuration(), envelope.withPan (pan));
+}

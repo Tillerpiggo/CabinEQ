@@ -36,6 +36,8 @@ public:
     
     const Note getNote() const;
     
+    const SequenceableNote withPan (float pan) const; // returns a copy of this, with panning added to the envelope
+    
 private:
     Note note;
     float duration;
