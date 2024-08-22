@@ -153,7 +153,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
     // Play the reference note and controlled note, alternating between left and right
-    int noteDurationInSamples = 15000;
+    int noteDurationInSamples = 8000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -171,7 +171,7 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    int noteDurationInSamples = 15000;
+    int noteDurationInSamples = 8000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
