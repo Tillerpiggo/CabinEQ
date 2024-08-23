@@ -20,7 +20,7 @@ const float Curve::compensatedValueAtFrequency (float frequency, float compensat
     }
     
     float valueAtFrequency = interpolateValueAtFrequency (frequency, values);
-    if (frequency > 1000.0f)
+    if (frequency > 20.0f)
     {
         float dbDifference = -compensationSlope * std::log2 ((frequency) / 1000.0f);
         valueAtFrequency += dbDifference;
@@ -50,7 +50,7 @@ const float Curve::valueAtFrequency (float frequency)
 
 const float Curve::valueAtTime (float t)
 {
-    return compensatedValueAtFrequency (t * 22050, 2.0);
+    return compensatedValueAtFrequency (t * 22050, 0.0);
 }
 
 const std::vector<CurvePt>& Curve::getCurvePts()
