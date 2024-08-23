@@ -174,9 +174,11 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
     
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples);
+    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
-//    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
     arbitrarySequencer.setNotesForSpatialCalibration ({ refNote, controlledNote });
+    arbitrarySequencer2.setNotesForSpatialCalibration({ refNote2, silentNote });
 }
 
 // TODO: Add panning here
