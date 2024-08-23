@@ -62,7 +62,7 @@ private:
     float getReferenceCompensationDBAtFrequency (float frequency);
     juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
     
-    const int FFT_SIZE = 16;
+    const int FFT_SIZE = 20;
     
     // Audio processing
     ArbitraryResponseFilter filter;
