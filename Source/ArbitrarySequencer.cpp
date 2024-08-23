@@ -163,7 +163,8 @@ void ArbitrarySequencer::notifyListener()
 std::vector<SequenceableNote> ArbitrarySequencer::getNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes)
 {
     std::vector<SequenceableNote> spatialNotes;
-    std::vector<float> pans { -1, -0.3, 0.3, 1 };
+//    std::vector<float> pans { -1, -0.3, 0.3, 1 };
+    std::vector<float> pans { 1, 0.3, -0.3, -1 };
     
     for (const auto& note : notes)
     {
