@@ -332,7 +332,8 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
 {
-    return juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
+    //return juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
+    return -4.5f * std::log2 (frequency / 1000.0f);
 }
 
 juce::dsp::IIR::Coefficients<float>::Ptr PlaybackManager::createDelayCoefficients(float sampleRate, float delaytime) const
