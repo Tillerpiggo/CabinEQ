@@ -335,6 +335,8 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
 {
     //return juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
+    if (frequency < 100)
+        return 6.0f * std::log2 (frequency / 100.0f);
     return 0.0f;//-4.5f * std::log2 (frequency / 1000.0f);// + juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
 }
 
