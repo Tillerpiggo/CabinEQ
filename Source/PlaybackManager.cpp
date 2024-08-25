@@ -164,7 +164,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
     // Play the reference note and controlled note, alternating between left and right
-    int noteDurationInSamples = 8000;
+    int noteDurationInSamples = 5000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -177,14 +177,14 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
     SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
-    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote, controlledNote });
-//    arbitrarySequencer2.setNotesForSpatialCalibration({ refNote2, silentNote });
+    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote, controlledNote });//, silentNote, controlledNote });
+//    arbitrarySequencer2.setNotesForSpatialCalibration ({ silentNote, refNote, controlledNote, refNote });
 }
 
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    int noteDurationInSamples = 8000;
+    int noteDurationInSamples = 5000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -194,8 +194,11 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
     
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples);
+    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
-    arbitrarySequencer.updateNotesForSpatialCalibration({ refNote, controlledNote });
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
+    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote, controlledNote });//, silentNote, controlledNote });
+//    arbitrarySequencer2.updateNotesForSpatialCalibration ({ silentNote, refNote, controlledNote, refNote });
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -313,6 +316,32 @@ void PlaybackManager::setReferenceVolume (float volume)
     this->referenceVolume = volume;
 }
 
+void PlaybackManager::startPlayingReferenceFreqs()
+{
+    int noteDurationInSamples = 5000;
+    SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude, 0.0f, noteDurationInSamples);
+    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
+    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote, refNote2 });
+}
+
+void PlaybackManager::updatePlayingReferenceFreqs()
+{
+    int noteDurationInSamples = 5000;
+    SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude, 0.0f, noteDurationInSamples);
+    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
+    arbitrarySequencer.updateNotesForSpatialCalibration({ refNote, refNote2 });
+}
+
+void PlaybackManager::setReferenceVolume1 (float volume)
+{
+    this->referenceNote.amplitude = volume + 6.0f;
+}
+
+void PlaybackManager::setReferenceVolume2 (float volume)
+{
+    this->referenceNote2.amplitude = volume + 6.0f;
+}
+
 void PlaybackManager::setReferencePan (float pan)
 {
     this->referencePan = pan;
@@ -335,11 +364,9 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
 {
     //return juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
-    if (frequency < 100)
-        return 6.0f * std::log2 (frequency / 100.0f);
     return 0.0f;//-4.5f * std::log2 (frequency / 1000.0f);// + juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
 }
-
+ 
 juce::dsp::IIR::Coefficients<float>::Ptr PlaybackManager::createDelayCoefficients(float sampleRate, float delaytime) const
 {
     // Basic first order all pass filter

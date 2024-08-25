@@ -164,14 +164,20 @@ std::vector<SequenceableNote> ArbitrarySequencer::getNotesForSpatialCalibration 
 {
     std::vector<SequenceableNote> spatialNotes;
 //    std::vector<float> pans { -1, -0.3, 0.3, 1 };
-    std::vector<float> pans { 1, 0.3, -0.3, -1 };
+//    std::vector<float> pans { 1, 0.3, -0.3, -1 };
+    std::vector<float> ampls { -6.0f, 0.0f, 6.0f, 12.0f };
     
     for (const auto& note : notes)
     {
-        // Create a note for each pan
-        for (const auto& pan : pans)
+//        // Create a note for each pan
+//        for (const auto& pan : pans)
+//        {
+//            spatialNotes.emplace_back (note.withPan (pan));
+//        }
+        
+        for (const auto& ampl : ampls)
         {
-            spatialNotes.emplace_back (note.withPan (pan));
+            spatialNotes.emplace_back ( note.withAmplitudeChange (ampl));
         }
     }
     

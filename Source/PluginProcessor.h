@@ -105,6 +105,8 @@ public:
     
     // Changing points
     void startPlayingFreq (float freq, juce::String profileName);
+    void startPlayingReferenceFreqs(); // TODO: Remove
+    void updatePlayingReferenceFreqs(); // TODO: Remove
     void updatePlayingFreq (float freq, juce::String profileName);
     void endCalibratingEQNode();
     float getCurrPlayingFreq();
@@ -126,6 +128,8 @@ public:
     // misc
     void setReferenceVolume (float volume);
     void setReferencePan (float pan);
+    void setReferenceVolume1 (float volume);
+    void setReferenceVolume2 (float volume);
     
     // Listener
     void addListener (Listener* listener);

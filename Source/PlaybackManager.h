@@ -52,6 +52,11 @@ public:
     void stopTestingFreq();
     
     void setReferenceVolume (float volume);
+    void setReferenceVolume1 (float volume);
+    void setReferenceVolume2 (float volume);
+    
+    void startPlayingReferenceFreqs(); // TODO: Remove
+    void updatePlayingReferenceFreqs(); // TODO: Remove
     
     // Reference calibration
     void setReferencePan (float pan);

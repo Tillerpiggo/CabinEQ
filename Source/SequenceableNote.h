@@ -36,7 +36,9 @@ public:
     
     const Note getNote() const;
     
+    const SequenceableNote withAmplitudeChange (float amplChange) const; // returns a copy of this with varying ampl
     const SequenceableNote withPan (float pan) const; // returns a copy of this, with panning added to the envelope
+    
     
 private:
     Note note;

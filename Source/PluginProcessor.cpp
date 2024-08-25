@@ -343,7 +343,18 @@ void StartupMVPAudioProcessor::startPlayingFreq (float freq, juce::String profil
                                           profile->get().getPanCurve());
         playbackManager.setIsCalibrating (true);
     }
-    
+}
+
+// TODO: Hacky for testing, will remove later
+void StartupMVPAudioProcessor::startPlayingReferenceFreqs()
+{
+    playbackManager.setIsCalibrating (true);
+    playbackManager.startPlayingReferenceFreqs();
+}
+
+void StartupMVPAudioProcessor::updatePlayingReferenceFreqs()
+{
+    playbackManager.updatePlayingReferenceFreqs();
 }
 
 void StartupMVPAudioProcessor::updatePlayingFreq (float freq, juce::String profileName)
@@ -469,6 +480,16 @@ void StartupMVPAudioProcessor::setReferenceVolume (float volume)
 void StartupMVPAudioProcessor::setReferencePan (float pan)
 {
     playbackManager.setReferencePan (pan);
+}
+
+void StartupMVPAudioProcessor::setReferenceVolume1 (float volume)
+{
+    playbackManager.setReferenceVolume1 (volume);
+}
+
+void StartupMVPAudioProcessor::setReferenceVolume2 (float volume)
+{
+    playbackManager.setReferenceVolume2 (volume);
 }
 
 void StartupMVPAudioProcessor::addListener (Listener* listener)

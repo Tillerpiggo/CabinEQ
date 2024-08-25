@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "FilterPage.h"
 #include "CabinEQPage.h"
+#include "ReferencePage.h"
 //#include "SpatialCalibrationPage.h"
 
 //==============================================================================
@@ -34,6 +35,7 @@ private:
     
     std::unique_ptr<FilterPage> filterPage;
     std::unique_ptr<CabinEQPage> cabinEQPage;
+    std::unique_ptr<ReferencePage> referencePage;
 //    std::unique_ptr<SpatialCalibrationPage> spatialCalibrationPage;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
