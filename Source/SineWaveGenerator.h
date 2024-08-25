@@ -27,6 +27,8 @@ public:
     void setVolume (float volumeInDecibels) override;
     void setPan (float panInDecibels) override;
     
+    void startTremolo();
+    
 private:
     void updatePhaseIncrementAndAmplitudeCompensation();
     
@@ -52,4 +54,9 @@ private:
     float vibratoStep = 0.001;
     float vibratoMaxDB = 0.0f;
     float vibratoMinDB = 0.0f;
+    
+    // == Tremolo ==
+    float tremoloPan = 0.0f; // from -1 (hard left) to 1 (hard right)
+    float tremoloStep = 0.01f;
+    float isTremoloing = false;
 };

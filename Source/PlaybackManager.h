@@ -67,7 +67,7 @@ private:
     float getReferenceCompensationDBAtFrequency (float frequency);
     juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
     
-    const int FFT_SIZE = 20;
+    const int FFT_SIZE = 18;
     
     // Audio processing
     ArbitraryResponseFilter filter;
@@ -77,6 +77,8 @@ private:
     // Sound generation
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
+    SineWaveGenerator sineWaveGenerator1;
+    SineWaveGenerator sineWaveGenerator2;
     PinkNoise pinkNoise;
     SineSweepGenerator sineSweepGenerator;
     Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f);

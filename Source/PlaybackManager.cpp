@@ -107,6 +107,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     filter.prepare (spec);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
+    sineWaveGenerator1.setSampleRate (spec.sampleRate);
+    sineWaveGenerator2.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
 }
 
@@ -164,7 +166,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
     // Play the reference note and controlled note, alternating between left and right
-    int noteDurationInSamples = 5000;
+    int noteDurationInSamples = 4000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -177,14 +179,19 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
     SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
-    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote, controlledNote });//, silentNote, controlledNote });
-    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote, refNote });
+//    sineWaveGenerator1.setNote (refNote.getNote());
+//    sineWaveGenerator2.setNote (controlledNote.getNote());
+//    sineWaveGenerator1.startTremolo (-1);
+//    sineWaveGenerator2.startTremolo (1);
+    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote });//, silentNote, controlledNote });
+    arbitrarySequencer2.setNotesForSpatialCalibration({ controlledNote });
+//    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote, refNote });
 }
 
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    int noteDurationInSamples = 5000;
+    int noteDurationInSamples = 4000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -197,9 +204,13 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
     SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
     SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
-    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote, controlledNote });//, silentNote, controlledNote
-    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote, refNote });
-//    arbitrarySequencer2.updateNotesForSpatialCalibration ({ silentNote, refNote, controlledNote, refNote });
+//    sineWaveGenerator1.setNote (refNote.getNote());
+//    sineWaveGenerator2.setNote (controlledNote.getNote());
+//    arbitrarySequencer.changeNoteAtIdx (0, refNote);
+//    arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
+    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote });
+    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });//, silentNote, controlledNote
+//    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote, refNote });
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -354,6 +365,8 @@ std::pair<float, float> PlaybackManager::getNextSample()
 {
     auto [leftSample1, rightSample1] = arbitrarySequencer.getNextSample();
     auto [leftSample2, rightSample2] = arbitrarySequencer2.getNextSample();
+//    auto [leftSample1, rightSample1] = sineWaveGenerator1.getNextSample();
+//    auto [leftSample2, rightSample2] = sineWaveGenerator2.getNextSample();
     return { leftSample1 + leftSample2, rightSample1 + rightSample2 };
 }
 
