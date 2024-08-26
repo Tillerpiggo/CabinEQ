@@ -27,7 +27,7 @@ public:
     void setVolume (float volumeInDecibels) override;
     void setPan (float panInDecibels) override;
     
-    void startTremolo();
+    void startTremolo (float startPan);
     
 private:
     void updatePhaseIncrementAndAmplitudeCompensation();

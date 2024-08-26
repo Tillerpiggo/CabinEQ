@@ -166,7 +166,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
     // Play the reference note and controlled note, alternating between left and right
-    int noteDurationInSamples = 4000;
+    int noteDurationInSamples = 8000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -174,6 +174,7 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     ampl += getCompensationDBAtFrequency (freq);
     
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
+//    dbDifference += getCompensationDBAtFrequency (freq);
     
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples);
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
@@ -184,14 +185,15 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
 //    sineWaveGenerator1.startTremolo (-1);
 //    sineWaveGenerator2.startTremolo (1);
     arbitrarySequencer.setNotesForSpatialCalibration ({ refNote });//, silentNote, controlledNote });
-    arbitrarySequencer2.setNotesForSpatialCalibration({ controlledNote });
+    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote });
+//    arbitrarySequencer2.setNotesForSpatialCalibration({ controlledNote });
 //    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote, refNote });
 }
 
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    int noteDurationInSamples = 4000;
+    int noteDurationInSamples = 8000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -199,6 +201,7 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     ampl += getCompensationDBAtFrequency (freq);
     
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
+//    dbDifference += getCompensationDBAtFrequency (freq);
     
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples);
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
@@ -209,7 +212,8 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
 //    arbitrarySequencer.changeNoteAtIdx (0, refNote);
 //    arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
     arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote });
-    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });//, silentNote, controlledNote
+    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });
+//    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });//, silentNote, controlledNote
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote, refNote });
 }
 

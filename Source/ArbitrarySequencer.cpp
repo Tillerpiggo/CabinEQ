@@ -166,7 +166,7 @@ std::vector<SequenceableNote> ArbitrarySequencer::getNotesForSpatialCalibration 
     std::vector<float> pans { -1, -0.3, 0.3, 1 };
 //    std::vector<float> pans { 1, 0.3, -0.3, -1 };
 //    std::vector<float> ampls { -6.0f, 0.0f, 6.0f, 12.0f };
-//    std::vector<float> ampls { -6.0f, 12.0f, -6.0f, 12.0f };
+//    std::vector<float> ampls { 6.0f, -30.0f, 6.0f, -30.0f };
 //    std::vector<float> ampls;
 //    for (int i = 0; i < 12; ++i)
 //    {
@@ -178,6 +178,14 @@ std::vector<SequenceableNote> ArbitrarySequencer::getNotesForSpatialCalibration 
 //        ampls.push_back (6.0f - i);
 //    }
     
+    for (const auto& note : notes)
+    {
+        for (const auto& pan : pans)
+        {
+            spatialNotes.emplace_back (note.withPan (pan));
+        }
+    }
+    
 //    for (const auto& ampl : ampls)
 //    {
 //
@@ -188,14 +196,14 @@ std::vector<SequenceableNote> ArbitrarySequencer::getNotesForSpatialCalibration 
 //        }
 //    }
     
-    for (const auto& note : notes)
-    {
-        // Create a note for each pan
-        for (const auto& pan : pans)
-        {
-            spatialNotes.emplace_back (note.withPan (pan));
-        }
-    }
+//    for (const auto& note : notes)
+//    {
+//        // Create a note for each pan
+//        for (const auto& pan : pans)
+//        {
+//            spatialNotes.emplace_back (note.withPan (pan));
+//        }
+//    }
     
     
     return spatialNotes;

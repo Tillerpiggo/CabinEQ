@@ -81,10 +81,16 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
     if (isTremoloing)
     {
         tremoloPan += tremoloStep;
+//        std::cout << "tremoloStep: " << tremoloStep << std::endl;
+//        std::cout << "tremoloPan: " << tremoloPan << std::endl;
         
-        if (tremoloPan >= 1 || tremoloPan <= -1)
+        if (tremoloPan > 1)
         {
-            tremoloStep *= -1;
+            tremoloStep = -0.0001;
+        }
+        if (tremoloPan < -1)
+        {
+            tremoloStep = 0.0001;
         }
         updatePhaseIncrementAndAmplitudeCompensation();
     }
@@ -132,9 +138,10 @@ void SineWaveGenerator::setPan (float panInDecibels)
     targetPan = panInDecibels;
 }
 
-void SineWaveGenerator::startTremolo()
+void SineWaveGenerator::startTremolo (float startPan)
 {
     isTremoloing = true;
+    tremoloPan = startPan;
 }
 
 // ============================================
@@ -155,11 +162,11 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     float rightDB = ampl + 0.5 * pan;
     
     // Tremolo
-    float angle = pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
+    float angle = tremoloPan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
     float leftGain = std::sqrt (2.0f) / 2.0f * (std::cos (angle) - std::sin(angle));
     float rightGain = std::sqrt (2.0f) / 2.0f * (std::cos(angle) + std::sin(angle));
-    leftDB *= juce::Decibels::gainToDecibels (leftGain);
-    rightDB *= juce::Decibels::gainToDecibels (rightGain);
+    leftDB += juce::Decibels::gainToDecibels (leftGain);
+    rightDB += juce::Decibels::gainToDecibels (rightGain);
     
     leftAmplitudeCompensation = juce::Decibels::decibelsToGain (leftDB);
     rightAmplitudeCompensation = juce::Decibels::decibelsToGain (rightDB);
