@@ -176,15 +176,18 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
     dbDifference += getCompensationDBAtFrequency (freq);
     
-    SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples);
-    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
-    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
+    StereoGainEnvelope envelope (500);
+    
+    SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples, envelope);
     SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
 //    sineWaveGenerator1.setNote (refNote.getNote());
 //    sineWaveGenerator2.setNote (controlledNote.getNote());
 //    sineWaveGenerator1.startTremolo (-1);
 //    sineWaveGenerator2.startTremolo (1);
-    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote, controlledNote });//, silentNote, controlledNote });
+    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote });//, silentNote, controlledNote })
+    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote });
 //    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote });
 //    arbitrarySequencer2.setNotesForSpatialCalibration({ controlledNote });
 //    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote, refNote });
@@ -203,15 +206,18 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
     dbDifference += getCompensationDBAtFrequency (freq);
     
-    SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples);
-    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
-    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples);
+    StereoGainEnvelope envelope (500);
+    
+    SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote controlledNote (freq, ampl, pan, noteDurationInSamples, envelope);
     SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
 //    sineWaveGenerator1.setNote (refNote.getNote());
 //    sineWaveGenerator2.setNote (controlledNote.getNote());
 //    arbitrarySequencer.changeNoteAtIdx (0, refNote);
 //    arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
-    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote, controlledNote });
+    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote });
+    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });//, silentNote, controlledNote
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote, refNote });
