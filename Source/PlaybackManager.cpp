@@ -376,7 +376,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
-    return 0.0;//-4.5f * std::log2 (frequency / 1000.0f);
+    return 0.0f;//-4.5f * std::log2 (frequency / 1000.0f);
 }
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)

@@ -166,7 +166,7 @@ std::vector<SequenceableNote> ArbitrarySequencer::getNotesForSpatialCalibration 
 //    std::vector<float> pans { -1, -0.3, 0.3, 1 };
     std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
 //    std::vector<float> pans { 1, 0.3, -0.3, -1 };
-    std::vector<float> ampls { -6.0f, 6.0f, 6.0f, -6.0f };
+    std::vector<float> ampls { -6.0f, 0.0f, 6.0f, 0.0f };
 //    std::vector<float> ampls { 6.0f, -30.0f, 6.0f, -30.0f };
 //    std::vector<float> ampls;
 //    for (int i = 0; i < 12; ++i)
