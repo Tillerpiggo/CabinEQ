@@ -174,7 +174,7 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     ampl += getCompensationDBAtFrequency (freq);
     
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
-//    dbDifference += getCompensationDBAtFrequency (freq);
+    dbDifference += getCompensationDBAtFrequency (freq);
     
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples);
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
@@ -201,7 +201,7 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     ampl += getCompensationDBAtFrequency (freq);
     
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
-//    dbDifference += getCompensationDBAtFrequency (freq);
+    dbDifference += getCompensationDBAtFrequency (freq);
     
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples);
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples);
@@ -376,7 +376,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
-    return 0.0f;//-4.5f * std::log2 (frequency / 1000.0f);
+    return 0.0;//-4.5f * std::log2 (frequency / 1000.0f);
 }
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
