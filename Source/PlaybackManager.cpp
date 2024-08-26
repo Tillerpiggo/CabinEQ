@@ -184,8 +184,8 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
 //    sineWaveGenerator2.setNote (controlledNote.getNote());
 //    sineWaveGenerator1.startTremolo (-1);
 //    sineWaveGenerator2.startTremolo (1);
-    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote });//, silentNote, controlledNote });
-    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote });
+    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote, controlledNote });//, silentNote, controlledNote });
+//    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote });
 //    arbitrarySequencer2.setNotesForSpatialCalibration({ controlledNote });
 //    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote, refNote });
 }
@@ -211,8 +211,8 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
 //    sineWaveGenerator2.setNote (controlledNote.getNote());
 //    arbitrarySequencer.changeNoteAtIdx (0, refNote);
 //    arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
-    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote });
-    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });
+    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote, controlledNote });
+//    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });//, silentNote, controlledNote
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote, refNote });
 }
@@ -381,7 +381,7 @@ float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
 {
-    return juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
+//    return juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
     return 0.0f;//-4.5f * std::log2 (frequency / 1000.0f);// + juce::Decibels::gainToDecibels (targetCurve.valueAtFrequency (frequency));
 }
  
