@@ -187,7 +187,7 @@ protected:
     juce::TextButton bypassButton { "ON" };
     juce::TextButton applyButton { "APPLY" };
     juce::TextButton duplicateButton { "COPY" };
-    bool isBypassed = true;
+    bool isBypassed = false;
     bool hasFilterChanged = true;
     bool creatingDuplicate = false;
     

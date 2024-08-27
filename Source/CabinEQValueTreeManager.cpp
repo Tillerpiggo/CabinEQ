@@ -39,8 +39,10 @@ void CabinEQValueTreeManager::initProfiles()
 {
     for (const auto& node : apvts.state)
     {
-        std::cout << "node: " << node.getType().toString() << std::endl;
-        profiles.push_back (std::make_unique<CabinEQValueTree> (apvts, node.getType().toString()));
+        if (node.getType().toString() == "Profile")
+        {
+            profiles.push_back (std::make_unique<CabinEQValueTree> (apvts, node.getProperty ("ProfileName")));
+        }
     }
         
     

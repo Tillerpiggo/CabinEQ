@@ -19,7 +19,7 @@
 class CabinEQValueTree
 {
 public:
-    CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier);
+    CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String identifier);
     
     const std::vector<CurvePt> getAmplPts() const; // constructs curve pts matching the ones in memory
     const std::vector<CurvePt> getPanPts() const; // constructs curve pts matching the ones in memory
@@ -55,8 +55,9 @@ private:
     
     juce::AudioProcessorValueTreeState& apvts;
     
-    juce::Identifier idProfile, idCurvePt, idId, idFreq, idAmplTree, idPanTree, idVal;
+    juce::Identifier idProfile, idProfileName, idCurvePt, idId, idFreq, idAmplTree, idPanTree, idVal;
     juce::ValueTree valueTree;
+    juce::String profileName;
     
     Curve amplCurve;
     Curve panCurve;

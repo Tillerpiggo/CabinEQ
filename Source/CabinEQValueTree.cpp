@@ -10,8 +10,8 @@
 
 #include "CabinEQValueTree.h"
 
-CabinEQValueTree::CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String& identifier)
-    : apvts (apvts), idProfile (identifier), idCurvePt ("CurvePt"), idId ("id"), idFreq ("freq"), idVal ("val"), idAmplTree ("AmplTree"), idPanTree ("PanTree")
+CabinEQValueTree::CabinEQValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String identifier)
+    : apvts (apvts), idProfile ("Profile"), idProfileName ("ProfileName"), idCurvePt ("CurvePt"), idId ("id"), idFreq ("freq"), idAmplTree ("AmplTree"), idPanTree ("PanTree"), idVal ("val"), profileName (identifier)
 {}
 
 const std::vector<CurvePt> CabinEQValueTree::getAmplPts() const
@@ -178,17 +178,22 @@ void CabinEQValueTree::resetNodes()
 
 void CabinEQValueTree::initValueTreeFromAPVTS()
 {
-    valueTree = apvts.state.getChildWithName (idProfile);
+    valueTree = apvts.state.getChildWithProperty (idProfileName, profileName);
 
     // Initialize value tree if we can't load it
     if (! valueTree.isValid())
     {
         valueTree = juce::ValueTree (idProfile);
+        valueTree.setProperty (idProfileName, profileName, nullptr);
         auto amplPtTree = juce::ValueTree (idAmplTree);
         auto panPtTree = juce::ValueTree (idPanTree);
         valueTree.addChild (amplPtTree, 0, nullptr);
         valueTree.addChild (panPtTree, 1, nullptr);
         apvts.state.addChild (valueTree, -1, nullptr);
+    }
+    else
+    {
+        profileName = valueTree.getProperty (idProfileName);
     }
     
     updateCurves();
@@ -197,7 +202,7 @@ void CabinEQValueTree::initValueTreeFromAPVTS()
 
 const juce::String CabinEQValueTree::getName() const
 {
-    return idProfile.toString();
+    return profileName;
 }
 
 void CabinEQValueTree::copyFrom (CabinEQValueTree& other)
