@@ -9,22 +9,10 @@
 #include "PluginEditor.h"
 
 StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p),
-      tabbedComponent (juce::TabbedButtonBar::Orientation::TabsAtTop)
+    : AudioProcessorEditor (&p), audioProcessor (p), cabinEQPage (p)
 {
     setSize(800, 620);
-    
-    filterPage = std::make_unique<FilterPage> (p);
-    cabinEQPage = std::make_unique<CabinEQPage> (p);
-    referencePage = std::make_unique<ReferencePage> (p);
-//    spatialCalibrationPage = std::make_unique<SpatialCalibrationPage> (p);
-    
-    tabbedComponent.addTab ("Filter", juce::Colours::lightgrey, filterPage.get(), false);
-    tabbedComponent.addTab ("CabinEQ", juce::Colours::lightgrey, cabinEQPage.get(), false);
-    tabbedComponent.addTab ("Reference", juce::Colours::lightgrey, referencePage.get(), false);
-//    tabbedComponent.addTab ("Spatial", juce::Colours::lightgrey, spatialCalibrationPage.get(), false);
-
-    addAndMakeVisible(tabbedComponent);
+    addAndMakeVisible (cabinEQPage);
 }
 
 StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
@@ -40,5 +28,5 @@ void StartupMVPAudioProcessorEditor::paint(juce::Graphics& g)
 
 void StartupMVPAudioProcessorEditor::resized()
 {
-    tabbedComponent.setBounds (getLocalBounds());
+    cabinEQPage.setBounds (getLocalBounds());
 }

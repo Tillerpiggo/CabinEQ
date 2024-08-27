@@ -30,13 +30,8 @@ public:
 
 private:
     StartupMVPAudioProcessor& audioProcessor;
-
-    juce::TabbedComponent tabbedComponent;
     
-    std::unique_ptr<FilterPage> filterPage;
-    std::unique_ptr<CabinEQPage> cabinEQPage;
-    std::unique_ptr<ReferencePage> referencePage;
-//    std::unique_ptr<SpatialCalibrationPage> spatialCalibrationPage;
+    CabinEQPage cabinEQPage;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
 };
