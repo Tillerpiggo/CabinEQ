@@ -70,6 +70,14 @@ void ArbitrarySequencer::setListener(SequencerListener* newListener)
     listener = newListener;
 }
 
+void ArbitrarySequencer::updateNotes (const std::vector<SequenceableNote>& newNotes)
+{
+    for (int i = 0; i < newNotes.size(); ++i)
+    {
+        changeNoteAtIdx (i, newNotes[i]);
+    }
+}
+
 void ArbitrarySequencer::updateNotesForSpatialCalibration (const std::vector<SequenceableNote>& newNotes)
 {
     auto spatialNotes = getNotesForSpatialCalibration (newNotes);

@@ -166,7 +166,7 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
     // Play the reference note and controlled note, alternating between left and right
-    int noteDurationInSamples = 8000;
+    int noteDurationInSamples = 1000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -176,7 +176,7 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
     dbDifference += getCompensationDBAtFrequency (freq);
     
-    StereoGainEnvelope envelope (500);
+    StereoGainEnvelope envelope (400);
     
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples, envelope);
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples, envelope);
@@ -186,8 +186,32 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
 //    sineWaveGenerator2.setNote (controlledNote.getNote());
 //    sineWaveGenerator1.startTremolo (-1);
 //    sineWaveGenerator2.startTremolo (1);
-    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote });//, silentNote, controlledNote })
-    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote });
+//    arbitrarySequencer.setNotesForSpatialCalibration ({ refNote });//, silentNote, controlledNote })
+//    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote });
+//    arbitrarySequencer.setNotes ({ controlledNote.withAmplitudeChange (-6.0f), refNote, controlledNote.withAmplitudeChange (6.0f), refNote });
+    
+    std::vector<SequenceableNote> notes;
+    std::vector<SequenceableNote> noteSequence { controlledNote.withAmplitudeChange (0.0f), refNote, controlledNote.withAmplitudeChange (3.0f), refNote.withAmplitudeChange (3.0f), controlledNote.withAmplitudeChange (6.0f), refNote.withAmplitudeChange (6.0f) };
+    std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
+    
+    float dbDiff = getCompensationDBAtFrequency (freq);
+    for (int i = 0; i < noteSequence.size(); ++i)
+    {
+        noteSequence[i] = noteSequence[i].withAmplitudeChange (dbDiff);
+    }
+    
+    for (const auto& pan : pans)
+    {
+        for (const auto& note : noteSequence)
+        {
+            notes.emplace_back (note.withPan (pan));
+        }
+    }
+    arbitrarySequencer.setNotes (notes);
+    
+//    arbitrarySequencer.setNotes ({ controlledNote.withAmplitudeChange (6.0f).withPan (-0.7), refNote.withPan (-0.2), controlledNote.withAmplitudeChange (-6.0f), refNote.withPan (0.2), controlledNote.withAmplitudeChange (6.0f).withPan (0.7), refNote.withPan (0.2), controlledNote.withAmplitudeChange (-6.0f), refNote.withPan (-0.2) });
+//    arbitrarySequencer.setNotes ({ refNote.withAmplitudeChange (-6.0f), controlledNote, refNote.withAmplitudeChange (6.0f), silentNote });
+//    arbitrarySequencer.setNotes ({ controlledNote.withAmplitudeChange (-6.0f), controlledNote.withAmplitudeChange (6.0f) });
 //    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote });
 //    arbitrarySequencer2.setNotesForSpatialCalibration({ controlledNote });
 //    arbitrarySequencer2.setNotesForSpatialCalibration ({ controlledNote, refNote });
@@ -196,7 +220,7 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    int noteDurationInSamples = 8000;
+    int noteDurationInSamples = 1000;
     float ampl = amplCurve.valueAtFrequency (freq);
     float pan = panCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
@@ -206,7 +230,7 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     float dbDifference = getReferenceCompensationDBAtFrequency (freq);
     dbDifference += getCompensationDBAtFrequency (freq);
     
-    StereoGainEnvelope envelope (500);
+    StereoGainEnvelope envelope (400);
     
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude + dbDifference, 0.0f, noteDurationInSamples, envelope);
     SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples, envelope);
@@ -216,8 +240,31 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
 //    sineWaveGenerator2.setNote (controlledNote.getNote());
 //    arbitrarySequencer.changeNoteAtIdx (0, refNote);
 //    arbitrarySequencer.changeNoteAtIdx (1, controlledNote);
-    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote });
-    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });
+//    arbitrarySequencer.updateNotesForSpatialCalibration ({ refNote });
+//    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });
+//    arbitrarySequencer.updateNotes ({ controlledNote.withAmplitudeChange (-6.0f), refNote, controlledNote.withAmplitudeChange (6.0f), refNote });
+    
+    std::vector<SequenceableNote> notes;
+    std::vector<SequenceableNote> noteSequence { controlledNote, refNote, controlledNote.withAmplitudeChange (3.0f), refNote.withAmplitudeChange (3.0f), controlledNote.withAmplitudeChange (6.0f), refNote.withAmplitudeChange (6.0f) };
+    std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
+    
+    float dbDiff = getCompensationDBAtFrequency (freq);
+    for (int i = 0; i < noteSequence.size(); ++i)
+    {
+        noteSequence[i] = noteSequence[i].withAmplitudeChange (dbDiff);
+    }
+    
+    for (const auto& pan : pans)
+    {
+        for (const auto& note : noteSequence)
+        {
+            notes.emplace_back (note.withPan (pan));
+        }
+    }
+    arbitrarySequencer.updateNotes (notes);
+    //arbitrarySequencer.updateNotes ({ controlledNote.withAmplitudeChange (6.0f).withPan (-0.7), refNote.withPan (-0.2), controlledNote.withAmplitudeChange (-6.0f), refNote.withPan (0.2), controlledNote.withAmplitudeChange (6.0f).withPan (0.7), refNote.withPan (0.2), controlledNote.withAmplitudeChange (-6.0f), refNote.withPan (-0.2) });
+//    arbitrarySequencer.updateNotes ({ refNote.withAmplitudeChange (-6.0f), controlledNote, refNote.withAmplitudeChange (6.0f), silentNote });
+//    arbitrarySequencer.updateNotes ({ controlledNote.withAmplitudeChange (-6.0f), controlledNote.withAmplitudeChange (6.0f) });
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote });//, silentNote, controlledNote
 //    arbitrarySequencer2.updateNotesForSpatialCalibration ({ controlledNote, refNote });

@@ -36,6 +36,7 @@ public:
     void setNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes, bool repeating = true); // plays each note repeated, from 5 different angles (hard right, soft right, center, soft left, hard left)
     void setListener (SequencerListener* newListener);
     
+    void updateNotes (const std::vector<SequenceableNote>& newNotes);
     void updateNotesForSpatialCalibration (const std::vector<SequenceableNote>& newNotes);
     
     void changeNoteAtIdx (int idx, Note newNote);
