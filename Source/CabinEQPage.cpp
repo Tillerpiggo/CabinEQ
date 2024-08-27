@@ -11,30 +11,27 @@
 #include "CabinEQPage.h"
 
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph(), unlockForm (marketplaceStatus)
+    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()//, unlockForm (marketplaceStatus)
 {
     dropdownProfiles.addItem ("+ Add Profile", 1);
     
     referenceSlider.setRange (-24.0f, 24.0f);
     referenceSlider.setValue (0.0f);
     
-    bypassButton.setEnabled (false);
-    
     cabinEQGraph.addListener (this);
     dropdownProfiles.addListener (this);
     referenceSlider.addListener (this);
     bypassButton.addListener (this);
-    unlockButton.addListener (this);
     duplicateButton.addListener (this);
+    applyButton.addListener (this);
     processor.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
     addAndMakeVisible (dropdownProfiles);
     addAndMakeVisible (referenceSlider);
     addAndMakeVisible (bypassButton);
-    addAndMakeVisible (unlockButton);
+    addAndMakeVisible (applyButton);
     addAndMakeVisible (duplicateButton);
-    addAndMakeVisible (unlockForm);
     
     didLoadData();
 }
@@ -46,7 +43,7 @@ CabinEQPage::~CabinEQPage()
     dropdownProfiles.removeListener (this);
     referenceSlider.removeListener (this);
     bypassButton.removeListener (this);
-    unlockButton.removeListener (this);
+    applyButton.removeListener (this);
     duplicateButton.removeListener (this);
     
     cabinEQGraph.removeListener();
@@ -63,14 +60,9 @@ void CabinEQPage::resized()
     int padding = 10;
     int dropdownHeight = 30;
     int buttonWidth = 100;
-    int unlockButtonWidth = 100;
+    int applyButtonWidth = 100;
     int duplicateButtonWidth = 100;
-    int totalButtonWidth = buttonWidth + duplicateButtonWidth;
-    
-    if (!isUnlocked)
-    {
-        totalButtonWidth += unlockButtonWidth;
-    }
+    int totalButtonWidth = buttonWidth + duplicateButtonWidth + applyButtonWidth;
 
     int graphHeight = getHeight() - (2 * padding) - dropdownHeight;
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
@@ -82,11 +74,13 @@ void CabinEQPage::resized()
 
     int currentX = padding + dropdownWidth + buttonWidth;
     
-    if (!isUnlocked)
-    {
-        unlockButton.setBounds(currentX, bottomY, unlockButtonWidth, dropdownHeight);
-        currentX += unlockButtonWidth;
-    }
+//    if (!isUnlocked)
+//    {
+//        unlockButton.setBounds(currentX, bottomY, unlockButtonWidth, dropdownHeight);
+//        currentX += unlockButtonWidth;
+//    }
+    applyButton.setBounds (currentX, bottomY, applyButtonWidth, dropdownHeight);
+    currentX += applyButtonWidth;
 
     duplicateButton.setBounds(currentX, bottomY, duplicateButtonWidth, dropdownHeight);
 }
@@ -150,7 +144,7 @@ float CabinEQPage::getCurrTestingFreq()
 
 void CabinEQPage::userStoppedDoingShit()
 {
-    applyFilterIfProcessing();
+//    applyFilterIfProcessing(); // stop autosaving
 }
 
 // ====================================================
@@ -217,7 +211,6 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             
             dropdownProfiles.setSelectedId (lastSelectedId);
             flagFilterChanged();
-            applyFilterIfProcessing();
         }
         
         // Go to a profile if you select the profile
@@ -228,7 +221,6 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             profileId = profileIdSelected;
             cabinEQGraph.setCurve (processor.getAmplCurve (profileIdSelected)->get()); // HARD CODING AMPL FOR NOW
             flagFilterChanged();
-            applyFilterIfProcessing();
         }
         
         lastSelectedId = dropdownProfiles.getSelectedId();
@@ -246,11 +238,10 @@ void CabinEQPage::buttonClicked (juce::Button *button)
     {
         toggleBypass();
         processor.setIsProcessing (! isBypassed);
-        applyFilterIfProcessing();
     }
-    else if (button == &unlockButton)
+    else if (button == &applyButton)
     {
-        showForm();
+        applyFilter();
     }
     else if (button == &duplicateButton)
     {
@@ -267,24 +258,23 @@ void CabinEQPage::buttonClicked (juce::Button *button)
         
         dropdownProfiles.setSelectedId (lastSelectedId);
         flagFilterChanged();
-        applyFilterIfProcessing();
     }
 }
 
 void CabinEQPage::didLoadData()
 {
     loadDropdownOptions();
-    applyFilterIfProcessing();
+    applyFilter();
     processor.setIsProcessing (! isBypassed);
 }
 
 void CabinEQPage::timerCallback()
 {
-    if (! isUnlocked && marketplaceStatus.isUnlocked())
-    {
-        isUnlocked = true;
-        unlockApp();
-    }
+//    if (! isUnlocked && marketplaceStatus.isUnlocked())
+//    {
+//        isUnlocked = true;
+//        unlockApp();
+//    }
 }
 
 //=========================================
@@ -298,17 +288,14 @@ void CabinEQPage::toggleBypass()
 {
     isBypassed = ! isBypassed;
     cabinEQGraph.setGrayscale (isBypassed);
-    bypassButton.setButtonText (isBypassed ? "OFF" : "ON");
+    bypassButton.setButtonText (isBypassed ? "OFF" : (hasFilterChanged ? "ON*" : "ON"));
 }
 
-void CabinEQPage::applyFilterIfProcessing()
+void CabinEQPage::applyFilter()
 {
-    if (! isBypassed && hasFilterChanged)
-    {
-        processor.applyCurve (profileId);
-        hasFilterChanged = false;
-        bypassButton.setButtonText ("ON");
-    }
+    hasFilterChanged = false;
+    processor.applyCurve (profileId);
+    bypassButton.setButtonText (isBypassed ? "OFF" : (hasFilterChanged ? "ON*" : "ON"));
 }
 
 void CabinEQPage::loadDropdownOptions()
@@ -340,7 +327,7 @@ void CabinEQPage::dismissAlertWindow()
 
 void CabinEQPage::showForm()
 {
-    unlockForm.setVisible (true);
+//    unlockForm.setVisible (true);
     bypassButton.setEnabled (true);
 }
 

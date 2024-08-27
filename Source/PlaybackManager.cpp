@@ -42,10 +42,10 @@ PlaybackManager::PlaybackManager()
     */
     std::vector<CurvePt> curvePts;
     
-    for (int i = 0; i < frequencies.size(); ++i)
-    {
-        amplitudes[i] = 0.0f;//78.0f;
-    }
+//    for (int i = 0; i < frequencies.size(); ++i)
+//    {
+//        amplitudes[i] = 0.0f;//78.0f;
+//    }
     for (int i = 0; i < frequencies.size(); ++i)
     {
         curvePts.emplace_back (-1, frequencies[i], amplitudes[i]);
@@ -200,7 +200,7 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
     std::vector<SequenceableNote> notes;
 //    std::vector<SequenceableNote> noteSequence { controlledNote.withAmplitudeChange (0.0f), refNote, controlledNote.withAmplitudeChange (3.0f), refNote.withAmplitudeChange (3.0f), controlledNote.withAmplitudeChange (6.0f), refNote.withAmplitudeChange (6.0f) };
     std::vector<SequenceableNote> noteSequence { controlledNote, refNote };
-    std::vector<float> pans { -1, -0.66, -0.33, 0, 0.33, 0.66, 1, 0.66, 0.33, 0, -0.33, -0.66 };
+    std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
     
     float dbDiff = getCompensationDBAtFrequency (freq);
     for (int i = 0; i < noteSequence.size(); ++i)
@@ -255,7 +255,7 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
     std::vector<SequenceableNote> notes;
 //    std::vector<SequenceableNote> noteSequence { controlledNote, refNote, controlledNote.withAmplitudeChange (3.0f), refNote.withAmplitudeChange (3.0f), controlledNote.withAmplitudeChange (6.0f), refNote.withAmplitudeChange (6.0f) };
     std::vector<SequenceableNote> noteSequence { controlledNote, refNote };
-    std::vector<float> pans { -1, -0.66, -0.33, 0, 0.33, 0.66, 1, 0.66, 0.33, 0, -0.33, -0.66 };
+    std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
     
     float dbDiff = getCompensationDBAtFrequency (freq);
     for (int i = 0; i < noteSequence.size(); ++i)

@@ -15,6 +15,7 @@
 #include "EQNode.h"
 #include "CabinEQGraph.h"
 
+/*
 class TutorialMarketplaceStatus   : public juce::OnlineUnlockStatus
 {
 public:
@@ -127,6 +128,7 @@ public:
         setVisible (false);
     }
 };
+ */
 
 class CabinEQPage   : public juce::Component,
                       public juce::Slider::Listener,
@@ -173,7 +175,7 @@ public:
 protected:
     void flagFilterChanged();
     void toggleBypass();
-    void applyFilterIfProcessing();
+    void applyFilter();
     void loadDropdownOptions();
     void dismissAlertWindow();
     
@@ -183,7 +185,7 @@ protected:
     StartupMVPAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
-    juce::TextButton unlockButton { "UNLOCK" };
+    juce::TextButton applyButton { "APPLY" };
     juce::TextButton duplicateButton { "COPY" };
     bool isBypassed = true;
     bool hasFilterChanged = true;
@@ -199,8 +201,8 @@ protected:
     
     int lastSelectedId = 1;
     
-    TutorialMarketplaceStatus marketplaceStatus;
-    TutorialUnlockForm unlockForm;
+//    TutorialMarketplaceStatus marketplaceStatus;
+//    TutorialUnlockForm unlockForm;
  
     bool isUnlocked = false;
 };
