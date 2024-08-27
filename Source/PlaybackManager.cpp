@@ -198,11 +198,9 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
 //    arbitrarySequencer.setNotes ({ controlledNote.withAmplitudeChange (-6.0f), refNote, controlledNote.withAmplitudeChange (6.0f), refNote });
     
     std::vector<SequenceableNote> notes;
-    std::vector<SequenceableNote> notes2;
 //    std::vector<SequenceableNote> noteSequence { controlledNote.withAmplitudeChange (0.0f), refNote, controlledNote.withAmplitudeChange (3.0f), refNote.withAmplitudeChange (3.0f), controlledNote.withAmplitudeChange (6.0f), refNote.withAmplitudeChange (6.0f) };
     std::vector<SequenceableNote> noteSequence { controlledNote, refNote };
-    std::vector<float> pans { -1, -0.66, -0.33, 0, 0.33, 0.66, 1, 0.66, 0.33, 0 -0.33, -0.66 };
-    std::vector<float> pans2 { 1, 0.66, 0.33, 0. -0.33, -0.66, -1, -0.66, -0.33, 0, 0.33, 0.66 };
+    std::vector<float> pans { -1, -0.66, -0.33, 0, 0.33, 0.66, 1, 0.66, 0.33, 0, -0.33, -0.66 };
     
     float dbDiff = getCompensationDBAtFrequency (freq);
     for (int i = 0; i < noteSequence.size(); ++i)
@@ -210,21 +208,14 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
         noteSequence[i] = noteSequence[i].withAmplitudeChange (dbDiff);
     }
     
-//    for (const auto& pan : pans)
-//    {
-//        for (const auto& note : noteSequence)
-//        {
-//            notes.emplace_back (note.withPan (pan));
-//        }
-//    }
     for (const auto& pan : pans)
-        notes.emplace_back (controlledNote.withPan (pan));
-    
-    for (const auto& pan : pans2)
-        notes2.emplace_back (refNote.withPan (pan));
-    
+    {
+        for (const auto& note : noteSequence)
+        {
+            notes.emplace_back (note.withPan (pan));
+        }
+    }
     arbitrarySequencer.setNotes (notes);
-    arbitrarySequencer2.setNotes (notes2);
     
 //    arbitrarySequencer.setNotes ({ controlledNote.withAmplitudeChange (6.0f).withPan (-0.7), refNote.withPan (-0.2), controlledNote.withAmplitudeChange (-6.0f), refNote.withPan (0.2), controlledNote.withAmplitudeChange (6.0f).withPan (0.7), refNote.withPan (0.2), controlledNote.withAmplitudeChange (-6.0f), refNote.withPan (-0.2) });
 //    arbitrarySequencer.setNotes ({ refNote.withAmplitudeChange (-6.0f), controlledNote, refNote.withAmplitudeChange (6.0f), silentNote });
@@ -262,12 +253,9 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
 //    arbitrarySequencer.updateNotes ({ controlledNote.withAmplitudeChange (-6.0f), refNote, controlledNote.withAmplitudeChange (6.0f), refNote });
     
     std::vector<SequenceableNote> notes;
-    std::vector<SequenceableNote> notes2;
 //    std::vector<SequenceableNote> noteSequence { controlledNote, refNote, controlledNote.withAmplitudeChange (3.0f), refNote.withAmplitudeChange (3.0f), controlledNote.withAmplitudeChange (6.0f), refNote.withAmplitudeChange (6.0f) };
     std::vector<SequenceableNote> noteSequence { controlledNote, refNote };
-//    std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
-    std::vector<float> pans { -1, -0.66, -0.33, 0, 0.33, 0.66, 1, 0.66, 0.33, 0 -0.33, -0.66 };
-    std::vector<float> pans2 { 1, 0.66, 0.33, 0. -0.33, -0.66, -1, -0.66, -0.33, 0, 0.33, 0.66 };
+    std::vector<float> pans { -1, -0.66, -0.33, 0, 0.33, 0.66, 1, 0.66, 0.33, 0, -0.33, -0.66 };
     
     float dbDiff = getCompensationDBAtFrequency (freq);
     for (int i = 0; i < noteSequence.size(); ++i)
@@ -275,22 +263,14 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
         noteSequence[i] = noteSequence[i].withAmplitudeChange (dbDiff);
     }
     
-//    for (const auto& pan : pans)
-//    {
-//        for (const auto& note : noteSequence)
-//        {
-//            notes.emplace_back (note.withPan (pan));
-//        }
-//    }
-    
     for (const auto& pan : pans)
-        notes.emplace_back (controlledNote.withPan (pan));
-    
-    for (const auto& pan : pans2)
-        notes2.emplace_back (refNote.withPan (pan));
-    
+    {
+        for (const auto& note : noteSequence)
+        {
+            notes.emplace_back (note.withPan (pan));
+        }
+    }
     arbitrarySequencer.updateNotes (notes);
-    arbitrarySequencer2.updateNotes (notes2);
     //arbitrarySequencer.updateNotes ({ controlledNote.withAmplitudeChange (6.0f).withPan (-0.7), refNote.withPan (-0.2), controlledNote.withAmplitudeChange (-6.0f), refNote.withPan (0.2), controlledNote.withAmplitudeChange (6.0f).withPan (0.7), refNote.withPan (0.2), controlledNote.withAmplitudeChange (-6.0f), refNote.withPan (-0.2) });
 //    arbitrarySequencer.updateNotes ({ refNote.withAmplitudeChange (-6.0f), controlledNote, refNote.withAmplitudeChange (6.0f), silentNote });
 //    arbitrarySequencer.updateNotes ({ controlledNote.withAmplitudeChange (-6.0f), controlledNote.withAmplitudeChange (6.0f) });
