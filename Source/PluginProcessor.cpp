@@ -230,6 +230,16 @@ void StartupMVPAudioProcessor::setBypassBalance (float balance)
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
+void StartupMVPAudioProcessor::setWetVolume (float wetVolume)
+{
+    playbackManager.setWetVolume (wetVolume);
+}
+
+void StartupMVPAudioProcessor::setDryVolume (float dryVolume)
+{
+    playbackManager.setDryVolume (dryVolume);
+}
+
 std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getAmplCurve (juce::String profileName)
 {
     auto profile = profileNamed (profileName);

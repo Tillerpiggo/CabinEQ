@@ -18,6 +18,13 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     referenceSlider.setRange (-24.0f, 24.0f);
     referenceSlider.setValue (0.0f);
     
+    wetVolumeSlider.setRange (-20.0f, 20.0f);
+    dryVolumeSlider.setRange (-20.0f, 20.0f);
+    wetVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    dryVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    wetVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    dryVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    
     cabinEQGraph.addListener (this);
     dropdownProfiles.addListener (this);
     referenceSlider.addListener (this);
@@ -25,6 +32,8 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     duplicateButton.addListener (this);
     applyButton.addListener (this);
     processor.addListener (this);
+    dryVolumeSlider.addListener (this);
+    wetVolumeSlider.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
     addAndMakeVisible (dropdownProfiles);
@@ -32,6 +41,8 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (applyButton);
     addAndMakeVisible (duplicateButton);
+    addAndMakeVisible (dryVolumeSlider);
+    addAndMakeVisible (wetVolumeSlider);
     
     didLoadData();
 }
@@ -45,6 +56,8 @@ CabinEQPage::~CabinEQPage()
     bypassButton.removeListener (this);
     applyButton.removeListener (this);
     duplicateButton.removeListener (this);
+    dryVolumeSlider.removeListener (this);
+    wetVolumeSlider.removeListener (this);
     
     cabinEQGraph.removeListener();
     processor.removeListener();
@@ -57,32 +70,38 @@ void CabinEQPage::paint (juce::Graphics& g)
 
 void CabinEQPage::resized()
 {
-    int padding = 10;
+    int padding = 5; // Reduced padding
     int dropdownHeight = 30;
     int buttonWidth = 100;
     int applyButtonWidth = 100;
     int duplicateButtonWidth = 100;
     int totalButtonWidth = buttonWidth + duplicateButtonWidth + applyButtonWidth;
 
-    int graphHeight = getHeight() - (2 * padding) - dropdownHeight;
+    // Calculate available height for the graph and sliders
+    int availableHeight = getHeight() - (3 * padding) - (2 * dropdownHeight);
+    
+    int sliderHeight = 20; // Small height for sliders
+    int graphHeight = availableHeight - sliderHeight; // Remaining height for the graph
+
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
-    int bottomY = getHeight() - padding - dropdownHeight;
+    int buttonsY = padding + graphHeight + padding;
 
     cabinEQGraph.setBounds(0, padding, getWidth(), graphHeight);
-    dropdownProfiles.setBounds(padding, bottomY, dropdownWidth, dropdownHeight);
-    bypassButton.setBounds(padding + dropdownWidth, bottomY, buttonWidth, dropdownHeight);
+    dropdownProfiles.setBounds(padding, buttonsY, dropdownWidth, dropdownHeight);
+    bypassButton.setBounds(padding + dropdownWidth, buttonsY, buttonWidth, dropdownHeight);
 
     int currentX = padding + dropdownWidth + buttonWidth;
-    
-//    if (!isUnlocked)
-//    {
-//        unlockButton.setBounds(currentX, bottomY, unlockButtonWidth, dropdownHeight);
-//        currentX += unlockButtonWidth;
-//    }
-    applyButton.setBounds (currentX, bottomY, applyButtonWidth, dropdownHeight);
+    applyButton.setBounds(currentX, buttonsY, applyButtonWidth, dropdownHeight);
     currentX += applyButtonWidth;
 
-    duplicateButton.setBounds(currentX, bottomY, duplicateButtonWidth, dropdownHeight);
+    duplicateButton.setBounds(currentX, buttonsY, duplicateButtonWidth, dropdownHeight);
+
+    // Calculate positions for sliders
+    int sliderY = buttonsY + dropdownHeight + 2 * padding;
+    int sliderWidth = (getWidth() - (3 * padding)) / 2; // Two sliders with padding in between
+
+    wetVolumeSlider.setBounds(padding, sliderY, sliderWidth, sliderHeight);
+    dryVolumeSlider.setBounds(padding + sliderWidth + padding, sliderY, sliderWidth, sliderHeight);
 }
 
 // ====================================================
@@ -153,6 +172,14 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
     if (slider == &referenceSlider)
     {
         processor.setReferenceVolume (slider->getValue());
+    }
+    else if (slider == &dryVolumeSlider)
+    {
+        processor.setDryVolume (slider->getValue());
+    }
+    else if (slider == &wetVolumeSlider)
+    {
+        processor.setWetVolume (slider->getValue());
     }
 }
 

@@ -160,6 +160,16 @@ void PlaybackManager::setDryWetVolumeBalance (float balance)
     wetGainProcessor.setGainDecibels (+balance);
 }
 
+void PlaybackManager::setWetVolume (float wetVolume)
+{
+    wetGainProcessor.setGainDecibels (wetVolume);
+}
+
+void PlaybackManager::setDryVolume (float dryVolume)
+{
+    dryGainProcessor.setGainDecibels (dryVolume);
+}
+
 void PlaybackManager::setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl)
 {
 //    sineSweepGenerator.setCenterFrequency (centerFreq, ampl);

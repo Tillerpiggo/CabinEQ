@@ -39,6 +39,8 @@ public:
     void setIsCalibrating (bool isCalibrating);
     void setIsProcessing (bool isProcessing);
     void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
+    void setWetVolume (float wetVolume);
+    void setDryVolume (float dryVolume);
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
