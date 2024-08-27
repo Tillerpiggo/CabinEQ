@@ -25,7 +25,10 @@ const float Curve::compensatedValueAtFrequency (float frequency, float compensat
         float dbDifference = -compensationSlope * std::log2 ((frequency) / 1000.0f);
         valueAtFrequency += dbDifference;
     }
-    
+//    
+//    float dbDifference = -4.5 * std::log2 (frequency / 1000.0f);
+//    float baseDB = 85.0f;
+//    valueAtFrequency -= inverseFM.valueAtFrequency (frequency, baseDB + dbDifference) - inverseFM.valueAtFrequency (frequency, baseDB);
     return juce::Decibels::decibelsToGain (valueAtFrequency);
 }
 

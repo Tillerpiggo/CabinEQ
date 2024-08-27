@@ -10,13 +10,14 @@
 
 #include "ArbitraryResponseFilter.h"
 
-void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurve, int fft_size)
+void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurve, Curve& targetCurve, int fft_size)
 {
     // Get left & right impulse data
     juce::dsp::FFT fft (fft_size);
     int numPoints = fft.getSize();
     
     auto amplResponse = amplCurve.getFrequencyResponse (numPoints);
+    auto targetResponse = targetCurve.getFrequencyResponse (numPoints);
     auto panResponse = panCurve.getFrequencyResponse (numPoints);
     
     float* leftFreqResponse = new float[2 * numPoints];
@@ -28,8 +29,8 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurv
         {
             float pan = panResponse[i];
             if (pan == 0) pan = 1;
-            leftFreqResponse[i] = amplResponse[i];// / std::sqrt (pan);
-            rightFreqResponse[i] = amplResponse[i];// * std::sqrt (pan);
+            leftFreqResponse[i] = amplResponse[i] + targetResponse[i];// / std::sqrt (pan);
+            rightFreqResponse[i] = amplResponse[i] + targetResponse[i];// * std::sqrt (pan);
         }
         else
         {
