@@ -17,7 +17,7 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurv
     int numPoints = fft.getSize();
     
     auto amplResponse = amplCurve.getFrequencyResponse (numPoints);
-    auto targetResponse = targetCurve.getFrequencyResponse (numPoints);
+//    auto targetResponse = targetCurve.getFrequencyResponse (numPoints);
     auto panResponse = panCurve.getFrequencyResponse (numPoints);
     
     float* leftFreqResponse = new float[2 * numPoints];
@@ -29,8 +29,8 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurv
         {
             float pan = panResponse[i];
             if (pan == 0) pan = 1;
-            leftFreqResponse[i] = amplResponse[i] * targetResponse[i];// / std::sqrt (pan);
-            rightFreqResponse[i] = amplResponse[i] * targetResponse[i];// * std::sqrt (pan);
+            leftFreqResponse[i] = amplResponse[i];// * targetResponse[i];// / std::sqrt (pan);
+            rightFreqResponse[i] = amplResponse[i];// * targetResponse[i];// * std::sqrt (pan);
         }
         else
         {
