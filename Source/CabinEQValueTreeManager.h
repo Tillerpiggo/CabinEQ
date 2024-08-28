@@ -23,10 +23,16 @@ public:
     void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
     void removeProfile (juce::String profileName);
     void initProfiles(); // Initializes the profiles using the apvts
+    
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEQValueTree>> getProfileNamed (juce::String profileName) const;
+    std::optional<juce::String> getLastSelectedProfileName() const;
+    
+    void setLastSelectedProfileName (juce::String lastSelectedProfileName);
     
 private:
     juce::AudioProcessorValueTreeState& apvts;
     std::vector<std::unique_ptr<CabinEQValueTree>> profiles;
+    
+    juce::Identifier lastSelectedProfileId { "lastSelectedProfileId" };
 };

@@ -279,15 +279,11 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
         }
         
         // Go to a profile if you select the profile
-        else
+        else if (profileDropdown.getSelectedId() != lastSelectedId && profileDropdown.getSelectedId() > 0)
         {
             int selectedIndex = profileDropdown.indexOfItemId (profileDropdown.getSelectedId());
             juce::String profileIdSelected = profileDropdown.getItemText (selectedIndex);
-            profileId = profileIdSelected;
-            cabinEQGraph.setCurve (processor.getAmplCurve (profileIdSelected)->get()); // HARD CODING AMPL FOR NOW
-            flagFilterChanged();
-            std::cout << "profile selected" << std::endl;
-            applyFilter();
+            goToProfileWithId (profileIdSelected);
         }
         
         lastSelectedId = profileDropdown.getSelectedId();
@@ -345,9 +341,12 @@ void CabinEQPage::buttonClicked (juce::Button *button)
 
 void CabinEQPage::didLoadData()
 {
-    loadDropdownOptions();
     applyFilter();
     processor.setIsProcessing (! isBypassed);
+    auto lastSelectedProfileName = processor.getLastSelectedProfileName();
+    if (lastSelectedProfileName.has_value())
+        goToProfileWithId (lastSelectedProfileName.value());
+    loadDropdownOptions();
 }
 
 void CabinEQPage::timerCallback()
@@ -383,7 +382,8 @@ void CabinEQPage::toggleBlind()
 
 void CabinEQPage::applyFilter()
 {
-    processor.applyCurve (fftSize, profileId);
+    if (hasFilterChanged)
+        processor.applyCurve (fftSize, profileId);
     hasFilterChanged = false;
     updateButtonText();
 }
@@ -403,7 +403,7 @@ void CabinEQPage::loadDropdownOptions()
     if (profileDropdown.getNumItems() > 0)
     {
         profileDropdown.addSeparator();
-        profileDropdown.setSelectedId (profileDropdown.getItemId (1));
+        profileDropdown.setText (profileId);
     }
     
     profileDropdown.addItem ("+ Add Profile", i);
@@ -441,4 +441,15 @@ void CabinEQPage::unlockApp()
     bypassButton.setEnabled (true);
 //    unlockLabel.setText ("Status: Unlocked", juce::dontSendNotification);
 //    unlockLabel.setColour (juce::Label::textColourId, juce::Colours::green);
+}
+
+void CabinEQPage::goToProfileWithId (juce::String profileIdToGoTo)
+{
+    std::cout << "going to " << profileIdToGoTo << std::endl;
+    
+    profileId = profileIdToGoTo;
+    cabinEQGraph.setCurve (processor.getAmplCurve (profileIdToGoTo)->get()); // HARD CODING AMPL FOR NOW
+    flagFilterChanged();
+    applyFilter();
+    processor.setLastSelectedProfileName (profileId);
 }

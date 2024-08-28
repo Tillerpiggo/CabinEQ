@@ -65,3 +65,17 @@ std::optional<std::reference_wrapper<CabinEQValueTree>> CabinEQValueTreeManager:
             return std::ref (*profiles[i]);
     return std::nullopt;
 }
+
+std::optional<juce::String> CabinEQValueTreeManager::getLastSelectedProfileName() const
+{
+    if (apvts.state.hasProperty (lastSelectedProfileId))
+    {
+        return apvts.state.getProperty (lastSelectedProfileId);
+    }
+    return std::nullopt;
+}
+
+void CabinEQValueTreeManager::setLastSelectedProfileName (juce::String lastSelectedProfileName)
+{
+    apvts.state.setProperty (lastSelectedProfileId, lastSelectedProfileName, nullptr);
+}

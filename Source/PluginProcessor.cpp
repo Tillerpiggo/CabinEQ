@@ -437,16 +437,15 @@ std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor
     return cabinEQValueTreeManager.getProfileNamed (profileName);
 }
 
-//void StartupMVPAudioProcessor::startSineSweep (float centerFreq, std::optional<float> ampl)
-//{
-//    playbackManager.setIsSweeping (true);
-//    playbackManager.setSineSweepCenterFrequency (centerFreq, ampl);
-//}
-//
-//void StartupMVPAudioProcessor::updateSineSweep (float centerFreq, std::optional<float> ampl)
-//{
-//    playbackManager.updateSineSweepCenterFrequency (centerFreq, ampl);
-//}
+std::optional<juce::String> StartupMVPAudioProcessor::getLastSelectedProfileName()
+{
+    return cabinEQValueTreeManager.getLastSelectedProfileName();
+}
+
+void StartupMVPAudioProcessor::setLastSelectedProfileName (juce::String profileName)
+{
+    cabinEQValueTreeManager.setLastSelectedProfileName (profileName);
+}
 
 void StartupMVPAudioProcessor::startSineSweep (float centerFreq, juce::String profileName)
 {

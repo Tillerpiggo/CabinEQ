@@ -90,6 +90,9 @@ public:
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEQValueTree>> getProfileNamed (juce::String profileName) const;
     
+    std::optional<juce::String> getLastSelectedProfileName();
+    void setLastSelectedProfileName (juce::String profileName);
+    
     // Setting points
 //    int addEQNode (float frequency, float amplitude, float pan, juce::String profileName);
 //    void removeEQNode (int id, juce::String profileName);

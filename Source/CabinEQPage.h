@@ -69,6 +69,8 @@ protected:
     void showForm();
     void unlockApp();
     
+    void goToProfileWithId (juce::String profileIdToGoTo);
+    
     StartupMVPAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
