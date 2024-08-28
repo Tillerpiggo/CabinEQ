@@ -108,18 +108,21 @@ void CabinEQPage::resized()
 int CabinEQPage::addCurvePt (float freq, float ampl, CabinEQGraph* sender)
 {
     flagFilterChanged();
+    std::cout << "curve pt added" << std::endl;
     return processor.addAmplPt (freq, ampl, profileId); // TODO: FIX, I'M JUST DOING AMPL FOR NOW
 }
 
 void CabinEQPage::updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender)
 {
     flagFilterChanged();
+    std::cout << "curve pt updated" << std::endl;
     processor.updateAmplPt (id, freq, ampl, profileId);
 }
 
 void CabinEQPage::removeCurvePt (int id, CabinEQGraph* sender)
 {
     flagFilterChanged();
+    std::cout << "curve pt removed" << std::endl;
     processor.removeAmplPt (id, profileId);
 }
 
@@ -264,7 +267,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             profileId = profileIdSelected;
             cabinEQGraph.setCurve (processor.getAmplCurve (profileIdSelected)->get()); // HARD CODING AMPL FOR NOW
             flagFilterChanged();
-            loadDropdownOptions();
+            std::cout << "profile selected" << std::endl;
         }
         
         lastSelectedId = dropdownProfiles.getSelectedId();
@@ -333,8 +336,8 @@ void CabinEQPage::toggleBlind()
 
 void CabinEQPage::applyFilter()
 {
-    hasFilterChanged = false;
     processor.applyCurve (profileId);
+    hasFilterChanged = false;
     updateButtonText();
 }
 
@@ -376,6 +379,8 @@ void CabinEQPage::updateButtonText()
     {
         bypassButton.setButtonText ("[BLINDED]");
     }
+    
+    applyButton.setEnabled (hasFilterChanged); // only let people apply the filter when there is something to update
 }
 
 void CabinEQPage::showForm()
