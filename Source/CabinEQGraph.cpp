@@ -238,6 +238,11 @@ void CabinEQGraph::setGrayscale (bool grayscale)
     this->grayscale = grayscale;
 }
 
+void CabinEQGraph::setBlinded (bool blinded)
+{
+    this->blinded = blinded;
+}
+
 // =============================================
 void CabinEQGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
 {
@@ -440,7 +445,7 @@ juce::ColourGradient CabinEQGraph::getCurveGradient()
 
 juce::Colour CabinEQGraph::getColorForFrequency (float frequency)
 {
-    if (grayscale)
+    if (grayscale && ! blinded)
         return juce::Colour::fromFloatRGBA (0.3f, 0.3f, 0.3f, 1.0f);
     
     juce::Colour startColor;
@@ -475,7 +480,8 @@ juce::Colour CabinEQGraph::getColorForFrequency (float frequency)
         segment_t = (t - 0.75f) / 0.25f;
     }
     
-    return startColor.interpolatedWith (endColor, segment_t);
+    auto color = startColor.interpolatedWith (endColor, segment_t);
+    return blinded ? color.interpolatedWith (juce::Colour::fromFloatRGBA (0.3f, 0.3f, 0.3f, 1.0f), 0.8) : color;
 }
 
 juce::Point<float> CabinEQGraph::coordsForCurvePt (float frequency, float amplitude)

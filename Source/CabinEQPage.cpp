@@ -29,7 +29,7 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     dropdownProfiles.addListener (this);
     referenceSlider.addListener (this);
     bypassButton.addListener (this);
-    duplicateButton.addListener (this);
+    blindButton.addListener (this);
     applyButton.addListener (this);
     processor.addListener (this);
     dryVolumeSlider.addListener (this);
@@ -40,7 +40,7 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     addAndMakeVisible (referenceSlider);
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (applyButton);
-    addAndMakeVisible (duplicateButton);
+    addAndMakeVisible (blindButton);
     addAndMakeVisible (dryVolumeSlider);
     addAndMakeVisible (wetVolumeSlider);
     
@@ -55,7 +55,7 @@ CabinEQPage::~CabinEQPage()
     referenceSlider.removeListener (this);
     bypassButton.removeListener (this);
     applyButton.removeListener (this);
-    duplicateButton.removeListener (this);
+    blindButton.removeListener (this);
     dryVolumeSlider.removeListener (this);
     wetVolumeSlider.removeListener (this);
     
@@ -94,10 +94,10 @@ void CabinEQPage::resized()
     applyButton.setBounds(currentX, buttonsY, applyButtonWidth, dropdownHeight);
     currentX += applyButtonWidth;
 
-    duplicateButton.setBounds(currentX, buttonsY, duplicateButtonWidth, dropdownHeight);
+    blindButton.setBounds (currentX, buttonsY, duplicateButtonWidth, dropdownHeight);
 
     // Calculate positions for sliders
-    int sliderY = buttonsY + dropdownHeight + 2 * padding;
+    int sliderY = padding + buttonsY + dropdownHeight + padding;
     int sliderWidth = (getWidth() - (3 * padding)) / 2; // Two sliders with padding in between
 
     wetVolumeSlider.setBounds(padding, sliderY, sliderWidth, sliderHeight);
@@ -224,7 +224,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == &dropdownProfiles)
     {
         // Add a profile if you select "+ Add Profile"
-        if (dropdownProfiles.getSelectedId() == dropdownProfiles.getNumItems())
+        if (dropdownProfiles.getSelectedId() == dropdownProfiles.getNumItems() - 1)
         {
             // Create a present an alert for the user to enter the profile name into
             alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
@@ -237,7 +237,23 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             alertWindow->enterModalState();
             
             dropdownProfiles.setSelectedId (lastSelectedId);
-            flagFilterChanged();
+        }
+        
+        // Duplicate a profile if you select "Duplicate [profilename]"
+        else if (dropdownProfiles.getSelectedId() == dropdownProfiles.getNumItems())
+        {
+            // Present option to add duplicate profile, and opportunity to name it
+            // Create a present an alert for the user to enter the profile name into
+            alertWindow = std::make_unique<juce::AlertWindow> ("Create Duplicate Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+            creatingDuplicate = true;
+            
+            alertWindow->addTextEditor (textEditorName, "");
+            alertWindow->getTextEditor (textEditorName)->addListener (this);
+            alertWindow->setEscapeKeyCancels (true);
+            
+            alertWindow->enterModalState();
+            
+            dropdownProfiles.setSelectedId (lastSelectedId);
         }
         
         // Go to a profile if you select the profile
@@ -248,6 +264,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             profileId = profileIdSelected;
             cabinEQGraph.setCurve (processor.getAmplCurve (profileIdSelected)->get()); // HARD CODING AMPL FOR NOW
             flagFilterChanged();
+            loadDropdownOptions();
         }
         
         lastSelectedId = dropdownProfiles.getSelectedId();
@@ -270,21 +287,9 @@ void CabinEQPage::buttonClicked (juce::Button *button)
     {
         applyFilter();
     }
-    else if (button == &duplicateButton)
+    else if (button == &blindButton)
     {
-        // Present option to add duplicate profile, and opportunity to name it
-        // Create a present an alert for the user to enter the profile name into
-        alertWindow = std::make_unique<juce::AlertWindow> ("Create Duplicate Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
-        creatingDuplicate = true;
-        
-        alertWindow->addTextEditor (textEditorName, "");
-        alertWindow->getTextEditor (textEditorName)->addListener (this);
-        alertWindow->setEscapeKeyCancels (true);
-        
-        alertWindow->enterModalState();
-        
-        dropdownProfiles.setSelectedId (lastSelectedId);
-        flagFilterChanged();
+        toggleBlind();
     }
 }
 
@@ -308,21 +313,29 @@ void CabinEQPage::timerCallback()
 void CabinEQPage::flagFilterChanged()
 {
     hasFilterChanged = true;
-    bypassButton.setButtonText ("ON*");
+    updateButtonText();
 }
 
 void CabinEQPage::toggleBypass()
 {
     isBypassed = ! isBypassed;
     cabinEQGraph.setGrayscale (isBypassed);
-    bypassButton.setButtonText (isBypassed ? "OFF" : (hasFilterChanged ? "ON*" : "ON"));
+    updateButtonText();
+}
+
+void CabinEQPage::toggleBlind()
+{
+    isBlind = ! isBlind;
+    blindButton.setButtonText (isBlind ? "UNBLIND" : "BLIND");
+    cabinEQGraph.setBlinded (isBlind);
+    updateButtonText();
 }
 
 void CabinEQPage::applyFilter()
 {
     hasFilterChanged = false;
     processor.applyCurve (profileId);
-    bypassButton.setButtonText (isBypassed ? "OFF" : (hasFilterChanged ? "ON*" : "ON"));
+    updateButtonText();
 }
 
 void CabinEQPage::loadDropdownOptions()
@@ -344,12 +357,25 @@ void CabinEQPage::loadDropdownOptions()
     }
     
     dropdownProfiles.addItem ("+ Add Profile", i);
+    dropdownProfiles.addItem ("[] Duplicate this profile", i + 1);
 }
 
 void CabinEQPage::dismissAlertWindow()
 {
     alertWindow->getTextEditor (textEditorName)->removeListener (this);
     alertWindow.reset();
+}
+                                
+void CabinEQPage::updateButtonText()
+{
+    if (! isBlind)
+    {
+        bypassButton.setButtonText (isBypassed ? "OFF" : (hasFilterChanged ? "ON*" : "ON"));
+    }
+    else
+    {
+        bypassButton.setButtonText ("[BLINDED]");
+    }
 }
 
 void CabinEQPage::showForm()

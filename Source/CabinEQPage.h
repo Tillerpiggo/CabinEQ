@@ -60,9 +60,11 @@ public:
 protected:
     void flagFilterChanged();
     void toggleBypass();
+    void toggleBlind();
     void applyFilter();
     void loadDropdownOptions();
     void dismissAlertWindow();
+    void updateButtonText();
     
     void showForm();
     void unlockApp();
@@ -71,8 +73,9 @@ protected:
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
     juce::TextButton applyButton { "APPLY" };
-    juce::TextButton duplicateButton { "COPY" };
+    juce::TextButton blindButton { "BLIND" };
     bool isBypassed = false;
+    bool isBlind = false;
     bool hasFilterChanged = true;
     bool creatingDuplicate = false;
     

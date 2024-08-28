@@ -61,6 +61,7 @@ public:
     void removeListener();
     
     void setGrayscale (bool grayscale);
+    void setBlinded (bool blinded);
     
 private:
     std::optional<std::reference_wrapper<Curve>> curve;
@@ -128,6 +129,7 @@ private:
     std::optional<float> targetSelectedDotSize;
     
     bool grayscale = false;
+    bool blinded = false;
     
     int cyclesSinceUserStoppedDoingShit = 0;
 };
