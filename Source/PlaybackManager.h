@@ -16,6 +16,7 @@
 #include "SineSweepGenerator.h"
 #include "PinkNoiseGenerator.h"
 #include "Constants.h"
+#include "RandomSineWaveGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -27,7 +28,7 @@ public:
 
     void processBlock (juce::AudioBuffer<float>& buffer);
     
-    void updateFilterWithCurves (Curve& amplCurve, Curve& panCurve); // update the current filter with the curve
+    void updateFilterWithCurves (Curve& amplCurve, Curve& panCurve, int fftSize); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     float getCurrPlayingFreq() const;
@@ -81,6 +82,7 @@ private:
     ArbitrarySequencer arbitrarySequencer2;
     SineWaveGenerator sineWaveGenerator1;
     SineWaveGenerator sineWaveGenerator2;
+    RandomSineWaveGenerator randomSineWaveGenerator;
     PinkNoise pinkNoise;
     SineSweepGenerator sineSweepGenerator;
     Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f);

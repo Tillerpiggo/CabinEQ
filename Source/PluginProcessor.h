@@ -70,7 +70,7 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
-    void applyCurve (juce::String profileName);
+    void applyCurve (int fftSize, juce::String profileName);
     void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
     void setWetVolume (float wetVolume);

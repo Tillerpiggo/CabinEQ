@@ -210,12 +210,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
-void StartupMVPAudioProcessor::applyCurve (juce::String profileName)
+void StartupMVPAudioProcessor::applyCurve (int fftSize, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.updateFilterWithCurves (profile->get().getAmplCurve(), profile->get().getPanCurve());
+        playbackManager.updateFilterWithCurves (profile->get().getAmplCurve(), profile->get().getPanCurve(), fftSize);
     }
         
 }

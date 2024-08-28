@@ -78,9 +78,11 @@ protected:
     bool isBlind = false;
     bool hasFilterChanged = true;
     bool creatingDuplicate = false;
+    int fftSize = 16;
     
     CabinEQGraph cabinEQGraph;
-    juce::ComboBox dropdownProfiles;
+    juce::ComboBox profileDropdown;
+    juce::ComboBox filterQualityDropdown;
     juce::Slider referenceSlider;
     std::unique_ptr<juce::AlertWindow> alertWindow;
     

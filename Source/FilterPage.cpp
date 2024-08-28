@@ -7,6 +7,7 @@
 
   ==============================================================================
 */
+/*
 
 #include "FilterPage.h"
 
@@ -105,3 +106,4 @@ void FilterPage::updateApplyFilterButtonText()
     else
         applyFilterButton.setButtonText ("SpeakerEQ Active");
 }
+*/

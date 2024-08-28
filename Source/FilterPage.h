@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+/*
 #pragma once
 
 #include <JuceHeader.h>
@@ -41,3 +42,4 @@ private:
     bool isBypassed;
     bool isHeadphoneEQSelected;
 };
+*/

@@ -13,7 +13,13 @@
 CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()//, unlockForm (marketplaceStatus)
 {
-    dropdownProfiles.addItem ("+ Add Profile", 1);
+    filterQualityDropdown.addItem ("Utopian", 1);
+    filterQualityDropdown.addItem ("Fantastic", 2);
+    filterQualityDropdown.addItem ("Great", 3);
+    filterQualityDropdown.addItem ("Good", 4);
+    filterQualityDropdown.addItem ("Economy", 5);
+    filterQualityDropdown.setSelectedId (3);
+    profileDropdown.addItem ("+ Add Profile", 1);
     
     referenceSlider.setRange (-24.0f, 24.0f);
     referenceSlider.setValue (0.0f);
@@ -26,7 +32,8 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     dryVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     
     cabinEQGraph.addListener (this);
-    dropdownProfiles.addListener (this);
+    profileDropdown.addListener (this);
+    filterQualityDropdown.addListener (this);
     referenceSlider.addListener (this);
     bypassButton.addListener (this);
     blindButton.addListener (this);
@@ -36,7 +43,8 @@ CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
     wetVolumeSlider.addListener (this);
     
     addAndMakeVisible (cabinEQGraph);
-    addAndMakeVisible (dropdownProfiles);
+    addAndMakeVisible (profileDropdown);
+    addAndMakeVisible (filterQualityDropdown);
     addAndMakeVisible (referenceSlider);
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (applyButton);
@@ -51,7 +59,8 @@ CabinEQPage::~CabinEQPage()
 {
     referenceSlider.removeListener (this);
     
-    dropdownProfiles.removeListener (this);
+    profileDropdown.removeListener (this);
+    filterQualityDropdown.removeListener (this);
     referenceSlider.removeListener (this);
     bypassButton.removeListener (this);
     applyButton.removeListener (this);
@@ -84,17 +93,27 @@ void CabinEQPage::resized()
     int graphHeight = availableHeight - sliderHeight; // Remaining height for the graph
 
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
+
+    // Adjust the widths for profileDropdown and filterQualityDropdown
+    int profileDropdownWidth = static_cast<int>(dropdownWidth * 0.75); // 75% width
+    int filterQualityDropdownWidth = dropdownWidth - profileDropdownWidth; // Remaining 25% width
+
     int buttonsY = padding + graphHeight + padding;
 
     cabinEQGraph.setBounds(0, padding, getWidth(), graphHeight);
-    dropdownProfiles.setBounds(padding, buttonsY, dropdownWidth, dropdownHeight);
+    profileDropdown.setBounds(padding, buttonsY, profileDropdownWidth, dropdownHeight);
+
+    // Position filterQualityDropdown to the right of profileDropdown
+    filterQualityDropdown.setBounds(padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
+
+    // Adjust the positions of the buttons
+    int currentX = padding + dropdownWidth + buttonWidth;
     bypassButton.setBounds(padding + dropdownWidth, buttonsY, buttonWidth, dropdownHeight);
 
-    int currentX = padding + dropdownWidth + buttonWidth;
     applyButton.setBounds(currentX, buttonsY, applyButtonWidth, dropdownHeight);
     currentX += applyButtonWidth;
 
-    blindButton.setBounds (currentX, buttonsY, duplicateButtonWidth, dropdownHeight);
+    blindButton.setBounds(currentX, buttonsY, duplicateButtonWidth, dropdownHeight);
 
     // Calculate positions for sliders
     int sliderY = padding + buttonsY + dropdownHeight + padding;
@@ -207,7 +226,7 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     loadDropdownOptions();
     
     // Select the new profile
-    dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (dropdownProfiles.getNumItems() - 2));
+    profileDropdown.setSelectedId (profileDropdown.getItemId (profileDropdown.getNumItems() - 2));
     
     dismissAlertWindow();
 }
@@ -224,10 +243,10 @@ void CabinEQPage::textEditorFocusLost (juce::TextEditor& textEditor)
 
 void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 {
-    if (comboBoxThatHasChanged == &dropdownProfiles)
+    if (comboBoxThatHasChanged == &profileDropdown)
     {
         // Add a profile if you select "+ Add Profile"
-        if (dropdownProfiles.getSelectedId() == dropdownProfiles.getNumItems() - 1)
+        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 1)
         {
             // Create a present an alert for the user to enter the profile name into
             alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
@@ -239,11 +258,11 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             
             alertWindow->enterModalState();
             
-            dropdownProfiles.setSelectedId (lastSelectedId);
+            profileDropdown.setSelectedId (lastSelectedId);
         }
         
         // Duplicate a profile if you select "Duplicate [profilename]"
-        else if (dropdownProfiles.getSelectedId() == dropdownProfiles.getNumItems())
+        else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems())
         {
             // Present option to add duplicate profile, and opportunity to name it
             // Create a present an alert for the user to enter the profile name into
@@ -256,21 +275,49 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             
             alertWindow->enterModalState();
             
-            dropdownProfiles.setSelectedId (lastSelectedId);
+            profileDropdown.setSelectedId (lastSelectedId);
         }
         
         // Go to a profile if you select the profile
         else
         {
-            int selectedIndex = dropdownProfiles.indexOfItemId (dropdownProfiles.getSelectedId());
-            juce::String profileIdSelected = dropdownProfiles.getItemText (selectedIndex);
+            int selectedIndex = profileDropdown.indexOfItemId (profileDropdown.getSelectedId());
+            juce::String profileIdSelected = profileDropdown.getItemText (selectedIndex);
             profileId = profileIdSelected;
             cabinEQGraph.setCurve (processor.getAmplCurve (profileIdSelected)->get()); // HARD CODING AMPL FOR NOW
             flagFilterChanged();
             std::cout << "profile selected" << std::endl;
+            applyFilter();
         }
         
-        lastSelectedId = dropdownProfiles.getSelectedId();
+        lastSelectedId = profileDropdown.getSelectedId();
+    }
+    else if (comboBoxThatHasChanged == &filterQualityDropdown)
+    {
+        auto fftSizeBefore = fftSize;
+        switch (filterQualityDropdown.getSelectedItemIndex())
+        {
+            case 0:
+                fftSize = 21;
+                break;
+            case 1:
+                fftSize = 18;
+                break;
+            case 2:
+                fftSize = 16;
+                break;
+            case 3:
+                fftSize = 12;
+                break;
+            case 4:
+                fftSize = 10;
+        }
+        
+        if (fftSize != fftSizeBefore)
+        {
+            flagFilterChanged();
+            applyFilter();
+        }
     }
 }
 
@@ -336,31 +383,31 @@ void CabinEQPage::toggleBlind()
 
 void CabinEQPage::applyFilter()
 {
-    processor.applyCurve (profileId);
+    processor.applyCurve (fftSize, profileId);
     hasFilterChanged = false;
     updateButtonText();
 }
 
 void CabinEQPage::loadDropdownOptions()
 {
-    dropdownProfiles.clear();
+    profileDropdown.clear();
     
     // Add existing profiles to dropdown menu
     int i = 1;
     for (const auto& name : processor.getProfileNames())
     {
-        dropdownProfiles.addItem (name, i);
+        profileDropdown.addItem (name, i);
         i++;
     }
     
-    if (dropdownProfiles.getNumItems() > 0)
+    if (profileDropdown.getNumItems() > 0)
     {
-        dropdownProfiles.addSeparator();
-        dropdownProfiles.setSelectedId (dropdownProfiles.getItemId (1));
+        profileDropdown.addSeparator();
+        profileDropdown.setSelectedId (profileDropdown.getItemId (1));
     }
     
-    dropdownProfiles.addItem ("+ Add Profile", i);
-    dropdownProfiles.addItem ("[] Duplicate this profile", i + 1);
+    profileDropdown.addItem ("+ Add Profile", i);
+    profileDropdown.addItem ("[] Duplicate this profile", i + 1);
 }
 
 void CabinEQPage::dismissAlertWindow()
