@@ -207,6 +207,7 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
 
 void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
 {
+    std::cout << "text editor return key pressed" << std::endl;
     if (textEditor.getText().isEmpty())
         return;
     
@@ -344,8 +345,8 @@ void CabinEQPage::didLoadData()
     applyFilter();
     processor.setIsProcessing (! isBypassed);
     auto lastSelectedProfileName = processor.getLastSelectedProfileName();
-    if (lastSelectedProfileName.has_value())
-        goToProfileWithId (lastSelectedProfileName.value());
+//    if (lastSelectedProfileName.has_value())
+//        goToProfileWithId (lastSelectedProfileName.value());
     loadDropdownOptions();
 }
 
