@@ -69,6 +69,7 @@ private:
     float getCompensationDBAtFrequency (float frequency);
     float getReferenceCompensationDBAtFrequency (float frequency);
     juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
+    std::vector<SequenceableNote> getNotesForCalibration (float freq, Curve& amplCurve);
     
     const int FFT_SIZE = 15;
     
@@ -80,6 +81,7 @@ private:
     // Sound generation
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
+    ArbitrarySequencer arbitrarySequencer3;
     SineWaveGenerator sineWaveGenerator1;
     SineWaveGenerator sineWaveGenerator2;
     RandomSineWaveGenerator randomSineWaveGenerator;
