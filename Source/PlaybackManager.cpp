@@ -17,6 +17,8 @@ PlaybackManager::PlaybackManager()
       arbitrarySequencer (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       arbitrarySequencer2 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       arbitrarySequencer3 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
+      arbitrarySequencer4 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
+      arbitrarySequencer5 (std::make_unique<SineWaveGenerator> (SineWaveGenerator())),
       isTesting (false),
       isSweeping (false),
       isCalibrating (false),
@@ -115,6 +117,9 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     filter.prepare (spec);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
+    arbitrarySequencer3.setSampleRate (spec.sampleRate);
+    arbitrarySequencer4.setSampleRate (spec.sampleRate);
+    arbitrarySequencer5.setSampleRate (spec.sampleRate);
     sineWaveGenerator1.setSampleRate (spec.sampleRate);
     sineWaveGenerator2.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
@@ -183,15 +188,31 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    auto notes = getNotesForCalibration (freq, amplCurve);
+    auto notes = getNotesForCalibration (freq, 1.0f, amplCurve);
+    auto notesBelow = getNotesForCalibration (freq, 0.105, amplCurve);
+    auto notesAbove = getNotesForCalibration (freq, 0.95, amplCurve);
+    auto notesABitBelow = getNotesForCalibration (freq, 1.02, amplCurve);
+    auto notesABitAbove = getNotesForCalibration (freq, 0.97, amplCurve);
     arbitrarySequencer.setNotes (notes);
+    arbitrarySequencer2.setNotes (notesBelow);
+    arbitrarySequencer3.setNotes (notesAbove);
+    arbitrarySequencer4.setNotes (notesABitBelow);
+    arbitrarySequencer5.setNotes (notesABitAbove);
 }
 
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    auto notes = getNotesForCalibration (freq, amplCurve);
+    auto notes = getNotesForCalibration (freq, 1.0f, amplCurve);
+    auto notesBelow = getNotesForCalibration (freq, 0.105, amplCurve);
+    auto notesAbove = getNotesForCalibration (freq, 0.95, amplCurve);
+    auto notesABitBelow = getNotesForCalibration (freq, 1.02, amplCurve);
+    auto notesABitAbove = getNotesForCalibration (freq, 0.97, amplCurve);
     arbitrarySequencer.updateNotes (notes);
+    arbitrarySequencer2.updateNotes (notesBelow);
+    arbitrarySequencer3.updateNotes (notesAbove);
+    arbitrarySequencer4.updateNotes (notesABitBelow);
+    arbitrarySequencer5.updateNotes (notesABitAbove);
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -261,7 +282,12 @@ std::pair<float, float> PlaybackManager::getNextSample()
 {
     auto [leftSample1, rightSample1] = arbitrarySequencer.getNextSample();
     auto [leftSample2, rightSample2] = arbitrarySequencer2.getNextSample();
-    return { leftSample1 + leftSample2, rightSample1 + rightSample2 };
+    auto [leftSample3, rightSample3] = arbitrarySequencer3.getNextSample();
+    auto [leftSample4, rightSample4] = arbitrarySequencer4.getNextSample();
+    auto [leftSample5, rightSample5] = arbitrarySequencer5.getNextSample();
+//    return { leftSample1 + leftSample2 * 0.1 + leftSample3 * 0.1 + leftSample4 * 0.5 + leftSample5 * 0.5,
+//             rightSample1 + rightSample2 * 0.1 + rightSample3 * 0.1 + rightSample4 * 0.5 + rightSample5 * 0.5 };
+    return { leftSample1, rightSample1 };
 }
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
@@ -282,12 +308,12 @@ juce::dsp::IIR::Coefficients<float>::Ptr PlaybackManager::createDelayCoefficient
     return coefs;
 }
 
-std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float freq, Curve& amplCurve)
+std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float freq, float freqOffsetFactor, Curve& amplCurve)
 {
     // Play reference note and then do below - controlled - above
-    int noteDurationInSamples = 1600;
+    int noteDurationInSamples = 3200;
     
-    float ampl = amplCurve.valueAtFrequency (freq);
+    float ampl = amplCurve.valueAtFrequency (freq * freqOffsetFactor);
     ampl = juce::Decibels::gainToDecibels (ampl);
     
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
@@ -297,7 +323,8 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float fre
     
     // Notes that will be used regardless
     SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude, 0.0f, noteDurationInSamples, envelope);
-    SequenceableNote controlledNote (freq, ampl, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote controlledNote (freq * freqOffsetFactor, ampl, 0.0f, noteDurationInSamples, envelope);
     
     std::vector<SequenceableNote> controlledNotes;
     
@@ -305,14 +332,21 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float fre
     {
         auto [freqBelow, amplBelow] = nodeBelow.value();
         auto [freqAbove, amplAbove] = nodeAbove.value();
+        freqBelow *= freqOffsetFactor;
+        freqAbove *= freqOffsetFactor;
+        amplBelow = amplCurve.valueAtFrequency (freqBelow);
+        amplAbove = amplCurve.valueAtFrequency (freqAbove);
+        amplBelow = juce::Decibels::gainToDecibels (amplBelow);
+        amplAbove = juce::Decibels::gainToDecibels (amplAbove);
         
         // Above and below notes
         SequenceableNote aboveNote (freqAbove, amplAbove, 0.0f, noteDurationInSamples, envelope);
         SequenceableNote belowNote (freqBelow, amplBelow, 0.0f, noteDurationInSamples, envelope);
         
-        controlledNotes.push_back (belowNote);
+//        controlledNotes.push_back (belowNote);
         controlledNotes.push_back (controlledNote);
-        controlledNotes.push_back (aboveNote);
+//        controlledNotes.push_back (aboveNote);
+        controlledNotes.push_back (refNote);
     }
     else
     {
@@ -322,15 +356,37 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float fre
     // Play below - controlled - above while reference note is playing
     std::vector<SequenceableNote> notes;
     std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
+//    std::vector<float> ampls { -6.0, -3.0, 0.0, 3.0, 6.0, 3.0, 0.0, -3.0 };
+    
+    
     
     for (const auto& note : controlledNotes)
     {
         for (const auto& pan : pans)
         {
             notes.emplace_back (note.withPan (pan));
-            notes.emplace_back (refNote.withPan (pan));
+//            notes.emplace_back (refNote.withPan (pan));
+//            notes.emplace_back (refNote2.withPan (pan));
         }
     }
+    
+//    int panIdx = 0;
+//    int amplIdx = 0;
+//    for (int i = 0; i < 10; ++i)
+//    {
+//        for (const auto& note : controlledNotes)
+//        {
+//            notes.emplace_back (note.withPan (pans[panIdx]).withAmplitudeChange (ampls[amplIdx]));
+////            for (const auto& pan : pans)
+////            {
+////                notes.emplace_back (note.withPan (pan));
+////            }
+//            amplIdx++;
+//            panIdx++;
+//            if (amplIdx >= ampls.size()) amplIdx = 0;
+//            if (panIdx >= pans.size()) panIdx = 0;
+//        }
+//    }
     
     return notes;
 }

@@ -11,4 +11,4 @@
 #pragma once
 
 inline constexpr float REFERENCE_FREQ = 800.0f;
-inline constexpr float REFERENCE_FREQ_2 = 4000.0f;
+inline constexpr float REFERENCE_FREQ_2 = 5000.0f;
