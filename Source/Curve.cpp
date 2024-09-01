@@ -25,7 +25,9 @@ const float Curve::compensatedValueAtFrequency (float frequency, float compensat
         float dbDifference = -compensationSlope * std::log2 ((frequency) / 1000.0f);
         valueAtFrequency += dbDifference;
     }
-//    
+    
+//    valueAtFrequency *= 0.5;
+//
 //    float dbDifference = -4.5 * std::log2 (frequency / 1000.0f);
 //    float baseDB = 85.0f;
 //    valueAtFrequency -= inverseFM.valueAtFrequency (frequency, baseDB + dbDifference) - inverseFM.valueAtFrequency (frequency, baseDB);
@@ -289,4 +291,26 @@ const std::optional<std::pair<float, float>> Curve::nodeAboveFreq (float frequen
     }
     
     return std::nullopt;
+}
+
+const std::optional<std::vector<float>> Curve::getFirstFourFreqs()
+{
+    std::vector<float> freqs;
+    
+    for (const auto& curvePt : curvePts)
+    {
+        if (curvePt.id < 4)
+        {
+            freqs.push_back (curvePt.freq);
+        }
+    }
+    
+    if (freqs.size() == 4)
+    {
+        return freqs;
+    }
+    else
+    {
+        return std::nullopt;
+    }
 }

@@ -69,7 +69,7 @@ private:
     float getCompensationDBAtFrequency (float frequency);
     float getReferenceCompensationDBAtFrequency (float frequency);
     juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
-    std::vector<SequenceableNote> getNotesForCalibration (float freq, float freqOffsetFactor, Curve& amplCurve);
+    std::vector<SequenceableNote> getNotesForCalibration (float freq, Curve& amplCurve);
     
     const int FFT_SIZE = 15;
     

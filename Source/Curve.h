@@ -38,6 +38,7 @@ public:
     
     const std::optional<std::pair<float, float>> nodeBelowFreq (float frequency);
     const std::optional<std::pair<float, float>> nodeAboveFreq (float frequency);
+    const std::optional<std::vector<float>> getFirstFourFreqs();
 
     
 //    const float* getImpulse (int fft_size); // This hands ownership of the float*'s to whoever calls it!!
