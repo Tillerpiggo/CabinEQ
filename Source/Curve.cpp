@@ -31,8 +31,7 @@ const float Curve::compensatedValueAtFrequency (float frequency, float compensat
 //    float dbDifference = -4.5 * std::log2 (frequency / 1000.0f);
 //    float baseDB = 85.0f;
 //    valueAtFrequency -= inverseFM.valueAtFrequency (frequency, baseDB + dbDifference) - inverseFM.valueAtFrequency (frequency, baseDB);
-    float dbDifference = inverseFM.valueAtFrequency (frequency, 75.0f);
-    valueAtFrequency += inverseFM.valueAtFrequency (frequency, 75.0f + dbDifference);
+//    valueAtFrequency += inverseFM.valueAtFrequency (frequency, 65.0f);
     return juce::Decibels::decibelsToGain (valueAtFrequency);
 }
 
@@ -293,6 +292,28 @@ const std::optional<std::pair<float, float>> Curve::nodeAboveFreq (float frequen
     }
     
     return std::nullopt;
+}
+
+const std::optional<std::vector<float>> Curve::getFirstThreeFreqs()
+{
+    std::vector<float> freqs;
+    
+    for (const auto& curvePt : curvePts)
+    {
+        if (curvePt.id < 3)
+        {
+            freqs.push_back (curvePt.freq);
+        }
+    }
+    
+    if (freqs.size() == 3)
+    {
+        return freqs;
+    }
+    else
+    {
+        return std::nullopt;
+    }
 }
 
 const std::optional<std::vector<float>> Curve::getFirstFourFreqs()

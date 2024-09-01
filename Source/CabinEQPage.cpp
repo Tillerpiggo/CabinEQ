@@ -134,7 +134,6 @@ int CabinEQPage::addCurvePt (float freq, float ampl, CabinEQGraph* sender)
 void CabinEQPage::updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender)
 {
     flagFilterChanged();
-    std::cout << "curve pt updated" << std::endl;
     processor.updateAmplPt (id, freq, ampl, profileId);
 }
 
