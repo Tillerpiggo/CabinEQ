@@ -188,17 +188,30 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    auto notes = getNotesForCalibration (freq, amplCurve);
-    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
-    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
-    if (nodeBelow.has_value() && nodeAbove.has_value())
+    auto notes = getNotesForCalibration (freq, amplCurve, true);
+    auto firstFourFreqs = amplCurve.getFirstFourFreqs();
+    if (firstFourFreqs.has_value())
     {
-        auto [freqBelow, _] = nodeBelow.value();
-        auto [freqAbove, __] = nodeAbove.value();
-        auto notesBelow = getNotesForCalibration (freqBelow, amplCurve);
-        auto notesAbove = getNotesForCalibration (freqAbove, amplCurve);
-        arbitrarySequencer2.setNotes (notesBelow);
-        arbitrarySequencer3.setNotes (notesAbove);
+        auto notes0 = getNotesForCalibration (firstFourFreqs.value()[0], amplCurve);
+        auto notes1 = getNotesForCalibration (firstFourFreqs.value()[1], amplCurve);
+        auto notes2 = getNotesForCalibration (firstFourFreqs.value()[2], amplCurve);
+        auto notes3 = getNotesForCalibration (firstFourFreqs.value()[3], amplCurve);
+        arbitrarySequencer2.setNotes (notes0);
+        arbitrarySequencer3.setNotes (notes1);
+        arbitrarySequencer4.setNotes (notes2);
+        arbitrarySequencer5.setNotes (notes3);
+        
+        // Don't set notes if we're calibrating a first freq
+        for (const auto& firstFreq : firstFourFreqs.value())
+            if (freq == firstFreq)
+                return;
+    }
+    else
+    {
+        arbitrarySequencer2.setNotes ({});
+        arbitrarySequencer3.setNotes ({});
+        arbitrarySequencer4.setNotes ({});
+        arbitrarySequencer5.setNotes ({});
     }
     
     arbitrarySequencer.setNotes (notes);
@@ -207,7 +220,7 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    auto notes = getNotesForCalibration (freq, amplCurve);
+    auto notes = getNotesForCalibration (freq, amplCurve, true);
     auto firstFourFreqs = amplCurve.getFirstFourFreqs();
     if (firstFourFreqs.has_value())
     {
@@ -219,6 +232,18 @@ void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& pa
         arbitrarySequencer3.updateNotes (notes1);
         arbitrarySequencer4.updateNotes (notes2);
         arbitrarySequencer5.updateNotes (notes3);
+        
+        // Don't set notes if we're calibrating a first freq
+        for (const auto& firstFreq : firstFourFreqs.value())
+            if (freq == firstFreq)
+                return;
+    }
+    else
+    {
+        arbitrarySequencer2.updateNotes ({});
+        arbitrarySequencer3.updateNotes ({});
+        arbitrarySequencer4.updateNotes ({});
+        arbitrarySequencer5.updateNotes ({});
     }
     
     arbitrarySequencer.updateNotes (notes);
@@ -319,7 +344,7 @@ juce::dsp::IIR::Coefficients<float>::Ptr PlaybackManager::createDelayCoefficient
     return coefs;
 }
 
-std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float freq, Curve& amplCurve)
+std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float freq, Curve& amplCurve, bool alternateSilence)
 {
     // Play reference note and then do below - controlled - above
     int noteDurationInSamples = 10000;
@@ -337,10 +362,13 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float fre
     
     std::vector<SequenceableNote> controlledNotes;
     controlledNotes.push_back (controlledNote);
-    controlledNotes.push_back (silentNote);
-    controlledNotes.push_back (refNote);
-    controlledNotes.push_back (silentNote);
-    
+    if (alternateSilence)
+        controlledNotes.push_back (silentNote);
+//    controlledNotes.push_back (silentNote);
+//    controlledNotes.push_back (silentNote);
+//    controlledNotes.push_back (refNote);
+//    controlledNotes.push_back (silentNote);
+//    
     // Play below - controlled - above while reference note is playing
     std::vector<SequenceableNote> notes;
 //    std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
