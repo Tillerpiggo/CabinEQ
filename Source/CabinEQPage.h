@@ -95,6 +95,8 @@ protected:
     
     juce::Slider dryVolumeSlider;
     juce::Slider wetVolumeSlider;
+    juce::Label dryVolumeLabel;
+    juce::Label wetVolumeLabel;
  
     bool isUnlocked = false;
 };

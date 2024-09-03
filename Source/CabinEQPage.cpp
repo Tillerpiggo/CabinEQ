@@ -30,6 +30,10 @@ CabinEQPage::CabinEQPage (CabinEQAudioProcessor& p)
     dryVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     wetVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     dryVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    wetVolumeLabel.setText ("Calibrated Volume", juce::dontSendNotification);
+    dryVolumeLabel.setText ("Normal Volume", juce::dontSendNotification);
+    wetVolumeLabel.setJustificationType (juce::Justification::centred);
+    dryVolumeLabel.setJustificationType (juce::Justification::centred);
     
     cabinEQGraph.addListener (this);
     profileDropdown.addListener (this);
@@ -51,6 +55,8 @@ CabinEQPage::CabinEQPage (CabinEQAudioProcessor& p)
     addAndMakeVisible (blindButton);
     addAndMakeVisible (dryVolumeSlider);
     addAndMakeVisible (wetVolumeSlider);
+    addAndMakeVisible (dryVolumeLabel);
+    addAndMakeVisible (wetVolumeLabel);
     
     didLoadData();
 }
@@ -79,48 +85,48 @@ void CabinEQPage::paint (juce::Graphics& g)
 
 void CabinEQPage::resized()
 {
-    int padding = 5; // Reduced padding
+    int padding = 20; // padding on the top and bottom
+    int componentPadding = 10; // padding between graph, slider, and dropdown
     int dropdownHeight = 30;
+    int sliderHeight = 30;
+    int labelHeight = 15;
     int buttonWidth = 100;
     int applyButtonWidth = 100;
     int duplicateButtonWidth = 100;
     int totalButtonWidth = buttonWidth + duplicateButtonWidth + applyButtonWidth;
 
-    // Calculate available height for the graph and sliders
-    int availableHeight = getHeight() - (3 * padding) - (2 * dropdownHeight);
+    // Get heights for each component
+    int availableHeight = getHeight() - (2 * padding);
+    int graphHeight = availableHeight - dropdownHeight - sliderHeight - labelHeight - 3 * componentPadding; // Remaining height for the graph
     
-    int sliderHeight = 20; // Small height for sliders
-    int graphHeight = availableHeight - sliderHeight; // Remaining height for the graph
-
+    // Get widths for each component
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
-
-    // Adjust the widths for profileDropdown and filterQualityDropdown
     int profileDropdownWidth = static_cast<int>(dropdownWidth * 0.75); // 75% width
     int filterQualityDropdownWidth = dropdownWidth - profileDropdownWidth; // Remaining 25% width
 
-    int buttonsY = padding + graphHeight + padding;
+    int buttonsY = padding + graphHeight + componentPadding;
 
-    cabinEQGraph.setBounds(0, padding, getWidth(), graphHeight);
-    profileDropdown.setBounds(padding, buttonsY, profileDropdownWidth, dropdownHeight);
-
-    // Position filterQualityDropdown to the right of profileDropdown
-    filterQualityDropdown.setBounds(padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
-
-    // Adjust the positions of the buttons
+    // Set bounds for graph and buttons
+    cabinEQGraph.setBounds (0, padding, getWidth(), graphHeight);
+    profileDropdown.setBounds (padding, buttonsY, profileDropdownWidth, dropdownHeight);
+    filterQualityDropdown.setBounds (padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
     int currentX = padding + dropdownWidth + buttonWidth;
-    bypassButton.setBounds(padding + dropdownWidth, buttonsY, buttonWidth, dropdownHeight);
-
-    applyButton.setBounds(currentX, buttonsY, applyButtonWidth, dropdownHeight);
+    bypassButton.setBounds (padding + dropdownWidth, buttonsY, buttonWidth, dropdownHeight);
+    applyButton.setBounds (currentX, buttonsY, applyButtonWidth, dropdownHeight);
     currentX += applyButtonWidth;
+    blindButton.setBounds (currentX, buttonsY, duplicateButtonWidth, dropdownHeight);
 
-    blindButton.setBounds(currentX, buttonsY, duplicateButtonWidth, dropdownHeight);
-
-    // Calculate positions for sliders
-    int sliderY = padding + buttonsY + dropdownHeight + padding;
+    // Set bounds for sliders
+    int sliderY = buttonsY + dropdownHeight + componentPadding;
     int sliderWidth = (getWidth() - (3 * padding)) / 2; // Two sliders with padding in between
-
-    wetVolumeSlider.setBounds(padding, sliderY, sliderWidth, sliderHeight);
-    dryVolumeSlider.setBounds(padding + sliderWidth + padding, sliderY, sliderWidth, sliderHeight);
+    wetVolumeSlider.setBounds (padding, sliderY, sliderWidth, sliderHeight);
+    dryVolumeSlider.setBounds (padding + sliderWidth + padding, sliderY, sliderWidth, sliderHeight);
+    
+    // Set bounds for labels
+    int labelY = sliderY + sliderHeight + componentPadding;
+    int labelWidth = sliderWidth;
+    wetVolumeLabel.setBounds (padding, labelY, labelWidth, labelHeight);
+    dryVolumeLabel.setBounds (padding + labelWidth + padding, labelY, labelWidth, labelHeight);
 }
 
 // ====================================================
