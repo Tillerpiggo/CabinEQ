@@ -188,43 +188,47 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    float dbDifference = std::log2 (1000.0f / freq);
-    float radius = 10.0f;
-    float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
-    dropoff = -10 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
-    
-    auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
-    arbitrarySequencer.setNotes (controlledNotes);
-    
-    auto refNotes1 = getNotesForCalibrationAt (500.0f, dropoff);
-    auto refNotes2 = getNotesForCalibrationAt (1000.0f, dropoff, true, true);
-    auto refNotes3 = getNotesForCalibrationAt (2000.0f, dropoff);
-    auto refNotes4 = getNotesForCalibrationAt (4000.0f, dropoff); // this one should alternate with the controlled note
-//    arbitrarySequencer2.setNotes (refNotes1);
-    arbitrarySequencer3.setNotes (refNotes2);
-//    arbitrarySequencer4.setNotes (refNotes3);
-//    arbitrarySequencer5.setNotes (refNotes4);
+    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+    if (nodeBelow.has_value() && nodeAbove.has_value())
+    {
+        auto [freqBelow, _] = nodeBelow.value();
+        auto [freqAbove, __] = nodeAbove.value();
+        sineSweepGenerator.setSweep (freqBelow, freqAbove, amplCurve, panCurve);
+    }
+    else if (nodeBelow.has_value())
+    {
+        auto [freqBelow, _] = nodeBelow.value();
+        sineSweepGenerator.setSweep (freqBelow, freq, amplCurve, panCurve);
+    }
+    else if (nodeAbove.has_value())
+    {
+        auto [freqAbove, _] = nodeAbove.value();
+        sineSweepGenerator.setSweep (freq, freqAbove, amplCurve, panCurve);
+    }
 }
 
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    float dbDifference = std::log2 (1000.0f / freq);
-    float radius = 10.0f;
-    float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
-    dropoff = -10 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
-    
-    auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
-    arbitrarySequencer.updateNotes (controlledNotes);
-    
-    auto refNotes1 = getNotesForCalibrationAt (500.0f, dropoff);
-    auto refNotes2 = getNotesForCalibrationAt (1000.0f, dropoff, true, true);
-    auto refNotes3 = getNotesForCalibrationAt (2000.0f, dropoff);
-    auto refNotes4 = getNotesForCalibrationAt (4000.0f, dropoff); // this one should alternate with the controlled note
-//    arbitrarySequencer2.updateNotes (refNotes1);
-    arbitrarySequencer3.updateNotes (refNotes2);
-//    arbitrarySequencer4.updateNotes (refNotes3);
-//    arbitrarySequencer5.updateNotes (refNotes4);
+    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+    if (nodeBelow.has_value() && nodeAbove.has_value())
+    {
+        auto [freqBelow, _] = nodeBelow.value();
+        auto [freqAbove, __] = nodeAbove.value();
+        sineSweepGenerator.updateSweep (freqBelow, freqAbove, amplCurve, panCurve);
+    }
+    else if (nodeBelow.has_value())
+    {
+        auto [freqBelow, _] = nodeBelow.value();
+        sineSweepGenerator.updateSweep (freqBelow, freq, amplCurve, panCurve);
+    }
+    else if (nodeAbove.has_value())
+    {
+        auto [freqAbove, _] = nodeAbove.value();
+        sineSweepGenerator.updateSweep (freq, freqAbove, amplCurve, panCurve);
+    }
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -292,6 +296,13 @@ void PlaybackManager::setReferencePan (float pan)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
+    auto [leftSineSweepSample, rightSineSweepSample] = sineSweepGenerator.getNextSample();
+    auto [leftArbitrarySample1, rightArbitrarySample1] = arbitrarySequencer.getNextSample();
+    auto [leftArbitrarySample2, rightArbitrarySample2] = arbitrarySequencer2.getNextSample();
+    
+    return { leftSineSweepSample + leftArbitrarySample1 + leftArbitrarySample2,
+        rightSineSweepSample + rightArbitrarySample1 + rightArbitrarySample2 };
+    /*
     auto [leftSample1, rightSample1] = arbitrarySequencer.getNextSample();
     auto [leftSample2, rightSample2] = arbitrarySequencer2.getNextSample();
     auto [leftSample3, rightSample3] = arbitrarySequencer3.getNextSample();
@@ -302,6 +313,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
     return { leftSample1 + leftSample2 + leftSample3 + leftSample4 + leftSample5,
              rightSample1 + rightSample2 + rightSample3 + rightSample4 + rightSample5 };
 //    return { leftSample1, rightSample1 };
+     */
 }
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)

@@ -55,6 +55,12 @@ void SineSweepGenerator::updateSweep (float bottomFreq, float topFreq, Curve amp
     this->panCurve = panCurve;
 }
 
+void SineSweepGenerator::stopSweep()
+{
+    this->centerFreq = 0.0f;
+    this->FREQ_RANGE_FACTOR = 1.0f;
+}
+
 void SineSweepGenerator::incrementFreq()
 {
     if (currStep >= TEMPO)

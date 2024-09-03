@@ -27,6 +27,7 @@ public:
 //    void updateCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void setSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve);
     void updateSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve);
+    void stopSweep();
     float getCurrFreq() const;
     
 private:
@@ -35,8 +36,8 @@ private:
     SineWaveGenerator sineWaveGenerator;
     
     float FREQ_RANGE_FACTOR = 1.5f;
-    static constexpr float FREQ_STEP = 1.0001f;
-    static constexpr float TEMPO = 5; // samples per change
+    static constexpr float FREQ_STEP = 1.001f;
+    static constexpr float TEMPO = 1; // samples per change
     static constexpr float BASE_DB = 0.0f;
     bool increasingFreq = true;
     
