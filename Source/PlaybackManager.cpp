@@ -188,16 +188,16 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    float dbDifference = std::log2 (800.0f / freq);
-    float radius = 5.0f;
+    float dbDifference = std::log2 (1000.0f / freq);
+    float radius = 10.0f;
     float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
-    dropoff = 20 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
+    dropoff = -10 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
     
     auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
     arbitrarySequencer.setNotes (controlledNotes);
     
     auto refNotes1 = getNotesForCalibrationAt (500.0f, dropoff);
-    auto refNotes2 = getNotesForCalibrationAt (800.0f, dropoff, true, true);
+    auto refNotes2 = getNotesForCalibrationAt (1000.0f, dropoff, true, true);
     auto refNotes3 = getNotesForCalibrationAt (2000.0f, dropoff);
     auto refNotes4 = getNotesForCalibrationAt (4000.0f, dropoff); // this one should alternate with the controlled note
 //    arbitrarySequencer2.setNotes (refNotes1);
@@ -209,16 +209,16 @@ void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& pan
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    float dbDifference = std::log2 (800.0f / freq);
-    float radius = 5.0f;
+    float dbDifference = std::log2 (1000.0f / freq);
+    float radius = 10.0f;
     float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
-    dropoff = 20 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
+    dropoff = -10 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
     
     auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
     arbitrarySequencer.updateNotes (controlledNotes);
     
     auto refNotes1 = getNotesForCalibrationAt (500.0f, dropoff);
-    auto refNotes2 = getNotesForCalibrationAt (800.0f, dropoff, true, true);
+    auto refNotes2 = getNotesForCalibrationAt (1000.0f, dropoff, true, true);
     auto refNotes3 = getNotesForCalibrationAt (2000.0f, dropoff);
     auto refNotes4 = getNotesForCalibrationAt (4000.0f, dropoff); // this one should alternate with the controlled note
 //    arbitrarySequencer2.updateNotes (refNotes1);
@@ -239,12 +239,12 @@ void PlaybackManager::updateTestingFreq (float freq, Curve& curve)
 
 void PlaybackManager::startSineSweep (float centerFreq, Curve amplCurve, Curve panCurve)
 {
-    sineSweepGenerator.setSweep (centerFreq, amplCurve, panCurve);
+//    sineSweepGenerator.setSweep (centerFreq, amplCurve, panCurve);
 }
 
 void PlaybackManager::updateSineSweep (float centerFreq, Curve amplCurve, Curve panCurve)
 {
-    sineSweepGenerator.updateSweep (centerFreq, amplCurve, panCurve);
+//    sineSweepGenerator.updateSweep (centerFreq, amplCurve, panCurve);
 }
 
 void PlaybackManager::stopTestingFreq()
@@ -306,7 +306,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
-    return -4.5f * std::log2 (frequency / 1000.0f);
+    return 0.0f;//-4.5f * std::log2 (frequency / 1000.0f);
 }
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
