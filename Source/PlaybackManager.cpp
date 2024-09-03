@@ -188,47 +188,19 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
-    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
-    if (nodeBelow.has_value() && nodeAbove.has_value())
-    {
-        auto [freqBelow, _] = nodeBelow.value();
-        auto [freqAbove, __] = nodeAbove.value();
-        sineSweepGenerator.setSweep (freqBelow, freqAbove, amplCurve, panCurve);
-    }
-    else if (nodeBelow.has_value())
-    {
-        auto [freqBelow, _] = nodeBelow.value();
-        sineSweepGenerator.setSweep (freqBelow, freq, amplCurve, panCurve);
-    }
-    else if (nodeAbove.has_value())
-    {
-        auto [freqAbove, _] = nodeAbove.value();
-        sineSweepGenerator.setSweep (freq, freqAbove, amplCurve, panCurve);
-    }
+    auto refNotes = getNotesForCalibrationAt (1000.0f, 0.0f, true, true);
+    auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
+    arbitrarySequencer.setNotes (refNotes);
+    arbitrarySequencer2.setNotes (controlledNotes);
 }
 
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
-    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
-    if (nodeBelow.has_value() && nodeAbove.has_value())
-    {
-        auto [freqBelow, _] = nodeBelow.value();
-        auto [freqAbove, __] = nodeAbove.value();
-        sineSweepGenerator.updateSweep (freqBelow, freqAbove, amplCurve, panCurve);
-    }
-    else if (nodeBelow.has_value())
-    {
-        auto [freqBelow, _] = nodeBelow.value();
-        sineSweepGenerator.updateSweep (freqBelow, freq, amplCurve, panCurve);
-    }
-    else if (nodeAbove.has_value())
-    {
-        auto [freqAbove, _] = nodeAbove.value();
-        sineSweepGenerator.updateSweep (freq, freqAbove, amplCurve, panCurve);
-    }
+    auto refNotes = getNotesForCalibrationAt (1000.0f, 0.0f, true, true);
+    auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
+    arbitrarySequencer.updateNotes (refNotes);
+    arbitrarySequencer2.updateNotes (controlledNotes);
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -296,12 +268,15 @@ void PlaybackManager::setReferencePan (float pan)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    auto [leftSineSweepSample, rightSineSweepSample] = sineSweepGenerator.getNextSample();
-    auto [leftArbitrarySample1, rightArbitrarySample1] = arbitrarySequencer.getNextSample();
-    auto [leftArbitrarySample2, rightArbitrarySample2] = arbitrarySequencer2.getNextSample();
-    
-    return { leftSineSweepSample + leftArbitrarySample1 + leftArbitrarySample2,
-        rightSineSweepSample + rightArbitrarySample1 + rightArbitrarySample2 };
+    auto [leftSample0, rightSample0] = arbitrarySequencer.getNextSample();
+    auto [leftSample1, rightSample1] = arbitrarySequencer2.getNextSample();
+    return { leftSample0 + leftSample1, rightSample0 + rightSample1 };
+//    auto [leftSineSweepSample, rightSineSweepSample] = sineSweepGenerator.getNextSample();
+//    auto [leftArbitrarySample1, rightArbitrarySample1] = arbitrarySequencer.getNextSample();
+//    auto [leftArbitrarySample2, rightArbitrarySample2] = arbitrarySequencer2.getNextSample();
+//    
+//    return { leftSineSweepSample + leftArbitrarySample1 + leftArbitrarySample2,
+//        rightSineSweepSample + rightArbitrarySample1 + rightArbitrarySample2 };
     /*
     auto [leftSample1, rightSample1] = arbitrarySequencer.getNextSample();
     auto [leftSample2, rightSample2] = arbitrarySequencer2.getNextSample();
@@ -346,9 +321,9 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float fre
 std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float freq, float ampl, bool alternateSilence, bool alternateSilenceBefore)
 {
     // Play reference note and then do below - controlled - above
-    int noteDurationInSamples = 2000;
+    int noteDurationInSamples = 1000;
     
-    StereoGainEnvelope envelope (800);
+    StereoGainEnvelope envelope (500);
     
     // Notes that will be used regardless
     SequenceableNote mainNote (freq, ampl, 0.0f, noteDurationInSamples, envelope);
@@ -363,15 +338,16 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float f
     
     // Play below - controlled - above while reference note is playing
     std::vector<SequenceableNote> notes;
-    std::vector<float> pans { 0 };
+    std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
     
-    for (const auto& note : controlledNotes)
+    for (const auto& pan : pans)
     {
-        for (const auto& pan : pans)
+        for (const auto& note : controlledNotes)
         {
             notes.emplace_back (note.withPan (pan));
         }
     }
+    
     
     return notes;
 }

@@ -30,6 +30,23 @@ const float Curve::compensatedValueAtFrequency (float frequency, float compensat
         float dbDifference = -compensationSlope * std::log2 ((20.0f) / 1000.0f);
         valueAtFrequency += dbDifference;
     }
+//    // Apply dropoff here:
+//    if (frequency > 20)
+//    {
+//        float dbDifference = std::log2 (1000.0f / frequency);
+//        float radius = 10.0f;
+//        float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
+//        dropoff = -10 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
+//        valueAtFrequency += dropoff;
+//    }
+//    else
+//    {
+//        float dbDifference = std::log2 (1000.0f / 20.0f);
+//        float radius = 10.0f;
+//        float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
+//        dropoff = -10 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
+//        valueAtFrequency += dropoff;
+//    }
     
 //    valueAtFrequency *= 0.5;
 //
