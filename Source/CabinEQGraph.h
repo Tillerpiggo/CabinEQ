@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
+#include "CabinEQAudioProcessor.h"
 #include "CurvePt.h"
 
 class CabinEQGraph   : public juce::Component,

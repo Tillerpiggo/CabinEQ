@@ -225,8 +225,9 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     
     loadDropdownOptions();
     
-    // Select the new profile
+    // Select the new profile and go to it
     profileDropdown.setSelectedId (profileDropdown.getItemId (profileDropdown.getNumItems() - 2));
+    goToProfileWithId (profileName);
     
     dismissAlertWindow();
 }
@@ -344,8 +345,8 @@ void CabinEQPage::didLoadData()
     applyFilter();
     processor.setIsProcessing (! isBypassed);
     auto lastSelectedProfileName = processor.getLastSelectedProfileName();
-//    if (lastSelectedProfileName.has_value())
-//        goToProfileWithId (lastSelectedProfileName.value());
+    if (lastSelectedProfileName.has_value())
+        goToProfileWithId (lastSelectedProfileName.value());
     loadDropdownOptions();
 }
 
@@ -445,11 +446,14 @@ void CabinEQPage::unlockApp()
 
 void CabinEQPage::goToProfileWithId (juce::String profileIdToGoTo)
 {
-    std::cout << "going to " << profileIdToGoTo << std::endl;
-    
     profileId = profileIdToGoTo;
-    cabinEQGraph.setCurve (processor.getAmplCurve (profileIdToGoTo)->get()); // HARD CODING AMPL FOR NOW
-    flagFilterChanged();
-    applyFilter();
-    processor.setLastSelectedProfileName (profileId);
+    auto amplCurve = processor.getAmplCurve (profileIdToGoTo);
+    if (amplCurve.has_value())
+    {
+        cabinEQGraph.setCurve (amplCurve->get()); // HARD CODING AMPL FOR NOW
+        flagFilterChanged();
+        applyFilter();
+        processor.setLastSelectedProfileName (profileId);
+        profileDropdown.setText (profileIdToGoTo);
+    }
 }

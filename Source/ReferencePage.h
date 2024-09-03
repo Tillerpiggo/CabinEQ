@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
+#include "CabinEQAudioProcessor.h"
 
 class ReferencePage   : public juce::Component,
                         public juce::Slider::Listener

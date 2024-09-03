@@ -6,7 +6,7 @@
   ==============================================================================
 */
 
-#include "PluginEditor.h"
+#include "CabinEQProcessorEditor.h"
 
 CabinEQProcessorEditor::CabinEQProcessorEditor(CabinEQAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), cabinEQPage (p)

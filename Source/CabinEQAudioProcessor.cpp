@@ -6,8 +6,8 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "CabinEQAudioProcessor.h"
+#include "CabinEQProcessorEditor.h"
 #include <chrono>
 
 //==============================================================================

@@ -9,11 +9,10 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
+#include "CabinEQAudioProcessor.h"
 #include "FilterPage.h"
 #include "CabinEQPage.h"
 #include "ReferencePage.h"
-//#include "SpatialCalibrationPage.h"
 
 //==============================================================================
 /**
