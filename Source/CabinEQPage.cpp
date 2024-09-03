@@ -234,6 +234,7 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     // Select the new profile and go to it
     profileDropdown.setSelectedId (profileDropdown.getItemId (profileDropdown.getNumItems() - 2));
     goToProfileWithId (profileName);
+    loadDropdownOptions();
     
     dismissAlertWindow();
 }
@@ -291,6 +292,7 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             int selectedIndex = profileDropdown.indexOfItemId (profileDropdown.getSelectedId());
             juce::String profileIdSelected = profileDropdown.getItemText (selectedIndex);
             goToProfileWithId (profileIdSelected);
+            loadDropdownOptions();
         }
         
         lastSelectedId = profileDropdown.getSelectedId();
@@ -352,8 +354,10 @@ void CabinEQPage::didLoadData()
     processor.setIsProcessing (! isBypassed);
     auto lastSelectedProfileName = processor.getLastSelectedProfileName();
     if (lastSelectedProfileName.has_value())
+    {
         goToProfileWithId (lastSelectedProfileName.value());
-    loadDropdownOptions();
+        loadDropdownOptions();
+    }
 }
 
 void CabinEQPage::timerCallback()

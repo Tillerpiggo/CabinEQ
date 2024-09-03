@@ -23,17 +23,23 @@ public:
     
     const std::vector<CurvePt> getAmplPts() const; // constructs curve pts matching the ones in memory
     const std::vector<CurvePt> getPanPts() const; // constructs curve pts matching the ones in memory
+    const std::vector<CurvePt> getPhasePts() const; // constructs curve pts matching the ones in memory
     const std::optional<CurvePt> getAmplPtWithId (const int id) const;
     const std::optional<CurvePt> getPanPtWithId (const int id) const;
+    const std::optional<CurvePt> getPhasePtWithId (const int id) const;
     Curve& getAmplCurve();
     Curve& getPanCurve();
+    Curve& getPhaseCurve();
     
     int addAmplPt (const float freq, const float ampl);
     int addPanPt (const float freq, const float pan);
+    int addPhasePt (const float freq, const float phase);
     void removeAmplPt (const int id);
     void removePanPt (const int id);
+    void removePhasePt (const int id);
     void updateAmplPt (const int id, const float freq, const float ampl);
     void updatePanPt (const int id, const float freq, const float pan);
+    void updatePhasePt (const int id, const float freq, const float phase);
     
     void resetNodes(); // makes this value tree store the given set points
     
@@ -51,15 +57,25 @@ private:
     void updateCurves(); // updates both curves to match the current state of the value tree
     void updateAmplCurve();
     void updatePanCurve();
+    void updatePhaseCurve();
     std::vector<CurvePt> getCurvePtsForValueTree (juce::ValueTree valueTree) const;
     
     juce::AudioProcessorValueTreeState& apvts;
     
-    juce::Identifier idProfile, idProfileName, idCurvePt, idId, idFreq, idAmplTree, idPanTree, idVal;
+    juce::Identifier idProfile { "Profile" };
+    juce::Identifier idProfileName { "ProfileName" };
+    juce::Identifier idCurvePt { "CurvePt" };
+    juce::Identifier idId { "id" };
+    juce::Identifier idFreq { "freq" };
+    juce::Identifier idVal { "val" };
+    juce::Identifier idAmplTree { "AmplTree" };
+    juce::Identifier idPanTree { "PanTree" };
+    juce::Identifier idPhaseTree { "PhaseTree" };
     juce::ValueTree valueTree;
     juce::String profileName;
     
     Curve amplCurve;
     Curve panCurve;
+    Curve phaseCurve;
     bool hasBeenInitialized = false;
 };
