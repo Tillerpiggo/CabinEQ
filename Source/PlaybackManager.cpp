@@ -188,70 +188,43 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    std::cout << "START PLAYING FREQ: " << std::endl;
-    auto notes = getNotesForCalibration (freq, amplCurve, true, false);
-    arbitrarySequencer.setNotes (notes);
-    std::cout << "notes: " << notes.size() << std::endl;
-    auto firstFourFreqs = amplCurve.getFirstFourFreqs();
-    if (firstFourFreqs.has_value())
-    {
-        auto notes0 = getNotesForCalibration (firstFourFreqs.value()[0], amplCurve);
-        auto notes1 = getNotesForCalibration (firstFourFreqs.value()[1], amplCurve);
-        auto notes2 = getNotesForCalibration (firstFourFreqs.value()[2], amplCurve);
-        auto notes3 = getNotesForCalibration (firstFourFreqs.value()[3], amplCurve, true, true);
-        arbitrarySequencer2.setNotes (notes0);
-//        arbitrarySequencer3.setNotes (notes1);
-//        arbitrarySequencer4.setNotes (notes2);
-        arbitrarySequencer5.setNotes (notes3);
-        
-//        // Don't set notes if we're calibrating a first freq
-//        for (const auto& firstFreq : firstFourFreqs.value())
-//            if (freq == firstFreq)
-//                return;
-    }
-    else
-    {
-        arbitrarySequencer2.setNotes ({});
-        arbitrarySequencer3.setNotes ({});
-        arbitrarySequencer4.setNotes ({});
-        arbitrarySequencer5.setNotes ({});
-    }
+    float dbDifference = std::log2 (800.0f / freq);
+    float radius = 5.0f;
+    float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
+    dropoff = 20 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
     
-    std::cout << "notes2: " << notes.size() << std::endl;
+    auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
+    arbitrarySequencer.setNotes (controlledNotes);
     
-    arbitrarySequencer.setNotes (notes);
+    auto refNotes1 = getNotesForCalibrationAt (500.0f, dropoff);
+    auto refNotes2 = getNotesForCalibrationAt (800.0f, dropoff, true, true);
+    auto refNotes3 = getNotesForCalibrationAt (2000.0f, dropoff);
+    auto refNotes4 = getNotesForCalibrationAt (4000.0f, dropoff); // this one should alternate with the controlled note
+//    arbitrarySequencer2.setNotes (refNotes1);
+    arbitrarySequencer3.setNotes (refNotes2);
+//    arbitrarySequencer4.setNotes (refNotes3);
+//    arbitrarySequencer5.setNotes (refNotes4);
 }
 
 // TODO: Add panning here
 void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
 {
-    auto notes = getNotesForCalibration (freq, amplCurve, true, false);
-    auto firstFourFreqs = amplCurve.getFirstFourFreqs();
-    if (firstFourFreqs.has_value())
-    {
-        auto notes0 = getNotesForCalibration (firstFourFreqs.value()[0], amplCurve);
-        auto notes1 = getNotesForCalibration (firstFourFreqs.value()[1], amplCurve);
-        auto notes2 = getNotesForCalibration (firstFourFreqs.value()[2], amplCurve);
-        auto notes3 = getNotesForCalibration (firstFourFreqs.value()[3], amplCurve, true, true);
-        arbitrarySequencer2.updateNotes (notes0);
-//        arbitrarySequencer3.updateNotes (notes1);
-//        arbitrarySequencer4.updateNotes (notes2);
-        arbitrarySequencer5.updateNotes (notes3);
-        
-//        // Don't set notes if we're calibrating a first freq
-//        for (const auto& firstFreq : firstFourFreqs.value())
-//            if (freq == firstFreq)
-//                return;
-    }
-    else
-    {
-        arbitrarySequencer2.updateNotes ({});
-        arbitrarySequencer3.updateNotes ({});
-        arbitrarySequencer4.updateNotes ({});
-        arbitrarySequencer5.updateNotes ({});
-    }
+    float dbDifference = std::log2 (800.0f / freq);
+    float radius = 5.0f;
+    float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
+    dropoff = 20 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
     
-    arbitrarySequencer.updateNotes (notes);
+    auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
+    arbitrarySequencer.updateNotes (controlledNotes);
+    
+    auto refNotes1 = getNotesForCalibrationAt (500.0f, dropoff);
+    auto refNotes2 = getNotesForCalibrationAt (800.0f, dropoff, true, true);
+    auto refNotes3 = getNotesForCalibrationAt (2000.0f, dropoff);
+    auto refNotes4 = getNotesForCalibrationAt (4000.0f, dropoff); // this one should alternate with the controlled note
+//    arbitrarySequencer2.updateNotes (refNotes1);
+    arbitrarySequencer3.updateNotes (refNotes2);
+//    arbitrarySequencer4.updateNotes (refNotes3);
+//    arbitrarySequencer5.updateNotes (refNotes4);
 }
 
 void PlaybackManager::startTestingFreq (float freq, Curve& curve)
@@ -333,7 +306,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
 {
-    return 0.0f;
+    return -4.5f * std::log2 (frequency / 1000.0f);
 }
 
 float PlaybackManager::getReferenceCompensationDBAtFrequency (float frequency)
@@ -351,34 +324,33 @@ juce::dsp::IIR::Coefficients<float>::Ptr PlaybackManager::createDelayCoefficient
 
 std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float freq, Curve& amplCurve, bool alternateSilence, bool alternateSilenceBefore)
 {
-    std::cout << "getting notes for calibration" << std::endl;
-    
-    // Play reference note and then do below - controlled - above
-    int noteDurationInSamples = 3000;
-    
     float ampl = amplCurve.valueAtFrequency (freq);
     ampl = juce::Decibels::gainToDecibels (ampl);
+    ampl += getCompensationDBAtFrequency (freq);
+    
+    return getNotesForCalibrationAt (freq, ampl, alternateSilence, alternateSilenceBefore);
+}
+
+std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float freq, float ampl, bool alternateSilence, bool alternateSilenceBefore)
+{
+    // Play reference note and then do below - controlled - above
+    int noteDurationInSamples = 2000;
     
     StereoGainEnvelope envelope (800);
     
     // Notes that will be used regardless
-    SequenceableNote refNote (referenceNote.frequency, referenceNote.amplitude, 0.0f, noteDurationInSamples, envelope);
-    SequenceableNote refNote2 (referenceNote2.frequency, referenceNote2.amplitude, 0.0f, noteDurationInSamples, envelope);
-    SequenceableNote controlledNote (freq, ampl, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote mainNote (freq, ampl, 0.0f, noteDurationInSamples, envelope);
     SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
     
     std::vector<SequenceableNote> controlledNotes;
     if (alternateSilence && alternateSilenceBefore)
         controlledNotes.push_back (silentNote);
-    controlledNotes.push_back (controlledNote);
+    controlledNotes.push_back (mainNote);
     if (alternateSilence && ! alternateSilenceBefore)
         controlledNotes.push_back (silentNote);
-//    controlledNotes.push_back (refNote);
-//    controlledNotes.push_back (silentNote);
-//    
+    
     // Play below - controlled - above while reference note is playing
     std::vector<SequenceableNote> notes;
-//    std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
     std::vector<float> pans { 0 };
     
     for (const auto& note : controlledNotes)
@@ -388,8 +360,6 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float fre
             notes.emplace_back (note.withPan (pan));
         }
     }
-    
-    std::cout << "getting notes for calibration 2" << std::endl;
     
     return notes;
 }

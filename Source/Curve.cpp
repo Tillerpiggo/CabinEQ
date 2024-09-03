@@ -25,6 +25,11 @@ const float Curve::compensatedValueAtFrequency (float frequency, float compensat
         float dbDifference = -compensationSlope * std::log2 ((frequency) / 1000.0f);
         valueAtFrequency += dbDifference;
     }
+    else
+    {
+        float dbDifference = -compensationSlope * std::log2 ((20.0f) / 1000.0f);
+        valueAtFrequency += dbDifference;
+    }
     
 //    valueAtFrequency *= 0.5;
 //

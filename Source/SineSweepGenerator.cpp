@@ -37,18 +37,20 @@ void SineSweepGenerator::setSampleRate (float newSampleRate)
 //    currAmpl = ampl;
 //}
 
-void SineSweepGenerator::setSweep (float centerFreq, Curve amplCurve, Curve panCurve)
+void SineSweepGenerator::setSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve)
 {
-    this->centerFreq = centerFreq;
+    this->centerFreq = std::sqrt (topFreq * bottomFreq);
+    this->FREQ_RANGE_FACTOR = topFreq / centerFreq;
     this->amplCurve = amplCurve;
     this->panCurve = panCurve;
     
     currFreq = centerFreq;
 }
 
-void SineSweepGenerator::updateSweep (float centerFreq, Curve amplCurve, Curve panCurve)
+void SineSweepGenerator::updateSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve)
 {
-    this->centerFreq = centerFreq;
+    this->centerFreq = std::sqrt (topFreq * bottomFreq);
+    this->FREQ_RANGE_FACTOR = topFreq / centerFreq;
     this->amplCurve = amplCurve;
     this->panCurve = panCurve;
 }
