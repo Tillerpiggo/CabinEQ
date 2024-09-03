@@ -111,6 +111,4 @@ private:
     
     Note leftRefNote { REFERENCE_FREQ, 6.0f, 0.0f };
     Note rightRefNote { REFERENCE_FREQ, 6.0f, 0.0f };
-    
-    Curve targetCurve;
 };
