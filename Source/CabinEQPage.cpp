@@ -10,7 +10,7 @@
 
 #include "CabinEQPage.h"
 
-CabinEQPage::CabinEQPage (StartupMVPAudioProcessor& p)
+CabinEQPage::CabinEQPage (CabinEQAudioProcessor& p)
     : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()//, unlockForm (marketplaceStatus)
 {
     filterQualityDropdown.addItem ("Utopian", 1);

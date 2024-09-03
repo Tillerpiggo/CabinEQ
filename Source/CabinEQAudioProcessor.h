@@ -16,7 +16,7 @@
 //==============================================================================
 /**
 */
-class StartupMVPAudioProcessor  : public juce::AudioProcessor
+class CabinEQAudioProcessor  : public juce::AudioProcessor
 {
 public:
     class Listener
@@ -27,8 +27,8 @@ public:
     };
     
     //==============================================================================
-    StartupMVPAudioProcessor();
-    ~StartupMVPAudioProcessor() override;
+    CabinEQAudioProcessor();
+    ~CabinEQAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -155,5 +155,5 @@ private:
     juce::String currProfileName { "" };
     
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartupMVPAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEQAudioProcessor)
 };

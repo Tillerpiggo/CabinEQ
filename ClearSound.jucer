@@ -4,13 +4,14 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="tB8nJa" name="ClearSound">
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
-      <FILE id="T3Y0LW" name="PluginProcessor.cpp" compile="1" resource="0"
-            file="Source/PluginProcessor.cpp"/>
-      <FILE id="ZcW2ES" name="PluginProcessor.h" compile="0" resource="0"
-            file="Source/PluginProcessor.h"/>
-      <FILE id="RaTQso" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="AQoyPD" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="T3Y0LW" name="CabinEQAudioProcessor.cpp" compile="1" resource="0"
+            file="Source/CabinEQAudioProcessor.cpp"/>
+      <FILE id="ZcW2ES" name="CabinEQAudioProcessor.h" compile="0" resource="0"
+            file="Source/CabinEQAudioProcessor.h"/>
+      <FILE id="RaTQso" name="CabinEQProcessorEditor.cpp" compile="1" resource="0"
+            file="Source/CabinEQProcessorEditor.cpp"/>
+      <FILE id="AQoyPD" name="CabinEQProcessorEditor.h" compile="0" resource="0"
+            file="Source/CabinEQProcessorEditor.h"/>
       <FILE id="Nta5k2" name="PlaybackManager.cpp" compile="1" resource="0"
             file="Source/PlaybackManager.cpp"/>
       <FILE id="amZ4ZY" name="PlaybackManager.h" compile="0" resource="0"

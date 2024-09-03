@@ -18,20 +18,20 @@
 //==============================================================================
 /**
 */
-class StartupMVPAudioProcessorEditor   : public juce::AudioProcessorEditor
+class CabinEQProcessorEditor   : public juce::AudioProcessorEditor
 {
 public:
-    StartupMVPAudioProcessorEditor (StartupMVPAudioProcessor&);
-    ~StartupMVPAudioProcessorEditor() override;
+    CabinEQProcessorEditor (CabinEQAudioProcessor&);
+    ~CabinEQProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
-    StartupMVPAudioProcessor& audioProcessor;
+    CabinEQAudioProcessor& audioProcessor;
     
     CabinEQPage cabinEQPage;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StartupMVPAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CabinEQProcessorEditor)
 };

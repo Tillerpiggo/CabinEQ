@@ -17,7 +17,7 @@ class ReferencePage   : public juce::Component,
                         public juce::Slider::Listener
 {
 public:
-    ReferencePage(StartupMVPAudioProcessor& p);
+    ReferencePage(CabinEQAudioProcessor& p);
     ~ReferencePage() override;
     
     void resized() override;
@@ -28,7 +28,7 @@ public:
     void sliderDragEnded (juce::Slider *slider) override;
     
 private:
-    StartupMVPAudioProcessor& processor;
+    CabinEQAudioProcessor& processor;
     
     juce::Slider referenceVolume1;
     juce::Slider referenceVolume2;

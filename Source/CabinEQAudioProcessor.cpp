@@ -11,7 +11,7 @@
 #include <chrono>
 
 //==============================================================================
-StartupMVPAudioProcessor::StartupMVPAudioProcessor()
+CabinEQAudioProcessor::CabinEQAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -28,17 +28,17 @@ StartupMVPAudioProcessor::StartupMVPAudioProcessor()
     
 }
 
-StartupMVPAudioProcessor::~StartupMVPAudioProcessor()
+CabinEQAudioProcessor::~CabinEQAudioProcessor()
 {
 }
 
 //==============================================================================
-const juce::String StartupMVPAudioProcessor::getName() const
+const juce::String CabinEQAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool StartupMVPAudioProcessor::acceptsMidi() const
+bool CabinEQAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -47,7 +47,7 @@ bool StartupMVPAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool StartupMVPAudioProcessor::producesMidi() const
+bool CabinEQAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -56,7 +56,7 @@ bool StartupMVPAudioProcessor::producesMidi() const
    #endif
 }
 
-bool StartupMVPAudioProcessor::isMidiEffect() const
+bool CabinEQAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -65,37 +65,37 @@ bool StartupMVPAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double StartupMVPAudioProcessor::getTailLengthSeconds() const
+double CabinEQAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int StartupMVPAudioProcessor::getNumPrograms()
+int CabinEQAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int StartupMVPAudioProcessor::getCurrentProgram()
+int CabinEQAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void StartupMVPAudioProcessor::setCurrentProgram (int index)
+void CabinEQAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const juce::String StartupMVPAudioProcessor::getProgramName (int index)
+const juce::String CabinEQAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void StartupMVPAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void CabinEQAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void CabinEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -103,14 +103,14 @@ void StartupMVPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     playbackManager.prepare (spec);
 }
 
-void StartupMVPAudioProcessor::releaseResources()
+void CabinEQAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool CabinEQAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
@@ -135,7 +135,7 @@ bool StartupMVPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 }
 #endif
 
-void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void CabinEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     // Clear buffer before handing it off to playbackManager
     juce::ScopedNoDenormals noDenormals;
@@ -149,18 +149,18 @@ void StartupMVPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 }
 
 //==============================================================================
-bool StartupMVPAudioProcessor::hasEditor() const
+bool CabinEQAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* StartupMVPAudioProcessor::createEditor()
+juce::AudioProcessorEditor* CabinEQAudioProcessor::createEditor()
 {
-    return new StartupMVPAudioProcessorEditor (*this);
+    return new CabinEQProcessorEditor (*this);
 }
 
 //==============================================================================
-void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void CabinEQAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
@@ -170,7 +170,7 @@ void StartupMVPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     copyXmlToBinary(*xml, destData);
 }
 
-void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void CabinEQAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -197,10 +197,10 @@ void StartupMVPAudioProcessor::setStateInformation (const void* data, int sizeIn
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new StartupMVPAudioProcessor();
+    return new CabinEQAudioProcessor();
 }
 
-juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::createParameterLayout()
+juce::AudioProcessorValueTreeState::ParameterLayout CabinEQAudioProcessor::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     juce::NormalisableRange<float> range (-1.0f, 1.0f, 0.01f);
@@ -210,7 +210,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout StartupMVPAudioProcessor::cr
 }
 
 //==============================================================================
-void StartupMVPAudioProcessor::applyCurve (int fftSize, juce::String profileName)
+void CabinEQAudioProcessor::applyCurve (int fftSize, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -220,27 +220,27 @@ void StartupMVPAudioProcessor::applyCurve (int fftSize, juce::String profileName
         
 }
 
-void StartupMVPAudioProcessor::setIsProcessing (bool isProcessing)
+void CabinEQAudioProcessor::setIsProcessing (bool isProcessing)
 {
     playbackManager.setIsProcessing (isProcessing);
 }
 
-void StartupMVPAudioProcessor::setBypassBalance (float balance)
+void CabinEQAudioProcessor::setBypassBalance (float balance)
 {
     playbackManager.setDryWetVolumeBalance (balance);
 }
 
-void StartupMVPAudioProcessor::setWetVolume (float wetVolume)
+void CabinEQAudioProcessor::setWetVolume (float wetVolume)
 {
     playbackManager.setWetVolume (wetVolume);
 }
 
-void StartupMVPAudioProcessor::setDryVolume (float dryVolume)
+void CabinEQAudioProcessor::setDryVolume (float dryVolume)
 {
     playbackManager.setDryVolume (dryVolume);
 }
 
-std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getAmplCurve (juce::String profileName)
+std::optional<std::reference_wrapper<Curve>> CabinEQAudioProcessor::getAmplCurve (juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -249,7 +249,7 @@ std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getAmplCu
     return std::nullopt;
 }
 
-std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getPanCurve (juce::String profileName)
+std::optional<std::reference_wrapper<Curve>> CabinEQAudioProcessor::getPanCurve (juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -258,7 +258,7 @@ std::optional<std::reference_wrapper<Curve>> StartupMVPAudioProcessor::getPanCur
     return std::nullopt;
 }
 
-const std::vector<CurvePt> StartupMVPAudioProcessor::getAmplPts (juce::String profileName) const
+const std::vector<CurvePt> CabinEQAudioProcessor::getAmplPts (juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -266,7 +266,7 @@ const std::vector<CurvePt> StartupMVPAudioProcessor::getAmplPts (juce::String pr
     return {};
 }
 
-const std::vector<CurvePt> StartupMVPAudioProcessor::getPanPts (juce::String profileName) const
+const std::vector<CurvePt> CabinEQAudioProcessor::getPanPts (juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -274,7 +274,7 @@ const std::vector<CurvePt> StartupMVPAudioProcessor::getPanPts (juce::String pro
     return {};
 }
 
-const std::optional<CurvePt> StartupMVPAudioProcessor::getAmplPtWithId (int id, juce::String profileName) const
+const std::optional<CurvePt> CabinEQAudioProcessor::getAmplPtWithId (int id, juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -282,7 +282,7 @@ const std::optional<CurvePt> StartupMVPAudioProcessor::getAmplPtWithId (int id, 
     return std::nullopt;
 }
 
-const std::optional<CurvePt> StartupMVPAudioProcessor::getPanPtWithId (int id, juce::String profileName) const
+const std::optional<CurvePt> CabinEQAudioProcessor::getPanPtWithId (int id, juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -290,7 +290,7 @@ const std::optional<CurvePt> StartupMVPAudioProcessor::getPanPtWithId (int id, j
     return std::nullopt;
 }
 
-int StartupMVPAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)
+int CabinEQAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -298,7 +298,7 @@ int StartupMVPAudioProcessor::addAmplPt (const float freq, const float ampl, juc
     return -1;
 }
 
-int StartupMVPAudioProcessor::addPanPt (const float freq, const float pan, juce::String profileName)
+int CabinEQAudioProcessor::addPanPt (const float freq, const float pan, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -306,21 +306,21 @@ int StartupMVPAudioProcessor::addPanPt (const float freq, const float pan, juce:
     return -1;
 }
 
-void StartupMVPAudioProcessor::removeAmplPt (const int id, juce::String profileName)
+void CabinEQAudioProcessor::removeAmplPt (const int id, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().removeAmplPt (id);
 }
 
-void StartupMVPAudioProcessor::removePanPt (const int id, juce::String profileName)
+void CabinEQAudioProcessor::removePanPt (const int id, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().removePanPt (id);
 }
 
-void StartupMVPAudioProcessor::updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName)
+void CabinEQAudioProcessor::updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName)
 {
     currProfileName = profileName; // super hacky
     auto profile = profileNamed (profileName);
@@ -328,7 +328,7 @@ void StartupMVPAudioProcessor::updateAmplPt (const int id, const float freq, con
         profile->get().updateAmplPt (id, freq, ampl);
 }
 
-void StartupMVPAudioProcessor::updatePanPt (const int id, const float freq, const float pan, juce::String profileName)
+void CabinEQAudioProcessor::updatePanPt (const int id, const float freq, const float pan, juce::String profileName)
 {
     currProfileName = profileName; // super hacky
     auto profile = profileNamed (profileName);
@@ -336,14 +336,14 @@ void StartupMVPAudioProcessor::updatePanPt (const int id, const float freq, cons
         profile->get().updatePanPt (id, freq, pan);
 }
 
-void StartupMVPAudioProcessor::clearEQNodes (juce::String profileName)
+void CabinEQAudioProcessor::clearEQNodes (juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().resetNodes();
 }
 
-void StartupMVPAudioProcessor::startPlayingFreq (float freq, juce::String profileName)
+void CabinEQAudioProcessor::startPlayingFreq (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -356,18 +356,18 @@ void StartupMVPAudioProcessor::startPlayingFreq (float freq, juce::String profil
 }
 
 // TODO: Hacky for testing, will remove later
-void StartupMVPAudioProcessor::startPlayingReferenceFreqs()
+void CabinEQAudioProcessor::startPlayingReferenceFreqs()
 {
     playbackManager.setIsCalibrating (true);
     playbackManager.startPlayingReferenceFreqs();
 }
 
-void StartupMVPAudioProcessor::updatePlayingReferenceFreqs()
+void CabinEQAudioProcessor::updatePlayingReferenceFreqs()
 {
     playbackManager.updatePlayingReferenceFreqs();
 }
 
-void StartupMVPAudioProcessor::updatePlayingFreq (float freq, juce::String profileName)
+void CabinEQAudioProcessor::updatePlayingFreq (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -378,76 +378,76 @@ void StartupMVPAudioProcessor::updatePlayingFreq (float freq, juce::String profi
     }
 }
 
-void StartupMVPAudioProcessor::endCalibratingEQNode()
+void CabinEQAudioProcessor::endCalibratingEQNode()
 {
     playbackManager.setIsCalibrating (false);
 }
 
-float StartupMVPAudioProcessor::getCurrPlayingFreq()
+float CabinEQAudioProcessor::getCurrPlayingFreq()
 {
     return playbackManager.getCurrPlayingFreq();
 }
 
-void StartupMVPAudioProcessor::startTestingAt (float freq, juce::String profileName)
+void CabinEQAudioProcessor::startTestingAt (float freq, juce::String profileName)
 {
     auto curve = getAmplCurve (profileName); // hacky for now
     if (curve.has_value())
         playbackManager.startTestingFreq (freq, curve->get());
 }
 
-void StartupMVPAudioProcessor::updateTestingAt (float freq, juce::String profileName)
+void CabinEQAudioProcessor::updateTestingAt (float freq, juce::String profileName)
 {
     auto curve = getAmplCurve (profileName); // hacky for now
     if (curve.has_value())
         playbackManager.updateTestingFreq (freq, curve->get());
 }
 
-void StartupMVPAudioProcessor::endTesting()
+void CabinEQAudioProcessor::endTesting()
 {
     playbackManager.stopTestingFreq();
 }
 
-float StartupMVPAudioProcessor::getCurrTestingFreq()
+float CabinEQAudioProcessor::getCurrTestingFreq()
 {
     return playbackManager.getCurrTestingFreq();
 }
 
-void StartupMVPAudioProcessor::addProfile (juce::String profileName)
+void CabinEQAudioProcessor::addProfile (juce::String profileName)
 {
     cabinEQValueTreeManager.addProfile (profileName);
 }
 
-void StartupMVPAudioProcessor::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
+void CabinEQAudioProcessor::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
 {
     cabinEQValueTreeManager.addDuplicateProfile (profileName, oldProfileName);
 }
 
-void StartupMVPAudioProcessor::removeProfile (juce::String profileName)
+void CabinEQAudioProcessor::removeProfile (juce::String profileName)
 {
     cabinEQValueTreeManager.removeProfile (profileName);
 }
 
-const std::vector<juce::String> StartupMVPAudioProcessor::getProfileNames() const
+const std::vector<juce::String> CabinEQAudioProcessor::getProfileNames() const
 {
     return cabinEQValueTreeManager.getProfileNames();
 }
 
-std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::getProfileNamed (juce::String profileName) const
+std::optional<std::reference_wrapper<CabinEQValueTree>> CabinEQAudioProcessor::getProfileNamed (juce::String profileName) const
 {
     return cabinEQValueTreeManager.getProfileNamed (profileName);
 }
 
-std::optional<juce::String> StartupMVPAudioProcessor::getLastSelectedProfileName()
+std::optional<juce::String> CabinEQAudioProcessor::getLastSelectedProfileName()
 {
     return cabinEQValueTreeManager.getLastSelectedProfileName();
 }
 
-void StartupMVPAudioProcessor::setLastSelectedProfileName (juce::String profileName)
+void CabinEQAudioProcessor::setLastSelectedProfileName (juce::String profileName)
 {
     cabinEQValueTreeManager.setLastSelectedProfileName (profileName);
 }
 
-void StartupMVPAudioProcessor::startSineSweep (float centerFreq, juce::String profileName)
+void CabinEQAudioProcessor::startSineSweep (float centerFreq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -459,7 +459,7 @@ void StartupMVPAudioProcessor::startSineSweep (float centerFreq, juce::String pr
     }
 }
 
-void StartupMVPAudioProcessor::updateSineSweep (float centerFreq, juce::String profileName)
+void CabinEQAudioProcessor::updateSineSweep (float centerFreq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
@@ -471,47 +471,47 @@ void StartupMVPAudioProcessor::updateSineSweep (float centerFreq, juce::String p
     }
 }
 
-void StartupMVPAudioProcessor::endSineSweep()
+void CabinEQAudioProcessor::endSineSweep()
 {
     playbackManager.setIsSweeping (false);
 }
 
-float StartupMVPAudioProcessor::getCurrSineSweepFreq()
+float CabinEQAudioProcessor::getCurrSineSweepFreq()
 {
     return playbackManager.getCurrSineSweepFreq();
 }
 
-void StartupMVPAudioProcessor::setReferenceVolume (float volume)
+void CabinEQAudioProcessor::setReferenceVolume (float volume)
 {
     playbackManager.setReferenceVolume (volume);
 }
 
-void StartupMVPAudioProcessor::setReferencePan (float pan)
+void CabinEQAudioProcessor::setReferencePan (float pan)
 {
     playbackManager.setReferencePan (pan);
 }
 
-void StartupMVPAudioProcessor::setReferenceVolume1 (float volume)
+void CabinEQAudioProcessor::setReferenceVolume1 (float volume)
 {
     playbackManager.setReferenceVolume1 (volume);
 }
 
-void StartupMVPAudioProcessor::setReferenceVolume2 (float volume)
+void CabinEQAudioProcessor::setReferenceVolume2 (float volume)
 {
     playbackManager.setReferenceVolume2 (volume);
 }
 
-void StartupMVPAudioProcessor::addListener (Listener* listener)
+void CabinEQAudioProcessor::addListener (Listener* listener)
 {
     this->listeners.push_back (listener);
 }
 
-void StartupMVPAudioProcessor::removeListener()
+void CabinEQAudioProcessor::removeListener()
 {
     // VERY BAD FIX THIS: eh whatever
 }
 
-std::optional<std::reference_wrapper<CabinEQValueTree>> StartupMVPAudioProcessor::profileNamed (juce::String profileName) const
+std::optional<std::reference_wrapper<CabinEQValueTree>> CabinEQAudioProcessor::profileNamed (juce::String profileName) const
 {
     return cabinEQValueTreeManager.getProfileNamed (profileName);
 }

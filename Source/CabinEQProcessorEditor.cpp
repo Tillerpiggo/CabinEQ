@@ -8,25 +8,25 @@
 
 #include "PluginEditor.h"
 
-StartupMVPAudioProcessorEditor::StartupMVPAudioProcessorEditor(StartupMVPAudioProcessor& p)
+CabinEQProcessorEditor::CabinEQProcessorEditor(CabinEQAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), cabinEQPage (p)
 {
     setSize(800, 620);
     addAndMakeVisible (cabinEQPage);
 }
 
-StartupMVPAudioProcessorEditor::~StartupMVPAudioProcessorEditor()
+CabinEQProcessorEditor::~CabinEQProcessorEditor()
 {
     // The binaryClassificationPage will be automatically deleted as it is owned by the tabbedComponent
 }
 
 //==============================================================================
-void StartupMVPAudioProcessorEditor::paint(juce::Graphics& g)
+void CabinEQProcessorEditor::paint(juce::Graphics& g)
 {
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 }
 
-void StartupMVPAudioProcessorEditor::resized()
+void CabinEQProcessorEditor::resized()
 {
     cabinEQPage.setBounds (getLocalBounds());
 }

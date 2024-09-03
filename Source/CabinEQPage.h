@@ -21,11 +21,11 @@ class CabinEQPage   : public juce::Component,
                       public juce::TextEditor::Listener,
                       public juce::Button::Listener,
                       public CabinEQGraph::Listener,
-                      public StartupMVPAudioProcessor::Listener,
+                      public CabinEQAudioProcessor::Listener,
                       public juce::Timer
 {
 public:
-    CabinEQPage (StartupMVPAudioProcessor& p);
+    CabinEQPage (CabinEQAudioProcessor& p);
     ~CabinEQPage() override;
     
     void paint (juce::Graphics&) override;
@@ -71,7 +71,7 @@ protected:
     
     void goToProfileWithId (juce::String profileIdToGoTo);
     
-    StartupMVPAudioProcessor& processor;
+    CabinEQAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
     juce::TextButton applyButton { "APPLY" };
