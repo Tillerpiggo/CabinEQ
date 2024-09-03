@@ -1,17 +1,17 @@
 /*
   ==============================================================================
 
-    CabinEQPage.cpp
+    CabinEqPage.cpp
     Created: 27 Jul 2024 9:31:27pm
     Author:  Tyler Gee
 
   ==============================================================================
 */
 
-#include "CabinEQPage.h"
+#include "CabinEqPage.h"
 
-CabinEQPage::CabinEQPage (CabinEQAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE"), cabinEQGraph()//, unlockForm (marketplaceStatus)
+CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
+    : processor (p), profileId ("NO_PROFILE"), cabinEqGraph()//, unlockForm (marketplaceStatus)
 {
     filterQualityDropdown.addItem ("Utopian", 1);
     filterQualityDropdown.addItem ("Fantastic", 2);
@@ -35,7 +35,7 @@ CabinEQPage::CabinEQPage (CabinEQAudioProcessor& p)
     wetVolumeLabel.setJustificationType (juce::Justification::centred);
     dryVolumeLabel.setJustificationType (juce::Justification::centred);
     
-    cabinEQGraph.addListener (this);
+    cabinEqGraph.addListener (this);
     profileDropdown.addListener (this);
     filterQualityDropdown.addListener (this);
     referenceSlider.addListener (this);
@@ -46,7 +46,7 @@ CabinEQPage::CabinEQPage (CabinEQAudioProcessor& p)
     dryVolumeSlider.addListener (this);
     wetVolumeSlider.addListener (this);
     
-    addAndMakeVisible (cabinEQGraph);
+    addAndMakeVisible (cabinEqGraph);
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (filterQualityDropdown);
     addAndMakeVisible (referenceSlider);
@@ -61,7 +61,7 @@ CabinEQPage::CabinEQPage (CabinEQAudioProcessor& p)
     didLoadData();
 }
 
-CabinEQPage::~CabinEQPage()
+CabinEqPage::~CabinEqPage()
 {
     referenceSlider.removeListener (this);
     
@@ -74,16 +74,16 @@ CabinEQPage::~CabinEQPage()
     dryVolumeSlider.removeListener (this);
     wetVolumeSlider.removeListener (this);
     
-    cabinEQGraph.removeListener();
+    cabinEqGraph.removeListener();
     processor.removeListener();
 }
 
-void CabinEQPage::paint (juce::Graphics& g)
+void CabinEqPage::paint (juce::Graphics& g)
 {
     g.fillAll (backgroundColor);
 }
 
-void CabinEQPage::resized()
+void CabinEqPage::resized()
 {
     int padding = 20; // padding on the top and bottom
     int componentPadding = 10; // padding between graph, slider, and dropdown
@@ -107,7 +107,7 @@ void CabinEQPage::resized()
     int buttonsY = padding + graphHeight + componentPadding;
 
     // Set bounds for graph and buttons
-    cabinEQGraph.setBounds (0, padding, getWidth(), graphHeight);
+    cabinEqGraph.setBounds (0, padding, getWidth(), graphHeight);
     profileDropdown.setBounds (padding, buttonsY, profileDropdownWidth, dropdownHeight);
     filterQualityDropdown.setBounds (padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
     int currentX = padding + dropdownWidth + buttonWidth;
@@ -130,71 +130,71 @@ void CabinEQPage::resized()
 }
 
 // ====================================================
-int CabinEQPage::addCurvePt (float freq, float ampl, CabinEQGraph* sender)
+int CabinEqPage::addCurvePt (float freq, float ampl, CabinEqGraph* sender)
 {
     flagFilterChanged();
     std::cout << "curve pt added" << std::endl;
     return processor.addAmplPt (freq, ampl, profileId); // TODO: FIX, I'M JUST DOING AMPL FOR NOW
 }
 
-void CabinEQPage::updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender)
+void CabinEqPage::updateCurvePt (int id, float freq, float ampl, CabinEqGraph* sender)
 {
     flagFilterChanged();
     processor.updateAmplPt (id, freq, ampl, profileId);
 }
 
-void CabinEQPage::removeCurvePt (int id, CabinEQGraph* sender)
+void CabinEqPage::removeCurvePt (int id, CabinEqGraph* sender)
 {
     flagFilterChanged();
     std::cout << "curve pt removed" << std::endl;
     processor.removeAmplPt (id, profileId);
 }
 
-void CabinEQPage::startPlayingValueAt (float freq, float ampl)
+void CabinEqPage::startPlayingValueAt (float freq, float ampl)
 {
     processor.startPlayingFreq (freq, profileId); // hacky way to make this impact pan
 //    processor.startSineSweep (freq, profileId);
 }
 
-void CabinEQPage::playValueAt (float freq, float ampl)
+void CabinEqPage::playValueAt (float freq, float ampl)
 {
     processor.updatePlayingFreq (freq, profileId); // hacky way to make this impact pan
 //    processor.updateSineSweep (freq, profileId);
 }
 
-void CabinEQPage::testValueAt (float freq)
+void CabinEqPage::testValueAt (float freq)
 {
     processor.startTestingAt (freq, profileId);
 }
 
-void CabinEQPage::stopPlaying()
+void CabinEqPage::stopPlaying()
 {
     processor.endCalibratingEQNode();
     processor.endSineSweep();
 }
 
-void CabinEQPage::stopTesting()
+void CabinEqPage::stopTesting()
 {
     processor.endTesting();
 }
 
-float CabinEQPage::getCurrPlayingFreq()
+float CabinEqPage::getCurrPlayingFreq()
 {
     return processor.getCurrPlayingFreq();
 }
 
-float CabinEQPage::getCurrTestingFreq()
+float CabinEqPage::getCurrTestingFreq()
 {
     return processor.getCurrTestingFreq();
 }
 
-void CabinEQPage::userStoppedDoingShit()
+void CabinEqPage::userStoppedDoingShit()
 {
 //    applyFilterIfProcessing(); // stop autosaving
 }
 
 // ====================================================
-void CabinEQPage::sliderValueChanged (juce::Slider *slider)
+void CabinEqPage::sliderValueChanged (juce::Slider *slider)
 {
     if (slider == &referenceSlider)
     {
@@ -210,7 +210,7 @@ void CabinEQPage::sliderValueChanged (juce::Slider *slider)
     }
 }
 
-void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
+void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
 {
     std::cout << "text editor return key pressed" << std::endl;
     if (textEditor.getText().isEmpty())
@@ -239,17 +239,17 @@ void CabinEQPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     dismissAlertWindow();
 }
 
-void CabinEQPage::textEditorEscapeKeyPressed (juce::TextEditor& textEditor)
+void CabinEqPage::textEditorEscapeKeyPressed (juce::TextEditor& textEditor)
 {
     dismissAlertWindow();
 }
 
-void CabinEQPage::textEditorFocusLost (juce::TextEditor& textEditor)
+void CabinEqPage::textEditorFocusLost (juce::TextEditor& textEditor)
 {
     dismissAlertWindow();
 }
 
-void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
+void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 {
     if (comboBoxThatHasChanged == &profileDropdown)
     {
@@ -326,12 +326,12 @@ void CabinEQPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
     }
 }
 
-void CabinEQPage::inputAttemptWhenModal()
+void CabinEqPage::inputAttemptWhenModal()
 {
     dismissAlertWindow();
 }
 
-void CabinEQPage::buttonClicked (juce::Button *button)
+void CabinEqPage::buttonClicked (juce::Button *button)
 {
     if (button == &bypassButton)
     {
@@ -348,7 +348,7 @@ void CabinEQPage::buttonClicked (juce::Button *button)
     }
 }
 
-void CabinEQPage::didLoadData()
+void CabinEqPage::didLoadData()
 {
     applyFilter();
     processor.setIsProcessing (! isBypassed);
@@ -360,7 +360,7 @@ void CabinEQPage::didLoadData()
     }
 }
 
-void CabinEQPage::timerCallback()
+void CabinEqPage::timerCallback()
 {
 //    if (! isUnlocked && marketplaceStatus.isUnlocked())
 //    {
@@ -370,28 +370,28 @@ void CabinEQPage::timerCallback()
 }
 
 //=========================================
-void CabinEQPage::flagFilterChanged()
+void CabinEqPage::flagFilterChanged()
 {
     hasFilterChanged = true;
     updateButtonText();
 }
 
-void CabinEQPage::toggleBypass()
+void CabinEqPage::toggleBypass()
 {
     isBypassed = ! isBypassed;
-    cabinEQGraph.setGrayscale (isBypassed);
+    cabinEqGraph.setGrayscale (isBypassed);
     updateButtonText();
 }
 
-void CabinEQPage::toggleBlind()
+void CabinEqPage::toggleBlind()
 {
     isBlind = ! isBlind;
     blindButton.setButtonText (isBlind ? "UNBLIND" : "BLIND");
-    cabinEQGraph.setBlinded (isBlind);
+    cabinEqGraph.setBlinded (isBlind);
     updateButtonText();
 }
 
-void CabinEQPage::applyFilter()
+void CabinEqPage::applyFilter()
 {
     if (hasFilterChanged)
         processor.applyCurve (fftSize, profileId);
@@ -399,7 +399,7 @@ void CabinEQPage::applyFilter()
     updateButtonText();
 }
 
-void CabinEQPage::loadDropdownOptions()
+void CabinEqPage::loadDropdownOptions()
 {
     profileDropdown.clear();
     
@@ -421,13 +421,13 @@ void CabinEQPage::loadDropdownOptions()
     profileDropdown.addItem ("[] Duplicate this profile", i + 1);
 }
 
-void CabinEQPage::dismissAlertWindow()
+void CabinEqPage::dismissAlertWindow()
 {
     alertWindow->getTextEditor (textEditorName)->removeListener (this);
     alertWindow.reset();
 }
                                 
-void CabinEQPage::updateButtonText()
+void CabinEqPage::updateButtonText()
 {
     if (! isBlind)
     {
@@ -441,26 +441,26 @@ void CabinEQPage::updateButtonText()
     applyButton.setEnabled (hasFilterChanged); // only let people apply the filter when there is something to update
 }
 
-void CabinEQPage::showForm()
+void CabinEqPage::showForm()
 {
 //    unlockForm.setVisible (true);
     bypassButton.setEnabled (true);
 }
 
-void CabinEQPage::unlockApp()
+void CabinEqPage::unlockApp()
 {
     bypassButton.setEnabled (true);
 //    unlockLabel.setText ("Status: Unlocked", juce::dontSendNotification);
 //    unlockLabel.setColour (juce::Label::textColourId, juce::Colours::green);
 }
 
-void CabinEQPage::goToProfileWithId (juce::String profileIdToGoTo)
+void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
 {
     profileId = profileIdToGoTo;
     auto amplCurve = processor.getAmplCurve (profileIdToGoTo);
     if (amplCurve.has_value())
     {
-        cabinEQGraph.setCurve (amplCurve->get()); // HARD CODING AMPL FOR NOW
+        cabinEqGraph.setCurve (amplCurve->get()); // HARD CODING AMPL FOR NOW
         flagFilterChanged();
         applyFilter();
         processor.setLastSelectedProfileName (profileId);

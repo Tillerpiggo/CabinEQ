@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    CabinEQPage.h
+    CabinEqPage.h
     Created: 27 Jul 2024 9:31:27pm
     Author:  Tyler Gee
 
@@ -11,30 +11,30 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CabinEQAudioProcessor.h"
+#include "CabinEqAudioProcessor.h"
 #include "EQNode.h"
-#include "CabinEQGraph.h"
+#include "CabinEqGraph.h"
 
-class CabinEQPage   : public juce::Component,
+class CabinEqPage   : public juce::Component,
                       public juce::Slider::Listener,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
                       public juce::Button::Listener,
-                      public CabinEQGraph::Listener,
-                      public CabinEQAudioProcessor::Listener,
+                      public CabinEqGraph::Listener,
+                      public CabinEqAudioProcessor::Listener,
                       public juce::Timer
 {
 public:
-    CabinEQPage (CabinEQAudioProcessor& p);
-    ~CabinEQPage() override;
+    CabinEqPage (CabinEqAudioProcessor& p);
+    ~CabinEqPage() override;
     
     void paint (juce::Graphics&) override;
     void resized() override;
     
     // CabinEQGraphListener methods
-    int addCurvePt (float freq, float ampl, CabinEQGraph* sender) override;
-    void updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender) override;
-    void removeCurvePt (int id, CabinEQGraph* sender) override;
+    int addCurvePt (float freq, float ampl, CabinEqGraph* sender) override;
+    void updateCurvePt (int id, float freq, float ampl, CabinEqGraph* sender) override;
+    void removeCurvePt (int id, CabinEqGraph* sender) override;
     void startPlayingValueAt (float freq, float ampl) override;
     void playValueAt (float freq, float ampl) override;
     void testValueAt (float freq) override;
@@ -71,7 +71,7 @@ protected:
     
     void goToProfileWithId (juce::String profileIdToGoTo);
     
-    CabinEQAudioProcessor& processor;
+    CabinEqAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
     juce::TextButton applyButton { "APPLY" };
@@ -82,7 +82,7 @@ protected:
     bool creatingDuplicate = false;
     int fftSize = 16;
     
-    CabinEQGraph cabinEQGraph;
+    CabinEqGraph cabinEqGraph;
     juce::ComboBox profileDropdown;
     juce::ComboBox filterQualityDropdown;
     juce::Slider referenceSlider;

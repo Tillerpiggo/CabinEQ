@@ -11,12 +11,12 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 #include "PlaybackManager.h"
-#include "CabinEQValueTreeManager.h"
+#include "CabinEqValueTreeManager.h"
 
 //==============================================================================
 /**
 */
-class CabinEQAudioProcessor  : public juce::AudioProcessor
+class CabinEqAudioProcessor  : public juce::AudioProcessor
 {
 public:
     class Listener
@@ -27,8 +27,8 @@ public:
     };
     
     //==============================================================================
-    CabinEQAudioProcessor();
-    ~CabinEQAudioProcessor() override;
+    CabinEqAudioProcessor();
+    ~CabinEqAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -88,7 +88,7 @@ public:
     void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
     void removeProfile (juce::String profileName);
     const std::vector<juce::String> getProfileNames() const;
-    std::optional<std::reference_wrapper<CabinEQValueTree>> getProfileNamed (juce::String profileName) const;
+    std::optional<std::reference_wrapper<CabinEqValueTree>> getProfileNamed (juce::String profileName) const;
     
     std::optional<juce::String> getLastSelectedProfileName();
     void setLastSelectedProfileName (juce::String profileName);
@@ -141,12 +141,12 @@ public:
     void removeListener();
 
 private:
-    std::optional<std::reference_wrapper<CabinEQValueTree>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
+    std::optional<std::reference_wrapper<CabinEqValueTree>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
     
     static const int FFT_SIZE = 10;
 
     PlaybackManager playbackManager;
-    CabinEQValueTreeManager cabinEQValueTreeManager;
+    CabinEqValueTreeManager cabinEqValueTreeManager;
     
     juce::dsp::ProcessSpec spec;
     
@@ -155,5 +155,5 @@ private:
     juce::String currProfileName { "" };
     
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEQAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEqAudioProcessor)
 };

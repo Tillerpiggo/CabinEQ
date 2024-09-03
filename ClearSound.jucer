@@ -4,38 +4,38 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="tB8nJa" name="ClearSound">
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
-      <FILE id="T3Y0LW" name="CabinEQAudioProcessor.cpp" compile="1" resource="0"
-            file="Source/CabinEQAudioProcessor.cpp"/>
-      <FILE id="ZcW2ES" name="CabinEQAudioProcessor.h" compile="0" resource="0"
-            file="Source/CabinEQAudioProcessor.h"/>
-      <FILE id="RaTQso" name="CabinEQProcessorEditor.cpp" compile="1" resource="0"
-            file="Source/CabinEQProcessorEditor.cpp"/>
-      <FILE id="AQoyPD" name="CabinEQProcessorEditor.h" compile="0" resource="0"
-            file="Source/CabinEQProcessorEditor.h"/>
+      <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
+            file="Source/CabinEqAudioProcessor.cpp"/>
+      <FILE id="ZcW2ES" name="CabinEqAudioProcessor.h" compile="0" resource="0"
+            file="Source/CabinEqAudioProcessor.h"/>
+      <FILE id="RaTQso" name="CabinEqProcessorEditor.cpp" compile="1" resource="0"
+            file="Source/CabinEqProcessorEditor.cpp"/>
+      <FILE id="AQoyPD" name="CabinEqProcessorEditor.h" compile="0" resource="0"
+            file="Source/CabinEqProcessorEditor.h"/>
       <FILE id="Nta5k2" name="PlaybackManager.cpp" compile="1" resource="0"
             file="Source/PlaybackManager.cpp"/>
       <FILE id="amZ4ZY" name="PlaybackManager.h" compile="0" resource="0"
             file="Source/PlaybackManager.h"/>
-      <FILE id="tErBau" name="CabinEQValueTree.cpp" compile="1" resource="0"
-            file="Source/CabinEQValueTree.cpp"/>
-      <FILE id="ZDls9P" name="CabinEQValueTree.h" compile="0" resource="0"
-            file="Source/CabinEQValueTree.h"/>
-      <FILE id="y7TFzS" name="CabinEQValueTreeManager.cpp" compile="1" resource="0"
-            file="Source/CabinEQValueTreeManager.cpp"/>
-      <FILE id="NXPdqU" name="CabinEQValueTreeManager.h" compile="0" resource="0"
-            file="Source/CabinEQValueTreeManager.h"/>
-      <FILE id="h9bYnu" name="EQNode.h" compile="0" resource="0" file="Source/EQNode.h"/>
+      <FILE id="tErBau" name="CabinEqValueTree.cpp" compile="1" resource="0"
+            file="Source/CabinEqValueTree.cpp"/>
+      <FILE id="ZDls9P" name="CabinEqValueTree.h" compile="0" resource="0"
+            file="Source/CabinEqValueTree.h"/>
+      <FILE id="y7TFzS" name="CabinEqValueTreeManager.cpp" compile="1" resource="0"
+            file="Source/CabinEqValueTreeManager.cpp"/>
+      <FILE id="NXPdqU" name="CabinEqValueTreeManager.h" compile="0" resource="0"
+            file="Source/CabinEqValueTreeManager.h"/>
+      <FILE id="h9bYnu" name="EqNode.h" compile="0" resource="0" file="Source/EqNode.h"/>
       <FILE id="wRB6e3" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="CJ0Wpj" name="SpatialCalibrationPage.cpp" compile="1" resource="0"
               file="Source/SpatialCalibrationPage.cpp"/>
         <FILE id="mz1T46" name="SpatialCalibrationPage.h" compile="0" resource="0"
               file="Source/SpatialCalibrationPage.h"/>
-        <FILE id="GYQxO0" name="CabinEQPage.cpp" compile="1" resource="0" file="Source/CabinEQPage.cpp"/>
-        <FILE id="ss4ShX" name="CabinEQPage.h" compile="0" resource="0" file="Source/CabinEQPage.h"/>
-        <FILE id="XecbxI" name="CabinEQGraph.cpp" compile="1" resource="0"
-              file="Source/CabinEQGraph.cpp"/>
-        <FILE id="AbBAZL" name="CabinEQGraph.h" compile="0" resource="0" file="Source/CabinEQGraph.h"/>
+        <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
+        <FILE id="ss4ShX" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
+        <FILE id="XecbxI" name="CabinEqGraph.cpp" compile="1" resource="0"
+              file="Source/CabinEqGraph.cpp"/>
+        <FILE id="AbBAZL" name="CabinEqGraph.h" compile="0" resource="0" file="Source/CabinEqGraph.h"/>
         <FILE id="Vh5fb3" name="FilterPage.cpp" compile="1" resource="0" file="Source/FilterPage.cpp"/>
         <FILE id="tEKVap" name="FilterPage.h" compile="0" resource="0" file="Source/FilterPage.h"/>
         <FILE id="hhmpqw" name="ReferencePage.cpp" compile="1" resource="0"

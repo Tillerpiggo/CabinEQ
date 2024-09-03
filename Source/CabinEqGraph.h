@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    CabinEQGraph.h
+    CabinEqGraph.h
     Created: 2 Aug 2024 2:51:41pm
     Author:  Tyler Gee
 
@@ -11,10 +11,10 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CabinEQAudioProcessor.h"
+#include "CabinEqAudioProcessor.h"
 #include "CurvePt.h"
 
-class CabinEQGraph   : public juce::Component,
+class CabinEqGraph   : public juce::Component,
                        public juce::KeyListener,
                        public juce::Timer
 {
@@ -24,9 +24,9 @@ public:
     public:
         virtual ~Listener() = default;
 
-        virtual int addCurvePt (float freq, float ampl, CabinEQGraph* sender) = 0;
-        virtual void updateCurvePt (int id, float freq, float ampl, CabinEQGraph* sender) = 0;
-        virtual void removeCurvePt (int id, CabinEQGraph* sender) = 0;
+        virtual int addCurvePt (float freq, float ampl, CabinEqGraph* sender) = 0;
+        virtual void updateCurvePt (int id, float freq, float ampl, CabinEqGraph* sender) = 0;
+        virtual void removeCurvePt (int id, CabinEqGraph* sender) = 0;
         virtual void startPlayingValueAt (float freq, float ampl) = 0;
         virtual void playValueAt (float freq, float ampl) = 0; // the tone while dragging nodes
         virtual void testValueAt (float freq) = 0; // for probing
@@ -38,8 +38,8 @@ public:
         virtual void userStoppedDoingShit() = 0;
     };
     
-    CabinEQGraph();
-    ~CabinEQGraph() override;
+    CabinEqGraph();
+    ~CabinEqGraph() override;
     
     void setCurve (Curve& curve);
     

@@ -11,13 +11,13 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CabinEQAudioProcessor.h"
+#include "CabinEqAudioProcessor.h"
 
 class ReferencePage   : public juce::Component,
                         public juce::Slider::Listener
 {
 public:
-    ReferencePage(CabinEQAudioProcessor& p);
+    ReferencePage(CabinEqAudioProcessor& p);
     ~ReferencePage() override;
     
     void resized() override;
@@ -28,7 +28,7 @@ public:
     void sliderDragEnded (juce::Slider *slider) override;
     
 private:
-    CabinEQAudioProcessor& processor;
+    CabinEqAudioProcessor& processor;
     
     juce::Slider referenceVolume1;
     juce::Slider referenceVolume2;

@@ -10,7 +10,7 @@
 
 #include "ReferencePage.h"
 
-ReferencePage::ReferencePage(CabinEQAudioProcessor& p)
+ReferencePage::ReferencePage(CabinEqAudioProcessor& p)
     : processor (p)
 {
     addAndMakeVisible (referenceVolume1);

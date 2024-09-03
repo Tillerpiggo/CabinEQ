@@ -9,28 +9,28 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CabinEQAudioProcessor.h"
+#include "CabinEqAudioProcessor.h"
 #include "FilterPage.h"
-#include "CabinEQPage.h"
+#include "CabinEqPage.h"
 #include "ReferencePage.h"
 
 //==============================================================================
 /**
 */
-class CabinEQProcessorEditor   : public juce::AudioProcessorEditor
+class CabinEqProcessorEditor   : public juce::AudioProcessorEditor
 {
 public:
-    CabinEQProcessorEditor (CabinEQAudioProcessor&);
-    ~CabinEQProcessorEditor() override;
+    CabinEqProcessorEditor (CabinEqAudioProcessor&);
+    ~CabinEqProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
-    CabinEQAudioProcessor& audioProcessor;
+    CabinEqAudioProcessor& audioProcessor;
     
-    CabinEQPage cabinEQPage;
+    CabinEqPage cabinEqPage;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CabinEQProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CabinEqProcessorEditor)
 };

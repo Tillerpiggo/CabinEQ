@@ -6,27 +6,27 @@
   ==============================================================================
 */
 
-#include "CabinEQProcessorEditor.h"
+#include "CabinEqProcessorEditor.h"
 
-CabinEQProcessorEditor::CabinEQProcessorEditor(CabinEQAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), cabinEQPage (p)
+CabinEqProcessorEditor::CabinEqProcessorEditor(CabinEqAudioProcessor& p)
+    : AudioProcessorEditor (&p), audioProcessor (p), cabinEqPage (p)
 {
     setSize(800, 620);
-    addAndMakeVisible (cabinEQPage);
+    addAndMakeVisible (cabinEqPage);
 }
 
-CabinEQProcessorEditor::~CabinEQProcessorEditor()
+CabinEqProcessorEditor::~CabinEqProcessorEditor()
 {
     // The binaryClassificationPage will be automatically deleted as it is owned by the tabbedComponent
 }
 
 //==============================================================================
-void CabinEQProcessorEditor::paint(juce::Graphics& g)
+void CabinEqProcessorEditor::paint(juce::Graphics& g)
 {
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 }
 
-void CabinEQProcessorEditor::resized()
+void CabinEqProcessorEditor::resized()
 {
-    cabinEQPage.setBounds (getLocalBounds());
+    cabinEqPage.setBounds (getLocalBounds());
 }

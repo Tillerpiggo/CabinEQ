@@ -1,26 +1,26 @@
 /*
   ==============================================================================
 
-    CabinEQValueTreeManager.cpp
+    CabinEqValueTreeManager.cpp
     Created: 6 Aug 2024 5:56:08pm
     Author:  Tyler Gee
 
   ==============================================================================
 */
 
-#include "CabinEQValueTreeManager.h"
+#include "CabinEqValueTreeManager.h"
 
-CabinEQValueTreeManager::CabinEQValueTreeManager (juce::AudioProcessorValueTreeState& apvts) 
+CabinEqValueTreeManager::CabinEqValueTreeManager (juce::AudioProcessorValueTreeState& apvts) 
     : apvts (apvts)
 {}
 
-void CabinEQValueTreeManager::addProfile (juce::String profileName)
+void CabinEqValueTreeManager::addProfile (juce::String profileName)
 {
     if (getProfileNamed (profileName) == std::nullopt)
-        profiles.push_back (std::make_unique<CabinEQValueTree> (apvts, profileName));
+        profiles.push_back (std::make_unique<CabinEqValueTree> (apvts, profileName));
 }
 
-void CabinEQValueTreeManager::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
+void CabinEqValueTreeManager::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
 {
     addProfile (profileName);
     
@@ -28,20 +28,20 @@ void CabinEQValueTreeManager::addDuplicateProfile (juce::String profileName, juc
     getProfileNamed (profileName)->get().copyFrom (getProfileNamed (oldProfileName)->get());
 }
 
-void CabinEQValueTreeManager::removeProfile (juce::String profileName)
+void CabinEqValueTreeManager::removeProfile (juce::String profileName)
 {
     for (int i = 0; i < profiles.size(); ++i)
         if (profiles[i]->getName() == profileName)
             profiles.erase (profiles.begin() + i);
 }
 
-void CabinEQValueTreeManager::initProfiles()
+void CabinEqValueTreeManager::initProfiles()
 {
     for (const auto& node : apvts.state)
     {
         if (node.getType().toString() == "Profile")
         {
-            profiles.push_back (std::make_unique<CabinEQValueTree> (apvts, node.getProperty ("ProfileName")));
+            profiles.push_back (std::make_unique<CabinEqValueTree> (apvts, node.getProperty ("ProfileName")));
         }
     }
         
@@ -50,7 +50,7 @@ void CabinEQValueTreeManager::initProfiles()
         profile->initValueTreeFromAPVTS();
 }
 
-const std::vector<juce::String> CabinEQValueTreeManager::getProfileNames() const
+const std::vector<juce::String> CabinEqValueTreeManager::getProfileNames() const
 {
     std::vector<juce::String> profileNames;
     for (const auto& profile : profiles)
@@ -58,7 +58,7 @@ const std::vector<juce::String> CabinEQValueTreeManager::getProfileNames() const
     return profileNames;
 }
 
-std::optional<std::reference_wrapper<CabinEQValueTree>> CabinEQValueTreeManager::getProfileNamed (juce::String profileName) const
+std::optional<std::reference_wrapper<CabinEqValueTree>> CabinEqValueTreeManager::getProfileNamed (juce::String profileName) const
 {
     for (int i = 0; i < profiles.size(); ++i)
         if (profiles[i]->getName() == profileName)
@@ -66,7 +66,7 @@ std::optional<std::reference_wrapper<CabinEQValueTree>> CabinEQValueTreeManager:
     return std::nullopt;
 }
 
-std::optional<juce::String> CabinEQValueTreeManager::getLastSelectedProfileName() const
+std::optional<juce::String> CabinEqValueTreeManager::getLastSelectedProfileName() const
 {
     if (apvts.state.hasProperty (lastSelectedProfileId))
     {
@@ -75,7 +75,7 @@ std::optional<juce::String> CabinEQValueTreeManager::getLastSelectedProfileName(
     return std::nullopt;
 }
 
-void CabinEQValueTreeManager::setLastSelectedProfileName (juce::String lastSelectedProfileName)
+void CabinEqValueTreeManager::setLastSelectedProfileName (juce::String lastSelectedProfileName)
 {
     apvts.state.setProperty (lastSelectedProfileId, lastSelectedProfileName, nullptr);
 }
