@@ -95,8 +95,8 @@ private:
     RandomSineWaveGenerator randomSineWaveGenerator;
     PinkNoise pinkNoise;
     SineSweepGenerator sineSweepGenerator;
-    Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f);
-    Note referenceNote2 = Note (REFERENCE_FREQ_2, 6.0f, 0.0f);
+    Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f, 0.0f);
+    Note referenceNote2 = Note (REFERENCE_FREQ_2, 6.0f, 0.0f, 0.0f);
     
     bool isTesting;
     bool isSweeping;
@@ -114,6 +114,6 @@ private:
     float referenceFreq2 = 5000.0f;
     float referencePan = 0.0f;
     
-    Note leftRefNote { REFERENCE_FREQ, 6.0f, 0.0f };
-    Note rightRefNote { REFERENCE_FREQ, 6.0f, 0.0f };
+    Note leftRefNote { REFERENCE_FREQ, 6.0f, 0.0f, 0.0f };
+    Note rightRefNote { REFERENCE_FREQ, 6.0f, 0.0f, 0.0f };
 };

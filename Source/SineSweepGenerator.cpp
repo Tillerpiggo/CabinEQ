@@ -37,7 +37,7 @@ void SineSweepGenerator::setSampleRate (float newSampleRate)
 //    currAmpl = ampl;
 //}
 
-void SineSweepGenerator::setSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve)
+void SineSweepGenerator::setSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve, Curve phaseCurve)
 {
     this->centerFreq = std::sqrt (topFreq * bottomFreq);
     this->FREQ_RANGE_FACTOR = topFreq / centerFreq;
@@ -47,7 +47,7 @@ void SineSweepGenerator::setSweep (float bottomFreq, float topFreq, Curve amplCu
     currFreq = centerFreq;
 }
 
-void SineSweepGenerator::updateSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve)
+void SineSweepGenerator::updateSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve, Curve phaseCurve)
 {
     this->centerFreq = std::sqrt (topFreq * bottomFreq);
     this->FREQ_RANGE_FACTOR = topFreq / centerFreq;
@@ -83,8 +83,9 @@ void SineSweepGenerator::incrementFreq()
         
 //        float dbDifference = currAmpl.has_value() ? currAmpl.value() : 0.0f;
         float dbDifference = amplCurve.valueAtFrequency (currFreq);
-        float pan = panCurve.valueAtFrequency(currFreq);
-        sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, pan));
+        float pan = panCurve.valueAtFrequency (currFreq);
+        float phase = phaseCurve.valueAtFrequency (currFreq);
+        sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, pan, phase));
     }
     
     currStep++;

@@ -30,7 +30,7 @@ private:
     
     SineWaveGenerator sineWaveGenerator;
     std::optional<Curve> curve;
-    SequenceableNote currNote = SequenceableNote (1000.0f, 0.0f, 0.0f, 1000);
+    SequenceableNote currNote = SequenceableNote (1000.0f, 0.0f, 0.0f, 0.0f, 1000);
     int noteLengthInSamples = 1000;
     int samplesNoteHasBeenPlaying = 0;
 };

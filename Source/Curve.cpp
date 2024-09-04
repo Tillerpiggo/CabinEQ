@@ -211,11 +211,12 @@ std::vector<float> Curve::getFrequencyResponse (int numPoints)
     float minFreq = -48.0f;
     
     std::vector<float> freqResponse (2 * numPoints, 0);
+    /*
     for (int i = 0; i < numPoints; ++i)
     {
         float t = static_cast<float>(i) / (numPoints);
         
-        auto val = valueAtTime (t);
+        auto val = juce::Decibels::decibelsToGain (valueAtTime (t));
         
         if (i % 2 == 0)
         {
@@ -233,7 +234,7 @@ std::vector<float> Curve::getFrequencyResponse (int numPoints)
     {
         float t = static_cast<float>(i) / (numPoints);
         
-        auto val = valueAtTime (1 - t);
+        auto val = juce::Decibels::decibelsToGain (valueAtTime (1 - t));
         
         if (i % 2 == 0)
         {
@@ -246,6 +247,50 @@ std::vector<float> Curve::getFrequencyResponse (int numPoints)
             freqResponse[i] = 0;
         }
     }
+     */
+    for (int i = 0; i < numPoints; ++i)
+    {
+        float t = static_cast<float>(i) / (numPoints);
+        
+        auto val = juce::Decibels::decibelsToGain (valueAtTime (t));
+        
+        if (i % 2 == 0)
+        {
+            if (val > maxFreq) val = maxFreq;
+            if (val < minFreq) val = minFreq;
+            freqResponse[i] = val;
+        }
+        else
+        {
+            freqResponse[i] = 0;
+        }
+    }
+    
+    for (int i = 0; i < numPoints / 2; ++i)
+    {
+        freqResponse[2 * i + numPoints] = freqResponse[numPoints - 2 * (i + 1)];
+        freqResponse[2 * i + numPoints + 1] = freqResponse[numPoints - 2 * (i + 1) + 1];
+    }
+    
+    /*
+    for (int i = 0; i < numPoints; ++i)
+    {
+        float t = static_cast<float>(i) / (numPoints);
+        
+        auto val = juce::Decibels::decibelsToGain (valueAtTime (1 - t));
+        
+        if (i % 2 == 0)
+        {
+            if (val > maxFreq) val = maxFreq;
+            if (val < minFreq) val = minFreq;
+            freqResponse[i + numPoints] = val;
+        }
+        else
+        {
+            freqResponse[i] = 0;
+        }
+    }
+     */
     
     return freqResponse;
 }
@@ -337,13 +382,31 @@ std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyRespo
         auto pan = panCurve.valueAtTime (t);
         auto phase = phaseCurve.valueAtTime (t);
         
+        auto leftMagnitude = juce::Decibels::decibelsToGain (ampl - 0.5 * pan);
+        auto rightMagnitude = juce::Decibels::decibelsToGain (ampl + 0.5 * pan);
+        auto leftComplexVal = std::polar (leftMagnitude, -0.5 * phase);
+        auto rightComplexVal = std::polar (rightMagnitude, 0.5 * phase);
+        
         // Ignore phase, just for now
-        leftFreqResponse[2 * i] = juce::Decibels::decibelsToGain (ampl - 0.5 * pan); // real component
-        rightFreqResponse[2 * i] = juce::Decibels::decibelsToGain (ampl + 0.5 * pan); // real component
-        leftFreqResponse[2 * i + 1] = 0; // imaginary component
-        rightFreqResponse[2 * i + 1] = 0; // imaginary component
+        leftFreqResponse[2 * i] = leftMagnitude;//leftComplexVal.real();
+        rightFreqResponse[2 * i] = rightMagnitude;//rightComplexVal.real();
+        leftFreqResponse[2 * i + 1] = 0;//leftComplexVal.imag();
+        rightFreqResponse[2 * i + 1] = 0;//rightComplexVal.imag();
     }
     
+    for (int i = 0; i < numPoints / 2; ++i)
+    {
+        auto realIdx = numPoints - 2 * (i + 1);
+        auto imagIdx = 2 * i + numPoints;
+        
+        leftFreqResponse[imagIdx] = leftFreqResponse[realIdx];
+        leftFreqResponse[imagIdx + 1] = leftFreqResponse[realIdx + 1];
+        rightFreqResponse[imagIdx] = rightFreqResponse[realIdx];
+        rightFreqResponse[imagIdx + 1] = rightFreqResponse[realIdx + 1];
+        
+    }
+    
+    /*
     // TODO: this seems redundant. Can't we just read off the values we've calculate so far in reverse?
     for (int i = 0; i < numPoints / 2; ++i)
     {
@@ -353,12 +416,18 @@ std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyRespo
         auto pan = panCurve.valueAtTime (1 - t);
         auto phase = phaseCurve.valueAtTime (1 - t);
         
-        // Ignore phase (again), just for now
-        leftFreqResponse[2 * i + numPoints] = juce::Decibels::decibelsToGain (ampl - 0.5 * pan); // real component
-        rightFreqResponse[2 * i + numPoints] = juce::Decibels::decibelsToGain (ampl + 0.5 * pan); // real component
-        leftFreqResponse[2 * i + 1 + numPoints] = 0; // imaginary component
-        rightFreqResponse[2 * i + 1 + numPoints] = 0; // imaginary component
+        auto leftMagnitude = juce::Decibels::decibelsToGain (ampl - 0.5 * pan);
+        auto rightMagnitude = juce::Decibels::decibelsToGain (ampl + 0.5 * pan);
+        auto leftComplexVal = std::polar (leftMagnitude, -0.5 * phase);
+        auto rightComplexVal = std::polar (rightMagnitude, 0.5 * phase);
+        
+        // Ignore phase, just for now
+        leftFreqResponse[2 * i] = leftMagnitude;//leftComplexVal.real();
+        rightFreqResponse[2 * i] = rightMagnitude;//rightComplexVal.real();
+        leftFreqResponse[2 * i + 1] = 0;//-1 * leftComplexVal.imag();
+        rightFreqResponse[2 * i + 1] = 0;//-1 * rightComplexVal.imag();
     }
+     */
     
     return { leftFreqResponse, rightFreqResponse };
 }

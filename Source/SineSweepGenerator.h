@@ -25,8 +25,8 @@ public:
     void setSampleRate (float newSampleRate);
 //    void setCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
 //    void updateCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void setSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve);
-    void updateSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve);
+    void setSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
+    void updateSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
     void stopSweep();
     float getCurrFreq() const;
     
@@ -47,5 +47,5 @@ private:
     
     Curve amplCurve;
     Curve panCurve;
-    
+    Curve phaseCurve;
 };

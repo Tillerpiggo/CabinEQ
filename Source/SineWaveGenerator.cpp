@@ -96,14 +96,14 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
     }
     
     // Vibrato
-    vibratoPhase += vibratoStep;
-    if (vibratoPhase < 0 || vibratoPhase > 2 * M_PI)
-        vibratoPhase = 0;
-    float vibratoChange = (vibratoMaxDB - vibratoMinDB) * (std::sin (vibratoPhase) / 2.0 + 0.5) + vibratoMinDB;
-    vibratoChange = juce::Decibels::decibelsToGain (vibratoChange);
+//    vibratoPhase += vibratoStep;
+//    if (vibratoPhase < 0 || vibratoPhase > 2 * M_PI)
+//        vibratoPhase = 0;
+//    float vibratoChange = (vibratoMaxDB - vibratoMinDB) * (std::sin (vibratoPhase) / 2.0 + 0.5) + vibratoMinDB;
+//    vibratoChange = juce::Decibels::decibelsToGain (vibratoChange);
     
-    float leftSample = std::sin (phase) * leftAmplitudeCompensation * vibratoChange;
-    float rightSample = std::sin (phase) * rightAmplitudeCompensation * vibratoChange;
+    float leftSample = std::sin (phase - 0.5 * note->phase) * leftAmplitudeCompensation;// * vibratoChange;
+    float rightSample = std::sin (phase + 0.5 * note->phase) * rightAmplitudeCompensation;// * vibratoChange;
     
     phase += phaseIncrement;
     if (phase > 2.0 * juce::MathConstants<float>::pi)
@@ -136,6 +136,11 @@ void SineWaveGenerator::setVolume (float volumeInDecibels)
 void SineWaveGenerator::setPan (float panInDecibels)
 {
     targetPan = panInDecibels;
+}
+
+void SineWaveGenerator::setPhase (float phaseInRadians)
+{
+    targetPhase = phaseInRadians;
 }
 
 void SineWaveGenerator::startTremolo (float startPan)

@@ -57,6 +57,6 @@ void RandomSineWaveGenerator::randomizeNote()
     if (curve.has_value())
         ampl += curve->valueAtFrequency (frequency);
     
-    currNote = SequenceableNote (frequency, ampl, 0.0f, noteLengthInSamples, StereoGainEnvelope (500));
+    currNote = SequenceableNote (frequency, ampl, 0.0f, 0.0f, noteLengthInSamples, StereoGainEnvelope (500));
     sineWaveGenerator.setNote (currNote.getNote());
 }

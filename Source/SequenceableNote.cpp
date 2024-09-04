@@ -10,9 +10,9 @@
 
 #include "SequenceableNote.h"
 
-SequenceableNote::SequenceableNote (float frequency, float amplitude, float pan,
+SequenceableNote::SequenceableNote (float frequency, float amplitude, float pan, float phase,
                   float duration, StereoGainEnvelope envelope)
-    : note (frequency, amplitude, pan), duration (duration), envelope (envelope)
+    : note (frequency, amplitude, pan, phase), duration (duration), envelope (envelope)
 {}
 
 SequenceableNote::SequenceableNote (Note note, float duration, StereoGainEnvelope envelope)
@@ -32,6 +32,11 @@ const float SequenceableNote::getAmplitude() const
 const float SequenceableNote::getPan() const
 {
     return note.pan;
+}
+
+const float SequenceableNote::getPhase() const
+{
+    return note.phase;
 }
 
 const float SequenceableNote::getDuration() const
@@ -54,6 +59,11 @@ void SequenceableNote::setPan (float newPan)
     this->note.pan = newPan;
 }
 
+void SequenceableNote::setPhase (float newPhase)
+{
+    this->note.phase = newPhase;
+}
+
 void SequenceableNote::setDuration (float newDuration)
 {
     this->duration = newDuration;
@@ -71,10 +81,15 @@ const Note SequenceableNote::getNote() const
 
 const SequenceableNote SequenceableNote::withAmplitudeChange (float amplChange) const
 {
-    return SequenceableNote (getNote().frequency, getNote().amplitude + amplChange, getNote().pan, getDuration(), envelope);
+    return SequenceableNote (getNote().frequency, getNote().amplitude + amplChange, getNote().pan, getNote().phase, getDuration(), envelope);
 }
 
 const SequenceableNote SequenceableNote::withPan (float pan) const
 {
     return SequenceableNote (getNote(), getDuration(), envelope.withPan (pan));
+}
+
+const SequenceableNote SequenceableNote::withPhase (float phaseOffset) const
+{
+    return SequenceableNote (getNote().frequency, getNote().amplitude, getNote().pan, getNote().phase + phaseOffset, getDuration(), envelope);
 }

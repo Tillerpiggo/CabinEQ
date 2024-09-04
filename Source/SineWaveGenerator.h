@@ -26,6 +26,7 @@ public:
     void setFrequency (float frequencyInHz) override;
     void setVolume (float volumeInDecibels) override;
     void setPan (float panInDecibels) override;
+    void setPhase (float phaseInRadians) override;
     
     void startTremolo (float startPan);
     
@@ -48,6 +49,7 @@ private:
     std::optional<float> targetFrequency;
     std::optional<float> targetAmplitude;
     std::optional<float> targetPan;
+    std::optional<float> targetPhase;
     
     // == Vibrato ==
     float vibratoPhase = 0; // 0 to 2pi

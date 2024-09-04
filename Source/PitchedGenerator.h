@@ -25,4 +25,5 @@ public:
     virtual void setFrequency (float frequencyInHz) = 0; // changes the frequency of the currently playing note
     virtual void setVolume (float volumeInDecibels) = 0; // changes the volume of the currently playing note
     virtual void setPan (float panInDecibels) = 0;
+    virtual void setPhase (float phaseInRadians) = 0;
 };
