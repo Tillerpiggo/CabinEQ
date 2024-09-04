@@ -11,8 +11,17 @@
 #include "CabinEqPage.h"
 
 CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE"), cabinEqGraph()//, unlockForm (marketplaceStatus)
+    : processor (p), profileId ("NO_PROFILE"), graphs (juce::TabbedButtonBar::Orientation::TabsAtTop)
 {
+    amplGraph = std::make_unique<CabinEqGraph>();
+    panGraph = std::make_unique<CabinEqGraph>();
+    phaseGraph = std::make_unique<CabinEqGraph>();
+    
+    auto backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2); // DRY violation; redundant w/ CabinEqGraph BACKGROUND_COLOR
+    graphs.addTab ("Volume", backgroundColor, amplGraph.get(), false);
+    graphs.addTab ("Left/Right", backgroundColor, panGraph.get(), false);
+    graphs.addTab ("Phase", backgroundColor, phaseGraph.get(), false);
+    
     filterQualityDropdown.addItem ("Utopian", 1);
     filterQualityDropdown.addItem ("Fantastic", 2);
     filterQualityDropdown.addItem ("Great", 3);
@@ -35,7 +44,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     wetVolumeLabel.setJustificationType (juce::Justification::centred);
     dryVolumeLabel.setJustificationType (juce::Justification::centred);
     
-    cabinEqGraph.addListener (this);
+    amplGraph->addListener (this);
+    panGraph->addListener (this);
+    phaseGraph->addListener (this);
     profileDropdown.addListener (this);
     filterQualityDropdown.addListener (this);
     referenceSlider.addListener (this);
@@ -46,7 +57,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     dryVolumeSlider.addListener (this);
     wetVolumeSlider.addListener (this);
     
-    addAndMakeVisible (cabinEqGraph);
+    addAndMakeVisible (graphs);
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (filterQualityDropdown);
     addAndMakeVisible (referenceSlider);
@@ -74,7 +85,10 @@ CabinEqPage::~CabinEqPage()
     dryVolumeSlider.removeListener (this);
     wetVolumeSlider.removeListener (this);
     
-    cabinEqGraph.removeListener();
+    amplGraph->removeListener();
+    panGraph->removeListener();
+    phaseGraph->removeListener();
+    
     processor.removeListener();
 }
 
@@ -85,6 +99,8 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
+//    graphs.setBounds (getLocalBounds());
+    
     int padding = 20; // padding on the top and bottom
     int componentPadding = 10; // padding between graph, slider, and dropdown
     int dropdownHeight = 30;
@@ -107,7 +123,7 @@ void CabinEqPage::resized()
     int buttonsY = padding + graphHeight + componentPadding;
 
     // Set bounds for graph and buttons
-    cabinEqGraph.setBounds (0, padding, getWidth(), graphHeight);
+    graphs.setBounds (0, padding, getWidth(), graphHeight);
     profileDropdown.setBounds (padding, buttonsY, profileDropdownWidth, dropdownHeight);
     filterQualityDropdown.setBounds (padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
     int currentX = padding + dropdownWidth + buttonWidth;
@@ -130,24 +146,58 @@ void CabinEqPage::resized()
 }
 
 // ====================================================
-int CabinEqPage::addCurvePt (float freq, float ampl, CabinEqGraph* sender)
+int CabinEqPage::addCurvePt (float freq, float val, CabinEqGraph* sender)
 {
     flagFilterChanged();
-    std::cout << "curve pt added" << std::endl;
-    return processor.addAmplPt (freq, ampl, profileId); // TODO: FIX, I'M JUST DOING AMPL FOR NOW
+    if (sender == amplGraph.get())
+    {
+        return processor.addAmplPt (freq, val, profileId);
+    }
+    else if (sender == panGraph.get())
+    {
+        return processor.addPanPt (freq, val, profileId);
+    }
+    else if (sender == phaseGraph.get())
+    {
+        return processor.addPhasePt (freq, val, profileId);
+    }
+    
+    std::cout << "WARNING: Add Curve Pt failed because sender was not ampl, pan, or phase graph";
+    return -1;
 }
 
-void CabinEqPage::updateCurvePt (int id, float freq, float ampl, CabinEqGraph* sender)
+void CabinEqPage::updateCurvePt (int id, float freq, float val, CabinEqGraph* sender)
 {
     flagFilterChanged();
-    processor.updateAmplPt (id, freq, ampl, profileId);
+    if (sender == amplGraph.get())
+    {
+        processor.updateAmplPt (id, freq, val, profileId);
+    }
+    else if (sender == panGraph.get())
+    {
+        processor.updatePanPt (id, freq, val, profileId);
+    }
+    else if (sender == phaseGraph.get())
+    {
+        processor.updatePhasePt (id, freq, val, profileId);
+    }
 }
 
 void CabinEqPage::removeCurvePt (int id, CabinEqGraph* sender)
 {
     flagFilterChanged();
-    std::cout << "curve pt removed" << std::endl;
-    processor.removeAmplPt (id, profileId);
+    if (sender == amplGraph.get())
+    {
+        processor.removeAmplPt (id, profileId);
+    }
+    else if (sender == panGraph.get())
+    {
+        processor.removePanPt (id, profileId);
+    }
+    else if (sender == phaseGraph.get())
+    {
+        processor.removePhasePt (id, profileId);
+    }
 }
 
 void CabinEqPage::startPlayingValueAt (float freq, float ampl)
@@ -379,7 +429,9 @@ void CabinEqPage::flagFilterChanged()
 void CabinEqPage::toggleBypass()
 {
     isBypassed = ! isBypassed;
-    cabinEqGraph.setGrayscale (isBypassed);
+    amplGraph->setGrayscale (isBypassed);
+    panGraph->setGrayscale (isBypassed);
+    phaseGraph->setGrayscale (isBypassed);
     updateButtonText();
 }
 
@@ -387,7 +439,9 @@ void CabinEqPage::toggleBlind()
 {
     isBlind = ! isBlind;
     blindButton.setButtonText (isBlind ? "UNBLIND" : "BLIND");
-    cabinEqGraph.setBlinded (isBlind);
+    amplGraph->setBlinded (isBlind);
+    panGraph->setBlinded (isBlind);
+    phaseGraph->setBlinded (isBlind);
     updateButtonText();
 }
 
@@ -458,9 +512,13 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
 {
     profileId = profileIdToGoTo;
     auto amplCurve = processor.getAmplCurve (profileIdToGoTo);
-    if (amplCurve.has_value())
+    auto panCurve = processor.getPanCurve (profileIdToGoTo);
+    auto phaseCurve = processor.getPhaseCurve (profileIdToGoTo);
+    if (amplCurve.has_value() && panCurve.has_value() && phaseCurve.has_value())
     {
-        cabinEqGraph.setCurve (amplCurve->get()); // HARD CODING AMPL FOR NOW
+        amplGraph->setCurve (amplCurve->get());
+        panGraph->setCurve (panCurve->get());
+        phaseGraph->setCurve (phaseCurve->get());
         flagFilterChanged();
         applyFilter();
         processor.setLastSelectedProfileName (profileId);

@@ -287,10 +287,10 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float fre
     ampl = juce::Decibels::gainToDecibels (ampl);
     ampl += getCompensationDBAtFrequency (freq);
     
-    return getNotesForCalibrationAt (freq, ampl, alternateSilence, alternateSilenceBefore);
+    return getNotesForCalibrationAt (freq, ampl, alternateSilence, alternateSilenceBefore, true);
 }
 
-std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float freq, float ampl, bool alternateSilence, bool alternateSilenceBefore)
+std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float freq, float ampl, bool alternateSilence, bool alternateSilenceBefore, bool changeAmpl)
 {
     // Play reference note and then do below - controlled - above
     int noteDurationInSamples = 1000;
@@ -311,12 +311,18 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float f
     // Play below - controlled - above while reference note is playing
     std::vector<SequenceableNote> notes;
     std::vector<float> pans { -1, -0.5, 0, 0.5, 1 };
+    std::vector<float> ampls { 0.0, 6.0, -6.0 };
     
+    int amplIdx = 0;
     for (const auto& pan : pans)
     {
         for (const auto& note : controlledNotes)
         {
-            notes.emplace_back (note.withPan (pan));
+            notes.emplace_back (note.withPan (pan).withAmplitudeChange (ampls[amplIdx]));
+            if (changeAmpl)
+                amplIdx++;
+            if (amplIdx >= ampls.size())
+                amplIdx = 0;
         }
     }
     

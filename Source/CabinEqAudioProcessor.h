@@ -78,6 +78,7 @@ public:
     
     std::optional<std::reference_wrapper<Curve>> getAmplCurve (juce::String profileName);
     std::optional<std::reference_wrapper<Curve>> getPanCurve (juce::String profileName);
+    std::optional<std::reference_wrapper<Curve>> getPhaseCurve (juce::String profileName);
     const std::vector<CurvePt> getAmplPts (juce::String profileName) const;
     const std::vector<CurvePt> getPanPts (juce::String profileName) const;
     const std::optional<CurvePt> getAmplPtWithId (int id, juce::String profileName) const;
@@ -102,10 +103,13 @@ public:
     // Setting points (new)
     int addAmplPt (const float freq, const float ampl, juce::String profileName);
     int addPanPt (const float freq, const float pan, juce::String profileName);
+    int addPhasePt (const float freq, const float pan, juce::String profileName);
     void removeAmplPt (const int id, juce::String profileName);
     void removePanPt (const int id, juce::String profileName);
+    void removePhasePt (const int id, juce::String profileName);
     void updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName);
     void updatePanPt (const int id, const float freq, const float pan, juce::String profileName);
+    void updatePhasePt (const int id, const float freq, const float phase, juce::String profileName);
     void clearEQNodes (juce::String profileName);
     
     // Changing points

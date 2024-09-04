@@ -24,7 +24,6 @@
             file="Source/CabinEqValueTreeManager.cpp"/>
       <FILE id="NXPdqU" name="CabinEqValueTreeManager.h" compile="0" resource="0"
             file="Source/CabinEqValueTreeManager.h"/>
-      <FILE id="h9bYnu" name="EqNode.h" compile="0" resource="0" file="Source/EqNode.h"/>
       <FILE id="wRB6e3" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="CJ0Wpj" name="SpatialCalibrationPage.cpp" compile="1" resource="0"

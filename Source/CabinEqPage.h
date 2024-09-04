@@ -12,7 +12,6 @@
 
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
-#include "EQNode.h"
 #include "CabinEqGraph.h"
 
 class CabinEqPage   : public juce::Component,
@@ -82,7 +81,10 @@ protected:
     bool creatingDuplicate = false;
     int fftSize = 16;
     
-    CabinEqGraph cabinEqGraph;
+    juce::TabbedComponent graphs;
+    std::unique_ptr<CabinEqGraph> amplGraph;
+    std::unique_ptr<CabinEqGraph> panGraph;
+    std::unique_ptr<CabinEqGraph> phaseGraph;
     juce::ComboBox profileDropdown;
     juce::ComboBox filterQualityDropdown;
     juce::Slider referenceSlider;

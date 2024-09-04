@@ -258,6 +258,15 @@ std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getPanCurve 
     return std::nullopt;
 }
 
+std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getPhaseCurve (juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().getPhaseCurve();
+    std::cout << "unable to get pan curve in pluginProcessor for profile named " << profileName << std::endl;
+    return std::nullopt;
+}
+
 const std::vector<CurvePt> CabinEqAudioProcessor::getAmplPts (juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
@@ -306,6 +315,14 @@ int CabinEqAudioProcessor::addPanPt (const float freq, const float pan, juce::St
     return -1;
 }
 
+int CabinEqAudioProcessor::addPhasePt (const float freq, const float phase, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().addPhasePt (freq, phase);
+    return -1;
+}
+
 void CabinEqAudioProcessor::removeAmplPt (const int id, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
@@ -318,6 +335,13 @@ void CabinEqAudioProcessor::removePanPt (const int id, juce::String profileName)
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().removePanPt (id);
+}
+
+void CabinEqAudioProcessor::removePhasePt (const int id, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().removePhasePt (id);
 }
 
 void CabinEqAudioProcessor::updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName)
@@ -334,6 +358,14 @@ void CabinEqAudioProcessor::updatePanPt (const int id, const float freq, const f
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().updatePanPt (id, freq, pan);
+}
+
+void CabinEqAudioProcessor::updatePhasePt (const int id, const float freq, const float phase, juce::String profileName)
+{
+    currProfileName = profileName; // super hacky
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().updatePhasePt (id, freq, phase);
 }
 
 void CabinEqAudioProcessor::clearEQNodes (juce::String profileName)

@@ -28,19 +28,19 @@ void CabinEqGraph::setCurve (Curve& curve)
 
 void CabinEqGraph::paint (juce::Graphics& g)
 {
-    g.fillAll (BACKGROUND_COLOR);
+    g.setColour (BACKGROUND_COLOR);
+    g.fillRect (getBoundsInParent());
     
     if (curve.has_value())
     {
         drawCurve (g, curve->get(), 300);
         drawDots (g, curve->get());
     }
-    
 }
 
 void CabinEqGraph::resized()
 {
-    setBounds (0, 0, getWidth(), getHeight());
+    setBounds (getBoundsInParent());
 }
 
 void CabinEqGraph::mouseMove (const juce::MouseEvent &event)
@@ -200,6 +200,7 @@ void CabinEqGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::Mo
     updateHoveringAndAddingNode (event);
 }
 
+
 bool CabinEqGraph::keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent)
 {
     cyclesSinceUserStoppedDoingShit = 0;
@@ -213,6 +214,7 @@ bool CabinEqGraph::keyStateChanged (bool isKeyDown, juce::Component *originating
     stopTesting();
     return true;
 }
+
 
 void CabinEqGraph::timerCallback()
 {

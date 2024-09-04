@@ -13,7 +13,6 @@
 #include <JuceHeader.h>
 #include "Note.h"
 #include "StereoGainEnvelope.h"
-#include "EQNode.h"
 
 class SequenceableNote
 {
