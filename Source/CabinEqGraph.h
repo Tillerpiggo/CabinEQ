@@ -27,8 +27,8 @@ public:
         virtual int addCurvePt (float freq, float ampl, CabinEqGraph* sender) = 0;
         virtual void updateCurvePt (int id, float freq, float ampl, CabinEqGraph* sender) = 0;
         virtual void removeCurvePt (int id, CabinEqGraph* sender) = 0;
-        virtual void startPlayingValueAt (float freq, float ampl) = 0;
-        virtual void playValueAt (float freq, float ampl) = 0; // the tone while dragging nodes
+        virtual void startPlayingValueAt (float freq, CabinEqGraph* sender) = 0;
+        virtual void updatePlayingValueAt (float freq, CabinEqGraph* sender) = 0; // the tone while dragging nodes
         virtual void testValueAt (float freq) = 0; // for probing
         virtual void stopPlaying() = 0; // stops playing the calibration tones
         virtual void stopTesting() = 0; // stops playing the testing tones (that are played when holding down ctrl/alt)
@@ -89,11 +89,11 @@ private:
     void updateCurvePts();
     
     // Utils to handle listener being nullptr
-    int addNode (float freq, float ampl);
-    void updateNode (int id, float freq, float ampl);
+    int addNode (float freq, float val);
+    void updateNode (int id, float freq, float val);
     void removeNode (int id);
-    void startPlayingValueAt (float freq, float ampl);
-    void playValueAt (float freq, float ampl); // the tone while dragging nodes
+    void startPlayingValueAt (float freq);
+    void updatePlayingValueAt (float freq); // the tone while dragging nodes
     void testValueAt (float freq); // for probing
     void stopPlaying(); // stops playing the calibration tones
     void stopTesting(); // stops playing the testing tones (that are played when holding down ctrl/alt)

@@ -113,11 +113,18 @@ public:
     void clearEQNodes (juce::String profileName);
     
     // Changing points
-    void startPlayingFreq (float freq, juce::String profileName);
-    void startPlayingReferenceFreqs(); // TODO: Remove
-    void updatePlayingReferenceFreqs(); // TODO: Remove
-    void updatePlayingFreq (float freq, juce::String profileName);
-    void endCalibratingEQNode();
+//    void startPlayingFreq (float freq, juce::String profileName);
+//    void updatePlayingFreq (float freq, juce::String profileName);
+//    void endCalibratingEQNode();
+//    float getCurrPlayingFreq();
+    
+    void startAmplCalibration (float freq, juce::String profileName);
+    void updateAmplCalibration (float freq, juce::String profileName);
+    void startPanCalibration (float freq, juce::String profileName);
+    void updatePanCalibration (float freq, juce::String profileName);
+    void startPhaseCalibration (float freq, juce::String profileName);
+    void updatePhaseCalibration (float freq, juce::String profileName);
+    void stopCalibration();
     float getCurrPlayingFreq();
     
     // Testing

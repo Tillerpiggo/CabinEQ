@@ -378,12 +378,12 @@ void CabinEqAudioProcessor::clearEQNodes (juce::String profileName)
         profile->get().resetNodes();
 }
 
-void CabinEqAudioProcessor::startPlayingFreq (float freq, juce::String profileName)
+void CabinEqAudioProcessor::startAmplCalibration (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.startPlayingFreq (freq,
+        playbackManager.startAmplCalibration (freq,
                                           profile->get().getAmplCurve(),
                                           profile->get().getPanCurve(),
                                           profile->get().getPhaseCurve());
@@ -391,31 +391,72 @@ void CabinEqAudioProcessor::startPlayingFreq (float freq, juce::String profileNa
     }
 }
 
-// TODO: Hacky for testing, will remove later
-void CabinEqAudioProcessor::startPlayingReferenceFreqs()
-{
-    playbackManager.setIsCalibrating (true);
-    playbackManager.startPlayingReferenceFreqs();
-}
-
-void CabinEqAudioProcessor::updatePlayingReferenceFreqs()
-{
-    playbackManager.updatePlayingReferenceFreqs();
-}
-
-void CabinEqAudioProcessor::updatePlayingFreq (float freq, juce::String profileName)
+void CabinEqAudioProcessor::updateAmplCalibration (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.updatePlayingFreq (freq,
-                                           profile->get().getAmplCurve(),
-                                           profile->get().getPanCurve(),
-                                           profile->get().getPhaseCurve());
+        playbackManager.updateAmplCalibration (freq,
+                                          profile->get().getAmplCurve(),
+                                          profile->get().getPanCurve(),
+                                          profile->get().getPhaseCurve());
+        playbackManager.setIsCalibrating (true);
     }
 }
 
-void CabinEqAudioProcessor::endCalibratingEQNode()
+void CabinEqAudioProcessor::startPanCalibration (float freq, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        playbackManager.startPanCalibration (freq,
+                                          profile->get().getAmplCurve(),
+                                          profile->get().getPanCurve(),
+                                          profile->get().getPhaseCurve());
+        playbackManager.setIsCalibrating (true);
+    }
+}
+
+void CabinEqAudioProcessor::updatePanCalibration (float freq, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        playbackManager.updatePanCalibration (freq,
+                                          profile->get().getAmplCurve(),
+                                          profile->get().getPanCurve(),
+                                          profile->get().getPhaseCurve());
+        playbackManager.setIsCalibrating (true);
+    }
+}
+
+void CabinEqAudioProcessor::startPhaseCalibration (float freq, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        playbackManager.startPhaseCalibration (freq,
+                                          profile->get().getAmplCurve(),
+                                          profile->get().getPanCurve(),
+                                          profile->get().getPhaseCurve());
+        playbackManager.setIsCalibrating (true);
+    }
+}
+
+void CabinEqAudioProcessor::updatePhaseCalibration (float freq, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        playbackManager.updatePhaseCalibration (freq,
+                                          profile->get().getAmplCurve(),
+                                          profile->get().getPanCurve(),
+                                          profile->get().getPhaseCurve());
+        playbackManager.setIsCalibrating (true);
+    }
+}
+
+void CabinEqAudioProcessor::stopCalibration()
 {
     playbackManager.setIsCalibrating (false);
 }

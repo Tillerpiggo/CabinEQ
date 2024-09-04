@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+/*
 #pragma once
 
 #include <JuceHeader.h>
@@ -33,3 +34,4 @@ private:
     juce::Slider referenceVolume1;
     juce::Slider referenceVolume2;
 };
+*/

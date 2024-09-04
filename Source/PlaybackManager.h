@@ -45,8 +45,12 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void startPanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void updatePanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void startPhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void updatePhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     // TODO: add diff functions for other kinds of tests
     void startTestingFreq (float freq, Curve& curve);
     void updateTestingFreq (float freq, Curve& curve);
@@ -69,8 +73,9 @@ private:
     float getCompensationDBAtFrequency (float frequency);
     float getReferenceCompensationDBAtFrequency (float frequency);
     juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
-    std::vector<SequenceableNote> getNotesForCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, bool alternateSilence = false, bool alternateSilenceBefore = false);
-    std::vector<SequenceableNote> getNotesForCalibrationAt (float freq, float ampl, float pan, float phase, bool alternateSilence = false, bool alternateSilenceBefore = false, bool changeAmpl = false);
+    std::vector<SequenceableNote> getNotesForAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, bool alternateSilence = false, bool alternateSilenceBefore = false);
+    std::vector<SequenceableNote> getNotesForAmplCalibrationAt (float freq, float ampl, float pan, float phase, bool alternateSilence = false, bool alternateSilenceBefore = false, bool changeAmpl = false);
+    std::vector<SequenceableNote> getNotesForPanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     
     const int FFT_SIZE = 15;
     

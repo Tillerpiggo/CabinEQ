@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+/*
 #include "ReferencePage.h"
 
 ReferencePage::ReferencePage(CabinEqAudioProcessor& p)
@@ -66,3 +67,4 @@ void ReferencePage::sliderDragEnded (juce::Slider *slider)
 {
     processor.updatePlayingReferenceFreqs();
 }
+*/

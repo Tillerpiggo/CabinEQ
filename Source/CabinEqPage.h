@@ -34,8 +34,8 @@ public:
     int addCurvePt (float freq, float ampl, CabinEqGraph* sender) override;
     void updateCurvePt (int id, float freq, float ampl, CabinEqGraph* sender) override;
     void removeCurvePt (int id, CabinEqGraph* sender) override;
-    void startPlayingValueAt (float freq, float ampl) override;
-    void playValueAt (float freq, float ampl) override;
+    void startPlayingValueAt (float freq, CabinEqGraph* sender) override;
+    void updatePlayingValueAt (float freq, CabinEqGraph* sender) override;
     void testValueAt (float freq) override;
     void stopPlaying() override;
     void stopTesting() override;

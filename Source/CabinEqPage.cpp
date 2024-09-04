@@ -200,16 +200,36 @@ void CabinEqPage::removeCurvePt (int id, CabinEqGraph* sender)
     }
 }
 
-void CabinEqPage::startPlayingValueAt (float freq, float ampl)
+void CabinEqPage::startPlayingValueAt (float freq, CabinEqGraph* sender)
 {
-    processor.startPlayingFreq (freq, profileId); // hacky way to make this impact pan
-//    processor.startSineSweep (freq, profileId);
+    if (sender == amplGraph.get())
+    {
+        processor.startAmplCalibration (freq, profileId);
+    }
+    else if (sender == panGraph.get())
+    {
+        processor.startPanCalibration (freq, profileId);
+    }
+    else if (sender == phaseGraph.get())
+    {
+        processor.startPhaseCalibration (freq, profileId);
+    }
 }
 
-void CabinEqPage::playValueAt (float freq, float ampl)
+void CabinEqPage::updatePlayingValueAt (float freq, CabinEqGraph* sender)
 {
-    processor.updatePlayingFreq (freq, profileId); // hacky way to make this impact pan
-//    processor.updateSineSweep (freq, profileId);
+    if (sender == amplGraph.get())
+    {
+        processor.updateAmplCalibration (freq, profileId);
+    }
+    else if (sender == panGraph.get())
+    {
+        processor.updatePanCalibration (freq, profileId);
+    }
+    else if (sender == phaseGraph.get())
+    {
+        processor.updatePhaseCalibration (freq, profileId);
+    }
 }
 
 void CabinEqPage::testValueAt (float freq)
@@ -219,7 +239,7 @@ void CabinEqPage::testValueAt (float freq)
 
 void CabinEqPage::stopPlaying()
 {
-    processor.endCalibratingEQNode();
+    processor.stopCalibration();
     processor.endSineSweep();
 }
 
