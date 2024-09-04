@@ -26,6 +26,16 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurv
     
     for (int i = 0; i < 2 * numPoints; ++i)
     {
+//        if (i % 2 == 0)
+//        {
+//            leftFreqResponse[i] = amplResponse[i];
+//            rightFreqResponse[i] = amplResponse[i];
+//        }
+//        else
+//        {
+//            leftFreqResponse[i] = 0;
+//            rightFreqResponse[i] = 0;
+//        }
         leftFreqResponse[i] = leftFreqResp[i];
         rightFreqResponse[i] = rightFreqResp[i];
     }

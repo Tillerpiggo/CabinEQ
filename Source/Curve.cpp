@@ -366,7 +366,7 @@ std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyRespo
     std::vector<float> rightFreqResponse (2 * numPoints, 0);
     for (int i = 0; i < numPoints / 2; ++i)
     {
-        float t = static_cast<float>(2 * i) / (numPoints); // round down i to even num
+        float t = static_cast<float>(2 * i) / (numPoints);
         
         auto ampl = amplCurve.valueAtTime (t);
         auto pan = panCurve.valueAtTime (t);
@@ -389,10 +389,10 @@ std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyRespo
         auto phase = phaseCurve.valueAtTime (1 - t);
         
         // Ignore phase (again), just for now
-        leftFreqResponse[2 * i] = juce::Decibels::decibelsToGain (ampl - 0.5 * pan); // real component
-        rightFreqResponse[2 * i] = juce::Decibels::decibelsToGain (ampl + 0.5 * pan); // real component
-        leftFreqResponse[2 * i + 1] = 0; // imaginary component
-        rightFreqResponse[2 * i + 1] = 0; // imaginary component
+        leftFreqResponse[2 * i + numPoints] = juce::Decibels::decibelsToGain (ampl - 0.5 * pan); // real component
+        rightFreqResponse[2 * i + numPoints] = juce::Decibels::decibelsToGain (ampl + 0.5 * pan); // real component
+        leftFreqResponse[2 * i + 1 + numPoints] = 0; // imaginary component
+        rightFreqResponse[2 * i + 1 + numPoints] = 0; // imaginary component
     }
     
     return { leftFreqResponse, rightFreqResponse };
