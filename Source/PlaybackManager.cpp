@@ -158,19 +158,19 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 //    sineSweepGenerator.updateCenterFrequency (centerFreq, ampl);
 }
 
-void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
+void PlaybackManager::startPlayingFreq (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
     auto refNotes = getNotesForCalibrationAt (1000.0f, 0.0f, true, true);
-    auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
+    auto controlledNotes = getNotesForCalibration (freq, amplCurve, panCurve, phaseCurve, true, false);
     arbitrarySequencer.setNotes (refNotes);
     arbitrarySequencer2.setNotes (controlledNotes);
 }
 
 // TODO: Add panning here
-void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve)
+void PlaybackManager::updatePlayingFreq (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
     auto refNotes = getNotesForCalibrationAt (1000.0f, 0.0f, true, true);
-    auto controlledNotes = getNotesForCalibration (freq, amplCurve, true, false);
+    auto controlledNotes = getNotesForCalibration (freq, amplCurve, panCurve, phaseCurve, true, false);
     arbitrarySequencer.updateNotes (refNotes);
     arbitrarySequencer2.updateNotes (controlledNotes);
 }
@@ -281,16 +281,17 @@ juce::dsp::IIR::Coefficients<float>::Ptr PlaybackManager::createDelayCoefficient
     return coefs;
 }
 
-std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float freq, Curve& amplCurve, bool alternateSilence, bool alternateSilenceBefore)
+std::vector<SequenceableNote> PlaybackManager::getNotesForCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, bool alternateSilence, bool alternateSilenceBefore)
 {
     float ampl = amplCurve.valueAtFrequency (freq);
-    ampl = juce::Decibels::gainToDecibels (ampl);
     ampl += getCompensationDBAtFrequency (freq);
     
-    return getNotesForCalibrationAt (freq, ampl, alternateSilence, alternateSilenceBefore, true);
+    float pan = panCurve.valueAtFrequency (freq);
+    
+    return getNotesForCalibrationAt (freq, ampl, pan, alternateSilence, alternateSilenceBefore, true);
 }
 
-std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float freq, float ampl, bool alternateSilence, bool alternateSilenceBefore, bool changeAmpl)
+std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float freq, float ampl, float pan, float phase, bool alternateSilence, bool alternateSilenceBefore, bool changeAmpl)
 {
     // Play reference note and then do below - controlled - above
     int noteDurationInSamples = 1000;
@@ -298,7 +299,7 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForCalibrationAt (float f
     StereoGainEnvelope envelope (500);
     
     // Notes that will be used regardless
-    SequenceableNote mainNote (freq, ampl, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote mainNote (freq, ampl, pan, noteDurationInSamples, envelope);
     SequenceableNote silentNote (0.0f, 0.0f, 0.0f, noteDurationInSamples, StereoGainEnvelope::silent());
     
     std::vector<SequenceableNote> controlledNotes;

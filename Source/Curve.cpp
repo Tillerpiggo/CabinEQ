@@ -10,7 +10,7 @@
 
 #include "Curve.h"
 
-const float Curve::compensatedValueAtFrequency (float frequency, float compensationSlope) const
+const float Curve::valueAtFrequency (float frequency) const
 {
     // Create amplitudes from eqNodes
     std::vector<float> values;
@@ -20,44 +20,10 @@ const float Curve::compensatedValueAtFrequency (float frequency, float compensat
     }
     
     float valueAtFrequency = interpolateValueAtFrequency (frequency, values);
-    if (frequency > 20.0f)
-    {
-        float dbDifference = -compensationSlope * std::log2 ((frequency) / 1000.0f);
-        valueAtFrequency += dbDifference;
-    }
-    else
-    {
-        float dbDifference = -compensationSlope * std::log2 ((20.0f) / 1000.0f);
-        valueAtFrequency += dbDifference;
-    }
-//    // Apply dropoff here:
-//    if (frequency > 20)
-//    {
-//        float dbDifference = std::log2 (1000.0f / frequency);
-//        float radius = 10.0f;
-//        float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
-//        dropoff = -10 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
-//        valueAtFrequency += dropoff;
-//    }
-//    else
-//    {
-//        float dbDifference = std::log2 (1000.0f / 20.0f);
-//        float radius = 10.0f;
-//        float dropoff = radius - std::sqrt (radius * radius - dbDifference * dbDifference);
-//        dropoff = -10 * std::log10 (dropoff / 8.0f); // convert to db difference to account for quadratic dropoff of distance with db
-//        valueAtFrequency += dropoff;
-//    }
-    
-//    valueAtFrequency *= 0.5;
-//
-//    float dbDifference = -4.5 * std::log2 (frequency / 1000.0f);
-//    float baseDB = 85.0f;
-//    valueAtFrequency -= inverseFM.valueAtFrequency (frequency, baseDB + dbDifference) - inverseFM.valueAtFrequency (frequency, baseDB);
-//    valueAtFrequency += inverseFM.valueAtFrequency (frequency, 65.0f);
     return valueAtFrequency;
 }
 
-const float Curve::valueAtFrequency (float frequency)
+const float Curve::visualValueAtFrequency (float frequency)
 {
     if (cache.find(frequency) != cache.end())
     {
@@ -70,15 +36,14 @@ const float Curve::valueAtFrequency (float frequency)
         values.push_back (curvePt.val);
     }
     
-    float valueAtFrequency = juce::Decibels::decibelsToGain (visualInterpolateAmplitudeAtFrequency(frequency));
-//    cache[frequency] = valueAtFrequency;
+    float valueAtFrequency = visualInterpolateAmplitudeAtFrequency(frequency);
     
     return valueAtFrequency;
 }
 
 const float Curve::valueAtTime (float t)
 {
-    return compensatedValueAtFrequency (t * 22050, 0.0);
+    return valueAtFrequency (t * 22050);
 }
 
 const std::vector<CurvePt>& Curve::getCurvePts()

@@ -82,8 +82,8 @@ void SineSweepGenerator::incrementFreq()
         else currFreq /= FREQ_STEP;
         
 //        float dbDifference = currAmpl.has_value() ? currAmpl.value() : 0.0f;
-        float dbDifference = juce::Decibels::gainToDecibels (amplCurve.valueAtFrequency (currFreq));
-        float pan = juce::Decibels::gainToDecibels (panCurve.valueAtFrequency (currFreq));
+        float dbDifference = amplCurve.valueAtFrequency (currFreq);
+        float pan = panCurve.valueAtFrequency(currFreq);
         sineWaveGenerator.setNote (Note (currFreq, BASE_DB + dbDifference, pan));
     }
     

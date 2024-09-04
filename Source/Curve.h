@@ -25,8 +25,8 @@ public:
     Curve() = default;
     virtual ~Curve() = default;
 
-    const float compensatedValueAtFrequency (float frequency, float compensationSlope) const; // returns value in dB
-    const float valueAtFrequency (float frequency); // returns value in gain
+    const float valueAtFrequency (float frequency) const; // returns value in dB
+    const float visualValueAtFrequency (float frequency); // returns value in dB
     virtual const float valueAtTime (float time); // returns value in dB
     
     float catmullRom (float t, float y0, float y1, float y2, float y3) const;

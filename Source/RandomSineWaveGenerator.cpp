@@ -55,7 +55,7 @@ void RandomSineWaveGenerator::randomizeNote()
     
     float ampl = -8.0 * std::log2 (frequency / 1000.0f); // musical slant
     if (curve.has_value())
-        ampl += juce::Decibels::gainToDecibels (curve->valueAtFrequency (frequency));
+        ampl += curve->valueAtFrequency (frequency);
     
     currNote = SequenceableNote (frequency, ampl, 0.0f, noteLengthInSamples, StereoGainEnvelope (500));
     sineWaveGenerator.setNote (currNote.getNote());

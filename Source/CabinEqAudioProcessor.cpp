@@ -385,7 +385,8 @@ void CabinEqAudioProcessor::startPlayingFreq (float freq, juce::String profileNa
     {
         playbackManager.startPlayingFreq (freq,
                                           profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve());
+                                          profile->get().getPanCurve(),
+                                          profile->get().getPhaseCurve());
         playbackManager.setIsCalibrating (true);
     }
 }
@@ -408,8 +409,9 @@ void CabinEqAudioProcessor::updatePlayingFreq (float freq, juce::String profileN
     if (profile.has_value())
     {
         playbackManager.updatePlayingFreq (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve());
+                                           profile->get().getAmplCurve(),
+                                           profile->get().getPanCurve(),
+                                           profile->get().getPhaseCurve());
     }
 }
 

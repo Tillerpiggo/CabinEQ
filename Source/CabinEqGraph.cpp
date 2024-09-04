@@ -260,7 +260,7 @@ void CabinEqGraph::drawCurve (juce::Graphics& g, Curve& curve, int numPoints)
         float t = static_cast<float> (i) / static_cast<float> (numPoints);
         
         float freq = frequencyAtTime (t);
-        float val = juce::Decibels::gainToDecibels (curve.valueAtFrequency (freq));
+        float val = curve.visualValueAtFrequency (freq);
         juce::Point<float> coords = coordsForCurvePt (freq, val);
         if (i == 0)
             path.startNewSubPath (coords);
@@ -319,7 +319,7 @@ void CabinEqGraph::drawDots (juce::Graphics& g, Curve& curve)
         
         // Calculate coordinates of node
         float testingFreq = getCurrTestingFreq();
-        juce::Point<float> point = coordsForCurvePt (testingFreq, juce::Decibels::gainToDecibels (curve.valueAtFrequency (testingFreq)));
+        juce::Point<float> point = coordsForCurvePt (testingFreq, curve.visualValueAtFrequency (testingFreq));
         
         // Draw node
         drawDot (g, point, selectedDotSize, testDotColor);
@@ -333,7 +333,7 @@ void CabinEqGraph::drawDots (juce::Graphics& g, Curve& curve)
         juce::Colour addingDotColor = getColorForFrequency (addingFreq.value()).withAlpha (0.5f);
         
         // Calculate coordinates of node
-        float addingAmpl = juce::Decibels::gainToDecibels (curve.valueAtFrequency (addingFreq.value()));
+        float addingAmpl = curve.visualValueAtFrequency (addingFreq.value());
         juce::Point<float> point = coordsForCurvePt (addingFreq.value(), addingAmpl);
         float addingDotRadius = DOT_SIZE_DEFAULT;
         
@@ -550,8 +550,7 @@ float CabinEqGraph::mouseEventDistanceFromCurvePt (const juce::MouseEvent& event
 
 float CabinEqGraph::dbDistanceFromCurve (const float freq, const float ampl, Curve& curve) const
 {
-    float curveGainAtFreq = curve.valueAtFrequency (freq);
-    float curveDBAtFreq = juce::Decibels::gainToDecibels (curveGainAtFreq);
+    float curveDBAtFreq = curve.visualValueAtFrequency (freq);
     return std::abs (ampl - curveDBAtFreq);
 }
 

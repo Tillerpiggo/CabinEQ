@@ -71,7 +71,7 @@ const Note SequenceableNote::getNote() const
 
 const SequenceableNote SequenceableNote::withAmplitudeChange (float amplChange) const
 {
-    return SequenceableNote (getNote().frequency, getNote().amplitude + amplChange, getNote().pan, getDuration());
+    return SequenceableNote (getNote().frequency, getNote().amplitude + amplChange, getNote().pan, getDuration(), envelope);
 }
 
 const SequenceableNote SequenceableNote::withPan (float pan) const
