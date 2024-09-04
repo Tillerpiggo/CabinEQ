@@ -215,7 +215,10 @@ void CabinEqAudioProcessor::applyCurve (int fftSize, juce::String profileName)
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.updateFilterWithCurves (profile->get().getAmplCurve(), profile->get().getPanCurve(), fftSize);
+        playbackManager.updateFilterWithCurves (profile->get().getAmplCurve(), 
+                                                profile->get().getPanCurve(),
+                                                profile->get().getPhaseCurve(),
+                                                fftSize);
     }
         
 }

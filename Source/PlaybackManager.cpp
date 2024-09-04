@@ -79,9 +79,9 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     }
 }
 
-void PlaybackManager::updateFilterWithCurves (Curve& amplCurve, Curve& panCurve, int fftSize)
+void PlaybackManager::updateFilterWithCurves (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fftSize)
 {
-    filter.updateWithCurves (amplCurve, panCurve, fftSize);
+    filter.updateWithCurves (amplCurve, panCurve, phaseCurve, fftSize);
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)

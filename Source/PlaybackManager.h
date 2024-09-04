@@ -28,7 +28,7 @@ public:
 
     void processBlock (juce::AudioBuffer<float>& buffer);
     
-    void updateFilterWithCurves (Curve& amplCurve, Curve& panCurve, int fftSize); // update the current filter with the curve
+    void updateFilterWithCurves (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fftSize); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     float getCurrPlayingFreq() const;

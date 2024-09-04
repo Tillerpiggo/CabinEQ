@@ -25,9 +25,9 @@ public:
     Curve() = default;
     virtual ~Curve() = default;
 
-    const float compensatedValueAtFrequency (float frequency, float compensationSlope) const;
-    const float valueAtFrequency (float frequency);
-    virtual const float valueAtTime (float time);
+    const float compensatedValueAtFrequency (float frequency, float compensationSlope) const; // returns value in dB
+    const float valueAtFrequency (float frequency); // returns value in gain
+    virtual const float valueAtTime (float time); // returns value in dB
     
     float catmullRom (float t, float y0, float y1, float y2, float y3) const;
     
@@ -41,7 +41,7 @@ public:
     const std::optional<std::vector<float>> getFirstThreeFreqs();
     const std::optional<std::vector<float>> getFirstFourFreqs();
 
-    
+    static std::pair<std::vector<float>, std::vector<float>> getStereoFrequencyResponse (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int numPoints); // returns stereo frequency response, with real values interweaved with imaginary values for each complex number
 //    const float* getImpulse (int fft_size); // This hands ownership of the float*'s to whoever calls it!!
 
 protected:

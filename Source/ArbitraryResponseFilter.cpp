@@ -10,32 +10,24 @@
 
 #include "ArbitraryResponseFilter.h"
 
-void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurve, int fft_size)
+void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fft_size)
 {
     // Get left & right impulse data
     juce::dsp::FFT fft (fft_size);
     int numPoints = fft.getSize();
     
-    auto amplResponse = amplCurve.getFrequencyResponse (numPoints);
-    auto panResponse = panCurve.getFrequencyResponse (numPoints);
+//    auto amplResponse = amplCurve.getFrequencyResponse (numPoints);
+//    auto panResponse = panCurve.getFrequencyResponse (numPoints);
+    
+    auto [leftFreqResp, rightFreqResp] = Curve::getStereoFrequencyResponse (amplCurve, panCurve, phaseCurve, numPoints);
     
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];
     
     for (int i = 0; i < 2 * numPoints; ++i)
     {
-        if (i % 2 == 0)
-        {
-            float pan = panResponse[i];
-            if (pan == 0) pan = 1;
-            leftFreqResponse[i] = amplResponse[i];// / std::sqrt (pan);
-            rightFreqResponse[i] = amplResponse[i];// * std::sqrt (pan);
-        }
-        else
-        {
-            leftFreqResponse[i] = 0;
-            rightFreqResponse[i] = 0;
-        }
+        leftFreqResponse[i] = leftFreqResp[i];
+        rightFreqResponse[i] = rightFreqResp[i];
     }
     
     fft.performRealOnlyInverseTransform (leftFreqResponse);

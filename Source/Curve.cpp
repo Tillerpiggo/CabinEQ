@@ -54,7 +54,7 @@ const float Curve::compensatedValueAtFrequency (float frequency, float compensat
 //    float baseDB = 85.0f;
 //    valueAtFrequency -= inverseFM.valueAtFrequency (frequency, baseDB + dbDifference) - inverseFM.valueAtFrequency (frequency, baseDB);
 //    valueAtFrequency += inverseFM.valueAtFrequency (frequency, 65.0f);
-    return juce::Decibels::decibelsToGain (valueAtFrequency);
+    return valueAtFrequency;
 }
 
 const float Curve::valueAtFrequency (float frequency)
@@ -358,4 +358,42 @@ const std::optional<std::vector<float>> Curve::getFirstFourFreqs()
     {
         return std::nullopt;
     }
+}
+
+std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyResponse (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int numPoints)
+{
+    std::vector<float> leftFreqResponse (2 * numPoints, 0);
+    std::vector<float> rightFreqResponse (2 * numPoints, 0);
+    for (int i = 0; i < numPoints / 2; ++i)
+    {
+        float t = static_cast<float>(2 * i) / (numPoints); // round down i to even num
+        
+        auto ampl = amplCurve.valueAtTime (t);
+        auto pan = panCurve.valueAtTime (t);
+        auto phase = phaseCurve.valueAtTime (t);
+        
+        // Ignore phase, just for now
+        leftFreqResponse[2 * i] = juce::Decibels::decibelsToGain (ampl - 0.5 * pan); // real component
+        rightFreqResponse[2 * i] = juce::Decibels::decibelsToGain (ampl + 0.5 * pan); // real component
+        leftFreqResponse[2 * i + 1] = 0; // imaginary component
+        rightFreqResponse[2 * i + 1] = 0; // imaginary component
+    }
+    
+    // TODO: this seems redundant. Can't we just read off the values we've calculate so far in reverse?
+    for (int i = 0; i < numPoints / 2; ++i)
+    {
+        float t = static_cast<float>(2 * i) / (numPoints);
+        
+        auto ampl = amplCurve.valueAtTime (1 - t);
+        auto pan = panCurve.valueAtTime (1 - t);
+        auto phase = phaseCurve.valueAtTime (1 - t);
+        
+        // Ignore phase (again), just for now
+        leftFreqResponse[2 * i] = juce::Decibels::decibelsToGain (ampl - 0.5 * pan); // real component
+        rightFreqResponse[2 * i] = juce::Decibels::decibelsToGain (ampl + 0.5 * pan); // real component
+        leftFreqResponse[2 * i + 1] = 0; // imaginary component
+        rightFreqResponse[2 * i + 1] = 0; // imaginary component
+    }
+    
+    return { leftFreqResponse, rightFreqResponse };
 }
