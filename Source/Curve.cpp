@@ -382,10 +382,10 @@ std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyRespo
         auto pan = panCurve.valueAtTime (t);
         auto phase = phaseCurve.valueAtTime (t);
         
-        auto leftMagnitude = juce::Decibels::decibelsToGain (ampl - 0.5 * pan);
-        auto rightMagnitude = juce::Decibels::decibelsToGain (ampl + 0.5 * pan);
-        auto leftComplexVal = std::polar (leftMagnitude, -0.5 * phase);
-        auto rightComplexVal = std::polar (rightMagnitude, 0.5 * phase);
+        auto leftMagnitude = juce::Decibels::decibelsToGain (ampl - (pan < 0 ? pan : 0));
+        auto rightMagnitude = juce::Decibels::decibelsToGain (ampl + (pan > 0 ? pan : 0));
+//        auto leftComplexVal = std::polar (leftMagnitude, -0.5 * phase);
+//        auto rightComplexVal = std::polar (rightMagnitude, 0.5 * phase);
         
         // Ignore phase, just for now
         leftFreqResponse[2 * i] = leftMagnitude;//leftComplexVal.real();

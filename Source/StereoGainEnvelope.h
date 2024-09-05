@@ -28,8 +28,9 @@ public:
     StereoGainEnvelope (int rampDurationInSamples = 500);
     StereoGainEnvelope (int startRampDurationInSamples, int endRampDurationInSamples, int endEarlyInSamples);
     StereoGainEnvelope (int rampDurationInSamples, int rightDelayInSamples);
-    StereoGainEnvelope (float pan, int rampDurationInSamples = 500); // pan goes from -1 (hard left) to 1 (hard right)
+    StereoGainEnvelope (float pan, int leftRampDurationInSamples, int rightRampDurationInSamples, int leftDelayInSamples, int rightDelayInSamples);
     StereoGainEnvelope (StereoGainEnvelopeType type, int rampDurationInSamples = 500);
+    StereoGainEnvelope (GainEnvelope leftEnvelope, GainEnvelope rightEnvelope, int leftDelayInSamples, int rightDelayInSamples); // creates envelope with the two envelopes, but adds the left delay and right delay on top of whatever was already there.
     
     const std::pair<float, float> getGainAtSample (int sample, int noteDurationInSamples) const;
     
@@ -48,7 +49,8 @@ public:
         return StereoGainEnvelope (StereoGainEnvelopeType::SILENT);
     }
     
-    StereoGainEnvelope withPan (float pan) const; // DOESN'T WORK WITH STEREO GAIN ENVELOPES
+    StereoGainEnvelope withPan (float pan) const;
+    StereoGainEnvelope withPhase (float phase, float freq) const;
     
 private:
     GainEnvelope leftRamp;

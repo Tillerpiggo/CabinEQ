@@ -33,10 +33,12 @@ StereoGainEnvelope::StereoGainEnvelope (int rampDurationInSamples, int rightDela
     rightRamp.setStartDelayInSamples(rightDelayInSamples);
 }
 
-StereoGainEnvelope::StereoGainEnvelope (float pan, int rampDurationInSamples)
+StereoGainEnvelope::StereoGainEnvelope (float pan, int leftRampDurationInSamples, int rightRampDurationInSamples, int leftDelayInSamples, int rightDelayInSamples)
 {
-    leftRamp.setRampDurationInSamples (rampDurationInSamples);
-    rightRamp.setRampDurationInSamples (rampDurationInSamples);
+    leftRamp.setRampDurationInSamples (leftRampDurationInSamples);
+    rightRamp.setRampDurationInSamples (rightRampDurationInSamples);
+    leftRamp.setStartDelayInSamples (leftDelayInSamples);
+    rightRamp.setStartDelayInSamples (rightDelayInSamples);
     
     // Assume normal target gain of 1.0 in left and right
     float angle = pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
@@ -70,6 +72,14 @@ StereoGainEnvelope::StereoGainEnvelope (StereoGainEnvelopeType type, int rampDur
     }
 }
 
+StereoGainEnvelope::StereoGainEnvelope (GainEnvelope leftEnvelope, GainEnvelope rightEnvelope, int leftDelayInSamples, int rightDelayInSamples)
+{
+    leftRamp = leftEnvelope;
+    rightRamp = rightEnvelope;
+    leftRamp.setStartDelayInSamples (leftEnvelope.getStartDelayInSamples() + leftDelayInSamples);
+    rightRamp.setStartDelayInSamples (rightEnvelope.getStartDelayInSamples() + rightDelayInSamples);
+}
+
 const std::pair<float, float> StereoGainEnvelope::getGainAtSample (int sample, int noteDurationInSamples) const
 {
     float leftSample = leftRamp.gainAtSample (sample, noteDurationInSamples);
@@ -79,5 +89,12 @@ const std::pair<float, float> StereoGainEnvelope::getGainAtSample (int sample, i
 
 StereoGainEnvelope StereoGainEnvelope::withPan (float pan) const
 {
-    return StereoGainEnvelope (pan, leftRamp.getStartDurationInSamples());
+    return StereoGainEnvelope (pan, leftRamp.getStartDurationInSamples(), rightRamp.getStartDurationInSamples(), leftRamp.getStartDelayInSamples(), rightRamp.getStartDelayInSamples());
+}
+
+StereoGainEnvelope StereoGainEnvelope::withPhase (float phase, float freq) const
+{
+    // Calculate needed delay
+    int delayInSamples = (44100 / freq) * 2 * M_PI / std::abs (phase) ; // TODO: USE CORRECT SAMPLE RATE
+    return StereoGainEnvelope (leftRamp, rightRamp, (phase < 0 ? delayInSamples : 0), (phase > 0 ? delayInSamples : 0));
 }

@@ -91,5 +91,5 @@ const SequenceableNote SequenceableNote::withPan (float pan) const
 
 const SequenceableNote SequenceableNote::withPhase (float phaseOffset) const
 {
-    return SequenceableNote (getNote().frequency, getNote().amplitude, getNote().pan, getNote().phase + phaseOffset, getDuration(), envelope);
+    return SequenceableNote (getNote().frequency, getNote().amplitude, getNote().pan, getNote().phase + phaseOffset, getDuration(), envelope.withPhase (phaseOffset, getNote().frequency));
 }

@@ -163,8 +163,8 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
     
-    float leftDB = ampl - 0.5 * pan;
-    float rightDB = ampl + 0.5 * pan;
+    float leftDB = ampl - (pan < 0 ? pan : 0);
+    float rightDB = ampl + (pan > 0 ? pan : 0);
     
     // Tremolo
     float angle = tremoloPan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]

@@ -20,6 +20,7 @@ public:
     const float gainAtSample (int sample, int noteDurationInSamples) const;
     
     float getStartDurationInSamples() const;
+    float getStartDelayInSamples() const;
     
     void setRampDurationInSamples (int duration);
     void setStartDurationInSamples (int startDuration);

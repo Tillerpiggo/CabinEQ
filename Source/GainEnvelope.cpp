@@ -21,6 +21,11 @@ float GainEnvelope::getStartDurationInSamples() const
     return startDurationInSamples;
 }
 
+float GainEnvelope::getStartDelayInSamples() const
+{
+    return startDelayInSamples;
+}
+
 const float GainEnvelope::gainAtSample (int sample, int noteDurationInSamples) const
 {
     int startRampEnd = startDelayInSamples + startDurationInSamples;
@@ -28,7 +33,7 @@ const float GainEnvelope::gainAtSample (int sample, int noteDurationInSamples) c
     
     // Make sure ramps don't overlap
     if (startRampEnd > endRampStart) {
-        throw std::runtime_error("Warning: The initial and end ramps overlap.");
+//        throw std::runtime_error("Warning: The initial and end ramps overlap.");
     }
 
     // Start ramp
