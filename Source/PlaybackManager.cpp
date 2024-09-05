@@ -181,6 +181,7 @@ void PlaybackManager::startLeftAmplCalibration (float freq, Curve& leftAmplCurve
     arbitrarySequencer2.setNotes ({ controlledNote, silentNote });
     arbitrarySequencer3.setNotes ({ refNote2, silentNote2 });
     arbitrarySequencer4.setNotes ({ refNote3, silentNote2 });
+    arbitrarySequencer5.setNotes ({ controlledNote.withAmplitudeChange (-10.0f), silentNote2 });
 }
 
 void PlaybackManager::updateLeftAmplCalibration (float freq, Curve& leftAmplCurve)
@@ -205,7 +206,7 @@ void PlaybackManager::updateLeftAmplCalibration (float freq, Curve& leftAmplCurv
     arbitrarySequencer.updateNotes ({ refNote, silentNote, refNoteToo, silentNote });
     arbitrarySequencer2.updateNotes ({ controlledNote, silentNote });
     arbitrarySequencer3.updateNotes ({ refNote2, silentNote2 });
-    arbitrarySequencer4.updateNotes ({ refNote3, silentNote2 });
+    arbitrarySequencer5.updateNotes ({ controlledNote.withAmplitudeChange (-10.0f), silentNote2 });
 }
 
 void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCurve)
@@ -231,6 +232,7 @@ void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCur
     arbitrarySequencer2.setNotes ({ controlledNote, silentNote });
     arbitrarySequencer3.setNotes ({ refNote2, silentNote2 });
     arbitrarySequencer4.setNotes ({ refNote3, silentNote2 });
+    arbitrarySequencer5.setNotes ({ controlledNote.withAmplitudeChange (-10.0f), silentNote2 });
 }
 
 void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCurve)
@@ -256,6 +258,8 @@ void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCu
     arbitrarySequencer2.updateNotes ({ controlledNote, silentNote });
     arbitrarySequencer3.updateNotes ({ refNote2, silentNote2 });
     arbitrarySequencer4.updateNotes ({ refNote3, silentNote2 });
+    arbitrarySequencer4.updateNotes ({ refNote3, silentNote2 });
+    arbitrarySequencer5.updateNotes ({ controlledNote.withAmplitudeChange (-10.0f), silentNote2 });
 }
 
 
@@ -328,8 +332,9 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto sample1 = arbitrarySequencer2.getNextSample();
     auto sample2 = arbitrarySequencer3.getNextSample();
     auto sample3 = arbitrarySequencer4.getNextSample();
+    auto sample4 = arbitrarySequencer5.getNextSample();
     
-    return getSumOfSamples ({ sample0, sample1, sample2, sample3 });
+    return getSumOfSamples ({ sample0, sample1, sample2, sample3, sample4 });
 }
 
 std::pair<float, float> PlaybackManager::getSumOfSamples (std::vector<std::pair<float, float>> samples)
