@@ -225,7 +225,7 @@ void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCu
     
     SequenceableNote refNote (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1);
     SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples, envelope1);
-    SequenceableNote refNote2 (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
+    SequenceableNote refNote2 (2000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
     SequenceableNote refNote3 (500.0f, 6.0, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
     SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1);
     SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
