@@ -20,6 +20,8 @@ const float Curve::valueAtFrequency (float frequency) const
     }
     
     float valueAtFrequency = interpolateValueAtFrequency (frequency, values);
+//    valueAtFrequency += 4.5 * std::log2 (std::max (20.0f, frequency) / 1000.0f);
+//    valueAtFrequency += inverseFM.valueAtFrequency (frequency, 0.0f);
     return valueAtFrequency;
 }
 
@@ -370,7 +372,7 @@ const std::optional<std::vector<float>> Curve::getFirstFourFreqs()
     }
 }
 
-std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyResponse (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int numPoints)
+std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyResponse (Curve& leftAmplCurve, Curve& rightAmplCurve, int numPoints)
 {
     std::vector<float> leftFreqResponse (2 * numPoints, 0);
     std::vector<float> rightFreqResponse (2 * numPoints, 0);
@@ -378,18 +380,17 @@ std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyRespo
     {
         float t = static_cast<float>(2 * i) / (numPoints);
         
-        auto ampl = amplCurve.valueAtTime (t);
-        auto pan = panCurve.valueAtTime (t);
-        auto phase = phaseCurve.valueAtTime (t);
+        auto leftAmpl = leftAmplCurve.valueAtTime (t);
+        auto rightAmpl = rightAmplCurve.valueAtTime (t);
         
-        auto leftMagnitude = juce::Decibels::decibelsToGain (ampl - (pan < 0 ? pan : 0));
-        auto rightMagnitude = juce::Decibels::decibelsToGain (ampl + (pan > 0 ? pan : 0));
+        auto leftGain = juce::Decibels::decibelsToGain (leftAmpl);
+        auto rightGain = juce::Decibels::decibelsToGain (rightAmpl);
 //        auto leftComplexVal = std::polar (leftMagnitude, -0.5 * phase);
 //        auto rightComplexVal = std::polar (rightMagnitude, 0.5 * phase);
         
         // Ignore phase, just for now
-        leftFreqResponse[2 * i] = leftMagnitude;//leftComplexVal.real();
-        rightFreqResponse[2 * i] = rightMagnitude;//rightComplexVal.real();
+        leftFreqResponse[2 * i] = leftGain;//leftComplexVal.real();
+        rightFreqResponse[2 * i] = rightGain;//rightComplexVal.real();
         leftFreqResponse[2 * i + 1] = 0;//leftComplexVal.imag();
         rightFreqResponse[2 * i + 1] = 0;//rightComplexVal.imag();
     }

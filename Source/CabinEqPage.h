@@ -82,9 +82,8 @@ protected:
     int fftSize = 16;
     
     juce::TabbedComponent graphs;
-    std::unique_ptr<CabinEqGraph> amplGraph;
-    std::unique_ptr<CabinEqGraph> panGraph;
-    std::unique_ptr<CabinEqGraph> phaseGraph;
+    std::unique_ptr<CabinEqGraph> leftAmplGraph;
+    std::unique_ptr<CabinEqGraph> rightAmplGraph;
     juce::ComboBox profileDropdown;
     juce::ComboBox filterQualityDropdown;
     juce::Slider referenceSlider;

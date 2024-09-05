@@ -27,7 +27,7 @@ public:
     
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept { convolution->process (context); }
-    void updateWithCurves (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fft_size = 4);
+    void updateWithCurves (Curve& leftAmplCurve, Curve& rightAmplCurve, int fft_size = 4);
     
     void prepare (const juce::dsp::ProcessSpec& spec)
     {

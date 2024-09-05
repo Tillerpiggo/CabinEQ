@@ -215,9 +215,8 @@ void CabinEqAudioProcessor::applyCurve (int fftSize, juce::String profileName)
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.updateFilterWithCurves (profile->get().getAmplCurve(), 
-                                                profile->get().getPanCurve(),
-                                                profile->get().getPhaseCurve(),
+        playbackManager.updateFilterWithCurves (profile->get().getLeftAmplCurve(),
+                                                profile->get().getRightAmplCurve(),
                                                 fftSize);
     }
         
@@ -243,132 +242,100 @@ void CabinEqAudioProcessor::setDryVolume (float dryVolume)
     playbackManager.setDryVolume (dryVolume);
 }
 
-std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getAmplCurve (juce::String profileName)
+std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getLeftAmplCurve (juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getAmplCurve();
+        return profile->get().getLeftAmplCurve();
     std::cout << "unable to get ampl curve in pluginProcessor for profile named " << profileName << std::endl;
     return std::nullopt;
 }
 
-std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getPanCurve (juce::String profileName)
+std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getRightAmplCurve (juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getPanCurve();
+        return profile->get().getRightAmplCurve();
     std::cout << "unable to get pan curve in pluginProcessor for profile named " << profileName << std::endl;
     return std::nullopt;
 }
 
-std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getPhaseCurve (juce::String profileName)
+const std::vector<CurvePt> CabinEqAudioProcessor::getLeftAmplPts (juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getPhaseCurve();
-    std::cout << "unable to get pan curve in pluginProcessor for profile named " << profileName << std::endl;
-    return std::nullopt;
-}
-
-const std::vector<CurvePt> CabinEqAudioProcessor::getAmplPts (juce::String profileName) const
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getAmplPts();
+        return profile->get().getLeftAmplPts();
     return {};
 }
 
-const std::vector<CurvePt> CabinEqAudioProcessor::getPanPts (juce::String profileName) const
+const std::vector<CurvePt> CabinEqAudioProcessor::getRightAmplPts (juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getPanPts();
+        return profile->get().getRightAmplPts();
     return {};
 }
 
-const std::optional<CurvePt> CabinEqAudioProcessor::getAmplPtWithId (int id, juce::String profileName) const
+const std::optional<CurvePt> CabinEqAudioProcessor::getLeftAmplPtWithId (int id, juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getAmplPtWithId (id);
+        return profile->get().getLeftAmplPtWithId (id);
     return std::nullopt;
 }
 
-const std::optional<CurvePt> CabinEqAudioProcessor::getPanPtWithId (int id, juce::String profileName) const
+const std::optional<CurvePt> CabinEqAudioProcessor::getRightAmplPtWithId (int id, juce::String profileName) const
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().getPanPtWithId (id);
+        return profile->get().getRightAmplPtWithId (id);
     return std::nullopt;
 }
 
-int CabinEqAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)
+int CabinEqAudioProcessor::addLeftAmplPt (const float freq, const float ampl, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().addAmplPt (freq, ampl);
+        return profile->get().addLeftAmplPt (freq, ampl);
     return -1;
 }
 
-int CabinEqAudioProcessor::addPanPt (const float freq, const float pan, juce::String profileName)
+int CabinEqAudioProcessor::addRightAmplPt (const float freq, const float pan, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().addPanPt (freq, pan);
+        return profile->get().addRightAmplPt (freq, pan);
     return -1;
 }
 
-int CabinEqAudioProcessor::addPhasePt (const float freq, const float phase, juce::String profileName)
+void CabinEqAudioProcessor::removeLeftAmplPt (const int id, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        return profile->get().addPhasePt (freq, phase);
-    return -1;
+        profile->get().removeLeftAmplPt (id);
 }
 
-void CabinEqAudioProcessor::removeAmplPt (const int id, juce::String profileName)
+void CabinEqAudioProcessor::removeRightAmplPt (const int id, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().removeAmplPt (id);
+        profile->get().removeRightAmplPt (id);
 }
 
-void CabinEqAudioProcessor::removePanPt (const int id, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().removePanPt (id);
-}
-
-void CabinEqAudioProcessor::removePhasePt (const int id, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().removePhasePt (id);
-}
-
-void CabinEqAudioProcessor::updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName)
+void CabinEqAudioProcessor::updateLeftAmplPt (const int id, const float freq, const float ampl, juce::String profileName)
 {
     currProfileName = profileName; // super hacky
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().updateAmplPt (id, freq, ampl);
+        profile->get().updateLeftAmplPt (id, freq, ampl);
 }
 
-void CabinEqAudioProcessor::updatePanPt (const int id, const float freq, const float pan, juce::String profileName)
+void CabinEqAudioProcessor::updateRightAmplPt (const int id, const float freq, const float pan, juce::String profileName)
 {
     currProfileName = profileName; // super hacky
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().updatePanPt (id, freq, pan);
-}
-
-void CabinEqAudioProcessor::updatePhasePt (const int id, const float freq, const float phase, juce::String profileName)
-{
-    currProfileName = profileName; // super hacky
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().updatePhasePt (id, freq, phase);
+        profile->get().updateRightAmplPt (id, freq, pan);
 }
 
 void CabinEqAudioProcessor::clearEQNodes (juce::String profileName)
@@ -378,80 +345,46 @@ void CabinEqAudioProcessor::clearEQNodes (juce::String profileName)
         profile->get().resetNodes();
 }
 
-void CabinEqAudioProcessor::startAmplCalibration (float freq, juce::String profileName)
+void CabinEqAudioProcessor::startLeftAmplCalibration (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.startAmplCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
+        playbackManager.startLeftAmplCalibration (freq,
+                                          profile->get().getLeftAmplCurve());
         playbackManager.setIsCalibrating (true);
     }
 }
 
-void CabinEqAudioProcessor::updateAmplCalibration (float freq, juce::String profileName)
+void CabinEqAudioProcessor::updateLeftAmplCalibration (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.updateAmplCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
+        playbackManager.updateLeftAmplCalibration (freq,
+                                          profile->get().getLeftAmplCurve());
         playbackManager.setIsCalibrating (true);
     }
 }
 
-void CabinEqAudioProcessor::startPanCalibration (float freq, juce::String profileName)
+void CabinEqAudioProcessor::startRightAmplCalibration (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.startPanCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
+        playbackManager.startRightAmplCalibration (freq,
+                                          profile->get().getRightAmplCurve());
         playbackManager.setIsCalibrating (true);
     }
 }
 
-void CabinEqAudioProcessor::updatePanCalibration (float freq, juce::String profileName)
+void CabinEqAudioProcessor::updateRightAmplCalibration (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.updatePanCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-        playbackManager.setIsCalibrating (true);
-    }
-}
-
-void CabinEqAudioProcessor::startPhaseCalibration (float freq, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.startPhaseCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-        playbackManager.setIsCalibrating (true);
-    }
-}
-
-void CabinEqAudioProcessor::updatePhaseCalibration (float freq, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.updatePhaseCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
+        playbackManager.updateRightAmplCalibration (freq,
+                                          profile->get().getRightAmplCurve());
         playbackManager.setIsCalibrating (true);
     }
 }
@@ -468,16 +401,16 @@ float CabinEqAudioProcessor::getCurrPlayingFreq()
 
 void CabinEqAudioProcessor::startTestingAt (float freq, juce::String profileName)
 {
-    auto curve = getAmplCurve (profileName); // hacky for now
-    if (curve.has_value())
-        playbackManager.startTestingFreq (freq, curve->get());
+//    auto curve = getAmplCurve (profileName); // hacky for now
+//    if (curve.has_value())
+//        playbackManager.startTestingFreq (freq, curve->get());
 }
 
 void CabinEqAudioProcessor::updateTestingAt (float freq, juce::String profileName)
 {
-    auto curve = getAmplCurve (profileName); // hacky for now
-    if (curve.has_value())
-        playbackManager.updateTestingFreq (freq, curve->get());
+//    auto curve = getAmplCurve (profileName); // hacky for now
+//    if (curve.has_value())
+//        playbackManager.updateTestingFreq (freq, curve->get());
 }
 
 void CabinEqAudioProcessor::endTesting()
@@ -527,26 +460,26 @@ void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName
 
 void CabinEqAudioProcessor::startSineSweep (float centerFreq, juce::String profileName)
 {
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.setIsSweeping (true);
-        playbackManager.startSineSweep (centerFreq,
-                                        profile->get().getAmplCurve(),
-                                        profile->get().getPanCurve());
-    }
+//    auto profile = profileNamed (profileName);
+//    if (profile.has_value())
+//    {
+//        playbackManager.setIsSweeping (true);
+//        playbackManager.startSineSweep (centerFreq,
+//                                        profile->get().getAmplCurve(),
+//                                        profile->get().getPanCurve());
+//    }
 }
 
 void CabinEqAudioProcessor::updateSineSweep (float centerFreq, juce::String profileName)
 {
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.setIsSweeping (true);
-        playbackManager.updateSineSweep (centerFreq,
-                                         profile->get().getAmplCurve(),
-                                         profile->get().getPanCurve());
-    }
+//    auto profile = profileNamed (profileName);
+//    if (profile.has_value())
+//    {
+//        playbackManager.setIsSweeping (true);
+//        playbackManager.updateSineSweep (centerFreq,
+//                                         profile->get().getAmplCurve(),
+//                                         profile->get().getPanCurve());
+//    }
 }
 
 void CabinEqAudioProcessor::endSineSweep()

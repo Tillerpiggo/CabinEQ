@@ -76,13 +76,12 @@ public:
     void setWetVolume (float wetVolume);
     void setDryVolume (float dryVolume);
     
-    std::optional<std::reference_wrapper<Curve>> getAmplCurve (juce::String profileName);
-    std::optional<std::reference_wrapper<Curve>> getPanCurve (juce::String profileName);
-    std::optional<std::reference_wrapper<Curve>> getPhaseCurve (juce::String profileName);
-    const std::vector<CurvePt> getAmplPts (juce::String profileName) const;
-    const std::vector<CurvePt> getPanPts (juce::String profileName) const;
-    const std::optional<CurvePt> getAmplPtWithId (int id, juce::String profileName) const;
-    const std::optional<CurvePt> getPanPtWithId (int id, juce::String profileName) const;
+    std::optional<std::reference_wrapper<Curve>> getLeftAmplCurve (juce::String profileName);
+    std::optional<std::reference_wrapper<Curve>> getRightAmplCurve (juce::String profileName);
+    const std::vector<CurvePt> getLeftAmplPts (juce::String profileName) const;
+    const std::vector<CurvePt> getRightAmplPts (juce::String profileName) const;
+    const std::optional<CurvePt> getLeftAmplPtWithId (int id, juce::String profileName) const;
+    const std::optional<CurvePt> getRightAmplPtWithId (int id, juce::String profileName) const;
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -101,15 +100,12 @@ public:
 //    void clearEQNodes (juce::String profileName);
     
     // Setting points (new)
-    int addAmplPt (const float freq, const float ampl, juce::String profileName);
-    int addPanPt (const float freq, const float pan, juce::String profileName);
-    int addPhasePt (const float freq, const float pan, juce::String profileName);
-    void removeAmplPt (const int id, juce::String profileName);
-    void removePanPt (const int id, juce::String profileName);
-    void removePhasePt (const int id, juce::String profileName);
-    void updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName);
-    void updatePanPt (const int id, const float freq, const float pan, juce::String profileName);
-    void updatePhasePt (const int id, const float freq, const float phase, juce::String profileName);
+    int addLeftAmplPt (const float freq, const float ampl, juce::String profileName);
+    int addRightAmplPt (const float freq, const float pan, juce::String profileName);
+    void removeLeftAmplPt (const int id, juce::String profileName);
+    void removeRightAmplPt (const int id, juce::String profileName);
+    void updateLeftAmplPt (const int id, const float freq, const float ampl, juce::String profileName);
+    void updateRightAmplPt (const int id, const float freq, const float pan, juce::String profileName);
     void clearEQNodes (juce::String profileName);
     
     // Changing points
@@ -118,12 +114,10 @@ public:
 //    void endCalibratingEQNode();
 //    float getCurrPlayingFreq();
     
-    void startAmplCalibration (float freq, juce::String profileName);
-    void updateAmplCalibration (float freq, juce::String profileName);
-    void startPanCalibration (float freq, juce::String profileName);
-    void updatePanCalibration (float freq, juce::String profileName);
-    void startPhaseCalibration (float freq, juce::String profileName);
-    void updatePhaseCalibration (float freq, juce::String profileName);
+    void startLeftAmplCalibration (float freq, juce::String profileName);
+    void updateLeftAmplCalibration (float freq, juce::String profileName);
+    void startRightAmplCalibration (float freq, juce::String profileName);
+    void updateRightAmplCalibration (float freq, juce::String profileName);
     void stopCalibration();
     float getCurrPlayingFreq();
     

@@ -17,6 +17,7 @@
 #include "PinkNoiseGenerator.h"
 #include "Constants.h"
 #include "RandomSineWaveGenerator.h"
+#include "InverseFletcherMunson.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -28,7 +29,7 @@ public:
 
     void processBlock (juce::AudioBuffer<float>& buffer);
     
-    void updateFilterWithCurves (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fftSize); // update the current filter with the curve
+    void updateFilterWithCurves (Curve& leftAmplCurve, Curve& rightAmplCurve, int fftSize); // update the current filter with the curve
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     float getCurrPlayingFreq() const;
@@ -45,12 +46,10 @@ public:
     
     void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void startPanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void updatePanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void startPhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void updatePhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void startLeftAmplCalibration (float freq, Curve& leftAmplCurve);
+    void updateLeftAmplCalibration (float freq, Curve& leftAmplCurve);
+    void startRightAmplCalibration (float freq, Curve& rightAmplCurve);
+    void updateRightAmplCalibration (float freq, Curve& rightAmplCurve);
     // TODO: add diff functions for other kinds of tests
     void startTestingFreq (float freq, Curve& curve);
     void updateTestingFreq (float freq, Curve& curve);
@@ -73,9 +72,7 @@ private:
     float getCompensationDBAtFrequency (float frequency);
     float getReferenceCompensationDBAtFrequency (float frequency);
     juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
-    std::vector<SequenceableNote> getNotesForAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, bool alternateSilence = false, bool alternateSilenceBefore = false);
-    std::vector<SequenceableNote> getNotesForAmplCalibrationAt (float freq, float ampl, float pan, float phase, bool alternateSilence = false, bool alternateSilenceBefore = false, bool changeAmpl = false);
-    std::vector<SequenceableNote> getNotesForPanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    std::vector<SequenceableNote> getNotesForAmplCalibrationAt (float freq, float ampl);
     
     const int FFT_SIZE = 15;
     
@@ -116,4 +113,6 @@ private:
     
     Note leftRefNote { REFERENCE_FREQ, 6.0f, 0.0f, 0.0f };
     Note rightRefNote { REFERENCE_FREQ, 6.0f, 0.0f, 0.0f };
+    
+    InverseFletcherMunsonCurve inverseFM;
 };

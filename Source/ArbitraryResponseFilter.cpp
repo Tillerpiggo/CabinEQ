@@ -10,7 +10,7 @@
 
 #include "ArbitraryResponseFilter.h"
 
-void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fft_size)
+void ArbitraryResponseFilter::updateWithCurves (Curve& leftAmplCurve, Curve& rightAmplCurve, int fft_size)
 {
     // Get left & right impulse data
     juce::dsp::FFT fft (fft_size);
@@ -19,7 +19,7 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& amplCurve, Curve& panCurv
 //    auto amplResponse = amplCurve.getFrequencyResponse (numPoints);
 //    auto panResponse = panCurve.getFrequencyResponse (numPoints);
     
-    auto [leftFreqResp, rightFreqResp] = Curve::getStereoFrequencyResponse (amplCurve, panCurve, phaseCurve, numPoints);
+    auto [leftFreqResp, rightFreqResp] = Curve::getStereoFrequencyResponse (leftAmplCurve, rightAmplCurve, numPoints);
     
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];

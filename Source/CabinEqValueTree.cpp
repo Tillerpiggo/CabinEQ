@@ -14,39 +14,30 @@ CabinEqValueTree::CabinEqValueTree (juce::AudioProcessorValueTreeState& apvts, c
     : apvts (apvts), profileName (identifier)
 {}
 
-const std::vector<CurvePt> CabinEqValueTree::getAmplPts() const
+const std::vector<CurvePt> CabinEqValueTree::getLeftAmplPts() const
 {
     std::vector<CurvePt> amplitudes;
     if (! valueTree.isValid())
         return amplitudes;
     
-    return getCurvePtsForValueTree (valueTree.getChildWithName (idAmplTree));
+    return getCurvePtsForValueTree (valueTree.getChildWithName (idLeftAmplTree));
 }
 
-const std::vector<CurvePt> CabinEqValueTree::getPanPts() const
+const std::vector<CurvePt> CabinEqValueTree::getRightAmplPts() const
 {
     std::vector<CurvePt> pans;
     if (! valueTree.isValid())
         return pans;
     
-    return getCurvePtsForValueTree (valueTree.getChildWithName (idPanTree));
+    return getCurvePtsForValueTree (valueTree.getChildWithName (idRightAmplTree));
 }
 
-const std::vector<CurvePt> CabinEqValueTree::getPhasePts() const
-{
-    std::vector<CurvePt> phases;
-    if (! valueTree.isValid())
-        return phases;
-    
-    return getCurvePtsForValueTree (valueTree.getChildWithName (idPhaseTree));
-}
-
-const std::optional<CurvePt> CabinEqValueTree::getAmplPtWithId (const int id) const
+const std::optional<CurvePt> CabinEqValueTree::getLeftAmplPtWithId (const int id) const
 {
     if (! valueTree.isValid())
         return std::nullopt;
     
-    auto amplPtTree = valueTree.getChildWithName (idAmplTree);
+    auto amplPtTree = valueTree.getChildWithName (idLeftAmplTree);
     if (! amplPtTree.isValid())
         return std::nullopt;
     
@@ -63,12 +54,12 @@ const std::optional<CurvePt> CabinEqValueTree::getAmplPtWithId (const int id) co
     }
 }
 
-const std::optional<CurvePt> CabinEqValueTree::getPanPtWithId (const int id) const
+const std::optional<CurvePt> CabinEqValueTree::getRightAmplPtWithId (const int id) const
 {
     if (! valueTree.isValid())
         return std::nullopt;
     
-    auto panPtTree = valueTree.getChildWithName (idPanTree);
+    auto panPtTree = valueTree.getChildWithName (idRightAmplTree);
     if (! panPtTree.isValid())
         return std::nullopt;
     
@@ -85,21 +76,21 @@ const std::optional<CurvePt> CabinEqValueTree::getPanPtWithId (const int id) con
     }
 }
 
-const std::optional<CurvePt> CabinEqValueTree::getPhasePtWithId (const int id) const
+const std::optional<CurvePt> CabinEqValueTree::getSpatialPtWithId (const int id) const
 {
     if (! valueTree.isValid())
         return std::nullopt;
     
-    auto phasePtTree = valueTree.getChildWithName (idPhaseTree);
-    if (! phasePtTree.isValid())
+    auto spatialTree = valueTree.getChildWithName (idSpatialTree);
+    if (! spatialTree.isValid())
         return std::nullopt;
     
-    auto phasePt = phasePtTree.getChildWithProperty (idId, id);
-    if (phasePt.isValid())
+    auto spatialPt = spatialTree.getChildWithProperty (idId, id);
+    if (spatialPt.isValid())
     {
-        return CurvePt (phasePt.getProperty (idId),
-                        phasePt.getProperty (idFreq),
-                        phasePt.getProperty (idVal));
+        return CurvePt (spatialPt.getProperty (idId),
+                        spatialPt.getProperty (idFreq),
+                        spatialPt.getProperty (idVal));
     }
     else
     {
@@ -107,137 +98,137 @@ const std::optional<CurvePt> CabinEqValueTree::getPhasePtWithId (const int id) c
     }
 }
 
-Curve& CabinEqValueTree::getAmplCurve()
+Curve& CabinEqValueTree::getLeftAmplCurve()
 {
-    return amplCurve;
+    return leftAmplCurve;
 }
 
-Curve& CabinEqValueTree::getPanCurve()
+Curve& CabinEqValueTree::getRightAmplCurve()
 {
-    return panCurve;
+    return rightAmplCurve;
 }
 
-Curve& CabinEqValueTree::getPhaseCurve()
+Curve& CabinEqValueTree::getSpatialCurve()
 {
-    return phaseCurve;
+    return spatialCurve;
 }
 
-
-int CabinEqValueTree::addAmplPt (const float freq, const float ampl)
+int CabinEqValueTree::addLeftAmplPt (const float freq, const float ampl)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto amplPtTree = valueTree.getChildWithName (idAmplTree);
+    auto amplPtTree = valueTree.getChildWithName (idLeftAmplTree);
     int id = getNextIdForCurvePtTree (amplPtTree);
     addCurvePtToTree (id, freq, ampl, amplPtTree);
     
-    updateAmplCurve();
+    updateLeftAmplCurve();
     
     return id;
 }
 
-int CabinEqValueTree::addPanPt (const float freq, const float pan)
+int CabinEqValueTree::addRightAmplPt (const float freq, const float pan)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto panPtTree = valueTree.getChildWithName (idPanTree);
+    auto panPtTree = valueTree.getChildWithName (idRightAmplTree);
     int id = getNextIdForCurvePtTree (panPtTree);
     addCurvePtToTree (id, freq, pan, panPtTree);
     
-    updatePanCurve();
+    updateRightAmplCurve();
     
     return id;
 }
 
-
-int CabinEqValueTree::addPhasePt (const float freq, const float phase)
+int CabinEqValueTree::addSpatialPt (const float freq, const float pan)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto phasePtTree = valueTree.getChildWithName (idPhaseTree);
-    int id = getNextIdForCurvePtTree (phasePtTree);
-    addCurvePtToTree (id, freq, phase, phasePtTree);
+    auto spatialTree = valueTree.getChildWithName (idSpatialTree);
+    int id = getNextIdForCurvePtTree (spatialTree);
+    addCurvePtToTree (id, freq, pan, spatialTree);
     
-    updatePhaseCurve();
+    updateSpatialCurve();
     
     return id;
 }
-void CabinEqValueTree::removeAmplPt (const int id)
+
+void CabinEqValueTree::removeLeftAmplPt (const int id)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto amplPtTree = valueTree.getChildWithName (idAmplTree);
+    auto amplPtTree = valueTree.getChildWithName (idLeftAmplTree);
     
     juce::ValueTree nodeToRemove = amplPtTree.getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
         amplPtTree.removeChild (nodeToRemove, nullptr);
     
-    updateAmplCurve();
+    updateLeftAmplCurve();
 }
 
-void CabinEqValueTree::removePanPt (const int id)
+void CabinEqValueTree::removeRightAmplPt (const int id)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto panPtTree = valueTree.getChildWithName (idPanTree);
+    auto panPtTree = valueTree.getChildWithName (idRightAmplTree);
     
     juce::ValueTree nodeToRemove = panPtTree.getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
         panPtTree.removeChild (nodeToRemove, nullptr);
     
-    updatePanCurve();
+    updateRightAmplCurve();
 }
 
-void CabinEqValueTree::removePhasePt (const int id)
+void CabinEqValueTree::removeSpatialPt (const int id)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto phasePtTree = valueTree.getChildWithName (idPhaseTree);
+    auto spatialTree = valueTree.getChildWithName (idSpatialTree);
     
-    juce::ValueTree nodeToRemove = phasePtTree.getChildWithProperty (idId, id);
+    juce::ValueTree nodeToRemove = spatialTree.getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
-        phasePtTree.removeChild (nodeToRemove, nullptr);
+        spatialTree.removeChild (nodeToRemove, nullptr);
     
-    updatePhaseCurve();
+    updateSpatialCurve();
 }
 
-void CabinEqValueTree::updateAmplPt (const int id, const float freq, const float ampl)
+
+void CabinEqValueTree::updateLeftAmplPt (const int id, const float freq, const float ampl)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto amplPtTree = valueTree.getChildWithName (idAmplTree);
+    auto amplPtTree = valueTree.getChildWithName (idLeftAmplTree);
     updateCurvePtInTree (id, freq, ampl, amplPtTree);
     
-    updateAmplCurve();
+    updateLeftAmplCurve();
 }
 
-void CabinEqValueTree::updatePanPt (const int id, const float freq, const float pan)
+void CabinEqValueTree::updateRightAmplPt (const int id, const float freq, const float pan)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto panPtTree = valueTree.getChildWithName (idPanTree);
+    auto panPtTree = valueTree.getChildWithName (idRightAmplTree);
     updateCurvePtInTree (id, freq, pan, panPtTree);
     
-    updatePanCurve();
+    updateRightAmplCurve();
 }
 
-void CabinEqValueTree::updatePhasePt (const int id, const float freq, const float phase)
+void CabinEqValueTree::updateSpatialPt (const int id, const float freq, const float ampl)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
-    auto phasePtTree = valueTree.getChildWithName (idPhaseTree);
-    updateCurvePtInTree (id, freq, phase, phasePtTree);
+    auto spatialTree = valueTree.getChildWithName (idSpatialTree);
+    updateCurvePtInTree (id, freq, ampl, spatialTree);
     
-    updatePhaseCurve();
+    updateSpatialCurve();
 }
 
 void CabinEqValueTree::resetNodes()
@@ -259,12 +250,12 @@ void CabinEqValueTree::initValueTreeFromAPVTS()
     {
         valueTree = juce::ValueTree (idProfile);
         valueTree.setProperty (idProfileName, profileName, nullptr);
-        auto amplPtTree = juce::ValueTree (idAmplTree);
-        auto panPtTree = juce::ValueTree (idPanTree);
-        auto phasePtTree = juce::ValueTree (idPhaseTree);
-        valueTree.addChild (amplPtTree, 0, nullptr);
-        valueTree.addChild (panPtTree, 1, nullptr);
-        valueTree.addChild (phasePtTree, 2, nullptr);
+        auto leftAmplPtTree = juce::ValueTree (idLeftAmplTree);
+        auto rightAmplPtTree = juce::ValueTree (idRightAmplTree);
+        auto spatialTree = juce::ValueTree (idSpatialTree);
+        valueTree.addChild (leftAmplPtTree, 0, nullptr);
+        valueTree.addChild (rightAmplPtTree, 1, nullptr);
+        valueTree.addChild (spatialTree, 2, nullptr);
         apvts.state.addChild (valueTree, -1, nullptr);
     }
     else
@@ -352,23 +343,23 @@ void CabinEqValueTree::printValueTree (juce::ValueTree valueTree) const
 
 void CabinEqValueTree::updateCurves()
 {
-    updateAmplCurve();
-    updatePanCurve();
+    updateLeftAmplCurve();
+    updateRightAmplCurve();
 }
 
-void CabinEqValueTree::updateAmplCurve()
+void CabinEqValueTree::updateLeftAmplCurve()
 {
-    amplCurve.updateWithCurvePts (getCurvePtsForValueTree (valueTree.getChildWithName (idAmplTree)));
+    leftAmplCurve.updateWithCurvePts (getCurvePtsForValueTree (valueTree.getChildWithName (idLeftAmplTree)));
 }
 
-void CabinEqValueTree::updatePanCurve()
+void CabinEqValueTree::updateRightAmplCurve()
 {
-    panCurve.updateWithCurvePts (getCurvePtsForValueTree (valueTree.getChildWithName (idPanTree)));
+    rightAmplCurve.updateWithCurvePts (getCurvePtsForValueTree (valueTree.getChildWithName (idRightAmplTree)));
 }
 
-void CabinEqValueTree::updatePhaseCurve()
+void CabinEqValueTree::updateSpatialCurve()
 {
-    phaseCurve.updateWithCurvePts (getCurvePtsForValueTree (valueTree.getChildWithName (idPhaseTree)));
+    spatialCurve.updateWithCurvePts (getCurvePtsForValueTree (valueTree.getChildWithName (idSpatialTree)));
 }
 
 std::vector<CurvePt> CabinEqValueTree::getCurvePtsForValueTree (juce::ValueTree curvePtValueTree) const

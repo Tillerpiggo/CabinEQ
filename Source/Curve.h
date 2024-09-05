@@ -41,7 +41,7 @@ public:
     const std::optional<std::vector<float>> getFirstThreeFreqs();
     const std::optional<std::vector<float>> getFirstFourFreqs();
 
-    static std::pair<std::vector<float>, std::vector<float>> getStereoFrequencyResponse (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int numPoints); // returns stereo frequency response, with real values interweaved with imaginary values for each complex number
+    static std::pair<std::vector<float>, std::vector<float>> getStereoFrequencyResponse (Curve& leftAmplCurve, Curve& rightAmplCurve, int numPoints); // returns stereo frequency response, with real values interweaved with imaginary values for each complex number
 //    const float* getImpulse (int fft_size); // This hands ownership of the float*'s to whoever calls it!!
 
 protected:

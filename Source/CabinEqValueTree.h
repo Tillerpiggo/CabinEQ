@@ -21,25 +21,24 @@ class CabinEqValueTree
 public:
     CabinEqValueTree (juce::AudioProcessorValueTreeState& apvts, const juce::String identifier);
     
-    const std::vector<CurvePt> getAmplPts() const; // constructs curve pts matching the ones in memory
-    const std::vector<CurvePt> getPanPts() const; // constructs curve pts matching the ones in memory
-    const std::vector<CurvePt> getPhasePts() const; // constructs curve pts matching the ones in memory
-    const std::optional<CurvePt> getAmplPtWithId (const int id) const;
-    const std::optional<CurvePt> getPanPtWithId (const int id) const;
-    const std::optional<CurvePt> getPhasePtWithId (const int id) const;
-    Curve& getAmplCurve();
-    Curve& getPanCurve();
-    Curve& getPhaseCurve();
+    const std::vector<CurvePt> getLeftAmplPts() const; // constructs curve pts matching the ones in memory
+    const std::vector<CurvePt> getRightAmplPts() const; // constructs curve pts matching the ones in memory
+    const std::optional<CurvePt> getLeftAmplPtWithId (const int id) const;
+    const std::optional<CurvePt> getRightAmplPtWithId (const int id) const;
+    const std::optional<CurvePt> getSpatialPtWithId (const int id) const;
+    Curve& getLeftAmplCurve();
+    Curve& getRightAmplCurve();
+    Curve& getSpatialCurve();
     
-    int addAmplPt (const float freq, const float ampl);
-    int addPanPt (const float freq, const float pan);
-    int addPhasePt (const float freq, const float phase);
-    void removeAmplPt (const int id);
-    void removePanPt (const int id);
-    void removePhasePt (const int id);
-    void updateAmplPt (const int id, const float freq, const float ampl);
-    void updatePanPt (const int id, const float freq, const float pan);
-    void updatePhasePt (const int id, const float freq, const float phase);
+    int addLeftAmplPt (const float freq, const float ampl);
+    int addRightAmplPt (const float freq, const float ampl);
+    int addSpatialPt (const float freq, const float ampl);
+    void removeLeftAmplPt (const int id);
+    void removeRightAmplPt (const int id);
+    void removeSpatialPt (const int id);
+    void updateLeftAmplPt (const int id, const float freq, const float ampl);
+    void updateRightAmplPt (const int id, const float freq, const float ampl);
+    void updateSpatialPt (const int id, const float freq, const float ampl);
     
     void resetNodes(); // makes this value tree store the given set points
     
@@ -55,9 +54,9 @@ private:
     void resetAPVTS (juce::AudioProcessorValueTreeState& apvts);
     void printValueTree (juce::ValueTree valueTree) const;
     void updateCurves(); // updates both curves to match the current state of the value tree
-    void updateAmplCurve();
-    void updatePanCurve();
-    void updatePhaseCurve();
+    void updateLeftAmplCurve();
+    void updateRightAmplCurve();
+    void updateSpatialCurve();
     std::vector<CurvePt> getCurvePtsForValueTree (juce::ValueTree valueTree) const;
     
     juce::AudioProcessorValueTreeState& apvts;
@@ -68,14 +67,14 @@ private:
     juce::Identifier idId { "id" };
     juce::Identifier idFreq { "freq" };
     juce::Identifier idVal { "val" };
-    juce::Identifier idAmplTree { "AmplTree" };
-    juce::Identifier idPanTree { "PanTree" };
-    juce::Identifier idPhaseTree { "PhaseTree" };
+    juce::Identifier idLeftAmplTree { "LeftAmplTree" };
+    juce::Identifier idRightAmplTree { "RightAmplTree" };
+    juce::Identifier idSpatialTree { "SpatialTree" };
     juce::ValueTree valueTree;
     juce::String profileName;
     
-    Curve amplCurve;
-    Curve panCurve;
-    Curve phaseCurve;
+    Curve leftAmplCurve;
+    Curve rightAmplCurve;
+    Curve spatialCurve;
     bool hasBeenInitialized = false;
 };
