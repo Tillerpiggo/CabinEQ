@@ -69,6 +69,7 @@ public:
     
 private:
     std::pair<float, float> getNextSample();
+    std::pair<float, float> getSumOfSamples (std::vector<std::pair<float, float>> samples);
     float getCompensationDBAtFrequency (float frequency);
     float getReferenceCompensationDBAtFrequency (float frequency);
     juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;

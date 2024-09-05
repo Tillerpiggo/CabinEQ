@@ -81,7 +81,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 
 void PlaybackManager::updateFilterWithCurves (Curve& leftAmplCurve, Curve& rightAmplCurve, int fftSize)
 {
-    filter.updateWithCurves (leftAmplCurve, rightAmplCurve, fftSize); // make right curve control everything for experimentation
+    filter.updateWithCurves (rightAmplCurve, rightAmplCurve, fftSize); // make right curve control everything for experimentation
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
@@ -196,38 +196,38 @@ void PlaybackManager::updateLeftAmplCalibration (float freq, Curve& leftAmplCurv
 
 void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCurve)
 {
+    auto noteDurationInSamples = 2000;
     auto ampl = rightAmplCurve.valueAtFrequency (freq);
-    auto controlledNotes = getNotesForAmplCalibrationAt (freq, ampl);
-    auto refNotes = getNotesForAmplCalibrationAt (1000.0f, 6.0f);
     
-    for (auto& controlledNote : controlledNotes)
-    {
-        controlledNote = controlledNote.withPan (1); // let's have left curve control everything for now
-    }
+    SequenceableNote refNote (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote controlledNote (1000.0f, ampl, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote refNote2 (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples * 0.73);
+    SequenceableNote refNote3 (2000.0f, 6.0, 0.0f, 0.0f, noteDurationInSamples * 0.73);
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.73);
     
-    for (auto& refNote : refNotes)
-        refNote = refNote.withPan (1);
-    
-    arbitrarySequencer.setNotes (controlledNotes);
-//    arbitrarySequencer2.setNotes (refNotes);
+    arbitrarySequencer.setNotes ({ refNote, silentNote });
+    arbitrarySequencer2.setNotes ({ controlledNote, silentNote });
+    arbitrarySequencer3.setNotes ({ refNote2, silentNote2 });
+    arbitrarySequencer4.setNotes ({ refNote3, silentNote2 });
 }
 
 void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCurve)
 {
+    auto noteDurationInSamples = 2000;
     auto ampl = rightAmplCurve.valueAtFrequency (freq);
-    auto controlledNotes = getNotesForAmplCalibrationAt (freq, ampl);
-    auto refNotes = getNotesForAmplCalibrationAt (1000.0f, 6.0f);
     
-//    for (auto& controlledNote : controlledNotes)
-//    {
-//        controlledNote = controlledNote.withPan (1); // let's have left curve control everything for now
-//    }
-//    
-//    for (auto& refNote : refNotes)
-//        refNote = refNote.withPan (1);
+    SequenceableNote refNote (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote controlledNote (1000.0f, ampl, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote refNote2 (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples * 0.73);
+    SequenceableNote refNote3 (2000.0f, 6.0, 0.0f, 0.0f, noteDurationInSamples * 0.73);
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples);
+    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.73);
     
-    arbitrarySequencer.updateNotes (controlledNotes);
-//    arbitrarySequencer2.updateNotes (refNotes);
+    arbitrarySequencer.updateNotes ({ refNote, silentNote });
+    arbitrarySequencer2.updateNotes ({ controlledNote, silentNote });
+    arbitrarySequencer3.updateNotes ({ refNote2, silentNote2 });
+    arbitrarySequencer4.updateNotes ({ refNote3, silentNote2 });
 }
 
 
@@ -296,10 +296,24 @@ void PlaybackManager::setReferencePan (float pan)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    auto [leftSample0, rightSample0] = arbitrarySequencer.getNextSample();
-    auto [leftSample1, rightSample1] = arbitrarySequencer2.getNextSample();
-    auto [leftSample2, rightSample2] = arbitrarySequencer3.getNextSample();
-    return { leftSample0 + leftSample1 + leftSample2, rightSample0 + rightSample1 + rightSample2 };
+    auto sample0 = arbitrarySequencer.getNextSample();
+    auto sample1 = arbitrarySequencer2.getNextSample();
+    auto sample2 = arbitrarySequencer3.getNextSample();
+    auto sample3 = arbitrarySequencer4.getNextSample();
+    
+    return getSumOfSamples ({ sample0, sample1, sample2, sample3 });
+}
+
+std::pair<float, float> PlaybackManager::getSumOfSamples (std::vector<std::pair<float, float>> samples)
+{
+    float leftSample = 0;
+    float rightSample = 0;
+    for (const auto& sample : samples)
+    {
+        leftSample += sample.first;
+        rightSample += sample.second;
+    }
+    return { leftSample, rightSample };
 }
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
@@ -339,21 +353,13 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForAmplCalibrationAt (flo
 //    std::vector<float> pans { -1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0 };
     std::vector<float> pans { 0.0 };
     
-    float inverseFMVal = -1.0 * inverseFM.valueAtFrequency (freq, 0.0f);
+//    float inverseFMVal = -1.0 * inverseFM.valueAtFrequency (freq, 0.0f);
     
     int amplIdx = 0;
     for (const auto& pan : pans)
     {
-//            notes.emplace_back (mainNote.withAmplitudeChange (ampl + 40.0f));//.withPan (pan));// + 40.0f));
-//            notes.emplace_back (mainNote.withAmplitudeChange (ampl + 45.0f));
-//            notes.emplace_back (refNote.withAmplitudeChange (6.0f).withPan (pan));
-//            notes.emplace_back (refNote2.withAmplitudeChange (0.0));.withPan (pan));
-//        notes.emplace_back (refNote.withAmplitudeChange (15.0f));
-//        notes.emplace_back (refNote.withAmplitudeChange (15.0f));
-        notes.emplace_back (mainNote.withAmplitudeChange (ampls[amplIdx] - 40.0f + inverseFMVal));
-        notes.emplace_back (mainNote.withAmplitudeChange (ampls[amplIdx] - 46.0f + inverseFMVal));
-        //.withPan (pan));
-//        notes.emplace_back (refNote.withAmplitudeChange (15.0f));//.withPan (pan));
+        notes.emplace_back (mainNote.withAmplitudeChange (ampls[amplIdx] - 40.0f));
+        notes.emplace_back (mainNote.withAmplitudeChange (ampls[amplIdx] - 46.0f));
         amplIdx++;
         if (amplIdx >= ampls.size())
             amplIdx = 0;
