@@ -199,12 +199,15 @@ void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCur
     auto noteDurationInSamples = 2000;
     auto ampl = rightAmplCurve.valueAtFrequency (freq);
     
-    SequenceableNote refNote (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote controlledNote (1000.0f, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote refNote2 (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples * 0.73);
-    SequenceableNote refNote3 (2000.0f, 6.0, 0.0f, 0.0f, noteDurationInSamples * 0.73);
-    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.73);
+    StereoGainEnvelope envelope1 (500);
+    StereoGainEnvelope envelope2 (800);
+    
+    SequenceableNote refNote (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1);
+    SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples, envelope1);
+    SequenceableNote refNote2 (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
+    SequenceableNote refNote3 (500.0f, 6.0, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1);
+    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
     
     arbitrarySequencer.setNotes ({ refNote, silentNote });
     arbitrarySequencer2.setNotes ({ controlledNote, silentNote });
@@ -217,12 +220,15 @@ void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCu
     auto noteDurationInSamples = 2000;
     auto ampl = rightAmplCurve.valueAtFrequency (freq);
     
-    SequenceableNote refNote (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote controlledNote (1000.0f, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote refNote2 (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples * 0.73);
-    SequenceableNote refNote3 (2000.0f, 6.0, 0.0f, 0.0f, noteDurationInSamples * 0.73);
-    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples);
-    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.73);
+    StereoGainEnvelope envelope1 (500);
+    StereoGainEnvelope envelope2 (800);
+    
+    SequenceableNote refNote (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1);
+    SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples, envelope1);
+    SequenceableNote refNote2 (1000.0f, 6.0f, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
+    SequenceableNote refNote3 (500.0f, 6.0, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1);
+    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.72, envelope2);
     
     arbitrarySequencer.updateNotes ({ refNote, silentNote });
     arbitrarySequencer2.updateNotes ({ controlledNote, silentNote });
