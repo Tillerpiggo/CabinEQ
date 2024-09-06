@@ -87,7 +87,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 
 void PlaybackManager::updateFilterWithCurves (Curve& leftAmplCurve, Curve& rightAmplCurve, int fftSize)
 {
-    filter.updateWithCurves (leftAmplCurve, rightAmplCurve, fftSize); // make right curve control everything for experimentation
+    filter.updateWithCurves (rightAmplCurve, rightAmplCurve, fftSize); // make right curve control everything for experimentation
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
@@ -103,6 +103,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     arbitrarySequencer5.setSampleRate (spec.sampleRate);
     sineWaveGenerator1.setSampleRate (spec.sampleRate);
     sineWaveGenerator2.setSampleRate (spec.sampleRate);
+    sineWaveChordGenerator.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
 }
 
@@ -179,12 +180,96 @@ void PlaybackManager::updateLeftAmplCalibration (float freq, Curve& leftAmplCurv
 
 void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCurve)
 {
-    // Taking a break
+    // NEW: chord calibration
+//    auto noteDurationInSamples = 2000;
+//    float ampl = rightAmplCurve.valueAtFrequency (freq);
+//    
+//    StereoGainEnvelope envelope (500);
+//    
+//    SequenceableNote controlledNote (freq, ampl + 30.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
+//    arbitrarySequencer.setNotes ({ controlledNote });
+//    SequenceableNote refNoteLeft (3500.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope.withPan (-1));
+//    SequenceableNote controlledNoteRight (freq, ampl, 0.0f, 0.0f, noteDurationInSamples * 0.37, envelope.withPan (1));
+//    SequenceableNote refNoteRight (freq, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.37, envelope.withPan (1));
+//    
+//    SequenceableNote silentLeft (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
+//    SequenceableNote silentRight (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.37, envelope);
+//    
+//    arbitrarySequencer.setNotes ({ controlledNoteLeft, silentLeft });
+//    arbitrarySequencer2.setNotes ({ refNoteLeft, silentLeft });
+//    arbitrarySequencer3.setNotes ({ controlledNoteRight, silentRight });
+//    arbitrarySequencer4.setNotes ({ refNoteRight, silentRight });
+//    sineWaveChordGenerator.setPlayingChord (rightAmplCurve, freq);
+    
+    auto noteDurationInSamples = 3000;
+    auto centerNoteDurationInSamples = 1970;
+    StereoGainEnvelope envelope (500);
+    
+    float ampl = rightAmplCurve.valueAtFrequency (freq);
+    
+    SequenceableNote controlledNoteSides (freq, ampl + 20.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote refNoteSides (4500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+    SequenceableNote refNoteSides2 (1500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+    SequenceableNote refNoteSides3 (4000.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+    
+//    SequenceableNote controlledNoteCenter (freq, ampl, 0.0f, 0.0f, centerNoteDurationInSamples, envelope);
+//    SequenceableNote refNoteCenter (300.0f, 0.0f, 0.0f, 0.0f, centerNoteDurationInSamples, envelope);
+    
+    arbitrarySequencer.setNotes ({ controlledNoteSides });
+//    arbitrarySequencer2.setNotes ({ refNoteSides });
+//    arbitrarySequencer3.setNotes ({ refNoteSides2 });
+//    arbitrarySequencer4.setNotes ({ refNoteSides3 });
+////    arbitrarySequencer3.setNotes ({ controlledNoteCenter });
+////    arbitrarySequencer4.setNotes ({ refNoteCenter });
 }
 
 void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCurve)
 {
-    // Taking a break
+    // NEW: chord calibration
+//    auto noteDurationInSamples = 2000;
+//    float ampl = rightAmplCurve.valueAtFrequency (freq);
+//    
+//    StereoGainEnvelope envelope (500);
+//    
+//    SequenceableNote controlledNote (freq, ampl + 30.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
+//    arbitrarySequencer.setNotes ({ controlledNote });
+    
+//    auto noteDurationInSamples = 2000;
+//    float ampl = rightAmplCurve.valueAtFrequency (freq);
+//    
+//    StereoGainEnvelope envelope (500);
+//    
+//    SequenceableNote controlledNoteLeft (freq, ampl, 0.0f, 0.0f, noteDurationInSamples, envelope.withPan (-1));
+//    SequenceableNote refNoteLeft (3500.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope.withPan (-1));
+//    SequenceableNote controlledNoteRight (freq, ampl, 0.0f, 0.0f, noteDurationInSamples * 0.37, envelope.withPan (1));
+//    SequenceableNote refNoteRight (freq, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.37, envelope.withPan (1));
+//    
+//    SequenceableNote silentLeft (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
+//    SequenceableNote silentRight (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples * 0.37, envelope);
+//    
+//    arbitrarySequencer.updateNotes ({ controlledNoteLeft, silentLeft });
+//    arbitrarySequencer2.updateNotes ({ refNoteLeft, silentLeft });
+//    arbitrarySequencer3.updateNotes ({ controlledNoteRight, silentRight });
+//    arbitrarySequencer4.updateNotes ({ refNoteRight, silentRight });
+//    sineWaveChordGenerator.updatePlayingChord (rightAmplCurve, freq);
+    
+    auto noteDurationInSamples = 3000;
+    auto centerNoteDurationInSamples = 1970;
+    StereoGainEnvelope envelope (500);
+    
+    float ampl = rightAmplCurve.valueAtFrequency (freq);
+    
+    SequenceableNote controlledNoteSides (freq, ampl + 20.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
+    SequenceableNote refNoteSides (4500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+    SequenceableNote refNoteSides2 (1500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+    SequenceableNote refNoteSides3 (4000.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+    
+    arbitrarySequencer.updateNotes ({ controlledNoteSides });
+//    arbitrarySequencer2.updateNotes ({ refNoteSides });
+//    arbitrarySequencer3.updateNotes ({ refNoteSides2 });
+//    arbitrarySequencer4.updateNotes ({ refNoteSides3 });
+////    arbitrarySequencer3.updateNotes ({ controlledNoteCenter });
+////    arbitrarySequencer4.updateNotes ({ refNoteCenter });
 }
 
 
@@ -263,8 +348,9 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto sample2 = arbitrarySequencer3.getNextSample();
     auto sample3 = arbitrarySequencer4.getNextSample();
     auto sample4 = arbitrarySequencer5.getNextSample();
+//    auto sample5 = sineWaveChordGenerator.getNextSample();
     
-    return getSumOfSamples ({ sample0, sample1, sample2, sample3, sample4 });
+    return getSumOfSamples ({ sample0, sample1, sample2, sample3 });
 }
 
 std::pair<float, float> PlaybackManager::getSumOfSamples (std::vector<std::pair<float, float>> samples)

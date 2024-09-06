@@ -60,6 +60,10 @@
         <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="sOAc1w" name="SineWaveChordGenerator.cpp" compile="1" resource="0"
+              file="Source/SineWaveChordGenerator.cpp"/>
+        <FILE id="crEFvW" name="SineWaveChordGenerator.h" compile="0" resource="0"
+              file="Source/SineWaveChordGenerator.h"/>
         <FILE id="ixkRFQ" name="RandomSineWaveGenerator.cpp" compile="1" resource="0"
               file="Source/RandomSineWaveGenerator.cpp"/>
         <FILE id="AXG5Jr" name="RandomSineWaveGenerator.h" compile="0" resource="0"

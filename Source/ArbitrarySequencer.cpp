@@ -48,13 +48,14 @@ void ArbitrarySequencer::setSampleRate (float newSampleRate)
     pitchedGenerator->setSampleRate (newSampleRate);
 }
 
-void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote>& newNotes, bool repeating)
+void ArbitrarySequencer::setNotes (const std::vector<SequenceableNote> newNotes, bool repeating)
 {
     notes = newNotes;
     currNoteIdx = 0;
     numSamplesNoteHasBeenPlaying = 0;
     
-    pitchedGenerator->setNote (getCurrNote().getNote());
+    if (newNotes.size() > 0)
+        pitchedGenerator->setNote (getCurrNote().getNote());
     
     this->isRepeating = repeating;
 }

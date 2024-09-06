@@ -20,7 +20,7 @@ const float Curve::valueAtFrequency (float frequency) const
     }
     
     float valueAtFrequency = interpolateValueAtFrequency (frequency, values);
-//    valueAtFrequency += 4.5 * std::log2 (std::max (20.0f, frequency) / 1000.0f);
+//    valueAtFrequency += 3.0 * std::log2 (std::max (20.0f, frequency) / 1000.0f);
 //    valueAtFrequency += inverseFM.valueAtFrequency (frequency, 0.0f);
     return valueAtFrequency;
 }

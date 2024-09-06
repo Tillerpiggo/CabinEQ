@@ -17,6 +17,7 @@
 #include "PinkNoiseGenerator.h"
 #include "Constants.h"
 #include "RandomSineWaveGenerator.h"
+#include "SineWaveChordGenerator.h"
 #include "InverseFletcherMunson.h"
 #include <random>
 
@@ -95,6 +96,7 @@ private:
     RandomSineWaveGenerator randomSineWaveGenerator;
     PinkNoise pinkNoise;
     SineSweepGenerator sineSweepGenerator;
+    SineWaveChordGenerator sineWaveChordGenerator;
     Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f, 0.0f);
     Note referenceNote2 = Note (REFERENCE_FREQ_2, 6.0f, 0.0f, 0.0f);
     
