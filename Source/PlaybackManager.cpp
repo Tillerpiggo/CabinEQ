@@ -218,98 +218,98 @@ void PlaybackManager::updateLeftAmplCalibration (float freq, Curve& leftAmplCurv
 
 void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCurve)
 {
-    // Arpeggiated calibration
-    auto noteDurationInSamples = 3000;
-    auto ampl = rightAmplCurve.valueAtFrequency (freq);
-    
-    SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    
-    std::vector<float> firstFewCalibratedFreqs = rightAmplCurve.getFirstFewFreqs();
-    std::vector<SequenceableNote> notes;
-    
-    notes.push_back (controlledNote);
-    
-    for (const auto& calibratedFreq : firstFewCalibratedFreqs)
-    {
-        auto calibratedAmpl = rightAmplCurve.valueAtFrequency (calibratedFreq);
-        notes.emplace_back (calibratedFreq, calibratedAmpl, 0.0f, 0.0f, noteDurationInSamples);
-    }
-    
-    arbitrarySequencer.setNotes (notes);
-    
-//    // Overtone calibration
-//    auto noteDurationInSamples = 10000;
-//    auto maskNoteDurationInSamples = 2337;
+//    // Arpeggiated calibration
+//    auto noteDurationInSamples = 3000;
 //    auto ampl = rightAmplCurve.valueAtFrequency (freq);
-//    float pan = 1;
 //    
-//    float ctrlQuiet = 0.0f; // make the controlled chord quieter by some amount
+//    SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
 //    
-//    StereoGainEnvelope envelope1 (900);
-//    StereoGainEnvelope envelope2 (4000);
+//    std::vector<float> firstFewCalibratedFreqs = rightAmplCurve.getFirstFewFreqs();
+//    std::vector<SequenceableNote> notes;
 //    
-//    SequenceableNote refNote (1000.0f, 6.0f + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
-//    SequenceableNote refNoteToo (1500.0f, 6.0f + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
-//    SequenceableNote controlledNote (freq, ampl + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
-//    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+//    notes.push_back (controlledNote);
 //    
-//    SequenceableNote refNote2 (4000.0f, 6.0f, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
-//    SequenceableNote refNote3 (8000.0f, 6.0, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
-//    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
+//    for (const auto& calibratedFreq : firstFewCalibratedFreqs)
+//    {
+//        auto calibratedAmpl = rightAmplCurve.valueAtFrequency (calibratedFreq);
+//        notes.emplace_back (calibratedFreq, calibratedAmpl, 0.0f, 0.0f, noteDurationInSamples);
+//    }
 //    
-//    arbitrarySequencer.setNotes ({ refNote, silentNote, refNote, silentNote });
-//    arbitrarySequencer2.setNotes ({ controlledNote, silentNote });
-//    
-//    arbitrarySequencer3.setNotes ({ silentNote2, refNote2, silentNote2 });
-//    arbitrarySequencer4.setNotes ({ silentNote2, refNote3, silentNote2 });
+//    arbitrarySequencer.setNotes (notes);
+    
+    // Overtone calibration
+    auto noteDurationInSamples = 10000;
+    auto maskNoteDurationInSamples = 2337;
+    auto ampl = rightAmplCurve.valueAtFrequency (freq);
+    float pan = 1;
+    
+    float ctrlQuiet = 0.0f; // make the controlled chord quieter by some amount
+    
+    StereoGainEnvelope envelope1 (900);
+    StereoGainEnvelope envelope2 (1000);
+    
+    SequenceableNote refNote (1000.0f, 6.0f + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+    SequenceableNote refNoteToo (1500.0f, 6.0f + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+    SequenceableNote controlledNote (freq, ampl + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+    
+    SequenceableNote refNote2 (500.0f, 6.0f, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
+    SequenceableNote refNote3 (800.0f, 6.0, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
+    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
+    
+    arbitrarySequencer.setNotes ({ refNote, silentNote, refNote, silentNote });
+    arbitrarySequencer2.setNotes ({ controlledNote, silentNote });
+    
+    arbitrarySequencer3.setNotes ({ silentNote2, refNote2, silentNote2 });
+    arbitrarySequencer4.setNotes ({ silentNote2, refNote3, silentNote2 });
 }
 
 void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCurve)
 {
-    // Arpeggiated calibration
-    auto noteDurationInSamples = 3000;
-    auto ampl = rightAmplCurve.valueAtFrequency (freq);
-    
-    SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
-    
-    std::vector<float> firstFewCalibratedFreqs = rightAmplCurve.getFirstFewFreqs();
-    std::vector<SequenceableNote> notes;
-    
-    notes.push_back (controlledNote);
-    
-    for (const auto& calibratedFreq : firstFewCalibratedFreqs)
-    {
-        auto calibratedAmpl = rightAmplCurve.valueAtFrequency (calibratedFreq);
-        notes.emplace_back (calibratedFreq, calibratedAmpl, 0.0f, 0.0f, noteDurationInSamples);
-    }
-    
-    arbitrarySequencer.updateNotes (notes);
-    
-//    // Overtone calibration
-//    auto noteDurationInSamples = 10000;
-//    auto maskNoteDurationInSamples = 2337;
+//    // Arpeggiated calibration
+//    auto noteDurationInSamples = 3000;
 //    auto ampl = rightAmplCurve.valueAtFrequency (freq);
-//    float pan = 1;
 //    
-//    float ctrlQuiet = 0.0f; // make the controlled chord quieter by some amount
+//    SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples);
 //    
-//    StereoGainEnvelope envelope1 (900);
-//    StereoGainEnvelope envelope2 (4000);
+//    std::vector<float> firstFewCalibratedFreqs = rightAmplCurve.getFirstFewFreqs();
+//    std::vector<SequenceableNote> notes;
 //    
-//    SequenceableNote refNote (1000.0f, 6.0f + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
-//    SequenceableNote refNoteToo (1500.0f, 6.0f + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
-//    SequenceableNote controlledNote (freq, ampl + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
-//    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+//    notes.push_back (controlledNote);
 //    
-//    SequenceableNote refNote2 (4000.0f, 6.0f, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
-//    SequenceableNote refNote3 (8000.0f, 6.0, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
-//    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
+//    for (const auto& calibratedFreq : firstFewCalibratedFreqs)
+//    {
+//        auto calibratedAmpl = rightAmplCurve.valueAtFrequency (calibratedFreq);
+//        notes.emplace_back (calibratedFreq, calibratedAmpl, 0.0f, 0.0f, noteDurationInSamples);
+//    }
 //    
-//    arbitrarySequencer.updateNotes ({ refNote, silentNote, refNote, silentNote });
-//    arbitrarySequencer2.updateNotes ({ controlledNote, silentNote });
-//    
-//    arbitrarySequencer3.updateNotes ({ silentNote2, refNote2, silentNote2 });
-//    arbitrarySequencer4.updateNotes ({ silentNote2, refNote3, silentNote2 });
+//    arbitrarySequencer.updateNotes (notes);
+    
+    // Overtone calibration
+    auto noteDurationInSamples = 10000;
+    auto maskNoteDurationInSamples = 2337;
+    auto ampl = rightAmplCurve.valueAtFrequency (freq);
+    float pan = 1;
+    
+    float ctrlQuiet = 0.0f; // make the controlled chord quieter by some amount
+    
+    StereoGainEnvelope envelope1 (900);
+    StereoGainEnvelope envelope2 (1000);
+    
+    SequenceableNote refNote (1000.0f, 6.0f + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+    SequenceableNote refNoteToo (1500.0f, 6.0f + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+    SequenceableNote controlledNote (freq, ampl + ctrlQuiet, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+    SequenceableNote silentNote (0.0f, 0.0f, 0.0f, 0.0f, noteDurationInSamples, envelope1.withPan (pan));
+    
+    SequenceableNote refNote2 (500.0f, 6.0f, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
+    SequenceableNote refNote3 (800.0f, 6.0, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
+    SequenceableNote silentNote2 (0.0f, 0.0f, 0.0f, 0.0f, maskNoteDurationInSamples, envelope2.withPan (pan));
+    
+    arbitrarySequencer.updateNotes ({ refNote, silentNote, refNote, silentNote });
+    arbitrarySequencer2.updateNotes ({ controlledNote, silentNote });
+    
+    arbitrarySequencer3.updateNotes ({ silentNote2, refNote2, silentNote2 });
+    arbitrarySequencer4.updateNotes ({ silentNote2, refNote3, silentNote2 });
 }
 
 
