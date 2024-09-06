@@ -27,7 +27,8 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& leftAmplCurve, Curve& rig
     // Broken filter
     for (int i = 0; i < 2 * numPoints; i++)
     {
-        float t = static_cast<float>(i) / (2 * numPoints);
+//        float t = static_cast<float>(i) / (2 * numPoints);
+        float t = static_cast<float>(i) / (numPoints);
         
         auto val = juce::Decibels::decibelsToGain (rightAmplCurve.valueAtTime (t));
         

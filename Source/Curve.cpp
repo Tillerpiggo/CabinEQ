@@ -22,7 +22,6 @@ const float Curve::valueAtFrequency (float frequency) const
     float valueAtFrequency = interpolateValueAtFrequency (frequency, values);
 //    valueAtFrequency += 4.5 * std::log2 (std::max (20.0f, frequency) / 1000.0f);
 //    valueAtFrequency += inverseFM.valueAtFrequency (frequency, 0.0f);
-    valueAtFrequency *= 1.0;
     return valueAtFrequency;
 }
 
@@ -46,13 +45,14 @@ const float Curve::visualValueAtFrequency (float frequency)
 
 const float Curve::valueAtTime (float t)
 {
-    float minFreq = 10;
-    float maxFreq = 18500;
-    
-    // Scale linearly
-    float freq = t * (maxFreq - minFreq) + minFreq;
-    return valueAtFrequency(freq);
+//    float minFreq = 10;
+//    float maxFreq = 18500;
+//    
+//    // Scale linearly
+//    float freq = t * (maxFreq - minFreq) + minFreq;
+//    return valueAtFrequency(freq);
 //    return valueAtFrequency (0.5 * t * 17790 + 10);
+    return valueAtFrequency (t * 22050);
 }
 
 const std::vector<CurvePt>& Curve::getCurvePts()
