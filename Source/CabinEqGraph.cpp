@@ -490,7 +490,7 @@ juce::Point<float> CabinEqGraph::coordsForCurvePt (float frequency, float amplit
 {
     // Calculate (x, y) coords and return
     float x = getWidth() * timeAtFrequency (frequency);
-    float y = getHeight() * (1.0f - (amplitude + 12.0f) / 48.0f);
+    float y = getHeight() * (1.0f - (amplitude + 24.0f) / 72.0f);
     
     return { x, y };
 }
@@ -526,11 +526,11 @@ std::pair<float, float> CabinEqGraph::frequencyAndAmplitudeForMouseEvent (const 
     
     // Calculate amplitude of mouse event
     float normalizedY = y / getHeight();
-    float ampl = (1.0f - normalizedY) * 48.0f - 12.0f;
+    float ampl = (1.0f - normalizedY) * 72.0f - 24.0f;
     
     // Bound freq/ampl inside the visible window
     freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
-    ampl = std::min (std::max (ampl, -12.0f), 36.0f);
+    ampl = std::min (std::max (ampl, -24.0f), 48.0f);
     
     return { freq, ampl };
 }

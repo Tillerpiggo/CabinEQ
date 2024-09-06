@@ -24,6 +24,28 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& leftAmplCurve, Curve& rig
     float* leftFreqResponse = new float[2 * numPoints];
     float* rightFreqResponse = new float[2 * numPoints];
     
+    // Broken filter
+    for (int i = 0; i < 2 * numPoints; i++)
+    {
+        float t = static_cast<float>(i) / (2 * numPoints);
+        
+        auto val = juce::Decibels::decibelsToGain (rightAmplCurve.valueAtTime (t));
+        
+        if (i % 2 == 0)
+        {
+            leftFreqResponse[i] = val;
+            rightFreqResponse[i] = val;
+        }
+        else
+        {
+            leftFreqResponse[i] = 0;
+            rightFreqResponse[i] = 0;
+        }
+    }
+    
+    
+    // Working Filter
+    /*
     for (int i = 0; i < 2 * numPoints; ++i)
     {
         if (i % 2 == 0)
@@ -39,6 +61,7 @@ void ArbitraryResponseFilter::updateWithCurves (Curve& leftAmplCurve, Curve& rig
 //        leftFreqResponse[i] = leftFreqResp[i];
 //        rightFreqResponse[i] = rightFreqResp[i];
     }
+     */
     
     fft.performRealOnlyInverseTransform (leftFreqResponse);
     fft.performRealOnlyInverseTransform (rightFreqResponse);
