@@ -38,6 +38,7 @@ public:
     
     const std::optional<std::pair<float, float>> nodeBelowFreq (float frequency);
     const std::optional<std::pair<float, float>> nodeAboveFreq (float frequency);
+    const std::vector<float> getFirstFewFreqs();
     const std::optional<std::vector<float>> getFirstThreeFreqs();
     const std::optional<std::vector<float>> getFirstFourFreqs();
 

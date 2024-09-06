@@ -328,6 +328,22 @@ const std::optional<std::pair<float, float>> Curve::nodeAboveFreq (float frequen
     return std::nullopt;
 }
 
+const std::vector<float> Curve::getFirstFewFreqs()
+{
+    // Return up to the first three freqs calibrated
+    std::vector<float> freqs;
+    
+    for (const auto& curvePt : curvePts)
+    {
+        if (curvePt.id < 3)
+        {
+            freqs.push_back (curvePt.freq);
+        }
+    }
+    
+    return freqs;
+}
+
 const std::optional<std::vector<float>> Curve::getFirstThreeFreqs()
 {
     std::vector<float> freqs;
