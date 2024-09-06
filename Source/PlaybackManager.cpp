@@ -180,6 +180,27 @@ void PlaybackManager::updateLeftAmplCalibration (float freq, Curve& leftAmplCurv
 
 void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCurve)
 {
+    // Elevation / peak calibration
+    auto noteDurationInSamples = 3000;
+    float ampl = rightAmplCurve.valueAtFrequency (freq);
+    
+    StereoGainEnvelope envelope (500);
+    
+    auto nodeBelow = rightAmplCurve.nodeBelowFreq (freq);
+    auto nodeAbove = rightAmplCurve.nodeAboveFreq (freq);
+    
+    if (nodeAbove.has_value() && nodeBelow.has_value())
+    {
+        auto [freqBelow, amplBelow] = nodeBelow.value();
+        auto [freqAbove, amplAbove] = nodeAbove.value();
+        
+        SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples, envelope);
+        SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples, envelope);
+        SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples, envelope);
+        
+        arbitrarySequencer.setNotes ({ controlledNote, noteBelow, noteAbove });
+    }
+    
     // NEW: chord calibration
 //    auto noteDurationInSamples = 2000;
 //    float ampl = rightAmplCurve.valueAtFrequency (freq);
@@ -201,21 +222,21 @@ void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCur
 //    arbitrarySequencer4.setNotes ({ refNoteRight, silentRight });
 //    sineWaveChordGenerator.setPlayingChord (rightAmplCurve, freq);
     
-    auto noteDurationInSamples = 3000;
-    auto centerNoteDurationInSamples = 1970;
-    StereoGainEnvelope envelope (500);
-    
-    float ampl = rightAmplCurve.valueAtFrequency (freq);
-    
-    SequenceableNote controlledNoteSides (freq, ampl + 20.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
-    SequenceableNote refNoteSides (4500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
-    SequenceableNote refNoteSides2 (1500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
-    SequenceableNote refNoteSides3 (4000.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+//    auto noteDurationInSamples = 3000;
+//    auto centerNoteDurationInSamples = 1970;
+//    StereoGainEnvelope envelope (500);
+//    
+//    float ampl = rightAmplCurve.valueAtFrequency (freq);
+//    
+//    SequenceableNote controlledNoteSides (freq, ampl + 20.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
+//    SequenceableNote refNoteSides (4500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+//    SequenceableNote refNoteSides2 (1500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+//    SequenceableNote refNoteSides3 (4000.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
     
 //    SequenceableNote controlledNoteCenter (freq, ampl, 0.0f, 0.0f, centerNoteDurationInSamples, envelope);
 //    SequenceableNote refNoteCenter (300.0f, 0.0f, 0.0f, 0.0f, centerNoteDurationInSamples, envelope);
     
-    arbitrarySequencer.setNotes ({ controlledNoteSides });
+//    arbitrarySequencer.setNotes ({ controlledNoteSides });
 //    arbitrarySequencer2.setNotes ({ refNoteSides });
 //    arbitrarySequencer3.setNotes ({ refNoteSides2 });
 //    arbitrarySequencer4.setNotes ({ refNoteSides3 });
@@ -225,6 +246,27 @@ void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCur
 
 void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCurve)
 {
+    // Elevation / peak calibration
+    auto noteDurationInSamples = 3000;
+    float ampl = rightAmplCurve.valueAtFrequency (freq);
+    
+    StereoGainEnvelope envelope (500);
+    
+    auto nodeBelow = rightAmplCurve.nodeBelowFreq (freq);
+    auto nodeAbove = rightAmplCurve.nodeAboveFreq (freq);
+    
+    if (nodeAbove.has_value() && nodeBelow.has_value())
+    {
+        auto [freqBelow, amplBelow] = nodeBelow.value();
+        auto [freqAbove, amplAbove] = nodeAbove.value();
+        
+        SequenceableNote controlledNote (freq, ampl, 0.0f, 0.0f, noteDurationInSamples, envelope);
+        SequenceableNote noteBelow (freqBelow, amplBelow, 0.0f, 0.0f, noteDurationInSamples, envelope);
+        SequenceableNote noteAbove (freqAbove, amplAbove, 0.0f, 0.0f, noteDurationInSamples, envelope);
+        
+        arbitrarySequencer.updateNotes ({ controlledNote, noteBelow, noteAbove });
+    }
+    
     // NEW: chord calibration
 //    auto noteDurationInSamples = 2000;
 //    float ampl = rightAmplCurve.valueAtFrequency (freq);
@@ -253,18 +295,18 @@ void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCu
 //    arbitrarySequencer4.updateNotes ({ refNoteRight, silentRight });
 //    sineWaveChordGenerator.updatePlayingChord (rightAmplCurve, freq);
     
-    auto noteDurationInSamples = 3000;
-    auto centerNoteDurationInSamples = 1970;
-    StereoGainEnvelope envelope (500);
+//    auto noteDurationInSamples = 3000;
+//    auto centerNoteDurationInSamples = 1970;
+//    StereoGainEnvelope envelope (500);
+//    
+//    float ampl = rightAmplCurve.valueAtFrequency (freq);
+//    
+//    SequenceableNote controlledNoteSides (freq, ampl + 20.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
+//    SequenceableNote refNoteSides (4500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+//    SequenceableNote refNoteSides2 (1500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
+//    SequenceableNote refNoteSides3 (4000.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
     
-    float ampl = rightAmplCurve.valueAtFrequency (freq);
-    
-    SequenceableNote controlledNoteSides (freq, ampl + 20.0f, 0.0f, 0.0f, noteDurationInSamples, envelope);
-    SequenceableNote refNoteSides (4500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
-    SequenceableNote refNoteSides2 (1500.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
-    SequenceableNote refNoteSides3 (4000.0f, 0.0f, 0.0f, M_PI, noteDurationInSamples, envelope);
-    
-    arbitrarySequencer.updateNotes ({ controlledNoteSides });
+//    arbitrarySequencer.updateNotes ({ controlledNoteSides });
 //    arbitrarySequencer2.updateNotes ({ refNoteSides });
 //    arbitrarySequencer3.updateNotes ({ refNoteSides2 });
 //    arbitrarySequencer4.updateNotes ({ refNoteSides3 });
