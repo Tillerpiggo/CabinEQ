@@ -22,7 +22,7 @@
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
 /// process audio or play sine tones as needed.
-class PlaybackManager
+class PlaybackManager  : juce::Timer
 {
 public:
     PlaybackManager();
@@ -66,6 +66,8 @@ public:
     
     // Reference calibration
     void setReferencePan (float pan);
+    
+    void timerCallback() override;
     
 private:
     std::pair<float, float> getNextSample();
@@ -116,4 +118,33 @@ private:
     Note rightRefNote { REFERENCE_FREQ, 6.0f, 0.0f, 0.0f };
     
     InverseFletcherMunsonCurve inverseFM;
+    
+    // Bandpass Filter
+    using Filter = juce::dsp::IIR::Filter<float>;
+    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter,
+                                                Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter>;
+    using BandpassFilter = juce::dsp::ProcessorChain<CutFilter, CutFilter>;
+    using Coefficients = Filter::CoefficientsPtr;
+    
+    BandpassFilter bandpass;
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> stereoBandpass;
+    
+    template<typename ChainType, typename CoefficientType>
+    void updateCutFilter (ChainType& chain, const CoefficientType& coefficients);
+    template<int Index, typename ChainType, typename CoefficientType>
+    void update (ChainType& chain, CoefficientType& coefficients);
+    void updateBandpassFilter (const float lowCutFreq, const float highCutFreq);
+    static void updateCoefficients (Coefficients& old, const Coefficients& replacements);
+    
+    float bandpassCenterFrequency = 1000.0f;
+    
+    enum ChainPositions
+    {
+        LowCut,
+        HighCut
+    };
+    
+    float sampleRate;
+    
+    bool playBandpass = false;
 };

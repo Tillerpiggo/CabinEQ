@@ -27,6 +27,7 @@ PlaybackManager::PlaybackManager()
 {
     dryGainProcessor.setGainDecibels (0.0f);
     wetGainProcessor.setGainDecibels (0.0f);
+    startTimer (300);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -76,17 +77,25 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         {
             dryGainProcessor.process (ioContext);
         }
+        
+//        if (isCalibrating && playBandpass)
+//        {
+//            stereoBandpass.process (ioContext);
+//        }
     }
 }
 
 void PlaybackManager::updateFilterWithCurves (Curve& leftAmplCurve, Curve& rightAmplCurve, int fftSize)
 {
-    filter.updateWithCurves (leftAmplCurve, rightAmplCurve, fftSize); // make right curve control everything for experimentation
+    filter.updateWithCurves (rightAmplCurve, rightAmplCurve, fftSize); // make right curve control everything for experimentation
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     filter.prepare (spec);
+    stereoBandpass.prepare (spec);
+    sampleRate = spec.sampleRate;
+    *stereoBandpass.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass (spec.sampleRate, 200.0f, 5.0f);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
     arbitrarySequencer3.setSampleRate (spec.sampleRate);
@@ -189,13 +198,13 @@ void PlaybackManager::startLeftAmplCalibration (float freq, Curve& leftAmplCurve
 
 void PlaybackManager::updateLeftAmplCalibration (float freq, Curve& leftAmplCurve)
 {
-    // Overtone calibration
+//    // Overtone calibration
     auto noteDurationInSamples = 10000;
     auto maskNoteDurationInSamples = 2337;
     auto ampl = leftAmplCurve.valueAtFrequency (freq);
     float pan = -1;
     
-    float ctrlQuiet = 0.0f; // make the controlled chord quieter by some amount
+    float ctrlQuiet = -20.0f; // make the controlled chord quieter by some amount
     
     StereoGainEnvelope envelope1 (900);
     StereoGainEnvelope envelope2 (4000);
@@ -214,6 +223,10 @@ void PlaybackManager::updateLeftAmplCalibration (float freq, Curve& leftAmplCurv
     
     arbitrarySequencer3.updateNotes ({ silentNote2, refNote2, silentNote2 });
     arbitrarySequencer4.updateNotes ({ silentNote2, refNote3, silentNote2 });
+    
+    // Just set a bandpass filter lmao
+    bandpassCenterFrequency = freq;
+    updateBandpassFilter (freq * 0.95, freq / 0.95);
 }
 
 void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCurve)
@@ -237,13 +250,13 @@ void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCur
 //    
 //    arbitrarySequencer.setNotes (notes);
     
-    // Overtone calibration
+//    // Overtone calibration
     auto noteDurationInSamples = 10000;
     auto maskNoteDurationInSamples = 2337;
     auto ampl = rightAmplCurve.valueAtFrequency (freq);
-    float pan = 1;
+    float pan = 0;
     
-    float ctrlQuiet = 0.0f; // make the controlled chord quieter by some amount
+    float ctrlQuiet = -20.0f; // make the controlled chord quieter by some amount
     
     StereoGainEnvelope envelope1 (900);
     StereoGainEnvelope envelope2 (1000);
@@ -262,6 +275,9 @@ void PlaybackManager::startRightAmplCalibration (float freq, Curve& rightAmplCur
     
     arbitrarySequencer3.setNotes ({ silentNote2, refNote2, silentNote2 });
     arbitrarySequencer4.setNotes ({ silentNote2, refNote3, silentNote2 });
+    
+    // Just update the bandpass filter lmao
+//    *stereoBandpass.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, 10.0f);
 }
 
 void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCurve)
@@ -285,13 +301,13 @@ void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCu
 //    
 //    arbitrarySequencer.updateNotes (notes);
     
-    // Overtone calibration
+//    // Overtone calibration
     auto noteDurationInSamples = 10000;
     auto maskNoteDurationInSamples = 2337;
     auto ampl = rightAmplCurve.valueAtFrequency (freq);
-    float pan = 1;
+    float pan = 0;
     
-    float ctrlQuiet = 0.0f; // make the controlled chord quieter by some amount
+    float ctrlQuiet = -20.0f; // make the controlled chord quieter by some amount
     
     StereoGainEnvelope envelope1 (900);
     StereoGainEnvelope envelope2 (1000);
@@ -310,6 +326,9 @@ void PlaybackManager::updateRightAmplCalibration (float freq, Curve& rightAmplCu
     
     arbitrarySequencer3.updateNotes ({ silentNote2, refNote2, silentNote2 });
     arbitrarySequencer4.updateNotes ({ silentNote2, refNote3, silentNote2 });
+    
+    // Just update the bandpass filter lmao
+    *stereoBandpass.state = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, 10.0f);
 }
 
 
@@ -374,6 +393,11 @@ void PlaybackManager::setReferencePan (float pan)
     this->referencePan = pan;
     this->leftRefNote.amplitude = referenceNote.amplitude - (pan < 0 ? pan : 0);
     this->rightRefNote.amplitude = referenceNote.amplitude + (pan > 0 ? pan : 0);
+}
+
+void PlaybackManager::timerCallback()
+{
+    playBandpass = ! playBandpass;
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()
@@ -451,4 +475,55 @@ std::vector<SequenceableNote> PlaybackManager::getNotesForAmplCalibrationAt (flo
     return notes;
 }
 
+// bandpass stuff
+void PlaybackManager::updateBandpassFilter (const float lowCutFreq, const float highCutFreq)
+{
+    // Update the low cut filter
+    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod (lowCutFreq,
+                                                                                                       44100,
+                                                                                                       2 * (8));
+    
+    auto& lowCut = bandpass.get<ChainPositions::LowCut>();
+    updateCutFilter(lowCut, lowCutCoefficients);
+    
+    // Update the high cut filter
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod (highCutFreq,
+                                                                                                           44100,
+                                                                                                       2 * (8));
+    auto& highCut = bandpass.get<ChainPositions::HighCut>();
+    updateCutFilter(highCut, highCutCoefficients);
+}
 
+template<typename ChainType, typename CoefficientType>
+void PlaybackManager::updateCutFilter(ChainType& chain, const CoefficientType& coefficients)
+{
+//    chain.template setBypassed<0>(true);
+//    chain.template setBypassed<1>(true);
+//    chain.template setBypassed<2>(true);
+//    chain.template setBypassed<3>(true);
+//    chain.template setBypassed<4>(true);
+//    chain.template setBypassed<5>(true);
+//    chain.template setBypassed<6>(true);
+//    chain.template setBypassed<7>(true);
+    
+    update<7>(chain, coefficients);
+    update<6>(chain, coefficients);
+    update<5>(chain, coefficients);
+    update<4>(chain, coefficients);
+    update<3>(chain, coefficients);
+    update<2>(chain, coefficients);
+    update<1>(chain, coefficients);
+    update<0>(chain, coefficients);
+}
+
+template<int Index, typename ChainType, typename CoefficientType>
+void PlaybackManager::update (ChainType& chain, CoefficientType& coefficients)
+{
+    updateCoefficients (chain.template get<Index>().coefficients, coefficients[Index]);
+    chain.template setBypassed<Index>(false);
+}
+
+void PlaybackManager::updateCoefficients(Coefficients& old, const Coefficients& replacements)
+{
+    *old = *replacements;
+}
