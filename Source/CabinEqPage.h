@@ -44,6 +44,7 @@ public:
     void userStoppedDoingShit() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
+    void textEditorTextChanged (juce::TextEditor& textEditor) override;
     void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorEscapeKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorFocusLost (juce::TextEditor& textEditor) override;
@@ -69,6 +70,8 @@ protected:
     void unlockApp();
     
     void goToProfileWithId (juce::String profileIdToGoTo);
+    
+    bool isDuplicateProfileName (juce::String profileName);
     
     CabinEqAudioProcessor& processor;
     juce::String profileId;

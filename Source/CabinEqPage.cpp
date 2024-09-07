@@ -280,11 +280,36 @@ void CabinEqPage::sliderValueChanged (juce::Slider *slider)
     }
 }
 
+void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)
+{
+    // Check if the text is a duplicate. If it is, add a warning on the alert window
+    auto profileNames = processor.getProfileNames();
+    auto text = textEditor.getText();
+    
+    for (const auto& profileName : profileNames)
+    {
+        if (text == profileName)
+        {
+            alertWindow->setMessage ("This profile name is already taken!");
+            return;
+        }
+    }
+    
+    alertWindow->setMessage ("Enter your profile name");
+}
+
 void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
 {
     std::cout << "text editor return key pressed" << std::endl;
     if (textEditor.getText().isEmpty())
         return;
+    
+    // Check if the text is a duplicate. If it is, don't add or do anything
+    auto profileNames = processor.getProfileNames();
+    auto text = textEditor.getText();
+    for (const auto& profileName : profileNames)
+        if (text == profileName)
+            return;
     
     // Add the profile and dismiss the window
     juce::String profileName = textEditor.getText();
@@ -347,7 +372,15 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             alertWindow = std::make_unique<juce::AlertWindow> ("Create Duplicate Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
             creatingDuplicate = true;
             
-            alertWindow->addTextEditor (textEditorName, "");
+            // Create copy name
+            auto copyName = profileId + " copy";
+            
+            while (isDuplicateProfileName (copyName))
+            {
+                copyName += " copy";
+            }
+            
+            alertWindow->addTextEditor (textEditorName, copyName);
             alertWindow->getTextEditor (textEditorName)->addListener (this);
             alertWindow->setEscapeKeyCancels (true);
             
@@ -544,4 +577,15 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
         processor.setLastSelectedProfileName (profileId);
         profileDropdown.setText (profileIdToGoTo);
     }
+}
+
+bool CabinEqPage::isDuplicateProfileName (juce::String profileName)
+{
+    auto profileNames = processor.getProfileNames();
+    
+    for (const auto& existingProfileName : profileNames)
+        if (profileName == existingProfileName)
+            return true;
+    
+    return false;
 }
