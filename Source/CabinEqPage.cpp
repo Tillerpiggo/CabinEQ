@@ -283,19 +283,9 @@ void CabinEqPage::sliderValueChanged (juce::Slider *slider)
 void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)
 {
     // Check if the text is a duplicate. If it is, add a warning on the alert window
-    auto profileNames = processor.getProfileNames();
     auto text = textEditor.getText();
-    
-    for (const auto& profileName : profileNames)
-    {
-        if (text == profileName)
-        {
-            alertWindow->setMessage ("This profile name is already taken!");
-            return;
-        }
-    }
-    
-    alertWindow->setMessage ("Enter your profile name");
+    alertWindow->setMessage (isDuplicateProfileName (text) ? "This profile name is already taken!" :
+                                                             "Enter your profile name");
 }
 
 void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
@@ -305,11 +295,8 @@ void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
         return;
     
     // Check if the text is a duplicate. If it is, don't add or do anything
-    auto profileNames = processor.getProfileNames();
-    auto text = textEditor.getText();
-    for (const auto& profileName : profileNames)
-        if (text == profileName)
-            return;
+    if (isDuplicateProfileName (textEditor.getText()))
+        return;
     
     // Add the profile and dismiss the window
     juce::String profileName = textEditor.getText();
