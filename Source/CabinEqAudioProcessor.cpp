@@ -468,16 +468,22 @@ float CabinEqAudioProcessor::getCurrPlayingFreq()
 
 void CabinEqAudioProcessor::startTestingAt (float freq, juce::String profileName)
 {
-    auto curve = getAmplCurve (profileName); // hacky for now
-    if (curve.has_value())
-        playbackManager.startTestingFreq (freq, curve->get());
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        playbackManager.startTestingFreq (freq, 
+                                          profile->get().getAmplCurve(),
+                                          profile->get().getPanCurve(),
+                                          profile->get().getPhaseCurve());
 }
 
 void CabinEqAudioProcessor::updateTestingAt (float freq, juce::String profileName)
 {
-    auto curve = getAmplCurve (profileName); // hacky for now
-    if (curve.has_value())
-        playbackManager.updateTestingFreq (freq, curve->get());
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        playbackManager.updateTestingFreq (freq,
+                                           profile->get().getAmplCurve(),
+                                           profile->get().getPanCurve(),
+                                           profile->get().getPhaseCurve());
 }
 
 void CabinEqAudioProcessor::endTesting()
@@ -527,26 +533,26 @@ void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName
 
 void CabinEqAudioProcessor::startSineSweep (float centerFreq, juce::String profileName)
 {
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.setIsSweeping (true);
-        playbackManager.startSineSweep (centerFreq,
-                                        profile->get().getAmplCurve(),
-                                        profile->get().getPanCurve());
-    }
+//    auto profile = profileNamed (profileName);
+//    if (profile.has_value())
+//    {
+//        playbackManager.setIsSweeping (true);
+//        playbackManager.startSineSweep (centerFreq,
+//                                        profile->get().getAmplCurve(),
+//                                        profile->get().getPanCurve());
+//    }
 }
 
 void CabinEqAudioProcessor::updateSineSweep (float centerFreq, juce::String profileName)
 {
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.setIsSweeping (true);
-        playbackManager.updateSineSweep (centerFreq,
-                                         profile->get().getAmplCurve(),
-                                         profile->get().getPanCurve());
-    }
+//    auto profile = profileNamed (profileName);
+//    if (profile.has_value())
+//    {
+//        playbackManager.setIsSweeping (true);
+//        playbackManager.updateSineSweep (centerFreq,
+//                                         profile->get().getAmplCurve(),
+//                                         profile->get().getPanCurve());
+//    }
 }
 
 void CabinEqAudioProcessor::endSineSweep()

@@ -23,8 +23,8 @@ public:
     
     std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
-//    void setCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-//    void updateCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
+    void setCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
+    void updateCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void setSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
     void updateSweep (float bottomFreq, float topFreq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
     void stopSweep();
@@ -35,7 +35,7 @@ private:
     
     SineWaveGenerator sineWaveGenerator;
     
-    float FREQ_RANGE_FACTOR = 1.5f;
+    float FREQ_RANGE_FACTOR = 1.0f;
     static constexpr float FREQ_STEP = 1.001f;
     static constexpr float TEMPO = 1; // samples per change
     static constexpr float BASE_DB = 0.0f;

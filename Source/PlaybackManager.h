@@ -52,10 +52,10 @@ public:
     void startPhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void updatePhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     // TODO: add diff functions for other kinds of tests
-    void startTestingFreq (float freq, Curve& curve);
-    void updateTestingFreq (float freq, Curve& curve);
-    void startSineSweep (float centerFreq, Curve amplCurve, Curve panCurve);
-    void updateSineSweep (float centerFreq, Curve amplCurve, Curve panCurve);
+    void startTestingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
+    void updateTestingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
+//    void startSineSweep (float centerFreq, Curve amplCurve, Curve panCurve);
+//    void updateSineSweep (float centerFreq, Curve amplCurve, Curve panCurve);
     void stopTestingFreq();
     
     void setReferenceVolume (float volume);

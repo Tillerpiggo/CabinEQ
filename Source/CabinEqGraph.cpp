@@ -53,6 +53,7 @@ void CabinEqGraph::mouseMove (const juce::MouseEvent &event)
     {
         isTestingFreq = true;
         testValueAt (freq);
+        std::cout << "testing value at " << freq << std::endl;
         hoveringId = -1;
         addingFreq.reset();
         return;
