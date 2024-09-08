@@ -133,4 +133,8 @@ private:
     bool blinded = false;
     
     int cyclesSinceUserStoppedDoingShit = 0;
+    
+    // Scaling
+    float maxDB = 36.0f;
+    float minDB = -36.0f;
 };
