@@ -24,6 +24,11 @@ CabinEqGraph::~CabinEqGraph()
 void CabinEqGraph::setCurve (Curve& curve)
 {
     this->curve = curve;
+    
+    std::cout << "set curve to curve" << std::endl;
+    
+    for (const auto& curvePt : curve.getCurvePts())
+        std::cout << "CurvePt (freq: " << curvePt.freq << ", val: " << curvePt.val << std::endl;
 }
 
 void CabinEqGraph::paint (juce::Graphics& g)

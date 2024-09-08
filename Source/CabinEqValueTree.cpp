@@ -109,6 +109,8 @@ const std::optional<CurvePt> CabinEqValueTree::getPhasePtWithId (const int id) c
 
 Curve& CabinEqValueTree::getAmplCurve()
 {
+    std::cout << "getting ampl curve" << std::endl;
+    
     return amplCurve;
 }
 
@@ -285,6 +287,7 @@ void CabinEqValueTree::copyFrom (CabinEqValueTree& other)
 {
     initValueTreeFromAPVTS();
     valueTree.copyPropertiesAndChildrenFrom (other.valueTree, nullptr);
+    updateCurves();
 }
 
 void CabinEqValueTree::addCurvePtToTree (int id, float freq, float val, juce::ValueTree curvePtTree)
