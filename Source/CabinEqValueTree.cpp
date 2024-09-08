@@ -355,7 +355,6 @@ void CabinEqValueTree::printValueTree (juce::ValueTree valueTree) const
 
 void CabinEqValueTree::updateCurves()
 {
-    std::cout << "UPDATING CURVES" << std::endl;
     updateAmplCurve();
     updatePanCurve();
     updatePhaseCurve();
@@ -364,7 +363,6 @@ void CabinEqValueTree::updateCurves()
 void CabinEqValueTree::updateAmplCurve()
 {
     auto pts = getCurvePtsForValueTree (valueTree.getChildWithName (idAmplTree));
-    std::cout << "updating ampl curve with " << pts.size() << " points" << std::endl;
     amplCurve.updateWithCurvePts (getCurvePtsForValueTree (valueTree.getChildWithName (idAmplTree)));
 }
 
@@ -384,7 +382,6 @@ std::vector<CurvePt> CabinEqValueTree::getCurvePtsForValueTree (juce::ValueTree 
     
     if (! curvePtValueTree.isValid())
     {
-        std::cout << profileName << ": value tree not valid!" << std::endl;
         return curvePts;
     }
     
@@ -395,8 +392,6 @@ std::vector<CurvePt> CabinEqValueTree::getCurvePtsForValueTree (juce::ValueTree 
         float val = curvePt.getProperty (idVal);
         curvePts.emplace_back (id, freq, val);
     }
-    
-    std::cout << profileName << ": getting " << curvePts.size() << " points" << std::endl;
     
     return curvePts;
 }
