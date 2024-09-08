@@ -16,8 +16,35 @@ CabinEqValueTreeManager::CabinEqValueTreeManager (juce::AudioProcessorValueTreeS
 
 void CabinEqValueTreeManager::addProfile (juce::String profileName)
 {
+    // Create the profile
     if (getProfileNamed (profileName) == std::nullopt)
-        profiles.push_back (std::make_unique<CabinEqValueTree> (apvts, profileName));
+    {
+        auto newProfile = std::make_unique<CabinEqValueTree> (apvts, profileName);
+        
+        // Add starter points, logarithmically spaced
+        int numPoints = 6;
+        float paddingFactor = 1.04; // so the points aren't right up against the edge
+        float minFreq = 20 * paddingFactor;
+        float maxFreq = 20000 / paddingFactor;
+        std::vector<float> freqs;
+        
+        for (int i = 0; i < numPoints; ++i)
+        {
+            float ratio = static_cast<float> (i) / (numPoints - 1);
+            float logFreq = minFreq * std::pow (maxFreq / minFreq, ratio);
+            freqs.push_back (logFreq);
+        }
+        
+        for (const auto& freq : freqs)
+        {
+            newProfile->addAmplPt (freq, 0);
+            newProfile->addPanPt (freq, 0);
+            newProfile->addPhasePt (freq, 0);
+        }
+        
+        profiles.push_back (std::move (newProfile));
+    }
+    
 }
 
 void CabinEqValueTreeManager::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)

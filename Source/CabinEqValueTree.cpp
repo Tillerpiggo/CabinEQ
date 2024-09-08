@@ -109,8 +109,7 @@ const std::optional<CurvePt> CabinEqValueTree::getPhasePtWithId (const int id) c
 
 Curve& CabinEqValueTree::getAmplCurve()
 {
-    std::cout << "getting ampl curve" << std::endl;
-    
+    updateAmplCurve();
     return amplCurve;
 }
 
@@ -127,9 +126,10 @@ Curve& CabinEqValueTree::getPhaseCurve()
 
 int CabinEqValueTree::addAmplPt (const float freq, const float ampl)
 {
+    std::cout << "adding ampl pt" << std::endl;
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
-    
+    std::cout << "...and has been initialized" << std::endl;
     auto amplPtTree = valueTree.getChildWithName (idAmplTree);
     int id = getNextIdForCurvePtTree (amplPtTree);
     addCurvePtToTree (id, freq, ampl, amplPtTree);
@@ -355,12 +355,16 @@ void CabinEqValueTree::printValueTree (juce::ValueTree valueTree) const
 
 void CabinEqValueTree::updateCurves()
 {
+    std::cout << "UPDATING CURVES" << std::endl;
     updateAmplCurve();
     updatePanCurve();
+    updatePhaseCurve();
 }
 
 void CabinEqValueTree::updateAmplCurve()
 {
+    auto pts = getCurvePtsForValueTree (valueTree.getChildWithName (idAmplTree));
+    std::cout << "updating ampl curve with " << pts.size() << " points" << std::endl;
     amplCurve.updateWithCurvePts (getCurvePtsForValueTree (valueTree.getChildWithName (idAmplTree)));
 }
 
@@ -379,7 +383,10 @@ std::vector<CurvePt> CabinEqValueTree::getCurvePtsForValueTree (juce::ValueTree 
     std::vector<CurvePt> curvePts;
     
     if (! curvePtValueTree.isValid())
+    {
+        std::cout << profileName << ": value tree not valid!" << std::endl;
         return curvePts;
+    }
     
     for (const auto& curvePt : curvePtValueTree)
     {
@@ -388,6 +395,8 @@ std::vector<CurvePt> CabinEqValueTree::getCurvePtsForValueTree (juce::ValueTree 
         float val = curvePt.getProperty (idVal);
         curvePts.emplace_back (id, freq, val);
     }
+    
+    std::cout << profileName << ": getting " << curvePts.size() << " points" << std::endl;
     
     return curvePts;
 }

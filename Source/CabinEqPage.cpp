@@ -298,10 +298,8 @@ void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     if (isDuplicateProfileName (textEditor.getText()))
         return;
     
-    // Add the profile and dismiss the window
-    juce::String profileName = textEditor.getText();
-    
     // Add & retrieve profile from processor
+    juce::String profileName = textEditor.getText();
     if (! creatingDuplicate)
     {
         processor.addProfile (profileName);
@@ -318,6 +316,7 @@ void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     goToProfileWithId (profileName);
     loadDropdownOptions();
     
+    // Finally, dismiss the window
     dismissAlertWindow();
 }
 
@@ -336,7 +335,7 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == &profileDropdown)
     {
         // Add a profile if you select "+ Add Profile"
-        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 1)
+        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 1 || profileDropdown.getNumItems() == 1)
         {
             // Create a present an alert for the user to enter the profile name into
             alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
