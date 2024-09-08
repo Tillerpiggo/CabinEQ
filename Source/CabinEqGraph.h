@@ -124,6 +124,7 @@ private:
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
     bool isTestingFreq = false;
+    bool isPlayingFreq = false;
     std::optional<float> addingFreq;
     float selectedDotSize = DOT_SIZE_DEFAULT;
     std::optional<float> targetSelectedDotSize;

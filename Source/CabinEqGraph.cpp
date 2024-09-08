@@ -287,13 +287,15 @@ void CabinEqGraph::drawDots (juce::Graphics& g, Curve& curve)
             dotRadius = selectedDotSize;
             
             // We also need to change the selected dot size to sync with the reference tone playing
-            if (getCurrPlayingFreq() != REFERENCE_FREQ)
+            if (getCurrPlayingFreq() != REFERENCE_FREQ && isPlayingFreq)
             {
                 dotColor = dotColor.interpolatedWith (juce::Colours::orange, 0.4);
+                std::cout << "(drawDots) set targetSelectedDotSize to DOT_SIZE_DRAGGING * 0.9" << std::endl;
                 targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
             }
             else
             {
+                std::cout << "(drawDots) set targetSelectedDotSize to DOT_SIZE_DRAGGING" << std::endl;
                 targetSelectedDotSize = DOT_SIZE_DRAGGING;
             }
         }
@@ -366,11 +368,12 @@ void CabinEqGraph::updateSelectedDotSize()
         return;
     
     // If we're close enough to the target size, just become the target size and stop updating
-    if (selectedDotSize > targetSelectedDotSize.value() / ANIM_STEP &&
-        selectedDotSize < targetSelectedDotSize.value() * ANIM_STEP)
+    if (selectedDotSize >= targetSelectedDotSize.value() / ANIM_STEP &&
+        selectedDotSize <= targetSelectedDotSize.value() * ANIM_STEP)
     {
-        if (targetSelectedDotSize.value() == DOT_SIZE_DEFAULT)
-            hoveringId = -1; // tbh not sure what this does, should see what happens if it's removed
+//        std::cout << "selected dot size close enough" << std::endl;
+//        if (targetSelectedDotSize.value() == DOT_SIZE_DEFAULT)
+//            hoveringId = -1; // tbh not sure what this does, should see what happens if it's removed
         
         selectedDotSize = targetSelectedDotSize.value();
         targetSelectedDotSize.reset();
@@ -403,6 +406,7 @@ void CabinEqGraph::updateHoveringAndAddingNode (const juce::MouseEvent& event)
     if (hoveringCurvePt.has_value())
     {
         hoveringId = hoveringCurvePt.value().id;
+        std::cout << "set targetSelectedDotSize to DOT_SIZE_DRAGGING" << std::endl;
         targetSelectedDotSize = DOT_SIZE_DRAGGING;
         
         // If we're hovering, we don't want to show the ghost node to add
@@ -411,6 +415,7 @@ void CabinEqGraph::updateHoveringAndAddingNode (const juce::MouseEvent& event)
     }
     else if (! (event.mods.isCtrlDown() || event.mods.isAltDown()))
     {
+        std::cout << "set targetSelectedDotSize to DOT_SIZE_DEFAULT" << std::endl;
         targetSelectedDotSize = DOT_SIZE_DEFAULT;
     }
 }
@@ -600,13 +605,19 @@ void CabinEqGraph::removeNode (int id)
 void CabinEqGraph::startPlayingValueAt (float freq)
 {
     if (listener != nullptr)
+    {
         listener->startPlayingValueAt (freq, this);
+        isPlayingFreq = true;
+    }
 }
 
 void CabinEqGraph::updatePlayingValueAt (float freq)
 {
     if (listener != nullptr)
+    {
         listener->updatePlayingValueAt (freq, this);
+        isPlayingFreq = true;
+    }
 }
 
 void CabinEqGraph::testValueAt (float freq)
@@ -618,7 +629,10 @@ void CabinEqGraph::testValueAt (float freq)
 void CabinEqGraph::stopPlaying()
 {
     if (listener != nullptr)
+    {
         listener->stopPlaying();
+        isPlayingFreq = false;
+    }
 }
 
 void CabinEqGraph::stopTesting()
