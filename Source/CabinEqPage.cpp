@@ -447,6 +447,14 @@ void CabinEqPage::didLoadData()
         goToProfileWithId (lastSelectedProfileName.value());
         loadDropdownOptions();
     }
+    
+    // If there are no profiles, add one
+    if (processor.getProfileNames().size() == 0)
+    {
+        juce::String firstProfileId = "My Headphone Profile";
+        processor.addProfile (firstProfileId);
+        goToProfileWithId (firstProfileId);
+    }
 }
 
 void CabinEqPage::timerCallback()
