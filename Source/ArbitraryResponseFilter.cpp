@@ -76,8 +76,11 @@
 
 void ArbitraryResponseFilter::updateWithCurves(Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fft_size)
 {
-    impulseResponseLoaderThread.reset (new ImpulseResponseLoaderThread (*this, amplCurve, panCurve, phaseCurve, fft_size));
-    impulseResponseLoaderThread->startThread();
+//    impulseResponseLoaderThread.reset (new ImpulseResponseLoaderThread (*this, amplCurve, panCurve, phaseCurve, fft_size));
+//    impulseResponseLoaderThread->startThread();
+    juce::Thread::launch([this, &amplCurve, &panCurve, &phaseCurve, fft_size]() {
+        generateAndLoadImpulseResponse(amplCurve, panCurve, phaseCurve, fft_size);
+    });
 }
 
 void ArbitraryResponseFilter::generateAndLoadImpulseResponse(Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fft_size)
@@ -137,8 +140,11 @@ void ArbitraryResponseFilter::generateAndLoadImpulseResponse(Curve& amplCurve, C
     impulseBuffer.copyFrom(0, 0, leftImpulseData, numSamples);
     impulseBuffer.copyFrom(1, 0, rightImpulseData, numSamples);
 
-    convolution->reset();
-    convolution->loadImpulseResponse(std::move(impulseBuffer), sampleRate, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, juce::dsp::Convolution::Normalise::no);
+    {
+        juce::GenericScopedLock<juce::CriticalSection> lock(convolutionLock);
+        convolution->reset();
+        convolution->loadImpulseResponse(std::move(impulseBuffer), sampleRate, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, juce::dsp::Convolution::Normalise::no);
+    }
 
     delete[] leftImpulseData;
     delete[] rightImpulseData;

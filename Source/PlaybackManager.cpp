@@ -63,13 +63,12 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     }
     else
     {
-        auto numSamples = ioBuffer.getNumSamples();
-        
         juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
         auto ioContext = juce::dsp::ProcessContextReplacing<float> (ioBlock);
-        if ((isProcessing && hasPreparedFilter) || isSweeping)
+        ioContext.isBypassed = ! isProcessing; // convolution will handle the bypass appropriately in it's process method
+        filter.process (ioContext);
+        if (hasPreparedFilter)
         {
-            filter.process (ioContext);
             wetGainProcessor.process (ioContext);
         }
         else
