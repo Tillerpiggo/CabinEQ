@@ -167,6 +167,7 @@ int CabinEqValueTree::addPhasePt (const float freq, const float phase)
     
     return id;
 }
+
 void CabinEqValueTree::removeAmplPt (const int id)
 {
     if (! hasBeenInitialized)
@@ -288,6 +289,12 @@ void CabinEqValueTree::copyFrom (CabinEqValueTree& other)
     initValueTreeFromAPVTS();
     valueTree.copyPropertiesAndChildrenFrom (other.valueTree, nullptr);
     updateCurves();
+}
+
+void CabinEqValueTree::renameTo (juce::String newName)
+{
+    profileName = newName;
+    valueTree.setProperty (idProfileName, newName, nullptr);
 }
 
 void CabinEqValueTree::addCurvePtToTree (int id, float freq, float val, juce::ValueTree curvePtTree)

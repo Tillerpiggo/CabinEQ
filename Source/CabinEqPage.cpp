@@ -284,19 +284,30 @@ void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)
 {
     // Check if the text is a duplicate. If it is, add a warning on the alert window
     auto text = textEditor.getText();
-    alertWindow->setMessage (isDuplicateProfileName (text) ? "This profile name is already taken!" :
-                                                             "Enter your profile name");
+    bool isDuplicate = isDuplicateProfileName (text);
+    if (renamingProfile && text == profileId) // To be less annoying, let people rename a profile to itself
+        isDuplicate = false;
+    alertWindow->setMessage (isDuplicate ? "This profile name is already taken!" :
+                                           "Enter your profile name");
 }
 
 void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
 {
-    std::cout << "text editor return key pressed" << std::endl;
     if (textEditor.getText().isEmpty())
         return;
     
     // Check if the text is a duplicate. If it is, don't add or do anything
     if (isDuplicateProfileName (textEditor.getText()))
         return;
+    
+    // If we're renaming the profile to a new name, change the name of the profile
+    if (renamingProfile)
+    {
+        juce::String text = textEditor.getText();
+        processor.renameProfile (profileId, text);
+        profileId = text;
+        goToProfileWithId (text);
+    }
     
     // Add & retrieve profile from processor
     juce::String profileName = textEditor.getText();
@@ -335,9 +346,9 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == &profileDropdown)
     {
         // Add a profile if you select "+ Add Profile"
-        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 1 || profileDropdown.getNumItems() == 1)
+        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 2 || profileDropdown.getNumItems() == 1)
         {
-            // Create a present an alert for the user to enter the profile name into
+            // Create and present an alert for the user to enter the profile name into
             alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
             creatingDuplicate = false;
             
@@ -351,7 +362,7 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
         }
         
         // Duplicate a profile if you select "Duplicate [profilename]"
-        else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems())
+        else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 1)
         {
             // Present option to add duplicate profile, and opportunity to name it
             // Create a present an alert for the user to enter the profile name into
@@ -367,6 +378,22 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             }
             
             alertWindow->addTextEditor (textEditorName, copyName);
+            alertWindow->getTextEditor (textEditorName)->addListener (this);
+            alertWindow->setEscapeKeyCancels (true);
+            
+            alertWindow->enterModalState();
+            
+            profileDropdown.setSelectedId (lastSelectedId);
+        }
+        
+        // Rename a profile if you select "Rename [profileName]"
+        else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems())
+        {
+            // Create and present alert to rename profile
+            alertWindow = std::make_unique<juce::AlertWindow> ("Rename Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+            renamingProfile = true;
+            
+            alertWindow->addTextEditor (textEditorName, profileId);
             alertWindow->getTextEditor (textEditorName)->addListener (this);
             alertWindow->setEscapeKeyCancels (true);
             
@@ -519,7 +546,8 @@ void CabinEqPage::loadDropdownOptions()
     }
     
     profileDropdown.addItem ("+ Add Profile", i);
-    profileDropdown.addItem ("[] Duplicate this profile", i + 1);
+    profileDropdown.addItem ("[] Duplicate \"" + profileId + "\"", i + 1);
+    profileDropdown.addItem ("* Rename \"" + profileId + "\"", i + 2);
 }
 
 void CabinEqPage::dismissAlertWindow()

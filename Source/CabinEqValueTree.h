@@ -47,6 +47,7 @@ public:
     const juce::String getName() const;
     
     void copyFrom (CabinEqValueTree& other);
+    void renameTo (juce::String newName);
     
 private:
     void addCurvePtToTree (int id, float freq, float val, juce::ValueTree curvePtTree);

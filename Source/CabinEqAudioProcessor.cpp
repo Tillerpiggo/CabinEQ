@@ -511,6 +511,11 @@ void CabinEqAudioProcessor::removeProfile (juce::String profileName)
     cabinEqValueTreeManager.removeProfile (profileName);
 }
 
+void CabinEqAudioProcessor::renameProfile (juce::String profileName, juce::String newProfileName)
+{
+    cabinEqValueTreeManager.renameProfile (profileName, newProfileName);
+}
+
 const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const
 {
     return cabinEqValueTreeManager.getProfileNames();

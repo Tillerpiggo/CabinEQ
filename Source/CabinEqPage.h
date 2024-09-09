@@ -82,6 +82,7 @@ protected:
     bool isBlind = false;
     bool hasFilterChanged = true;
     bool creatingDuplicate = false;
+    bool renamingProfile = false;
     int fftSize = 16;
     
     juce::TabbedComponent graphs;

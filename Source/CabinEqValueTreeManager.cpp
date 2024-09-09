@@ -62,6 +62,11 @@ void CabinEqValueTreeManager::removeProfile (juce::String profileName)
             profiles.erase (profiles.begin() + i);
 }
 
+void CabinEqValueTreeManager::renameProfile (juce::String profileName, juce::String newProfileName)
+{
+    getProfileNamed (profileName)->get().renameTo (newProfileName);
+}
+
 void CabinEqValueTreeManager::initProfiles()
 {
     for (const auto& node : apvts.state)
