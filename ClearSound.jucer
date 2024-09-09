@@ -87,6 +87,10 @@
               file="Source/ArbitraryResponseFilter.cpp"/>
         <FILE id="PAcIbm" name="ArbitraryResponseFilter.h" compile="0" resource="0"
               file="Source/ArbitraryResponseFilter.h"/>
+        <FILE id="fUESmC" name="ImpulseResponseLoaderThread.cpp" compile="1"
+              resource="0" file="Source/ImpulseResponseLoaderThread.cpp"/>
+        <FILE id="mLrtoT" name="ImpulseResponseLoaderThread.h" compile="0"
+              resource="0" file="Source/ImpulseResponseLoaderThread.h"/>
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>

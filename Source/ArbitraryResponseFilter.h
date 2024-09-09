@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "Curve.h"
+#include "ImpulseResponseLoaderThread.h"
 
 class ArbitraryResponseFilter
 {
@@ -28,6 +29,7 @@ public:
     template <typename ProcessContext>
     void process (const ProcessContext &context) noexcept { convolution->process (context); }
     void updateWithCurves (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fft_size = 4);
+    void generateAndLoadImpulseResponse(Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fft_size);
     
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
@@ -43,6 +45,10 @@ protected:
     
     double sampleRate;
     int numChannels;
+    
+    // Multi-threading
+    std::unique_ptr<ImpulseResponseLoaderThread> impulseResponseLoaderThread;
+    juce::CriticalSection convolutionLock;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArbitraryResponseFilter)
 };
