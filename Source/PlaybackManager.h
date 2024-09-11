@@ -81,8 +81,9 @@ private:
     
     // Audio processing
     ArbitraryResponseFilter filter;
-    juce::dsp::Gain<float> dryGainProcessor;
-    juce::dsp::Gain<float> wetGainProcessor;
+    juce::dsp::Gain<float> gainProcessor;
+    float wetVolume = 0.0f; // in dB
+    float dryVolume = 0.0f; // in dB
     
     // Sound generation
     ArbitrarySequencer arbitrarySequencer;

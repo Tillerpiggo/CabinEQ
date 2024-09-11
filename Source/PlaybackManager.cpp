@@ -25,8 +25,8 @@ PlaybackManager::PlaybackManager()
       isProcessing (false),
       hasPreparedFilter (false)
 {
-    dryGainProcessor.setGainDecibels (0.0f);
-    wetGainProcessor.setGainDecibels (0.0f);
+    gainProcessor.setRampDurationSeconds (0.05);
+    gainProcessor.setGainDecibels (0.0f);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -67,14 +67,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         auto ioContext = juce::dsp::ProcessContextReplacing<float> (ioBlock);
         ioContext.isBypassed = ! isProcessing; // convolution will handle the bypass appropriately in it's process method
         filter.process (ioContext);
-        if (hasPreparedFilter)
-        {
-            wetGainProcessor.process (ioContext);
-        }
-        else
-        {
-            dryGainProcessor.process (ioContext);
-        }
+        gainProcessor.process (ioContext);
     }
 }
 
@@ -129,22 +122,25 @@ void PlaybackManager::setIsCalibrating (bool isCalibrating)
 void PlaybackManager::setIsProcessing (bool isProcessing)
 {
     this->isProcessing = isProcessing;
+    gainProcessor.setGainDecibels (isProcessing ? wetVolume : dryVolume);
 }
 
 void PlaybackManager::setDryWetVolumeBalance (float balance)
 {
-    dryGainProcessor.setGainDecibels (-balance);
-    wetGainProcessor.setGainDecibels (+balance);
+//    dryGainProcessor.setGainDecibels (-balance);
+//    wetGainProcessor.setGainDecibels (+balance);
 }
 
 void PlaybackManager::setWetVolume (float wetVolume)
 {
-    wetGainProcessor.setGainDecibels (wetVolume);
+    this->wetVolume = wetVolume;
+    gainProcessor.setGainDecibels (wetVolume);
 }
 
 void PlaybackManager::setDryVolume (float dryVolume)
 {
-    dryGainProcessor.setGainDecibels (dryVolume);
+    this->dryVolume = dryVolume;
+    gainProcessor.setGainDecibels (dryVolume);
 }
 
 void PlaybackManager::setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl)

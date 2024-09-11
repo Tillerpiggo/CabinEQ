@@ -345,8 +345,15 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 {
     if (comboBoxThatHasChanged == &profileDropdown)
     {
+        // Lazy flag so weird stuff doesn't happen when adding the very first profile
+        if (addingFirstProfile)
+        {
+            addingFirstProfile = false;
+            return;
+        }
+        
         // Add a profile if you select "+ Add Profile"
-        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 2 || profileDropdown.getNumItems() == 1)
+        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 2)
         {
             // Create and present an alert for the user to enter the profile name into
             alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
@@ -466,6 +473,7 @@ void CabinEqPage::buttonClicked (juce::Button *button)
 
 void CabinEqPage::didLoadData()
 {
+    addingFirstProfile = true;
     applyFilter();
     processor.setIsProcessing (! isBypassed);
     auto lastSelectedProfileName = processor.getLastSelectedProfileName();

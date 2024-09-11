@@ -105,4 +105,5 @@ protected:
     juce::Label wetVolumeLabel;
  
     bool isUnlocked = false;
+    bool addingFirstProfile = false;
 };
