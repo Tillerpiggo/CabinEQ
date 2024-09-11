@@ -294,7 +294,10 @@ void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)
 void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
 {
     if (textEditor.getText().isEmpty())
+    {
+        dismissAlertWindow();
         return;
+    }
     
     // Check if the text is a duplicate. If it is, don't add or do anything
     if (isDuplicateProfileName (textEditor.getText()))
