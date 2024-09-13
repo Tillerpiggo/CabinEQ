@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="tuQjdv" name="ClearSound" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="tuQjdv" name="CabinEQ" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
-  <MAINGROUP id="tB8nJa" name="ClearSound">
+  <MAINGROUP id="tB8nJa" name="CabinEQ">
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
       <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
             file="Source/CabinEqAudioProcessor.cpp"/>
@@ -60,6 +60,10 @@
         <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="JrYIN0" name="SpatialNoiseGenerator.cpp" compile="1" resource="0"
+              file="Source/SpatialNoiseGenerator.cpp"/>
+        <FILE id="IfcntI" name="SpatialNoiseGenerator.h" compile="0" resource="0"
+              file="Source/SpatialNoiseGenerator.h"/>
         <FILE id="ixkRFQ" name="RandomSineWaveGenerator.cpp" compile="1" resource="0"
               file="Source/RandomSineWaveGenerator.cpp"/>
         <FILE id="AXG5Jr" name="RandomSineWaveGenerator.h" compile="0" resource="0"
@@ -121,8 +125,8 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="NewProject"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="NewProject"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="CabinEQ"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
