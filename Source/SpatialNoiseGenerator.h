@@ -19,12 +19,11 @@ public:
     
     std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
-    void setAmplCurve(Curve amplCurve);
-    void setCentralFrequency(float centralFreq);
+    void setAmplCurve (Curve amplCurve);
+    void setBandpass (float centralFreq, float bandwidth);
 
 private:
     void fillBuffer();
-    void applyBandpassFilter();
 
     float sampleRate;
     int bufferSize;
@@ -34,10 +33,11 @@ private:
     static const int numSinWaves = 500;
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
-    int crossfadeLength = 40;
-    
+    int crossfadeLength = 100;
+
     Curve amplCurve;
     juce::IIRFilter bandpassFilter;
     float centralFrequency;
+    float bandwidth;
     bool toggle;
 };

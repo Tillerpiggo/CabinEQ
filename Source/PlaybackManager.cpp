@@ -77,7 +77,7 @@ void PlaybackManager::updateFilterWithCurves (Curve& amplCurve, Curve& panCurve,
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     filter.prepare (spec);
-    spatialNoiseGenerator.setSampleRate (spec.sampleRate);
+    spatialPatternGenerator.setSampleRate (spec.sampleRate);
 //    spatialPatternGenerator.prepare (spec);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
@@ -155,16 +155,18 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
-    spatialNoiseGenerator.setAmplCurve (amplCurve);
-//    spatialPatternGenerator.setAmplCurve (amplCurve);
-//    spatialPatternGenerator.setCentralFrequency (freq);
+//    spatialNoiseGenerator.setAmplCurve (amplCurve);
+//    spatialNoiseGenerator.setBandpass (freq, 1.3);
+    spatialPatternGenerator.setAmplCurve (amplCurve);
+    spatialPatternGenerator.setCenterFrequency (freq);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
-    spatialNoiseGenerator.setAmplCurve (amplCurve);
-//    spatialPatternGenerator.setAmplCurve (amplCurve);
-//    spatialPatternGenerator.setCentralFrequency (freq);
+//    spatialNoiseGenerator.setAmplCurve (amplCurve);
+//    spatialNoiseGenerator.setBandpass (freq, 1.3);
+    spatialPatternGenerator.setAmplCurve (amplCurve);
+    spatialPatternGenerator.setCenterFrequency (freq);
 }
 
 void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
@@ -264,8 +266,7 @@ void PlaybackManager::setReferencePan (float pan)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return spatialNoiseGenerator.getNextSample();
-//    return spatialPatternGenerator.getNextSample();
+    return spatialPatternGenerator.getNextSample();
 }
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)

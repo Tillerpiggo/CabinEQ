@@ -11,36 +11,45 @@
 #include "SpatialPatternGenerator.h"
 
 SpatialPatternGenerator::SpatialPatternGenerator()
-    : patternInterval (44100), // Hardcoded to 1 second at 44.1kHz
-      sampleCounter (0),
-      centralFrequency (1000.0f) // Default central frequency
+    : alternationPeriod (20000), sampleCounter (0), useUpperBandpass (true)
 {
-    noiseGenerator.setCentralFrequency (centralFrequency);
 }
 
-std::pair<float, float> SpatialPatternGenerator::getNextSample()
+void SpatialPatternGenerator::setSampleRate (float sampleRate)
 {
-    if (++sampleCounter >= patternInterval)
-    {
-        sampleCounter = 0;
-        noiseGenerator.setCentralFrequency (centralFrequency);
-    }
-
-    return noiseGenerator.getNextSample();
-}
-
-void SpatialPatternGenerator::prepare (const juce::dsp::ProcessSpec& spec)
-{
-//    noiseGenerator.prepare (spec);
-}
-
-void SpatialPatternGenerator::setCentralFrequency (float centralFreq)
-{
-    centralFrequency = centralFreq;
-    noiseGenerator.setCentralFrequency (centralFrequency);
+    noiseGenerator.setSampleRate (sampleRate);
 }
 
 void SpatialPatternGenerator::setAmplCurve (Curve& amplCurve)
 {
     noiseGenerator.setAmplCurve (amplCurve);
+}
+
+void SpatialPatternGenerator::setCenterFrequency (float centerFrequency)
+{
+    this->centerFrequency = centerFrequency;
+    updateBandpass();
+}
+
+std::pair<float, float> SpatialPatternGenerator::getNextSample()
+{
+    std::pair<float, float> sample = noiseGenerator.getNextSample();
+
+    sampleCounter++;
+    if (sampleCounter >= alternationPeriod)
+    {
+        sampleCounter = 0;
+        useUpperBandpass = !useUpperBandpass;
+        updateBandpass();
+    }
+
+    return sample;
+}
+
+void SpatialPatternGenerator::updateBandpass()
+{
+    float offset = 0.1f; // Adjust the offset to control the separation between upper and lower bandpass
+    float bandpassFrequency = useUpperBandpass ? centerFrequency * (1.0f + offset) : centerFrequency * (1.0f - offset);
+    float bandwidth = 0.1f; // Adjust the bandwidth as needed
+    noiseGenerator.setBandpass (bandpassFrequency, bandwidth);
 }

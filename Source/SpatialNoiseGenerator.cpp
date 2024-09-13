@@ -11,20 +11,22 @@
 #include "SpatialNoiseGenerator.h"
 
 SpatialNoiseGenerator::SpatialNoiseGenerator()
-    : sampleRate (0), bufferSize (1024), bufferIndex (0)
+    : sampleRate (0), bufferSize (1024), bufferIndex (0), centralFrequency (0), bandwidth (0)
 {
-    buffer.resize (bufferSize);
-    frequencies.resize (numSinWaves);
-    amplitudes.resize (numSinWaves);
+    buffer.resize(bufferSize);
+    frequencies.resize(numSinWaves);
+    amplitudes.resize(numSinWaves);
     fillBuffer();
 }
 
-std::pair<float, float> SpatialNoiseGenerator::getNextSample() 
+std::pair<float, float> SpatialNoiseGenerator::getNextSample()
 {
     float sample = buffer[bufferIndex];
-    bufferIndex = (bufferIndex + 1) % bufferSize;
+    bufferIndex++;
+    if (bufferIndex >= bufferSize)
+        bufferIndex = 0;
 
-    if (bufferIndex == 0) 
+    if (bufferIndex == 0)
     {
         fillBuffer();
     }
@@ -37,18 +39,33 @@ void SpatialNoiseGenerator::setSampleRate(float newSampleRate)
     sampleRate = newSampleRate;
 }
 
-void SpatialNoiseGenerator::setAmplCurve (Curve amplCurve)
+void SpatialNoiseGenerator::setAmplCurve(Curve amplCurve)
 {
     this->amplCurve = amplCurve;
 }
 
+void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw)
+{
+    centralFrequency = centralFreq;
+    bandwidth = bw;
+}
+
 void SpatialNoiseGenerator::fillBuffer()
 {
-    // Generate random frequencies and amplitudes for each sine wave
+
     for (int i = 0; i < numSinWaves; ++i)
     {
-        frequencies[i] = random.nextFloat() * sampleRate;
-        amplitudes[i] = juce::Decibels::decibelsToGain(amplCurve.valueAtFrequency (frequencies[i]));
+        float minFreq = 20.0f;
+        float maxFreq = 20000.0f;
+        frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // generate randomly from 20 to 20000hz
+
+        amplitudes[i] = juce::Decibels::decibelsToGain (amplCurve.valueAtFrequency(frequencies[i]) +
+                                                        -4.5 * std::log2 (frequencies[i] / 1000.0f));
+        float freq = frequencies[i];
+        float logDistance = std::abs (std::log2(freq / centralFrequency));
+        float logRatio = logDistance / bandwidth;
+        float bandpassGain = std::exp (-1.0 * logRatio);
+        amplitudes[i] *= bandpassGain;
     }
 
     // Fill the buffer with noise samples

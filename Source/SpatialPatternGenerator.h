@@ -16,16 +16,19 @@
 class SpatialPatternGenerator {
 public:
     SpatialPatternGenerator();
-
-    std::pair<float, float> getNextSample();
-    void prepare (const juce::dsp::ProcessSpec& spec);
-    void setCentralFrequency (float centralFreq);
+    
+    void setSampleRate (float sampleRate);
+    void setCenterFrequency (float centerFrequency);
     void setAmplCurve (Curve& amplCurve);
+    std::pair<float, float> getNextSample();
 
 private:
+    void updateBandpass();
+
     SpatialNoiseGenerator noiseGenerator;
-    int patternInterval;
+    int alternationPeriod;
     int sampleCounter;
-    float centralFrequency;
+    bool useUpperBandpass;
+    float centerFrequency;
 };
 

@@ -87,8 +87,8 @@ private:
     float dryVolume = 0.0f; // in dB
     
     // Sound generation
-//    SpatialPatternGenerator spatialPatternGenerator;
-    SpatialNoiseGenerator spatialNoiseGenerator;
+    SpatialPatternGenerator spatialPatternGenerator;
+//    SpatialNoiseGenerator spatialNoiseGenerator;
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
     ArbitrarySequencer arbitrarySequencer3;
