@@ -235,11 +235,13 @@ void CabinEqAudioProcessor::setBypassBalance (float balance)
 
 void CabinEqAudioProcessor::setWetVolume (float wetVolume)
 {
+    std::cout << "setting wet volume!" << std::endl;
     playbackManager.setWetVolume (wetVolume);
 }
 
 void CabinEqAudioProcessor::setDryVolume (float dryVolume)
 {
+    std::cout << "setting dry volume!" << std::endl;
     playbackManager.setDryVolume (dryVolume);
 }
 

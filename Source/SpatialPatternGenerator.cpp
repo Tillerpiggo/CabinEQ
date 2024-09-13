@@ -11,7 +11,7 @@
 #include "SpatialPatternGenerator.h"
 
 SpatialPatternGenerator::SpatialPatternGenerator()
-    : alternationPeriod (20000), sampleCounter (0), useUpperBandpass (true)
+    : numSamplesNoteHasBeenPlaying (0)
 {
 }
 
@@ -25,31 +25,65 @@ void SpatialPatternGenerator::setAmplCurve (Curve& amplCurve)
     noiseGenerator.setAmplCurve (amplCurve);
 }
 
+void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
+{
+    this->notes = notes;
+    currNoteIdx = 0;
+    numSamplesNoteHasBeenPlaying = 0;
+    updateBandpassAndPanning();
+}
+
 void SpatialPatternGenerator::setCenterFrequency (float centerFrequency)
 {
     this->centerFrequency = centerFrequency;
-    updateBandpass();
 }
 
 std::pair<float, float> SpatialPatternGenerator::getNextSample()
 {
+    if (currNoteIdx < 0 || currNoteIdx >= notes.size())
+        return { 0, 0 };
+    
     std::pair<float, float> sample = noiseGenerator.getNextSample();
-
-    sampleCounter++;
-    if (sampleCounter >= alternationPeriod)
+    
+    numSamplesNoteHasBeenPlaying++;
+    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)
     {
-        sampleCounter = 0;
-        useUpperBandpass = !useUpperBandpass;
-        updateBandpass();
+        goToNextNote();
     }
 
-    return sample;
+    // Apply panning
+    return { sample.first * leftGain, sample.second * rightGain };
 }
 
-void SpatialPatternGenerator::updateBandpass()
+NoiseNote SpatialPatternGenerator::getCurrNote()
+{
+    if (currNoteIdx < 0 || currNoteIdx >= notes.size())
+        return notes[0];
+    return notes[currNoteIdx];
+}
+
+void SpatialPatternGenerator::goToNextNote()
+{
+    numSamplesNoteHasBeenPlaying = 0;
+    currNoteIdx++;
+    
+    if (currNoteIdx >= notes.size())
+    {
+        currNoteIdx = 0;
+    }
+    
+    updateBandpassAndPanning();
+}
+
+void SpatialPatternGenerator::updateBandpassAndPanning()
 {
     float offset = 0.1f; // Adjust the offset to control the separation between upper and lower bandpass
-    float bandpassFrequency = useUpperBandpass ? centerFrequency * (1.0f + offset) : centerFrequency * (1.0f - offset);
+    float bandpassFrequency = getCurrNote().freqFactor * centerFrequency;
     float bandwidth = 0.1f; // Adjust the bandwidth as needed
+    
+    // Adjust leftgain and rightgain according to the curr note's angle
+    float angle = getCurrNote().pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
+    leftGain = std::sqrt (2.0f) / 2.0f * (std::cos (angle) - std::sin(angle));
+    rightGain = std::sqrt (2.0f) / 2.0f * (std::cos(angle) + std::sin(angle));
     noiseGenerator.setBandpass (bandpassFrequency, bandwidth);
 }

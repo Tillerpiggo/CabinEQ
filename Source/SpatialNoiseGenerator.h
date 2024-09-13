@@ -30,7 +30,7 @@ private:
     int bufferIndex;
     std::vector<float> buffer;
     juce::Random random;
-    static const int numSinWaves = 500;
+    static const int numSinWaves = 200;
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
     int crossfadeLength = 100;

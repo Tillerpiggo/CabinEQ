@@ -290,12 +290,10 @@ void CabinEqGraph::drawDots (juce::Graphics& g, Curve& curve)
             if (getCurrPlayingFreq() != REFERENCE_FREQ && isPlayingFreq)
             {
                 dotColor = dotColor.interpolatedWith (juce::Colours::orange, 0.4);
-                std::cout << "(drawDots) set targetSelectedDotSize to DOT_SIZE_DRAGGING * 0.9" << std::endl;
                 targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
             }
             else
             {
-                std::cout << "(drawDots) set targetSelectedDotSize to DOT_SIZE_DRAGGING" << std::endl;
                 targetSelectedDotSize = DOT_SIZE_DRAGGING;
             }
         }

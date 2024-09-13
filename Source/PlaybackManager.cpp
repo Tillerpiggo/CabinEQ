@@ -27,6 +27,19 @@ PlaybackManager::PlaybackManager()
 {
     gainProcessor.setRampDurationSeconds (0.05);
     gainProcessor.setGainDecibels (0.0f);
+    
+    // Set spatial pattern generator pattern to be an "X"
+    float freqFactor = 0.5;
+    float bandwidth = 1.0;
+    int durationInSamples = 30000;
+    float pan = 0.3;
+    std::vector<NoiseNote> xPattern {
+        NoiseNote (freqFactor, bandwidth, durationInSamples, pan),
+        NoiseNote (1.0f / freqFactor, bandwidth, durationInSamples, -pan),
+        NoiseNote (freqFactor, bandwidth, durationInSamples, -pan),
+        NoiseNote (1.0f / freqFactor, bandwidth, durationInSamples, pan)
+    };
+    spatialPatternGenerator.setPattern (xPattern);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -107,6 +120,7 @@ float PlaybackManager::getCurrSineSweepFreq() const
 void PlaybackManager::setIsTesting (bool isTesting)
 {
     this->isTesting = isTesting;
+    gainProcessor.setGainDecibels (isProcessing ? wetVolume : dryVolume);
 }
 
 void PlaybackManager::setIsSweeping (bool isSweeping)
@@ -117,6 +131,7 @@ void PlaybackManager::setIsSweeping (bool isSweeping)
 void PlaybackManager::setIsCalibrating (bool isCalibrating)
 {
     this->isCalibrating = isCalibrating;
+//    gainProcessor.setGainDecibels (isCalibrating ? wetVolume : dryVolume);
 }
 
 void PlaybackManager::setIsProcessing (bool isProcessing)
@@ -133,14 +148,15 @@ void PlaybackManager::setDryWetVolumeBalance (float balance)
 
 void PlaybackManager::setWetVolume (float wetVolume)
 {
+    std::cout << "wetvolume: " << wetVolume << ", isProcessing: " << isProcessing << isProcessing << std::endl;
     this->wetVolume = wetVolume;
-    gainProcessor.setGainDecibels (wetVolume);
+    gainProcessor.setGainDecibels (isProcessing ? wetVolume : dryVolume);
 }
 
 void PlaybackManager::setDryVolume (float dryVolume)
 {
     this->dryVolume = dryVolume;
-    gainProcessor.setGainDecibels (dryVolume);
+    gainProcessor.setGainDecibels (isProcessing ? wetVolume : dryVolume);
 }
 
 void PlaybackManager::setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl)

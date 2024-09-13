@@ -13,22 +13,40 @@
 #include <JuceHeader.h>
 #include "SpatialNoiseGenerator.h"
 
+struct NoiseNote
+{
+    NoiseNote (float freqFactor, float bandwidth, int durationInSamples, float pan)
+    : freqFactor (freqFactor), bandwidth (bandwidth), durationInSamples (durationInSamples), pan (pan)
+    {}
+    
+    float freqFactor; // frequency factor from center frequency
+    float bandwidth; // bandwidth in octaves
+    int durationInSamples; // how long it lasts
+    float pan; // the panning, from -1 to 1, of the noise note
+};
+
 class SpatialPatternGenerator {
 public:
     SpatialPatternGenerator();
     
     void setSampleRate (float sampleRate);
+    void setPattern (std::vector<NoiseNote> notes);
     void setCenterFrequency (float centerFrequency);
     void setAmplCurve (Curve& amplCurve);
     std::pair<float, float> getNextSample();
 
 private:
-    void updateBandpass();
+    NoiseNote getCurrNote();
+    void updateBandpassAndPanning();
+    void goToNextNote();
 
     SpatialNoiseGenerator noiseGenerator;
-    int alternationPeriod;
-    int sampleCounter;
-    bool useUpperBandpass;
+    int numSamplesNoteHasBeenPlaying;
+    int currNoteIdx;
     float centerFrequency;
+    float leftGain;
+    float rightGain;
+    
+    std::vector<NoiseNote> notes;
 };
 

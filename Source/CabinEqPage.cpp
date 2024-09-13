@@ -276,6 +276,7 @@ void CabinEqPage::sliderValueChanged (juce::Slider *slider)
     }
     else if (slider == &wetVolumeSlider)
     {
+        std::cout << "wet volume set to " << slider->getValue() << std::endl;
         processor.setWetVolume (slider->getValue());
     }
 }
