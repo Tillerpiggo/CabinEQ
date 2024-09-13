@@ -60,6 +60,10 @@
         <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="zjJTaL" name="SpatialPatternGenerator.cpp" compile="1" resource="0"
+              file="Source/SpatialPatternGenerator.cpp"/>
+        <FILE id="rNkScX" name="SpatialPatternGenerator.h" compile="0" resource="0"
+              file="Source/SpatialPatternGenerator.h"/>
         <FILE id="JrYIN0" name="SpatialNoiseGenerator.cpp" compile="1" resource="0"
               file="Source/SpatialNoiseGenerator.cpp"/>
         <FILE id="IfcntI" name="SpatialNoiseGenerator.h" compile="0" resource="0"

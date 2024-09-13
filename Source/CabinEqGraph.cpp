@@ -453,6 +453,7 @@ juce::ColourGradient CabinEqGraph::getCurveGradient()
 
 juce::Colour CabinEqGraph::getColorForFrequency (float frequency)
 {
+    return juce::Colours::red;
     if (grayscale && ! blinded)
         return juce::Colour::fromFloatRGBA (0.3f, 0.3f, 0.3f, 1.0f);
     

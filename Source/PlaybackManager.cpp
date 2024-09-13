@@ -39,8 +39,6 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
         {
             std::pair<float, float> value = getNextSample();
-//            value.first += pinkNoise.generate() * 4.0;
-//            value.second += pinkNoise.generate() * 4.0;
             leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
             
             if (rightChannel)
@@ -79,6 +77,8 @@ void PlaybackManager::updateFilterWithCurves (Curve& amplCurve, Curve& panCurve,
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     filter.prepare (spec);
+    spatialNoiseGenerator.setSampleRate (spec.sampleRate);
+//    spatialPatternGenerator.prepare (spec);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
     arbitrarySequencer3.setSampleRate (spec.sampleRate);
@@ -155,12 +155,16 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
-    // Taking a break
+    spatialNoiseGenerator.setAmplCurve (amplCurve);
+//    spatialPatternGenerator.setAmplCurve (amplCurve);
+//    spatialPatternGenerator.setCentralFrequency (freq);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
-    // Taking a break
+    spatialNoiseGenerator.setAmplCurve (amplCurve);
+//    spatialPatternGenerator.setAmplCurve (amplCurve);
+//    spatialPatternGenerator.setCentralFrequency (freq);
 }
 
 void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
@@ -260,10 +264,8 @@ void PlaybackManager::setReferencePan (float pan)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    auto [leftSample0, rightSample0] = arbitrarySequencer.getNextSample();
-    auto [leftSample1, rightSample1] = arbitrarySequencer2.getNextSample();
-    auto [leftSample2, rightSample2] = arbitrarySequencer3.getNextSample();
-    return { leftSample0 + leftSample1 + leftSample2, rightSample0 + rightSample1 + rightSample2 };
+    return spatialNoiseGenerator.getNextSample();
+//    return spatialPatternGenerator.getNextSample();
 }
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)

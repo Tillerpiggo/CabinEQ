@@ -14,6 +14,8 @@ SpatialNoiseGenerator::SpatialNoiseGenerator()
     : sampleRate (0), bufferSize (1024), bufferIndex (0)
 {
     buffer.resize (bufferSize);
+    frequencies.resize (numSinWaves);
+    amplitudes.resize (numSinWaves);
     fillBuffer();
 }
 
@@ -40,21 +42,38 @@ void SpatialNoiseGenerator::setAmplCurve (Curve amplCurve)
     this->amplCurve = amplCurve;
 }
 
-void SpatialNoiseGenerator::fillBuffer() 
+void SpatialNoiseGenerator::fillBuffer()
 {
-    juce::Random random;
-    const int numSinWaves = 100;
+    // Generate random frequencies and amplitudes for each sine wave
+    for (int i = 0; i < numSinWaves; ++i)
+    {
+        frequencies[i] = random.nextFloat() * sampleRate;
+        amplitudes[i] = juce::Decibels::decibelsToGain(amplCurve.valueAtFrequency (frequencies[i]));
+    }
 
-    for (int i = 0; i < bufferSize; ++i) 
+    // Fill the buffer with noise samples
+    for (int i = 0; i < bufferSize; ++i)
     {
         float sample = 0.0f;
 
-        for (int j = 0; j < numSinWaves; ++j) 
+        for (int j = 0; j < numSinWaves; ++j)
         {
-            float randomFreq = random.nextFloat() * sampleRate;
-            sample += std::sin(2 * juce::MathConstants<float>::pi * randomFreq * i / sampleRate);
+            sample += std::sin(2 * juce::MathConstants<float>::pi * frequencies[j] * i / sampleRate) * amplitudes[j];
         }
 
         buffer[i] = sample / numSinWaves;
+        buffer[i] *= 50;
+
+        // Apply linear fade-in/fade-out to the buffer boundaries
+        float fadeValue = 1.0f;
+        if (i < crossfadeLength)
+        {
+            fadeValue = static_cast<float>(i) / crossfadeLength;
+        }
+        else if (i >= bufferSize - crossfadeLength)
+        {
+            fadeValue = static_cast<float>(bufferSize - i) / crossfadeLength;
+        }
+        buffer[i] *= fadeValue;
     }
 }

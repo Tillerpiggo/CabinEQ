@@ -17,6 +17,7 @@
 #include "PinkNoiseGenerator.h"
 #include "Constants.h"
 #include "RandomSineWaveGenerator.h"
+#include "SpatialPatternGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -86,6 +87,7 @@ private:
     float dryVolume = 0.0f; // in dB
     
     // Sound generation
+//    SpatialPatternGenerator spatialPatternGenerator;
     SpatialNoiseGenerator spatialNoiseGenerator;
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;

@@ -15,20 +15,29 @@
 
 class SpatialNoiseGenerator {
 public:
-    SpatialNoiseGenerator()
+    SpatialNoiseGenerator();
     
     std::pair<float, float> getNextSample();
-    void setSampleRate(float newSampleRate);
-    
-    void setAmplCurve (Curve amplCurve);
+    void setSampleRate (float newSampleRate);
+    void setAmplCurve(Curve amplCurve);
+    void setCentralFrequency(float centralFreq);
 
 private:
     void fillBuffer();
-    
+    void applyBandpassFilter();
+
     float sampleRate;
     int bufferSize;
     int bufferIndex;
     std::vector<float> buffer;
+    juce::Random random;
+    static const int numSinWaves = 500;
+    std::vector<float> frequencies;
+    std::vector<float> amplitudes;
+    int crossfadeLength = 40;
     
     Curve amplCurve;
+    juce::IIRFilter bandpassFilter;
+    float centralFrequency;
+    bool toggle;
 };
