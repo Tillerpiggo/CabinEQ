@@ -29,10 +29,10 @@ PlaybackManager::PlaybackManager()
     gainProcessor.setGainDecibels (0.0f);
     
     // Set spatial pattern generator pattern to be an "X"
-    float freqFactor = 0.5;
+    float freqFactor = 0.7;
     float bandwidth = 1.0;
-    int durationInSamples = 30000;
-    float pan = 0.3;
+    int durationInSamples = 10000;
+    float pan = 0.0;
     std::vector<NoiseNote> xPattern {
         NoiseNote (freqFactor, bandwidth, durationInSamples, pan),
         NoiseNote (1.0f / freqFactor, bandwidth, durationInSamples, -pan),
@@ -148,7 +148,6 @@ void PlaybackManager::setDryWetVolumeBalance (float balance)
 
 void PlaybackManager::setWetVolume (float wetVolume)
 {
-    std::cout << "wetvolume: " << wetVolume << ", isProcessing: " << isProcessing << isProcessing << std::endl;
     this->wetVolume = wetVolume;
     gainProcessor.setGainDecibels (isProcessing ? wetVolume : dryVolume);
 }

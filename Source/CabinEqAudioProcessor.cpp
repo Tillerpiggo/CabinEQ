@@ -241,7 +241,7 @@ void CabinEqAudioProcessor::setWetVolume (float wetVolume)
 
 void CabinEqAudioProcessor::setDryVolume (float dryVolume)
 {
-    std::cout << "setting dry volume!" << std::endl;
+    std::cout << "setting dry volume! (to " << dryVolume << ")" << std::endl;
     playbackManager.setDryVolume (dryVolume);
 }
 
