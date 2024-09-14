@@ -63,7 +63,12 @@ void SpatialNoiseGenerator::fillBuffer()
                                                         -4.5 * std::log2 (frequencies[i] / 1000.0f)); // make it pink noise
         float freq = frequencies[i];
         float logDistance = std::abs (std::log2(freq / centralFrequency));
+        if (freq > centralFrequency) // make the sound have a long tail
+            logDistance *= 0.3;
+//        else
+//            logDistance *= 1.5;
         float logRatio = logDistance / bandwidth;
+        
         float bandpassGain = std::exp (-5.0 * logRatio);
         amplitudes[i] *= bandpassGain;
     }
