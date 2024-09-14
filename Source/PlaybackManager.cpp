@@ -31,12 +31,12 @@ PlaybackManager::PlaybackManager()
     // Set spatial pattern generator pattern to be an "X"
     float freqFactorBelow = 0.9;
     float freqFactorAbove = 1 / freqFactorBelow;
-    float bandwidth = 0.6;
-    float bandwidth2 = 0.6;
-    float bandwidth3 = 0.6;
+    float bandwidth = 1.5;
+    float bandwidth2 = 1.5;
+    float bandwidth3 = 1.5;
     int durationInSamples = 10000;
     float pan = 1.0;
-    float fallingFactor = 0.8;
+    float fallingFactor = 0.6;
     float risingFactor = 1 / fallingFactor;
     std::vector<NoiseNote> fallingPattern {
         NoiseNote (fallingFactor, bandwidth, durationInSamples, 0.25),
