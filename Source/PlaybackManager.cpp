@@ -57,15 +57,18 @@ PlaybackManager::PlaybackManager()
         NoiseNote (std::pow (freqFactorBelow, 2), bandwidth, durationInSamples, 0.0),
         NoiseNote (std::pow (freqFactorBelow, 1), bandwidth, durationInSamples, 0.0),
     };
-    float lowerFactor = 0.4;
-    std::vector<NoiseNote> lowerHarmonicPattern {
-        NoiseNote (std::pow (freqFactorBelow, 4) * lowerFactor, bandwidth, durationInSamples, 0.0),
-        NoiseNote (std::pow (freqFactorBelow, 3) * lowerFactor, bandwidth, durationInSamples, 0.0),
-        NoiseNote (std::pow (freqFactorBelow, 2) * lowerFactor, bandwidth, durationInSamples, 0.0),
-        NoiseNote (std::pow (freqFactorBelow, 1) * lowerFactor, bandwidth, durationInSamples, 0.0),
+//    float lowerFactor = 0.4;
+//    std::vector<NoiseNote> lowerHarmonicPattern {
+//        NoiseNote (std::pow (freqFactorBelow, 4) * lowerFactor, bandwidth, durationInSamples, 0.0),
+//        NoiseNote (std::pow (freqFactorBelow, 3) * lowerFactor, bandwidth, durationInSamples, 0.0),
+//        NoiseNote (std::pow (freqFactorBelow, 2) * lowerFactor, bandwidth, durationInSamples, 0.0),
+//        NoiseNote (std::pow (freqFactorBelow, 1) * lowerFactor, bandwidth, durationInSamples, 0.0),
+//    };
+    std::vector<NoiseNote> noisePattern {
+        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
     };
     spatialPatternGenerator.setPattern (harmonicPattern);
-    spatialPatternGenerator2.setPattern (lowerHarmonicPattern);
+    spatialPatternGenerator2.setPattern (noisePattern);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
