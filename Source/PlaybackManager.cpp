@@ -31,16 +31,24 @@ PlaybackManager::PlaybackManager()
     // Set spatial pattern generator pattern to be an "X"
     float freqFactorBelow = 0.9;
     float freqFactorAbove = 1 / freqFactorBelow;
-    float bandwidth = 1.0;
+    float bandwidth = 1.3;
     int durationInSamples = 10000;
     float pan = 1.0;
-    std::vector<NoiseNote> xPattern {
-        NoiseNote (1.1, bandwidth, durationInSamples, -pan),
-        NoiseNote (1.3, bandwidth, durationInSamples, pan),
-        NoiseNote (1.1, bandwidth, durationInSamples, pan),
-        NoiseNote (1.3, bandwidth, durationInSamples, -pan)
+    float fallingFactor = 0.8;
+    float risingFactor = 1 / fallingFactor;
+    std::vector<NoiseNote> fallingPattern {
+        NoiseNote (fallingFactor, bandwidth, durationInSamples, 0.0),
+        NoiseNote (fallingFactor * fallingFactor, bandwidth, durationInSamples, 0.0),
+        NoiseNote (fallingFactor * fallingFactor * fallingFactor, bandwidth, durationInSamples, 0.0)
     };
-    spatialPatternGenerator.setPattern (xPattern);
+    std::vector<NoiseNote> risingPattern {
+        NoiseNote (risingFactor, bandwidth, durationInSamples, 0.0),
+        NoiseNote (risingFactor * risingFactor, bandwidth, durationInSamples, 0.0),
+        NoiseNote (risingFactor * risingFactor * risingFactor, bandwidth, durationInSamples, 0.0)
+    };
+    
+    spatialPatternGenerator.setPattern (fallingPattern);
+    spatialPatternGenerator2.setPattern (risingPattern);
     
     // Set spatial pattern generator pattern to be a "V"
 //    float freqFactor = 0.85;
@@ -148,6 +156,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     filter.prepare (spec);
     spatialPatternGenerator.setSampleRate (spec.sampleRate);
+    spatialPatternGenerator2.setSampleRate (spec.sampleRate);
 //    spatialPatternGenerator.prepare (spec);
     arbitrarySequencer.setSampleRate (spec.sampleRate);
     arbitrarySequencer2.setSampleRate (spec.sampleRate);
@@ -231,6 +240,8 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialNoiseGenerator.setBandpass (freq, 1.3);
     spatialPatternGenerator.setAmplCurve (amplCurve);
     spatialPatternGenerator.setCenterFrequency (freq);
+    spatialPatternGenerator2.setAmplCurve (amplCurve);
+    spatialPatternGenerator2.setCenterFrequency (freq);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
@@ -239,6 +250,8 @@ void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve
 //    spatialNoiseGenerator.setBandpass (freq, 1.3);
     spatialPatternGenerator.setAmplCurve (amplCurve);
     spatialPatternGenerator.setCenterFrequency (freq);
+    spatialPatternGenerator2.setAmplCurve (amplCurve);
+    spatialPatternGenerator2.setCenterFrequency (freq);
 }
 
 void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
@@ -338,7 +351,9 @@ void PlaybackManager::setReferencePan (float pan)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return spatialPatternGenerator.getNextSample();
+    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
+    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
+    return { leftSample1 + leftSample2, rightSample1 + rightSample2 };
 }
 
 float PlaybackManager::getCompensationDBAtFrequency (float frequency)
