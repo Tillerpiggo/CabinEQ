@@ -29,15 +29,16 @@ PlaybackManager::PlaybackManager()
     gainProcessor.setGainDecibels (0.0f);
     
     // Set spatial pattern generator pattern to be an "X"
-    float freqFactor = 0.7;
-    float bandwidth = 1.0;
-    int durationInSamples = 10000;
+    float freqFactorBelow = 0.9;
+    float freqFactorAbove = 1.2;
+    float bandwidth = 1.5;
+    int durationInSamples = 20000;
     float pan = 0.0;
     std::vector<NoiseNote> xPattern {
-        NoiseNote (freqFactor, bandwidth, durationInSamples, pan),
-        NoiseNote (1.0f / freqFactor, bandwidth, durationInSamples, -pan),
-        NoiseNote (freqFactor, bandwidth, durationInSamples, -pan),
-        NoiseNote (1.0f / freqFactor, bandwidth, durationInSamples, pan)
+        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, -0.1),
+        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, 0.0),
+        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, 0.1),
+        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, 0.0)
     };
     spatialPatternGenerator.setPattern (xPattern);
 }
