@@ -31,20 +31,28 @@ PlaybackManager::PlaybackManager()
     // Set spatial pattern generator pattern to be an "X"
     float freqFactorBelow = 0.9;
     float freqFactorAbove = 1 / freqFactorBelow;
-    float bandwidth = 1.3;
+    float bandwidth = 0.6;
+    float bandwidth2 = 0.6;
+    float bandwidth3 = 0.6;
     int durationInSamples = 10000;
     float pan = 1.0;
     float fallingFactor = 0.8;
     float risingFactor = 1 / fallingFactor;
     std::vector<NoiseNote> fallingPattern {
-        NoiseNote (fallingFactor, bandwidth, durationInSamples, 0.0),
-        NoiseNote (fallingFactor * fallingFactor, bandwidth, durationInSamples, 0.0),
-        NoiseNote (fallingFactor * fallingFactor * fallingFactor, bandwidth, durationInSamples, 0.0)
+        NoiseNote (fallingFactor, bandwidth, durationInSamples, 0.25),
+        NoiseNote (fallingFactor * fallingFactor, bandwidth2, durationInSamples, 0.5),
+        NoiseNote (fallingFactor * fallingFactor * fallingFactor, bandwidth3, durationInSamples, 0.75),
+        NoiseNote (fallingFactor, bandwidth, durationInSamples, -0.25),
+        NoiseNote (fallingFactor * fallingFactor, bandwidth2, durationInSamples, -0.5),
+        NoiseNote (fallingFactor * fallingFactor * fallingFactor, bandwidth3, durationInSamples, -0.75)
     };
     std::vector<NoiseNote> risingPattern {
-        NoiseNote (risingFactor, bandwidth, durationInSamples, 0.0),
-        NoiseNote (risingFactor * risingFactor, bandwidth, durationInSamples, 0.0),
-        NoiseNote (risingFactor * risingFactor * risingFactor, bandwidth, durationInSamples, 0.0)
+        NoiseNote (risingFactor, bandwidth, durationInSamples, -0.25),
+        NoiseNote (risingFactor * risingFactor, bandwidth2, durationInSamples, -0.5),
+        NoiseNote (risingFactor * risingFactor * risingFactor, bandwidth3, durationInSamples, -0.75),
+        NoiseNote (risingFactor, bandwidth, durationInSamples, 0.25),
+        NoiseNote (risingFactor * risingFactor, bandwidth2, durationInSamples, 0.5),
+        NoiseNote (risingFactor * risingFactor * risingFactor, bandwidth3, durationInSamples, 0.75)
     };
     
     spatialPatternGenerator.setPattern (fallingPattern);
