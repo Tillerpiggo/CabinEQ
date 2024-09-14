@@ -65,8 +65,8 @@ void SpatialNoiseGenerator::fillBuffer()
         float logDistance = std::abs (std::log2(freq / centralFrequency));
         if (freq > centralFrequency) // make the sound have a long tail
             logDistance *= 0.3;
-//        else
-//            logDistance *= 1.5;
+        else
+            logDistance *= 1.5;
         float logRatio = logDistance / bandwidth;
         
         float bandpassGain = std::exp (-5.0 * logRatio);

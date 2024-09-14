@@ -41,103 +41,23 @@ PlaybackManager::PlaybackManager()
 //    spatialPatternGenerator.setPattern (fourPattern);
     
     // Set spatial pattern generator pattern to be an "X"
-    float freqFactorBelow = 0.5;
+    float freqFactorBelow = 0.7;
     float freqFactorAbove = 2.0;
     float bandwidth = 3.5;
-    float bandwidth2 = 1.5;
-    float bandwidth3 = 1.5;
-    int durationInSamples = 30000;
-    float pan = 1.0;
-    float xFactor = 0.4;
-//    float risingFactor = 1 / fallingFactor;
-    std::vector<NoiseNote> xPattern {
-        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, 0.0),
-        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
-        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, 0.0),
-        NoiseNote (4.0, bandwidth, durationInSamples, 0.0)
-        
-//        NoiseNote (1.0 / freqFactorBelow, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (xFactor, bandwidth, durationInSamples, -1.0),
-//        NoiseNote (1.0 / xFactor, bandwidth, durationInSamples, 1.0)
-    };
-    spatialPatternGenerator.setPattern (xPattern);
-    
-//    std::vector<NoiseNote> fallingPattern {
-//        NoiseNote (fallingFactor, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (fallingFactor * fallingFactor, bandwidth2, durationInSamples, 0.0),
-//        NoiseNote (fallingFactor * fallingFactor * fallingFactor, bandwidth3, durationInSamples, 0.0),
-//        NoiseNote (fallingFactor * fallingFactor, bandwidth2, durationInSamples, 0.0)
-////        NoiseNote (fallingFactor, bandwidth, durationInSamples, -0.25),
-////        NoiseNote (fallingFactor * fallingFactor, bandwidth2, durationInSamples, -0.5),
-////        NoiseNote (fallingFactor * fallingFactor * fallingFactor, bandwidth3, durationInSamples, -0.75)
-//    };
-//    std::vector<NoiseNote> risingPattern {
-//        NoiseNote (1.0f, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (risingFactor, bandwidth2, durationInSamples, 0.0),
-//        NoiseNote (1.0 * risingFactor, bandwidth3, durationInSamples, 0.0),
-//        NoiseNote (fallingFactor, bandwidth, durationInSamples, 0.0),
-////        NoiseNote (risingFactor * risingFactor, bandwidth2, durationInSamples, 0.5),
-////        NoiseNote (risingFactor * risingFactor * risingFactor, bandwidth3, durationInSamples, 0.75)
-//    };
-    
-//    spatialPatternGenerator.setPattern (fallingPattern);
-//    spatialPatternGenerator2.setPattern (risingPattern);
-//    
-    // Set spatial pattern generator pattern to be a "V"
-//    float freqFactor = 0.85;
-//    float freqFactorMain = 0.93;
-//    float freqFactorBelow = freqFactor * freqFactorMain;
-//    float freqFactorAbove = freqFactorMain / freqFactor;
-//    float bandwidth = 0.15;
-//    int durationInSamples = 15000;
-//    std::vector<NoiseNote> vPattern {
-//        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, -1.0),
-//        NoiseNote (freqFactorMain, bandwidth, durationInSamples, -0.5),
+    int durationInSamples = 10000;
+//    std::vector<NoiseNote> xPattern {
 //        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (freqFactorMain, bandwidth, durationInSamples, 0.5),
-//        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, 1.0),
-//        NoiseNote (freqFactorMain, bandwidth, durationInSamples, 0.5),
-//        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (freqFactorMain, bandwidth, durationInSamples, -0.5)
-//    };
-//    spatialPatternGenerator.setPattern (vPattern);
-    
-    // Set spatial pattern generator pattern to diagonal lines ////
-//    float freqFactor = 0.6;
-//    float freqFactorMain = 1.0;
-//    float freqFactorBelow = freqFactor * freqFactorMain;
-//    float freqFactorAbove = freqFactorMain / freqFactor;
-//    float bandwidth = 0.45;
-//    int durationInSamples = 10000;
-//    std::vector<NoiseNote> diagonalPattern {
-//        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, -1.0),
-//        NoiseNote (freqFactorMain, bandwidth, durationInSamples, -0.8),
-//        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, -0.6),
-//    };
-//    
-//    for (int i = 0; i < 5; ++i)
-//    {
-//        diagonalPattern.push_back (diagonalPattern[0].withPanChange (i * 0.2));
-//        diagonalPattern.push_back (diagonalPattern[1].withPanChange (i * 0.2));
-//        diagonalPattern.push_back (diagonalPattern[2].withPanChange (i * 0.2));
-//    }
-//    
-//    spatialPatternGenerator.setPattern (diagonalPattern);
-    
-    // Set spatial pattern generator pattern to diamond
-//    float freqFactor = 0.9;
-//    float freqFactorMain = 1.0;
-//    float freqFactorBelow = freqFactor * freqFactorMain;
-//    float freqFactorAbove = freqFactorMain / freqFactor;
-//    float bandwidth = 0.1;
-//    int durationInSamples = 10000;
-//    std::vector<NoiseNote> diamondPattern {
+//        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
 //        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (freqFactorMain, bandwidth, durationInSamples, -0.05),
-//        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (freqFactorMain, bandwidth, durationInSamples, 0.05),
+//        NoiseNote (4.0, bandwidth, durationInSamples, 0.0)
 //    };
-//    spatialPatternGenerator.setPattern (diamondPattern);
+    std::vector<NoiseNote> harmonicPattern {
+        NoiseNote (std::pow (freqFactorBelow, 4), bandwidth, durationInSamples, 0.0),
+        NoiseNote (std::pow (freqFactorBelow, 3), bandwidth, durationInSamples, 0.0),
+        NoiseNote (std::pow (freqFactorBelow, 2), bandwidth, durationInSamples, 0.0),
+        NoiseNote (std::pow (freqFactorBelow, 1), bandwidth, durationInSamples, 0.0),
+    };
+    spatialPatternGenerator.setPattern (harmonicPattern);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
