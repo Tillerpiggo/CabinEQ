@@ -64,7 +64,7 @@ void SpatialNoiseGenerator::fillBuffer()
         float freq = frequencies[i];
         float logDistance = std::abs (std::log2(freq / centralFrequency));
         float logRatio = logDistance / bandwidth;
-        float bandpassGain = std::exp (-1.0 * logRatio);
+        float bandpassGain = std::exp (-5.0 * logRatio);
         amplitudes[i] *= bandpassGain;
     }
 
