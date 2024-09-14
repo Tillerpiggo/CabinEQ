@@ -41,7 +41,7 @@ PlaybackManager::PlaybackManager()
 //    spatialPatternGenerator.setPattern (fourPattern);
     
     // Set spatial pattern generator pattern to be an "X"
-    float freqFactorBelow = 0.7;
+    float freqFactorBelow = 0.9;
     float freqFactorAbove = 2.0;
     float bandwidth = 3.5;
     int durationInSamples = 10000;
@@ -57,7 +57,15 @@ PlaybackManager::PlaybackManager()
         NoiseNote (std::pow (freqFactorBelow, 2), bandwidth, durationInSamples, 0.0),
         NoiseNote (std::pow (freqFactorBelow, 1), bandwidth, durationInSamples, 0.0),
     };
+    float lowerFactor = 0.4;
+    std::vector<NoiseNote> lowerHarmonicPattern {
+        NoiseNote (std::pow (freqFactorBelow, 4) * lowerFactor, bandwidth, durationInSamples, 0.0),
+        NoiseNote (std::pow (freqFactorBelow, 3) * lowerFactor, bandwidth, durationInSamples, 0.0),
+        NoiseNote (std::pow (freqFactorBelow, 2) * lowerFactor, bandwidth, durationInSamples, 0.0),
+        NoiseNote (std::pow (freqFactorBelow, 1) * lowerFactor, bandwidth, durationInSamples, 0.0),
+    };
     spatialPatternGenerator.setPattern (harmonicPattern);
+    spatialPatternGenerator2.setPattern (lowerHarmonicPattern);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
