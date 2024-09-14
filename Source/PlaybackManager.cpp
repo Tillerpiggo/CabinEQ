@@ -51,12 +51,12 @@ PlaybackManager::PlaybackManager()
     float xFactor = 0.4;
 //    float risingFactor = 1 / fallingFactor;
     std::vector<NoiseNote> xPattern {
-        NoiseNote (500, bandwidth, durationInSamples, 0.0),//,-1.0),
+        NoiseNote (0.8, 0.3, durationInSamples, 0.0),//,-1.0),
 //        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
-        NoiseNote (1000, bandwidth, durationInSamples, 0.0),
-        NoiseNote (2000, bandwidth, durationInSamples, 0.0),
+        NoiseNote (0.8, 0.7, durationInSamples, 0.0),
+        NoiseNote (0.8, 1.2, durationInSamples, 0.0),
 //        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
-        NoiseNote (4000, bandwidth, durationInSamples, 0.0)
+        NoiseNote (0.8, 1.8, durationInSamples, 0.0)
         
 //        NoiseNote (1.0 / freqFactorBelow, bandwidth, durationInSamples, 0.0),
 //        NoiseNote (xFactor, bandwidth, durationInSamples, -1.0),
