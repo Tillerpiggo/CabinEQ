@@ -77,7 +77,9 @@ void SpatialPatternGenerator::goToNextNote()
 
 void SpatialPatternGenerator::updateBandpassAndPanning()
 {
-    float bandpassFrequency = getCurrNote().freqFactor * centerFrequency;
+    float bandpassFrequency = getCurrNote().freqFactor;
+    if (getCurrNote().isRelativeToCenterFrequency)
+        bandpassFrequency *= centerFrequency;
     
     // Adjust leftgain and rightgain according to the curr note's angle
     float angle = getCurrNote().pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]

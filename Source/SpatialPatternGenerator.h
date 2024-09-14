@@ -15,14 +15,16 @@
 
 struct NoiseNote
 {
-    NoiseNote (float freqFactor, float bandwidth, int durationInSamples, float pan)
-    : freqFactor (freqFactor), bandwidth (bandwidth), durationInSamples (durationInSamples), pan (pan)
+    NoiseNote (float freqFactor, float bandwidth, int durationInSamples, float pan, bool isRelativeToCenterFrequency = true)
+    : freqFactor (freqFactor), bandwidth (bandwidth), durationInSamples (durationInSamples), pan (pan),
+      isRelativeToCenterFrequency (isRelativeToCenterFrequency)
     {}
     
     float freqFactor; // frequency factor from center frequency
     float bandwidth; // bandwidth in octaves
     int durationInSamples; // how long it lasts
     float pan; // the panning, from -1 to 1, of the noise note
+    bool isRelativeToCenterFrequency;
     
     NoiseNote withPanChange (float panChange)
     {

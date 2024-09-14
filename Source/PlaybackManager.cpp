@@ -41,9 +41,9 @@ PlaybackManager::PlaybackManager()
 //    spatialPatternGenerator.setPattern (fourPattern);
     
     // Set spatial pattern generator pattern to be an "X"
-    float freqFactorBelow = 0.7;
-    float freqFactorAbove = 1.0 / 0.7;
-    float bandwidth = 4.0;
+    float freqFactorBelow = 0.5;
+    float freqFactorAbove = 2.0;
+    float bandwidth = 3.0;
     float bandwidth2 = 1.5;
     float bandwidth3 = 1.5;
     int durationInSamples = 30000;
@@ -51,12 +51,8 @@ PlaybackManager::PlaybackManager()
     float xFactor = 0.4;
 //    float risingFactor = 1 / fallingFactor;
     std::vector<NoiseNote> xPattern {
-        NoiseNote (0.8, 0.3, durationInSamples, 0.0),//,-1.0),
-//        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
-        NoiseNote (0.8, 0.7, durationInSamples, 0.0),
-        NoiseNote (0.8, 1.2, durationInSamples, 0.0),
-//        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
-        NoiseNote (0.8, 1.8, durationInSamples, 0.0)
+        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, 0.0),
+        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, 0.0)
         
 //        NoiseNote (1.0 / freqFactorBelow, bandwidth, durationInSamples, 0.0),
 //        NoiseNote (xFactor, bandwidth, durationInSamples, -1.0),
@@ -284,9 +280,9 @@ void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve
 //    spatialNoiseGenerator.setAmplCurve (amplCurve);
 //    spatialNoiseGenerator.setBandpass (freq, 1.3);
     spatialPatternGenerator.setAmplCurve (amplCurve);
-    spatialPatternGenerator.setCenterFrequency (freq);
-    spatialPatternGenerator2.setAmplCurve (amplCurve);
-    spatialPatternGenerator2.setCenterFrequency (freq);
+//    spatialPatternGenerator.setCenterFrequency (freq);
+//    spatialPatternGenerator2.setAmplCurve (amplCurve);
+//    spatialPatternGenerator2.setCenterFrequency (freq);
 }
 
 void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
