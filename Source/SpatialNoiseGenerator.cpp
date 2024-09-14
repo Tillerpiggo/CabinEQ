@@ -60,7 +60,7 @@ void SpatialNoiseGenerator::fillBuffer()
         frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // generate randomly from 20 to 20000hz
 
         amplitudes[i] = juce::Decibels::decibelsToGain (amplCurve.valueAtFrequency(frequencies[i]) +
-                                                        -4.5 * std::log2 (frequencies[i] / 1000.0f));
+                                                        -3.0 * std::log2 (frequencies[i] / 1000.0f)); // make it pink noise
         float freq = frequencies[i];
         float logDistance = std::abs (std::log2(freq / centralFrequency));
         float logRatio = logDistance / bandwidth;

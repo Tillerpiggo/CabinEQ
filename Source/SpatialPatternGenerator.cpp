@@ -77,13 +77,11 @@ void SpatialPatternGenerator::goToNextNote()
 
 void SpatialPatternGenerator::updateBandpassAndPanning()
 {
-    float offset = 0.1f; // Adjust the offset to control the separation between upper and lower bandpass
     float bandpassFrequency = getCurrNote().freqFactor * centerFrequency;
-    float bandwidth = 0.1f; // Adjust the bandwidth as needed
     
     // Adjust leftgain and rightgain according to the curr note's angle
     float angle = getCurrNote().pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
     leftGain = std::sqrt (2.0f) / 2.0f * (std::cos (angle) - std::sin(angle));
     rightGain = std::sqrt (2.0f) / 2.0f * (std::cos(angle) + std::sin(angle));
-    noiseGenerator.setBandpass (bandpassFrequency, bandwidth);
+    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
 }

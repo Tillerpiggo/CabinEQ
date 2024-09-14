@@ -23,6 +23,11 @@ struct NoiseNote
     float bandwidth; // bandwidth in octaves
     int durationInSamples; // how long it lasts
     float pan; // the panning, from -1 to 1, of the noise note
+    
+    NoiseNote withPanChange (float panChange)
+    {
+        return NoiseNote (freqFactor, bandwidth, durationInSamples, pan + panChange);
+    }
 };
 
 class SpatialPatternGenerator {
