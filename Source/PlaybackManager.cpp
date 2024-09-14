@@ -41,12 +41,12 @@ PlaybackManager::PlaybackManager()
 //    spatialPatternGenerator.setPattern (fourPattern);
     
     // Set spatial pattern generator pattern to be an "X"
-    float freqFactorBelow = 1.0;
-    float freqFactorAbove = 2.5;
-    float bandwidth = 2.0;
+    float freqFactorBelow = 0.8;
+    float freqFactorAbove = 2.0;
+    float bandwidth = 3.5;
     float bandwidth2 = 1.5;
     float bandwidth3 = 1.5;
-    int durationInSamples = 30000;
+    int durationInSamples = 10000;
     float pan = 1.0;
     float xFactor = 0.4;
 //    float risingFactor = 1 / fallingFactor;
