@@ -28,35 +28,17 @@ PlaybackManager::PlaybackManager()
     gainProcessor.setRampDurationSeconds (0.05);
     gainProcessor.setGainDecibels (0.0f);
     
-    // Set spatial pattern to be 4 vertical
-//    float freqFactor = 0.5;
-//    float bandwidth = 0.3;
-//    float durationInSamples = 20000;
-//    std::vector<NoiseNote> fourPattern {
-//        NoiseNote (0.25, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (0.5, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (2.0, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (4.0, bandwidth, durationInSamples, 0.0)
-//    };
-//    spatialPatternGenerator.setPattern (fourPattern);
-    
-    // Set spatial pattern generator pattern to be an "X"
-    float freqFactorBelow = 0.9;
-    float freqFactorAbove = 2.0;
-    float bandwidth = 3.5;
-    int durationInSamples = 10000;
-//    std::vector<NoiseNote> xPattern {
-//        NoiseNote (freqFactorBelow, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (freqFactorAbove, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (4.0, bandwidth, durationInSamples, 0.0)
-//    };
+    // Four ascending notes, adjusting the harmonic
+    float freqFactorBelow = 0.5;
+    float bandwidth = 3.0;
+    int durationInSamples = 15000;
     std::vector<NoiseNote> harmonicPattern {
         NoiseNote (std::pow (freqFactorBelow, 4), bandwidth, durationInSamples, 0.0),
         NoiseNote (std::pow (freqFactorBelow, 3), bandwidth, durationInSamples, 0.0),
         NoiseNote (std::pow (freqFactorBelow, 2), bandwidth, durationInSamples, 0.0),
-        NoiseNote (std::pow (freqFactorBelow, 1), bandwidth, durationInSamples, 0.0),
+        NoiseNote (std::pow (freqFactorBelow, 1), bandwidth, durationInSamples, 0.0)
     };
+    spatialPatternGenerator.setPattern (harmonicPattern);
 //    float lowerFactor = 0.4;
 //    std::vector<NoiseNote> lowerHarmonicPattern {
 //        NoiseNote (std::pow (freqFactorBelow, 4) * lowerFactor, bandwidth, durationInSamples, 0.0),
@@ -64,11 +46,20 @@ PlaybackManager::PlaybackManager()
 //        NoiseNote (std::pow (freqFactorBelow, 2) * lowerFactor, bandwidth, durationInSamples, 0.0),
 //        NoiseNote (std::pow (freqFactorBelow, 1) * lowerFactor, bandwidth, durationInSamples, 0.0),
 //    };
-    std::vector<NoiseNote> noisePattern {
-        NoiseNote (1.0, bandwidth, durationInSamples, 0.0),
-    };
-    spatialPatternGenerator.setPattern (harmonicPattern);
-    spatialPatternGenerator2.setPattern (noisePattern);
+//    std::vector<NoiseNote> noisePattern {
+//        NoiseNote (1.0, 10000000.0, durationInSamples, -1.0, false),
+//        NoiseNote (1.0, 10000000.0, durationInSamples, -0.5, false),
+//        NoiseNote (1.0, 10000000.0, durationInSamples, 0.0),
+//        NoiseNote (1.0, 10000000.0, durationInSamples, 0.5),
+//        NoiseNote (1.0, 10000000.0, durationInSamples, 1.0),
+//        NoiseNote (1.0, 1.0, durationInSamples, -1.0),
+//        NoiseNote (1.0, 1.0, durationInSamples, -0.5),
+//        NoiseNote (1.0, 1.0, durationInSamples, 0.0),
+//        NoiseNote (1.0, 1.0, durationInSamples, 0.5),
+//        NoiseNote (1.0, 1.0, durationInSamples, 1.0),
+//    };
+//    spatialPatternGenerator.setPattern (noisePattern);
+//    spatialPatternGenerator2.setPattern (noisePattern);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
