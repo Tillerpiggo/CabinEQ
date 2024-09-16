@@ -15,8 +15,9 @@
 
 struct NoiseNote
 {
-    NoiseNote (float freqFactor, float bandwidth, int durationInSamples, float pan, bool isRelativeToCenterFrequency = true)
+    NoiseNote (float freqFactor, float bandwidth, int durationInSamples, float pan, std::pair<float, float> bandwidthEnvelope, bool isRelativeToCenterFrequency = true)
     : freqFactor (freqFactor), bandwidth (bandwidth), durationInSamples (durationInSamples), pan (pan),
+      bandwidthEnvelope (bandwidthEnvelope),
       isRelativeToCenterFrequency (isRelativeToCenterFrequency)
     {}
     
@@ -24,11 +25,13 @@ struct NoiseNote
     float bandwidth; // bandwidth in octaves
     int durationInSamples; // how long it lasts
     float pan; // the panning, from -1 to 1, of the noise note
+    std::pair<float, float> bandwidthEnvelope; // first = headFactor, second = tailFactor. { 0.3, 1.5 } would indicate a long head and short tail.
     bool isRelativeToCenterFrequency;
+    
     
     NoiseNote withPanChange (float panChange)
     {
-        return NoiseNote (freqFactor, bandwidth, durationInSamples, pan + panChange);
+        return NoiseNote (freqFactor, bandwidth, durationInSamples, pan + panChange, bandwidthEnvelope, isRelativeToCenterFrequency);
     }
 };
 

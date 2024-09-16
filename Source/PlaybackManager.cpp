@@ -28,38 +28,306 @@ PlaybackManager::PlaybackManager()
     gainProcessor.setRampDurationSeconds (0.05);
     gainProcessor.setGainDecibels (0.0f);
     
-    // Four ascending notes, adjusting the harmonic
-    float freqFactorBelow = 0.5;
-    float bandwidth = 3.0;
-    int durationInSamples = 15000;
-    std::vector<NoiseNote> harmonicPattern {
-        NoiseNote (std::pow (freqFactorBelow, 4), bandwidth, durationInSamples, 0.0),
-        NoiseNote (std::pow (freqFactorBelow, 3), bandwidth, durationInSamples, 0.0),
-        NoiseNote (std::pow (freqFactorBelow, 2), bandwidth, durationInSamples, 0.0),
-        NoiseNote (std::pow (freqFactorBelow, 1), bandwidth, durationInSamples, 0.0)
+    // Eight ascending notes, adjusting the harmonic
+//    float freqFactorBelow = 2.0;
+//    float bandwidth = 3.0;
+//    std::pair<float, float> overtoneEnvelope { 1.5, 0.3 }; // long tail
+//    std::pair<float, float> undertoneEnvelope { 0.3, 1.5 }; // long head
+//    int durationInSamples = 10000;
+//    std::vector<NoiseNote> harmonicPattern {
+//        NoiseNote (std::pow (freqFactorBelow, -4), bandwidth, durationInSamples, 0.0, overtoneEnvelope),
+//        NoiseNote (std::pow (freqFactorBelow, -3), bandwidth, durationInSamples, 0.0, overtoneEnvelope),
+//        NoiseNote (std::pow (freqFactorBelow, -2), bandwidth, durationInSamples, 0.0, overtoneEnvelope),
+//        NoiseNote (std::pow (freqFactorBelow, -1), bandwidth, durationInSamples, 0.0, overtoneEnvelope),
+//        NoiseNote (std::pow (freqFactorBelow, 1), bandwidth, durationInSamples, 0.0, undertoneEnvelope),
+//        NoiseNote (std::pow (freqFactorBelow, 2), bandwidth, durationInSamples, 0.0, undertoneEnvelope),
+//        NoiseNote (std::pow (freqFactorBelow, 3), bandwidth, durationInSamples, 0.0, undertoneEnvelope),
+//        NoiseNote (std::pow (freqFactorBelow, 4), bandwidth, durationInSamples, 0.0, undertoneEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (harmonicPattern);
+    
+    // W played with upper harmonics
+//    float freqFactor = 0.5;
+//    float bandwidth = 3.0;
+//    std::pair<float, float> harmonicEnvelope { 1.5, 0.3 }; // long tail for harmonics
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> wPattern {
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.75, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, -0.5, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.25, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.25, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.5, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.75, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.75, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.5, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.25, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.25, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, -0.5, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.75, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (wPattern);
+    
+    // M played with lower harmonics
+//    float freqFactor = 2.0;
+//    float bandwidth = 3.0;
+//    std::pair<float, float> harmonicEnvelope { 0.3, 1.5 }; // long head for lower harmonics
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> mPattern {
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.75, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, -0.5, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.25, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.25, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.5, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.75, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.75, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.5, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.25, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.25, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, -0.5, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.75, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (mPattern);
+    
+    // X shape played with lower harmonics and upper harmonics
+//    float freqFactor = 2.0;
+//    float bandwidth = 3.0;
+//    std::pair<float, float> harmonicEnvelope { 0.3, 1.5 }; // long head for lower harmonics
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> forwardSlashPattern {
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -0.6, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -0.4, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -0.2, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 0), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.2, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.4, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.6, harmonicEnvelope),
+//    };
+//    std::vector<NoiseNote> backslashPattern {
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, -0.6, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, -0.4, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, -0.2, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 0), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.2, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 0.4, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 0.6, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (forwardSlashPattern);
+//    spatialPatternGenerator2.setPattern (backslashPattern);
+    
+    // Zigzag pattern
+//    float freqFactor = 1.3;
+//    float bandwidth = 2.5;
+//    std::pair<float, float> harmonicEnvelope { 1.5, 0.3 }; // long tail
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> zigzagPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (zigzagPattern);
+    
+    // Zigzag pattern (lower harmonic)
+//    float freqFactor = 1.1;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> lowerHarmonicEnvelope { 0.3, 1.5 }; // long head
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> lowerHarmonicZigzagPattern {
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, -1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, -1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 4), bandwidth, durationInSamples, 1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 5), bandwidth, durationInSamples, -1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 6), bandwidth, durationInSamples, 1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 7), bandwidth, durationInSamples, -1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 8), bandwidth, durationInSamples, 1.0, lowerHarmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (lowerHarmonicZigzagPattern);
+    
+    // Harmonic Alternating
+//    float freqFactor = 1.3;
+//    float bandwidth = 2.0;
+//    std::pair<float, float> harmonicEnvelope { 2.0, 0.2 }; // long tail
+//    int durationInSamples = 10000;
+//    std::vector<NoiseNote> harmonicPattern {
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (harmonicPattern);
+    
+    // Lower zigzag 2 (with wider bandwidth and lower freqFactor and longer head)
+//    float freqFactor = 1.05;
+//    float bandwidth = 5.0;
+//    std::pair<float, float> lowerHarmonicEnvelope { 0.3, 2.0 }; // long head
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> lowerHarmonicZigzagPattern {
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, -1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, -1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 4), bandwidth, durationInSamples, 1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 5), bandwidth, durationInSamples, -1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 6), bandwidth, durationInSamples, 1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 7), bandwidth, durationInSamples, -1.0, lowerHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 8), bandwidth, durationInSamples, 1.0, lowerHarmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (lowerHarmonicZigzagPattern);
+    
+    // Zigzag 2 (with wider bandwidth and lower freqFactor and much longer tail)
+//    float freqFactor = 1.05;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> harmonicEnvelope { 0.1, 8.0 }; // long head
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> harmonicZigzagPattern2 {
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 4), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 5), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 6), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 7), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 8), bandwidth, durationInSamples, 1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (harmonicZigzagPattern2);
+    
+    // Zigzag 3 (with different values and correct)
+//    float freqFactor = 1.04;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> harmonicEnvelope { 0.5, 2.0 }; // long head
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> harmonicZigzagPattern2 {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (harmonicZigzagPattern2);
+    
+    // Zigzag 4 (with notes in the center)
+//    float freqFactor = 1.02;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> harmonicEnvelope { 0.5, 2.0 }; // long head
+//    int durationInSamples = 3000;
+//    std::vector<NoiseNote> harmonicZigzagPattern2 {
+//        NoiseNote (std::pow (freqFactor, -12), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -11), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -10), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -9), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (harmonicZigzagPattern2);
+    
+    // Rising columns
+//    float freqFactor = 1.04;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> harmonicEnvelope { 0.5, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> leftHarmonicRisingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, harmonicEnvelope)
+//    };
+//    std::vector<NoiseNote> rightHarmonicRisingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (leftHarmonicRisingPattern);
+//    spatialPatternGenerator2.setPattern (rightHarmonicRisingPattern);
+    
+    // Falling columns
+//    float freqFactor = 1.04;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> harmonicEnvelope { 0.5, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> leftHarmonicFallingPattern {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope)
+//    };
+//    std::vector<NoiseNote> rightHarmonicFallingPattern {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (leftHarmonicFallingPattern);
+//    spatialPatternGenerator2.setPattern (rightHarmonicFallingPattern);
+    
+    // Rising columns 2
+    float freqFactor = 1.04;
+    float bandwidth = 4.0;
+    std::pair<float, float> harmonicEnvelope { 0.5, 2.0 };
+    int durationInSamples = 5000;
+    std::vector<NoiseNote> leftHarmonicRisingPattern {
+        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, harmonicEnvelope)
     };
-    spatialPatternGenerator.setPattern (harmonicPattern);
-//    float lowerFactor = 0.4;
-//    std::vector<NoiseNote> lowerHarmonicPattern {
-//        NoiseNote (std::pow (freqFactorBelow, 4) * lowerFactor, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (std::pow (freqFactorBelow, 3) * lowerFactor, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (std::pow (freqFactorBelow, 2) * lowerFactor, bandwidth, durationInSamples, 0.0),
-//        NoiseNote (std::pow (freqFactorBelow, 1) * lowerFactor, bandwidth, durationInSamples, 0.0),
-//    };
-//    std::vector<NoiseNote> noisePattern {
-//        NoiseNote (1.0, 10000000.0, durationInSamples, -1.0, false),
-//        NoiseNote (1.0, 10000000.0, durationInSamples, -0.5, false),
-//        NoiseNote (1.0, 10000000.0, durationInSamples, 0.0),
-//        NoiseNote (1.0, 10000000.0, durationInSamples, 0.5),
-//        NoiseNote (1.0, 10000000.0, durationInSamples, 1.0),
-//        NoiseNote (1.0, 1.0, durationInSamples, -1.0),
-//        NoiseNote (1.0, 1.0, durationInSamples, -0.5),
-//        NoiseNote (1.0, 1.0, durationInSamples, 0.0),
-//        NoiseNote (1.0, 1.0, durationInSamples, 0.5),
-//        NoiseNote (1.0, 1.0, durationInSamples, 1.0),
-//    };
-//    spatialPatternGenerator.setPattern (noisePattern);
-//    spatialPatternGenerator2.setPattern (noisePattern);
+    std::vector<NoiseNote> rightHarmonicRisingPattern {
+        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope)
+    };
+    spatialPatternGenerator.setPattern (leftHarmonicRisingPattern);
+    spatialPatternGenerator2.setPattern (rightHarmonicRisingPattern);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -191,22 +459,36 @@ void PlaybackManager::updateSineSweepCenterFrequency (float centerFreq, std::opt
 
 void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
-//    spatialNoiseGenerator.setAmplCurve (amplCurve);
-//    spatialNoiseGenerator.setBandpass (freq, 1.3);
     spatialPatternGenerator.setAmplCurve (amplCurve);
     spatialPatternGenerator.setCenterFrequency (freq);
     spatialPatternGenerator2.setAmplCurve (amplCurve);
     spatialPatternGenerator2.setCenterFrequency (freq);
+    
+    // Create a frequency specific pattern to play a rising/falling sequence towards it
+//    float centerFreq = 1000.0f;
+//    float freqRatio = freq / centerFreq;
+//    float freqFactor = std::pow (freqRatio, 1.0f / 8.0f);
+//    float bandwidth = 3.0;
+//    std::pair<float, float> lowerHarmonicEnvelope { 1.0, 1.0 }; // long head
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> expandingPattern {
+//        NoiseNote (centerFreq * std::pow (freqFactor, 0), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false),
+//        NoiseNote (centerFreq * std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false),
+//        NoiseNote (centerFreq * std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false),
+//        NoiseNote (centerFreq * std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false),
+//        NoiseNote (centerFreq * std::pow (freqFactor, 4), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false),
+//        NoiseNote (centerFreq * std::pow (freqFactor, 5), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false),
+//        NoiseNote (centerFreq * std::pow (freqFactor, 6), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false),
+//        NoiseNote (centerFreq * std::pow (freqFactor, 7), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false),
+//        NoiseNote (centerFreq * std::pow (freqFactor, 8), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false)
+//    };
+//    spatialPatternGenerator.setPattern (expandingPattern);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
-//    spatialNoiseGenerator.setAmplCurve (amplCurve);
-//    spatialNoiseGenerator.setBandpass (freq, 1.3);
     spatialPatternGenerator.setAmplCurve (amplCurve);
-//    spatialPatternGenerator.setCenterFrequency (freq);
-//    spatialPatternGenerator2.setAmplCurve (amplCurve);
-//    spatialPatternGenerator2.setCenterFrequency (freq);
+    spatialPatternGenerator2.setAmplCurve (amplCurve);
 }
 
 void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)

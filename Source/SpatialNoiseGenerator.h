@@ -20,7 +20,7 @@ public:
     std::pair<float, float> getNextSample();
     void setSampleRate (float newSampleRate);
     void setAmplCurve (Curve amplCurve);
-    void setBandpass (float centralFreq, float bandwidth);
+    void setBandpass (float centralFreq, float bandwidth, float bwHeadFactor, float bwTailFactor);
 
 private:
     void fillBuffer();
@@ -39,5 +39,7 @@ private:
     juce::IIRFilter bandpassFilter;
     float centralFrequency;
     float bandwidth;
+    float bwHeadFactor;
+    float bwTailFactor;
     bool toggle;
 };

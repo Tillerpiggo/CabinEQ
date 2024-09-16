@@ -44,10 +44,12 @@ void SpatialNoiseGenerator::setAmplCurve(Curve amplCurve)
     this->amplCurve = amplCurve;
 }
 
-void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw)
+void SpatialNoiseGenerator::setBandpass (float centralFreq, float bw, float bwHeadFactor, float bwTailFactor)
 {
     centralFrequency = centralFreq;
     bandwidth = bw;
+    this->bwHeadFactor = bwHeadFactor;
+    this->bwTailFactor = bwTailFactor;
 }
 
 void SpatialNoiseGenerator::fillBuffer()
@@ -63,10 +65,10 @@ void SpatialNoiseGenerator::fillBuffer()
                                                         -4.5 * std::log2 (frequencies[i] / 1000.0f)); // make it pink noise
         float freq = frequencies[i];
         float logDistance = std::abs (std::log2(freq / centralFrequency));
-        if (freq > centralFrequency) // make the sound have a long tail
-            logDistance *= 0.3;
+        if (freq > centralFrequency) // make the sound have a long head
+            logDistance *= bwHeadFactor;
         else
-            logDistance *= 1.5;
+            logDistance *= bwTailFactor;
         float logRatio = logDistance / bandwidth;
         
         float bandpassGain = std::exp (-5.0 * logRatio);
