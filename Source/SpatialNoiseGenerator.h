@@ -33,7 +33,7 @@ private:
     static const int numSinWaves = 200;
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
-    int crossfadeLength = 100;
+    int crossfadeLength = 500;
 
     Curve amplCurve;
     juce::IIRFilter bandpassFilter;

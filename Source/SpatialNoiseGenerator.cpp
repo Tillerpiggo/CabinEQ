@@ -11,7 +11,7 @@
 #include "SpatialNoiseGenerator.h"
 
 SpatialNoiseGenerator::SpatialNoiseGenerator()
-    : sampleRate (0), bufferSize (1024), bufferIndex (0), centralFrequency (0), bandwidth (0)
+    : sampleRate (0), bufferSize (4000), bufferIndex (0), centralFrequency (0), bandwidth (0)
 {
     buffer.resize(bufferSize);
     frequencies.resize(numSinWaves);
@@ -60,6 +60,12 @@ void SpatialNoiseGenerator::fillBuffer()
         float minFreq = 20.0f;
         float maxFreq = 20000.0f;
         frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // generate randomly from 20 to 20000hz
+        
+        if (bandwidth == 0)
+        {
+            amplitudes[i] = 0;
+            continue;
+        }
 
         amplitudes[i] = juce::Decibels::decibelsToGain (amplCurve.valueAtFrequency(frequencies[i]) +
                                                         -4.5 * std::log2 (frequencies[i] / 1000.0f)); // make it pink noise
@@ -69,6 +75,8 @@ void SpatialNoiseGenerator::fillBuffer()
             logDistance *= bwHeadFactor;
         else
             logDistance *= bwTailFactor;
+        
+        logDistance *= logDistance;
         float logRatio = logDistance / bandwidth;
         
         float bandpassGain = std::exp (-5.0 * logRatio);

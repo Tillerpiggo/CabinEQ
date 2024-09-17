@@ -302,32 +302,355 @@ PlaybackManager::PlaybackManager()
 //    spatialPatternGenerator2.setPattern (rightHarmonicFallingPattern);
     
     // Rising columns 2
-    float freqFactor = 1.04;
-    float bandwidth = 4.0;
-    std::pair<float, float> harmonicEnvelope { 0.5, 2.0 };
-    int durationInSamples = 5000;
-    std::vector<NoiseNote> leftHarmonicRisingPattern {
-        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, harmonicEnvelope)
-    };
-    std::vector<NoiseNote> rightHarmonicRisingPattern {
-        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope)
-    };
-    spatialPatternGenerator.setPattern (leftHarmonicRisingPattern);
-    spatialPatternGenerator2.setPattern (rightHarmonicRisingPattern);
+//    float freqFactor = 1.04;
+//    float bandwidth = 8.0;
+//    std::pair<float, float> harmonicEnvelope { 0.5, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> leftHarmonicRisingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, harmonicEnvelope)
+//    };
+//    std::vector<NoiseNote> rightHarmonicRisingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (leftHarmonicRisingPattern);
+//    spatialPatternGenerator2.setPattern (rightHarmonicRisingPattern);
+    
+    // Rising columns 3
+//    float freqFactor = 2.0;
+//    float bandwidth = 3.0;
+//    std::pair<float, float> harmonicEnvelope { 0.5, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> leftHarmonicRisingPattern {
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//    };
+//    std::vector<NoiseNote> rightHarmonicRisingPattern {
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (leftHarmonicRisingPattern);
+//    spatialPatternGenerator2.setPattern (rightHarmonicRisingPattern);
+    
+    // Converging columns
+//    float freqFactor = 1.04;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> risingHarmonicEnvelope { 0.5, 2.0 };
+//    std::pair<float, float> fallingHarmonicEnvelope { 2.0, 0.5 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> risingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope)
+//    };
+//    std::vector<NoiseNote> fallingPattern {
+//        NoiseNote (std::pow (freqFactor, 8), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 7), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 6), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 5), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 4), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (risingPattern);
+//    spatialPatternGenerator2.setPattern (fallingPattern);
+    
+    // Alternating converging columns
+//    float freqFactor = 1.04;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> risingHarmonicEnvelope { 0.5, 2.0 };
+//    std::pair<float, float> fallingHarmonicEnvelope { 2.0, 0.5 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> risingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 7), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 5), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (risingPattern);
+    
+    // Alternating converging columns (shorter bandwidth)
+//    float freqFactor = 1.04;
+//    float bandwidth = 2.0;
+//    std::pair<float, float> risingHarmonicEnvelope { 0.5, 2.0 };
+//    std::pair<float, float> fallingHarmonicEnvelope { 2.0, 0.5 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> risingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 7), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 5), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 3), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, fallingHarmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (risingPattern);
+    
+    // Alternating rising
+//    float freqFactor = 1.05;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> risingHarmonicEnvelope { 0.5, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> risingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, risingHarmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (risingPattern);
+    
+    // Alertnate rising falling
+//    float freqFactor = 1.04;
+//    float bandwidth = 4.0;
+//    std::pair<float, float> risingHarmonicEnvelope { 0.5, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> risingPattern {
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, risingHarmonicEnvelope),
+//        
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, risingHarmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (risingPattern);
+    
+    // Falling columns 2
+//    float freqFactor = 1.2;
+//    float bandwidth = 0.5;
+//    std::pair<float, float> harmonicEnvelope { 0.01, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> leftHarmonicFallingPattern {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), 0.0, durationInSamples * 3, -1.0, harmonicEnvelope)
+//    };
+//    std::vector<NoiseNote> rightHarmonicFallingPattern {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), 0.0, durationInSamples * 3, -1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (leftHarmonicFallingPattern);
+//    spatialPatternGenerator2.setPattern (rightHarmonicFallingPattern);
+//    
+    // Falling columns 3, paused
+//    float freqFactor = 1.2;
+//    float offsetFactor = 2.0;
+//    float bandwidth = 0.5;
+//    std::pair<float, float> harmonicEnvelope { 0.01, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> leftHarmonicFallingPattern {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), 0.0, durationInSamples * 3, -1.0, harmonicEnvelope)
+//    };
+//    std::vector<NoiseNote> rightHarmonicFallingPattern {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), 0.0, durationInSamples * 3, -1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (leftHarmonicFallingPattern);
+//    spatialPatternGenerator2.setPattern (rightHarmonicFallingPattern);
+    
+    // Falling columns 4, paused
+//    float freqFactor = 1.2;
+//    float offsetFactor = 2.0;
+//    float bandwidth = 0.1;
+//    std::pair<float, float> harmonicEnvelope { 0.01, 2.0 };
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> leftHarmonicFallingPattern {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), 0.0, durationInSamples * 3, -1.0, harmonicEnvelope)
+//    };
+//    std::vector<NoiseNote> rightHarmonicFallingPattern {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -2) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -3) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -4) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -5) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -6) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -7) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -8), 0.0, durationInSamples * 3, -1.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (leftHarmonicFallingPattern);
+//    spatialPatternGenerator2.setPattern (rightHarmonicFallingPattern);
+    
+    // X, again
+//    float bandwidth = 1.0;
+//    float freqFactor = 1.7;
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> xPattern2 {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (xPattern2);
+    
+    // X2, again
+//    float bandwidth = 2.0;
+//    float freqFactor = 1.7;
+//    float offsetFactor = 0.7;
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> xPattern2 {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (0, 0, durationInSamples, 0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (0, 0, durationInSamples, 0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (xPattern2);
+    
+    // X3, again
+//    float bandwidth = 2.0;
+//    float freqFactor = 1.3;
+//    float offsetFactor = 1.3;
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 2.0, 1.0 }; // long tail
+//    std::vector<NoiseNote> xPattern3 {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (0, 0, durationInSamples, 0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (0, 0, durationInSamples, 0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (xPattern3);
+    
+    // X4
+//    float bandwidth = 3.0;
+//    float freqFactor = 1.3;
+//    float offsetFactor = 1.0;
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 }; // long tail
+//    std::vector<NoiseNote> xPattern4 {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (0, 0, durationInSamples, 0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, 1.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1) * offsetFactor, bandwidth, durationInSamples, -1.0, harmonicEnvelope),
+//        NoiseNote (0, 0, durationInSamples, 0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (xPattern4);
+    
+    // Reference tone
+//    float bandwidth = 2.0;
+//    float freqFactor = 1.3;
+//    float offsetFactor = 1.0;
+//    int durationInSamples = 5000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> xPattern4 {
+//        NoiseNote (1000.0, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (1.0, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (xPattern4);
+    
+    // Elevation calibration
+//    float bandwidth = 1.0;
+//    float freqFactor = 3.0;
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> xPattern4 {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 0), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (xPattern4);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -483,6 +806,61 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //        NoiseNote (centerFreq * std::pow (freqFactor, 8), bandwidth, durationInSamples, 0.0, lowerHarmonicEnvelope, false)
 //    };
 //    spatialPatternGenerator.setPattern (expandingPattern);
+    
+    // Dynamic elevation calibration
+//    float bandwidth = 1.0;
+//    float freqFactor = 3.0;
+//    float offsetFactor;
+//    if (freq <= 1000.0f)
+//        offsetFactor = std::abs (std::log2 (freq / 1000.0f));
+//    else
+//        offsetFactor = 1.0f / std::abs (std::log2 (freq / 1000.0f));
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> xPattern4 {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 0) * offsetFactor, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1) * offsetFactor, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (xPattern4);
+    
+    // Dynamic X calibration
+//    float bandwidth = 1.0;
+//    float freqFactor = 1.5;
+//    float offsetFactor;
+//    if (freq <= 1000.0f)
+//        offsetFactor = std::abs (std::log2 (freq / 1000.0f));
+//    else
+//        offsetFactor = 1.0f / std::abs (std::log2 (freq / 1000.0f));
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> dynamicXPattern {
+//        NoiseNote (std::pow (freqFactor, -1) * offsetFactor, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1) * offsetFactor, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (dynamicXPattern);
+    
+    // Dynamic X2 Calibration
+    float bandwidth = 0.5;
+    float freqFactor = 1.15;
+    
+//    offsetFactor = 1.0;
+    int durationInSamples = 20000;
+    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+    std::vector<NoiseNote> dynamicX2Pattern {
+        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+    };
+    spatialPatternGenerator.setPattern (dynamicX2Pattern);
+    
+    // with context
+    float contextFreqFactor = 2;
+    std::vector<NoiseNote> contextNoisePattern {
+        NoiseNote (std::pow (contextFreqFactor, -1), bandwidth, durationInSamples * 3, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples * 3, 0.0, harmonicEnvelope)
+    };
+//    spatialPatternGenerator2.setPattern (contextNoisePattern);
+    
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
