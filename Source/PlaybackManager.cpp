@@ -841,25 +841,45 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator.setPattern (dynamicXPattern);
     
     // Dynamic X2 Calibration
-    float bandwidth = 0.5;
-    float freqFactor = 1.15;
+//    float bandwidth = 0.5;
+//    float freqFactor = 1.15;
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> dynamicX2Pattern {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (dynamicX2Pattern);
+//    
+//    // with context
+//    float contextFreqFactor = 2;
+//    std::vector<NoiseNote> contextNoisePattern {
+//        NoiseNote (std::pow (contextFreqFactor, -1), bandwidth, durationInSamples * 3, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples * 3, 0.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator2.setPattern (contextNoisePattern);
     
-//    offsetFactor = 1.0;
+    // Interval calibration
+//    float bandwidth = 2.0;
+//    float freqFactor = 1.15;
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> intervalPattern {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (intervalPattern);
+    
+    // Interval calibration (wider)
+    float bandwidth = 4.0;
+    float freqFactor = 1.5;
     int durationInSamples = 20000;
     std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
-    std::vector<NoiseNote> dynamicX2Pattern {
+    std::vector<NoiseNote> intervalPattern {
         NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
         NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
     };
-    spatialPatternGenerator.setPattern (dynamicX2Pattern);
-    
-    // with context
-    float contextFreqFactor = 2;
-    std::vector<NoiseNote> contextNoisePattern {
-        NoiseNote (std::pow (contextFreqFactor, -1), bandwidth, durationInSamples * 3, 0.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples * 3, 0.0, harmonicEnvelope)
-    };
-//    spatialPatternGenerator2.setPattern (contextNoisePattern);
+    spatialPatternGenerator.setPattern (intervalPattern);
     
 }
 

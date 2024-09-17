@@ -13,6 +13,36 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 
+class SineLookupTable {
+public:
+    SineLookupTable(int tableSize = 360)
+        : tableSize(tableSize), lookupTable(tableSize)
+    {
+        const float twoPi = 2.0f * juce::MathConstants<float>::pi;
+        for (int i = 0; i < tableSize; ++i) {
+            lookupTable[i] = std::sin(i * twoPi / tableSize);
+        }
+    }
+
+    float get(float angle) const
+    {
+        // Normalize angle to [0, 2pi]
+        angle = std::fmod(angle, juce::MathConstants<float>::twoPi);
+        if (angle < 0) angle += juce::MathConstants<float>::twoPi;
+
+        float index = angle * tableSize / juce::MathConstants<float>::twoPi;
+        int lowerIndex = static_cast<int>(index) % tableSize;
+        int upperIndex = (lowerIndex + 1) % tableSize;
+
+        float fraction = index - lowerIndex;
+        return lookupTable[lowerIndex] * (1.0f - fraction) + lookupTable[upperIndex] * fraction;
+    }
+
+private:
+    int tableSize;
+    std::vector<float> lookupTable;
+};
+
 class SpatialNoiseGenerator {
 public:
     SpatialNoiseGenerator();
@@ -30,7 +60,7 @@ private:
     int bufferIndex;
     std::vector<float> buffer;
     juce::Random random;
-    static const int numSinWaves = 200;
+    static const int numSinWaves = 50;
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
     int crossfadeLength = 500;
@@ -42,4 +72,5 @@ private:
     float bwHeadFactor;
     float bwTailFactor;
     bool toggle;
+    SineLookupTable sineTable;
 };

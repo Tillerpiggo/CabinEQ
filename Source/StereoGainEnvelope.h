@@ -49,6 +49,11 @@ public:
         return StereoGainEnvelope (StereoGainEnvelopeType::SILENT);
     }
     
+    static StereoGainEnvelope clap()
+    {
+        return StereoGainEnvelope (100, 1000, 8000);
+    }
+    
     StereoGainEnvelope withPan (float pan) const;
     StereoGainEnvelope withPhase (float phase, float freq) const;
     
