@@ -11,11 +11,42 @@
 #include "SpatialNoiseGenerator.h"
 
 SpatialNoiseGenerator::SpatialNoiseGenerator()
-    : sampleRate (0), bufferSize (4000), bufferIndex (0), centralFrequency (0), bandwidth (0)
+    : sampleRate (0), bufferSize (20000), bufferIndex (0), centralFrequency (0), bandwidth (0)
 {
-    buffer.resize(bufferSize);
-    frequencies.resize(numSinWaves);
-    amplitudes.resize(numSinWaves);
+    buffer.resize (bufferSize);
+    frequencies.resize (numSinWaves);
+    amplitudes.resize (numSinWaves);
+    phases.resize (numSinWaves);
+    
+    for (int i = 0; i < numSinWaves; ++i)
+    {
+        float minFreq = 20.0f;//std::max (20.0f, centralFrequency * std::pow (2.0f, -0.1f * bandwidth));
+        float maxFreq = 20000.0f;//std::min (20000.0f, centralFrequency * std::pow (2.0f, 0.1f * bandwidth));
+        frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // generate randomly from 20 to 20000hz
+        phases[i] = random.nextFloat() * M_PI * 2;
+        
+        if (bandwidth == 0)
+        {
+            amplitudes[i] = 0;
+            continue;
+        }
+
+        amplitudes[i] = juce::Decibels::decibelsToGain (amplCurve.valueAtFrequency(frequencies[i]) +
+                                                        -4.5 * std::log2 (frequencies[i] / 1000.0f)); // make it musical pink noise
+        float freq = frequencies[i];
+        float logDistance = std::abs (std::log2(freq / centralFrequency));
+        if (freq > centralFrequency) // make the sound have a long head
+            logDistance *= bwHeadFactor;
+        else
+            logDistance *= bwTailFactor;
+        
+        logDistance *= logDistance;
+        float logRatio = logDistance / bandwidth;
+        
+        float bandpassGain = std::exp (-5.0 * logRatio);
+        amplitudes[i] *= bandpassGain;
+    }
+    
     fillBuffer();
 }
 
@@ -54,13 +85,9 @@ void SpatialNoiseGenerator::setBandpass (float centralFreq, float bw, float bwHe
 
 void SpatialNoiseGenerator::fillBuffer()
 {
-
+    // Update amplitudes based on the current bandpass settings
     for (int i = 0; i < numSinWaves; ++i)
     {
-        float minFreq = 20.0f;
-        float maxFreq = 20000.0f;
-        frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // generate randomly from 20 to 20000hz
-        
         if (bandwidth == 0)
         {
             amplitudes[i] = 0;
@@ -68,7 +95,7 @@ void SpatialNoiseGenerator::fillBuffer()
         }
 
         amplitudes[i] = juce::Decibels::decibelsToGain (amplCurve.valueAtFrequency(frequencies[i]) +
-                                                        -4.5 * std::log2 (frequencies[i] / 1000.0f)); // make it pink noise
+                                                        -4.5 * std::log2 (frequencies[i] / 1000.0f));
         float freq = frequencies[i];
         float logDistance = std::abs (std::log2(freq / centralFrequency));
         if (freq > centralFrequency) // make the sound have a long head
@@ -83,29 +110,30 @@ void SpatialNoiseGenerator::fillBuffer()
         amplitudes[i] *= bandpassGain;
     }
 
+    // Calculate phase increments for each sine wave
+    std::vector<float> phaseIncrements(numSinWaves);
+    for (int j = 0; j < numSinWaves; ++j)
+    {
+        phaseIncrements[j] = 2.0f * juce::MathConstants<float>::pi * frequencies[j] / sampleRate;
+    }
+
     // Fill the buffer with noise samples
     for (int i = 0; i < bufferSize; ++i)
     {
         float sample = 0.0f;
-
         for (int j = 0; j < numSinWaves; ++j)
         {
-            sample += std::sin(2 * juce::MathConstants<float>::pi * frequencies[j] * i / sampleRate) * amplitudes[j];
-        }
+            // Update phase
+            phases[j] += phaseIncrements[j];
 
+            // Wrap phase to [0, 2*pi)
+            if (phases[j] >= juce::MathConstants<float>::twoPi)
+                phases[j] -= juce::MathConstants<float>::twoPi;
+
+            // Compute sine sample
+            sample += std::sin(phases[j]) * amplitudes[j];
+        }
         buffer[i] = sample / numSinWaves;
         buffer[i] *= 50;
-
-        // Apply linear fade-in/fade-out to the buffer boundaries
-        float fadeValue = 1.0f;
-        if (i < crossfadeLength)
-        {
-            fadeValue = static_cast<float>(i) / crossfadeLength;
-        }
-        else if (i >= bufferSize - crossfadeLength)
-        {
-            fadeValue = static_cast<float>(bufferSize - i) / crossfadeLength;
-        }
-        buffer[i] *= fadeValue;
     }
 }

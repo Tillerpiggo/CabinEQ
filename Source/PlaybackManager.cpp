@@ -871,15 +871,88 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator.setPattern (intervalPattern);
     
     // Interval calibration (wider)
-    float bandwidth = 4.0;
-    float freqFactor = 1.5;
-    int durationInSamples = 20000;
-    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
-    std::vector<NoiseNote> intervalPattern {
-        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
-        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
-    };
-    spatialPatternGenerator.setPattern (intervalPattern);
+//    float bandwidth = 4.0;
+//    float freqFactor = 1.5;
+//    int durationInSamples = 20000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> intervalPattern {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (intervalPattern);
+    
+//    // Dynamic interval calibration
+//    std::cout << "freq: " << freq << std::endl;
+//    auto lowerNode = amplCurve.nodeBelowFreq (freq);
+//    auto higherNode = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (lowerNode.has_value() && higherNode.has_value())
+//    {
+//        auto [lowerFreq, _] = lowerNode.value();
+//        auto [higherFreq, __] = higherNode.value();
+//        
+//        // Grab the frequency in between the nodes
+//        auto middleFreq = std::sqrt (lowerFreq * higherFreq);
+//        auto freqRatio = higherFreq / lowerFreq;
+//        
+//        float bandwidth = 4.0 * freqRatio;
+//        float freqFactor = std::pow (freqRatio, 1.0f / 4.0f);
+//        int durationInSamples = 15000;
+//        std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//        std::vector<NoiseNote> dynamicIntervalPattern {
+//            NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//            NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope)
+//        };
+//        spatialPatternGenerator.setPattern (dynamicIntervalPattern);
+//    }
+//    else 
+//    {
+//        float bandwidth = 4.0;
+//        float freqFactor = 1.5;
+//        int durationInSamples = 20000;
+//        std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//        std::vector<NoiseNote> intervalPattern {
+//            NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//            NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        };
+//        spatialPatternGenerator.setPattern (intervalPattern);
+//    }
+    
+    // Dynamic interval calibration 2
+    auto lowerNode = amplCurve.nodeBelowFreq (freq);
+    auto higherNode = amplCurve.nodeAboveFreq (freq);
+    
+    if (lowerNode.has_value() && higherNode.has_value())
+    {
+        auto [lowerFreq, _] = lowerNode.value();
+        auto [higherFreq, __] = higherNode.value();
+        
+        // Grab the frequency in between the nodes
+        auto middleFreq = std::sqrt (lowerFreq * higherFreq);
+        auto freqRatio = higherFreq / lowerFreq;
+        
+        float bandwidth = 4.0 * freqRatio;
+        float freqFactor = std::pow (freqRatio, 1.0f / 4.0f);
+        int durationInSamples = 5000;
+        std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+        std::vector<NoiseNote> dynamicIntervalPattern {
+            NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+            NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope)
+        };
+        spatialPatternGenerator.setPattern (dynamicIntervalPattern);
+    }
+    else
+    {
+        float bandwidth = 4.0;
+        float freqFactor = 1.5;
+        int durationInSamples = 20000;
+        std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+        std::vector<NoiseNote> intervalPattern {
+            NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+            NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+        };
+        spatialPatternGenerator.setPattern (intervalPattern);
+    }
     
 }
 

@@ -52,10 +52,6 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
     }
     
     auto [leftEnvelopeGain, rightEnvelopeGain] = getCurrNote().getGainAtSample (numSamplesNoteHasBeenPlaying);
-    // Don't use this for now...
-    leftEnvelopeGain = 1;
-    rightEnvelopeGain = 1;
-    
     
     // Apply panning
     return { sample.first * leftGain * leftEnvelopeGain, sample.second * rightGain * rightEnvelopeGain };

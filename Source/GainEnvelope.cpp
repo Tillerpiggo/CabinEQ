@@ -84,7 +84,6 @@ void GainEnvelope::setStartDelayInSamples (int delay)
 
 void GainEnvelope::setEndEarlyInSamples (int early)
 {
-    std::cout << "set end early in samples to: " << early << std::endl;
     endEarlyInSamples = early;
 }
 

@@ -404,7 +404,6 @@ void CabinEqGraph::updateHoveringAndAddingNode (const juce::MouseEvent& event)
     if (hoveringCurvePt.has_value())
     {
         hoveringId = hoveringCurvePt.value().id;
-        std::cout << "set targetSelectedDotSize to DOT_SIZE_DRAGGING" << std::endl;
         targetSelectedDotSize = DOT_SIZE_DRAGGING;
         
         // If we're hovering, we don't want to show the ghost node to add
@@ -413,7 +412,6 @@ void CabinEqGraph::updateHoveringAndAddingNode (const juce::MouseEvent& event)
     }
     else if (! (event.mods.isCtrlDown() || event.mods.isAltDown()))
     {
-        std::cout << "set targetSelectedDotSize to DOT_SIZE_DEFAULT" << std::endl;
         targetSelectedDotSize = DOT_SIZE_DEFAULT;
     }
 }

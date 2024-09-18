@@ -60,10 +60,11 @@ private:
     int bufferIndex;
     std::vector<float> buffer;
     juce::Random random;
-    static const int numSinWaves = 50;
+    static const int numSinWaves = 100;
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
-    int crossfadeLength = 500;
+    std::vector<float> phases;
+    int crossfadeLength = 0;
 
     Curve amplCurve;
     juce::IIRFilter bandpassFilter;
