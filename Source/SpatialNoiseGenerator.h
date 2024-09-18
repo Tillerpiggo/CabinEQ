@@ -64,6 +64,10 @@ private:
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
     std::vector<float> phases;
+    std::vector<float> sinPrevSamples1;  // s_{n-1} for each sine wave
+    std::vector<float> sinPrevSamples2;  // s_{n-2} for each sine wave
+    std::vector<float> cosOmegaTs;       // 2 * cos(omega T) for each sine wave
+    std::vector<float> previousAmplitudes; // To keep track of amplitude changes
     int crossfadeLength = 0;
 
     Curve amplCurve;
