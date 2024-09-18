@@ -15,7 +15,7 @@
 
 class SineLookupTable {
 public:
-    SineLookupTable(int tableSize = 1024) // Increased table size for better accuracy
+    SineLookupTable(int tableSize = 2048) // Increased table size for better accuracy
         : tableSize(tableSize), lookupTable(tableSize)
     {
         const float twoPi = 2.0f * juce::MathConstants<float>::pi;

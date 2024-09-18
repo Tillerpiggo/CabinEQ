@@ -12,7 +12,7 @@
 
 SpatialNoiseGenerator::SpatialNoiseGenerator()
     : sampleRate(44100.0f), // Set a default sample rate
-      bufferSize(4000),
+      bufferSize(2000),
       bufferIndex(0),
       centralFrequency(0),
       bandwidth(0)
