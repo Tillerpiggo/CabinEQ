@@ -60,7 +60,7 @@ private:
     int bufferIndex;
     std::vector<float> buffer;
     juce::Random random;
-    static const int numSinWaves = 50;
+    static const int numSinWaves = 100;
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
     std::vector<float> phases;          // Added phase storage

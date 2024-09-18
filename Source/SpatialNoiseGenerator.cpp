@@ -12,7 +12,7 @@
 
 SpatialNoiseGenerator::SpatialNoiseGenerator()
     : sampleRate(44100.0f), // Set a default sample rate
-      bufferSize(2000),
+      bufferSize(20000),
       bufferIndex(0),
       centralFrequency(0),
       bandwidth(0)
@@ -43,6 +43,13 @@ std::pair<float, float> SpatialNoiseGenerator::getNextSample()
 void SpatialNoiseGenerator::setSampleRate(float newSampleRate)
 {
     sampleRate = newSampleRate;
+    
+    for (int i = 0; i < numSinWaves; ++i)
+    {
+        float minFreq = 20.0f;
+        float maxFreq = 20000.0f;
+        frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // Generate random frequency
+    }
 }
 
 void SpatialNoiseGenerator::setAmplCurve(Curve amplCurve)
@@ -62,9 +69,9 @@ void SpatialNoiseGenerator::fillBuffer()
 {
     for (int i = 0; i < numSinWaves; ++i)
     {
-        float minFreq = 20.0f;
-        float maxFreq = 20000.0f;
-        frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // Generate random frequency
+//        float minFreq = 20.0f;
+//        float maxFreq = 20000.0f;
+//        frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // Generate random frequency
 
         if (bandwidth == 0)
         {

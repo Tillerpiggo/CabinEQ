@@ -931,9 +931,9 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         auto middleFreq = std::sqrt (lowerFreq * higherFreq);
         auto freqRatio = higherFreq / lowerFreq;
         
-        float bandwidth = 4.0 * freqRatio;
+        float bandwidth = 2.0 * freqRatio;
         float freqFactor = std::pow (freqRatio, 1.0f / 4.0f);
-        int durationInSamples = 5000;
+        int durationInSamples = 20000;
         std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
         std::vector<NoiseNote> dynamicIntervalPattern {
             NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
