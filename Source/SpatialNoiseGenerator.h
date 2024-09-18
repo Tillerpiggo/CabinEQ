@@ -15,7 +15,7 @@
 
 class SineLookupTable {
 public:
-    SineLookupTable(int tableSize = 360)
+    SineLookupTable(int tableSize = 1024) // Increased table size for better accuracy
         : tableSize(tableSize), lookupTable(tableSize)
     {
         const float twoPi = 2.0f * juce::MathConstants<float>::pi;
@@ -46,11 +46,11 @@ private:
 class SpatialNoiseGenerator {
 public:
     SpatialNoiseGenerator();
-    
+
     std::pair<float, float> getNextSample();
-    void setSampleRate (float newSampleRate);
-    void setAmplCurve (Curve amplCurve);
-    void setBandpass (float centralFreq, float bandwidth, float bwHeadFactor, float bwTailFactor);
+    void setSampleRate(float newSampleRate);
+    void setAmplCurve(Curve amplCurve);
+    void setBandpass(float centralFreq, float bandwidth, float bwHeadFactor, float bwTailFactor);
 
 private:
     void fillBuffer();
@@ -60,15 +60,12 @@ private:
     int bufferIndex;
     std::vector<float> buffer;
     juce::Random random;
-    static const int numSinWaves = 100;
+    static const int numSinWaves = 50;
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
-    std::vector<float> phases;
-    std::vector<float> sinPrevSamples1;  // s_{n-1} for each sine wave
-    std::vector<float> sinPrevSamples2;  // s_{n-2} for each sine wave
-    std::vector<float> cosOmegaTs;       // 2 * cos(omega T) for each sine wave
-    std::vector<float> previousAmplitudes; // To keep track of amplitude changes
-    int crossfadeLength = 0;
+    std::vector<float> phases;          // Added phase storage
+    std::vector<float> phaseIncrements; // Added phase increment storage
+    int crossfadeLength = 500;
 
     Curve amplCurve;
     juce::IIRFilter bandpassFilter;
