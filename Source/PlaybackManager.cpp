@@ -1534,7 +1534,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator.setPattern (motionX5Pattern);
     
     // Panning Back and Forth
-//    float bandwidth = 0.5;
+//    float bandwidth = 2.0;
 //    float freqFactor = 3.0;
 //    int durationInSamples = 2000;
 //    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
@@ -1546,36 +1546,135 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    {
 //        for (int i = 0; i < pans.size(); ++i)
 //        {
-//            motionX5Pattern.emplace_back (std::pow (freqFactor, freqs[i] + j), bandwidth, durationInSamples, pans[i], harmonicEnvelope);
+//            motionX5Pattern.emplace_back (std::pow (freqFactor, freqs[i]), bandwidth, durationInSamples, pans[i], harmonicEnvelope);
 //        }
 //    }
 //    
 //    spatialPatternGenerator.setPattern (motionX5Pattern);
     
     // Panning Back and Forth 2
-    float bandwidth = 0.5;
-    float freqFactor = 3.0;
-    int durationInSamples = 2000;
+//    float bandwidth = 2.0;
+//    float freqFactor = 3.0;
+//    int durationInSamples = 5000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<float> pans { -1.0, -0.5, 0.0, 0.5, 1.0 };
+//    std::vector<float> freqs { 0.0, 0.0, 0.0, 0.0, 0.0 };
+//    std::vector<NoiseNote> motionX5Pattern;
+//    
+//    for (int i = 0; i < pans.size(); ++i)
+//    {
+//        motionX5Pattern.emplace_back (1.0, bandwidth, durationInSamples, pans[i], harmonicEnvelope);
+//    }
+//    
+//    spatialPatternGenerator.setPattern (motionX5Pattern);
+    
+    // Relative Elevation Calibration
+//    float bandwidth = 1.0;
+//    float freqFactor = 3.0;
+//    int durationInSamples = 10000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> relativeElevationPattern {
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 0), bandwidth * 5.0, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (relativeElevationPattern);
+    
+    // Relative Elevation Calibration 2
+//    float bandwidth = 1.0;
+//    float freqFactor = 3.0;
+//    int durationInSamples = 10000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> relativeElevationPattern {
+//        NoiseNote (std::pow (freqFactor, -2), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 0), bandwidth * 5.0, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 2), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//    };
+//    spatialPatternGenerator.setPattern (relativeElevationPattern);
+    
+    // Relative Elevation Calibration 3
+//    float bandwidth = 1.0;
+//    float freqFactor = 3.0;
+//    int durationInSamples = 10000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> relativeElevationPattern {
+//        NoiseNote (200, bandwidth * 5.0, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (3000, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (5000, bandwidth * 5.0, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (6000, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//    };
+//    spatialPatternGenerator.setPattern (relativeElevationPattern);
+    
+    // Relative Elevation Calibration 4
+//    float bandwidth = 3.0;
+//    float freqFactor = 3.0;
+//    int durationInSamples = 10000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> relativeElevationPattern {
+//        NoiseNote (500, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (1000, bandwidth * 2.0, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (2000, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (4000, bandwidth * 2.0, durationInSamples, 0.0, harmonicEnvelope, false),
+//    };
+//    spatialPatternGenerator.setPattern (relativeElevationPattern);
+    
+    // Relative Elevation Calibration 5
+//    float bandwidth = 10.0;
+//    float freqFactor = 3.0;
+//    int durationInSamples = 10000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> relativeElevationPattern {
+//        NoiseNote (500, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (1000, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (2000, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//        NoiseNote (4000, bandwidth, durationInSamples, 0.0, harmonicEnvelope, false),
+//    };
+//    spatialPatternGenerator.setPattern (relativeElevationPattern);
+    
+    // Relative Elevation Calibration 6
+//    float bandwidth = 10.0;
+//    float freqFactor = 3.0;
+//    int durationInSamples = 10000;
+//    std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
+//    std::vector<NoiseNote> relativeElevationPattern {
+//        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope)
+//    };
+//    spatialPatternGenerator.setPattern (relativeElevationPattern);
+    
+    // Relative Elevation Calibration 7
+    float bandwidth = 3.0;
+    float freqFactor = 1.3;
+    int durationInSamples = 10000;
     std::pair<float, float> harmonicEnvelope { 1.0, 1.0 };
-    std::vector<float> pans { -1.0, 1.0 };
-    std::vector<float> freqs { 0.0, 0.0 };
-    std::vector<NoiseNote> motionX5Pattern;
-    
-    for (int j = -1; j < 2; ++j)
-    {
-        for (int i = 0; i < pans.size(); ++i)
-        {
-            motionX5Pattern.emplace_back (std::pow (freqFactor, freqs[i] + j), bandwidth, durationInSamples, pans[i], harmonicEnvelope);
-        }
-    }
-    
-    spatialPatternGenerator.setPattern (motionX5Pattern);
+    std::vector<NoiseNote> relativeElevationPattern {
+        NoiseNote (std::pow (freqFactor, -1), bandwidth * 2, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -0.5), bandwidth * 0.3, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, 0), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, 0.5), bandwidth * 0.1, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, -0.5), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (std::pow (freqFactor, 0.5), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (0, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (0, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+//        NoiseNote (0, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+    };
+    std::vector<NoiseNote> relativeElevationPattern2 {
+        NoiseNote (0, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (0, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (0, bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, -1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, 0), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+        NoiseNote (std::pow (freqFactor, 1), bandwidth, durationInSamples, 0.0, harmonicEnvelope),
+    };
+    spatialPatternGenerator.setPattern (relativeElevationPattern);
+//    spatialPatternGenerator2.setPattern (relativeElevationPattern2); // for comparison with original
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
     spatialPatternGenerator.setAmplCurve (amplCurve);
-    spatialPatternGenerator2.setAmplCurve (amplCurve);
+//    spatialPatternGenerator2.setAmplCurve (amplCurve);
 }
 
 void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)

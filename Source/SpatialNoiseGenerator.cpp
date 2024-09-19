@@ -17,8 +17,16 @@ SpatialNoiseGenerator::SpatialNoiseGenerator()
 {
     frequencies.resize(numSinWaves);
     amplitudes.resize(numSinWaves);
-    phases.resize(numSinWaves, 0.0f);          // Initialize phases
-    phaseIncrements.resize(numSinWaves, 0.0f); // Initialize phase increments
+    phases.resize(numSinWaves);
+    phaseIncrements.resize(numSinWaves, 0.0f);
+
+    juce::Random random; // JUCE random number generator
+
+    for (int i = 0; i < numSinWaves; ++i)
+    {
+        // Assign random phase between 0 and 2π
+        phases[i] = random.nextFloat() * (2.0f * juce::MathConstants<float>::pi);
+    }
 }
 
 std::pair<float, float> SpatialNoiseGenerator::getNextSample()
@@ -48,10 +56,18 @@ void SpatialNoiseGenerator::setSampleRate(float newSampleRate)
     {
         float minFreq = 20.0f;
         float maxFreq = 20000.0f;
-        frequencies[i] = minFreq * std::pow(10.0f, random.nextFloat() * std::log10(maxFreq / minFreq)); // Generate random frequency
+        float logMin = std::log10(minFreq);
+        float logMax = std::log10(maxFreq);
+        
+        // Calculate the logarithmic step
+        float logStep = (logMax - logMin) / (numSinWaves - 1);
+        
+        // Calculate the frequency for each wave
+        frequencies[i] = std::pow(10.0f, logMin + i * logStep);
         phaseIncrements[i] = frequencies[i] * (2.0f * juce::MathConstants<float>::pi) / sampleRate;
     }
 }
+
 
 void SpatialNoiseGenerator::setAmplCurve(Curve amplCurve)
 {
@@ -74,7 +90,7 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
         }
 
         amplitudes[i] = juce::Decibels::decibelsToGain(amplCurve.valueAtFrequency(frequencies[i]) +
-                                                       -3.0f * std::log2(frequencies[i] / 1000.0f)); // Pink noise
+                                                       -4.5 * std::log2(frequencies[i] / 1000.0f)); // Pink noise
         float freq = frequencies[i];
         float logDistance = std::abs(std::log2(freq / centralFrequency));
         if (freq > centralFrequency) // Long head
@@ -86,6 +102,7 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
         float logRatio = logDistance / bandwidth;
 
         float bandpassGain = std::exp(-5.0f * logRatio);
+//        bandpassGain = 1.0;
         amplitudes[i] *= bandpassGain;
     }
 }

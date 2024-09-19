@@ -84,10 +84,16 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
         bandpassFrequency *= centerFrequency;
     
     // Adjust leftgain and rightgain according to the curr note's angle
-    float angle = getCurrNote().pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
-    leftGain = std::sqrt (2.0f) / 2.0f * (std::cos (angle) - std::sin(angle));
-    rightGain = std::sqrt (2.0f) / 2.0f * (std::cos(angle) + std::sin(angle));
+//    float angle = getCurrNote().pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
+//    leftGain = std::sqrt (2.0f) / 2.0f * (std::cos (angle) - std::sin(angle));
+//    rightGain = std::sqrt (2.0f) / 2.0f * (std::cos(angle) + std::sin(angle));
 //    leftGain *= juce::Decibels::decibelsToGain (getCurrNote().ampl);
 //    rightGain *= juce::Decibels::decibelsToGain (getCurrNote().ampl);
+    
+    float angle = (getCurrNote().pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
+    leftGain = std::cos(angle);
+    rightGain = std::sin(angle);
+    
+    
     noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth, getCurrNote().bandwidthEnvelope.first, getCurrNote().bandwidthEnvelope.second);
 }
