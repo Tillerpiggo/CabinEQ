@@ -16,7 +16,7 @@
 
 struct NoiseNote
 {
-    NoiseNote (float freqFactor, float bandwidth, int durationInSamples, float pan, std::pair<float, float> bandwidthEnvelope, StereoGainEnvelope envelope = StereoGainEnvelope::clap(), bool isRelativeToCenterFrequency = true)
+    NoiseNote (float freqFactor, float bandwidth, int durationInSamples, float pan, std::pair<float, float> bandwidthEnvelope, bool isRelativeToCenterFrequency = true, float ampl = 0.0, StereoGainEnvelope envelope = StereoGainEnvelope::clap())
     : freqFactor (freqFactor), bandwidth (bandwidth), durationInSamples (durationInSamples), pan (pan), envelope (envelope),
       bandwidthEnvelope (bandwidthEnvelope),
       isRelativeToCenterFrequency (isRelativeToCenterFrequency)
@@ -29,6 +29,7 @@ struct NoiseNote
     StereoGainEnvelope envelope;
     std::pair<float, float> bandwidthEnvelope; // first = headFactor, second = tailFactor. { 0.3, 1.5 } would indicate a long head and short tail.
     bool isRelativeToCenterFrequency;
+    float ampl;
     
     std::pair<float, float> getGainAtSample (int sample)
     {
@@ -38,7 +39,7 @@ struct NoiseNote
     
     NoiseNote withPanChange (float panChange)
     {
-        return NoiseNote (freqFactor, bandwidth, durationInSamples, pan + panChange, bandwidthEnvelope, envelope,  isRelativeToCenterFrequency);
+        return NoiseNote (freqFactor, bandwidth, durationInSamples, pan + panChange, bandwidthEnvelope, isRelativeToCenterFrequency, ampl, envelope);
     }
 };
 
