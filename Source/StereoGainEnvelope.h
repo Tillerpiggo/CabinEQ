@@ -51,7 +51,7 @@ public:
     
     static StereoGainEnvelope clap()
     {
-        return StereoGainEnvelope (500, 500, 0);
+        return StereoGainEnvelope (1000, 1000, 0);
     }
     
     StereoGainEnvelope withPan (float pan) const;

@@ -90,7 +90,7 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
         }
 
         amplitudes[i] = juce::Decibels::decibelsToGain(amplCurve.valueAtFrequency(frequencies[i]) +
-                                                       -4.5 * std::log2(frequencies[i] / 1000.0f)); // Pink noise
+                                                       -3.0 * std::log2(frequencies[i] / 1000.0f)); // Pink noise
         float freq = frequencies[i];
         float logDistance = std::abs(std::log2(freq / centralFrequency));
         if (freq > centralFrequency) // Long head
