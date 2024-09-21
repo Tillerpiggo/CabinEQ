@@ -98,11 +98,7 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
         else
             logDistance *= bwTailFactor;
 
-        logDistance *= logDistance;
-        float logRatio = logDistance / bandwidth;
-
-        float bandpassGain = std::exp(-5.0f * logRatio);
-//        bandpassGain = 1.0;
+        float bandpassGain = (logDistance / bandwidth > 1.0f) ? 0.0f : 1.0f;
         amplitudes[i] *= bandpassGain;
     }
 }
