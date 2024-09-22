@@ -13,6 +13,36 @@
 #include <JuceHeader.h>
 #include "Curve.h"
 
+class SineLookupTable {
+public:
+    SineLookupTable(int tableSize = 2048) // Increased table size for better accuracy
+        : tableSize(tableSize), lookupTable(tableSize)
+    {
+        const float twoPi = 2.0f * juce::MathConstants<float>::pi;
+        for (int i = 0; i < tableSize; ++i) {
+            lookupTable[i] = std::sin(i * twoPi / tableSize);
+        }
+    }
+
+    float get(float angle) const
+    {
+        // Normalize angle to [0, 2pi]
+        angle = std::fmod(angle, juce::MathConstants<float>::twoPi);
+        if (angle < 0) angle += juce::MathConstants<float>::twoPi;
+
+        float index = angle * tableSize / juce::MathConstants<float>::twoPi;
+        int lowerIndex = static_cast<int>(index) % tableSize;
+        int upperIndex = (lowerIndex + 1) % tableSize;
+
+        float fraction = index - lowerIndex;
+        return lookupTable[lowerIndex] * (1.0f - fraction) + lookupTable[upperIndex] * fraction;
+    }
+
+private:
+    int tableSize;
+    std::vector<float> lookupTable;
+};
+
 class SpatialNoiseGenerator {
 public:
     SpatialNoiseGenerator();
@@ -23,24 +53,26 @@ public:
     void setBandpass(float centralFreq, float bandwidth, float bwHeadFactor, float bwTailFactor);
 
 private:
-    void precomputeSineTables();
-    void updateAmplitudes();
-
-    static const int numSinWaves = 10;
+    void fillBuffer();
 
     float sampleRate;
+    int bufferSize;
+    int bufferIndex;
+    std::vector<float> buffer;
     juce::Random random;
-
-    std::vector<std::vector<float>> sineWaveTables; // Precomputed sine tables for each oscillator
-    std::vector<int> tableSizes;                    // Sizes of the sine tables
+    static const int numSinWaves = 100;
     std::vector<float> frequencies;
     std::vector<float> amplitudes;
-    std::vector<float> phaseIndices;                // Current indices in the sine tables
-    std::vector<float> phaseIncrements;             // Increment amounts per sample
+    std::vector<float> phases;          // Added phase storage
+    std::vector<float> phaseIncrements; // Added phase increment storage
+    int crossfadeLength = 500;
 
     Curve amplCurve;
+    juce::IIRFilter bandpassFilter;
     float centralFrequency;
     float bandwidth;
     float bwHeadFactor;
     float bwTailFactor;
+    bool toggle;
+    SineLookupTable sineTable;
 };

@@ -89,6 +89,8 @@ private:
     // Sound generation
     SpatialPatternGenerator spatialPatternGenerator;
     SpatialPatternGenerator spatialPatternGenerator2;
+    SpatialPatternGenerator spatialPatternGenerator3;
+    SpatialPatternGenerator spatialPatternGenerator4;
 //    SpatialNoiseGenerator spatialNoiseGenerator;
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
