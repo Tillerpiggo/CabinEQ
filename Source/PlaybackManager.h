@@ -91,6 +91,8 @@ private:
     SpatialPatternGenerator spatialPatternGenerator2;
     SpatialPatternGenerator spatialPatternGenerator3;
     SpatialPatternGenerator spatialPatternGenerator4;
+    SpatialPatternGenerator spatialPatternGenerator5;
+    SpatialPatternGenerator spatialPatternGenerator6;
 //    SpatialNoiseGenerator spatialNoiseGenerator;
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
