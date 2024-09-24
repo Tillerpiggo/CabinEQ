@@ -2563,7 +2563,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator3.setPattern (clapRightPattern);
 //    spatialPatternGenerator4.setPattern (hatRightPattern);
     
-//    // Noise on Noise VI
+////    // Noise on Noise VI
 //    float bandwidth = 3.0;
 //    float freqFactor = 1.6;
 //    float offsetFactor = 1.0;
@@ -3175,6 +3175,58 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator2.setPattern (hatLeftPattern);
 //    spatialPatternGenerator3.setPattern (clapRightPattern);
 //    spatialPatternGenerator4.setPattern (hatRightPattern);
+    
+    // Noise on Noise 12
+    float bandwidth = 3.0;
+    float freqFactor = 1.6;
+    float offsetFactor = 1.0;
+    int durationInSamples = 10000;
+    std::vector<NoiseNote> clapLeftPattern {
+        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples, -1.0, { 0.001, 0.001 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples, -1.0, { 0.001, 0.001 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples, -1.0, { 0.001, 0.001 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples, -1.0, { 0.001, 0.001 }),
+//        NoiseNote (0, bandwidth, durationInSamples, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (0, bandwidth, durationInSamples, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (0, bandwidth, durationInSamples, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (0, bandwidth, durationInSamples, 1.0, { 1.0, 1.0 }),
+    };
+    std::vector<NoiseNote> hatLeftPattern {
+        NoiseNote (std::pow(freqFactor, -1), bandwidth * 2.0, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (0, bandwidth, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 0.1, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (0, bandwidth, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 1), bandwidth * 0.5, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (0, bandwidth, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2), bandwidth * 0.5, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (0, bandwidth, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+    };
+    
+    std::vector<NoiseNote> clapRightPattern {
+        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples, 1.0, { 0.001, 0.001 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples, 1.0, { 0.001, 0.001 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples, 1.0, { 0.001, 0.001 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples, 1.0, { 0.001, 0.001 }),
+//        NoiseNote (0, bandwidth, durationInSamples, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (0, bandwidth, durationInSamples, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (0, bandwidth, durationInSamples, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (0, bandwidth, durationInSamples, -1.0, { 1.0, 1.0 }),
+    };
+    std::vector<NoiseNote> hatRightPattern {
+        NoiseNote (std::pow(freqFactor, -1), bandwidth * 2.0, durationInSamples / 2.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (0, bandwidth, durationInSamples / 2.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 0.1, durationInSamples / 2.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (0, bandwidth, durationInSamples / 2.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 1), bandwidth * 0.5, durationInSamples / 2.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (0, bandwidth, durationInSamples / 2.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2), bandwidth * 0.5, durationInSamples / 2.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (0, bandwidth, durationInSamples / 2.0, 1.0, { 1.0, 1.0 }),
+    };
+
+    spatialPatternGenerator.setPattern (clapLeftPattern);
+    spatialPatternGenerator2.setPattern (hatLeftPattern);
+    spatialPatternGenerator3.setPattern (clapRightPattern);
+    spatialPatternGenerator4.setPattern (hatRightPattern);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
