@@ -4991,7 +4991,66 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator2.setPattern (panPattern2);
 //    spatialPatternGenerator3.setPattern (panPattern3);
     
-    // Dynamic XSX Calibration
+//    // Dynamic XSX Calibration
+//    float bandwidth = 2.0;
+//    float freqFactor = 1.1;
+//    
+//    auto lowerNode = amplCurve.nodeBelowFreq (freq);
+//    auto higherNode = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (lowerNode.has_value() && higherNode.has_value())
+//    {
+//        auto [lowerFreq, _] = lowerNode.value();
+//        auto [higherFreq, __] = higherNode.value();
+//        
+//        float ratio = higherFreq / lowerFreq;
+//        bandwidth *= ratio;
+//        freqFactor *= std::pow (ratio, 1.0f / 3.0f);
+//    }
+//    
+//    float timeRatio = 0.4;
+//    int durationInSamples = 10000;
+//    float breakDuration = (1 - timeRatio) * 3 * durationInSamples / 4.0;
+//    float onDuration = timeRatio * 3 * durationInSamples / 2.0;
+//    std::vector<NoiseNote> panPattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth, onDuration, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (0, 0, breakDuration * 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth, onDuration, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (0, 0, breakDuration * 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth, onDuration, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (0, 0, breakDuration * 2.0, -1.0, { 2.0, 2.0 })
+//    };
+//    
+//    std::vector<NoiseNote> panPattern2 {
+//        NoiseNote (0, 0, breakDuration, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth, onDuration, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (0, 0, breakDuration, 0.0, { 2.0, 2.0 }),
+//        
+//        NoiseNote (0, 0, breakDuration, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth, onDuration, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (0, 0, breakDuration, 0.0, { 2.0, 2.0 }),
+//        
+//        NoiseNote (0, 0, breakDuration, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth, onDuration, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (0, 0, breakDuration, 0.0, { 2.0, 2.0 }),
+//    };
+//    
+//    std::vector<NoiseNote> panPattern3 {
+//        NoiseNote (0, 0, breakDuration * 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth, onDuration, 1.0, { 2.0, 2.0 }),
+//        
+//        NoiseNote (0, 0, breakDuration * 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth, onDuration, 1.0, { 2.0, 2.0 }),
+//        
+//        NoiseNote (0, 0, breakDuration * 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth, onDuration, 1.0, { 2.0, 2.0 }),
+//    };
+//    
+//    spatialPatternGenerator.setPattern (panPattern);
+//    spatialPatternGenerator2.setPattern (panPattern2);
+//    spatialPatternGenerator3.setPattern (panPattern3);
+    
+    // Dynamic F Calibration
     float bandwidth = 2.0;
     float freqFactor = 1.1;
     
@@ -5004,8 +5063,8 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         auto [higherFreq, __] = higherNode.value();
         
         float ratio = higherFreq / lowerFreq;
-        bandwidth *= ratio;
-        freqFactor *= std::pow (ratio, 1.0f / 3.0f);
+        bandwidth = ratio;
+        freqFactor = ratio;
     }
     
     float timeRatio = 0.4;
