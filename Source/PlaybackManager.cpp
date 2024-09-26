@@ -4826,8 +4826,45 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 ////    spatialPatternGenerator.setPattern (noisePattern);
 //    spatialPatternGenerator2.setPattern (panPattern);
     
-    // Dynamic XS6 Calibration
-    float bandwidth = 1.0;
+//    // Dynamic XS6 Calibration
+//    float bandwidth = 1.5;
+//    float freqFactor = 1.1;
+//    
+//    auto lowerNode = amplCurve.nodeBelowFreq (freq);
+//    auto higherNode = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (lowerNode.has_value() && higherNode.has_value())
+//    {
+//        auto [lowerFreq, _] = lowerNode.value();
+//        auto [higherFreq, __] = higherNode.value();
+//        
+//        float ratio = higherFreq / lowerFreq;
+//        bandwidth *= ratio;
+//        freqFactor *= std::pow (ratio, 1.0f / 3.0f);
+//    }
+//    
+//    int durationInSamples = 10000;
+//    std::vector<NoiseNote> noisePattern {
+//        NoiseNote (1, bandwidth * 3.0, durationInSamples, 0.0, { 1.0, 3.0 }),
+//        NoiseNote (1, bandwidth * 3.0, durationInSamples, 0.0, { 3.0, 1.0 }),
+//    };
+//    std::vector<NoiseNote> panPattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth, durationInSamples / 2.0, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples / 2.0, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth, durationInSamples / 2.0, 0.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//    };
+//    
+////    spatialPatternGenerator.setPattern (noisePattern);
+//    spatialPatternGenerator2.setPattern (panPattern);
+    
+    // Dynamic XS7 Calibration
+    float bandwidth = 2.0;
     float freqFactor = 1.1;
     
     auto lowerNode = amplCurve.nodeBelowFreq (freq);
@@ -4858,9 +4895,6 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         NoiseNote (std::pow(freqFactor, 1), bandwidth, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
         NoiseNote (std::pow(freqFactor, 1), bandwidth, durationInSamples / 2.0, 0.0, { 2.0, 2.0 }),
         NoiseNote (std::pow(freqFactor, 1), bandwidth, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
-        NoiseNote (std::pow(freqFactor, 2), bandwidth, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
-        NoiseNote (std::pow(freqFactor, 2), bandwidth, durationInSamples / 2.0, 0.0, { 2.0, 2.0 }),
-        NoiseNote (std::pow(freqFactor, 2), bandwidth, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
     };
     
 //    spatialPatternGenerator.setPattern (noisePattern);
