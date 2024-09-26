@@ -126,10 +126,8 @@ Curve& CabinEqValueTree::getPhaseCurve()
 
 int CabinEqValueTree::addAmplPt (const float freq, const float ampl)
 {
-    std::cout << "adding ampl pt" << std::endl;
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
-    std::cout << "...and has been initialized" << std::endl;
     auto amplPtTree = valueTree.getChildWithName (idAmplTree);
     int id = getNextIdForCurvePtTree (amplPtTree);
     addCurvePtToTree (id, freq, ampl, amplPtTree);
@@ -287,7 +285,9 @@ const juce::String CabinEqValueTree::getName() const
 void CabinEqValueTree::copyFrom (CabinEqValueTree& other)
 {
     initValueTreeFromAPVTS();
+    juce::String newProfileName = valueTree.getProperty (idProfileName);
     valueTree.copyPropertiesAndChildrenFrom (other.valueTree, nullptr);
+    valueTree.setProperty (idProfileName, newProfileName, nullptr);
     updateCurves();
 }
 
