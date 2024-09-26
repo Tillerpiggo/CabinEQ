@@ -5421,33 +5421,33 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
     
     // Diamond Calibration 1
     float bandwidth = 2.0;
-    float freqFactor = 1.1;
+    float freqFactor = 2.0;
     
-    auto lowerNode = amplCurve.nodeBelowFreq (freq);
-    auto higherNode = amplCurve.nodeAboveFreq (freq);
-    
-    if (lowerNode.has_value() && higherNode.has_value())
-    {
-        auto [lowerFreq, _] = lowerNode.value();
-        auto [higherFreq, __] = higherNode.value();
-        
-        float ratio = higherFreq / lowerFreq;
-        bandwidth = 2.5 * ratio;
-        freqFactor = ratio;
-    }
+//    auto lowerNode = amplCurve.nodeBelowFreq (freq);
+//    auto higherNode = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (lowerNode.has_value() && higherNode.has_value())
+//    {
+//        auto [lowerFreq, _] = lowerNode.value();
+//        auto [higherFreq, __] = higherNode.value();
+//        
+//        float ratio = higherFreq / lowerFreq;
+//        bandwidth = 2.5 * ratio;
+//        freqFactor = ratio;
+//    }
     
     std::vector<float> pans { -1, 0, 1, 0 };
     std::vector<float> freqFactors { -1, 0, 1, 0 };
-    int durationInSamples = 5000;
+    int durationInSamples = 20000;
     
     std::vector<NoiseNote> panPattern {
-        NoiseNote (std::pow(freqFactor, 0.0), bandwidth, durationInSamples, -1.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 0.0), bandwidth, durationInSamples, 1.0, { 1.0, 1.0 })
+        NoiseNote (std::pow(freqFactor, -1.0), bandwidth, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 1.0), bandwidth, durationInSamples, 0.0, { 1.0, 1.0 })
     };
     
     std::vector<NoiseNote> panPattern2 {
-        NoiseNote (std::pow(freqFactor, 0.0), bandwidth, durationInSamples, -1.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 0.0), bandwidth, durationInSamples, 1.0, { 1.0, 1.0 })
+        NoiseNote (std::pow(freqFactor, 0.0), bandwidth, durationInSamples / 2.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 0.0), bandwidth, durationInSamples / 2.0, 1.0, { 1.0, 1.0 })
     };
     
     spatialPatternGenerator.setPattern (panPattern);
