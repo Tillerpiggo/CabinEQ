@@ -5287,6 +5287,41 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator3.setPattern (panPattern3);
     
     // Depth Calibration
+//    float bandwidth = 2.0;
+//    float freqFactor = 1.1;
+//    
+//    auto lowerNode = amplCurve.nodeBelowFreq (freq);
+//    auto higherNode = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (lowerNode.has_value() && higherNode.has_value())
+//    {
+//        auto [lowerFreq, _] = lowerNode.value();
+//        auto [higherFreq, __] = higherNode.value();
+//        
+//        float ratio = higherFreq / lowerFreq;
+//        bandwidth = 2.5 * ratio;
+//        freqFactor = ratio;
+//    }
+//    
+//    std::vector<float> ampls { -6.0, -3.0, 0.0 };
+//    std::vector<float> pans { -1, 0, 1 };
+//    std::vector<float> freqFactors { -1, 0, 1 };
+//    std::vector<NoiseNote> panPattern;
+//    int durationInSamples = 5000;
+//    
+//    for (const auto& currFreqFactor : freqFactors)
+//    {
+//        for (const auto& currPan : pans)
+//        {
+//            for (const auto& currAmpl : ampls)
+//            {
+//                panPattern.push_back (NoiseNote (std::pow(freqFactor, currFreqFactor), bandwidth, durationInSamples, currPan, { 2.0, 2.0 }, currAmpl));
+//            }
+//        }
+//    }
+//    spatialPatternGenerator.setPattern (panPattern);
+    
+    // Depth Calibration 3
     float bandwidth = 2.0;
     float freqFactor = 1.1;
     
@@ -5303,7 +5338,6 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         freqFactor = ratio;
     }
     
-    std::vector<float> ampls { -6.0, -3.0, 0.0 };
     std::vector<float> pans { -1, 0, 1 };
     std::vector<float> freqFactors { -1, 0, 1 };
     std::vector<NoiseNote> panPattern;
@@ -5313,13 +5347,28 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
     {
         for (const auto& currPan : pans)
         {
-            for (const auto& currAmpl : ampls)
-            {
-                panPattern.push_back (NoiseNote (std::pow(freqFactor, currFreqFactor), bandwidth, durationInSamples, currPan, { 2.0, 2.0 }, currAmpl));
-            }
+            panPattern.push_back (NoiseNote (std::pow(freqFactor, currFreqFactor), bandwidth, durationInSamples, currPan, { 2.0, 2.0 }, -3.0f));
         }
     }
+    
+    std::vector<NoiseNote> panPattern2;
+    for (const auto& currPan : pans)
+    {
+        panPattern2.push_back (NoiseNote (1.0f, bandwidth * 2.0, durationInSamples, currPan, { 1.0, 1.0 }, 0.0f));
+    }
+    
+    std::vector<NoiseNote> panPattern3;
+    for (const auto& currFreqFactor : freqFactors)
+    {
+        for (const auto& currPan : pans)
+        {
+            panPattern3.push_back (NoiseNote (std::pow(freqFactor, currFreqFactor), bandwidth / 2.0f, durationInSamples / 2.0f, currPan, { 2.0, 2.0 }, -6.0f));
+        }
+    }
+    
     spatialPatternGenerator.setPattern (panPattern);
+    spatialPatternGenerator2.setPattern (panPattern2);
+    spatialPatternGenerator3.setPattern (panPattern3);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
