@@ -3863,20 +3863,262 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator3.setPattern (panPattern2);
 //    spatialPatternGenerator4.setPattern (panPattern3);
     
-    // Noise on Noise 2XII
+//    // Noise on Noise 2XII
+//    float bandwidth = 3.0;
+//    float freqFactor = 2.0;
+//    int durationInSamples = 10000;
+//    std::vector<NoiseNote> noisePattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 3), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//    };
+//    std::vector<NoiseNote> panPattern {
+//        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//    };
+//    
+//    std::vector<float> factors { -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0 };
+//    std::vector<float> pans { -1.0, -0.5, 0.0, 0.5, 1.0 };
+//    std::vector<NoiseNote> panPattern2;
+//    
+//    for (const auto& pan : pans)
+//    {
+//        for (const auto& factor : factors)
+//        {
+//            panPattern2.push_back (NoiseNote (std::pow(freqFactor, factor), bandwidth * 0.1, durationInSamples / 4.0, pan, { 1.0, 1.0 }));
+//        }
+//    }
+//    
+//    std::vector<NoiseNote> panPattern3 {
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, 0.0, { 1.0, 1.0 }),
+//    };
+//    
+//    spatialPatternGenerator.setPattern (noisePattern);
+//    spatialPatternGenerator2.setPattern (panPattern);
+//    spatialPatternGenerator3.setPattern (panPattern2);
+//    spatialPatternGenerator4.setPattern (panPattern3);
+    
+    // Noise on Noise 2XIII
+//    float bandwidth = 3.0;
+//    float freqFactor = 2.0;
+//    int durationInSamples = 10000;
+//    std::vector<NoiseNote> noisePattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 3), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+//    };
+//    std::vector<NoiseNote> panPattern {
+//        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//    };
+//    
+//    std::vector<float> factors { -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0 };
+//    std::vector<float> pans { -1.0, -0.5, 0.0, 0.5, 1.0 };
+//    std::vector<NoiseNote> panPattern2;
+//    
+//    for (const auto& pan : pans)
+//    {
+//        for (const auto& factor : factors)
+//        {
+//            panPattern2.push_back (NoiseNote (std::pow(freqFactor, factor), bandwidth * 0.1, durationInSamples / 4.0, pan, { 1.0, 1.0 }));
+//        }
+//    }
+//    
+//    std::vector<NoiseNote> panPattern3 {
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 3.0, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 3.0, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 3.0, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, 0.0, { 1.0, 1.0 }),
+//    };
+//    
+//    spatialPatternGenerator.setPattern (noisePattern);
+//    spatialPatternGenerator2.setPattern (panPattern);
+//    spatialPatternGenerator3.setPattern (panPattern2);
+//    spatialPatternGenerator4.setPattern (panPattern3);
+    
+    // Noise on Noise 2XIV
+//    float bandwidth = 3.0;
+//    float freqFactor = 2.0;
+//    int durationInSamples = 10000;
+//    std::vector<NoiseNote> noisePattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 3), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//    };
+//    std::vector<NoiseNote> panPattern {
+//        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//    };
+//    
+//    std::vector<float> factors { -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0 };
+//    std::vector<float> pans { -1.0, -0.5, 0.0, 0.5, 1.0 };
+//    std::vector<NoiseNote> panPattern2;
+//    
+//    for (const auto& pan : pans)
+//    {
+//        for (const auto& factor : factors)
+//        {
+//            panPattern2.push_back (NoiseNote (std::pow(freqFactor, factor), bandwidth * 0.1, durationInSamples / 4.0, pan, { 1.0, 1.0 }));
+//        }
+//    }
+//    
+//    std::vector<NoiseNote> panPattern3 {
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, 0.0, { 1.0, 1.0 }),
+//    };
+//    
+//    spatialPatternGenerator.setPattern (noisePattern);
+//    spatialPatternGenerator2.setPattern (panPattern);
+    
+    // Noise on Noise 2XV
+//    float bandwidth = 3.0;
+//    float freqFactor = 2.0;
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> noisePattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 3), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//    };
+//    std::vector<NoiseNote> panPattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 3), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 3), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//    };
+//    
+//    std::vector<float> factors { -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0 };
+//    std::vector<float> pans { -1.0, -0.5, 0.0, 0.5, 1.0 };
+//    std::vector<NoiseNote> panPattern2;
+//    
+//    for (const auto& pan : pans)
+//    {
+//        for (const auto& factor : factors)
+//        {
+//            panPattern2.push_back (NoiseNote (std::pow(freqFactor, factor), bandwidth * 0.1, durationInSamples / 4.0, pan, { 1.0, 1.0 }));
+//        }
+//    }
+//    
+//    std::vector<NoiseNote> panPattern3 {
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, 0.0, { 1.0, 1.0 }),
+//    };
+//    
+//    spatialPatternGenerator.setPattern (noisePattern);
+//    spatialPatternGenerator2.setPattern (panPattern);
+    
+    // Noise on Noise 2XVI
+//    float bandwidth = 3.0;
+//    float freqFactor = 2.0;
+//    int durationInSamples = 5000;
+//    std::vector<NoiseNote> noisePattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+//    };
+//    std::vector<NoiseNote> panPattern {
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+//        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+//    };
+//    
+//    std::vector<float> factors { 0.0 };
+//    std::vector<float> pans { -0.5, 0.5 };
+//    std::vector<NoiseNote> panPattern2;
+//    
+//    for (const auto& pan : pans)
+//    {
+//        for (const auto& factor : factors)
+//        {
+//            panPattern2.push_back (NoiseNote (std::pow(freqFactor, factor), bandwidth, durationInSamples / 4.0, pan, { 1.0, 1.0 }));
+//        }
+//    }
+//    
+//    std::vector<NoiseNote> panPattern3 {
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, 1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, -1.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, 0.0, { 1.0, 1.0 }),
+//        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, 0.0, { 1.0, 1.0 }),
+//    };
+//    
+//    spatialPatternGenerator.setPattern (noisePattern);
+//    spatialPatternGenerator2.setPattern (panPattern);
+//    spatialPatternGenerator3.setPattern (panPattern2);
+    
+    // Noise on Noise 2XVII
     float bandwidth = 3.0;
     float freqFactor = 2.0;
-    int durationInSamples = 10000;
+    int durationInSamples = 5000;
     std::vector<NoiseNote> noisePattern {
-        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 3), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, -1), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 1), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2), bandwidth * 2.0, durationInSamples, 0.0, { 1.0, 1.0 }),
     };
     std::vector<NoiseNote> panPattern {
-        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
-        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
         NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
         NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
         NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
@@ -3887,31 +4129,30 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
     };
     
-    std::vector<float> factors { -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0 };
-    std::vector<float> pans { -1.0, -0.5, 0.0, 0.5, 1.0 };
+    std::vector<float> factors { 0.0 };
+    std::vector<float> pans { -0.5, 0.5 };
     std::vector<NoiseNote> panPattern2;
     
     for (const auto& pan : pans)
     {
         for (const auto& factor : factors)
         {
-            panPattern2.push_back (NoiseNote (std::pow(freqFactor, factor), bandwidth * 0.1, durationInSamples / 4.0, pan, { 1.0, 1.0 }));
+            panPattern2.push_back (NoiseNote (std::pow(freqFactor, factor), bandwidth, durationInSamples / 4.0, pan, { 1.0, 1.0 }));
         }
     }
     
     std::vector<NoiseNote> panPattern3 {
-        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, 1.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, 1.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, 0.0, { 1.0, 1.0 }),
-        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 3.0, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 3.0, 0.0, { 1.0, 1.0 }),
     };
     
     spatialPatternGenerator.setPattern (noisePattern);
     spatialPatternGenerator2.setPattern (panPattern);
     spatialPatternGenerator3.setPattern (panPattern2);
-    spatialPatternGenerator4.setPattern (panPattern3);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
