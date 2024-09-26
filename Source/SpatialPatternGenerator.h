@@ -29,7 +29,7 @@ struct NoiseNote
     StereoGainEnvelope envelope;
     std::pair<float, float> bandwidthEnvelope; // first = headFactor, second = tailFactor. { 0.3, 1.5 } would indicate a long head and short tail.
     bool isRelativeToCenterFrequency;
-    float ampl;
+    float ampl; // in dB
     
     std::pair<float, float> getGainAtSample (int sample)
     {
