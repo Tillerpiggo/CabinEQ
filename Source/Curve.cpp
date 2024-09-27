@@ -20,7 +20,7 @@ const float Curve::valueAtFrequency (float frequency) const
     }
     
     float valueAtFrequency = interpolateValueAtFrequency (frequency, values);
-//    valueAtFrequency *= juce::Decibels::decibelsToGain (1.5 * std::log2 (frequency / 1000.0f));
+//    valueAtFrequency *= juce::Decibels::decibelsToGain (-1.5 * std::log2 (frequency / 1000.0f));
     return valueAtFrequency;
 }
 
