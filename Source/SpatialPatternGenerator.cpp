@@ -93,8 +93,9 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
     float angle = (getCurrNote().pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
     leftGain = std::cos(angle);
     rightGain = std::sin(angle);
-    leftGain *= juce::Decibels::decibelsToGain (getCurrNote().ampl);
-    rightGain *= juce::Decibels::decibelsToGain (getCurrNote().ampl);
+    float gainChange = std::min (juce::Decibels::decibelsToGain (getCurrNote().ampl), 1.0f);
+    leftGain *= gainChange;
+    rightGain *= gainChange;
     
     noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth, getCurrNote().bandwidthEnvelope.first, getCurrNote().bandwidthEnvelope.second);
 }
