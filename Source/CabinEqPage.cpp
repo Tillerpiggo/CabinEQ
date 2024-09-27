@@ -478,12 +478,12 @@ void CabinEqPage::buttonClicked (juce::Button *button)
 void CabinEqPage::didLoadData()
 {
     addingFirstProfile = true;
-    applyFilter();
     processor.setIsProcessing (! isBypassed);
     auto lastSelectedProfileName = processor.getLastSelectedProfileName();
     if (lastSelectedProfileName.has_value())
     {
         goToProfileWithId (lastSelectedProfileName.value());
+        applyFilter();
         loadDropdownOptions();
     }
     
