@@ -5555,9 +5555,9 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
     };
     
     spatialPatternGenerator.setPattern (noisePattern);
-    spatialPatternGenerator2.setPattern (panPattern);
-    spatialPatternGenerator3.setPattern (panPattern2);
-    spatialPatternGenerator4.setPattern (panPattern3);
+//    spatialPatternGenerator2.setPattern (panPattern);
+//    spatialPatternGenerator3.setPattern (panPattern2);
+//    spatialPatternGenerator4.setPattern (panPattern3);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
