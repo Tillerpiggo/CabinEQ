@@ -228,11 +228,6 @@ void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
     playbackManager.setIsProcessing (isProcessing);
 }
 
-void CabinEqAudioProcessor::setBypassBalance (float balance)
-{
-    playbackManager.setDryWetVolumeBalance (balance);
-}
-
 void CabinEqAudioProcessor::setWetVolume (float wetVolume)
 {
     std::cout << "setting wet volume!" << std::endl;
@@ -468,34 +463,34 @@ float CabinEqAudioProcessor::getCurrPlayingFreq()
     return playbackManager.getCurrPlayingFreq();
 }
 
-void CabinEqAudioProcessor::startTestingAt (float freq, juce::String profileName)
+void CabinEqAudioProcessor::startProbingAt (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        playbackManager.startTestingFreq (freq, 
+        playbackManager.startProbingFreq (freq,
                                           profile->get().getAmplCurve(),
                                           profile->get().getPanCurve(),
                                           profile->get().getPhaseCurve());
 }
 
-void CabinEqAudioProcessor::updateTestingAt (float freq, juce::String profileName)
+void CabinEqAudioProcessor::updateProbingAt (float freq, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        playbackManager.updateTestingFreq (freq,
+        playbackManager.updateProbingFreq (freq,
                                            profile->get().getAmplCurve(),
                                            profile->get().getPanCurve(),
                                            profile->get().getPhaseCurve());
 }
 
-void CabinEqAudioProcessor::endTesting()
+void CabinEqAudioProcessor::stopProbing()
 {
-    playbackManager.stopTestingFreq();
+    playbackManager.stopProbing();
 }
 
-float CabinEqAudioProcessor::getCurrTestingFreq()
+float CabinEqAudioProcessor::getCurrProbingFreq()
 {
-    return playbackManager.getCurrTestingFreq();
+    return playbackManager.getCurrProbingFreq();
 }
 
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
@@ -536,60 +531,6 @@ std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()
 void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName)
 {
     cabinEqValueTreeManager.setLastSelectedProfileName (profileName);
-}
-
-void CabinEqAudioProcessor::startSineSweep (float centerFreq, juce::String profileName)
-{
-//    auto profile = profileNamed (profileName);
-//    if (profile.has_value())
-//    {
-//        playbackManager.setIsSweeping (true);
-//        playbackManager.startSineSweep (centerFreq,
-//                                        profile->get().getAmplCurve(),
-//                                        profile->get().getPanCurve());
-//    }
-}
-
-void CabinEqAudioProcessor::updateSineSweep (float centerFreq, juce::String profileName)
-{
-//    auto profile = profileNamed (profileName);
-//    if (profile.has_value())
-//    {
-//        playbackManager.setIsSweeping (true);
-//        playbackManager.updateSineSweep (centerFreq,
-//                                         profile->get().getAmplCurve(),
-//                                         profile->get().getPanCurve());
-//    }
-}
-
-void CabinEqAudioProcessor::endSineSweep()
-{
-    playbackManager.setIsSweeping (false);
-}
-
-float CabinEqAudioProcessor::getCurrSineSweepFreq()
-{
-    return playbackManager.getCurrSineSweepFreq();
-}
-
-void CabinEqAudioProcessor::setReferenceVolume (float volume)
-{
-    playbackManager.setReferenceVolume (volume);
-}
-
-void CabinEqAudioProcessor::setReferencePan (float pan)
-{
-    playbackManager.setReferencePan (pan);
-}
-
-void CabinEqAudioProcessor::setReferenceVolume1 (float volume)
-{
-    playbackManager.setReferenceVolume1 (volume);
-}
-
-void CabinEqAudioProcessor::setReferenceVolume2 (float volume)
-{
-    playbackManager.setReferenceVolume2 (volume);
 }
 
 void CabinEqAudioProcessor::addListener (Listener* listener)

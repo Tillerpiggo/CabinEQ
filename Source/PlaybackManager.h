@@ -33,50 +33,35 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     float getCurrPlayingFreq() const;
-    float getCurrTestingFreq() const;
+    float getCurrProbingFreq() const;
     float getCurrSineSweepFreq() const;
     
     void setIsTesting (bool isTesting);
     void setIsSweeping (bool isSweeping);
     void setIsCalibrating (bool isCalibrating);
     void setIsProcessing (bool isProcessing);
-    void setDryWetVolumeBalance (float balance); // sets the dB balance between filter on/off
     void setWetVolume (float wetVolume);
     void setDryVolume (float dryVolume);
     
-    void setSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
-    void updateSineSweepCenterFrequency (float centerFreq, std::optional<float> ampl = std::nullopt);
     void startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void startPanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void updatePanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void startPhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void updatePhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    // TODO: add diff functions for other kinds of tests
-    void startTestingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
-    void updateTestingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
-//    void startSineSweep (float centerFreq, Curve amplCurve, Curve panCurve);
-//    void updateSineSweep (float centerFreq, Curve amplCurve, Curve panCurve);
-    void stopTestingFreq();
+    void startProbingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
+    void updateProbingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
+    void stopProbing();
     
     void setReferenceVolume (float volume);
     void setReferenceVolume1 (float volume);
     void setReferenceVolume2 (float volume);
-    
-    void startPlayingReferenceFreqs(); // TODO: Remove
-    void updatePlayingReferenceFreqs(); // TODO: Remove
     
     // Reference calibration
     void setReferencePan (float pan);
     
 private:
     std::pair<float, float> getNextSample();
-    float getCompensationDBAtFrequency (float frequency);
-    float getReferenceCompensationDBAtFrequency (float frequency);
-    juce::dsp::IIR::Coefficients<float>::Ptr createDelayCoefficients(float sampleRate, float delaytime) const;
-    std::vector<SequenceableNote> getNotesForAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, bool alternateSilence = false, bool alternateSilenceBefore = false);
-    std::vector<SequenceableNote> getNotesForAmplCalibrationAt (float freq, float ampl, float pan, float phase, bool alternateSilence = false, bool alternateSilenceBefore = false, bool changeAmpl = false);
-    std::vector<SequenceableNote> getNotesForPanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     
     const int FFT_SIZE = 15;
     
@@ -93,36 +78,17 @@ private:
     SpatialPatternGenerator spatialPatternGenerator4;
     SpatialPatternGenerator spatialPatternGenerator5;
     SpatialPatternGenerator spatialPatternGenerator6;
-//    SpatialNoiseGenerator spatialNoiseGenerator;
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
     ArbitrarySequencer arbitrarySequencer3;
     ArbitrarySequencer arbitrarySequencer4;
     ArbitrarySequencer arbitrarySequencer5;
-    SineWaveGenerator sineWaveGenerator1;
-    SineWaveGenerator sineWaveGenerator2;
-    RandomSineWaveGenerator randomSineWaveGenerator;
-    PinkNoise pinkNoise;
-    SineSweepGenerator sineSweepGenerator;
-    Note referenceNote = Note (REFERENCE_FREQ, 6.0f, 0.0f, 0.0f);
-    Note referenceNote2 = Note (REFERENCE_FREQ_2, 6.0f, 0.0f, 0.0f);
     
-    bool isTesting;
-    bool isSweeping;
     bool isCalibrating;
+    bool isProbing;
     bool isProcessing;
     bool hasPreparedFilter;
     
-    int currIdx = -1;
-    int noteLength = 60000;
-    
     float referenceVolume = 0.0f;
-    float testingFreq = REFERENCE_FREQ;
-    
-    float referenceFreq = 1000.0f;
-    float referenceFreq2 = 5000.0f;
-    float referencePan = 0.0f;
-    
-    Note leftRefNote { REFERENCE_FREQ, 6.0f, 0.0f, 0.0f };
-    Note rightRefNote { REFERENCE_FREQ, 6.0f, 0.0f, 0.0f };
+    float probingFreq = REFERENCE_FREQ;
 };

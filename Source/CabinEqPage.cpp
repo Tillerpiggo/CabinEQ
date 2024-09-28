@@ -30,9 +30,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     filterQualityDropdown.setSelectedId (3);
     profileDropdown.addItem ("+ Add Profile", 1);
     
-    referenceSlider.setRange (-24.0f, 24.0f);
-    referenceSlider.setValue (0.0f);
-    
     wetVolumeSlider.setRange (-20.0f, 20.0f);
     dryVolumeSlider.setRange (-20.0f, 20.0f);
     wetVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
@@ -49,7 +46,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     phaseGraph->addListener (this);
     profileDropdown.addListener (this);
     filterQualityDropdown.addListener (this);
-    referenceSlider.addListener (this);
     bypassButton.addListener (this);
     blindButton.addListener (this);
     applyButton.addListener (this);
@@ -60,7 +56,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (graphs);
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (filterQualityDropdown);
-    addAndMakeVisible (referenceSlider);
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (applyButton);
     addAndMakeVisible (blindButton);
@@ -74,11 +69,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 
 CabinEqPage::~CabinEqPage()
 {
-    referenceSlider.removeListener (this);
-    
     profileDropdown.removeListener (this);
     filterQualityDropdown.removeListener (this);
-    referenceSlider.removeListener (this);
     bypassButton.removeListener (this);
     applyButton.removeListener (this);
     blindButton.removeListener (this);
@@ -232,20 +224,19 @@ void CabinEqPage::updatePlayingValueAt (float freq, CabinEqGraph* sender)
     }
 }
 
-void CabinEqPage::testValueAt (float freq)
+void CabinEqPage::probeValueAt (float freq)
 {
-    processor.startTestingAt (freq, profileId);
+    processor.startProbingAt (freq, profileId);
 }
 
 void CabinEqPage::stopPlaying()
 {
     processor.stopCalibration();
-    processor.endSineSweep();
 }
 
-void CabinEqPage::stopTesting()
+void CabinEqPage::stopProbing()
 {
-    processor.endTesting();
+    processor.stopProbing();
 }
 
 float CabinEqPage::getCurrPlayingFreq()
@@ -253,9 +244,9 @@ float CabinEqPage::getCurrPlayingFreq()
     return processor.getCurrPlayingFreq();
 }
 
-float CabinEqPage::getCurrTestingFreq()
+float CabinEqPage::getCurrProbingFreq()
 {
-    return processor.getCurrTestingFreq();
+    return processor.getCurrProbingFreq();
 }
 
 void CabinEqPage::userStoppedDoingShit()
@@ -266,17 +257,12 @@ void CabinEqPage::userStoppedDoingShit()
 // ====================================================
 void CabinEqPage::sliderValueChanged (juce::Slider *slider)
 {
-    if (slider == &referenceSlider)
-    {
-        processor.setReferenceVolume (slider->getValue());
-    }
-    else if (slider == &dryVolumeSlider)
+    if (slider == &dryVolumeSlider)
     {
         processor.setDryVolume (slider->getValue());
     }
     else if (slider == &wetVolumeSlider)
     {
-        std::cout << "wet volume set to " << slider->getValue() << std::endl;
         processor.setWetVolume (slider->getValue());
     }
 }

@@ -29,11 +29,11 @@ public:
         virtual void removeCurvePt (int id, CabinEqGraph* sender) = 0;
         virtual void startPlayingValueAt (float freq, CabinEqGraph* sender) = 0;
         virtual void updatePlayingValueAt (float freq, CabinEqGraph* sender) = 0; // the tone while dragging nodes
-        virtual void testValueAt (float freq) = 0; // for probing
+        virtual void probeValueAt (float freq) = 0; // for probing
         virtual void stopPlaying() = 0; // stops playing the calibration tones
-        virtual void stopTesting() = 0; // stops playing the testing tones (that are played when holding down ctrl/alt)
+        virtual void stopProbing() = 0; // stops playing the probing tones (that are played when holding down ctrl/alt)
         virtual float getCurrPlayingFreq() = 0;
-        virtual float getCurrTestingFreq() = 0;
+        virtual float getCurrProbingFreq() = 0;
         
         virtual void userStoppedDoingShit() = 0;
     };
@@ -94,11 +94,11 @@ private:
     void removeNode (int id);
     void startPlayingValueAt (float freq);
     void updatePlayingValueAt (float freq); // the tone while dragging nodes
-    void testValueAt (float freq); // for probing
+    void probeValueAt (float freq); // for probing
     void stopPlaying(); // stops playing the calibration tones
-    void stopTesting(); // stops playing the testing tones (that are played when holding down ctrl/alt)
+    void stopProbing(); // stops playing the testing tones (that are played when holding down ctrl/alt)
     float getCurrPlayingFreq();
-    float getCurrTestingFreq();
+    float getCurrProbingFreq();
     void userStoppedDoingShit();
     
     // Dragging/zooming
@@ -123,7 +123,7 @@ private:
     // Micro-animation values
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
-    bool isTestingFreq = false;
+    bool isProbingFreq = false;
     bool isPlayingFreq = false;
     std::optional<float> addingFreq;
     float selectedDotSize = DOT_SIZE_DEFAULT;

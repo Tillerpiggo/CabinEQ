@@ -36,11 +36,11 @@ public:
     void removeCurvePt (int id, CabinEqGraph* sender) override;
     void startPlayingValueAt (float freq, CabinEqGraph* sender) override;
     void updatePlayingValueAt (float freq, CabinEqGraph* sender) override;
-    void testValueAt (float freq) override;
+    void probeValueAt (float freq) override;
     void stopPlaying() override;
-    void stopTesting() override;
+    void stopProbing() override;
     float getCurrPlayingFreq() override;
-    float getCurrTestingFreq() override;
+    float getCurrProbingFreq() override;
     void userStoppedDoingShit() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
@@ -91,7 +91,6 @@ protected:
     std::unique_ptr<CabinEqGraph> phaseGraph;
     juce::ComboBox profileDropdown;
     juce::ComboBox filterQualityDropdown;
-    juce::Slider referenceSlider;
     std::unique_ptr<juce::AlertWindow> alertWindow;
     
     const juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
