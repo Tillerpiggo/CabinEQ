@@ -17,6 +17,7 @@
 #include "PinkNoiseGenerator.h"
 #include "Constants.h"
 #include "SpatialPatternGenerator.h"
+#include "MelodicNotes.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -39,8 +40,7 @@ public:
     void setIsSweeping (bool isSweeping);
     void setIsCalibrating (bool isCalibrating);
     void setIsProcessing (bool isProcessing);
-    void setWetVolume (float wetVolume);
-    void setDryVolume (float dryVolume);
+    void setVolume (float volume);
     
     void startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
@@ -67,8 +67,7 @@ private:
     // Audio processing
     ArbitraryResponseFilter filter;
     juce::dsp::Gain<float> gainProcessor;
-    float wetVolume = 0.0f; // in dB
-    float dryVolume = 0.0f; // in dB
+    float volume = 0.0f; // in dB
     
     // Sound generation
     SpatialPatternGenerator spatialPatternGenerator;

@@ -39,11 +39,11 @@ void SpatialPatternGenerator::setMelodicPattern (std::vector<int> notesInSemiton
     std::vector<NoiseNote> noiseNotes;
     
     float semitoneRatio = std::pow (2.0f, 1.0f / 12.0f);
-    int noteDurationInSamples = sampleRate / (noteDurationInMs * 1000.0f);
+    int noteDurationInSamples = (noteDurationInMs / 1000.0f) * sampleRate;
     for (int i = 0; i < notesInSemitones.size(); ++i)
     {
         float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
-        noiseNotes.push_back (NoiseNote(noteFreq, bandwidth, noteDurationInSamples, pans[i], { 1.0f, 1.0f }));
+        noiseNotes.push_back (NoiseNote(noteFreq, bandwidth, noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false));
     }
     
     setPattern (noiseNotes);

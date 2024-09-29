@@ -49,6 +49,7 @@
         <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
               file="Source/SequenceableNote.h"/>
         <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
+        <FILE id="T6KOdv" name="MelodicNotes.h" compile="0" resource="0" file="Source/MelodicNotes.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
         <FILE id="zjJTaL" name="SpatialPatternGenerator.cpp" compile="1" resource="0"

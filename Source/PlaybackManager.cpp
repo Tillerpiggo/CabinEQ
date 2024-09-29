@@ -93,19 +93,12 @@ void PlaybackManager::setIsCalibrating (bool isCalibrating)
 void PlaybackManager::setIsProcessing (bool isProcessing)
 {
     this->isProcessing = isProcessing;
-    gainProcessor.setGainDecibels (isProcessing ? wetVolume : dryVolume);
 }
 
-void PlaybackManager::setWetVolume (float wetVolume)
+void PlaybackManager::setVolume (float volume)
 {
-    this->wetVolume = wetVolume;
-    gainProcessor.setGainDecibels (isProcessing ? wetVolume : dryVolume);
-}
-
-void PlaybackManager::setDryVolume (float dryVolume)
-{
-    this->dryVolume = dryVolume;
-    gainProcessor.setGainDecibels (isProcessing ? wetVolume : dryVolume);
+    this->volume = volume;
+    gainProcessor.setGainDecibels (volume);
 }
 
 void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
@@ -119,16 +112,45 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
     spatialPatternGenerator4.setAmplCurve (amplCurve);
     spatialPatternGenerator4.setCenterFrequency (freq);
     
-    // Melodic Calibration I
-    float freqRatio = 10.0f;
+//    // Melodic Calibration I
+//    float bandwidth = 3.0f;
+//    spatialPatternGenerator.setMelodicPattern({ -6, 6, 1, 1, -1, 6, -6 -6}, freq, bandwidth, 300);
     
-    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
-    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
-    if (nodeBelow.has_value() && nodeAbove.has_value())
-    {
-        
-    }
+//    // Melodic Calibration II
+//    float bandwidth = 5.0f;
+//    spatialPatternGenerator.setMelodicPattern({ -6, 6, 1, 1, -1, 6, -6 -6}, freq, bandwidth, 300);
     
+    // Melodic Calibration III
+//    MelodicNotes undertaleMelody = MelodicNotes({ -6, 6, 1, -1, 6, -6, -6 }, freq).withBandwidth (1.0f);
+//    spatialPatternGenerator.setPattern(undertaleMelody.noiseNotes());
+    
+    // Melodic Calibration IV
+//    MelodicNotes patternedMelody = MelodicNotes({ -4, -2, 0, 2, 4 }, freq).withBandwidth (4.0f);
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+//    // Melodic Calibration V
+//    MelodicNotes patternedMelody = MelodicNotes({ 0, 4, 8, 12 }, freq).withBandwidth (4.0f);
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration VI
+//    MelodicNotes patternedMelody = MelodicNotes({ 0, 4, 8, 12 }, freq).withBandwidth (2.5f);
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration VII
+//    MelodicNotes patternedMelody = MelodicNotes({ -8, -4, 0, 4, 8 }, freq).withBandwidth (2.0f);
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration VIII
+    MelodicNotes patternedMelody = MelodicNotes({ -6, -3, 0, 3, 6 }, freq).withBandwidth (2.0f);
+    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        
+//    }
+//    
 //    // Pink Noise 2XIII
 //    float bandwidth = 3.0;
 //    float freqFactor = 2.0;
