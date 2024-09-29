@@ -140,9 +140,13 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    MelodicNotes patternedMelody = MelodicNotes({ -8, -4, 0, 4, 8 }, freq).withBandwidth (2.0f);
 //    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
     
-    // Melodic Calibration VIII
-    MelodicNotes patternedMelody = MelodicNotes({ -6, -3, 0, 3, 6 }, freq).withBandwidth (2.0f);
-    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+//    // Melodic Calibration VIII
+//    MelodicNotes patternedMelody = MelodicNotes({ -6, -3, 0, 3, 6 }, freq).withBandwidth (2.0f);
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration IX
+//    MelodicNotes patternedMelody = MelodicNotes({ 0, 3, -1, 0, 0, -4, 3, 0 }, freq).withBandwidth (3.0f);
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
     
 //    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
 //    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
@@ -150,7 +154,153 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    {
 //        
 //    }
+    
+    // Melodic Calibration X
+//    MelodicNotes patternedMelody = MelodicNotes({ -12, -6, 0, 6, 12 }, freq).withBandwidth (4.0f);
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration XI
+//    MelodicNotes patternedMelody = MelodicNotes({ -12, 0, 12, 0, -12, 0, 12, 0 }, freq).withBandwidths ({ 4.5, 4.5, 4.5, 1.0, 4.5, 0.5, 4.5, 3.0 });
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration XII
+//    MelodicNotes patternedMelody = MelodicNotes({ -12, 0, 12, -12, 0, 12 }, freq).withBandwidths ({ 3.0, 3.0, 3.0, 0.5, 0.5, 0.5 });
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration XIII
+//    MelodicNotes patternedMelody = MelodicNotes({ -24, 0, 24, -12, 0, 12 }, freq).withBandwidth (3.0f);
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration XIV
+//    MelodicNotes patternedMelody = MelodicNotes({ -24, 0, 24, -12, 0, 12 }, freq).withBandwidths ({ 4.5, 0.5, 4.5, 3.0, 3.0, 3.0 });
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration XV
+//    MelodicNotes patternedMelody = MelodicNotes({ -24, 0, 24, -12, 0, 12, -18, 0, 18 }, freq).withBandwidths ({ 4.5, 0.5, 4.5, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0 });
+//    spatialPatternGenerator.setPattern(patternedMelody.noiseNotes());
+    
+    // Melodic Calibration XV Spatial
+//    MelodicNotes pannedMelody = MelodicNotes({ -24, 0, 24, -12, 0, 12, -18, 0, 18 }, freq).withBandwidths ({ 4.5, 0.5, 4.5, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0 }).withPanCopies ({ -1, 0, 1 });
+//    spatialPatternGenerator.setPattern(pannedMelody.noiseNotes());
+    
+//    // Melodic Calibration XVI Spatial
+//    MelodicNotes pannedMelody = MelodicNotes({ -24, 0, 24, -12, 0, 12, -18, 0, 18 }, freq).withBandwidths ({ 4.5, 0.5, 4.5, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0 });
+//    spatialPatternGenerator.setPattern(pannedMelody.withPan(-1).noiseNotes());
+//    spatialPatternGenerator2.setPattern(pannedMelody.withPan(0).noiseNotes());
+//    spatialPatternGenerator3.setPattern(pannedMelody.withPan(1).noiseNotes());
+    
+    // Melodic Calibration XVII Spatial
+//    MelodicNotes pannedMelody = MelodicNotes({ -24, 0, 24, -12, 0, 12, -12, 12 }, freq).withBandwidths ({ 4.5, 0.5, 4.5, 3.0, 3.0, 3.0, 4.5, 4.5 });
+//    spatialPatternGenerator.setPattern(pannedMelody.withPan(-1).noiseNotes());
+//    spatialPatternGenerator2.setPattern(pannedMelody.withPan(0).noiseNotes());
+//    spatialPatternGenerator3.setPattern(pannedMelody.withPan(1).noiseNotes());
+    
+    // Melodic Calibration XVIII Spatial
+//    MelodicNotes pannedMelody = MelodicNotes({ -24, 0, 24, -12, 0, 12, -18, 0, 18, -36, 0 }, freq).withBandwidths ({ 4.5, 0.5, 4.5, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 6.0, 6.0 });
+//    spatialPatternGenerator.setPattern(pannedMelody.withPan(-1).noiseNotes());
+//    spatialPatternGenerator2.setPattern(pannedMelody.withPan(0).noiseNotes());
+//    spatialPatternGenerator3.setPattern(pannedMelody.withPan(1).noiseNotes());
+    
+//    // Melodic Calibration XIX Spatial
+//    MelodicNotes pannedMelody = MelodicNotes({ -24, 0, 24, -12, 0, 12, -18, 0, 18, -36, 0 }, freq).withBandwidths ({ 4.5, 0.5, 4.5, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 6.0, 6.0 });
+//    spatialPatternGenerator.setPattern(pannedMelody.withPan(-1).noiseNotes());
+//    spatialPatternGenerator2.setPattern(pannedMelody.withPan(0).withNoteOffset(5).noiseNotes());
+//    spatialPatternGenerator3.setPattern(pannedMelody.withPan(1).withNoteOffset(8).noiseNotes());
+    
+    // Melodic Calibration 2X Spatial
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ 0, -7, -3, -7, 0, -7, -3, -7, -2, -7, -3, -7, -2, -7, -3, -7 }, freq)
+//        .withBandwidth (4.5)
+//        .withPan (0);
+//    MelodicNotes leftMelody = MelodicNotes ({ -12, -7, -5, -7, -12, -7, -5, -7, -14, -10, -9, -10, -14, -10, -9, -10 }, freq)
+//        .withBandwidth (4.5)
+//        .withPan (-1);
+//    MelodicNotes rightMelody = MelodicNotes ({ -12, -7, -5, -7, -12, -7, -5, -7, -14, -10, -9, -10, -14, -10, -9, -10 }, freq)
+//        .withBandwidth (4.5)
+//        .withPan (1);
+//    spatialPatternGenerator.setPattern(centerMelody.noiseNotes());
+//    spatialPatternGenerator2.setPattern(leftMelody.noiseNotes());
+//    spatialPatternGenerator3.setPattern(rightMelody.noiseNotes());
+    
+    // Melodic Calibration 2XI Spatial
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ 0, -7, -3, -7, 0, -7, -3, -7, -2, -7, -3, -7, -2, -7, -3, -7 }, freq)
+//        .withBandwidth (1.5)
+//        .withTransposition (5)
+//        .withPan (0);
 //    
+//    MelodicNotes aboveMelody =
+//    MelodicNotes({ -12 }, freq)
+//        .withBandwidth (1.5)
+//        .withPan (0);
+//    
+//    MelodicNotes belowMelody =
+//    MelodicNotes({ 12 }, freq)
+//        .withBandwidth (1.5)
+//        .withPan (0);
+//    spatialPatternGenerator.setPattern(centerMelody.noiseNotes());
+//    spatialPatternGenerator2.setPattern(aboveMelody.noiseNotes());
+//    spatialPatternGenerator3.setPattern(belowMelody.noiseNotes());
+    
+//    // Melodic Calibration 2XII Spatial
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ 0, -7, -3, -7, 0, -7, -3, -7, -2, -7, -3, -7, -2, -7, -3, -7 }, freq)
+//        .withBandwidth (1.5)
+//        .withTransposition (3)
+//        .withPan (0);
+//    
+//    MelodicNotes aboveMelody =
+//    MelodicNotes({ -24 }, freq)
+//        .withBandwidth (3.5)
+//        .withPan (0);
+//    
+//    MelodicNotes belowMelody =
+//    MelodicNotes({ 24 }, freq)
+//        .withBandwidth (3.5)
+//        .withPan (0);
+//    spatialPatternGenerator.setPattern(centerMelody.noiseNotes());
+//    spatialPatternGenerator2.setPattern(aboveMelody.noiseNotes());
+//    spatialPatternGenerator3.setPattern(belowMelody.noiseNotes());
+    
+    // Melodic Calibration 2XIII Spatial
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -2, 0, 3, 2 }, freq)
+//        .withBandwidth (1.5)
+//        .withPan (0);
+//    
+//    MelodicNotes aboveMelody =
+//    MelodicNotes({ -36 }, freq)
+//        .withBandwidth (3.5)
+//        .withPan (0);
+//    
+//    MelodicNotes belowMelody =
+//    MelodicNotes({ 36 }, freq)
+//        .withBandwidth (3.5)
+//        .withPan (0);
+//    spatialPatternGenerator.setPattern(centerMelody.noiseNotes());
+//    spatialPatternGenerator2.setPattern(aboveMelody.noiseNotes());
+//    spatialPatternGenerator3.setPattern(belowMelody.noiseNotes());
+    
+    // Melodic Calibration 2XIV Spatial
+    MelodicNotes centerMelody =
+    MelodicNotes({ 0, -7, -3, -7, 0, -7, -3, -7, -2, -7, -3, -7, -2, -7, -3, -7 }, freq)
+        .withBandwidth (1.5)
+        .withTransposition (5)
+        .withPan (0);
+    
+    MelodicNotes aboveMelody =
+    MelodicNotes({ -12 }, freq)
+        .withBandwidth (1.5)
+        .withPan (0);
+    
+    MelodicNotes belowMelody =
+    MelodicNotes({ 12 }, freq)
+        .withBandwidth (1.5)
+        .withPan (0);
+    spatialPatternGenerator.setPattern(centerMelody.noiseNotes());
+    spatialPatternGenerator2.setPattern(aboveMelody.noiseNotes());
+    spatialPatternGenerator3.setPattern(belowMelody.noiseNotes());
+//
 //    // Pink Noise 2XIII
 //    float bandwidth = 3.0;
 //    float freqFactor = 2.0;
