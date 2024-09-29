@@ -17,7 +17,6 @@
 
 #include "Constants.h"
 #include "CurvePt.h"
-#include "InverseFletcherMunson.h"
 
 class Curve
 {
@@ -52,8 +51,6 @@ protected:
     std::vector<CurvePt> curvePts;
     
     std::unordered_map<float, float> cache;
-    
-    InverseFletcherMunsonCurve inverseFM;
 };
 
 class FlatCurve   : public Curve

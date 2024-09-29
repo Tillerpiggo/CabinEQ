@@ -16,7 +16,6 @@
 #include "SineSweepGenerator.h"
 #include "PinkNoiseGenerator.h"
 #include "Constants.h"
-#include "RandomSineWaveGenerator.h"
 #include "SpatialPatternGenerator.h"
 #include <random>
 

@@ -10,9 +10,7 @@
 
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
-#include "FilterPage.h"
 #include "CabinEqPage.h"
-#include "ReferencePage.h"
 
 //==============================================================================
 /**

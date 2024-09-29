@@ -49,6 +49,8 @@ public:
     
     void setSampleRate (float sampleRate);
     void setPattern (std::vector<NoiseNote> notes);
+    void setMelodicPattern (std::vector<int> notesInSemitones, float centerFreq, float bandwidth, float noteDurationInMs);
+    void setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs); // assumes that len(notesInSemitones) == len(pans). Pans should be from [-1, 1]
     void setCenterFrequency (float centerFrequency);
     void setAmplCurve (Curve& amplCurve);
     std::pair<float, float> getNextSample();
@@ -64,6 +66,7 @@ private:
     float centerFrequency;
     float leftGain;
     float rightGain;
+    float sampleRate;
     
     std::vector<NoiseNote> notes;
 };

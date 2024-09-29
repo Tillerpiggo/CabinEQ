@@ -18,6 +18,7 @@ SpatialPatternGenerator::SpatialPatternGenerator()
 void SpatialPatternGenerator::setSampleRate (float sampleRate)
 {
     noiseGenerator.setSampleRate (sampleRate);
+    this->sampleRate = sampleRate;
 }
 
 void SpatialPatternGenerator::setAmplCurve (Curve& amplCurve)
@@ -31,6 +32,27 @@ void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
     currNoteIdx = 0;
     numSamplesNoteHasBeenPlaying = 0;
     updateBandpassAndPanning();
+}
+
+void SpatialPatternGenerator::setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs)
+{
+    std::vector<NoiseNote> noiseNotes;
+    
+    float semitoneRatio = std::pow (2.0f, 1.0f / 12.0f);
+    int noteDurationInSamples = sampleRate / (noteDurationInMs * 1000.0f);
+    for (int i = 0; i < notesInSemitones.size(); ++i)
+    {
+        float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
+        noiseNotes.push_back (NoiseNote(noteFreq, bandwidth, noteDurationInSamples, pans[i], { 1.0f, 1.0f }));
+    }
+    
+    setPattern (noiseNotes);
+}
+
+void SpatialPatternGenerator::setMelodicPattern (std::vector<int> notesInSemitones, float centerFreq, float bandwidth, float noteDurationInMs)
+{
+    std::vector<float> pans (notesInSemitones.size(), 0.0f);
+    setMelodicPattern (notesInSemitones, pans, centerFreq, bandwidth, noteDurationInMs);
 }
 
 void SpatialPatternGenerator::setCenterFrequency (float centerFrequency)
