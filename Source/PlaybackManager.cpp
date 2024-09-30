@@ -335,10 +335,9 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
     
     // Spatial 2Y
     MelodicNotes centerMelody =
-    MelodicNotes({ -24, -12, 0, 12, 24 }, freq)
+    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
         .withBandwidth (4.5)
-        .withTransposition(24)
-        .withCyclingPans ({ -1, -0.66, -0.33, 0, 0.33, 0.66, 1 });
+        .withCyclingPans ({ -1, 0, 1 });
     
     spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
 //

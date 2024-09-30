@@ -228,16 +228,9 @@ void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
     playbackManager.setIsProcessing (isProcessing);
 }
 
-void CabinEqAudioProcessor::setWetVolume (float wetVolume)
+void CabinEqAudioProcessor::setVolume (float volume)
 {
-    std::cout << "setting wet volume!" << std::endl;
-//    playbackManager.setWetVolume (wetVolume);
-}
-
-void CabinEqAudioProcessor::setDryVolume (float dryVolume)
-{
-    std::cout << "setting dry volume! (to " << dryVolume << ")" << std::endl;
-//    playbackManager.setDryVolume (dryVolume);
+    playbackManager.setVolume (volume);
 }
 
 std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getAmplCurve (juce::String profileName)

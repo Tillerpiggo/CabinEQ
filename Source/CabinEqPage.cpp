@@ -30,16 +30,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     filterQualityDropdown.setSelectedId (3);
     profileDropdown.addItem ("+ Add Profile", 1);
     
-    wetVolumeSlider.setRange (-20.0f, 20.0f);
-    dryVolumeSlider.setRange (-20.0f, 20.0f);
-    wetVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    dryVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    wetVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    dryVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    wetVolumeLabel.setText ("Calibrated Volume", juce::dontSendNotification);
-    dryVolumeLabel.setText ("Normal Volume", juce::dontSendNotification);
-    wetVolumeLabel.setJustificationType (juce::Justification::centred);
-    dryVolumeLabel.setJustificationType (juce::Justification::centred);
+    volumeSlider.setRange (-20.0f, 20.0f);
+    volumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     
     amplGraph->addListener (this);
     panGraph->addListener (this);
@@ -50,8 +43,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     blindButton.addListener (this);
     applyButton.addListener (this);
     processor.addListener (this);
-    dryVolumeSlider.addListener (this);
-    wetVolumeSlider.addListener (this);
+    volumeSlider.addListener (this);
     
     addAndMakeVisible (graphs);
     addAndMakeVisible (profileDropdown);
@@ -59,10 +51,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (applyButton);
     addAndMakeVisible (blindButton);
-    addAndMakeVisible (dryVolumeSlider);
-    addAndMakeVisible (wetVolumeSlider);
-    addAndMakeVisible (dryVolumeLabel);
-    addAndMakeVisible (wetVolumeLabel);
+    addAndMakeVisible (volumeSlider);
     
     didLoadData();
 }
@@ -74,8 +63,7 @@ CabinEqPage::~CabinEqPage()
     bypassButton.removeListener (this);
     applyButton.removeListener (this);
     blindButton.removeListener (this);
-    dryVolumeSlider.removeListener (this);
-    wetVolumeSlider.removeListener (this);
+    volumeSlider.removeListener (this);
     
     amplGraph->removeListener();
     panGraph->removeListener();
@@ -126,15 +114,8 @@ void CabinEqPage::resized()
 
     // Set bounds for sliders
     int sliderY = buttonsY + dropdownHeight + componentPadding;
-    int sliderWidth = (getWidth() - (3 * padding)) / 2; // Two sliders with padding in between
-    wetVolumeSlider.setBounds (padding, sliderY, sliderWidth, sliderHeight);
-    dryVolumeSlider.setBounds (padding + sliderWidth + padding, sliderY, sliderWidth, sliderHeight);
-    
-    // Set bounds for labels
-    int labelY = sliderY + sliderHeight + componentPadding;
-    int labelWidth = sliderWidth;
-    wetVolumeLabel.setBounds (padding, labelY, labelWidth, labelHeight);
-    dryVolumeLabel.setBounds (padding + labelWidth + padding, labelY, labelWidth, labelHeight);
+    int sliderWidth = (getWidth() - (3 * padding)); // Two sliders with padding in between
+    volumeSlider.setBounds (padding, sliderY, sliderWidth, sliderHeight);
 }
 
 // ====================================================
@@ -257,13 +238,9 @@ void CabinEqPage::userStoppedDoingShit()
 // ====================================================
 void CabinEqPage::sliderValueChanged (juce::Slider *slider)
 {
-    if (slider == &dryVolumeSlider)
+    if (slider == &volumeSlider)
     {
-        processor.setDryVolume (slider->getValue());
-    }
-    else if (slider == &wetVolumeSlider)
-    {
-        processor.setWetVolume (slider->getValue());
+        processor.setVolume (slider->getValue());
     }
 }
 

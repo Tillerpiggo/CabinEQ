@@ -73,8 +73,7 @@ public:
     void applyCurve (int fftSize, juce::String profileName);
     void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
-    void setWetVolume (float wetVolume);
-    void setDryVolume (float dryVolume);
+    void setVolume (float volume);
     
     std::optional<std::reference_wrapper<Curve>> getAmplCurve (juce::String profileName);
     std::optional<std::reference_wrapper<Curve>> getPanCurve (juce::String profileName);

@@ -98,10 +98,7 @@ protected:
     
     int lastSelectedId = 1;
     
-    juce::Slider dryVolumeSlider;
-    juce::Slider wetVolumeSlider;
-    juce::Label dryVolumeLabel;
-    juce::Label wetVolumeLabel;
+    juce::Slider volumeSlider;
  
     bool isUnlocked = false;
     bool addingFirstProfile = false;
