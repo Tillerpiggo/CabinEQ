@@ -274,6 +274,7 @@ void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
         processor.renameProfile (profileId, text);
         profileId = text;
         goToProfileWithId (text);
+        renamingProfile = false;
     }
     
     // Add & retrieve profile from processor
@@ -285,6 +286,7 @@ void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
     else
     {
         processor.addDuplicateProfile (profileName, profileId);
+        creatingDuplicate = false;
     }
     
     loadDropdownOptions();

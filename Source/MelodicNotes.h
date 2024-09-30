@@ -89,6 +89,19 @@ public:
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
+    MelodicNotes withSegmentedPans (int numSegments, bool leftToRight)
+    {
+        std::vector<float> cyclingPans;
+        float factor = leftToRight ? 1.0 : -1.0;
+        float segmentLength = 2.0f / static_cast<float> (numSegments);
+        for (int i = 0; i < numSegments; ++i)
+        {
+            cyclingPans.push_back ((-1.0f + i * segmentLength) * factor);
+        }
+        
+        return this->withCyclingPans (cyclingPans);
+    }
+    
     MelodicNotes withNoteOffset (int offset)
     {
         std::vector<float> newNotesInSemitones;
@@ -129,6 +142,25 @@ public:
         {
             float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
             noiseNotes.push_back (NoiseNote(noteFreq, bandwidths[i], noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false));
+        }
+        
+        return noiseNotes;
+    }
+    
+    std::vector<NoiseNote> noiseNotesWithInterspersedReference (float referenceFreq, float refBandwidth = 3.0)
+    {
+        // Creates noise notes, but alternates the reference frequency in the center in between each note
+        std::vector<NoiseNote> noiseNotes;
+        
+        float semitoneRatio = std::pow(2.0f, 1.0f / 12.0f);
+        int noteDurationInSamples = noteDurationInSeconds * sampleRate;
+        
+        // Assumes notesInSemitones.size() == pans.size()
+        for (int i = 0; i < notesInSemitones.size(); ++i)
+        {
+            float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
+            noiseNotes.push_back (NoiseNote(noteFreq, bandwidths[i], noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false));
+            noiseNotes.push_back (NoiseNote(referenceFreq, refBandwidth, noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false)); // reference frequency
         }
         
         return noiseNotes;
