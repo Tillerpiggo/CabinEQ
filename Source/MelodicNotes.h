@@ -17,11 +17,11 @@
 class MelodicNotes
 {
 public:
-    MelodicNotes (std::vector<int> notesInSemitones, float centerFreq)
+    MelodicNotes (std::vector<float> notesInSemitones, float centerFreq)
     : notesInSemitones (notesInSemitones), pans (notesInSemitones.size(), 0), bandwidths (notesInSemitones.size(), 2), centerFreq (centerFreq), noteDurationInSeconds (0.2), sampleRate (44100)
     {}
     
-    MelodicNotes (std::vector<int> notesInSemitones, std::vector<float> pans, std::vector<float> bandwidths, float centerFreq, float noteDurationInSeconds, float sampleRate)
+    MelodicNotes (std::vector<float> notesInSemitones, std::vector<float> pans, std::vector<float> bandwidths, float centerFreq, float noteDurationInSeconds, float sampleRate)
         : notesInSemitones (notesInSemitones), pans (pans), bandwidths (bandwidths), centerFreq (centerFreq), noteDurationInSeconds (noteDurationInSeconds), sampleRate (sampleRate)
     {}
     
@@ -52,7 +52,7 @@ public:
     
     MelodicNotes withPanCopies (std::vector<float> panCopies)
     {
-        std::vector<int> newNotesInSemitones;
+        std::vector<float> newNotesInSemitones;
         std::vector<float> newBandwidths;
         std::vector<float> newPans;
         for (const auto& panCopy : panCopies)
@@ -75,7 +75,7 @@ public:
     
     MelodicNotes withCyclingPans (std::vector<float> cyclingPans)
     {
-        std::vector<int> newNotesInSemitones;
+        std::vector<float> newNotesInSemitones;
         std::vector<float> newPans;
         std::vector<float> newBandwidths;
         
@@ -91,7 +91,7 @@ public:
     
     MelodicNotes withNoteOffset (int offset)
     {
-        std::vector<int> newNotesInSemitones;
+        std::vector<float> newNotesInSemitones;
         std::vector<float> newPans;
         std::vector<float> newBandwidths;
         
@@ -106,9 +106,9 @@ public:
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
-    MelodicNotes withTransposition (int semitonesToTranspose)
+    MelodicNotes withTransposition (float semitonesToTranspose)
     {
-        std::vector<int> newNotesInSemitones;
+        std::vector<float> newNotesInSemitones;
         for (const auto& noteInSemitones : notesInSemitones)
         {
             newNotesInSemitones.push_back (noteInSemitones + semitonesToTranspose);
@@ -135,7 +135,7 @@ public:
     }
     
 private:
-    std::vector<int> notesInSemitones;
+    std::vector<float> notesInSemitones;
     std::vector<float> pans;
     std::vector<float> bandwidths;
     float centerFreq;

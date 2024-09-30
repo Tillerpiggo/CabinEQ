@@ -319,11 +319,12 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator2.setPattern(leftMelody.noiseNotes());
 //    spatialPatternGenerator3.setPattern(rightMelody.noiseNotes());
     
-    // Spatial 2XVI
+//    // Spatial 2XVI
 //    MelodicNotes centerMelody =
 //    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
 //        .withBandwidth (4.5)
 //        .withCyclingPans ({ -1, 0, 1 });
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
     
     // Spatial 2V
 //    MelodicNotes centerMelody =
@@ -333,13 +334,250 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    
 //    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
     
-    // Spatial 2Y
-    MelodicNotes centerMelody =
-    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
-        .withBandwidth (4.5)
-        .withCyclingPans ({ -1, 0, 1 });
+//    // Spatial 2Y
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (4.5)
+//        .withCyclingPans ({ -1, 0, 1 });
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
     
-    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    // Spatial 2Y4
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (4.5)
+//        .withTransposition (-24)
+//        .withCyclingPans ({ -1, 0, 1 });
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+    
+    // Spatial 2Y5
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -24, 0, -12, 0, 12, 0, 24, 0 }, freq)
+//        .withBandwidth (4.5)
+//        .withTransposition (-24);
+////        .withCyclingPans ({ -1, 0, 1 });
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    spatialPatternGenerator2.setPattern(centerMelody.withPan(-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern(centerMelody.withPan(1).noiseNotes());
+    
+//    // Spatial 2Y6
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -36, -24, -12, 0, 12, 24, 36 }, 1000)
+//        .withBandwidth (4.5);
+////        .withCyclingPans ({ -1, 0, 1 });
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    spatialPatternGenerator2.setPattern(centerMelody.withPan(-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern(centerMelody.withPan(1).noiseNotes());
+    
+//    // Spatial 2Y7
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, -7, -5, 0, 5, 7, 12 }, freq)
+//        .withBandwidth (3.0)
+//        .withCyclingPans ({ -1, 0, 1 });
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+    
+//    // Spatial 2Y8
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -36, -24, -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (4.5)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds(0.1);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+    
+//    // Spatial 2Y9 (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float ratioInOctaves = std::log2 (freqAbove / freqBelow);
+//        float freqRatioInSemitones = ratioInOctaves * 12;
+//        freqRatioInSemitones *= 0.5;
+//        std::vector<float> melody { -2, -1, 0, 1, 2 };
+//        for (int i = 0; i < melody.size(); ++i)
+//            melody[i] *= freqRatioInSemitones;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes (melody, freq)
+//            .withBandwidth (ratioInOctaves * 1.5)
+//            .withCyclingPans ({ -1, 0, 1 })
+//            .withNoteDurationInSeconds (0.2);
+//        
+//        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    }
+//    else
+//    {
+////        MelodicNotes centerMelody =
+////        MelodicNotes ({ -48, -24, 0, 24, 48 }, freq)
+////            .withBandwidth (6.0)
+////            .withCyclingPans ({ -1, 0, 1 })
+////            .withNoteDurationInSeconds (0.2);
+////        
+////        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    }
+//    
+    
+    // Spatial 2Y9D2
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float ratioInOctaves = std::log2 (freqAbove / freqBelow);
+//        float freqRatioInSemitones = ratioInOctaves * 12;
+//        freqRatioInSemitones *= 0.15;
+//        std::vector<float> melody { -2, -1, 0, 1, 2, 5, 6, 7, 8, 9 };
+//        for (int i = 0; i < melody.size(); ++i)
+//            melody[i] *= freqRatioInSemitones;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes (melody, freq)
+//            .withBandwidth (ratioInOctaves * 0.8)
+//            .withTransposition (ratioInOctaves * -7)
+//            .withNoteDurationInSeconds (0.2);
+//        
+//        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+//    else
+//    {
+////        MelodicNotes centerMelody =
+////        MelodicNotes ({ -48, -24, 0, 24, 48 }, freq)
+////            .withBandwidth (6.0)
+////            .withCyclingPans ({ -1, 0, 1 })
+////            .withNoteDurationInSeconds (0.2);
+////
+////        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    }
+    
+//    // Spatial Edges 3
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float ratioInOctaves = std::log2 (freqAbove / freqBelow);
+//        float freqRatioInSemitones = ratioInOctaves * 12;
+//        float scale = 0.5;
+//        freqRatioInSemitones *= 0.8 * scale;
+//        std::vector<float> melody { -2, -1, 0, 1, 2 };
+//        for (int i = 0; i < melody.size(); ++i)
+//            melody[i] *= freqRatioInSemitones;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes (melody, freq)
+//            .withBandwidth (ratioInOctaves * 0.5 * scale)
+////            .withTransposition (ratioInOctaves * -7)
+//            .withNoteDurationInSeconds (0.2);
+//        
+//        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+//    else
+//    {
+////        MelodicNotes centerMelody =
+////        MelodicNotes ({ -48, -24, 0, 24, 48 }, freq)
+////            .withBandwidth (6.0)
+////            .withCyclingPans ({ -1, 0, 1 })
+////            .withNoteDurationInSeconds (0.2);
+////
+////        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    }
+    
+    // Spatial Edges 4
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float ratioInOctaves = std::log2 (freqAbove / freqBelow);
+//        float freqRatioInSemitones = ratioInOctaves * 12;
+//        float scale = 0.3;
+//        freqRatioInSemitones *= 0.8 * scale;
+//        std::vector<float> melody { -2, -1, 0, 1, 2 };
+//        for (int i = 0; i < melody.size(); ++i)
+//            melody[i] *= freqRatioInSemitones;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes (melody, freq)
+//            .withBandwidth (ratioInOctaves * 4.0 * scale)
+////            .withTransposition (ratioInOctaves * -7)
+//            .withNoteDurationInSeconds (0.2);
+//        
+//        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+//    else
+//    {
+////        MelodicNotes centerMelody =
+////        MelodicNotes ({ -48, -24, 0, 24, 48 }, freq)
+////            .withBandwidth (6.0)
+////            .withCyclingPans ({ -1, 0, 1 })
+////            .withNoteDurationInSeconds (0.2);
+////
+////        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    }
+    
+//    // Spatial Edges 5
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float ratioInOctaves = std::log2 (freqAbove / freqBelow);
+//        float freqRatioInSemitones = ratioInOctaves * 12;
+//        float scale = 0.3;
+//        freqRatioInSemitones *= 0.8 * scale;
+//        std::vector<float> melody { -2, -1, 0, 1, 2 };
+//        for (int i = 0; i < melody.size(); ++i)
+//            melody[i] *= freqRatioInSemitones;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes (melody, freq)
+//            .withBandwidth (ratioInOctaves * 5.0 * scale)
+//            .withCyclingPans({ -1, 0, 1 })
+//            .withNoteDurationInSeconds (0.2);
+//        
+//        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+////        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+//    else
+//    {
+////        MelodicNotes centerMelody =
+////        MelodicNotes ({ -48, -24, 0, 24, 48 }, freq)
+////            .withBandwidth (6.0)
+////            .withCyclingPans ({ -1, 0, 1 })
+////            .withNoteDurationInSeconds (0.2);
+////
+////        spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+//    }
+    
+    
+    
 //
 //    // Pink Noise 2XIII
 //    float bandwidth = 3.0;
@@ -390,6 +628,14 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    };
 //    
 //    spatialPatternGenerator.setPattern (noisePattern);
+    
+    // Spatial N1
+    MelodicNotes centerMelody =
+    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+        .withBandwidth (4.5)
+        .withTransposition (8)
+        .withCyclingPans ({ -1, 0, 1 });
+    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
