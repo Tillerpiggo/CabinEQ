@@ -73,6 +73,22 @@ public:
         return MelodicNotes (notesInSemitones, std::vector<float> (notesInSemitones.size(), newPan), bandwidths, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
+    MelodicNotes withCyclingPans (std::vector<float> cyclingPans)
+    {
+        std::vector<int> newNotesInSemitones;
+        std::vector<float> newPans;
+        std::vector<float> newBandwidths;
+        
+        for (int i = 0; i < notesInSemitones.size() * cyclingPans.size(); ++i)
+        {
+            newNotesInSemitones.push_back (notesInSemitones[i % notesInSemitones.size()]);
+            newPans.push_back (cyclingPans[i % cyclingPans.size()]);
+            newBandwidths.push_back (bandwidths[i % bandwidths.size()]);
+        }
+        
+        return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
+    }
+    
     MelodicNotes withNoteOffset (int offset)
     {
         std::vector<int> newNotesInSemitones;

@@ -282,24 +282,50 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator3.setPattern(belowMelody.noiseNotes());
     
     // Melodic Calibration 2XIV Spatial
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ 0, -7, -3, -7, 0, -7, -3, -7, -2, -7, -3, -7, -2, -7, -3, -7 }, freq)
+//        .withBandwidth (1.5)
+//        .withTransposition (5)
+//        .withPan (0);
+//    
+//    MelodicNotes aboveMelody =
+//    MelodicNotes({ -12 }, freq)
+//        .withBandwidth (1.5)
+//        .withPan (0);
+//    
+//    MelodicNotes belowMelody =
+//    MelodicNotes({ 12 }, freq)
+//        .withBandwidth (1.5)
+//        .withPan (0);
+//    spatialPatternGenerator.setPattern(centerMelody.noiseNotes());
+//    spatialPatternGenerator2.setPattern(aboveMelody.noiseNotes());
+//    spatialPatternGenerator3.setPattern(belowMelody.noiseNotes());
+    
+    // Spatial 2XV
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (4.5)
+//        .withPan (0);
+//    MelodicNotes leftMelody =
+//    MelodicNotes({ 36, 24, 12, 0, -12 }, freq)
+//        .withBandwidth (4.5)
+//        .withPan (-1);
+//    MelodicNotes rightMelody =
+//    MelodicNotes({ 36, 24, 12, 0, -12 }, freq)
+//        .withBandwidth (4.5)
+//        .withPan (1);
+//    
+//    spatialPatternGenerator.setPattern(centerMelody.noiseNotes());
+//    spatialPatternGenerator2.setPattern(leftMelody.noiseNotes());
+//    spatialPatternGenerator3.setPattern(rightMelody.noiseNotes());
+    
+    // Spatial 2XVI
     MelodicNotes centerMelody =
-    MelodicNotes({ 0, -7, -3, -7, 0, -7, -3, -7, -2, -7, -3, -7, -2, -7, -3, -7 }, freq)
-        .withBandwidth (1.5)
-        .withTransposition (5)
-        .withPan (0);
+    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+        .withBandwidth (4.5)
+        .withCyclingPans ({ -1, 0, 1 });
     
-    MelodicNotes aboveMelody =
-    MelodicNotes({ -12 }, freq)
-        .withBandwidth (1.5)
-        .withPan (0);
-    
-    MelodicNotes belowMelody =
-    MelodicNotes({ 12 }, freq)
-        .withBandwidth (1.5)
-        .withPan (0);
-    spatialPatternGenerator.setPattern(centerMelody.noiseNotes());
-    spatialPatternGenerator2.setPattern(aboveMelody.noiseNotes());
-    spatialPatternGenerator3.setPattern(belowMelody.noiseNotes());
+    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
 //
 //    // Pink Noise 2XIII
 //    float bandwidth = 3.0;
