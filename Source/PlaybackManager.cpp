@@ -1236,11 +1236,36 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator.setPattern (theWall.noiseNotes());
     
     // The Wall III
+//    std::vector<float> melody { -18, -9, 0, 9, 18, -18, -9, 0, 9, 18, -18, -9, 0, 9, 18 };
+//    int transposition = 0;
+//    MelodicNotes theWall =
+//    MelodicNotes(melody, freq)
+//        .withBandwidth (4.5)
+//        .withTransposition (transposition)
+//        .withPans ({ -1, -0.5, 0, 0.5, 1, 1, 0.5, 0, -0.5, -1, 0, 0, 0, 0, 0 });
+//    
+//    spatialPatternGenerator.setPattern (theWall.noiseNotes());
+    
+//    // The Wall IV
+//    std::vector<float> melody { -18, -9, 0, 9, 18, -18, -9, 0, 9, 18, -18, -9, 0, 9, 18 };
+//    int transposition = 0;
+//    MelodicNotes theWall =
+//    MelodicNotes(melody, freq)
+//        .withBandwidth (4.5)
+//        .withTransposition (transposition)
+//        .withPans ({ -1, -0.5, 0, 0.5, 1, 1, 0.5, 0, -0.5, -1, 0, 0, 0, 0, 0 });
+//    
+//    spatialPatternGenerator.setPattern (theWall.noiseNotes());
+    
+    // The Wall IV (mini)
+    float scale = 0.5;
     std::vector<float> melody { -18, -9, 0, 9, 18, -18, -9, 0, 9, 18, -18, -9, 0, 9, 18 };
+    for (int i = 0; i < melody.size(); ++i)
+        melody[i] *= scale;
     int transposition = 0;
     MelodicNotes theWall =
     MelodicNotes(melody, freq)
-        .withBandwidth (4.5)
+        .withBandwidth (3.5 * scale)
         .withTransposition (transposition)
         .withPans ({ -1, -0.5, 0, 0.5, 1, 1, 0.5, 0, -0.5, -1, 0, 0, 0, 0, 0 });
     
