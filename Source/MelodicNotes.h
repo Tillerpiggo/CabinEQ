@@ -25,6 +25,19 @@ public:
         : notesInSemitones (notesInSemitones), pans (pans), bandwidths (bandwidths), centerFreq (centerFreq), noteDurationInSeconds (noteDurationInSeconds), sampleRate (sampleRate)
     {}
     
+    static MelodicNotes withFreqs (std::vector<float> freqs)
+    {
+        std::vector<float> notesInSemitones;
+        float centerFreq = freqs[0];
+        for (const auto& freq : freqs)
+        {
+            float semitonesFromCenterFreq = 12.0f * std::log2 (freq / centerFreq);
+            notesInSemitones.push_back (semitonesFromCenterFreq);
+        }
+        
+        return MelodicNotes (notesInSemitones, centerFreq);
+    }
+    
     MelodicNotes withPans (std::vector<float> newPans)
     {
         return MelodicNotes (notesInSemitones, newPans, bandwidths, centerFreq, noteDurationInSeconds, sampleRate);

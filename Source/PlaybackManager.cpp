@@ -1391,6 +1391,70 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    }
     
     // The Wall VII (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float bandwidth = 4.5f;
+//        float durationInSamples = 10000;
+//        float pan = 0.0f;
+//        std::pair<float, float> envelope = { 1.0f, 1.0f };
+//        NoiseNote referenceNoiseNote (1000, bandwidth, durationInSamples, pan, envelope, false);
+//
+//        std::vector<NoiseNote> notes {
+//            NoiseNote (freqBelow, bandwidth, durationInSamples, pan, envelope, false),
+//            referenceNoiseNote,
+//            NoiseNote (freq, bandwidth, durationInSamples, pan, envelope, false),
+//            referenceNoiseNote,
+//            NoiseNote (freqAbove, bandwidth, durationInSamples, pan, envelope, false),
+//            referenceNoiseNote,
+//        };
+//        
+//        spatialPatternGenerator.setPattern (notes);
+//    }
+//    
+    
+//    // The Wall X (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        MelodicNotes melodicNotes =
+//        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
+//            .withBandwidth (3.0f)
+//            .withCyclingPans ({ -1, 0, 1, 0 });
+//
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotesWithInterspersedReference (500));
+//    }
+    
+//    // The Wall XI (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octaveDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        MelodicNotes melodicNotes =
+//        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
+//            .withBandwidth (octaveDiff)
+//            .withCyclingPans ({ -1, 0, 1, 0 });
+//
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotesWithInterspersedReference (500));
+//    }
+    
+    // SineWall (dynamic)
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
     
@@ -1399,22 +1463,14 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         auto [freqBelow, _] = nodeBelow.value();
         auto [freqAbove, __] = nodeAbove.value();
         
-        float bandwidth = 4.5f;
-        float durationInSamples = 10000;
-        float pan = 0.0f;
-        std::pair<float, float> envelope = { 1.0f, 1.0f };
-        NoiseNote referenceNoiseNote (1000, bandwidth, durationInSamples, pan, envelope, false);
-
-        std::vector<NoiseNote> notes {
-            NoiseNote (freqBelow, bandwidth, durationInSamples, pan, envelope, false),
-            referenceNoiseNote,
-            NoiseNote (freq, bandwidth, durationInSamples, pan, envelope, false),
-            referenceNoiseNote,
-            NoiseNote (freqAbove, bandwidth, durationInSamples, pan, envelope, false),
-            referenceNoiseNote,
-        };
+        float octaveDiff = std::log2 (freqAbove / freqBelow);
         
-        spatialPatternGenerator.setPattern (notes);
+        MelodicNotes melodicNotes =
+        MelodicNotes::withFreqs ({ freq, 1000 })
+            .withBandwidth (0.1)
+            .withCyclingPans ({ -1, -1, 0, 0, 1, 1 });
+
+        spatialPatternGenerator.setPattern (melodicNotes.noiseNotes());
     }
     
 }

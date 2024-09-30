@@ -103,7 +103,7 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
             logDistance *= bwTailFactor;
         
         float bandpassGain = (logDistance / bandwidth > 1.0f) ? 0.0f : 1.0f;
-        float slope = -3.0f;
+        float slope = -12.0f / bandwidth;
         float bandpassDBChange = logDistance * slope;
         bandpassGain *= juce::Decibels::decibelsToGain (bandpassDBChange);
         amplitudes[i] *= bandpassGain;
