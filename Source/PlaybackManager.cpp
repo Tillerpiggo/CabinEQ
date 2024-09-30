@@ -1319,7 +1319,78 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //        spatialPatternGenerator.setPattern (theWall.noiseNotes());
 //    }
     
-    // The Wall VI (dynamic)
+//    // The Wall VI (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+////        float ratioInOctaves = std::log2 (freqAbove / freqBelow);
+////        float scale = ratioInOctaves / 3.0;
+////        std::vector<float> melody { -18, -9, 0, 9, 18, -18, -9, 0, 9, 18, -18, -9, 0, 9, 18 };
+////        for (int i = 0; i < melody.size(); ++i)
+////            melody[i] *= scale;
+////        int transposition = 0;
+////        MelodicNotes theWall =
+////        MelodicNotes(melody, freq)
+////            .withBandwidth (3.75 * scale)
+////            .withTransposition (transposition)
+////            .withPans ({ -1, -0.5, 0, 0.5, 1, 1, 0.5, 0, -0.5, -1, 0, 0, 0, 0, 0 });
+//        float bandwidth = 3.0f;
+//        float durationInSamples = 10000;
+//        float pan = 0.0f;
+//        std::pair<float, float> envelope = { 1.0f, 1.0f };
+//        std::vector<NoiseNote> notes {
+//            NoiseNote (freqBelow, bandwidth, durationInSamples, pan, envelope, false),
+//            NoiseNote (freq, bandwidth, durationInSamples, pan, envelope, false),
+//            NoiseNote (freqAbove, bandwidth, durationInSamples, pan, envelope, false)
+//        };
+//        
+//        spatialPatternGenerator.setPattern (notes);
+//    }
+    
+//    // The Wall VII (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+////        float ratioInOctaves = std::log2 (freqAbove / freqBelow);
+////        float scale = ratioInOctaves / 3.0;
+////        std::vector<float> melody { -18, -9, 0, 9, 18, -18, -9, 0, 9, 18, -18, -9, 0, 9, 18 };
+////        for (int i = 0; i < melody.size(); ++i)
+////            melody[i] *= scale;
+////        int transposition = 0;
+////        MelodicNotes theWall =
+////        MelodicNotes(melody, freq)
+////            .withBandwidth (3.75 * scale)
+////            .withTransposition (transposition)
+////            .withPans ({ -1, -0.5, 0, 0.5, 1, 1, 0.5, 0, -0.5, -1, 0, 0, 0, 0, 0 });
+//        float bandwidth = 3.0f;
+//        float durationInSamples = 10000;
+//        float pan = 0.0f;
+//        std::pair<float, float> envelope = { 1.0f, 1.0f };
+//        NoiseNote referenceNoiseNote (1000, bandwidth, durationInSamples, pan, envelope, false);
+//
+//        std::vector<NoiseNote> notes {
+//            NoiseNote (freqBelow, bandwidth, durationInSamples, pan, envelope, false),
+//            referenceNoiseNote,
+//            NoiseNote (freq, bandwidth, durationInSamples, pan, envelope, false),
+//            referenceNoiseNote,
+//            NoiseNote (freqAbove, bandwidth, durationInSamples, pan, envelope, false),
+//            referenceNoiseNote,
+//        };
+//        
+//        spatialPatternGenerator.setPattern (notes);
+//    }
+    
+    // The Wall VII (dynamic)
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
     
@@ -1328,25 +1399,19 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         auto [freqBelow, _] = nodeBelow.value();
         auto [freqAbove, __] = nodeAbove.value();
         
-//        float ratioInOctaves = std::log2 (freqAbove / freqBelow);
-//        float scale = ratioInOctaves / 3.0;
-//        std::vector<float> melody { -18, -9, 0, 9, 18, -18, -9, 0, 9, 18, -18, -9, 0, 9, 18 };
-//        for (int i = 0; i < melody.size(); ++i)
-//            melody[i] *= scale;
-//        int transposition = 0;
-//        MelodicNotes theWall =
-//        MelodicNotes(melody, freq)
-//            .withBandwidth (3.75 * scale)
-//            .withTransposition (transposition)
-//            .withPans ({ -1, -0.5, 0, 0.5, 1, 1, 0.5, 0, -0.5, -1, 0, 0, 0, 0, 0 });
-        float bandwidth = 3.0f;
+        float bandwidth = 4.5f;
         float durationInSamples = 10000;
         float pan = 0.0f;
         std::pair<float, float> envelope = { 1.0f, 1.0f };
+        NoiseNote referenceNoiseNote (1000, bandwidth, durationInSamples, pan, envelope, false);
+
         std::vector<NoiseNote> notes {
             NoiseNote (freqBelow, bandwidth, durationInSamples, pan, envelope, false),
+            referenceNoiseNote,
             NoiseNote (freq, bandwidth, durationInSamples, pan, envelope, false),
-            NoiseNote (freqAbove, bandwidth, durationInSamples, pan, envelope, false)
+            referenceNoiseNote,
+            NoiseNote (freqAbove, bandwidth, durationInSamples, pan, envelope, false),
+            referenceNoiseNote,
         };
         
         spatialPatternGenerator.setPattern (notes);
