@@ -15,7 +15,7 @@
 #include "CurvePt.h"
 
 class CabinEqGraph   : public juce::Component,
-                       public juce::KeyListener,
+//                       public juce::KeyListener,
                        public juce::Timer
 {
 public:
@@ -52,8 +52,8 @@ public:
     void mouseUp (const juce::MouseEvent &event) override;
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
     
-    bool keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent) override;
-    bool keyStateChanged (bool isKeyDown, juce::Component *originatingComponent) override;
+//    bool keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent) override;
+//    bool keyStateChanged (bool isKeyDown, juce::Component *originatingComponent) override;
     
     void timerCallback() override;
     

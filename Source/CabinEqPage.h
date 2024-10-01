@@ -57,6 +57,11 @@ public:
     
     void timerCallback() override;
     
+    juce::ToggleButton genToggleButton1 { "Generator 1" };
+    juce::ToggleButton genToggleButton2 { "Generator 2" };
+    juce::ToggleButton genToggleButton3 { "Generator 3" };
+    juce::ToggleButton genToggleButton4 { "Generator 4" };
+    
 protected:
     void flagFilterChanged();
     void toggleBypass();

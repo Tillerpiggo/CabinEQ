@@ -52,6 +52,8 @@ public:
     void updateProbingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
     void stopProbing();
     
+    void setMutedGenerators (std::vector<bool> mutedGens); // takes a vector of length 4 with bools for if each generate is muted (true) or not (false)
+    
     void setReferenceVolume (float volume);
     void setReferenceVolume1 (float volume);
     void setReferenceVolume2 (float volume);
@@ -76,6 +78,7 @@ private:
     SpatialPatternGenerator spatialPatternGenerator4;
     SpatialPatternGenerator spatialPatternGenerator5;
     SpatialPatternGenerator spatialPatternGenerator6;
+    SpatialNoiseGenerator spatialNoiseGenerator;
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
     ArbitrarySequencer arbitrarySequencer3;
@@ -89,4 +92,9 @@ private:
     
     float referenceVolume = 0.0f;
     float probingFreq = REFERENCE_FREQ;
+    
+    bool isSpatialPatternGeneratorMuted;
+    bool isSpatialPatternGenerator2Muted;
+    bool isSpatialPatternGenerator3Muted;
+    bool isSpatialPatternGenerator4Muted;
 };

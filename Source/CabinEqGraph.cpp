@@ -202,19 +202,19 @@ void CabinEqGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::Mo
 }
 
 
-bool CabinEqGraph::keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent)
-{
-    cyclesSinceUserStoppedDoingShit = 0;
-    return true;
-}
-
-bool CabinEqGraph::keyStateChanged (bool isKeyDown, juce::Component *originatingComponent)
-{
-    cyclesSinceUserStoppedDoingShit = 0;
-    isProbingFreq = false;
-    stopProbing();
-    return true;
-}
+//bool CabinEqGraph::keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent)
+//{
+//    cyclesSinceUserStoppedDoingShit = 0;
+//    return true;
+//}
+//
+//bool CabinEqGraph::keyStateChanged (bool isKeyDown, juce::Component *originatingComponent)
+//{
+//    cyclesSinceUserStoppedDoingShit = 0;
+//    isProbingFreq = false;
+//    stopProbing();
+//    return true;
+//}
 
 
 void CabinEqGraph::timerCallback()

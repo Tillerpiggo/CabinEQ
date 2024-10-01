@@ -233,6 +233,11 @@ void CabinEqAudioProcessor::setVolume (float volume)
     playbackManager.setVolume (volume);
 }
 
+void CabinEqAudioProcessor::setMutedGens (std::vector<bool> mutedGens)
+{
+    playbackManager.setMutedGenerators (mutedGens);
+}
+
 std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getAmplCurve (juce::String profileName)
 {
     auto profile = profileNamed (profileName);

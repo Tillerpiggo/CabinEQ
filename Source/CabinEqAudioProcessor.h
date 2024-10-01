@@ -74,6 +74,7 @@ public:
     void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
     void setVolume (float volume);
+    void setMutedGens (std::vector<bool> mutedGens);
     
     std::optional<std::reference_wrapper<Curve>> getAmplCurve (juce::String profileName);
     std::optional<std::reference_wrapper<Curve>> getPanCurve (juce::String profileName);

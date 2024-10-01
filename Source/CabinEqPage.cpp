@@ -44,6 +44,10 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     applyButton.addListener (this);
     processor.addListener (this);
     volumeSlider.addListener (this);
+    genToggleButton1.addListener (this);
+    genToggleButton2.addListener (this);
+    genToggleButton3.addListener (this);
+    genToggleButton4.addListener (this);
     
     addAndMakeVisible (graphs);
     addAndMakeVisible (profileDropdown);
@@ -52,6 +56,10 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (applyButton);
     addAndMakeVisible (blindButton);
     addAndMakeVisible (volumeSlider);
+    addAndMakeVisible (genToggleButton1);
+    addAndMakeVisible (genToggleButton2);
+    addAndMakeVisible (genToggleButton3);
+    addAndMakeVisible (genToggleButton4);
     
     didLoadData();
 }
@@ -64,6 +72,10 @@ CabinEqPage::~CabinEqPage()
     applyButton.removeListener (this);
     blindButton.removeListener (this);
     volumeSlider.removeListener (this);
+    genToggleButton1.removeListener (this);
+    genToggleButton2.removeListener (this);
+    genToggleButton3.removeListener (this);
+    genToggleButton4.removeListener (this);
     
     amplGraph->removeListener();
     panGraph->removeListener();
@@ -89,11 +101,13 @@ void CabinEqPage::resized()
     int buttonWidth = 100;
     int applyButtonWidth = 100;
     int duplicateButtonWidth = 100;
+    int toggleButtonHeight = 30;
     int totalButtonWidth = buttonWidth + duplicateButtonWidth + applyButtonWidth;
 
     // Get heights for each component
     int availableHeight = getHeight() - (2 * padding);
-    int graphHeight = availableHeight - dropdownHeight - sliderHeight - labelHeight - 3 * componentPadding; // Remaining height for the graph
+//    int graphHeight = availableHeight - dropdownHeight - sliderHeight - labelHeight - 3 * componentPadding; // Remaining height for the graph
+    int graphHeight = availableHeight - dropdownHeight - sliderHeight - toggleButtonHeight - labelHeight - 4 * componentPadding;
     
     // Get widths for each component
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
@@ -116,6 +130,19 @@ void CabinEqPage::resized()
     int sliderY = buttonsY + dropdownHeight + componentPadding;
     int sliderWidth = (getWidth() - (3 * padding)); // Two sliders with padding in between
     volumeSlider.setBounds (padding, sliderY, sliderWidth, sliderHeight);
+    
+    // Set bounds for the toggle buttons
+    int toggleButtonWidth = (getWidth() - (2 * padding) - (3 * componentPadding)) / 4;
+    int toggleButtonsY = getHeight() - padding - toggleButtonHeight;
+
+    int toggleButtonX = padding;
+    genToggleButton1.setBounds(toggleButtonX, toggleButtonsY, toggleButtonWidth, toggleButtonHeight);
+    toggleButtonX += toggleButtonWidth + componentPadding;
+    genToggleButton2.setBounds(toggleButtonX, toggleButtonsY, toggleButtonWidth, toggleButtonHeight);
+    toggleButtonX += toggleButtonWidth + componentPadding;
+    genToggleButton3.setBounds(toggleButtonX, toggleButtonsY, toggleButtonWidth, toggleButtonHeight);
+    toggleButtonX += toggleButtonWidth + componentPadding;
+    genToggleButton4.setBounds(toggleButtonX, toggleButtonsY, toggleButtonWidth, toggleButtonHeight);
 }
 
 // ====================================================
@@ -437,6 +464,21 @@ void CabinEqPage::buttonClicked (juce::Button *button)
     else if (button == &blindButton)
     {
         toggleBlind();
+    }
+    else if (button == &genToggleButton1 ||
+             button == &genToggleButton2 ||
+             button == &genToggleButton3 ||
+             button == &genToggleButton4)
+    {
+        // Collect the state of all four toggle buttons
+        std::vector<bool> mutedGens(4);
+        mutedGens[0] = ! genToggleButton1.getToggleState();
+        mutedGens[1] = ! genToggleButton2.getToggleState();
+        mutedGens[2] = ! genToggleButton3.getToggleState();
+        mutedGens[3] = ! genToggleButton4.getToggleState();
+
+        // Call processor.setMutedGens with the states
+        processor.setMutedGens(mutedGens);
     }
 }
 
