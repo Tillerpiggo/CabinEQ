@@ -682,12 +682,18 @@ void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &
 //    
 //    spatialPatternGenerator.setPattern (sweep.noiseNotes());
     
-    // Pans II
-    MelodicNotes sweep =
-    MelodicNotes ({ 0 }, freq)
-        .withBandwidth (2.0)
-        .withCyclingPans ({ -1.0, -0.66, -0.33, 0.0, 0.33, 0.66, 1.0, 0.66, 0.33, 0.0, -0.33, -0.66, -1.0 });
+//    // Pans II
+//    MelodicNotes sweep =
+//    MelodicNotes ({ 0, 0, 0, 0, 0, 0 }, freq)
+//        .withBandwidths ({ 5.0, 5.0, 3.0, 3.0, 1.0, 1.0 })
+//        .withCyclingPans ({ -1.0, 1.0 });
+//    
+//    spatialPatternGenerator.setPattern (sweep.noiseNotes());
     
+    // Pans III
+    MelodicNotes rising =
+    MelodicNotes ({ -6, 0, 6 })
+        .withBandwidth (2.0)
     spatialPatternGenerator.setPattern (sweep.noiseNotes());
 }
     
