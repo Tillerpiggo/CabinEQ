@@ -1532,6 +1532,25 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    }
     
     // The Wall XIV (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octaveDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        MelodicNotes melodicNotes =
+//        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
+//            .withBandwidth (octaveDiff)
+//            .withCyclingPans ({ -1, 0, 1, 0 });
+//
+////        spatialPatternGenerator.setPattern (melodicNotes.noiseNotesWithInterspersedReference (1000, 100)); // intersperse with pink noise bursts
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotes());
+//    }
+    
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
     
@@ -1540,16 +1559,66 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         auto [freqBelow, _] = nodeBelow.value();
         auto [freqAbove, __] = nodeAbove.value();
         
-        float octaveDiff = std::log2 (freqAbove / freqBelow);
+        float freqRatio = freqAbove / freqBelow;
+        float octaveDiff = std::log2 (freqRatio);
         
         MelodicNotes melodicNotes =
-        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
-            .withBandwidth (octaveDiff)
-            .withCyclingPans ({ -1, 0, 1, 0 });
+        MelodicNotes::withFreqs ({ freqBelow / freqRatio, freqBelow, freq, freqAbove, freqAbove * freqRatio })
+            .withBandwidth (octaveDiff);
+//            .withCyclingPans ({ -1, 0, 1, 0 });
 
 //        spatialPatternGenerator.setPattern (melodicNotes.noiseNotesWithInterspersedReference (1000, 100)); // intersperse with pink noise bursts
         spatialPatternGenerator.setPattern (melodicNotes.noiseNotes());
     }
+    
+    // Works I
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        std::cout << "freqBelow: " << freqBelow << std::endl;
+//        std::cout << "freqAbove: " << freqAbove << std::endl;
+//        
+//        float octaveDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        MelodicNotes melodicNotes =
+//        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
+//            .withBandwidth (octaveDiff)
+//            .withCyclingPans ({ -1, -0.5, 0, 0.5, 1 });
+//
+////        spatialPatternGenerator.setPattern (melodicNotes.noiseNotesWithInterspersedReference (1000, 100)); // intersperse with pink noise bursts
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotes());
+//    }
+    
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        std::cout << "freqBelow: " << freqBelow << std::endl;
+//        std::cout << "freqAbove: " << freqAbove << std::endl;
+//        
+//        float freqRatio = freqAbove / freqBelow;
+//        float octaveDiff = std::log2 (freqRatio);
+//        
+//        MelodicNotes melodicNotes =
+//        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
+//            .withBandwidth (octaveDiff)
+//            .withCyclingPans ({ -1, -0.5, 0, 0.5, 1 });
+//        
+//        MelodicNotes refPattern =
+//        MelodicNotes::withFreqs ({ freqBelow / freqRatio , freqAbove * freqRatio });
+//        
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotes());
+//        spatialPatternGenerator2.setPattern (refPattern.noiseNotes());
+//    }
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
