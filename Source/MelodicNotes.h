@@ -81,6 +81,24 @@ public:
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
+    MelodicNotes withRepeatedTranspositions (std::vector<float> transpositions)
+    {
+        std::vector<float> newNotesInSemitones;
+        std::vector<float> newBandwidths;
+        std::vector<float> newPans;
+        for (const auto& transposition : transpositions)
+        {
+            for (int i = 0; i < notesInSemitones.size(); ++i)
+            {
+                newNotesInSemitones.push_back (notesInSemitones[i] + transposition);
+                newBandwidths.push_back (bandwidths[i]);
+                newPans.push_back (pans[i]);
+            }
+        }
+        
+        return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
+    }
+    
     MelodicNotes withPan (float newPan)
     {
         return MelodicNotes (notesInSemitones, std::vector<float> (notesInSemitones.size(), newPan), bandwidths, centerFreq, noteDurationInSeconds, sampleRate);

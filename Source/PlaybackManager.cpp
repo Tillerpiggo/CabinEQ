@@ -607,6 +607,35 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator.setPattern (left.noiseNotes());
 //    spatialPatternGenerator2.setPattern (right.noiseNotes());
 //    spatialPatternGenerator3.setPattern (center.noiseNotes());
+    
+//    // Parallelism I
+//    MelodicNotes diagonal =
+//    MelodicNotes ({ -12, -9, -6, -3, 0, 3, 6, 9, 12 }, freq)
+//        .withBandwidth (2.0)
+//        .withPans ({ -1.0, -0.66, -0.33, 0.0, 0.33, 0.66, 1.0 })
+//        .withNoteDurationInSeconds (0.1)
+//        .withRepeatedTranspositions ({ -4, 0, 4 });
+//    
+//    spatialPatternGenerator.setPattern (diagonal.noiseNotes());
+    
+    // Diamond Separation I
+    MelodicNotes sides =
+    MelodicNotes ({ 0, 0 }, freq)
+        .withBandwidth (1.0)
+        .withPans ({ -1.0, 1.0 });
+    
+    MelodicNotes diamond =
+    MelodicNotes ({ -6, 6, -6, 6 }, freq)
+        .withBandwidth (1.0)
+        .withPans ({ -1.0, 1.0, 1.0, -1.0 });
+    
+    MelodicNotes topBottom =
+    MelodicNotes ({ -15, 15 }, freq)
+        .withBandwidth (1.0);
+    
+    spatialPatternGenerator.setPattern (sides.noiseNotes());
+    spatialPatternGenerator2.setPattern (diamond.noiseNotes());
+    spatialPatternGenerator3.setPattern (topBottom.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
