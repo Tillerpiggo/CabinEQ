@@ -26,6 +26,11 @@ void SpatialPatternGenerator::setAmplCurve (Curve& amplCurve)
     noiseGenerator.setAmplCurve (amplCurve);
 }
 
+void SpatialPatternGenerator::setPanCurve (Curve& panCurve)
+{
+    noiseGenerator.setPanCurve (panCurve);
+}
+
 void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
 {
     this->notes = notes;

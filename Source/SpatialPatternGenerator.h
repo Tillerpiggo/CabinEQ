@@ -53,6 +53,7 @@ public:
     void setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs); // assumes that len(notesInSemitones) == len(pans). Pans should be from [-1, 1]
     void setCenterFrequency (float centerFrequency);
     void setAmplCurve (Curve& amplCurve);
+    void setPanCurve (Curve& panCurve);
     std::pair<float, float> getNextSample();
 
 private:

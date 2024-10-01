@@ -105,12 +105,19 @@ void PlaybackManager::setVolume (float volume)
 void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
     spatialPatternGenerator.setAmplCurve (amplCurve);
+    spatialPatternGenerator.setPanCurve (panCurve);
     spatialPatternGenerator.setCenterFrequency (freq);
+    
     spatialPatternGenerator2.setAmplCurve (amplCurve);
+    spatialPatternGenerator2.setPanCurve (panCurve);
     spatialPatternGenerator2.setCenterFrequency (freq);
+    
     spatialPatternGenerator3.setAmplCurve (amplCurve);
+    spatialPatternGenerator3.setPanCurve (panCurve);
     spatialPatternGenerator3.setCenterFrequency (freq);
+    
     spatialPatternGenerator4.setAmplCurve (amplCurve);
+    spatialPatternGenerator4.setPanCurve (panCurve);
     spatialPatternGenerator4.setCenterFrequency (freq);
     
 //    // Pink Noise 2XIII
@@ -650,12 +657,46 @@ void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve
 
 void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
 {
-    // TODO Later
+    spatialPatternGenerator.setAmplCurve (amplCurve);
+    spatialPatternGenerator.setPanCurve (panCurve);
+    spatialPatternGenerator.setCenterFrequency (freq);
+    
+    spatialPatternGenerator2.setAmplCurve (amplCurve);
+    spatialPatternGenerator2.setPanCurve (panCurve);
+    spatialPatternGenerator2.setCenterFrequency (freq);
+    
+    spatialPatternGenerator3.setAmplCurve (amplCurve);
+    spatialPatternGenerator3.setPanCurve (panCurve);
+    spatialPatternGenerator3.setCenterFrequency (freq);
+    
+    spatialPatternGenerator4.setAmplCurve (amplCurve);
+    spatialPatternGenerator4.setPanCurve (panCurve);
+    spatialPatternGenerator4.setCenterFrequency (freq);
+    
+    
+//    // Pans I
+//    MelodicNotes sweep =
+//    MelodicNotes ({ 0 }, freq)
+//        .withBandwidth (2.0)
+//        .withCyclingPans ({ -1.0, -0.66, -0.33, 0.0, 0.33, 0.66, 1.0, 0.66, 0.33, 0.0, -0.33, -0.66, -1.0 });
+//    
+//    spatialPatternGenerator.setPattern (sweep.noiseNotes());
+    
+    // Pans II
+    MelodicNotes sweep =
+    MelodicNotes ({ 0 }, freq)
+        .withBandwidth (2.0)
+        .withCyclingPans ({ -1.0, -0.66, -0.33, 0.0, 0.33, 0.66, 1.0, 0.66, 0.33, 0.0, -0.33, -0.66, -1.0 });
+    
+    spatialPatternGenerator.setPattern (sweep.noiseNotes());
 }
-
+    
 void PlaybackManager::updatePanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
 {
-    // TODO Later
+    spatialPatternGenerator.setPanCurve (panCurve);
+    spatialPatternGenerator2.setPanCurve (panCurve);
+    spatialPatternGenerator3.setPanCurve (panCurve);
+    spatialPatternGenerator4.setPanCurve (panCurve);
 }
 
 void PlaybackManager::startPhaseCalibration(float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
