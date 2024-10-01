@@ -25,7 +25,8 @@ SpatialNoiseGenerator::SpatialNoiseGenerator()
     for (int i = 0; i < numSinWaves; ++i)
     {
         // Assign random phase between 0 and 2π
-        phases[i] = random.nextFloat() * (2.0f * juce::MathConstants<float>::pi);
+        float phaseVal = random.nextFloat() * (2.0f * juce::MathConstants<float>::pi);
+        phases[i] = { phaseVal, phaseVal };
     }
 }
 
@@ -36,14 +37,18 @@ std::pair<float, float> SpatialNoiseGenerator::getNextSample()
 
     for (int j = 0; j < numSinWaves; ++j)
     {
-        phases[j] += phaseIncrements[j];
-        if (phases[j] >= juce::MathConstants<float>::twoPi)
-            phases[j] -= juce::MathConstants<float>::twoPi;
+        phases[j].first += phaseIncrements[j];
+        phases[j].second += phaseIncrements[j];
+        if (phases[j].first >= juce::MathConstants<float>::twoPi)
+            phases[j].first -= juce::MathConstants<float>::twoPi;
+        if (phases[j].second >= juce::MathConstants<float>::twoPi)
+            phases[j].second -= juce::MathConstants<float>::twoPi;
         
-        float sinVal = sineTable.get(phases[j]);
+        float leftSinVal = sineTable.get(phases[j].first);
+        float rightSinVal = sineTable.get(phases[j].second);
         std::pair<float, float> ampl = amplitudes[j];
-        leftSample += sinVal * ampl.first;
-        rightSample += sinVal * ampl.second;
+        leftSample += leftSinVal * ampl.first;
+        rightSample += rightSinVal * ampl.second;
     }
 
     leftSample /= numSinWaves;
@@ -89,6 +94,11 @@ void SpatialNoiseGenerator::setPanCurve (Curve panCurve)
     this->panCurve = panCurve;
 }
 
+void SpatialNoiseGenerator::setPhaseCurve (Curve phaseCurve)
+{
+    this->phaseCurve = phaseCurve;
+}
+
 void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHeadFactor, float bwTailFactor)
 {
     centralFrequency = centralFreq;
@@ -104,10 +114,19 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
             continue;
         }
         
+        // Handle ampl
         float pinkNoiseDropoff = -3.0 * std::log2 (frequencies[i] / 1000.0f);
-        float leftAmpl = juce::Decibels::decibelsToGain (amplCurve.valueAtFrequency(frequencies[i]) - 0.5 * panCurve.valueAtFrequency(frequencies[i]) + pinkNoiseDropoff);
-        float rightAmpl = juce::Decibels::decibelsToGain (amplCurve.valueAtFrequency(frequencies[i]) + 0.5 * panCurve.valueAtFrequency(frequencies[i]) + pinkNoiseDropoff);
+        float amplVal = amplCurve.valueAtFrequency (frequencies[i]);
+        float panVal = panCurve.valueAtFrequency(frequencies[i]);
+        float leftAmpl = juce::Decibels::decibelsToGain (amplVal - 0.5 * panVal + pinkNoiseDropoff);
+        float rightAmpl = juce::Decibels::decibelsToGain (amplVal + 0.5 * panVal + pinkNoiseDropoff);
         amplitudes[i] = { leftAmpl, rightAmpl };
+        
+        // Handle phase
+        float phaseVal = phaseCurve.valueAtFrequency (frequencies[i]);
+        phases[i].first -= phaseVal * 0.5;
+        phases[i].second += phaseVal * 0.5;
+        
         float freq = frequencies[i];
         float logDistance = std::abs(std::log2(freq / centralFrequency));
         if (freq > centralFrequency) // Long head

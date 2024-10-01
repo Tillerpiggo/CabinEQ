@@ -31,6 +31,11 @@ void SpatialPatternGenerator::setPanCurve (Curve& panCurve)
     noiseGenerator.setPanCurve (panCurve);
 }
 
+void SpatialPatternGenerator::setPhaseCurve (Curve& phaseCurve)
+{
+    noiseGenerator.setPhaseCurve (phaseCurve);
+}
+
 void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
 {
     this->notes = notes;
@@ -80,8 +85,8 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
     
     auto [leftEnvelopeGain, rightEnvelopeGain] = getCurrNote().getGainAtSample (numSamplesNoteHasBeenPlaying);
     
-    leftEnvelopeGain = 1;
-    rightEnvelopeGain = 1;
+//    leftEnvelopeGain = 1;
+//    rightEnvelopeGain = 1;
     // Apply panning
     return { sample.first * leftGain * leftEnvelopeGain, sample.second * rightGain * rightEnvelopeGain };
 }

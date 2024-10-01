@@ -51,6 +51,7 @@ public:
     void setSampleRate(float newSampleRate);
     void setAmplCurve(Curve amplCurve);
     void setPanCurve(Curve panCurve);
+    void setPhaseCurve(Curve phaseCurve);
     void setBandpass(float centralFreq, float bandwidth, float bwHeadFactor, float bwTailFactor);
 
 private:
@@ -61,15 +62,16 @@ private:
     int bufferIndex;
     std::vector<float> buffer;
     juce::Random random;
-    static const int numSinWaves = 100;
+    static const int numSinWaves = 10;
     std::vector<float> frequencies;
     std::vector<std::pair<float, float>> amplitudes;
-    std::vector<float> phases;          // Added phase storage
+    std::vector<std::pair<float, float>> phases;          // Added phase storage
     std::vector<float> phaseIncrements; // Added phase increment storage
     int crossfadeLength = 500;
 
     Curve amplCurve;
     Curve panCurve;
+    Curve phaseCurve;
     juce::IIRFilter bandpassFilter;
     float centralFrequency;
     float bandwidth;

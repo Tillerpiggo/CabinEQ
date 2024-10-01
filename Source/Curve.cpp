@@ -381,6 +381,7 @@ const std::optional<std::vector<float>> Curve::getFirstFourFreqs()
 
 std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyResponse (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int numPoints)
 {
+    /*
     std::vector<float> leftFreqResponse (2 * numPoints, 0);
     std::vector<float> rightFreqResponse (2 * numPoints, 0);
     for (int i = 0; i < numPoints / 2; ++i)
@@ -415,28 +416,48 @@ std::pair<std::vector<float>, std::vector<float>> Curve::getStereoFrequencyRespo
         
     }
     
-    /*
-    // TODO: this seems redundant. Can't we just read off the values we've calculate so far in reverse?
-    for (int i = 0; i < numPoints / 2; ++i)
-    {
-        float t = static_cast<float>(2 * i) / (numPoints);
-        
-        auto ampl = amplCurve.valueAtTime (1 - t);
-        auto pan = panCurve.valueAtTime (1 - t);
-        auto phase = phaseCurve.valueAtTime (1 - t);
-        
-        auto leftMagnitude = juce::Decibels::decibelsToGain (ampl - 0.5 * pan);
-        auto rightMagnitude = juce::Decibels::decibelsToGain (ampl + 0.5 * pan);
-        auto leftComplexVal = std::polar (leftMagnitude, -0.5 * phase);
-        auto rightComplexVal = std::polar (rightMagnitude, 0.5 * phase);
-        
-        // Ignore phase, just for now
-        leftFreqResponse[2 * i] = leftMagnitude;//leftComplexVal.real();
-        rightFreqResponse[2 * i] = rightMagnitude;//rightComplexVal.real();
-        leftFreqResponse[2 * i + 1] = 0;//-1 * leftComplexVal.imag();
-        rightFreqResponse[2 * i + 1] = 0;//-1 * rightComplexVal.imag();
-    }
+    return { leftFreqResponse, rightFreqResponse };
      */
     
-    return { leftFreqResponse, rightFreqResponse };
+        std::vector<float> leftFreqResponse (2 * numPoints, 0.0f);
+        std::vector<float> rightFreqResponse (2 * numPoints, 0.0f);
+
+        // Compute the positive frequencies (including DC and Nyquist)
+        for (int i = 0; i <= numPoints / 2; ++i)
+        {
+            float t = static_cast<float>(i) / (numPoints / 2);
+
+            float ampl = amplCurve.valueAtTime (t);
+            float pan = panCurve.valueAtTime (t);
+            float phase = phaseCurve.valueAtTime (t);
+
+            float leftGain = juce::Decibels::decibelsToGain (ampl - (pan < 0 ? pan : 0));
+            float rightGain = juce::Decibels::decibelsToGain (ampl + (pan > 0 ? pan : 0));
+
+            // Compute the complex frequency response using magnitude and phase
+            std::complex<float> leftComplexVal = std::polar (leftGain, -0.5f * phase);
+            std::complex<float> rightComplexVal = std::polar (rightGain, 0.5f * phase);
+
+            leftFreqResponse[2 * i] = leftComplexVal.real();
+            leftFreqResponse[2 * i + 1] = leftComplexVal.imag();
+
+            rightFreqResponse[2 * i] = rightComplexVal.real();
+            rightFreqResponse[2 * i + 1] = rightComplexVal.imag();
+        }
+
+        // Compute the negative frequencies by ensuring conjugate symmetry
+        for (int i = 1; i < numPoints / 2; ++i)
+        {
+            int reverseIdx = numPoints - i;
+
+            // Conjugate symmetry for the left channel
+            leftFreqResponse[2 * reverseIdx] = leftFreqResponse[2 * i];
+            leftFreqResponse[2 * reverseIdx + 1] = -leftFreqResponse[2 * i + 1];
+
+            // Conjugate symmetry for the right channel
+            rightFreqResponse[2 * reverseIdx] = rightFreqResponse[2 * i];
+            rightFreqResponse[2 * reverseIdx + 1] = -rightFreqResponse[2 * i + 1];
+        }
+
+        return { leftFreqResponse, rightFreqResponse };
 }

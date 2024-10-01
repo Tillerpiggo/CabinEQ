@@ -54,6 +54,7 @@ public:
     void setCenterFrequency (float centerFrequency);
     void setAmplCurve (Curve& amplCurve);
     void setPanCurve (Curve& panCurve);
+    void setPhaseCurve (Curve& phaseCurve);
     std::pair<float, float> getNextSample();
 
 private:
