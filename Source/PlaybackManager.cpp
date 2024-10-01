@@ -1451,7 +1451,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //            .withBandwidth (octaveDiff)
 //            .withCyclingPans ({ -1, 0, 1, 0 });
 //
-//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotesWithInterspersedReference (500));
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotes());
 //    }
     
 //    // SineWall (dynamic)
@@ -1474,6 +1474,64 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    }
     
     // SineWall 2 (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octaveDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        MelodicNotes melodicNotes =
+//        MelodicNotes::withFreqs ({ 1000, freq })
+//            .withBandwidth (0.1);
+////            .withCyclingPans ({ -1, -1, 0, 0, 1, 1 });
+//
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotes());
+//    }
+    
+////    // The Wall XII (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octaveDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        MelodicNotes melodicNotes =
+//        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
+//            .withBandwidth (octaveDiff)
+//            .withCyclingPans ({ -1, 0, 1, 0 });
+//
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotesWithInterspersedReference (1000, 100)); // intersperse with pink noise bursts
+//    }
+    
+    // The Wall XIII (dynamic)
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//    
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octaveDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        MelodicNotes melodicNotes =
+//        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
+//            .withBandwidth (octaveDiff);
+//
+//        spatialPatternGenerator.setPattern (melodicNotes.withPan (-1).noiseNotes());
+//        spatialPatternGenerator2.setPattern (melodicNotes.withPan (0).noiseNotes());
+//        spatialPatternGenerator3.setPattern (melodicNotes.withPan (1).noiseNotes());
+//    }
+    
+    // The Wall XIV (dynamic)
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
     
@@ -1485,13 +1543,13 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         float octaveDiff = std::log2 (freqAbove / freqBelow);
         
         MelodicNotes melodicNotes =
-        MelodicNotes::withFreqs ({ 1000, freq })
-            .withBandwidth (0.1);
-//            .withCyclingPans ({ -1, -1, 0, 0, 1, 1 });
+        MelodicNotes::withFreqs ({ freqBelow, freq, freqAbove })
+            .withBandwidth (octaveDiff)
+            .withCyclingPans ({ -1, 0, 1, 0 });
 
+//        spatialPatternGenerator.setPattern (melodicNotes.noiseNotesWithInterspersedReference (1000, 100)); // intersperse with pink noise bursts
         spatialPatternGenerator.setPattern (melodicNotes.noiseNotes());
     }
-    
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
