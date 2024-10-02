@@ -85,6 +85,179 @@
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
       <FILE id="Uf5qZJ" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
+      <GROUP id="{AA285256-86FA-52FF-85FF-CCD91324CB09}" name="include">
+        <GROUP id="{E26A6BE3-15D3-E830-43B8-5F7E4AF14F35}" name="xsimd">
+          <GROUP id="{3639E0F5-2885-57A1-EB7F-F02DF6C97E41}" name="arch">
+            <GROUP id="{3BD687D2-1D9C-7B64-A8D7-249564A1A507}" name="generic">
+              <FILE id="qnZdum" name="xsimd_generic_arithmetic.hpp" compile="0" resource="0"
+                    file="../../../Downloads/xsimd-master/include/xsimd/arch/generic/xsimd_generic_arithmetic.hpp"/>
+              <FILE id="stnUw9" name="xsimd_generic_complex.hpp" compile="0" resource="0"
+                    file="../../../Downloads/xsimd-master/include/xsimd/arch/generic/xsimd_generic_complex.hpp"/>
+              <FILE id="cX6xYA" name="xsimd_generic_details.hpp" compile="0" resource="0"
+                    file="../../../Downloads/xsimd-master/include/xsimd/arch/generic/xsimd_generic_details.hpp"/>
+              <FILE id="FHwl6E" name="xsimd_generic_logical.hpp" compile="0" resource="0"
+                    file="../../../Downloads/xsimd-master/include/xsimd/arch/generic/xsimd_generic_logical.hpp"/>
+              <FILE id="cyW1kR" name="xsimd_generic_math.hpp" compile="0" resource="0"
+                    file="../../../Downloads/xsimd-master/include/xsimd/arch/generic/xsimd_generic_math.hpp"/>
+              <FILE id="zOo0ek" name="xsimd_generic_memory.hpp" compile="0" resource="0"
+                    file="../../../Downloads/xsimd-master/include/xsimd/arch/generic/xsimd_generic_memory.hpp"/>
+              <FILE id="R2fhF3" name="xsimd_generic_rounding.hpp" compile="0" resource="0"
+                    file="../../../Downloads/xsimd-master/include/xsimd/arch/generic/xsimd_generic_rounding.hpp"/>
+              <FILE id="xEBYkd" name="xsimd_generic_trigo.hpp" compile="0" resource="0"
+                    file="../../../Downloads/xsimd-master/include/xsimd/arch/generic/xsimd_generic_trigo.hpp"/>
+            </GROUP>
+            <FILE id="GE8aVY" name="xsimd_avx.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx.hpp"/>
+            <FILE id="BeBEpg" name="xsimd_avx2.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx2.hpp"/>
+            <FILE id="wrTi9F" name="xsimd_avx512bw.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512bw.hpp"/>
+            <FILE id="fMwwgJ" name="xsimd_avx512cd.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512cd.hpp"/>
+            <FILE id="uPztxG" name="xsimd_avx512dq.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512dq.hpp"/>
+            <FILE id="nInewY" name="xsimd_avx512er.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512er.hpp"/>
+            <FILE id="P5IuEg" name="xsimd_avx512f.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512f.hpp"/>
+            <FILE id="eXTJ2y" name="xsimd_avx512ifma.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512ifma.hpp"/>
+            <FILE id="rPvg6p" name="xsimd_avx512pf.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512pf.hpp"/>
+            <FILE id="zM7ioj" name="xsimd_avx512vbmi.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512vbmi.hpp"/>
+            <FILE id="b7Kf1h" name="xsimd_avx512vnni_avx512bw.hpp" compile="0"
+                  resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512vnni_avx512bw.hpp"/>
+            <FILE id="AO70YW" name="xsimd_avx512vnni_avx512vbmi.hpp" compile="0"
+                  resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avx512vnni_avx512vbmi.hpp"/>
+            <FILE id="wop0oU" name="xsimd_avxvnni.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_avxvnni.hpp"/>
+            <FILE id="F5sPhc" name="xsimd_constants.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_constants.hpp"/>
+            <FILE id="CRkbYo" name="xsimd_emulated.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_emulated.hpp"/>
+            <FILE id="ti2b5A" name="xsimd_fma3_avx.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_fma3_avx.hpp"/>
+            <FILE id="qfAaDP" name="xsimd_fma3_avx2.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_fma3_avx2.hpp"/>
+            <FILE id="cWDM2b" name="xsimd_fma3_sse.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_fma3_sse.hpp"/>
+            <FILE id="dBSGYV" name="xsimd_fma4.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_fma4.hpp"/>
+            <FILE id="eqcMk1" name="xsimd_generic.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_generic.hpp"/>
+            <FILE id="Mihffa" name="xsimd_generic_fwd.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_generic_fwd.hpp"/>
+            <FILE id="Y8lgxz" name="xsimd_i8mm_neon64.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_i8mm_neon64.hpp"/>
+            <FILE id="PtFI0z" name="xsimd_isa.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_isa.hpp"/>
+            <FILE id="Xh7FfR" name="xsimd_neon.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_neon.hpp"/>
+            <FILE id="lkzu9d" name="xsimd_neon64.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_neon64.hpp"/>
+            <FILE id="GKS9vG" name="xsimd_rvv.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_rvv.hpp"/>
+            <FILE id="Of8LfH" name="xsimd_scalar.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_scalar.hpp"/>
+            <FILE id="AYlTpw" name="xsimd_sse2.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_sse2.hpp"/>
+            <FILE id="cr4kuD" name="xsimd_sse3.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_sse3.hpp"/>
+            <FILE id="fIY5OL" name="xsimd_sse4_1.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_sse4_1.hpp"/>
+            <FILE id="Y39a14" name="xsimd_sse4_2.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_sse4_2.hpp"/>
+            <FILE id="PK5Eeo" name="xsimd_ssse3.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_ssse3.hpp"/>
+            <FILE id="fSoagb" name="xsimd_sve.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_sve.hpp"/>
+            <FILE id="QYrgWL" name="xsimd_wasm.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/arch/xsimd_wasm.hpp"/>
+          </GROUP>
+          <GROUP id="{131B9DA9-1711-000E-A4B3-8E30AA57DF90}" name="config">
+            <FILE id="qBjDyb" name="xsimd_arch.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/config/xsimd_arch.hpp"/>
+            <FILE id="KkVdUx" name="xsimd_config.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/config/xsimd_config.hpp"/>
+            <FILE id="gQchcx" name="xsimd_cpuid.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/config/xsimd_cpuid.hpp"/>
+            <FILE id="uiSoA3" name="xsimd_inline.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/config/xsimd_inline.hpp"/>
+          </GROUP>
+          <GROUP id="{BB136908-268A-B828-8C96-F462BC4C9D50}" name="math">
+            <FILE id="wWHb7g" name="xsimd_rem_pio2.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/math/xsimd_rem_pio2.hpp"/>
+          </GROUP>
+          <GROUP id="{FF2C137D-C26F-2DAC-2BCA-1BB84C58F5E3}" name="memory">
+            <FILE id="oqeEA3" name="xsimd_aligned_allocator.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/memory/xsimd_aligned_allocator.hpp"/>
+            <FILE id="arXX4P" name="xsimd_alignment.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/memory/xsimd_alignment.hpp"/>
+          </GROUP>
+          <GROUP id="{80528500-E12F-7B5A-7585-9E43C209E4F6}" name="types">
+            <FILE id="isTPM0" name="xsimd_all_registers.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_all_registers.hpp"/>
+            <FILE id="g6jyYm" name="xsimd_api.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_api.hpp"/>
+            <FILE id="d2TIyI" name="xsimd_avx_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx_register.hpp"/>
+            <FILE id="PrnCLr" name="xsimd_avx2_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx2_register.hpp"/>
+            <FILE id="hZsidA" name="xsimd_avx512bw_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512bw_register.hpp"/>
+            <FILE id="jzkYJK" name="xsimd_avx512cd_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512cd_register.hpp"/>
+            <FILE id="Pteid6" name="xsimd_avx512dq_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512dq_register.hpp"/>
+            <FILE id="io48tu" name="xsimd_avx512er_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512er_register.hpp"/>
+            <FILE id="WoSdHW" name="xsimd_avx512f_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512f_register.hpp"/>
+            <FILE id="MfKpXT" name="xsimd_avx512ifma_register.hpp" compile="0"
+                  resource="0" file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512ifma_register.hpp"/>
+            <FILE id="LHq8cG" name="xsimd_avx512pf_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512pf_register.hpp"/>
+            <FILE id="dLr7i1" name="xsimd_avx512vbmi_register.hpp" compile="0"
+                  resource="0" file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512vbmi_register.hpp"/>
+            <FILE id="F88GlJ" name="xsimd_avx512vnni_avx512bw_register.hpp" compile="0"
+                  resource="0" file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512vnni_avx512bw_register.hpp"/>
+            <FILE id="hGW778" name="xsimd_avx512vnni_avx512vbmi_register.hpp" compile="0"
+                  resource="0" file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avx512vnni_avx512vbmi_register.hpp"/>
+            <FILE id="fpvgpy" name="xsimd_avxvnni_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_avxvnni_register.hpp"/>
+            <FILE id="V02p8a" name="xsimd_batch.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_batch.hpp"/>
+            <FILE id="ve6ZKr" name="xsimd_batch_constant.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_batch_constant.hpp"/>
+            <FILE id="zpi3hl" name="xsimd_emulated_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_emulated_register.hpp"/>
+            <FILE id="UngNm6" name="xsimd_fma3_avx_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_fma3_avx_register.hpp"/>
+            <FILE id="ThO02t" name="xsimd_fma3_avx2_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_fma3_avx2_register.hpp"/>
+            <FILE id="ODsaGC" name="xsimd_fma3_sse_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_fma3_sse_register.hpp"/>
+            <FILE id="JaKkB9" name="xsimd_fma4_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_fma4_register.hpp"/>
+            <FILE id="ECLcQB" name="xsimd_generic_arch.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_generic_arch.hpp"/>
+            <FILE id="cSZfAb" name="xsimd_i8mm_neon64_register.hpp" compile="0"
+                  resource="0" file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_i8mm_neon64_register.hpp"/>
+            <FILE id="e3rkeg" name="xsimd_neon_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_neon_register.hpp"/>
+            <FILE id="PJDpex" name="xsimd_neon64_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_neon64_register.hpp"/>
+            <FILE id="p76p1U" name="xsimd_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_register.hpp"/>
+            <FILE id="YF4NkG" name="xsimd_rvv_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_rvv_register.hpp"/>
+            <FILE id="ScZN8T" name="xsimd_sse2_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_sse2_register.hpp"/>
+            <FILE id="srblvW" name="xsimd_sse3_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_sse3_register.hpp"/>
+            <FILE id="XTYjCh" name="xsimd_sse4_1_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_sse4_1_register.hpp"/>
+            <FILE id="dNFHZN" name="xsimd_sse4_2_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_sse4_2_register.hpp"/>
+            <FILE id="Jt1UJE" name="xsimd_ssse3_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_ssse3_register.hpp"/>
+            <FILE id="oLfqx0" name="xsimd_sve_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_sve_register.hpp"/>
+            <FILE id="rTH2WB" name="xsimd_traits.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_traits.hpp"/>
+            <FILE id="StuBoo" name="xsimd_utils.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_utils.hpp"/>
+            <FILE id="l0YyjY" name="xsimd_wasm_register.hpp" compile="0" resource="0"
+                  file="../../../Downloads/xsimd-master/include/xsimd/types/xsimd_wasm_register.hpp"/>
+          </GROUP>
+          <FILE id="vBOSie" name="xsimd.hpp" compile="0" resource="0" file="../../../Downloads/xsimd-master/include/xsimd/xsimd.hpp"/>
+        </GROUP>
+      </GROUP>
     </GROUP>
   </MAINGROUP>
   <MODULES>
