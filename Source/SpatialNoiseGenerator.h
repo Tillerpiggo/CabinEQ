@@ -62,10 +62,10 @@ private:
     int bufferIndex;
     std::vector<float> buffer;
     juce::Random random;
-    static const int numSinWaves = 10;
+    static const int numSinWaves = 100;
     std::vector<float> frequencies;
     std::vector<std::pair<float, float>> amplitudes;
-    std::vector<std::pair<float, float>> phases;          // Added phase storage
+    std::vector<float> phases;          // Added phase storage
     std::vector<float> phaseIncrements; // Added phase increment storage
     int crossfadeLength = 500;
 

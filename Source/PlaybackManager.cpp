@@ -104,7 +104,7 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
 {
-    updateGenerators (amplCurve, panCurve, phaseCurve);
+    updateGenerators (amplCurve, panCurve, phaseCurve, freq);
     
 //    // Pink Noise 2XIII
 //    float bandwidth = 3.0;
@@ -459,27 +459,27 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator3.setPattern (centered3.noiseNotes());
     
    // Soundstage X (goal: find what's wrong with the current headphones and make it audible
-   MelodicNotes centered =
-   MelodicNotes ({ -12, -12, -12, -12, -12, 0, 0, 0, 0, 0, 12, 12, 12, 12, 12  }, freq)
-       .withBandwidth (2.5)
-       .withCyclingPans ({ -1, -0.5, 0, 0.5, 1 })
-       .withNoteDurationInSeconds (0.2);
-   
-   MelodicNotes centered2 =
-   MelodicNotes ({ -12, -12, -12, -12, -12 }, freq)
-       .withBandwidth (2.5)
-       .withCyclingPans ({ 1, 0.5, 0, -0.5, -1 })
-       .withNoteDurationInSeconds (0.2);
-   
-   MelodicNotes centered3 =
-   MelodicNotes ({ 12, 12, 12, 12, 12 }, freq)
-       .withBandwidth (2.5)
-       .withCyclingPans ({ 1, 0.5, 0, -0.5, -1 })
-       .withNoteDurationInSeconds (0.2);
-   
-   spatialPatternGenerator.setPattern (centered.noiseNotes());
-   spatialPatternGenerator2.setPattern (centered2.noiseNotes());
-   spatialPatternGenerator3.setPattern (centered3.noiseNotes());
+//   MelodicNotes centered =
+//   MelodicNotes ({ -12, -12, -12, -12, -12, 0, 0, 0, 0, 0, 12, 12, 12, 12, 12  }, freq)
+//       .withBandwidth (2.5)
+//       .withCyclingPans ({ -1, -0.5, 0, 0.5, 1 })
+//       .withNoteDurationInSeconds (0.2);
+//   
+//   MelodicNotes centered2 =
+//   MelodicNotes ({ -12, -12, -12, -12, -12 }, freq)
+//       .withBandwidth (2.5)
+//       .withCyclingPans ({ 1, 0.5, 0, -0.5, -1 })
+//       .withNoteDurationInSeconds (0.2);
+//   
+//   MelodicNotes centered3 =
+//   MelodicNotes ({ 12, 12, 12, 12, 12 }, freq)
+//       .withBandwidth (2.5)
+//       .withCyclingPans ({ 1, 0.5, 0, -0.5, -1 })
+//       .withNoteDurationInSeconds (0.2);
+//   
+//   spatialPatternGenerator.setPattern (centered.noiseNotes());
+//   spatialPatternGenerator2.setPattern (centered2.noiseNotes());
+//   spatialPatternGenerator3.setPattern (centered3.noiseNotes());
     
     // Soundstage X
 //    MelodicNotes samples =
@@ -611,24 +611,49 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    
 //    spatialPatternGenerator.setPattern (diagonal.noiseNotes());
     
-    // Diamond Separation I
-    MelodicNotes sides =
-    MelodicNotes ({ 0, 0 }, freq)
-        .withBandwidth (1.0)
-        .withPans ({ -1.0, 1.0 });
+//    // Diamond Separation I
+//    MelodicNotes sides =
+//    MelodicNotes ({ 0, 0 }, freq)
+//        .withBandwidth (1.0)
+//        .withPans ({ -1.0, 1.0 });
+//    
+//    MelodicNotes diamond =
+//    MelodicNotes ({ -6, 6, -6, 6 }, freq)
+//        .withBandwidth (1.0)
+//        .withPans ({ -1.0, 1.0, 1.0, -1.0 });
+//    
+//    MelodicNotes topBottom =
+//    MelodicNotes ({ -15, 15 }, freq)
+//        .withBandwidth (1.0);
+//    
+//    spatialPatternGenerator.setPattern (sides.noiseNotes());
+//    spatialPatternGenerator2.setPattern (diamond.noiseNotes());
+//    spatialPatternGenerator3.setPattern (topBottom.noiseNotes());
     
-    MelodicNotes diamond =
-    MelodicNotes ({ -6, 6, -6, 6 }, freq)
-        .withBandwidth (1.0)
+    // Faux Music I
+    MelodicNotes kick =
+    MelodicNotes::withFreqs ({ 20, 20, 20, 20, 20, 20, 20, 20 })
+        .withBandwidths ({ 3.0, 0.0, 0.0, 3.0, 0.0, 0.0, 3.0, 0.0 });
+    
+    MelodicNotes vocals =
+    MelodicNotes::withFreqs ({ 500, 2000, 1000, 1500 })
+        .withBandwidth (3.0)
         .withPans ({ -1.0, 1.0, 1.0, -1.0 });
     
-    MelodicNotes topBottom =
-    MelodicNotes ({ -15, 15 }, freq)
-        .withBandwidth (1.0);
+    MelodicNotes guitars =
+    MelodicNotes::withFreqs ({ 2000, 2000 })
+        .withBandwidth (4.0)
+        .withCyclingPans ({ -1.0, 1.0 });
     
-    spatialPatternGenerator.setPattern (sides.noiseNotes());
-    spatialPatternGenerator2.setPattern (diamond.noiseNotes());
-    spatialPatternGenerator3.setPattern (topBottom.noiseNotes());
+    MelodicNotes hats =
+    MelodicNotes::withFreqs ({ 8000, 7000, 8000, 7000 })
+        .withBandwidth (0.5)
+        .withCyclingPans ({ -0.5, 0.5 });
+    
+    spatialPatternGenerator.setPattern (kick.noiseNotes());
+    spatialPatternGenerator2.setPattern (vocals.noiseNotes());
+    spatialPatternGenerator3.setPattern (guitars.noiseNotes());
+    spatialPatternGenerator4.setPattern (hats.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
@@ -643,7 +668,7 @@ void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve
 
 void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
 {
-    updateGenerators (amplCurve, panCurve, phaseCurve);
+    updateGenerators (amplCurve, panCurve, phaseCurve, freq);
     
     
 //    // Pans I
@@ -670,46 +695,141 @@ void PlaybackManager::startPanCalibration (float freq, Curve &amplCurve, Curve &
 //    spatialPatternGenerator.setPattern (rising.noiseNotes());
     
     // Pans IV
-    float semitoneFactor = 1.5;
-    float bandwidthFactor = 1.0;
-    std::vector<float> bandwidths;
-    for (int i = 0; i < 4; ++i)
+//    float semitoneFactor = 1.5;
+//    float bandwidthFactor = 1.0;
+//    std::vector<float> bandwidths;
+//    for (int i = 0; i < 4; ++i)
+//    {
+//        bandwidths.push_back ((i + 1) * bandwidthFactor);
+//        bandwidths.push_back ((i + 1) * bandwidthFactor);
+//    }
+//    MelodicNotes upperLeft =
+//    MelodicNotes (std::vector<float> (8, 12 * semitoneFactor), freq)
+//        .withBandwidths (bandwidths)
+//        .withPan (-1.0)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    MelodicNotes upperRight =
+//    MelodicNotes (std::vector<float> (8, 12 * semitoneFactor), freq)
+//        .withBandwidths (bandwidths)
+//        .withPan (1.0)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    MelodicNotes lowerLeft =
+//    MelodicNotes (std::vector<float> (8, -12 * semitoneFactor), freq)
+//        .withBandwidths (bandwidths)
+//        .withPan (-1.0)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    MelodicNotes lowerRight =
+//    MelodicNotes (std::vector<float> (8, -12 * semitoneFactor), freq)
+//        .withBandwidths (bandwidths)
+//        .withPan (1.0)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    spatialPatternGenerator.setPattern (upperLeft.noiseNotes());
+//    spatialPatternGenerator2.setPattern (upperRight.noiseNotes());
+//    spatialPatternGenerator3.setPattern (lowerLeft.noiseNotes());
+//    spatialPatternGenerator4.setPattern (lowerRight.noiseNotes());
+    
+    // Pans V
+//    float semitoneFactor = 1.5;
+//    float bandwidthFactor = 1.0;
+//    std::vector<float> bandwidths;
+//    for (int i = 0; i < 4; ++i)
+//    {
+//        bandwidths.push_back ((i + 1) * bandwidthFactor);
+//        bandwidths.push_back ((i + 1) * bandwidthFactor);
+//    }
+//    MelodicNotes upperLeft =
+//    MelodicNotes (std::vector<float> (8, 12 * semitoneFactor), freq)
+//        .withBandwidths (bandwidths)
+//        .withPan (-1.0)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    MelodicNotes upperRight =
+//    MelodicNotes (std::vector<float> (8, 12 * semitoneFactor), freq)
+//        .withBandwidths (bandwidths)
+//        .withPan (1.0)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    MelodicNotes lowerLeft =
+//    MelodicNotes (std::vector<float> (8, -12 * semitoneFactor), freq)
+//        .withBandwidths (bandwidths)
+//        .withPan (-1.0)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    MelodicNotes lowerRight =
+//    MelodicNotes (std::vector<float> (8, -12 * semitoneFactor), freq)
+//        .withBandwidths (bandwidths)
+//        .withPan (1.0)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    spatialPatternGenerator.setPattern (upperLeft.noiseNotes());
+//    spatialPatternGenerator2.setPattern (upperRight.noiseNotes());
+//    spatialPatternGenerator3.setPattern (lowerLeft.noiseNotes());
+//    spatialPatternGenerator4.setPattern (lowerRight.noiseNotes());
+    
+    // Pink Noise 2XIII
+    float bandwidth = 3.0;
+    float freqFactor = 2.0;
+    int durationInSamples = 10000;
+    std::vector<NoiseNote> noisePattern {
+        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 3), bandwidth * 1.5, durationInSamples, 0.0, { 1.0, 1.0 }),
+    };
+    std::vector<NoiseNote> panPattern {
+        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, -2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, -1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, 1), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, -1.0, { 2.0, 2.0 }),
+        NoiseNote (std::pow(freqFactor, 2), bandwidth * 1.5, durationInSamples / 2.0, 1.0, { 2.0, 2.0 }),
+    };
+    
+    std::vector<float> factors { -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0 };
+    std::vector<float> pans { -1.0, -0.5, 0.0, 0.5, 1.0 };
+    std::vector<NoiseNote> panPattern2;
+    
+    for (const auto& pan : pans)
     {
-        bandwidths.push_back ((i + 1) * bandwidthFactor);
-        bandwidths.push_back ((i + 1) * bandwidthFactor);
+        for (const auto& factor : factors)
+        {
+            panPattern2.push_back (NoiseNote (std::pow(freqFactor, factor), bandwidth * 0.1, durationInSamples / 4.0, pan, { 1.0, 1.0 }));
+        }
     }
-    MelodicNotes upperLeft =
-    MelodicNotes (std::vector<float> (8, 12 * semitoneFactor), freq)
-        .withBandwidths (bandwidths)
-        .withPan (-1.0)
-        .withNoteDurationInSeconds (0.15);
     
-    MelodicNotes upperRight =
-    MelodicNotes (std::vector<float> (8, 12 * semitoneFactor), freq)
-        .withBandwidths (bandwidths)
-        .withPan (1.0)
-        .withNoteDurationInSeconds (0.15);
+    std::vector<NoiseNote> panPattern3 {
+        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 3.0, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, 1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 3.0, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, -2.5), bandwidth * 0.8, durationInSamples / 5.0, 0.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 0), bandwidth * 3.0, durationInSamples / 5.0, -1.0, { 1.0, 1.0 }),
+        NoiseNote (std::pow(freqFactor, 2.5), bandwidth * 0.8, durationInSamples / 5.0, 0.0, { 1.0, 1.0 }),
+    };
     
-    MelodicNotes lowerLeft =
-    MelodicNotes (std::vector<float> (8, -12 * semitoneFactor), freq)
-        .withBandwidths (bandwidths)
-        .withPan (-1.0)
-        .withNoteDurationInSeconds (0.15);
-    
-    MelodicNotes lowerRight =
-    MelodicNotes (std::vector<float> (8, -12 * semitoneFactor), freq)
-        .withBandwidths (bandwidths)
-        .withPan (1.0)
-        .withNoteDurationInSeconds (0.15);
-    
-    spatialPatternGenerator.setPattern (upperLeft.noiseNotes());
-    spatialPatternGenerator2.setPattern (upperRight.noiseNotes());
-    spatialPatternGenerator3.setPattern (lowerLeft.noiseNotes());
-    spatialPatternGenerator4.setPattern (lowerRight.noiseNotes());
+    spatialPatternGenerator.setPattern (noisePattern);
+    spatialPatternGenerator2.setPattern (panPattern);
+    spatialPatternGenerator3.setPattern (panPattern2);
+    spatialPatternGenerator4.setPattern (panPattern3);
 }
     
 void PlaybackManager::updatePanCalibration (float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
 {
+    spatialPatternGenerator.setCenterFrequency (freq);
+    spatialPatternGenerator2.setCenterFrequency (freq);
+    spatialPatternGenerator3.setCenterFrequency (freq);
+    spatialPatternGenerator4.setCenterFrequency (freq);
     spatialPatternGenerator.setPanCurve (panCurve);
     spatialPatternGenerator2.setPanCurve (panCurve);
     spatialPatternGenerator3.setPanCurve (panCurve);
@@ -718,7 +838,7 @@ void PlaybackManager::updatePanCalibration (float freq, Curve &amplCurve, Curve 
 
 void PlaybackManager::startPhaseCalibration(float freq, Curve &amplCurve, Curve &panCurve, Curve &phaseCurve)
 {
-    updateGenerators (amplCurve, panCurve, phaseCurve);
+    updateGenerators (amplCurve, panCurve, phaseCurve, freq);
     
     // Phase Calibration I
     MelodicNotes center =
@@ -813,7 +933,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
     return { leftSample, rightSample };
 }
 
-void PlaybackManager::updateGenerators (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
+void PlaybackManager::updateGenerators (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, float freq)
 {
     std::vector<SpatialPatternGenerator> generators { spatialPatternGenerator, spatialPatternGenerator2, spatialPatternGenerator3, spatialPatternGenerator4 };
     for (auto& generator : generators)
@@ -821,5 +941,6 @@ void PlaybackManager::updateGenerators (Curve& amplCurve, Curve& panCurve, Curve
         generator.setAmplCurve (amplCurve);
         generator.setPanCurve (panCurve);
         generator.setPhaseCurve (phaseCurve);
+        generator.setCenterFrequency (freq);
     }
 }

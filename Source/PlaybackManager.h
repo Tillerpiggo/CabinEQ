@@ -63,7 +63,7 @@ public:
     
 private:
     std::pair<float, float> getNextSample();
-    void updateGenerators (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void updateGenerators (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, float freq);
     
     const int FFT_SIZE = 15;
     
