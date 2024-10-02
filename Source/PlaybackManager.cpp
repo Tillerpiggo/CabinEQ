@@ -685,7 +685,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
     // Instead of spiral, at the same time
     MelodicNotes centerMelody =
     MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
-        .withBandwidth (4.5)
+        .withBandwidth (7.0)
 //        .withCyclingPans ({ -1, 0, 1 })
         .withNoteDurationInSeconds (0.2);
     
