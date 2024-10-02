@@ -114,7 +114,7 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
 //        float amplVal = 0;
         float panVal = 0;
         
-        float pinkNoiseDropoff = -3.0 * std::log2 (frequencies[i] / 1000.0f);
+        float cabinNoiseDropoff = -4.5 * std::log2 (frequencies[i] / 1000.0f);
         float leftAmpl = juce::Decibels::decibelsToGain (amplVal - 0.5 * panVal + pinkNoiseDropoff);
         float rightAmpl = juce::Decibels::decibelsToGain (amplVal + 0.5 * panVal + pinkNoiseDropoff);
         amplitudes[i] = { leftAmpl, rightAmpl };
