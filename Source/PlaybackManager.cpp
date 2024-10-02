@@ -655,14 +655,43 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator3.setPattern (guitars.noiseNotes());
 //    spatialPatternGenerator4.setPattern (hats.noiseNotes());
     
+//    // Spatial 2XVI
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, -6, 0, 6, 12, 18, 24, 30, 36 }, freq)
+//        .withBandwidth (4.5)
+//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1 })
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+    
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (4.5)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.2);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+    
     // Spatial 2XVI
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ 0, -5, 0, 7, 0, -12, 0, 12, 0, -24, 0, 24 }, freq)
+//        .withBandwidth (4.5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (-1).noiseNotes());
+    
+    // Instead of spiral, at the same time
     MelodicNotes centerMelody =
-    MelodicNotes({ -12, -6, 0, 6, 12, 18, 24, 30, 36 }, freq)
+    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
         .withBandwidth (4.5)
-        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1 })
+//        .withCyclingPans ({ -1, 0, 1 })
         .withNoteDurationInSeconds (0.2);
     
-    spatialPatternGenerator.setPattern (centerMelody.noiseNotes());
+    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
