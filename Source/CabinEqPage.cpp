@@ -11,55 +11,44 @@
 #include "CabinEqPage.h"
 
 CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE"), graphs (juce::TabbedButtonBar::Orientation::TabsAtTop)
+    : processor (p), profileId ("NO_PROFILE")
+     //, graphs (juce::TabbedButtonBar::Orientation::TabsAtTop)
 {
     amplGraph = std::make_unique<CabinEqGraph>();
-    panGraph = std::make_unique<CabinEqGraph>();
-    phaseGraph = std::make_unique<CabinEqGraph>();
+//    panGraph = std::make_unique<CabinEqGraph>();
+//    phaseGraph = std::make_unique<CabinEqGraph>();
     
-    auto backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2); // DRY violation; redundant w/ CabinEqGraph BACKGROUND_COLOR
-    graphs.addTab ("Volume", backgroundColor, amplGraph.get(), false);
-    graphs.addTab ("Left/Right", backgroundColor, panGraph.get(), false);
-    graphs.addTab ("Phase", backgroundColor, phaseGraph.get(), false);
+//    auto backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2); // DRY violation; redundant w/ CabinEqGraph BACKGROUND_COLOR
+//    graphs.addTab ("Volume", backgroundColor, amplGraph.get(), false);
+//    graphs.addTab ("Left/Right", backgroundColor, panGraph.get(), false);
+//    graphs.addTab ("Phase", backgroundColor, phaseGraph.get(), false);
     
-    filterQualityDropdown.addItem ("Utopian", 1);
-    filterQualityDropdown.addItem ("Fantastic", 2);
-    filterQualityDropdown.addItem ("Great", 3);
-    filterQualityDropdown.addItem ("Good", 4);
-    filterQualityDropdown.addItem ("Economy", 5);
-    filterQualityDropdown.setSelectedId (3);
-    profileDropdown.addItem ("+ Add Profile", 1);
+//    filterQualityDropdown.addItem ("Utopian", 1);
+//    filterQualityDropdown.addItem ("Fantastic", 2);
+//    filterQualityDropdown.addItem ("Great", 3);
+//    filterQualityDropdown.addItem ("Good", 4);
+//    filterQualityDropdown.addItem ("Economy", 5);
+//    filterQualityDropdown.setSelectedId (3);
+//    profileDropdown.addItem ("+ Add Profile", 1);
     
     volumeSlider.setRange (-20.0f, 20.0f);
     volumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     
     amplGraph->addListener (this);
-    panGraph->addListener (this);
-    phaseGraph->addListener (this);
+//    panGraph->addListener (this);
+//    phaseGraph->addListener (this);
     profileDropdown.addListener (this);
     filterQualityDropdown.addListener (this);
     bypassButton.addListener (this);
-    blindButton.addListener (this);
-    applyButton.addListener (this);
     processor.addListener (this);
     volumeSlider.addListener (this);
-    genToggleButton1.addListener (this);
-    genToggleButton2.addListener (this);
-    genToggleButton3.addListener (this);
-    genToggleButton4.addListener (this);
     
-    addAndMakeVisible (graphs);
+    addAndMakeVisible (amplGraph.get());
+//    addAndMakeVisible (graphs);
     addAndMakeVisible (profileDropdown);
-    addAndMakeVisible (filterQualityDropdown);
     addAndMakeVisible (bypassButton);
-    addAndMakeVisible (applyButton);
-    addAndMakeVisible (blindButton);
     addAndMakeVisible (volumeSlider);
-    addAndMakeVisible (genToggleButton1);
-    addAndMakeVisible (genToggleButton2);
-    addAndMakeVisible (genToggleButton3);
-    addAndMakeVisible (genToggleButton4);
     
     didLoadData();
 }
@@ -67,19 +56,13 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 CabinEqPage::~CabinEqPage()
 {
     profileDropdown.removeListener (this);
-    filterQualityDropdown.removeListener (this);
+//    filterQualityDropdown.removeListener (this);
     bypassButton.removeListener (this);
-    applyButton.removeListener (this);
-    blindButton.removeListener (this);
     volumeSlider.removeListener (this);
-    genToggleButton1.removeListener (this);
-    genToggleButton2.removeListener (this);
-    genToggleButton3.removeListener (this);
-    genToggleButton4.removeListener (this);
     
     amplGraph->removeListener();
-    panGraph->removeListener();
-    phaseGraph->removeListener();
+//    panGraph->removeListener();
+//    phaseGraph->removeListener();
     
     processor.removeListener();
 }
@@ -116,33 +99,23 @@ void CabinEqPage::resized()
 
     int buttonsY = padding + graphHeight + componentPadding;
 
-    // Set bounds for graph and buttons
-    graphs.setBounds (0, padding, getWidth(), graphHeight);
+    // Set bounds for ampl graph to fill most of the space
+    amplGraph->setBounds (0, padding, getWidth(), graphHeight);
+    
+    // Row of buttons beneath the graph
     profileDropdown.setBounds (padding, buttonsY, profileDropdownWidth, dropdownHeight);
     filterQualityDropdown.setBounds (padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
     int currentX = padding + dropdownWidth + buttonWidth;
     bypassButton.setBounds (padding + dropdownWidth, buttonsY, buttonWidth, dropdownHeight);
-    applyButton.setBounds (currentX, buttonsY, applyButtonWidth, dropdownHeight);
-    currentX += applyButtonWidth;
-    blindButton.setBounds (currentX, buttonsY, duplicateButtonWidth, dropdownHeight);
+    
+//    // Set bounds for graph and buttons
+//    graphs.setBounds (0, padding, getWidth(), graphHeight);
+    
 
     // Set bounds for sliders
     int sliderY = buttonsY + dropdownHeight + componentPadding;
     int sliderWidth = (getWidth() - (3 * padding)); // Two sliders with padding in between
     volumeSlider.setBounds (padding, sliderY, sliderWidth, sliderHeight);
-    
-    // Set bounds for the toggle buttons
-    int toggleButtonWidth = (getWidth() - (2 * padding) - (3 * componentPadding)) / 4;
-    int toggleButtonsY = getHeight() - padding - toggleButtonHeight;
-
-    int toggleButtonX = padding;
-    genToggleButton1.setBounds(toggleButtonX, toggleButtonsY, toggleButtonWidth, toggleButtonHeight);
-    toggleButtonX += toggleButtonWidth + componentPadding;
-    genToggleButton2.setBounds(toggleButtonX, toggleButtonsY, toggleButtonWidth, toggleButtonHeight);
-    toggleButtonX += toggleButtonWidth + componentPadding;
-    genToggleButton3.setBounds(toggleButtonX, toggleButtonsY, toggleButtonWidth, toggleButtonHeight);
-    toggleButtonX += toggleButtonWidth + componentPadding;
-    genToggleButton4.setBounds(toggleButtonX, toggleButtonsY, toggleButtonWidth, toggleButtonHeight);
 }
 
 // ====================================================
@@ -153,14 +126,14 @@ int CabinEqPage::addCurvePt (float freq, float val, CabinEqGraph* sender)
     {
         return processor.addAmplPt (freq, val, profileId);
     }
-    else if (sender == panGraph.get())
-    {
-        return processor.addPanPt (freq, val, profileId);
-    }
-    else if (sender == phaseGraph.get())
-    {
-        return processor.addPhasePt (freq, val, profileId);
-    }
+//    else if (sender == panGraph.get())
+//    {
+//        return processor.addPanPt (freq, val, profileId);
+//    }
+//    else if (sender == phaseGraph.get())
+//    {
+//        return processor.addPhasePt (freq, val, profileId);
+//    }
     
     std::cout << "WARNING: Add Curve Pt failed because sender was not ampl, pan, or phase graph";
     return -1;
@@ -173,14 +146,14 @@ void CabinEqPage::updateCurvePt (int id, float freq, float val, CabinEqGraph* se
     {
         processor.updateAmplPt (id, freq, val, profileId);
     }
-    else if (sender == panGraph.get())
-    {
-        processor.updatePanPt (id, freq, val, profileId);
-    }
-    else if (sender == phaseGraph.get())
-    {
-        processor.updatePhasePt (id, freq, val, profileId);
-    }
+//    else if (sender == panGraph.get())
+//    {
+//        processor.updatePanPt (id, freq, val, profileId);
+//    }
+//    else if (sender == phaseGraph.get())
+//    {
+//        processor.updatePhasePt (id, freq, val, profileId);
+//    }
 }
 
 void CabinEqPage::removeCurvePt (int id, CabinEqGraph* sender)
@@ -190,14 +163,14 @@ void CabinEqPage::removeCurvePt (int id, CabinEqGraph* sender)
     {
         processor.removeAmplPt (id, profileId);
     }
-    else if (sender == panGraph.get())
-    {
-        processor.removePanPt (id, profileId);
-    }
-    else if (sender == phaseGraph.get())
-    {
-        processor.removePhasePt (id, profileId);
-    }
+//    else if (sender == panGraph.get())
+//    {
+//        processor.removePanPt (id, profileId);
+//    }
+//    else if (sender == phaseGraph.get())
+//    {
+//        processor.removePhasePt (id, profileId);
+//    }
 }
 
 void CabinEqPage::startPlayingValueAt (float freq, CabinEqGraph* sender)
@@ -206,14 +179,14 @@ void CabinEqPage::startPlayingValueAt (float freq, CabinEqGraph* sender)
     {
         processor.startAmplCalibration (freq, profileId);
     }
-    else if (sender == panGraph.get())
-    {
-        processor.startPanCalibration (freq, profileId);
-    }
-    else if (sender == phaseGraph.get())
-    {
-        processor.startPhaseCalibration (freq, profileId);
-    }
+//    else if (sender == panGraph.get())
+//    {
+//        processor.startPanCalibration (freq, profileId);
+//    }
+//    else if (sender == phaseGraph.get())
+//    {
+//        processor.startPhaseCalibration (freq, profileId);
+//    }
 }
 
 void CabinEqPage::updatePlayingValueAt (float freq, CabinEqGraph* sender)
@@ -222,14 +195,14 @@ void CabinEqPage::updatePlayingValueAt (float freq, CabinEqGraph* sender)
     {
         processor.updateAmplCalibration (freq, profileId);
     }
-    else if (sender == panGraph.get())
-    {
-        processor.updatePanCalibration (freq, profileId);
-    }
-    else if (sender == phaseGraph.get())
-    {
-        processor.updatePhaseCalibration (freq, profileId);
-    }
+//    else if (sender == panGraph.get())
+//    {
+//        processor.updatePanCalibration (freq, profileId);
+//    }
+//    else if (sender == phaseGraph.get())
+//    {
+//        processor.updatePhaseCalibration (freq, profileId);
+//    }
 }
 
 void CabinEqPage::probeValueAt (float freq)
@@ -259,7 +232,7 @@ float CabinEqPage::getCurrProbingFreq()
 
 void CabinEqPage::userStoppedDoingShit()
 {
-//    applyFilterIfProcessing(); // stop autosaving
+    applyFilter();
 }
 
 // ====================================================
@@ -457,29 +430,6 @@ void CabinEqPage::buttonClicked (juce::Button *button)
         toggleBypass();
         processor.setIsProcessing (! isBypassed);
     }
-    else if (button == &applyButton)
-    {
-        applyFilter();
-    }
-    else if (button == &blindButton)
-    {
-        toggleBlind();
-    }
-    else if (button == &genToggleButton1 ||
-             button == &genToggleButton2 ||
-             button == &genToggleButton3 ||
-             button == &genToggleButton4)
-    {
-        // Collect the state of all four toggle buttons
-        std::vector<bool> mutedGens(4);
-        mutedGens[0] = ! genToggleButton1.getToggleState();
-        mutedGens[1] = ! genToggleButton2.getToggleState();
-        mutedGens[2] = ! genToggleButton3.getToggleState();
-        mutedGens[3] = ! genToggleButton4.getToggleState();
-
-        // Call processor.setMutedGens with the states
-        processor.setMutedGens(mutedGens);
-    }
 }
 
 void CabinEqPage::didLoadData()
@@ -503,15 +453,6 @@ void CabinEqPage::didLoadData()
     }
 }
 
-void CabinEqPage::timerCallback()
-{
-//    if (! isUnlocked && marketplaceStatus.isUnlocked())
-//    {
-//        isUnlocked = true;
-//        unlockApp();
-//    }
-}
-
 //=========================================
 void CabinEqPage::flagFilterChanged()
 {
@@ -523,18 +464,8 @@ void CabinEqPage::toggleBypass()
 {
     isBypassed = ! isBypassed;
     amplGraph->setGrayscale (isBypassed);
-    panGraph->setGrayscale (isBypassed);
-    phaseGraph->setGrayscale (isBypassed);
-    updateButtonText();
-}
-
-void CabinEqPage::toggleBlind()
-{
-    isBlind = ! isBlind;
-    blindButton.setButtonText (isBlind ? "UNBLIND" : "BLIND");
-    amplGraph->setBlinded (isBlind);
-    panGraph->setBlinded (isBlind);
-    phaseGraph->setBlinded (isBlind);
+//    panGraph->setGrayscale (isBypassed);
+//    phaseGraph->setGrayscale (isBypassed);
     updateButtonText();
 }
 
@@ -577,16 +508,7 @@ void CabinEqPage::dismissAlertWindow()
                                 
 void CabinEqPage::updateButtonText()
 {
-    if (! isBlind)
-    {
-        bypassButton.setButtonText (isBypassed ? "OFF" : (hasFilterChanged ? "ON*" : "ON"));
-    }
-    else
-    {
-        bypassButton.setButtonText ("[BLINDED]");
-    }
-    
-    applyButton.setEnabled (hasFilterChanged); // only let people apply the filter when there is something to update
+    bypassButton.setButtonText (isBypassed ? "OFF" : (hasFilterChanged ? "ON*" : "ON"));
 }
 
 void CabinEqPage::showForm()
@@ -611,8 +533,8 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     if (amplCurve.has_value() && panCurve.has_value() && phaseCurve.has_value())
     {
         amplGraph->setCurve (amplCurve->get());
-        panGraph->setCurve (panCurve->get());
-        phaseGraph->setCurve (phaseCurve->get());
+//        panGraph->setCurve (panCurve->get());
+//        phaseGraph->setCurve (phaseCurve->get());
         flagFilterChanged();
         applyFilter();
         processor.setLastSelectedProfileName (profileId);

@@ -45,7 +45,6 @@ void CabinEqGraph::resized()
 
 void CabinEqGraph::mouseMove (const juce::MouseEvent &event)
 {
-    cyclesSinceUserStoppedDoingShit = 0;
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     // If ctrl/alt is held down, start testing
@@ -222,7 +221,7 @@ void CabinEqGraph::timerCallback()
     updateSelectedDotSize();
     repaint();
     cyclesSinceUserStoppedDoingShit++;
-    if (cyclesSinceUserStoppedDoingShit == 200)
+    if (cyclesSinceUserStoppedDoingShit == 500)
         userStoppedDoingShit();
 }
 
@@ -494,7 +493,7 @@ juce::Point<float> CabinEqGraph::coordsForCurvePt (float frequency, float amplit
     float x = getWidth() * timeAtFrequency (frequency);
     float y = getHeight() * (1.0f - (amplitude - minDB) / (maxDB - minDB));
     
-    return { x, y };
+    return { x + getX(), y + getY() };
 }
 
 // ====================================================

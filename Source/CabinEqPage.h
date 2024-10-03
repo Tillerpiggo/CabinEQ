@@ -20,8 +20,7 @@ class CabinEqPage   : public juce::Component,
                       public juce::TextEditor::Listener,
                       public juce::Button::Listener,
                       public CabinEqGraph::Listener,
-                      public CabinEqAudioProcessor::Listener,
-                      public juce::Timer
+                      public CabinEqAudioProcessor::Listener
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -55,17 +54,9 @@ public:
     
     void didLoadData() override;
     
-    void timerCallback() override;
-    
-    juce::ToggleButton genToggleButton1 { "Generator 1" };
-    juce::ToggleButton genToggleButton2 { "Generator 2" };
-    juce::ToggleButton genToggleButton3 { "Generator 3" };
-    juce::ToggleButton genToggleButton4 { "Generator 4" };
-    
 protected:
     void flagFilterChanged();
     void toggleBypass();
-    void toggleBlind();
     void applyFilter();
     void loadDropdownOptions();
     void dismissAlertWindow();
@@ -81,19 +72,17 @@ protected:
     CabinEqAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
-    juce::TextButton applyButton { "APPLY" };
-    juce::TextButton blindButton { "BLIND" };
     bool isBypassed = false;
-    bool isBlind = false;
     bool hasFilterChanged = true;
+    
     bool creatingDuplicate = false;
     bool renamingProfile = false;
     int fftSize = 16;
     
-    juce::TabbedComponent graphs;
+//    juce::TabbedComponent graphs;
     std::unique_ptr<CabinEqGraph> amplGraph;
-    std::unique_ptr<CabinEqGraph> panGraph;
-    std::unique_ptr<CabinEqGraph> phaseGraph;
+//    std::unique_ptr<CabinEqGraph> panGraph;
+//    std::unique_ptr<CabinEqGraph> phaseGraph;
     juce::ComboBox profileDropdown;
     juce::ComboBox filterQualityDropdown;
     std::unique_ptr<juce::AlertWindow> alertWindow;
