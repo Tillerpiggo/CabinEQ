@@ -26,6 +26,11 @@ void CabinEqGraph::setCurve (Curve& curve)
     this->curve = curve;
 }
 
+void CabinEqGraph::setColorTheme (std::unique_ptr<ColorTheme> colorTheme)
+{
+    this->colorTheme = std::move (colorTheme);
+}
+
 void CabinEqGraph::paint (juce::Graphics& g)
 {
     g.setColour (BACKGROUND_COLOR);
@@ -446,45 +451,28 @@ juce::ColourGradient CabinEqGraph::getCurveGradient()
     return gradient;
 }
 
-juce::Colour CabinEqGraph::getColorForFrequency (float frequency)
+juce::Colour CabinEqGraph::getColorForFrequency(float frequency)
 {
-    if (grayscale && ! blinded)
-        return juce::Colour::fromFloatRGBA (0.3f, 0.3f, 0.3f, 1.0f);
-    
-    juce::Colour startColor;
-    juce::Colour endColor;
-    
-    float t = (std::log2 (frequency) - std::log2 (MIN_FREQ)) / (std::log2 (MAX_FREQ) - std::log2 (MIN_FREQ));
-    float segment_t;
-    
-    // Interpolate color from the start/end colors in each section
-    if (t < 0.25f)
+    if (grayscale && !blinded)
+        return juce::Colour::fromFloatRGBA(0.3f, 0.3f, 0.3f, 1.0f);
+
+    if (colorTheme == nullptr)
+        return juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 1.0f); // Default color if colorTheme is not set
+
+    float t = (std::log2(frequency) - std::log2(MIN_FREQ)) / (std::log2(MAX_FREQ) - std::log2(MIN_FREQ));
+
+    juce::Colour color;
+
+    if (t < 0.5f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.5f, 1.0f, 1.0f); // Deep blue
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
-        segment_t = t / 0.25f;
-    }
-    else if (t < 0.5f)
-    {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
-        segment_t = (t - 0.25f) / 0.25f;
-    }
-    else if (t < 0.75f)
-    {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
-        segment_t = (t - 0.5f) / 0.25f;
+        color = colorTheme->getEqCurveStart().interpolatedWith(colorTheme->getEqCurveMid(), t * 2.0f);
     }
     else
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
-        endColor = juce::Colour::fromFloatRGBA(0.7f, 1.0f, 0.3f, 1.0f); // Pastel yellow-green
-        segment_t = (t - 0.75f) / 0.25f;
+        color = colorTheme->getEqCurveMid().interpolatedWith(colorTheme->getEqCurveEnd(), (t - 0.5f) * 2.0f);
     }
-    
-    auto color = startColor.interpolatedWith (endColor, segment_t);
-    return blinded ? color.interpolatedWith (juce::Colour::fromFloatRGBA (0.3f, 0.3f, 0.3f, 1.0f), 0.8) : color;
+
+    return blinded ? color.interpolatedWith(juce::Colour::fromFloatRGBA(0.3f, 0.3f, 0.3f, 1.0f), 0.8f) : color;
 }
 
 juce::Point<float> CabinEqGraph::coordsForCurvePt (float frequency, float amplitude)
@@ -519,8 +507,8 @@ float CabinEqGraph::timeAtFrequency (float freq) const
 std::pair<float, float> CabinEqGraph::frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const
 {
     // Get mouse coords
-    float x = event.getPosition().x;
-    float y = event.getPosition().y;
+    float x = event.getPosition().x - getX();
+    float y = event.getPosition().y - getY();
     
     // Calculate frequency of mouse event
     float freq = frequencyAtTime (x / getWidth());

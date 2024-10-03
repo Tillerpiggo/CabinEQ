@@ -4,6 +4,9 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="tB8nJa" name="CabinEQ">
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
+      <GROUP id="{0B10295B-16BC-2F1E-E853-72FFD60D4769}" name="LookAndFeel">
+        <FILE id="feJRle" name="ColorTheme.h" compile="0" resource="0" file="Source/ColorTheme.h"/>
+      </GROUP>
       <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
             file="Source/CabinEqAudioProcessor.cpp"/>
       <FILE id="ZcW2ES" name="CabinEqAudioProcessor.h" compile="0" resource="0"

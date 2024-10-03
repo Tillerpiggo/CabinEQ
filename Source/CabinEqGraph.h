@@ -13,9 +13,9 @@
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
 #include "CurvePt.h"
+#include "ColorTheme.h"
 
 class CabinEqGraph   : public juce::Component,
-//                       public juce::KeyListener,
                        public juce::Timer
 {
 public:
@@ -42,6 +42,7 @@ public:
     ~CabinEqGraph() override;
     
     void setCurve (Curve& curve);
+    void setColorTheme (std::unique_ptr<ColorTheme> colorTheme);
     
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -51,9 +52,6 @@ public:
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
-    
-//    bool keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent) override;
-//    bool keyStateChanged (bool isKeyDown, juce::Component *originatingComponent) override;
     
     void timerCallback() override;
     
@@ -137,4 +135,7 @@ private:
     // Scaling
     float maxDB = 36.0f;
     float minDB = -36.0f;
+    
+    // Colors
+    std::unique_ptr<ColorTheme> colorTheme = std::make_unique<WoodlandMistColors>();
 };

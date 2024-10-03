@@ -96,4 +96,6 @@ protected:
  
     bool isUnlocked = false;
     bool addingFirstProfile = false;
+    
+    std::unique_ptr<ColorTheme> colorTheme = std::make_unique<WoodlandMistColors>();
 };
