@@ -1185,7 +1185,61 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
 //    }
     
-    // Melody XIV - Really really clear on laptop speakers. Nothing crazy and maybe still slightly sibilant
+//    // Melody XIV - LUSCIOUS ON LAPTOP SPEAKERS
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = octDiff / 3.0f;
+//        
+//        std::vector<float> semitones { -18, -9, 0, 9, 18, 9, 0, -9 };
+//        for (int i = 0; i < semitones.size(); ++i)
+//            semitones[i] *= ratio;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes(semitones, freq)
+//            .withBandwidth (8.0 * ratio)
+//            .withNoteDurationInSeconds (0.15);
+//        
+//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+    
+//    // Melody XV - I think I overshot a little. Still good, but not *it*
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = octDiff / 2.5f;
+//        
+//        std::vector<float> semitones { -18, -9, 0, 9, 18, 9, 0, -9 };
+//        for (int i = 0; i < semitones.size(); ++i)
+//            semitones[i] *= ratio;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes(semitones, freq)
+//            .withBandwidth (8.0 * ratio)
+//            .withNoteDurationInSeconds (0.15);
+//        
+//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+    
+    // Melody XVI - I think I overshot a little. Still good, but not *it*
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
 
@@ -1196,7 +1250,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         
         float octDiff = std::log2 (freqAbove / freqBelow);
         
-        float ratio = octDiff / 3.0f;
+        float ratio = octDiff / 2.75f;
         
         std::vector<float> semitones { -18, -9, 0, 9, 18, 9, 0, -9 };
         for (int i = 0; i < semitones.size(); ++i)
