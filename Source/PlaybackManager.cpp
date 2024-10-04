@@ -683,15 +683,173 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator3.setPattern (centerMelody.withPan (-1).noiseNotes());
     
     // Instead of spiral, at the same time
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.2);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+    // Instead of spiral, at the same time
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.2);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+    // Melody II
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, 0, -12, 0, 0, 12, 0, 12, 12, 24, 12, 24, 24, 36, 24, 36 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.2);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+    // Melody III - much more solid and bassy results, not as much runaway high end
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ 0, -12, 0, -6, 0, 6, 12, 0, 18, 0, 24, 0, 30, 0, 36 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.2);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+    // Melody IV - also more solid but not quite as good
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ 0, 0, -6, 6, -12, 12, -18, 18, -24, 24, -30, 30, -36, 36 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.2);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+//    // Up and down
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, 0, 12, 24, 36, 24, 12, 0, -12 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.2);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+//    // Up and down fine grained
+//    std::vector<float> semitones;
+//    for (int i = -12; i <= 36; i += 3)
+//        semitones.push_back (i);
+//    MelodicNotes centerMelody =
+//    MelodicNotes(semitones, freq)
+//        .withCyclingBandwidths ({ 7.0, 0.5, 3.0, 0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+    // Literally just an arpeggio lol
+//    std::vector<float> semitones;
+//    for (int i = -24; i <= 24; i += 2)
+//        semitones.push_back (i);
+//    
+//    for (int i = 22; i > -24; i -= 2)
+//        semitones.push_back (i);
+//    
+//    MelodicNotes centerMelody =
+//    MelodicNotes(semitones, freq)
+//        .withCyclingBandwidths ({ 0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+//    // Up and down II
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -24, -12, 0, 12, 24, 12, 0, -12 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+    // Up and down III
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -24, -12, 0, 12, 24, 12, 0, -12 }, freq)
+//        .withBandwidth (6.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+//    // Melody V (VERY GOOD RESULTS! LARGE AND COMFORTABLE)
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -18, -9, 0, 9, 18, 9, 0, -9 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+//    // Melody VI - too much high end but very clear
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -12, -6, 0, 6, 12, 6, 0, -6 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+//    // Melody VII - great but doesn't always get centered in the right place
     MelodicNotes centerMelody =
-    MelodicNotes({ -12, 0, 12, 24, 36 }, freq)
+    MelodicNotes({ -16, -8, 0, 8, 16, 8, 0, -8 }, freq)
         .withBandwidth (7.0)
 //        .withCyclingPans ({ -1, 0, 1 })
-        .withNoteDurationInSeconds (0.2);
+        .withNoteDurationInSeconds (0.15);
     
     spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
     spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
     spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    
+    // Dynamic Melody I - great but doesn't always get centered in the right place
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//
+//        MelodicNotes centerMelody =
+//        MelodicNotes({ -16, -8, 0, 8, 16, 8, 0, -8 }, freq)
+//            .withBandwidth (7.0)
+//            .withNoteDurationInSeconds (0.15);
+//        
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)

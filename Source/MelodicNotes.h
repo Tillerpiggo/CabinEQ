@@ -120,6 +120,22 @@ public:
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
+    MelodicNotes withCyclingBandwidths (std::vector<float> cyclingBandwidths)
+    {
+        std::vector<float> newNotesInSemitones;
+        std::vector<float> newPans;
+        std::vector<float> newBandwidths;
+        
+        for (int i = 0; i < notesInSemitones.size() * cyclingBandwidths.size(); ++i)
+        {
+            newNotesInSemitones.push_back (notesInSemitones[i % notesInSemitones.size()]);
+            newPans.push_back (pans[i % pans.size()]);
+            newBandwidths.push_back (cyclingBandwidths[i % cyclingBandwidths.size()]);
+        }
+        
+        return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
+    }
+    
     MelodicNotes withSegmentedPans (int numSegments, bool leftToRight)
     {
         std::vector<float> cyclingPans;
