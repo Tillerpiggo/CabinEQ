@@ -48,6 +48,14 @@ public:
     virtual juce::Colour getEqCurveMid() const = 0;
     virtual juce::Colour getEqCurveEnd() const { return getAccentColor(); }
     virtual juce::Colour getFreqLabels() const { return getTextLines(); }
+    virtual juce::ColourGradient getEqGraphGradient(float width, float height) const
+    {
+        juce::ColourGradient gradient(getEqGraphBackground(), width / 2, height / 2,
+                                      getEqGraphGradientEnd(), 0, 0,
+                                      true); // true for radial gradient
+        gradient.addColour(0.5, getEqGraphBackground());
+        return gradient;
+    }
 
     // Volume Control
     virtual juce::Colour getVolumeText() const { return getTextLines(); }

@@ -33,7 +33,7 @@ void CabinEqGraph::setColorTheme (std::unique_ptr<ColorTheme> colorTheme)
 
 void CabinEqGraph::paint (juce::Graphics& g)
 {
-    g.setColour (BACKGROUND_COLOR);
+//    g.setGradientFill (colorTheme->getEqGraphGradient (getWidth(), getHeight()));
     g.fillRect (getBoundsInParent());
     
     if (curve.has_value())
@@ -355,7 +355,7 @@ void CabinEqGraph::drawDots (juce::Graphics& g, Curve& curve)
 void CabinEqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColor)
 {
     // Draw padding around dot w/ background color
-    g.setColour (BACKGROUND_COLOR);
+//    g.setGradientFill (colorTheme->getEqGraphGradient (getWidth(), getHeight()));
     g.fillEllipse (point.x - dotRadius - DOT_PADDING, point.y - dotRadius - DOT_PADDING, (dotRadius + DOT_PADDING) * 2, (dotRadius + DOT_PADDING) * 2);
     
     // Draw the center of the dot
@@ -465,11 +465,11 @@ juce::Colour CabinEqGraph::getColorForFrequency(float frequency)
 
     if (t < 0.5f)
     {
-        color = colorTheme->getEqCurveStart().interpolatedWith(colorTheme->getEqCurveMid(), t * 2.0f);
+//        color = colorTheme->getEqCurveStart().interpolatedWith(colorTheme->getEqCurveMid(), t * 2.0f);
     }
     else
     {
-        color = colorTheme->getEqCurveMid().interpolatedWith(colorTheme->getEqCurveEnd(), (t - 0.5f) * 2.0f);
+//        color = colorTheme->getEqCurveMid().interpolatedWith(colorTheme->getEqCurveEnd(), (t - 0.5f) * 2.0f);
     }
 
     return blinded ? color.interpolatedWith(juce::Colour::fromFloatRGBA(0.3f, 0.3f, 0.3f, 1.0f), 0.8f) : color;

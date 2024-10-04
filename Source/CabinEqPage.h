@@ -54,6 +54,12 @@ public:
     
     void didLoadData() override;
     
+//    static const juce::Font getCabinFont()
+//    {
+//        static auto typeface = juce::Typeface::createSystemTypefaceFor (juce::BinaryData::CustomFont, juce::BinaryData::CustomFont_size);
+//        return Font (typeface);
+//    }
+    
 protected:
     void flagFilterChanged();
     void toggleBypass();
@@ -66,9 +72,10 @@ protected:
     void unlockApp();
     
     void goToProfileWithId (juce::String profileIdToGoTo);
-    
     bool isDuplicateProfileName (juce::String profileName);
     
+    // JUCE Labels
+    juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };

@@ -69,13 +69,11 @@ CabinEqPage::~CabinEqPage()
 
 void CabinEqPage::paint (juce::Graphics& g)
 {
-    g.fillAll (backgroundColor);
+//    g.fillAll (colorTheme->getBarBackgroundColor());
 }
 
 void CabinEqPage::resized()
 {
-//    graphs.setBounds (getLocalBounds());
-    
     int padding = 20; // padding on the top and bottom
     int componentPadding = 10; // padding between graph, slider, and dropdown
     int dropdownHeight = 30;
@@ -89,7 +87,6 @@ void CabinEqPage::resized()
 
     // Get heights for each component
     int availableHeight = getHeight() - (2 * padding);
-//    int graphHeight = availableHeight - dropdownHeight - sliderHeight - labelHeight - 3 * componentPadding; // Remaining height for the graph
     int graphHeight = availableHeight - dropdownHeight - sliderHeight - toggleButtonHeight - labelHeight - 4 * componentPadding;
     
     // Get widths for each component
@@ -107,10 +104,6 @@ void CabinEqPage::resized()
     filterQualityDropdown.setBounds (padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
     int currentX = padding + dropdownWidth + buttonWidth;
     bypassButton.setBounds (padding + dropdownWidth, buttonsY, buttonWidth, dropdownHeight);
-    
-//    // Set bounds for graph and buttons
-//    graphs.setBounds (0, padding, getWidth(), graphHeight);
-    
 
     // Set bounds for sliders
     int sliderY = buttonsY + dropdownHeight + componentPadding;
