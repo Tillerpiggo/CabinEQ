@@ -823,33 +823,42 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
     
 //    // Melody VII - great but doesn't always get centered in the right place
-    MelodicNotes centerMelody =
-    MelodicNotes({ -16, -8, 0, 8, 16, 8, 0, -8 }, freq)
-        .withBandwidth (7.0)
-//        .withCyclingPans ({ -1, 0, 1 })
-        .withNoteDurationInSeconds (0.15);
+//    MelodicNotes centerMelody =
+//    MelodicNotes({ -16, -8, 0, 8, 16, 8, 0, -8 }, freq)
+//        .withBandwidth (7.0)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+//    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
     
-    spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
-    spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
-    spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
-    
-    // Dynamic Melody I - great but doesn't always get centered in the right place
-//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
-//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
-//
-//    if (nodeBelow.has_value() && nodeAbove.has_value())
-//    {
-//        auto [freqBelow, _] = nodeBelow.value();
-//        auto [freqAbove, __] = nodeAbove.value();
-//
-//        MelodicNotes centerMelody =
-//        MelodicNotes({ -16, -8, 0, 8, 16, 8, 0, -8 }, freq)
-//            .withBandwidth (7.0)
-//            .withNoteDurationInSeconds (0.15);
-//        
-//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
-//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
-//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    // Dynamic Melody I - great but still a bit easy to not center quite right
+    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+
+    if (nodeBelow.has_value() && nodeAbove.has_value())
+    {
+        auto [freqBelow, _] = nodeBelow.value();
+        auto [freqAbove, __] = nodeAbove.value();
+        
+        float octDiff = std::log2 (freqAbove / freqBelow);
+        
+        float ratio = octDiff / 4.0f;
+        
+        std::vector<float> semitones { -16, -8, 0, 8, 16, 8, 0, -8 };
+        for (int i = 0; i < semitones.size(); ++i)
+            semitones[i] *= ratio;
+        
+        MelodicNotes centerMelody =
+        MelodicNotes(semitones, freq)
+            .withBandwidth (7.0 * ratio)
+            .withNoteDurationInSeconds (0.15);
+        
+        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+    }
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
