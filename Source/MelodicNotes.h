@@ -136,6 +136,32 @@ public:
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
+    MelodicNotes withSubdivisions (int numSections, int position) // subdivides into numSections, puts your position in that section. e.g. 3 sections, position = 1 would give you a (0-1-0, 0-1-0) pattern
+    {
+        std::vector<float> newNotesInSemitones;
+        std::vector<float> newPans;
+        std::vector<float> newBandwidths;
+
+        
+        for (int i = 0; i < notesInSemitones.size() * numSections; ++i)
+        {
+            if (i % numSections == position)
+            {
+                newNotesInSemitones.push_back (notesInSemitones[i / numSections]);
+                newPans.push_back (pans[i / numSections]);
+                newBandwidths.push_back (bandwidths[i / numSections]);
+            }
+            else
+            {
+                newNotesInSemitones.push_back (0);
+                newPans.push_back (0);
+                newBandwidths.push_back (0);
+            }
+        }
+        
+        return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds / static_cast<float> (numSections), sampleRate);
+    }
+    
     MelodicNotes withSegmentedPans (int numSegments, bool leftToRight)
     {
         std::vector<float> cyclingPans;
