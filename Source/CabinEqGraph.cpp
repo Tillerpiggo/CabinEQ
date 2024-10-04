@@ -90,7 +90,6 @@ void CabinEqGraph::mouseDown (const juce::MouseEvent &event)
         draggingId = addNode (freq, ampl);
         targetSelectedDotSize = DOT_SIZE_DRAGGING;
         addingFreq.reset();
-        std::cout << "add node with id: " << draggingId << std::endl;
     }
     
     // If we right click and are hovering, delete the node
@@ -99,7 +98,12 @@ void CabinEqGraph::mouseDown (const juce::MouseEvent &event)
         
     // If we ended up dragging a node, start playing tones
     if (draggingId != -1)
+    {
+        updateNode (draggingId, freq, ampl);
         startPlayingValueAt (freq);
+    }
+    
+    mousePressedDown = true;
 }
 
 void CabinEqGraph::mouseDrag (const juce::MouseEvent &event)
@@ -120,7 +124,7 @@ void CabinEqGraph::mouseDrag (const juce::MouseEvent &event)
     }
     
     // If we're dragging a node, update it to our mouse position
-    if (draggingId != -1)
+    if (draggingId != -1 && mousePressedDown)
     {
         updateNode (draggingId, freq, ampl);
         updatePlayingValueAt (freq);
@@ -163,6 +167,8 @@ void CabinEqGraph::mouseUp (const juce::MouseEvent &event)
     // We stopped dragging, so stop playing tones
     stopPlaying();
     stopProbing();
+    
+    mousePressedDown = false;
 }
 
 void CabinEqGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)

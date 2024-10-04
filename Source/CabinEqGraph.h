@@ -106,6 +106,7 @@ private:
     float maxFreqShowing = 20000.0f;
     float zoom = 5.0f;
     float lastDistanceFromDragStartX = 0;
+    bool mousePressedDown = false;
     
     // Constants
     static constexpr float MIN_FREQ = 20.0f;

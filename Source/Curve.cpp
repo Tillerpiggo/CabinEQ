@@ -309,6 +309,7 @@ const std::optional<std::pair<float, float>> Curve::nodeBelowFreq (float frequen
         {
             float freq = curvePts[i].freq;
             float val = curvePts[i].val;
+            std::cout << "The actual below freq: " << freq << std::endl;
             return std::optional<std::pair<float, float>> ({ freq, val });
         }
     }
@@ -328,6 +329,7 @@ const std::optional<std::pair<float, float>> Curve::nodeAboveFreq (float frequen
         {
             float freq = curvePts[i].freq;
             float val = curvePts[i].val;
+            std::cout << "The actual above freq: " << freq << std::endl;
             return std::optional<std::pair<float, float>> ({ freq, val });
         }
     }
