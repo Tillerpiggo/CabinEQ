@@ -2184,7 +2184,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
 //    }
     
-////    // Melody 5XII - the separation is just ridiculous
+//    // Melody 5XII - the separation is just ridiculous
 //    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
 //    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
 //
@@ -2501,7 +2501,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //        spatialPatternGenerator3.setPattern (kicks.noiseNotes());
 //    }
     
-//    // Patterns V
+////    // Patterns V
 //    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
 //    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
 //
@@ -2589,7 +2589,120 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 ////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
 //    }
     
-    // EasyMel II
+//    // EasyMel II - great results on speakers
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = octDiff / 3.262f;
+//        
+////        std::vector<float> semitones { -3, 4, 0, -3, 2, -3, 0, -3 };
+//        std::vector<float> semitones { -18, 9, 0, 18, 9, -9, 0, -9 };
+//        for (int i = 0; i < semitones.size(); ++i)
+//            semitones[i] *= ratio;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes(semitones, freq)
+//            .withBandwidth (7.5 * ratio)
+//            .withNoteDurationInSeconds (0.15);
+//        
+////        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+    
+//    // EasyMel III - the best so far
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = octDiff / 3.262f;
+//        
+////        std::vector<float> semitones { -3, 4, 0, -3, 2, -3, 0, -3 };
+//        std::vector<float> semitones { -5, 7, 4, 0, -6, 6, 2, -1 };
+////        for (int i = 0; i < semitones.size(); ++i)
+////            semitones[i] *= ratio;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes(semitones, freq)
+//            .withBandwidth (7.5 * ratio)
+//            .withNoteDurationInSeconds (0.15);
+//        
+////        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+    
+//    // EasyMel IV - bandwidth too small, hard to even hear, and the sine tones don't line up well
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = octDiff / 3.262f;
+//        
+////        std::vector<float> semitones { -3, 4, 0, -3, 2, -3, 0, -3 };
+//        std::vector<float> semitones { -5, 7, 4, 0, -6, 6, 2, -1 };
+////        for (int i = 0; i < semitones.size(); ++i)
+////            semitones[i] *= ratio;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes(semitones, freq)
+//            .withBandwidth (0.3)
+//            .withNoteDurationInSeconds (0.15);
+//        
+////        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+    
+    // EasyMel V - bandwidth too small, hard to even hear, and the sine tones don't line up well
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = octDiff / 3.262f;
+//        
+////        std::vector<float> semitones { -3, 4, 0, -3, 2, -3, 0, -3 };
+//        std::vector<float> semitones { 0, 0, 7, 7, 9, 9, 7, 7, 5, 5, 4, 4, 2, 2, 0, 0, 5, 5, 4, 4, 3, 3, 2, 2, 5, 5, 4, 4, 3, 3, 2, 2, 0, 0, 7, 7, 9, 9, 7, 7, 5, 5, 4, 4, 2, 2, 0, 0 };
+////        for (int i = 0; i < semitones.size(); ++i)
+////            semitones[i] *= ratio;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes(semitones, freq)
+//            .withBandwidth (1.0)
+//            .withTransposition (-5)
+//            .withNoteDurationInSeconds (0.3);
+//        
+////        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+    
+    // JustinPatterns I
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
 
@@ -2597,25 +2710,28 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
     {
         auto [freqBelow, _] = nodeBelow.value();
         auto [freqAbove, __] = nodeAbove.value();
-        
+         
         float octDiff = std::log2 (freqAbove / freqBelow);
+        float ratio = octDiff / 2.0f;
         
-        float ratio = octDiff / 3.262f;
-        
-//        std::vector<float> semitones { -3, 4, 0, -3, 2, -3, 0, -3 };
-        std::vector<float> semitones { -18, 9, 0, 18, 9, -9, 0, -9 };
-        for (int i = 0; i < semitones.size(); ++i)
-            semitones[i] *= ratio;
-        
-        MelodicNotes centerMelody =
-        MelodicNotes(semitones, freq)
-            .withBandwidth (7.5 * ratio)
-            .withNoteDurationInSeconds (0.15);
-        
-//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
-        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
-//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
-    }
+        float bandwidth = 1.0 * ratio;
+        float freqRatio = 2.0 * ratio;
+         
+        MelodicNotes drums =
+        MelodicNotes::withFreqs ({ 200, 5000, 1000, 5000, 1000 })
+            .withBandwidth (7.0)
+            .withNoteDurationInSeconds (0.2);
+         
+        MelodicNotes details = MelodicNotes::withPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, freq, bandwidth * 4)
+            .withCyclingPans ({ -1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1 })
+            .withNoteDurationInSeconds (0.1);
+         
+//        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth * 2)
+//            .withNoteDurationInSeconds (0.2);
+         
+        spatialPatternGenerator.setPattern (drums.noiseNotes());
+        spatialPatternGenerator2.setPattern (details.noiseNotes());
+     }
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
