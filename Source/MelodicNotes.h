@@ -38,6 +38,22 @@ public:
         return MelodicNotes (notesInSemitones, centerFreq);
     }
     
+    static MelodicNotes withPattern (std::vector<bool> hits, float freq, float bandwidth)
+    {
+        std::vector<float> notesInSemitones;
+        std::vector<float> pans;
+        std::vector<float> bandwidths;
+        float noteDurationInSeconds = 0.1;
+        for (const auto hit : hits)
+        {
+            notesInSemitones.push_back (0);
+            pans.push_back (0);
+            bandwidths.push_back (hit ? bandwidth : 0.0);
+        }
+        
+        return MelodicNotes (notesInSemitones, pans, bandwidths, freq, noteDurationInSeconds, 44100); // todo, make sample rate legit
+    }
+    
     MelodicNotes withPans (std::vector<float> newPans)
     {
         return MelodicNotes (notesInSemitones, newPans, bandwidths, centerFreq, noteDurationInSeconds, sampleRate);

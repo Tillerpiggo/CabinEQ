@@ -631,7 +631,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    spatialPatternGenerator2.setPattern (diamond.noiseNotes());
 //    spatialPatternGenerator3.setPattern (topBottom.noiseNotes());
     
-    // Faux Music I
+//    // Faux Music I
 //    MelodicNotes kick =
 //    MelodicNotes::withFreqs ({ 20, 20, 20, 20, 20, 20, 20, 20 })
 //        .withBandwidths ({ 3.0, 0.0, 0.0, 3.0, 0.0, 0.0, 3.0, 0.0 });
@@ -2185,31 +2185,31 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //    }
     
 ////    // Melody 5XII - the separation is just ridiculous
-    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
-    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
-
-    if (nodeBelow.has_value() && nodeAbove.has_value())
-    {
-        auto [freqBelow, _] = nodeBelow.value();
-        auto [freqAbove, __] = nodeAbove.value();
-        
-        float octDiff = std::log2 (freqAbove / freqBelow);
-        
-        float ratio = octDiff / 3.262f;
-        
-        std::vector<float> semitones { -18, -9, 0, 9, 18, 9, 0, -9 };
-        for (int i = 0; i < semitones.size(); ++i)
-            semitones[i] *= ratio;
-        
-        MelodicNotes centerMelody =
-        MelodicNotes(semitones, freq)
-            .withBandwidth (7.5 * ratio)
-            .withNoteDurationInSeconds (0.15);
-        
-//        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
-        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
-//        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
-    }
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = octDiff / 3.262f;
+//        
+//        std::vector<float> semitones { -18, -9, 0, 9, 18, 9, 0, -9 };
+//        for (int i = 0; i < semitones.size(); ++i)
+//            semitones[i] *= ratio;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes(semitones, freq)
+//            .withBandwidth (7.5 * ratio)
+//            .withNoteDurationInSeconds (0.15);
+//        
+////        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
     
 //    // Transposition I
 //    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
@@ -2448,6 +2448,58 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //        spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
 ////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
 //    }
+    
+//    // Patterns III
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = 10;
+//        
+//        MelodicNotes hihats =
+//        MelodicNotes({ 0 }, freq)
+//            .withBandwidth (ratio)
+//            .withNoteDurationInSeconds (0.3);
+//        
+//        MelodicNotes claps =
+//        MelodicNotes({ -24 }, freq)
+//            .withBandwidth (ratio * 8)
+//            .withNoteDurationInSeconds (0.6);
+//        
+//        
+//        spatialPatternGenerator.setPattern (hihats.withSubdivisions (2, 0).noiseNotes());
+//        spatialPatternGenerator2.setPattern (claps.withSubdivisions (4, 0).noiseNotes());
+//    }
+    
+    // Patterns IV
+    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+
+    if (nodeBelow.has_value() && nodeAbove.has_value())
+    {
+        auto [freqBelow, _] = nodeBelow.value();
+        auto [freqAbove, __] = nodeAbove.value();
+        
+        float octDiff = std::log2 (freqAbove / freqBelow);
+        float ratio = octDiff / 2.0f;
+        
+        float bandwidth = 1.0 * ratio;
+        float freqRatio = 2.0 * ratio;
+        
+        MelodicNotes hihats = MelodicNotes::withPattern ({ 1, 0, 1, 0 }, freq * freqRatio, bandwidth);
+        MelodicNotes claps = MelodicNotes::withPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, freq, bandwidth);
+        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth);
+        
+        spatialPatternGenerator.setPattern (hihats.noiseNotes());
+        spatialPatternGenerator2.setPattern (claps.noiseNotes());
+        spatialPatternGenerator3.setPattern (kicks.noiseNotes());
+    }
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve)
@@ -2701,8 +2753,8 @@ std::pair<float, float> PlaybackManager::getNextSample()
     
     if (! isSpatialPatternGenerator2Muted)
     {
-        leftSample += leftSample2 * 0.3;
-        rightSample += rightSample2 * 0.3;
+        leftSample += leftSample2;
+        rightSample += rightSample2;
     }
     
     if (! isSpatialPatternGenerator3Muted)

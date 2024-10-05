@@ -143,7 +143,7 @@ public:
 
 private:
     float sampleRate = 44100.0f;
-    static constexpr int numSinWaves = 512; // Adjust as needed
+    static constexpr int numSinWaves = 256; // Adjust as needed
 
     // Number of SIMD registers based on SIMD size and the number of sine waves
     static constexpr int simdSize = juce::dsp::SIMDRegister<float>::size();
