@@ -2808,7 +2808,83 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
 //     }
     
-    // JustinPatterns IV
+//    // JustinPatterns IV
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//         
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        float ratio = octDiff / 2.0f;
+//        
+//        float bandwidth = 2.0 * ratio;
+//        float semitonesAbove = ratio * 12.0f;
+//         
+//        MelodicNotes drums =
+//        MelodicNotes::withFreqs ({ 200, 5000, 1000, 5000, 1000 })
+//            .withBandwidth (7.0)
+//            .withNoteDurationInSeconds (0.2);
+//         
+//        MelodicNotes details = MelodicNotes::withPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, freq, bandwidth * 4)
+//            .withCyclingPans ({ -1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1 })
+//            .withNoteDurationInSeconds (0.1);
+//        
+//        MelodicNotes distractions =
+//        MelodicNotes ({ -semitonesAbove, semitonesAbove, -semitonesAbove, semitonesAbove }, freq)
+//            .withBandwidth (bandwidth * 8)
+//            .withPans ({ -1, -1, 1, 1 })
+//            .withNoteDurationInSeconds (0.2);
+//         
+////        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth * 2)
+////            .withNoteDurationInSeconds (0.2);
+//         
+//        spatialPatternGenerator.setPattern (drums.noiseNotes());
+//        spatialPatternGenerator2.setPattern (details.noiseNotes());
+//        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
+//     }
+    
+//    // JustinPatterns V
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//         
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        float ratio = octDiff / 2.0f;
+//        
+//        float bandwidth = 1.75 * ratio;
+//        float semitonesAbove = ratio * 12.0f;
+//         
+//        MelodicNotes drums =
+//        MelodicNotes::withFreqs ({ 200, 5000, 1000, 5000, 1000 })
+//            .withBandwidth (7.0)
+//            .withNoteDurationInSeconds (0.2);
+//         
+//        MelodicNotes details = MelodicNotes::withPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, freq, bandwidth * 4)
+//            .withCyclingPans ({ -1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1 })
+//            .withNoteDurationInSeconds (0.1);
+//        
+//        MelodicNotes distractions =
+//        MelodicNotes ({ -semitonesAbove, semitonesAbove, -semitonesAbove, semitonesAbove }, freq)
+//            .withBandwidth (bandwidth * 8)
+//            .withPans ({ -1, -1, 1, 1 })
+//            .withNoteDurationInSeconds (0.2);
+//         
+////        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth * 2)
+////            .withNoteDurationInSeconds (0.2);
+//         
+//        spatialPatternGenerator.setPattern (drums.noiseNotes());
+//        spatialPatternGenerator2.setPattern (details.noiseNotes());
+//        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
+//     }
+    
+    // JustinPatterns VI
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
 
@@ -2820,7 +2896,7 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         float octDiff = std::log2 (freqAbove / freqBelow);
         float ratio = octDiff / 2.0f;
         
-        float bandwidth = 2.0 * ratio;
+        float bandwidth = 1.65 * ratio;
         float semitonesAbove = ratio * 12.0f;
          
         MelodicNotes drums =
