@@ -2561,7 +2561,35 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 //        spatialPatternGenerator3.setPattern (kicks.noiseNotes());
 //    }
     
-    // EasyMel I
+//    // EasyMel I
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//        
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        
+//        float ratio = octDiff / 3.262f;
+//        
+//        std::vector<float> semitones { -3, 4, 0, -3, 2, -3, 0, -3 };
+////        std::vector<float> semitones { -18, -9, 0, 9, 18, 9, 0, -9 };
+//        for (int i = 0; i < semitones.size(); ++i)
+//            semitones[i] *= ratio * 5;
+//        
+//        MelodicNotes centerMelody =
+//        MelodicNotes(semitones, freq)
+//            .withBandwidth (7.5 * ratio)
+//            .withNoteDurationInSeconds (0.15);
+//        
+////        spatialPatternGenerator2.setPattern (centerMelody.withPan (-1).noiseNotes());
+//        spatialPatternGenerator.setPattern (centerMelody.withPan (0).noiseNotes());
+////        spatialPatternGenerator3.setPattern (centerMelody.withPan (1).noiseNotes());
+//    }
+    
+    // EasyMel II
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
 
@@ -2574,10 +2602,10 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         
         float ratio = octDiff / 3.262f;
         
-        std::vector<float> semitones { -3, 4, 0, -3, 2, -3, 0, -3 };
-//        std::vector<float> semitones { -18, -9, 0, 9, 18, 9, 0, -9 };
+//        std::vector<float> semitones { -3, 4, 0, -3, 2, -3, 0, -3 };
+        std::vector<float> semitones { -18, 9, 0, 18, 9, -9, 0, -9 };
         for (int i = 0; i < semitones.size(); ++i)
-            semitones[i] *= ratio * 5;
+            semitones[i] *= ratio;
         
         MelodicNotes centerMelody =
         MelodicNotes(semitones, freq)
