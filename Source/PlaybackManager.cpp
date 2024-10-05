@@ -2492,9 +2492,9 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         float bandwidth = 1.0 * ratio;
         float freqRatio = 2.0 * ratio;
         
-        MelodicNotes hihats = MelodicNotes::withPattern ({ 1, 0, 1, 0 }, freq * freqRatio, bandwidth);
+        MelodicNotes hihats = MelodicNotes::withPattern ({ 1, 0, 1, 0 }, freq * freqRatio, bandwidth * 2);
         MelodicNotes claps = MelodicNotes::withPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, freq, bandwidth);
-        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth);
+        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth * 2);
         
         spatialPatternGenerator.setPattern (hihats.noiseNotes());
         spatialPatternGenerator2.setPattern (claps.noiseNotes());
