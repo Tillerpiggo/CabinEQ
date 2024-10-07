@@ -54,6 +54,34 @@ public:
         return MelodicNotes (notesInSemitones, pans, bandwidths, freq, noteDurationInSeconds, 44100); // todo, make sample rate legit
     }
     
+    static MelodicNotes withMelodicPattern (std::vector<bool> hits, std::vector<float> noteFreqs, float freq, float bandwidth, std::vector<float> notePans)
+    {
+        std::vector<float> notesInSemitones;
+        std::vector<float> pans;
+        std::vector<float> bandwidths;
+        float noteDurationInSeconds = 0.1;
+        int noteIdx = 0;
+        
+        for (int i = 0; i < hits.size() * noteFreqs.size() * notePans.size(); ++i)
+        {
+            if (hits[i % hits.size()])
+            {
+                notesInSemitones.push_back (noteFreqs[noteIdx % noteFreqs.size()]);
+                pans.push_back (notePans[noteIdx % notePans.size()]);
+                bandwidths.push_back (bandwidth);
+                noteIdx++;
+            }
+            else
+            {
+                notesInSemitones.push_back (0);
+                pans.push_back (0);
+                bandwidths.push_back (0);
+            }
+        }
+        
+        return MelodicNotes (notesInSemitones, pans, bandwidths, freq, noteDurationInSeconds, 44100); // todo - include actual sample rate
+    }
+    
     MelodicNotes withPans (std::vector<float> newPans)
     {
         return MelodicNotes (notesInSemitones, newPans, bandwidths, centerFreq, noteDurationInSeconds, sampleRate);
