@@ -129,10 +129,7 @@ public:
     float getCurrPlayingFreq();
     
     // Testing
-    void startProbingAt (float freq, juce::String profileName);
-    void updateProbingAt (float freq, juce::String profileName);
-    void stopProbing();
-    float getCurrProbingFreq();
+    void setPatternSolo (bool solo);
     
     // Sine sweep
 //    void startSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);

@@ -33,7 +33,6 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     float getCurrPlayingFreq() const;
-    float getCurrProbingFreq() const;
     float getCurrSineSweepFreq() const;
     
     void setIsTesting (bool isTesting);
@@ -48,9 +47,7 @@ public:
     void updatePanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void startPhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void updatePhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void startProbingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
-    void updateProbingFreq (float freq, Curve amplCurve, Curve panCurve, Curve phaseCurve);
-    void stopProbing();
+    void setPatternSolo (bool solo);
     
     void setMutedGenerators (std::vector<bool> mutedGens); // takes a vector of length 4 with bools for if each generate is muted (true) or not (false)
     
@@ -87,15 +84,13 @@ private:
     ArbitrarySequencer arbitrarySequencer5;
     
     bool isCalibrating;
-    bool isProbing;
     bool isProcessing;
     bool hasPreparedFilter;
     
     float referenceVolume = 0.0f;
-    float probingFreq = REFERENCE_FREQ;
     
-    bool isSpatialPatternGeneratorMuted;
-    bool isSpatialPatternGenerator2Muted;
-    bool isSpatialPatternGenerator3Muted;
-    bool isSpatialPatternGenerator4Muted;
+    bool isSpatialPatternGeneratorMuted = false;
+    bool isSpatialPatternGenerator2Muted = false;
+    bool isSpatialPatternGenerator3Muted = false;
+    bool isSpatialPatternGenerator4Muted = false;
 };

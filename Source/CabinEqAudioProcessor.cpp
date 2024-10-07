@@ -461,34 +461,9 @@ float CabinEqAudioProcessor::getCurrPlayingFreq()
     return playbackManager.getCurrPlayingFreq();
 }
 
-void CabinEqAudioProcessor::startProbingAt (float freq, juce::String profileName)
+void CabinEqAudioProcessor::setPatternSolo (bool solo)
 {
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        playbackManager.startProbingFreq (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-}
-
-void CabinEqAudioProcessor::updateProbingAt (float freq, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        playbackManager.updateProbingFreq (freq,
-                                           profile->get().getAmplCurve(),
-                                           profile->get().getPanCurve(),
-                                           profile->get().getPhaseCurve());
-}
-
-void CabinEqAudioProcessor::stopProbing()
-{
-    playbackManager.stopProbing();
-}
-
-float CabinEqAudioProcessor::getCurrProbingFreq()
-{
-    return playbackManager.getCurrProbingFreq();
+    playbackManager.setPatternSolo (solo);
 }
 
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
