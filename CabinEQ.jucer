@@ -4,10 +4,6 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="tB8nJa" name="CabinEQ">
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
-      <GROUP id="{0B10295B-16BC-2F1E-E853-72FFD60D4769}" name="LookAndFeel">
-        <FILE id="feJRle" name="ColorTheme.h" compile="0" resource="0" file="Source/ColorTheme.h"/>
-        <FILE id="LHd7YD" name="EmbeddedFonts.h" compile="0" resource="0" file="Source/EmbeddedFonts.h"/>
-      </GROUP>
       <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
             file="Source/CabinEqAudioProcessor.cpp"/>
       <FILE id="ZcW2ES" name="CabinEqAudioProcessor.h" compile="0" resource="0"
@@ -32,6 +28,9 @@
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
+        <FILE id="XTfbD5" name="CabinPeqGraph.cpp" compile="1" resource="0"
+              file="Source/CabinPeqGraph.cpp"/>
+        <FILE id="VOfEsn" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
         <FILE id="XecbxI" name="CabinEqGraph.cpp" compile="1" resource="0"
               file="Source/CabinEqGraph.cpp"/>
         <FILE id="AbBAZL" name="CabinEqGraph.h" compile="0" resource="0" file="Source/CabinEqGraph.h"/>
@@ -263,42 +262,6 @@
         </GROUP>
       </GROUP>
     </GROUP>
-    <FILE id="MIgOSm" name="Gantari-Black.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-Black.ttf"/>
-    <FILE id="eLbhwO" name="Gantari-BlackItalic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-BlackItalic.ttf"/>
-    <FILE id="Jtxt3Z" name="Gantari-Bold.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-Bold.ttf"/>
-    <FILE id="KIMKDd" name="Gantari-BoldItalic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-BoldItalic.ttf"/>
-    <FILE id="cZiAoW" name="Gantari-ExtraBold.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-ExtraBold.ttf"/>
-    <FILE id="EHXXZn" name="Gantari-ExtraBoldItalic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-ExtraBoldItalic.ttf"/>
-    <FILE id="lcE5JJ" name="Gantari-ExtraLight.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-ExtraLight.ttf"/>
-    <FILE id="XT29jq" name="Gantari-ExtraLightItalic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-ExtraLightItalic.ttf"/>
-    <FILE id="BYY7Yz" name="Gantari-Italic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-Italic.ttf"/>
-    <FILE id="KErsEf" name="Gantari-Light.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-Light.ttf"/>
-    <FILE id="xXUZFh" name="Gantari-LightItalic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-LightItalic.ttf"/>
-    <FILE id="O8dzC7" name="Gantari-Medium.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-Medium.ttf"/>
-    <FILE id="A4YFiX" name="Gantari-MediumItalic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-MediumItalic.ttf"/>
-    <FILE id="X1kTYm" name="Gantari-Regular.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-Regular.ttf"/>
-    <FILE id="nyywFY" name="Gantari-SemiBold.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-SemiBold.ttf"/>
-    <FILE id="x1VAVz" name="Gantari-SemiBoldItalic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-SemiBoldItalic.ttf"/>
-    <FILE id="FR9R7t" name="Gantari-Thin.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-Thin.ttf"/>
-    <FILE id="AmSvHH" name="Gantari-ThinItalic.ttf" compile="0" resource="1"
-          file="../../../Downloads/Gantari/static/Gantari-ThinItalic.ttf"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
