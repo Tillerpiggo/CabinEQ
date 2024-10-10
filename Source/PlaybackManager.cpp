@@ -8212,7 +8212,186 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
 ////        spatialPatternGenerator4.setPattern (sideDrums.noiseNotes());
 //     }
     
-    // JustinExperiments A
+//    // JustinExperiments A
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//         
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        float ratio = octDiff / 2.0f;
+//        
+//        float bandwidth = 1.5 * ratio;
+//        float semitonesAbove = ratio * 18.0f;
+//         
+//        MelodicNotes drums =
+//        MelodicNotes ({ -36, -12, 12, 36, 20, 0, -20, 0 }, freq)
+//            .withBandwidth (8.0)
+//            .withNoteDurationInSeconds (0.1);
+//         
+//        MelodicNotes details =
+//        MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -12, 0, 12, 24, 8, -8 }, freq, 1.5, { 0 })
+//            .withNoteDurationInSeconds (0.1);
+//        
+//        
+//        MelodicNotes sideDrums =
+//        MelodicNotes ({ -36, -36, -12, -12, 12, 12, 36, 36, 20, 20, 0, 0, -20, -20, 0, 0 }, freq)
+//            .withCyclingPans ({ -1, 1 })
+//            .withBandwidth (8.0)
+//            .withNoteDurationInSeconds (0.05);
+//        
+//        
+////        MelodicNotes distractions =
+////        MelodicNotes ({ 36, 24, 12, 8, 4, 0, -4, -8, -12, 24, 36 }, freq)
+////            .withBandwidth (3.0)
+////            .withCyclingPans (9)
+////            .withNoteDurationInSeconds (0.04);
+//        
+////        MelodicNotes sideDrums =
+////        MelodicNotes::withFreqs ({ 400, 1600, 6400, 200, 800, 3200, 12000 })
+////            .withCyclingPans ({ -1, 1, -0.5, 0.5 })
+////            .withBandwidth (7.0)
+////            .withNoteDurationInSeconds (0.1);
+//         
+////        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth * 2)
+////            .withNoteDurationInSeconds (0.2);
+//        
+//        for (const auto& noiseNote : details.noiseNotes())
+//            std::cout << "NoiseNote(" << noiseNote.bandwidth << ", " << noiseNote.freqFactor << ", " << noiseNote.pan <<  std::endl;
+//         
+//        spatialPatternGenerator.setPattern (drums.noiseNotes());
+//        spatialPatternGenerator2.setPattern (details.noiseNotes());
+//        spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+////        spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+////        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
+////        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
+////        spatialPatternGenerator4.setPattern (sideDrums.noiseNotes());
+//     }
+    
+//    // JustinExperiments B
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//         
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        float ratio = octDiff / 2.0f;
+//        
+//        float bandwidth = 1.5 * ratio;
+//        float semitonesAbove = ratio * 18.0f;
+//         
+//        MelodicNotes drums =
+//        MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
+//            .withBandwidth (8.0)
+//            .withNoteDurationInSeconds (0.1);
+//         
+//        MelodicNotes details =
+//        MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -12, 0, 12, 24, 8, -8 }, freq, 1.5, { 0 })
+//            .withCyclingPans ({ -1, 1 })
+//            .withNoteDurationInSeconds (0.1);
+//        
+//        
+//        MelodicNotes sideDrums =
+//        MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+//            .withCyclingPans ({ -1, 1 })
+//            .withBandwidth (8.0)
+//            .withNoteDurationInSeconds (0.05);
+//        
+//        
+////        MelodicNotes distractions =
+////        MelodicNotes ({ 36, 24, 12, 8, 4, 0, -4, -8, -12, 24, 36 }, freq)
+////            .withBandwidth (3.0)
+////            .withCyclingPans (9)
+////            .withNoteDurationInSeconds (0.04);
+//        
+////        MelodicNotes sideDrums =
+////        MelodicNotes::withFreqs ({ 400, 1600, 6400, 200, 800, 3200, 12000 })
+////            .withCyclingPans ({ -1, 1, -0.5, 0.5 })
+////            .withBandwidth (7.0)
+////            .withNoteDurationInSeconds (0.1);
+//         
+////        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth * 2)
+////            .withNoteDurationInSeconds (0.2);
+//        
+//        for (const auto& noiseNote : details.noiseNotes())
+//            std::cout << "NoiseNote(" << noiseNote.bandwidth << ", " << noiseNote.freqFactor << ", " << noiseNote.pan <<  std::endl;
+//         
+//        spatialPatternGenerator.setPattern (drums.noiseNotes());
+//        spatialPatternGenerator2.setPattern (details.noiseNotes());
+//        spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+////        spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+////        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
+////        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
+////        spatialPatternGenerator4.setPattern (sideDrums.noiseNotes());
+//     }
+    
+//    // JustinExperiments C
+//    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
+//    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
+//
+//    if (nodeBelow.has_value() && nodeAbove.has_value())
+//    {
+//        auto [freqBelow, _] = nodeBelow.value();
+//        auto [freqAbove, __] = nodeAbove.value();
+//         
+//        float octDiff = std::log2 (freqAbove / freqBelow);
+//        float ratio = octDiff / 2.0f;
+//        
+//        float bandwidth = 1.5 * ratio;
+//        float semitonesAbove = ratio * 18.0f;
+//         
+//        MelodicNotes drums =
+//        MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
+//            .withBandwidth (8.0)
+//            .withNoteDurationInSeconds (0.1);
+//         
+//        MelodicNotes details =
+//        MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 1.5, { 0 })
+//            .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//            .withNoteDurationInSeconds (0.1);
+//        
+//        
+//        MelodicNotes sideDrums =
+//        MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+//            .withCyclingPans ({ -1, -0.5, 0.5, 1 })
+//            .withBandwidth (8.0)
+//            .withNoteDurationInSeconds (0.05);
+//        
+//        
+////        MelodicNotes distractions =
+////        MelodicNotes ({ 36, 24, 12, 8, 4, 0, -4, -8, -12, 24, 36 }, freq)
+////            .withBandwidth (3.0)
+////            .withCyclingPans (9)
+////            .withNoteDurationInSeconds (0.04);
+//        
+////        MelodicNotes sideDrums =
+////        MelodicNotes::withFreqs ({ 400, 1600, 6400, 200, 800, 3200, 12000 })
+////            .withCyclingPans ({ -1, 1, -0.5, 0.5 })
+////            .withBandwidth (7.0)
+////            .withNoteDurationInSeconds (0.1);
+//         
+////        MelodicNotes kicks = MelodicNotes::withPattern ({ 1, 1, 0, 0 }, freq / freqRatio, bandwidth * 2)
+////            .withNoteDurationInSeconds (0.2);
+//        
+//        for (const auto& noiseNote : details.noiseNotes())
+//            std::cout << "NoiseNote(" << noiseNote.bandwidth << ", " << noiseNote.freqFactor << ", " << noiseNote.pan <<  std::endl;
+//         
+//        spatialPatternGenerator.setPattern (drums.noiseNotes());
+//        spatialPatternGenerator2.setPattern (details.noiseNotes());
+//        spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+////        spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+////        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
+////        spatialPatternGenerator3.setPattern (distractions.noiseNotes());
+////        spatialPatternGenerator4.setPattern (sideDrums.noiseNotes());
+//     }
+    
+    // JustinExperiments D
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
     auto nodeAbove = amplCurve.nodeAboveFreq (freq);
 
@@ -8228,18 +8407,19 @@ void PlaybackManager::startAmplCalibration (float freq, Curve& amplCurve, Curve&
         float semitonesAbove = ratio * 18.0f;
          
         MelodicNotes drums =
-        MelodicNotes ({ -36, -12, 12, 36, 20, 0, -20, 0 }, freq)
+        MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
             .withBandwidth (8.0)
             .withNoteDurationInSeconds (0.1);
          
         MelodicNotes details =
-        MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -12, 0, 12, 24, 8, -8 }, freq, 1.5, { 0 })
+        MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
+            .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
             .withNoteDurationInSeconds (0.1);
         
         
         MelodicNotes sideDrums =
-        MelodicNotes ({ -36, -36, -12, -12, 12, 12, 36, 36, 20, 20, 0, 0, -20, -20, 0, 0 }, freq)
-            .withCyclingPans ({ -1, 1 })
+        MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+            .withCyclingPans ({ -1, -0.5, 0.5, 1 })
             .withBandwidth (8.0)
             .withNoteDurationInSeconds (0.05);
         
