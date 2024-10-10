@@ -198,29 +198,19 @@ void CabinEqPage::updatePlayingValueAt (float freq, CabinEqGraph* sender)
 //    }
 }
 
-void CabinEqPage::probeValueAt (float freq)
-{
-    processor.startProbingAt (freq, profileId);
-}
-
 void CabinEqPage::stopPlaying()
 {
     processor.stopCalibration();
 }
 
-void CabinEqPage::stopProbing()
+void CabinEqPage::setPatternSolo (bool solo)
 {
-    processor.stopProbing();
+    processor.setPatternSolo (solo);
 }
 
 float CabinEqPage::getCurrPlayingFreq()
 {
     return processor.getCurrPlayingFreq();
-}
-
-float CabinEqPage::getCurrProbingFreq()
-{
-    return processor.getCurrProbingFreq();
 }
 
 void CabinEqPage::userStoppedDoingShit()

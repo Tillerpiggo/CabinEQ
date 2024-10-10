@@ -299,9 +299,6 @@ std::vector<float> Curve::getFrequencyResponse (int numPoints)
 
 const std::optional<std::pair<float, float>> Curve::nodeBelowFreq (float frequency)
 {
-    std::cout << "Below Freq: (" << frequency << ")" << std::endl;
-    for (const auto& curvePt : curvePts)
-        std::cout << "freq: " << curvePt.freq << std::endl;
     int numNodes = static_cast<int> (curvePts.size());
     for (int i = numNodes - 1; i >= 0; --i)
     {
@@ -318,10 +315,6 @@ const std::optional<std::pair<float, float>> Curve::nodeBelowFreq (float frequen
 
 const std::optional<std::pair<float, float>> Curve::nodeAboveFreq (float frequency)
 {
-    std::cout << "Above Freq: (" << frequency << ")" << std::endl;
-    for (const auto& curvePt : curvePts)
-        std::cout << "freq: " << curvePt.freq << std::endl;
-    
     for (int i = 0; i < curvePts.size(); ++i)
     {
         if (curvePts[i].freq > frequency)

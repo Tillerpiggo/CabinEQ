@@ -52,22 +52,8 @@ void CabinEqGraph::mouseMove (const juce::MouseEvent &event)
 {
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
-    // If ctrl/alt is held down, start testing
-    if (event.mods.isCtrlDown() || event.mods.isAltDown())
-    {
-        isProbingFreq = true;
-        probeValueAt (freq);
-        std::cout << "testing value at " << freq << std::endl;
-        hoveringId = -1;
-        addingFreq.reset();
-        return;
-    }
-    else 
-    {
-        // Since ctrl/alt isn't held down, stop testing
-        isProbingFreq = false;
-        stopProbing();
-    }
+    // Cause this to trigger/toggle which gens are on
+    setPatternSolo (event.mods.isCtrlDown() || event.mods.isAltDown());
     
     updateHoveringAndAddingNode (event);
 }
@@ -78,6 +64,9 @@ void CabinEqGraph::mouseDown (const juce::MouseEvent &event)
     
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    
+    // Cause this to trigger/toggle which gens are on
+    setPatternSolo (event.mods.isCtrlDown() || event.mods.isAltDown());
     
     // Begin to track dragging
     lastDistanceFromDragStartX = 0;
@@ -94,7 +83,6 @@ void CabinEqGraph::mouseDown (const juce::MouseEvent &event)
         draggingId = addNode (freq, ampl);
         targetSelectedDotSize = DOT_SIZE_DRAGGING;
         addingFreq.reset();
-        std::cout << "add node with id: " << draggingId << std::endl;
     }
     
     // If we right click and are hovering, delete the node
@@ -103,7 +91,12 @@ void CabinEqGraph::mouseDown (const juce::MouseEvent &event)
         
     // If we ended up dragging a node, start playing tones
     if (draggingId != -1)
+    {
+        updateNode (draggingId, freq, ampl);
         startPlayingValueAt (freq);
+    }
+    
+    mousePressedDown = true;
 }
 
 void CabinEqGraph::mouseDrag (const juce::MouseEvent &event)
@@ -113,18 +106,11 @@ void CabinEqGraph::mouseDrag (const juce::MouseEvent &event)
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
-    // So that testing keeps moving when clicking
-    if (event.mods.isCtrlDown() || event.mods.isAltDown())
-    {
-        isProbingFreq = true;
-        probeValueAt (freq);
-        hoveringId = -1;
-        addingFreq.reset();
-        return;
-    }
+    // Cause this to trigger/toggle which gens are on
+    setPatternSolo (event.mods.isCtrlDown() || event.mods.isAltDown());
     
     // If we're dragging a node, update it to our mouse position
-    if (draggingId != -1)
+    if (draggingId != -1 && mousePressedDown)
     {
         updateNode (draggingId, freq, ampl);
         updatePlayingValueAt (freq);
@@ -166,24 +152,19 @@ void CabinEqGraph::mouseUp (const juce::MouseEvent &event)
     
     // We stopped dragging, so stop playing tones
     stopPlaying();
-    stopProbing();
+    
+    mousePressedDown = false;
 }
 
 void CabinEqGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
     cyclesSinceUserStoppedDoingShit = 0;
     
+    // Cause this to trigger/toggle which gens are on
+    setPatternSolo (event.mods.isCtrlDown() || event.mods.isAltDown());
+    
     // Useful constants
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-    
-    // So that probing keeps moving when clicking
-    if (event.mods.isCtrlDown() || event.mods.isAltDown())
-    {
-        isProbingFreq = true;
-        probeValueAt (freq);
-        hoveringId = -1;
-        addingFreq.reset();
-    }
     
     // Math to figure out how much left/right side of window should move
     float p = 1 - (wheel.deltaY); // % change in window width
@@ -205,20 +186,17 @@ void CabinEqGraph::mouseWheelMove (const juce::MouseEvent &event, const juce::Mo
     updateHoveringAndAddingNode (event);
 }
 
+bool CabinEqGraph::keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent)
+{
+    setPatternSolo (juce::KeyPress::isKeyCurrentlyDown (juce::ModifierKeys::ctrlModifier) || juce::KeyPress::isKeyCurrentlyDown (juce::ModifierKeys::altModifier));
+    return true;
+}
 
-//bool CabinEqGraph::keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent)
-//{
-//    cyclesSinceUserStoppedDoingShit = 0;
-//    return true;
-//}
-//
-//bool CabinEqGraph::keyStateChanged (bool isKeyDown, juce::Component *originatingComponent)
-//{
-//    cyclesSinceUserStoppedDoingShit = 0;
-//    isProbingFreq = false;
-//    stopProbing();
-//    return true;
-//}
+bool CabinEqGraph::keyStateChanged (bool isKeyDown, juce::Component *originatingComponent)
+{
+    setPatternSolo (juce::KeyPress::isKeyCurrentlyDown (juce::ModifierKeys::ctrlModifier) || juce::KeyPress::isKeyCurrentlyDown (juce::ModifierKeys::altModifier));
+    return true;
+}
 
 
 void CabinEqGraph::timerCallback()
@@ -305,32 +283,6 @@ void CabinEqGraph::drawDots (juce::Graphics& g, Curve& curve)
         drawDot (g, point, dotRadius, dotColor);
     }
     
-    // Draw the frequency probing dot
-    if (isProbingFreq)
-    {
-        // Figure out color of node
-        juce::Colour probeDotColor = getColorForFrequency (getCurrPlayingFreq()).interpolatedWith (juce::Colours::pink, 0.4f);
-        
-        // Make node pulse w/ tones
-        if (getCurrPlayingFreq() != REFERENCE_FREQ)
-        {
-            probeDotColor = probeDotColor.interpolatedWith (juce::Colours::orange, 0.4);
-            targetSelectedDotSize = DOT_SIZE_DRAGGING * 0.9;
-        }
-        else
-        {
-            targetSelectedDotSize = DOT_SIZE_DRAGGING;
-        }
-        
-        // Calculate coordinates of node
-        float probingFreq = getCurrProbingFreq();
-        juce::Point<float> point = coordsForCurvePt (probingFreq, curve.visualValueAtFrequency (probingFreq));
-        
-        // Draw node
-        drawDot (g, point, selectedDotSize, probeDotColor);
-        
-    }
-    
     // Draw the ghost node for adding
     if (addingFreq.has_value())
     {
@@ -346,7 +298,7 @@ void CabinEqGraph::drawDots (juce::Graphics& g, Curve& curve)
         drawDot (g, point, addingDotRadius, addingDotColor);
     }
     
-    if (isProbingFreq || draggingId != -1 || hoveringId != -1)
+    if (draggingId != -1 || hoveringId != -1)
     {
         cyclesSinceUserStoppedDoingShit = 0;
     }
@@ -603,12 +555,6 @@ void CabinEqGraph::updatePlayingValueAt (float freq)
     }
 }
 
-void CabinEqGraph::probeValueAt (float freq)
-{
-    if (listener != nullptr)
-        listener->probeValueAt (freq);
-}
-
 void CabinEqGraph::stopPlaying()
 {
     if (listener != nullptr)
@@ -618,10 +564,12 @@ void CabinEqGraph::stopPlaying()
     }
 }
 
-void CabinEqGraph::stopProbing()
+void CabinEqGraph::setPatternSolo (bool solo)
 {
     if (listener != nullptr)
-        listener->stopProbing();
+    {
+        listener->setPatternSolo (solo);
+    }
 }
 
 float CabinEqGraph::getCurrPlayingFreq()
@@ -629,13 +577,6 @@ float CabinEqGraph::getCurrPlayingFreq()
     if (listener == nullptr)
         return REFERENCE_FREQ;
     return listener->getCurrPlayingFreq();
-}
-
-float CabinEqGraph::getCurrProbingFreq()
-{
-    if (listener == nullptr)
-        return REFERENCE_FREQ;
-    return listener->getCurrProbingFreq();
 }
 
 void CabinEqGraph::userStoppedDoingShit()

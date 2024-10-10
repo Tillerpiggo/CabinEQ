@@ -14,6 +14,7 @@
 #include "SequenceableNote.h"
 #include "SineWaveGenerator.h"
 #include "PitchedGenerator.h"
+#include "Curve.h"
 
 class SequencerListener
 {
@@ -33,10 +34,12 @@ public:
     
     void setSampleRate (float newSampleRate);
     void setNotes (const std::vector<SequenceableNote>& notes, bool repeating = true);
+    void setNotes (const std::vector<float>& notesInSemitones, float freq, Curve& amplCurve, bool repeating = true);
     void setNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes, bool repeating = true); // plays each note repeated, from 5 different angles (hard right, soft right, center, soft left, hard left)
     void setListener (SequencerListener* newListener);
     
     void updateNotes (const std::vector<SequenceableNote>& newNotes);
+    void updateNotes (const std::vector<float>& newNotesInSemitones, float freq, Curve& amplCurve);
     void updateNotesForSpatialCalibration (const std::vector<SequenceableNote>& newNotes);
     
     void changeNoteAtIdx (int idx, Note newNote);

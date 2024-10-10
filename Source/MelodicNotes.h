@@ -38,6 +38,86 @@ public:
         return MelodicNotes (notesInSemitones, centerFreq);
     }
     
+    static MelodicNotes withPattern (std::vector<bool> hits, float freq, float bandwidth)
+    {
+        std::vector<float> notesInSemitones;
+        std::vector<float> pans;
+        std::vector<float> bandwidths;
+        float noteDurationInSeconds = 0.1;
+        for (const auto hit : hits)
+        {
+            notesInSemitones.push_back (0);
+            pans.push_back (0);
+            bandwidths.push_back (hit ? bandwidth : 0.0);
+        }
+        
+        return MelodicNotes (notesInSemitones, pans, bandwidths, freq, noteDurationInSeconds, 44100); // todo, make sample rate legit
+    }
+    
+    static MelodicNotes withMelodicPattern (std::vector<bool> hits, std::vector<float> noteFreqs, float freq, float bandwidth, std::vector<float> notePans)
+    {
+        std::vector<float> notesInSemitones;
+        std::vector<float> pans;
+        std::vector<float> bandwidths;
+        float noteDurationInSeconds = 0.1;
+        int noteIdx = 0;
+        
+        for (int i = 0; i < hits.size() * noteFreqs.size() * notePans.size(); ++i)
+        {
+            if (hits[i % hits.size()])
+            {
+                notesInSemitones.push_back (noteFreqs[noteIdx % noteFreqs.size()]);
+                pans.push_back (notePans[noteIdx % notePans.size()]);
+                bandwidths.push_back (bandwidth);
+                noteIdx++;
+            }
+            else
+            {
+                notesInSemitones.push_back (0);
+                pans.push_back (0);
+                bandwidths.push_back (0);
+            }
+        }
+        
+        return MelodicNotes (notesInSemitones, pans, bandwidths, freq, noteDurationInSeconds, 44100); // todo - include actual sample rate
+    }
+    
+    static MelodicNotes withMelodicPattern (std::vector<bool> hits, std::vector<float> noteFreqs, float bandwidth, std::vector<float> notePans)
+    {
+        std::vector<float> notesInSemitones;
+        std::vector<float> pans;
+        std::vector<float> bandwidths;
+        float noteDurationInSeconds = 0.1;
+        int noteIdx = 0;
+        
+        std::vector<float> relativeNoteFreqs;
+        float centerFreq = noteFreqs[0];
+        for (const auto& freq : noteFreqs)
+        {
+            float semitonesFromCenterFreq = 12.0f * std::log2 (freq / centerFreq);
+            relativeNoteFreqs.push_back (semitonesFromCenterFreq);
+        }
+        
+        for (int i = 0; i < hits.size() * noteFreqs.size() * notePans.size(); ++i)
+        {
+            if (hits[i % hits.size()])
+            {
+                notesInSemitones.push_back (relativeNoteFreqs[noteIdx % noteFreqs.size()]);
+                pans.push_back (notePans[noteIdx % notePans.size()]);
+                bandwidths.push_back (bandwidth);
+                noteIdx++;
+            }
+            else
+            {
+                notesInSemitones.push_back (0);
+                pans.push_back (0);
+                bandwidths.push_back (0);
+            }
+        }
+        
+        return MelodicNotes (notesInSemitones, pans, bandwidths, centerFreq, noteDurationInSeconds, 44100); // todo - include actual sample rate
+    }
+    
     MelodicNotes withPans (std::vector<float> newPans)
     {
         return MelodicNotes (notesInSemitones, newPans, bandwidths, centerFreq, noteDurationInSeconds, sampleRate);
@@ -117,7 +197,69 @@ public:
             newBandwidths.push_back (bandwidths[i % bandwidths.size()]);
         }
         
+        std::cout << "NewNotesInSemitones: " << std::endl;
+        for (const auto& note : newNotesInSemitones)
+        {
+            std::cout << "Note: " << note << ", ";
+        }
+        std::cout << std::endl;
+        
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
+    }
+    
+    MelodicNotes withCyclingPans (int numPositions)
+    {
+        std::vector<float> cyclingPans;
+        float factor = 2.0f / static_cast<float> (numPositions - 1);
+        
+        for (float i = -1; i < 1 - factor; i += factor)
+            cyclingPans.push_back (i);
+        for (float i = 1; i > -1 + factor; i -= factor)
+            cyclingPans.push_back (i);
+        
+        return this->withCyclingPans (cyclingPans);
+    }
+    
+    MelodicNotes withCyclingBandwidths (std::vector<float> cyclingBandwidths)
+    {
+        std::vector<float> newNotesInSemitones;
+        std::vector<float> newPans;
+        std::vector<float> newBandwidths;
+        
+        for (int i = 0; i < notesInSemitones.size() * cyclingBandwidths.size(); ++i)
+        {
+            newNotesInSemitones.push_back (notesInSemitones[i % notesInSemitones.size()]);
+            newPans.push_back (pans[i % pans.size()]);
+            newBandwidths.push_back (cyclingBandwidths[i % cyclingBandwidths.size()]);
+        }
+        
+        return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
+    }
+    
+    MelodicNotes withSubdivisions (int numSections, int position) // subdivides into numSections, puts your position in that section. e.g. 3 sections, position = 1 would give you a (0-1-0, 0-1-0) pattern
+    {
+        std::vector<float> newNotesInSemitones;
+        std::vector<float> newPans;
+        std::vector<float> newBandwidths;
+
+        
+        for (int i = 0; i < notesInSemitones.size() * numSections; ++i)
+        {
+            if (i % numSections == position)
+            {
+                newNotesInSemitones.push_back (notesInSemitones[i / numSections]);
+                newPans.push_back (pans[i / numSections]);
+                newBandwidths.push_back (bandwidths[i / numSections]);
+            }
+            else
+            {
+                newNotesInSemitones.push_back (0);
+                newPans.push_back (0);
+                newBandwidths.push_back (0);
+            }
+        }
+        
+        return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds / static_cast<float> (numSections), sampleRate);
     }
     
     MelodicNotes withSegmentedPans (int numSegments, bool leftToRight)
@@ -203,5 +345,5 @@ private:
     std::vector<float> bandwidths;
     float centerFreq;
     float noteDurationInSeconds;
-    float sampleRate;
+    float sampleRate = 44100;
 };

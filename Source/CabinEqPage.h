@@ -35,11 +35,9 @@ public:
     void removeCurvePt (int id, CabinEqGraph* sender) override;
     void startPlayingValueAt (float freq, CabinEqGraph* sender) override;
     void updatePlayingValueAt (float freq, CabinEqGraph* sender) override;
-    void probeValueAt (float freq) override;
     void stopPlaying() override;
-    void stopProbing() override;
+    void setPatternSolo (bool solo) override;
     float getCurrPlayingFreq() override;
-    float getCurrProbingFreq() override;
     void userStoppedDoingShit() override;
     
     void sliderValueChanged (juce::Slider *slider) override;

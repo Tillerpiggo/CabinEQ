@@ -331,8 +331,8 @@ SpatialNoiseGenerator::SpatialNoiseGenerator()
     // Initialize phasors with random phases
     for (int i = 0; i < numSimdRegisters; ++i)
     {
-        float realValues[simdSize];
-        float imagValues[simdSize];
+        alignas(juce::dsp::SIMDRegister<float>) float realValues[simdSize];
+        alignas(juce::dsp::SIMDRegister<float>) float imagValues[simdSize];
 
         for (int j = 0; j < simdSize; ++j)
         {
@@ -371,8 +371,8 @@ void SpatialNoiseGenerator::setSampleRate(float newSampleRate)
 
     for (int i = 0; i < numSimdRegisters; ++i)
     {
-        float phaseIncRealValues[simdSize];
-        float phaseIncImagValues[simdSize];
+        alignas(juce::dsp::SIMDRegister<float>) float phaseIncRealValues[simdSize];
+        alignas(juce::dsp::SIMDRegister<float>) float phaseIncImagValues[simdSize];
 
         for (int j = 0; j < simdSize; ++j)
         {
@@ -448,8 +448,8 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
     // Precompute amplitudes
     for (int i = 0; i < numSimdRegisters; ++i)
     {
-        float leftAmpValues[simdSize];
-        float rightAmpValues[simdSize];
+        alignas(juce::dsp::SIMDRegister<float>) float leftAmpValues[simdSize];
+        alignas(juce::dsp::SIMDRegister<float>) float rightAmpValues[simdSize];
 
         for (int j = 0; j < simdSize; ++j)
         {
@@ -472,7 +472,7 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
             float amplVal = amplCurve.valueAtFrequency(freq);
             float panVal = panCurve.valueAtFrequency(freq);
 
-            float cabinNoiseDropoff = -4.5f * std::log2(freq / 1000.0f);
+            float cabinNoiseDropoff = -3.0f * std::log2(freq / 1000.0f);
             float leftAmpl = juce::Decibels::decibelsToGain(amplVal - 0.5f * panVal + cabinNoiseDropoff);
             float rightAmpl = juce::Decibels::decibelsToGain(amplVal + 0.5f * panVal + cabinNoiseDropoff);
 

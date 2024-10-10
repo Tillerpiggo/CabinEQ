@@ -13,9 +13,9 @@
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
 #include "CurvePt.h"
-#include "ColorTheme.h"
 
 class CabinEqGraph   : public juce::Component,
+                       public juce::KeyListener,
                        public juce::Timer
 {
 public:
@@ -29,11 +29,9 @@ public:
         virtual void removeCurvePt (int id, CabinEqGraph* sender) = 0;
         virtual void startPlayingValueAt (float freq, CabinEqGraph* sender) = 0;
         virtual void updatePlayingValueAt (float freq, CabinEqGraph* sender) = 0; // the tone while dragging nodes
-        virtual void probeValueAt (float freq) = 0; // for probing
         virtual void stopPlaying() = 0; // stops playing the calibration tones
-        virtual void stopProbing() = 0; // stops playing the probing tones (that are played when holding down ctrl/alt)
+        virtual void setPatternSolo (bool solo) = 0; // if solo'd, you only hear the pattern. Otherwise you hear all the noise as well
         virtual float getCurrPlayingFreq() = 0;
-        virtual float getCurrProbingFreq() = 0;
         
         virtual void userStoppedDoingShit() = 0;
     };
@@ -42,7 +40,6 @@ public:
     ~CabinEqGraph() override;
     
     void setCurve (Curve& curve);
-    void setColorTheme (std::unique_ptr<ColorTheme> colorTheme);
     
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -52,6 +49,12 @@ public:
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
+    
+    bool keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent) override;
+    bool keyStateChanged (bool isKeyDown, juce::Component *originatingComponent) override;
+    
+//    bool keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent) override;
+//    bool keyStateChanged (bool isKeyDown, juce::Component *originatingComponent) override;
     
     void timerCallback() override;
     
@@ -92,11 +95,9 @@ private:
     void removeNode (int id);
     void startPlayingValueAt (float freq);
     void updatePlayingValueAt (float freq); // the tone while dragging nodes
-    void probeValueAt (float freq); // for probing
     void stopPlaying(); // stops playing the calibration tones
-    void stopProbing(); // stops playing the testing tones (that are played when holding down ctrl/alt)
+    void setPatternSolo (bool solo);
     float getCurrPlayingFreq();
-    float getCurrProbingFreq();
     void userStoppedDoingShit();
     
     // Dragging/zooming
@@ -104,6 +105,7 @@ private:
     float maxFreqShowing = 20000.0f;
     float zoom = 5.0f;
     float lastDistanceFromDragStartX = 0;
+    bool mousePressedDown = false;
     
     // Constants
     static constexpr float MIN_FREQ = 20.0f;
@@ -121,7 +123,6 @@ private:
     // Micro-animation values
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
-    bool isProbingFreq = false;
     bool isPlayingFreq = false;
     std::optional<float> addingFreq;
     float selectedDotSize = DOT_SIZE_DEFAULT;
@@ -135,7 +136,4 @@ private:
     // Scaling
     float maxDB = 36.0f;
     float minDB = -36.0f;
-    
-    // Colors
-    std::unique_ptr<ColorTheme> colorTheme = std::make_unique<WoodlandMistColors>();
 };
