@@ -29,7 +29,7 @@ public:
     void initValueTreeFromAPVTS(); // sets this value tree to match the one in the main apvts
     const juce::String getName() const;
     
-    void copyFrom (CabinEqProfile& other);
+    void copyFrom (CabinEqProfile other);
     void renameTo (juce::String newName);
     
 private:
@@ -53,4 +53,4 @@ private:
     juce::String profileName;
     
     bool hasBeenInitialized = false;
-}
+};

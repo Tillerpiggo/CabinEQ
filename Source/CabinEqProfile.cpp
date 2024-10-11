@@ -107,7 +107,7 @@ const juce::String CabinEqProfile::getName() const
     return profileName;
 }
 
-void CabinEqProfile::copyFrom (CabinEqProfile& other)
+void CabinEqProfile::copyFrom (CabinEqProfile other)
 {
     initValueTreeFromAPVTS();
     juce::String newProfileName = valueTree.getProperty (idProfileName);
