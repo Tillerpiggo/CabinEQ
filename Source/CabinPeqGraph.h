@@ -12,9 +12,7 @@
 
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
-
-class BandProfile; // for sake of namespace for now
-class Band; // for sake of namespace for now
+#include "BandProfile.h"
 
 class CabinPeqGraph  : public juce::Component,
                        public juce::KeyListener,
@@ -73,7 +71,7 @@ private:
     juce::Colour getColourForFrequency (float frequency);
     
     // Coordinates
-    juce::Point<float> coordsForCurvePt (float frequency, float ampl);
+    juce::Point<float> coordsForFrequencyAndAmplitude (float freq, float ampl);
     float frequencyAtTime (float t) const;
     float timeAtFrequency (float freq) const;
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;

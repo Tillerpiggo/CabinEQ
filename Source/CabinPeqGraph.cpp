@@ -82,7 +82,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     }
 }
 
-void CabinEqGraph::mouseDrag (const juce::MouseEvent& event)
+void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 {
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
@@ -99,7 +99,7 @@ void CabinEqGraph::mouseDrag (const juce::MouseEvent& event)
     // If we're not dragging a node, we're dragging in the blackspace and should drag the graph itself
     else
     {
-        float minFreqShowingTime = timeAtFrequency (minFreqShowig);
+        float minFreqShowingTime = timeAtFrequency (minFreqShowing);
         float maxFreqShowingTime = timeAtFrequency (maxFreqShowing);
         float timeChange = (static_cast<float> (event.getDistanceFromDragStart()) / -lastDistanceFromDragStartX) / getWidth();
         
@@ -115,7 +115,7 @@ void CabinEqGraph::mouseDrag (const juce::MouseEvent& event)
     }
 }
 
-void CabinEqGraph::mouseUp (const juce::MouseEvent& event)
+void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
 {
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
@@ -185,9 +185,138 @@ void CabinPeqGraph::removeListener()
     this->listener = nullptr;
 }
 
-void CabinEqGraph::setGrayscale (bool grayscale)
+void CabinPeqGraph::setGrayscale (bool isGrayscale)
 {
-    this->grayscale = grayscale;
+    this->isGrayscale = isGrayscale;
 }
 
 // =============================================
+void CabinPeqGraph::drawCurve (juce::Graphics& g, BandProfile& bandProfile)
+{
+    // TODO - we won't draw the curve for now
+}
+
+void CabinPeqGraph::drawDots (juce::Graphics& g, BandProfile& bandProfile)
+{
+    // Pseudocode
+    
+    // Get all bands in band profile
+    
+    // for each band, draw a corresponding point
+    
+    // add necessary exceptions for the dragging/hovering band id, the ghost node, etc.
+    
+    // reference CabinEqGraph::drawDots for more specific outline
+}
+
+void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour)
+{
+    // Draw dot
+    g.fillEllipse (point.x - dotRadius - DOT_PADDING, point.y - dotRadius - DOT_PADDING, (dotRadius + DOT_PADDING) * 2, (dotRadius + DOT_PADDING) * 2);
+    
+    // Draw the center of the dot
+    g.setColour (dotColour);
+    g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
+}
+
+void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
+{
+    // If there is no band profile, we can't determine hovering status (and the profile hasn't loaded yet)
+    // TODO: we might want to make an exception for hovering over the center line, but this optimization is minor for now
+    if (! bandProfile.has_value())
+        return;
+    
+    // Helpful constants
+    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    
+    // Show the ghost node to add if the mouse is on the center line
+    if (ampl <= DIST_TO_ADD_DB)
+        isHoveringOnCenterLine = true;
+    else
+        isHoveringOnCenterLine = false;
+    
+    // Figure out which node, if any, we're hovering over
+    hoveringId = -1;
+    auto hoveringBand = getClosestBandToMouseEvent (event);
+    if (hoveringBand.has_value())
+    {
+        hoveringId = hoveringBand.value().id;
+        selectedDotSize = DOT_SIZE_DRAGGING;
+        
+        // If we'er hovering, we don't want to show the ghost node to add
+        if (isHoveringOnCenterLine)
+            isHoveringOnCenterLine = false;
+    }
+}
+
+juce::Colour CabinPeqGraph::getColourForFrequency (float frequency)
+{
+    if (isGrayscale)
+        return juce::Colour::fromFloatRGBA (0.3f, 0.3, 0.3f, 1.0f);
+    
+    return juce::Colour::fromFloatRGBA (0.5f, 0.5f, 0.5f, 1.0f);
+}
+
+juce::Point<float> CabinPeqGraph::coordsForFrequencyAndAmplitude (float freq, float ampl)
+{
+    // Calculate (x, y) coords and return
+    float x = getWidth() * timeAtFrequency (freq);
+    float y = getHeight() * (1.0f - (ampl - MIN_DB) / (MAX_DB - MIN_DB));
+    
+    return { x + getX(), y + getY() };
+}
+
+float CabinPeqGraph::frequencyAtTime (float t) const
+{
+    // Scale logarithmically based on the visible window
+    float logMinFreqShowing = std::log (minFreqShowing);
+    float logMaxFreqShowing = std::log (maxFreqShowing);
+    float freq = std::exp (logMinFreqShowing + t * (logMaxFreqShowing - logMinFreqShowing));
+    return freq;
+}
+
+float CabinPeqGraph::timeAtFrequency (float freq) const
+{
+    // Scale back to linear based on the visible window
+    float logMinFreqShowing = std::log (minFreqShowing);
+    float logMaxFreqShowing = std::log (maxFreqShowing);
+    float logFreq = std::log (freq);
+    float t = (logFreq - logMinFreqShowing) / (logMaxFreqShowing - logMinFreqShowing);
+    return t;
+}
+
+std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const
+{
+    // Get mouse coords
+    float x = event.getPosition().x - getX();
+    float y = event.getPosition().y - getY();
+    
+    // Calculate frequency of mouse event
+    float freq = frequencyAtTime (x / getWidth());
+    
+    // Calculate amplitude of mouse event
+    float normalizedY = y / getHeight();
+    float ampl = (1.0f - normalizedY) * (MAX_DB - MIN_DB) + MIN_DB;
+    
+    // Bound freq/ampl inside the visible window
+    freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
+    ampl = std::min (std::max (ampl, MIN_DB), MAX_DB);
+    
+    return { freq, ampl };
+}
+
+float CabinPeqGraph::mouseEventDistanceFromBand (const juce::MouseEvent& event, Band band) const
+{
+    // Calculate distance based on arbitrary scale factors that weight freq and ampl about the same
+    // TODO: could theoretically improve the precision of this
+    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    float dx = std::abs (timeAtFrequency (freq) - timeAtFrequency (band.freq));
+    float dy = std::abs (ampl - band.ampl);
+    dx *= 39;
+    dy *= 0.5;
+    
+    float distance = std::sqrt (dx * dx + dy * dy);
+    return distance;
+}
+
+
