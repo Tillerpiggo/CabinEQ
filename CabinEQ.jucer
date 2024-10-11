@@ -24,6 +24,14 @@
             file="Source/CabinEqValueTreeManager.cpp"/>
       <FILE id="NXPdqU" name="CabinEqValueTreeManager.h" compile="0" resource="0"
             file="Source/CabinEqValueTreeManager.h"/>
+      <FILE id="aawKTU" name="CabinEqProfile.cpp" compile="1" resource="0"
+            file="Source/CabinEqProfile.cpp"/>
+      <FILE id="v46Yap" name="CabinEqProfile.h" compile="0" resource="0"
+            file="Source/CabinEqProfile.h"/>
+      <FILE id="aRkkmn" name="CabinEqProfileManager.cpp" compile="1" resource="0"
+            file="Source/CabinEqProfileManager.cpp"/>
+      <FILE id="LJWMjo" name="CabinEqProfileManager.h" compile="0" resource="0"
+            file="Source/CabinEqProfileManager.h"/>
       <FILE id="wRB6e3" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
         <FILE id="IsbkTz" name="BandProfile.h" compile="0" resource="0" file="Source/BandProfile.h"/>
