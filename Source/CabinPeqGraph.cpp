@@ -19,9 +19,9 @@ CabinPeqGraph::~CabinPeqGraph()
     removeListener();
 }
 
-void CabinPeqGraph::setBandProfile (BandProfile& bandProfile)
+void CabinPeqGraph::setBands (std::vector<Band> bands)
 {
-    this->bandProfile = bandProfile;
+    this->bands = bands;
 }
 
 void CabinPeqGraph::paint (juce::Graphics& g)
@@ -29,11 +29,8 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     g.setColour (BACKGROUND_COLOR);
     g.fillRect (getBoundsInParent());
     
-    if (bandProfile.has_value())
-    {
-        drawCurve (g, bandProfile->get());
-        drawDots (g, bandProfile->get());
-    }
+    drawCurve (g);
+    drawDots (g);
 }
 
 void CabinPeqGraph::resized()
@@ -191,12 +188,12 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 }
 
 // =============================================
-void CabinPeqGraph::drawCurve (juce::Graphics& g, BandProfile& bandProfile)
+void CabinPeqGraph::drawCurve (juce::Graphics& g)
 {
     // TODO - we won't draw the curve for now
 }
 
-void CabinPeqGraph::drawDots (juce::Graphics& g, BandProfile& bandProfile)
+void CabinPeqGraph::drawDots (juce::Graphics& g)
 {
     // Pseudocode
     
@@ -221,11 +218,6 @@ void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float 
 
 void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
 {
-    // If there is no band profile, we can't determine hovering status (and the profile hasn't loaded yet)
-    // TODO: we might want to make an exception for hovering over the center line, but this optimization is minor for now
-    if (! bandProfile.has_value())
-        return;
-    
     // Helpful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
@@ -319,4 +311,78 @@ float CabinPeqGraph::mouseEventDistanceFromBand (const juce::MouseEvent& event, 
     return distance;
 }
 
+std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::MouseEvent& event) const
+{
+    float minDist = HOVER_MIN_DIST;
+    std::optional<Band> closestBand;
+    for (const auto& band : bands)
+    {
+        float dist = mouseEventDistanceFromBand (event, band);
+        if (dist < minDist)
+        {
+            minDist = dist;
+            closestBand = band;
+        }
+    }
+    
+    return closestBand;
+}
 
+int CabinPeqGraph::addBand(float freq, float ampl, float bandwidth)
+{
+    if (listener == nullptr)
+        return -1;
+    return listener->addBand(freq, ampl, bandwidth, this);
+}
+
+void CabinPeqGraph::updateBand(int id, float freq, float ampl, float bandwidth)
+{
+    if (listener != nullptr)
+        listener->updateBand(id, freq, ampl, bandwidth, this);
+}
+
+void CabinPeqGraph::removeBand(int id)
+{
+    if (listener != nullptr)
+        listener->removeBand(id, this);
+}
+
+void CabinPeqGraph::startNoisePatternAt(int id)
+{
+    if (listener != nullptr)
+    {
+        listener->startNoisePatternAt(id, this);
+    }
+}
+
+void CabinPeqGraph::updateNoisePatternAt(int id)
+{
+    if (listener != nullptr)
+    {
+        listener->updateNoisePatternAt(id, this);
+    }
+}
+
+void CabinPeqGraph::stopNoisePattern()
+{
+    if (listener != nullptr)
+    {
+        listener->stopNoisePattern();
+    }
+}
+
+void CabinPeqGraph::setNoisePatternSolo(bool solo)
+{
+    if (listener != nullptr)
+    {
+        listener->setNoisePatternSolo(solo);
+    }
+}
+
+void CabinPeqGraph::soloNoisePatternIfAppropriate(const juce::MouseEvent& event)
+{
+    if (listener != nullptr)
+    {
+        listener->setNoisePatternSolo (event.mods.isCtrlDown() || event.mods.isAltDown());
+    }
+}

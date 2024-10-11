@@ -36,7 +36,7 @@ public:
     CabinPeqGraph();
     ~CabinPeqGraph() override;
     
-    void setBandProfile (BandProfile& profile);
+    void setBands (std::vector<Band> bands);
     
     void paint (juce::Graphics& g) override;
     void resized() override;
@@ -58,12 +58,12 @@ public:
     void setGrayscale (bool grayscale);
     
 private:
-    std::optional<std::reference_wrapper<BandProfile>> bandProfile;
+    std::vector<Band> bands;
     Listener* listener;
     
     // Drawing/animation
-    void drawCurve (juce::Graphics& g, BandProfile& profile);
-    void drawDots (juce::Graphics& g, BandProfile& profile);
+    void drawCurve (juce::Graphics& g);
+    void drawDots (juce::Graphics& g);
     void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color);
     void updateHoveringStatus (const juce::MouseEvent& event); // updates what is being hovered over - whether it's a node or the center line
     
@@ -75,9 +75,8 @@ private:
     float frequencyAtTime (float t) const;
     float timeAtFrequency (float freq) const;
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
-    bool mouseEventIsNearBand (const juce::MouseEvent& event, Band band) const; // if it's near the node of the band
     float mouseEventDistanceFromBand (const juce::MouseEvent& event, Band band) const; // distance from the node of the band
-    std::optional<Band> getClosestBandToMouseEvent (const juce::MouseEvent& event) const; // which band's node is the closest
+    std::optional<Band> getClosestBandToMouseEvent (const juce::MouseEvent& event) const; // which band's node is the closest to the mouse
     
     // Utils to handle calls to the listener if listener is nullptr
     int addBand (float freq, float ampl, float bandwidth);
