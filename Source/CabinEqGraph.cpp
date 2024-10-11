@@ -403,8 +403,8 @@ juce::Colour CabinEqGraph::getColorForFrequency(float frequency)
     if (grayscale && !blinded)
         return juce::Colour::fromFloatRGBA(0.3f, 0.3f, 0.3f, 1.0f);
 
-//    if (colorTheme == nullptr)
-//        return juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 1.0f); // Default color if colorTheme is not set
+    return juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 1.0f); // Default color if colorTheme is not set
+        
 
     float t = (std::log2(frequency) - std::log2(MIN_FREQ)) / (std::log2(MAX_FREQ) - std::log2(MIN_FREQ));
 
