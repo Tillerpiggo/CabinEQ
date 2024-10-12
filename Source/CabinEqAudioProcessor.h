@@ -132,8 +132,6 @@ public:
     void setPatternSolo (bool solo);
     
     // Sine sweep
-//    void startSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);
-//    void updateSineSweep (float centerFreq, std::optional<float> ampl = std::nullopt);
     void startSineSweep (float centerFreq, juce::String profileName);
     void updateSineSweep (float centerFreq, juce::String profileName);
     void endSineSweep();

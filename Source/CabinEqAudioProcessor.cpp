@@ -220,7 +220,6 @@ void CabinEqAudioProcessor::applyCurve (int fftSize, juce::String profileName)
                                                 profile->get().getPhaseCurve(),
                                                 fftSize);
     }
-        
 }
 
 void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
