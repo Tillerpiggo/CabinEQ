@@ -41,8 +41,8 @@ public:
     void setIsProcessing (bool isProcessing);
     void setVolume (float volume);
     
-    void startAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void updateAmplCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
+    void startAmplCalibration (float freq, float bandwidth);
+    void updateAmplCalibration (float freq, float bandwidth);
     void startPanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void updatePanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void startPhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);

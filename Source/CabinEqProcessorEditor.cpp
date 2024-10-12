@@ -11,7 +11,7 @@
 CabinEqProcessorEditor::CabinEqProcessorEditor(CabinEqAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), cabinEqPage (p)
 {
-    setSize(800, 620);
+    setSize (800, 620);
     addAndMakeVisible (cabinEqPage);
 }
 
@@ -23,7 +23,7 @@ CabinEqProcessorEditor::~CabinEqProcessorEditor()
 //==============================================================================
 void CabinEqProcessorEditor::paint(juce::Graphics& g)
 {
-    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    g.fillAll (getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 }
 
 void CabinEqProcessorEditor::resized()

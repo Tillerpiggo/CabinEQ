@@ -75,27 +75,27 @@ public:
     void setVolume (float volume);
     void setMutedGens (std::vector<bool> mutedGens);
     
-    // Profiles
-    void addProfile (juce::String profileName);
-    void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
-    void removeProfile (juce::String profileName);
-    void renameProfile (juce::String profileName, juce::String newProfileName);
-    const std::vector<juce::String> getProfileNames() const;
-    std::optional<std::reference_wrapper<CabinEqValueTree>> getProfileNamed (juce::String profileName) const;
-    
-    std::optional<juce::String> getLastSelectedProfileName();
-    void setLastSelectedProfileName (juce::String profileName);
+    // Calibration noises
+    void startNoisePatternAt (int id, juce::String profileName);
+    void updateNoisePatternAt (int id, juce::String profileName);
+    void stopNoisePattern();
+    void setNoisePatternSolo (bool solo);
     
     // Setting bands
     int addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName);
     void removeBand (const int id, juce::String profileName);
     void updateBand (const int id, const float freq, const float ampl, const float bandwidth, juce::String profileName);
     
-    // Calibration noises
-    void startNoisePatternAt (int id, juce::String profileName);
-    void updateNoisePatternAt (int id, juce::String profileName);
-    void stopNoisePattern();
-    void setNoisePatternSolo (bool solo);
+    // Profiles
+    void addProfile (juce::String profileName);
+    void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
+    void removeProfile (juce::String profileName);
+    void renameProfile (juce::String profileName, juce::String newProfileName);
+    const std::vector<juce::String> getProfileNames() const;
+    std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
+    
+    std::optional<juce::String> getLastSelectedProfileName();
+    void setLastSelectedProfileName (juce::String profileName);
     
     // Listener
     void addListener (Listener* listener);

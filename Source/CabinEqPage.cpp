@@ -14,7 +14,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     : processor (p), profileId ("NO_PROFILE")
      //, graphs (juce::TabbedButtonBar::Orientation::TabsAtTop)
 {
-    amplGraph = std::make_unique<CabinEqGraph>();
+    amplGraph = std::make_unique<CabinPeqGraph>();
 //    panGraph = std::make_unique<CabinEqGraph>();
 //    phaseGraph = std::make_unique<CabinEqGraph>();
     
@@ -112,110 +112,56 @@ void CabinEqPage::resized()
 }
 
 // ====================================================
-int CabinEqPage::addCurvePt (float freq, float val, CabinEqGraph* sender)
+int CabinEqPage::addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender)
 {
-    flagFilterChanged();
     if (sender == amplGraph.get())
     {
-        return processor.addAmplPt (freq, val, profileId);
+        return processor.addBand (freq, ampl, bandwidth, profileId);
     }
-//    else if (sender == panGraph.get())
-//    {
-//        return processor.addPanPt (freq, val, profileId);
-//    }
-//    else if (sender == phaseGraph.get())
-//    {
-//        return processor.addPhasePt (freq, val, profileId);
-//    }
     
-    std::cout << "WARNING: Add Curve Pt failed because sender was not ampl, pan, or phase graph";
     return -1;
 }
 
-void CabinEqPage::updateCurvePt (int id, float freq, float val, CabinEqGraph* sender)
-{
-    flagFilterChanged();
-    if (sender == amplGraph.get())
-    {
-        processor.updateAmplPt (id, freq, val, profileId);
-    }
-//    else if (sender == panGraph.get())
-//    {
-//        processor.updatePanPt (id, freq, val, profileId);
-//    }
-//    else if (sender == phaseGraph.get())
-//    {
-//        processor.updatePhasePt (id, freq, val, profileId);
-//    }
-}
-
-void CabinEqPage::removeCurvePt (int id, CabinEqGraph* sender)
-{
-    flagFilterChanged();
-    if (sender == amplGraph.get())
-    {
-        processor.removeAmplPt (id, profileId);
-    }
-//    else if (sender == panGraph.get())
-//    {
-//        processor.removePanPt (id, profileId);
-//    }
-//    else if (sender == phaseGraph.get())
-//    {
-//        processor.removePhasePt (id, profileId);
-//    }
-}
-
-void CabinEqPage::startPlayingValueAt (float freq, CabinEqGraph* sender)
+void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender)
 {
     if (sender == amplGraph.get())
     {
-        processor.startAmplCalibration (freq, profileId);
+        processor.updateBand (id, freq, ampl, bandwidth, profileId);
     }
-//    else if (sender == panGraph.get())
-//    {
-//        processor.startPanCalibration (freq, profileId);
-//    }
-//    else if (sender == phaseGraph.get())
-//    {
-//        processor.startPhaseCalibration (freq, profileId);
-//    }
 }
 
-void CabinEqPage::updatePlayingValueAt (float freq, CabinEqGraph* sender)
+void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
 {
     if (sender == amplGraph.get())
     {
-        processor.updateAmplCalibration (freq, profileId);
+        processor.removeBand (id, profileId);
     }
-//    else if (sender == panGraph.get())
-//    {
-//        processor.updatePanCalibration (freq, profileId);
-//    }
-//    else if (sender == phaseGraph.get())
-//    {
-//        processor.updatePhaseCalibration (freq, profileId);
-//    }
 }
 
-void CabinEqPage::stopPlaying()
+void CabinEqPage::startNoisePatternAt (int id, CabinPeqGraph* sender)
 {
-    processor.stopCalibration();
+    if (sender == amplGraph.get())
+    {
+        processor.startNoisePatternAt (id, profileId);
+    }
 }
 
-void CabinEqPage::setPatternSolo (bool solo)
+void CabinEqPage::updateNoisePatternAt (int id, CabinPeqGraph* sender)
 {
-    processor.setPatternSolo (solo);
+    if (sender == amplGraph.get())
+    {
+        processor.updateNoisePatternAt  (id, profileId);
+    }
 }
 
-float CabinEqPage::getCurrPlayingFreq()
+void CabinEqPage::stopNoisePattern()
 {
-    return processor.getCurrPlayingFreq();
+    processor.stopNoisePattern();
 }
 
-void CabinEqPage::userStoppedDoingShit()
+void CabinEqPage::setNoisePatternSolo (bool solo)
 {
-    applyFilter();
+    processor.setNoisePatternSolo (solo);
 }
 
 // ====================================================
@@ -449,14 +395,6 @@ void CabinEqPage::toggleBypass()
     amplGraph->setGrayscale (isBypassed);
 //    panGraph->setGrayscale (isBypassed);
 //    phaseGraph->setGrayscale (isBypassed);
-    updateButtonText();
-}
-
-void CabinEqPage::applyFilter()
-{
-    if (hasFilterChanged)
-        processor.applyCurve (fftSize, profileId);
-    hasFilterChanged = false;
     updateButtonText();
 }
 

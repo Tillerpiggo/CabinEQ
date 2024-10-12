@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
-#include "CabinEqGraph.h"
+#include "CabinPeqGraph.h"
 
 class CabinEqPage   : public juce::Component,
                       public juce::Slider::Listener,
@@ -30,15 +30,13 @@ public:
     void resized() override;
     
     // CabinEQGraphListener methods
-    int addCurvePt (float freq, float ampl, CabinEqGraph* sender) override;
-    void updateCurvePt (int id, float freq, float ampl, CabinEqGraph* sender) override;
-    void removeCurvePt (int id, CabinEqGraph* sender) override;
-    void startPlayingValueAt (float freq, CabinEqGraph* sender) override;
-    void updatePlayingValueAt (float freq, CabinEqGraph* sender) override;
-    void stopPlaying() override;
-    void setPatternSolo (bool solo) override;
-    float getCurrPlayingFreq() override;
-    void userStoppedDoingShit() override;
+    int addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
+    void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
+    void removeBand (int id, CabinPeqGraph* sender) override;
+    void startNoisePatternAt (int id, CabinPeqGraph* sender) override;
+    void updateNoisePatternAt (int id, CabinPeGraph* sender) override;
+    void stopNoisePattern() override;
+    void setNoisePatternSolo (bool solo) override;
     
     void sliderValueChanged (juce::Slider *slider) override;
     void textEditorTextChanged (juce::TextEditor& textEditor) override;
@@ -51,12 +49,6 @@ public:
     void buttonClicked (juce::Button *button) override;
     
     void didLoadData() override;
-    
-//    static const juce::Font getCabinFont()
-//    {
-//        static auto typeface = juce::Typeface::createSystemTypefaceFor (juce::BinaryData::CustomFont, juce::BinaryData::CustomFont_size);
-//        return Font (typeface);
-//    }
     
 protected:
     void flagFilterChanged();
@@ -84,10 +76,7 @@ protected:
     bool renamingProfile = false;
     int fftSize = 16;
     
-//    juce::TabbedComponent graphs;
-    std::unique_ptr<CabinEqGraph> amplGraph;
-//    std::unique_ptr<CabinEqGraph> panGraph;
-//    std::unique_ptr<CabinEqGraph> phaseGraph;
+    std::unique_ptr<CabinPeqGraph> amplGraph;
     juce::ComboBox profileDropdown;
     juce::ComboBox filterQualityDropdown;
     std::unique_ptr<juce::AlertWindow> alertWindow;

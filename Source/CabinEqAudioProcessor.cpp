@@ -21,7 +21,7 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), parameters (*this, nullptr, "Params", createParameterLayout()),
-                          cabinEqValueTreeManager (parameters)
+                          cabinEqProfileManager (parameters)
 
 #endif
 {
@@ -225,213 +225,86 @@ void CabinEqAudioProcessor::setMutedGens (std::vector<bool> mutedGens)
     playbackManager.setMutedGenerators (mutedGens);
 }
 
-int CabinEqAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().addAmplPt (freq, ampl);
-    return -1;
-}
-
-int CabinEqAudioProcessor::addPanPt (const float freq, const float pan, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().addPanPt (freq, pan);
-    return -1;
-}
-
-int CabinEqAudioProcessor::addPhasePt (const float freq, const float phase, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().addPhasePt (freq, phase);
-    return -1;
-}
-
-void CabinEqAudioProcessor::removeAmplPt (const int id, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().removeAmplPt (id);
-}
-
-void CabinEqAudioProcessor::removePanPt (const int id, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().removePanPt (id);
-}
-
-void CabinEqAudioProcessor::removePhasePt (const int id, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().removePhasePt (id);
-}
-
-void CabinEqAudioProcessor::updateAmplPt (const int id, const float freq, const float ampl, juce::String profileName)
-{
-    currProfileName = profileName; // super hacky
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().updateAmplPt (id, freq, ampl);
-}
-
-void CabinEqAudioProcessor::updatePanPt (const int id, const float freq, const float pan, juce::String profileName)
-{
-    currProfileName = profileName; // super hacky
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().updatePanPt (id, freq, pan);
-}
-
-void CabinEqAudioProcessor::updatePhasePt (const int id, const float freq, const float phase, juce::String profileName)
-{
-    currProfileName = profileName; // super hacky
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().updatePhasePt (id, freq, phase);
-}
-
-void CabinEqAudioProcessor::clearEQNodes (juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        profile->get().resetNodes();
-}
-
-void CabinEqAudioProcessor::startAmplCalibration (float freq, juce::String profileName)
+void CabinEqAudioProcessor::startNoisePatternAt (int id, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.startAmplCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-        playbackManager.setIsCalibrating (true);
+        auto band = profile->get().getBandWithId (id);
+        if (band.has_value())
+        {
+            playbackManager.startAmplCalibration (band->freq, band->bandwidth);
+            playbackManager.setIsCalibrating (true);
+        }
+        
     }
 }
 
-void CabinEqAudioProcessor::updateAmplCalibration (float freq, juce::String profileName)
+void CabinEqAudioProcessor::updateNoisePatternAt (int id, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        playbackManager.updateAmplCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-        playbackManager.setIsCalibrating (true);
+        auto band = profile->get().getBandWithId (id);
+        if (band.has_value())
+        {
+            playbackManager.updateAmplCalibration (band->freq, band->bandwidth);
+            playbackManager.setIsCalibrating (true);
+        }
     }
 }
 
-void CabinEqAudioProcessor::startPanCalibration (float freq, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.startPanCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-        playbackManager.setIsCalibrating (true);
-    }
-}
 
-void CabinEqAudioProcessor::updatePanCalibration (float freq, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.updatePanCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-        playbackManager.setIsCalibrating (true);
-    }
-}
 
-void CabinEqAudioProcessor::startPhaseCalibration (float freq, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.startPhaseCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-        playbackManager.setIsCalibrating (true);
-    }
-}
 
-void CabinEqAudioProcessor::updatePhaseCalibration (float freq, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.updatePhaseCalibration (freq,
-                                          profile->get().getAmplCurve(),
-                                          profile->get().getPanCurve(),
-                                          profile->get().getPhaseCurve());
-        playbackManager.setIsCalibrating (true);
-    }
-}
-
-void CabinEqAudioProcessor::stopCalibration()
+void CabinEqAudioProcessor::stopNoisePattern()
 {
     playbackManager.setIsCalibrating (false);
 }
 
-float CabinEqAudioProcessor::getCurrPlayingFreq()
-{
-    return playbackManager.getCurrPlayingFreq();
-}
-
-void CabinEqAudioProcessor::setPatternSolo (bool solo)
+void CabinEqAudioProcessor::setNoisePatternSolo (bool solo)
 {
     playbackManager.setPatternSolo (solo);
 }
 
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
 {
-    cabinEqValueTreeManager.addProfile (profileName);
+    cabinEqProfileManager.addProfile (profileName);
 }
 
 void CabinEqAudioProcessor::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
 {
-    cabinEqValueTreeManager.addDuplicateProfile (profileName, oldProfileName);
+    cabinEqProfileManager.addDuplicateProfile (profileName, oldProfileName);
 }
 
 void CabinEqAudioProcessor::removeProfile (juce::String profileName)
 {
-    cabinEqValueTreeManager.removeProfile (profileName);
+    cabinEqProfileManager.removeProfile (profileName);
 }
 
 void CabinEqAudioProcessor::renameProfile (juce::String profileName, juce::String newProfileName)
 {
-    cabinEqValueTreeManager.renameProfile (profileName, newProfileName);
+    cabinEqProfileManager.renameProfile (profileName, newProfileName);
 }
 
 const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const
 {
-    return cabinEqValueTreeManager.getProfileNames();
+    return cabinEqProfileManager.getProfileNames();
 }
 
 std::optional<std::reference_wrapper<CabinEqValueTree>> CabinEqAudioProcessor::getProfileNamed (juce::String profileName) const
 {
-    return cabinEqValueTreeManager.getProfileNamed (profileName);
+    return cabinEqProfileManager.getProfileNamed (profileName);
 }
 
 std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()
 {
-    return cabinEqValueTreeManager.getLastSelectedProfileName();
+    return cabinEqProfileManager.getLastSelectedProfileName();
 }
 
 void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName)
 {
-    cabinEqValueTreeManager.setLastSelectedProfileName (profileName);
+    cabinEqProfileManager.setLastSelectedProfileName (profileName);
 }
 
 void CabinEqAudioProcessor::addListener (Listener* listener)
