@@ -210,18 +210,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout CabinEqAudioProcessor::creat
 }
 
 //==============================================================================
-void CabinEqAudioProcessor::applyCurve (int fftSize, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        playbackManager.updateFilterWithCurves (profile->get().getAmplCurve(), 
-                                                profile->get().getPanCurve(),
-                                                profile->get().getPhaseCurve(),
-                                                fftSize);
-    }
-}
-
 void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
 {
     playbackManager.setIsProcessing (isProcessing);
@@ -235,65 +223,6 @@ void CabinEqAudioProcessor::setVolume (float volume)
 void CabinEqAudioProcessor::setMutedGens (std::vector<bool> mutedGens)
 {
     playbackManager.setMutedGenerators (mutedGens);
-}
-
-std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getAmplCurve (juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getAmplCurve();
-    std::cout << "unable to get ampl curve in pluginProcessor for profile named " << profileName << std::endl;
-    return std::nullopt;
-}
-
-std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getPanCurve (juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getPanCurve();
-    std::cout << "unable to get pan curve in pluginProcessor for profile named " << profileName << std::endl;
-    return std::nullopt;
-}
-
-std::optional<std::reference_wrapper<Curve>> CabinEqAudioProcessor::getPhaseCurve (juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getPhaseCurve();
-    std::cout << "unable to get pan curve in pluginProcessor for profile named " << profileName << std::endl;
-    return std::nullopt;
-}
-
-const std::vector<CurvePt> CabinEqAudioProcessor::getAmplPts (juce::String profileName) const
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getAmplPts();
-    return {};
-}
-
-const std::vector<CurvePt> CabinEqAudioProcessor::getPanPts (juce::String profileName) const
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getPanPts();
-    return {};
-}
-
-const std::optional<CurvePt> CabinEqAudioProcessor::getAmplPtWithId (int id, juce::String profileName) const
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getAmplPtWithId (id);
-    return std::nullopt;
-}
-
-const std::optional<CurvePt> CabinEqAudioProcessor::getPanPtWithId (int id, juce::String profileName) const
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-        return profile->get().getPanPtWithId (id);
-    return std::nullopt;
 }
 
 int CabinEqAudioProcessor::addAmplPt (const float freq, const float ampl, juce::String profileName)
