@@ -68,6 +68,12 @@ const std::vector<juce::String> CabinEqProfileManager::getProfileNames() const
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqProfileManager::getProfileNamed (juce::String profileName) const
 {
+    std::cout << "searching for profile named " << profileName << std::endl;
+    
+    for (int i = 0; i < profiles.size(); ++i)
+    {
+        std::cout << "Profile(name: " << profiles[i]->getName() << ")" << std::endl;
+    }
     for (int i = 0; i < profiles.size(); ++i)
         if (profiles[i]->getName() == profileName)
             return std::ref (*profiles[i]);

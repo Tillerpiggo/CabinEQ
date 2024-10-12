@@ -88,6 +88,7 @@ public:
     void renameProfile (juce::String profileName, juce::String newProfileName);
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
+    std::vector<Band> getBands (juce::String profileName);
     
     std::optional<juce::String> getLastSelectedProfileName();
     void setLastSelectedProfileName (juce::String profileName);

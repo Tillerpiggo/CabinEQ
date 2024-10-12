@@ -12,6 +12,7 @@
 
 CabinPeqGraph::CabinPeqGraph()
 {
+    startTimer (5);
 }
 
 CabinPeqGraph::~CabinPeqGraph()
@@ -59,12 +60,12 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
         selectedDotSize = DOT_SIZE_DRAGGING;
     
     // If we were going to add a band, do so here
-    if (isHoveringOnCenterLine && ! event.mods.isRightButtonDown())
+    if (addingFreq.has_value() && ! event.mods.isRightButtonDown())
     {
         // Add the band where we click
         draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH);
         selectedDotSize = DOT_SIZE_DRAGGING;
-        isHoveringOnCenterLine = false;
+        addingFreq.reset();
     }
     
     // If we right click and were hovering, delete the band
@@ -204,6 +205,37 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     // add necessary exceptions for the dragging/hovering band id, the ghost node, etc.
     
     // reference CabinEqGraph::drawDots for more specific outline
+    
+    for (const auto& band : bands)
+    {
+        // Draw a dot corresponding to the node
+        juce::Point<float> point = coordsForFrequencyAndAmplitude (band.freq, band.ampl);
+        juce::Colour dotColour = getColourForFrequency (band.freq);
+        
+        // Figure out the radius - it's different if it's hovering vs. dragging
+        float dotRadius = DOT_SIZE_DEFAULT;
+        if (band.id == hoveringId || band.id == draggingId)
+        {
+            dotRadius = selectedDotSize;
+        }
+        
+        drawDot (g, point, dotRadius, dotColour);
+    }
+    
+    // Draw the ghost node for adding
+    if (addingFreq.has_value())
+    {
+        // Figure out color of node
+        juce::Colour addingDotColour = getColourForFrequency (addingFreq.value()).withAlpha (0.5f);
+        
+        // Calculate coordinates of node
+        float addingAmpl = 0; // just put it directly on the line, for now
+        juce::Point<float> point = coordsForFrequencyAndAmplitude (addingFreq.value(), addingAmpl);
+        float addingDotRadius = DOT_SIZE_DEFAULT;
+        
+        // Draw node
+        drawDot (g, point, addingDotRadius, addingDotColour);
+    }
 }
 
 void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour)
@@ -223,9 +255,9 @@ void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
     
     // Show the ghost node to add if the mouse is on the center line
     if (ampl <= DIST_TO_ADD_DB)
-        isHoveringOnCenterLine = true;
+        addingFreq = freq;
     else
-        isHoveringOnCenterLine = false;
+        addingFreq.reset();
     
     // Figure out which node, if any, we're hovering over
     hoveringId = -1;
@@ -236,8 +268,8 @@ void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
         selectedDotSize = DOT_SIZE_DRAGGING;
         
         // If we'er hovering, we don't want to show the ghost node to add
-        if (isHoveringOnCenterLine)
-            isHoveringOnCenterLine = false;
+        if (addingFreq)
+            addingFreq.reset();
     }
 }
 
@@ -330,6 +362,7 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
 
 int CabinPeqGraph::addBand(float freq, float ampl, float bandwidth)
 {
+    std::cout << "adding band" << std::endl;
     if (listener == nullptr)
         return -1;
     return listener->addBand(freq, ampl, bandwidth, this);

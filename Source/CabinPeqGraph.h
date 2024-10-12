@@ -91,7 +91,7 @@ private:
     // Interaction variables
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
-    bool isHoveringOnCenterLine = false;
+    std::optional<float> addingFreq; // the frequency you are hovering over, if you're going to add a point. std::nullopt if you're not hovering in a place where you can add a node
     bool isPlayingNoisePattern = false;
     float selectedDotSize = DOT_SIZE_DEFAULT;
     

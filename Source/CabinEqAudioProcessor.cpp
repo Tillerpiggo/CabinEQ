@@ -294,6 +294,15 @@ std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::get
     return cabinEqProfileManager.getProfileNamed (profileName);
 }
 
+std::vector<Band> CabinEqAudioProcessor::getBands (juce::String profileName)
+{
+    std::vector<Band> bands;
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        bands = profile->get().getBands();
+    return bands;
+}
+
 std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()
 {
     return cabinEqProfileManager.getLastSelectedProfileName();
@@ -306,9 +315,14 @@ void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName
 
 int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName)
 {
+    std::cout << "adding band in processor" << std::endl;
     auto profile = profileNamed (profileName);
     if (profile.has_value())
+    {
+        std::cout << "adding band in profile" << std::endl;
         return profile->get().addBand (freq, ampl, bandwidth);
+    }
+        
     return -1;
 }
 
@@ -340,5 +354,6 @@ void CabinEqAudioProcessor::removeListener()
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const
 {
+    std::cout << "getting profile named " << profileName << std::endl;
     return cabinEqProfileManager.getProfileNamed (profileName);
 }

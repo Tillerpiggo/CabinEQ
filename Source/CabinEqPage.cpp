@@ -114,9 +114,12 @@ void CabinEqPage::resized()
 // ====================================================
 int CabinEqPage::addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender)
 {
+    std::cout << "Listener got adding band" << std::endl;
     if (sender == amplGraph.get())
     {
-        return processor.addBand (freq, ampl, bandwidth, profileId);
+        int addedBandId = processor.addBand (freq, ampl, bandwidth, profileId);
+        amplGraph->setBands (processor.getBands (profileId));
+        return addedBandId;
     }
     
     return -1;
@@ -127,6 +130,7 @@ void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, C
     if (sender == amplGraph.get())
     {
         processor.updateBand (id, freq, ampl, bandwidth, profileId);
+        amplGraph->setBands (processor.getBands (profileId));
     }
 }
 
@@ -135,6 +139,7 @@ void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
     if (sender == amplGraph.get())
     {
         processor.removeBand (id, profileId);
+        amplGraph->setBands (processor.getBands (profileId));
     }
 }
 
@@ -434,22 +439,10 @@ void CabinEqPage::unlockApp()
 
 void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
 {
-    // TODO: Implement this properly
-    
-//    profileId = profileIdToGoTo;
-//    auto amplCurve = processor.getAmplCurve (profileIdToGoTo);
-//    auto panCurve = processor.getPanCurve (profileIdToGoTo);
-//    auto phaseCurve = processor.getPhaseCurve (profileIdToGoTo);
-//    if (amplCurve.has_value() && panCurve.has_value() && phaseCurve.has_value())
-//    {
-//        amplGraph->setCurve (amplCurve->get());
-////        panGraph->setCurve (panCurve->get());
-////        phaseGraph->setCurve (phaseCurve->get());
-//        flagFilterChanged();
-//        applyFilter();
-//        processor.setLastSelectedProfileName (profileId);
-//        profileDropdown.setText (profileIdToGoTo);
-//    }
+    profileId = profileIdToGoTo;
+    amplGraph->setBands (processor.getBands (profileId));
+    processor.setLastSelectedProfileName (profileId);
+    profileDropdown.setText (profileIdToGoTo);
 }
 
 bool CabinEqPage::isDuplicateProfileName (juce::String profileName)
