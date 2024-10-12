@@ -338,12 +338,6 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             case 4:
                 fftSize = 10;
         }
-        
-        if (fftSize != fftSizeBefore)
-        {
-            flagFilterChanged();
-            applyFilter();
-        }
     }
 }
 
@@ -369,7 +363,6 @@ void CabinEqPage::didLoadData()
     if (lastSelectedProfileName.has_value())
     {
         goToProfileWithId (lastSelectedProfileName.value());
-        applyFilter();
         loadDropdownOptions();
     }
     
@@ -383,12 +376,6 @@ void CabinEqPage::didLoadData()
 }
 
 //=========================================
-void CabinEqPage::flagFilterChanged()
-{
-    hasFilterChanged = true;
-    updateButtonText();
-}
-
 void CabinEqPage::toggleBypass()
 {
     isBypassed = ! isBypassed;
@@ -447,20 +434,22 @@ void CabinEqPage::unlockApp()
 
 void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
 {
-    profileId = profileIdToGoTo;
-    auto amplCurve = processor.getAmplCurve (profileIdToGoTo);
-    auto panCurve = processor.getPanCurve (profileIdToGoTo);
-    auto phaseCurve = processor.getPhaseCurve (profileIdToGoTo);
-    if (amplCurve.has_value() && panCurve.has_value() && phaseCurve.has_value())
-    {
-        amplGraph->setCurve (amplCurve->get());
-//        panGraph->setCurve (panCurve->get());
-//        phaseGraph->setCurve (phaseCurve->get());
-        flagFilterChanged();
-        applyFilter();
-        processor.setLastSelectedProfileName (profileId);
-        profileDropdown.setText (profileIdToGoTo);
-    }
+    // TODO: Implement this properly
+    
+//    profileId = profileIdToGoTo;
+//    auto amplCurve = processor.getAmplCurve (profileIdToGoTo);
+//    auto panCurve = processor.getPanCurve (profileIdToGoTo);
+//    auto phaseCurve = processor.getPhaseCurve (profileIdToGoTo);
+//    if (amplCurve.has_value() && panCurve.has_value() && phaseCurve.has_value())
+//    {
+//        amplGraph->setCurve (amplCurve->get());
+////        panGraph->setCurve (panCurve->get());
+////        phaseGraph->setCurve (phaseCurve->get());
+//        flagFilterChanged();
+//        applyFilter();
+//        processor.setLastSelectedProfileName (profileId);
+//        profileDropdown.setText (profileIdToGoTo);
+//    }
 }
 
 bool CabinEqPage::isDuplicateProfileName (juce::String profileName)

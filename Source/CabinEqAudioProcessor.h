@@ -81,11 +81,6 @@ public:
     void stopNoisePattern();
     void setNoisePatternSolo (bool solo);
     
-    // Setting bands
-    int addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName);
-    void removeBand (const int id, juce::String profileName);
-    void updateBand (const int id, const float freq, const float ampl, const float bandwidth, juce::String profileName);
-    
     // Profiles
     void addProfile (juce::String profileName);
     void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
@@ -96,6 +91,12 @@ public:
     
     std::optional<juce::String> getLastSelectedProfileName();
     void setLastSelectedProfileName (juce::String profileName);
+    
+    // Setting bands
+    int addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName);
+    void updateBand (const int id, const float freq, const float ampl, const float bandwidth, juce::String profileName);
+    void removeBand (const int id, juce::String profileName);
+    
     
     // Listener
     void addListener (Listener* listener);

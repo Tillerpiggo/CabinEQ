@@ -180,7 +180,7 @@ void CabinEqAudioProcessor::setStateInformation (const void* data, int sizeInByt
         if (xmlState->hasTagName(parameters.state.getType()))
         {
             parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-            cabinEqValueTreeManager.initProfiles();
+            cabinEqProfileManager.initProfiles();
             
             if (! hasLoadedData)
             {
@@ -254,9 +254,6 @@ void CabinEqAudioProcessor::updateNoisePatternAt (int id, juce::String profileNa
     }
 }
 
-
-
-
 void CabinEqAudioProcessor::stopNoisePattern()
 {
     playbackManager.setIsCalibrating (false);
@@ -292,7 +289,7 @@ const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const
     return cabinEqProfileManager.getProfileNames();
 }
 
-std::optional<std::reference_wrapper<CabinEqValueTree>> CabinEqAudioProcessor::getProfileNamed (juce::String profileName) const
+std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::getProfileNamed (juce::String profileName) const
 {
     return cabinEqProfileManager.getProfileNamed (profileName);
 }
@@ -307,6 +304,30 @@ void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName
     cabinEqProfileManager.setLastSelectedProfileName (profileName);
 }
 
+int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        return profile->get().addBand (freq, ampl, bandwidth);
+    return -1;
+}
+
+void CabinEqAudioProcessor::updateBand (const int id, const float freq, const float ampl, const float bandwidth, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().updateBand (id, freq, ampl, bandwidth);
+}
+
+void CabinEqAudioProcessor::removeBand (const int id, juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        profile->get().removeBand (id);
+}
+
+
+
 void CabinEqAudioProcessor::addListener (Listener* listener)
 {
     this->listeners.push_back (listener);
@@ -317,7 +338,7 @@ void CabinEqAudioProcessor::removeListener()
     // VERY BAD FIX THIS: eh whatever
 }
 
-std::optional<std::reference_wrapper<CabinEqValueTree>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const
+std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const
 {
-    return cabinEqValueTreeManager.getProfileNamed (profileName);
+    return cabinEqProfileManager.getProfileNamed (profileName);
 }

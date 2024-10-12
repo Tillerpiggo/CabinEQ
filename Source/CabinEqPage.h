@@ -19,7 +19,7 @@ class CabinEqPage   : public juce::Component,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
                       public juce::Button::Listener,
-                      public CabinEqGraph::Listener,
+                      public CabinPeqGraph::Listener,
                       public CabinEqAudioProcessor::Listener
 {
 public:
@@ -34,7 +34,7 @@ public:
     void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void removeBand (int id, CabinPeqGraph* sender) override;
     void startNoisePatternAt (int id, CabinPeqGraph* sender) override;
-    void updateNoisePatternAt (int id, CabinPeGraph* sender) override;
+    void updateNoisePatternAt (int id, CabinPeqGraph* sender) override;
     void stopNoisePattern() override;
     void setNoisePatternSolo (bool solo) override;
     
@@ -51,9 +51,7 @@ public:
     void didLoadData() override;
     
 protected:
-    void flagFilterChanged();
     void toggleBypass();
-    void applyFilter();
     void loadDropdownOptions();
     void dismissAlertWindow();
     void updateButtonText();
