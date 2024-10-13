@@ -52,9 +52,6 @@ public:
     void setMelodicPattern (std::vector<int> notesInSemitones, float centerFreq, float bandwidth, float noteDurationInMs);
     void setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs); // assumes that len(notesInSemitones) == len(pans). Pans should be from [-1, 1]
     void setCenterFrequency (float centerFrequency);
-    void setAmplCurve (Curve& amplCurve);
-    void setPanCurve (Curve& panCurve);
-    void setPhaseCurve (Curve& phaseCurve);
     std::pair<float, float> getNextSample();
 
 private:
@@ -62,7 +59,7 @@ private:
     void updateBandpassAndPanning();
     void goToNextNote();
 
-    SpatialNoiseGenerator noiseGenerator;
+//    SpatialNoiseGenerator noiseGenerator;
     int numSamplesNoteHasBeenPlaying;
     int currNoteIdx;
     float centerFrequency;

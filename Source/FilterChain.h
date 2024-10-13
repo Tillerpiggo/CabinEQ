@@ -17,7 +17,7 @@ using Coefficients = juce::dsp::IIR::Coefficients<float>;
 class FilterChain
 {
 public:
-    void addParametricBand (double centerFreq, double qFactor, float amplInDB)
+    void addParametricBand (double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
         auto coefficients = Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor, juce::Decibels::decibelsToGain (amplInDB));
         addFilter (coefficients);

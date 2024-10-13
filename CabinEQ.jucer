@@ -77,8 +77,6 @@
       <GROUP id="{BBD4AE00-CC92-9DE7-D5E8-A037D1509C11}" name="Audio Processing">
         <FILE id="Ix4Abh" name="FilterChain.h" compile="0" resource="0" file="Source/FilterChain.h"/>
       </GROUP>
-      <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
-      <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
       <FILE id="s3hCoT" name="BandEqCurve.cpp" compile="1" resource="0" file="Source/BandEqCurve.cpp"/>
       <FILE id="ZovMg5" name="BandEqCurve.h" compile="0" resource="0" file="Source/BandEqCurve.h"/>
       <FILE id="Uf5qZJ" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>

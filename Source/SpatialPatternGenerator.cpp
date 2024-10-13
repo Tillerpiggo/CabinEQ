@@ -17,23 +17,8 @@ SpatialPatternGenerator::SpatialPatternGenerator()
 
 void SpatialPatternGenerator::setSampleRate (float sampleRate)
 {
-    noiseGenerator.setSampleRate (sampleRate);
+//    noiseGenerator.setSampleRate (sampleRate);
     this->sampleRate = sampleRate;
-}
-
-void SpatialPatternGenerator::setAmplCurve (Curve& amplCurve)
-{
-    noiseGenerator.setAmplCurve (amplCurve);
-}
-
-void SpatialPatternGenerator::setPanCurve (Curve& panCurve)
-{
-    noiseGenerator.setPanCurve (panCurve);
-}
-
-void SpatialPatternGenerator::setPhaseCurve (Curve& phaseCurve)
-{
-    noiseGenerator.setPhaseCurve (phaseCurve);
 }
 
 void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
@@ -75,7 +60,7 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
     if (currNoteIdx < 0 || currNoteIdx >= notes.size())
         return { 0, 0 };
     
-    std::pair<float, float> sample = noiseGenerator.getNextSample();
+    std::pair<float, float> sample { 0.0f, 0.0f }; // THIS IS CURRENTLY SILENT - TODO CREATE NEW NOISE GENERATOR CLASS
     
     numSamplesNoteHasBeenPlaying++;
     if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)
@@ -118,12 +103,6 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
         bandpassFrequency *= centerFrequency;
     
     // Adjust leftgain and rightgain according to the curr note's angle
-//    float angle = getCurrNote().pan * M_PI / 4.0f; // go from [-1, 1] to [-pi/4, pi/4]
-//    leftGain = std::sqrt (2.0f) / 2.0f * (std::cos (angle) - std::sin(angle));
-//    rightGain = std::sqrt (2.0f) / 2.0f * (std::cos(angle) + std::sin(angle));
-//    leftGain *= juce::Decibels::decibelsToGain (getCurrNote().ampl);
-//    rightGain *= juce::Decibels::decibelsToGain (getCurrNote().ampl);
-    
     float angle = (getCurrNote().pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
     leftGain = std::cos(angle);
     rightGain = std::sin(angle);
@@ -131,5 +110,5 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
     leftGain *= gainChange;
     rightGain *= gainChange;
     
-    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth, getCurrNote().bandwidthEnvelope.first, getCurrNote().bandwidthEnvelope.second);
+//    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth, getCurrNote().bandwidthEnvelope.first, getCurrNote().bandwidthEnvelope.second);
 }

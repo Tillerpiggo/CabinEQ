@@ -11,13 +11,12 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "ArbitraryResponseFilter.h"
-#include "ArbitrarySequencer.h"
-#include "SineSweepGenerator.h"
 #include "PinkNoiseGenerator.h"
 #include "Constants.h"
 #include "SpatialPatternGenerator.h"
 #include "MelodicNotes.h"
+#include "BandProfile.h"
+#include "FilterChain.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -29,24 +28,16 @@ public:
 
     void processBlock (juce::AudioBuffer<float>& buffer);
     
-    void updateFilterWithCurves (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, int fftSize); // update the current filter with the curve
+    void updateFilterWithBands (std::vector<Band> bands);
     void prepare (const juce::dsp::ProcessSpec& spec);
     
-    float getCurrPlayingFreq() const;
-    float getCurrSineSweepFreq() const;
-    
     void setIsTesting (bool isTesting);
-    void setIsSweeping (bool isSweeping);
     void setIsCalibrating (bool isCalibrating);
     void setIsProcessing (bool isProcessing);
     void setVolume (float volume);
     
     void startAmplCalibration (float freq, float bandwidth);
     void updateAmplCalibration (float freq, float bandwidth);
-    void startPanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void updatePanCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void startPhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
-    void updatePhaseCalibration (float freq, Curve& amplCurve, Curve& panCurve, Curve& phaseCurve);
     void setPatternSolo (bool solo);
     
     void setMutedGenerators (std::vector<bool> mutedGens); // takes a vector of length 4 with bools for if each generate is muted (true) or not (false)
@@ -60,12 +51,9 @@ public:
     
 private:
     std::pair<float, float> getNextSample();
-    void updateGenerators (Curve& amplCurve, Curve& panCurve, Curve& phaseCurve, float freq);
-    
-    const int FFT_SIZE = 15;
     
     // Audio processing
-    ArbitraryResponseFilter filter;
+    FilterChain filter;
     juce::dsp::Gain<float> gainProcessor;
     float volume = 0.0f; // in dB
     
@@ -76,12 +64,6 @@ private:
     SpatialPatternGenerator spatialPatternGenerator4;
     SpatialPatternGenerator spatialPatternGenerator5;
     SpatialPatternGenerator spatialPatternGenerator6;
-    SpatialNoiseGenerator spatialNoiseGenerator;
-    ArbitrarySequencer arbitrarySequencer;
-    ArbitrarySequencer arbitrarySequencer2;
-    ArbitrarySequencer arbitrarySequencer3;
-    ArbitrarySequencer arbitrarySequencer4;
-    ArbitrarySequencer arbitrarySequencer5;
     
     bool isCalibrating;
     bool isProcessing;

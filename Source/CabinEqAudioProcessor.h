@@ -9,7 +9,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Curve.h"
 #include "PlaybackManager.h"
 #include "CabinEqProfileManager.h"
 
