@@ -54,6 +54,7 @@ private:
     
     // Audio processing
     FilterChain filter;
+    juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> gainProcessor;
     float volume = 0.0f; // in dB
     

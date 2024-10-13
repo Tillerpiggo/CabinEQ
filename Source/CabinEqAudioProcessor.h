@@ -93,10 +93,10 @@ public:
     void setLastSelectedProfileName (juce::String profileName);
     
     // Setting bands
+    void updateFilter (juce::String profileName); // updates the filter to match whatever bands are associated with profileName
     int addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName);
     void updateBand (const int id, const float freq, const float ampl, const float bandwidth, juce::String profileName);
     void removeBand (const int id, juce::String profileName);
-    
     
     // Listener
     void addListener (Listener* listener);

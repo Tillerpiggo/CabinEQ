@@ -119,6 +119,7 @@ int CabinEqPage::addBand (float freq, float ampl, float bandwidth, CabinPeqGraph
     {
         int addedBandId = processor.addBand (freq, ampl, bandwidth, profileId);
         amplGraph->setBands (processor.getBands (profileId));
+        processor.updateFilter (profileId);
         return addedBandId;
     }
     
@@ -131,6 +132,7 @@ void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, C
     {
         processor.updateBand (id, freq, ampl, bandwidth, profileId);
         amplGraph->setBands (processor.getBands (profileId));
+        processor.updateFilter (profileId);
     }
 }
 
@@ -140,6 +142,7 @@ void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
     {
         processor.removeBand (id, profileId);
         amplGraph->setBands (processor.getBands (profileId));
+        processor.updateFilter (profileId);
     }
 }
 
@@ -443,6 +446,7 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     amplGraph->setBands (processor.getBands (profileId));
     processor.setLastSelectedProfileName (profileId);
     profileDropdown.setText (profileIdToGoTo);
+    processor.updateFilter (profileId);
 }
 
 bool CabinEqPage::isDuplicateProfileName (juce::String profileName)

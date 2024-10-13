@@ -313,13 +313,18 @@ void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName
     cabinEqProfileManager.setLastSelectedProfileName (profileName);
 }
 
+void CabinEqAudioProcessor::updateFilter (juce::String profileName)
+{
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+        playbackManager.updateFilterWithBands (profile->get().getBands());
+}
+
 int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName)
 {
-    std::cout << "adding band in processor" << std::endl;
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        std::cout << "adding band in profile" << std::endl;
         return profile->get().addBand (freq, ampl, bandwidth);
     }
         

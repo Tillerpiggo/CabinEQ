@@ -17,6 +17,16 @@ using Coefficients = juce::dsp::IIR::Coefficients<float>;
 class FilterChain
 {
 public:
+    void setBands (std::vector<Band> bands, double sampleRate)
+    {
+        this->filters.clear();
+        for (const auto& band : bands)
+        {
+            double Q = std::sqrt (std::pow (2, band.bandwidth)) / (std::pow (2, band.bandwidth) - 1);
+            addParametricBand (sampleRate, band.freq, Q, band.ampl);
+        }
+    }
+    
     void addParametricBand (double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
         auto coefficients = Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor, juce::Decibels::decibelsToGain (amplInDB));

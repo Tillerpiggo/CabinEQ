@@ -45,8 +45,15 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     }
 }
 
+void PlaybackManager::updateFilterWithBands (std::vector<Band> bands)
+{
+    filter.setBands (bands, spec.sampleRate);
+    filter.prepare (spec);
+}
+
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
+    this->spec = spec;
     filter.prepare (spec);
     spatialPatternGenerator.setSampleRate (spec.sampleRate);
     spatialPatternGenerator2.setSampleRate (spec.sampleRate);
