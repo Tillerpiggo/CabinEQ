@@ -30,17 +30,12 @@ const float BandEqCurve::dbAtFrequencyForBand (Band band, float frequency) const
     // Compute frequency difference in octaves
     float x = std::log2(frequency / band.freq);
     
-    // Compute denominator
-    float denom = 1.0f + std::pow((2.0f * x) / band.bandwidth, 2.0f);
+    // Calculate exponent for the exponential function
+    float ln2 = std::log(2.0f);
+    float exponent = -ln2 * (4.0f * x * x) / (band.bandwidth * band.bandwidth);
     
-    // Calculate linear gain factor
-    float K = std::pow(10.0f, band.ampl / 20.0f);
+    // Compute gain in dB directly
+    float gainDB = band.ampl * std::exp(exponent);
     
-    // Calculate gain
-    float gain = 1.0f + (K - 1.0f) / denom;
-    
-    // Convert gain to dB
-    float db = 20.0f * std::log10(gain);
-
-    return db;
+    return gainDB;
 }
