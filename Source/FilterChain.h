@@ -50,10 +50,17 @@ public:
     
     void process (juce::dsp::AudioBlock<float>& block)
     {
-        juce::dsp::ProcessContextReplacing<float> context (block);
-        for (auto& filter : filters)
+        auto numChannels = block.getNumChannels();
+            
+        for (size_t channel = 0; channel < numChannels; ++channel)
         {
-            filter->process (context);
+            auto channelBlock = block.getSingleChannelBlock(channel);
+            juce::dsp::ProcessContextReplacing<float> context(channelBlock);
+            
+            for (auto& filter : filters)
+            {
+                filter->process(context);
+            }
         }
     }
     
