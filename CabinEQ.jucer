@@ -98,6 +98,8 @@
       </GROUP>
       <FILE id="WZy5Z8" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
       <FILE id="XDG3JK" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
+      <FILE id="s3hCoT" name="BandEqCurve.cpp" compile="1" resource="0" file="Source/BandEqCurve.cpp"/>
+      <FILE id="ZovMg5" name="BandEqCurve.h" compile="0" resource="0" file="Source/BandEqCurve.h"/>
       <FILE id="Uf5qZJ" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
       <GROUP id="{AA285256-86FA-52FF-85FF-CCD91324CB09}" name="include">
         <GROUP id="{E26A6BE3-15D3-E830-43B8-5F7E4AF14F35}" name="xsimd">

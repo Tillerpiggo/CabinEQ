@@ -354,6 +354,5 @@ void CabinEqAudioProcessor::removeListener()
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const
 {
-    std::cout << "getting profile named " << profileName << std::endl;
     return cabinEqProfileManager.getProfileNamed (profileName);
 }

@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
 #include "BandProfile.h"
+#include "BandEqCurve.h"
 
 class CabinPeqGraph  : public juce::Component,
                        public juce::KeyListener,
@@ -111,6 +112,7 @@ private:
     float DEFAULT_BANDWIDTH = 2.0f;
     
     // Visual constants
+    static constexpr float NUM_POINTS = 1000; // num points used to render the curve
     static constexpr float DOT_SIZE_SELECTED = 5.5f;
     static constexpr float DOT_SIZE_DRAGGING = 8.0f;
     static constexpr float DOT_SIZE_DEFAULT = 3.5f;
@@ -120,4 +122,7 @@ private:
     
     // Visual flags
     bool isGrayscale = false;
+    
+    // BandEqCurve
+    BandEqCurve curve;
 };

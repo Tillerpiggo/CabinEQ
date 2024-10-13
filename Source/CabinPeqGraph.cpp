@@ -23,6 +23,7 @@ CabinPeqGraph::~CabinPeqGraph()
 void CabinPeqGraph::setBands (std::vector<Band> bands)
 {
     this->bands = bands;
+    this->curve.updateWithBands (bands);
 }
 
 void CabinPeqGraph::paint (juce::Graphics& g)
@@ -56,6 +57,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     lastDistanceFromDragStartX = 0;
     
     // If we were hovering over a band node, we should now drag it
+    draggingId = hoveringId;
     if (draggingId != -1)
         selectedDotSize = DOT_SIZE_DRAGGING;
     
@@ -191,7 +193,26 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 // =============================================
 void CabinPeqGraph::drawCurve (juce::Graphics& g)
 {
-    // TODO - we won't draw the curve for now
+    // Get the gradient for the curve
+    juce::Colour curveColour = juce::Colours::lightblue;
+    juce::Path path;
+    
+    g.setColour (curveColour);
+    
+    // Draw curve with NUM_POINTS points
+    for (int i = 0; i < NUM_POINTS; ++i)
+    {
+        float t = static_cast<float> (i) / static_cast<float> (NUM_POINTS);
+        
+        float freq = frequencyAtTime (t);
+        float ampl = curve.dbAtFrequency (freq);
+        juce::Point<float> coords = coordsForFrequencyAndAmplitude (freq, ampl);
+        if (i == 0)
+            path.startNewSubPath (coords);
+        else
+            path.lineTo (coords);
+    }
+    g.strokePath (path, juce::PathStrokeType (CURVE_THICKNESS));
 }
 
 void CabinPeqGraph::drawDots (juce::Graphics& g)
@@ -368,7 +389,7 @@ int CabinPeqGraph::addBand(float freq, float ampl, float bandwidth)
     return listener->addBand(freq, ampl, bandwidth, this);
 }
 
-void CabinPeqGraph::updateBand(int id, float freq, float ampl, float bandwidth)
+void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth)
 {
     if (listener != nullptr)
         listener->updateBand(id, freq, ampl, bandwidth, this);
