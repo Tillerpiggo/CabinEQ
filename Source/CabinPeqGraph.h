@@ -109,7 +109,7 @@ private:
     static constexpr float HOVER_MIN_DIST = 0.5f;
     float MAX_DB = 36.0f;
     float MIN_DB = -36.0f;
-    float DEFAULT_BANDWIDTH = 2.0f;
+    float DEFAULT_BANDWIDTH = 1.0f;
     
     // Visual constants
     static constexpr float NUM_POINTS = 1000; // num points used to render the curve

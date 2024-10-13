@@ -27,6 +27,20 @@ void BandEqCurve::updateWithBands (std::vector<Band> bands)
 
 const float BandEqCurve::dbAtFrequencyForBand (Band band, float frequency) const
 {
-    float db = 1.0f + (std::pow (10.0f, band.ampl / 20.0f) - 1.0f) * 1.0f / (1.0f + ((frequency - band.freq) / (band.bandwidth / 2.0f)));
+    // Compute frequency difference in octaves
+    float x = std::log2(frequency / band.freq);
+    
+    // Compute denominator
+    float denom = 1.0f + std::pow((2.0f * x) / band.bandwidth, 2.0f);
+    
+    // Calculate linear gain factor
+    float K = std::pow(10.0f, band.ampl / 20.0f);
+    
+    // Calculate gain
+    float gain = 1.0f + (K - 1.0f) / denom;
+    
+    // Convert gain to dB
+    float db = 20.0f * std::log10(gain);
+
     return db;
 }
