@@ -50,6 +50,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
 {
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    auto coords = getEventCoords (event);
     
     soloNoisePatternIfAppropriate (event);
     
@@ -61,8 +62,8 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     if (draggingId != -1)
     {
         selectedDotSize = DOT_SIZE_DRAGGING;
-        startDragPosition = { freq, ampl };
-        lastDragPosition = { freq, ampl };
+        startDragPosition = coords;
+        lastDragPosition = coords;
         dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
         dragOffsetWhileAdjustingBandwidth = { 0.0f, 0.0f };
     }
@@ -73,8 +74,8 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
         // Add the band where we click
         draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH);
         selectedDotSize = DOT_SIZE_DRAGGING;
-        startDragPosition = { freq, ampl };
-        lastDragPosition = { freq, ampl };
+        startDragPosition = coords;
+        lastDragPosition = coords;
         startDragBandwidth = DEFAULT_BANDWIDTH;
         dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
         dragOffsetWhileAdjustingBandwidth = { 0.0f, 0.0f };
@@ -106,7 +107,7 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
         updateBandFromDrag (event);
         updateNoisePatternAt (draggingId);
         
-        lastDragPosition = { freq, ampl };
+        lastDragPosition = getEventCoords (event);
     }
     
     // If we're not dragging a node, we're dragging in the blackspace and should drag the graph itself
@@ -383,6 +384,11 @@ juce::ColourGradient CabinPeqGraph::getCurveGradient()
     return gradient;
 }
 
+std::pair<float, float> CabinPeqGraph::getEventCoords (const juce::MouseEvent& event) const
+{
+    return { event.getPosition().getX() - getX(), event.getPosition().getY() - getY() };
+}
+
 juce::Point<float> CabinPeqGraph::coordsForFrequencyAndAmplitude (float freq, float ampl)
 {
     // Calculate (x, y) coords and return
@@ -390,6 +396,22 @@ juce::Point<float> CabinPeqGraph::coordsForFrequencyAndAmplitude (float freq, fl
     float y = getHeight() * (1.0f - (ampl - MIN_DB) / (MAX_DB - MIN_DB));
     
     return { x + getX(), y + getY() };
+}
+
+std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForCoords (float x, float y) const
+{
+    // Calculate frequency of x
+    float freq = frequencyAtTime (x / getWidth());
+    
+    // Calculate amplitude of y
+    float normalizedY = y / getHeight();
+    float ampl = (1.0f - normalizedY) * (MAX_DB - MIN_DB) + MIN_DB;
+    
+    // Bound freq/ampl inside the visible window
+    freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
+    ampl = std::min (std::max (ampl, MIN_DB), MAX_DB);
+    
+    return { freq, ampl };
 }
 
 float CabinPeqGraph::frequencyAtTime (float t) const
@@ -417,18 +439,7 @@ std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForMouseEvent (const
     float x = event.getPosition().x - getX();
     float y = event.getPosition().y - getY();
     
-    // Calculate frequency of mouse event
-    float freq = frequencyAtTime (x / getWidth());
-    
-    // Calculate amplitude of mouse event
-    float normalizedY = y / getHeight();
-    float ampl = (1.0f - normalizedY) * (MAX_DB - MIN_DB) + MIN_DB;
-    
-    // Bound freq/ampl inside the visible window
-    freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
-    ampl = std::min (std::max (ampl, MIN_DB), MAX_DB);
-    
-    return { freq, ampl };
+    return frequencyAndAmplitudeForCoords (x, y);
 }
 
 float CabinPeqGraph::mouseEventDistanceFromBand (const juce::MouseEvent& event, Band band) const
@@ -478,22 +489,23 @@ void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth)
 
 void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
 {
-    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    auto currPos = getEventCoords (event);
     
     if (event.mods.isShiftDown())
     {
-        dragOffsetWhileAdjustingBandwidth.first += freq - lastDragPosition.first;
-        dragOffsetWhileAdjustingBandwidth.second += ampl - lastDragPosition.second;
+        dragOffsetWhileAdjustingBandwidth.first += currPos.first - lastDragPosition.first;
+        dragOffsetWhileAdjustingBandwidth.second += currPos.second - lastDragPosition.second;
     }
     else
     {
-        dragOffsetWhileAdjustingPosition.first += freq - lastDragPosition.first;
-        dragOffsetWhileAdjustingPosition.second += ampl - lastDragPosition.second;
+        dragOffsetWhileAdjustingPosition.first += currPos.first - lastDragPosition.first;
+        dragOffsetWhileAdjustingPosition.second += currPos.second - lastDragPosition.second;
     }
     
     // Update dragging node a final time
-    float currFreq = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
-    float currAmpl = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
+    float newX = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
+    float newY = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
+    auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
     float currBandwidth = startDragBandwidth / std::pow (1.2, dragOffsetWhileAdjustingBandwidth.second);
     
     updateBand (draggingId, currFreq, currAmpl, currBandwidth);

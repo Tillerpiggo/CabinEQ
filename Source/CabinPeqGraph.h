@@ -73,7 +73,9 @@ private:
     juce::ColourGradient getCurveGradient();
     
     // Coordinates
+    std::pair<float, float> getEventCoords (const juce::MouseEvent& event) const;
     juce::Point<float> coordsForFrequencyAndAmplitude (float freq, float ampl);
+    std::pair<float, float> frequencyAndAmplitudeForCoords (float x, float y) const;
     float frequencyAtTime (float t) const;
     float timeAtFrequency (float freq) const;
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
