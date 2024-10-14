@@ -83,6 +83,7 @@ private:
     // Utils to handle calls to the listener if listener is nullptr
     int addBand (float freq, float ampl, float bandwidth);
     void updateBand (int id, float freq, float ampl, float bandwidth);
+    void updateBandFromDrag (const juce::MouseEvent& event);
     void removeBand (int id);
     void startNoisePatternAt (int id);
     void updateNoisePatternAt (int id);

@@ -103,22 +103,7 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
     // If we're dragging a node, update it to our mouse position
     if (draggingId != -1)
     {
-        if (event.mods.isShiftDown())
-        {
-            dragOffsetWhileAdjustingBandwidth.first += freq - lastDragPosition.first;
-            dragOffsetWhileAdjustingBandwidth.second += ampl - lastDragPosition.second;
-        }
-        else
-        {
-            dragOffsetWhileAdjustingPosition.first += freq - lastDragPosition.first;
-            dragOffsetWhileAdjustingPosition.second += ampl - lastDragPosition.second;
-        }
-        
-        float currFreq = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
-        float currAmpl = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
-        float currBandwidth = startDragBandwidth / std::pow (1.2, dragOffsetWhileAdjustingBandwidth.second);
-        
-        updateBand (draggingId, currFreq, currAmpl, currBandwidth);
+        updateBandFromDrag (event);
         updateNoisePatternAt (draggingId);
         
         lastDragPosition = { freq, ampl };
@@ -148,24 +133,7 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
-    // TODO: Fix DRY violation
-    if (event.mods.isShiftDown())
-    {
-        dragOffsetWhileAdjustingBandwidth.first += freq - lastDragPosition.first;
-        dragOffsetWhileAdjustingBandwidth.second += ampl - lastDragPosition.second;
-    }
-    else
-    {
-        dragOffsetWhileAdjustingPosition.first += freq - lastDragPosition.first;
-        dragOffsetWhileAdjustingPosition.second += ampl - lastDragPosition.second;
-    }
-    
-    // Update dragging node a final time
-    float currFreq = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
-    float currAmpl = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
-    float currBandwidth = startDragBandwidth / std::pow (1.2, dragOffsetWhileAdjustingBandwidth.second);
-    
-    updateBand (draggingId, currFreq, currAmpl, currBandwidth);
+    updateBandFromDrag (event);
     draggingId = -1;
     
     dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
@@ -506,6 +474,29 @@ void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth)
 {
     if (listener != nullptr)
         listener->updateBand(id, freq, ampl, bandwidth, this);
+}
+
+void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
+{
+    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
+    
+    if (event.mods.isShiftDown())
+    {
+        dragOffsetWhileAdjustingBandwidth.first += freq - lastDragPosition.first;
+        dragOffsetWhileAdjustingBandwidth.second += ampl - lastDragPosition.second;
+    }
+    else
+    {
+        dragOffsetWhileAdjustingPosition.first += freq - lastDragPosition.first;
+        dragOffsetWhileAdjustingPosition.second += ampl - lastDragPosition.second;
+    }
+    
+    // Update dragging node a final time
+    float currFreq = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
+    float currAmpl = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
+    float currBandwidth = startDragBandwidth / std::pow (1.2, dragOffsetWhileAdjustingBandwidth.second);
+    
+    updateBand (draggingId, currFreq, currAmpl, currBandwidth);
 }
 
 void CabinPeqGraph::removeBand(int id)
