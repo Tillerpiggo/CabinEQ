@@ -59,14 +59,25 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     // If we were hovering over a band node, we should now drag it
     draggingId = hoveringId;
     if (draggingId != -1)
+    {
         selectedDotSize = DOT_SIZE_DRAGGING;
+        startDragPosition = { freq, ampl };
+        lastDragPosition = { freq, ampl };
+        dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
+        dragOffsetWhileAdjustingBandwidth = { 0.0f, 0.0f };
+    }
     
     // If we were going to add a band, do so here
-    if (addingFreq.has_value() && ! event.mods.isRightButtonDown())
+    else if (addingFreq.has_value() && ! event.mods.isRightButtonDown())
     {
         // Add the band where we click
         draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH);
         selectedDotSize = DOT_SIZE_DRAGGING;
+        startDragPosition = { freq, ampl };
+        lastDragPosition = { freq, ampl };
+        startDragBandwidth = DEFAULT_BANDWIDTH;
+        dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
+        dragOffsetWhileAdjustingBandwidth = { 0.0f, 0.0f };
         addingFreq.reset();
     }
     
@@ -77,7 +88,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     // If we are dragging a band, start playing an appropriate noise pattern
     if (draggingId != -1)
     {
-        updateBand (draggingId, freq, ampl, DEFAULT_BANDWIDTH);
+        updateBand (draggingId, freq, ampl, startDragBandwidth);
         startNoisePatternAt (draggingId);
     }
 }
@@ -92,8 +103,25 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
     // If we're dragging a node, update it to our mouse position
     if (draggingId != -1)
     {
-        updateBand (draggingId, freq, ampl, DEFAULT_BANDWIDTH);
+        if (event.mods.isShiftDown())
+        {
+            dragOffsetWhileAdjustingBandwidth.first += freq - lastDragPosition.first;
+            dragOffsetWhileAdjustingBandwidth.second += ampl - lastDragPosition.second;
+        }
+        else
+        {
+            dragOffsetWhileAdjustingPosition.first += freq - lastDragPosition.first;
+            dragOffsetWhileAdjustingPosition.second += ampl - lastDragPosition.second;
+        }
+        
+        float currFreq = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
+        float currAmpl = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
+        float currBandwidth = startDragBandwidth / std::pow (1.2, dragOffsetWhileAdjustingBandwidth.second);
+        
+        updateBand (draggingId, currFreq, currAmpl, currBandwidth);
         updateNoisePatternAt (draggingId);
+        
+        lastDragPosition = { freq, ampl };
     }
     
     // If we're not dragging a node, we're dragging in the blackspace and should drag the graph itself
@@ -120,9 +148,28 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
+    // TODO: Fix DRY violation
+    if (event.mods.isShiftDown())
+    {
+        dragOffsetWhileAdjustingBandwidth.first += freq - lastDragPosition.first;
+        dragOffsetWhileAdjustingBandwidth.second += ampl - lastDragPosition.second;
+    }
+    else
+    {
+        dragOffsetWhileAdjustingPosition.first += freq - lastDragPosition.first;
+        dragOffsetWhileAdjustingPosition.second += ampl - lastDragPosition.second;
+    }
+    
     // Update dragging node a final time
-    updateBand (draggingId, freq, ampl, DEFAULT_BANDWIDTH);
+    float currFreq = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
+    float currAmpl = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
+    float currBandwidth = startDragBandwidth / std::pow (1.2, dragOffsetWhileAdjustingBandwidth.second);
+    
+    updateBand (draggingId, currFreq, currAmpl, currBandwidth);
     draggingId = -1;
+    
+    dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
+    dragOffsetWhileAdjustingBandwidth = { 0.0f, 0.0f };
     
     // Change the dot size back to normal
     selectedDotSize = DOT_SIZE_DEFAULT;
@@ -277,7 +324,7 @@ void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     // Show the ghost node to add if the mouse is on the center line
-    if (ampl <= DIST_TO_ADD_DB)
+    if (std::abs (ampl) <= DIST_TO_ADD_DB)
         addingFreq = freq;
     else
         addingFreq.reset();
@@ -288,11 +335,11 @@ void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
     if (hoveringBand.has_value())
     {
         hoveringId = hoveringBand.value().id;
+        startDragBandwidth = hoveringBand->bandwidth;
         selectedDotSize = DOT_SIZE_DRAGGING;
         
-        // If we'er hovering, we don't want to show the ghost node to add
-        if (addingFreq)
-            addingFreq.reset();
+        // If we're hovering, we don't want to show the ghost node to add
+        addingFreq.reset();
     }
 }
 

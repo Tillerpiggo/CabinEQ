@@ -26,23 +26,25 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     auto* leftChannel = ioBuffer.getWritePointer(0);
     auto* rightChannel = ioBuffer.getNumChannels() > 1 ? ioBuffer.getWritePointer(1) : nullptr;
     
-    if (isCalibrating)
-    {
-        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
-        {
-            std::pair<float, float> value = getNextSample();
-            leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
-            
-            if (rightChannel)
-                rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
-        }
-    }
-    else
-    {
-        juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
-        filter.process (ioBlock);
-//        gainProcessor.process (ioContext);
-    }
+    juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
+    filter.process (ioBlock);
+//    if (isCalibrating)
+//    {
+//        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
+//        {
+//            std::pair<float, float> value = getNextSample();
+//            leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
+//            
+//            if (rightChannel)
+//                rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
+//        }
+//    }
+//    else
+//    {
+//        juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
+//        filter.process (ioBlock);
+////        gainProcessor.process (ioContext);
+//    }
 }
 
 void PlaybackManager::updateFilterWithBands (std::vector<Band> bands)

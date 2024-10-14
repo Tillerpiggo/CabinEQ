@@ -102,6 +102,11 @@ private:
     float maxFreqShowing = 20000.0f;
     float zoom = 5.0f;
     float lastDistanceFromDragStartX = 0;
+    std::pair<float, float> dragOffsetWhileAdjustingBandwidth { 0.0f, 0.0f };
+    std::pair<float, float> dragOffsetWhileAdjustingPosition { 0.0f, 0.0f };
+    std::pair<float, float> lastDragPosition { 0.0f, 0.0f };
+    std::pair<float, float> startDragPosition { 0.0f, 0.0f };
+    float startDragBandwidth = 0.0f;
     
     // Constants
     static constexpr float MIN_FREQ = 20.0f;
