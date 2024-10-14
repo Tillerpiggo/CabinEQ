@@ -70,6 +70,7 @@ private:
     
     // Colours
     juce::Colour getColourForFrequency (float frequency);
+    juce::ColourGradient getCurveGradient();
     
     // Coordinates
     juce::Point<float> coordsForFrequencyAndAmplitude (float freq, float ampl);

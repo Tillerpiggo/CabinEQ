@@ -194,10 +194,10 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 void CabinPeqGraph::drawCurve (juce::Graphics& g)
 {
     // Get the gradient for the curve
-    juce::Colour curveColour = juce::Colours::lightblue;
+    juce::ColourGradient curveGradient = getCurveGradient();
     juce::Path path;
     
-    g.setColour (curveColour);
+    g.setGradientFill (curveGradient);
     
     // Draw curve with NUM_POINTS points
     for (int i = 0; i < NUM_POINTS; ++i)
@@ -261,11 +261,13 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
 
 void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour)
 {
+    // Set the colour
+    g.setColour (dotColour);
+    
     // Draw dot
     g.fillEllipse (point.x - dotRadius - DOT_PADDING, point.y - dotRadius - DOT_PADDING, (dotRadius + DOT_PADDING) * 2, (dotRadius + DOT_PADDING) * 2);
     
     // Draw the center of the dot
-    g.setColour (dotColour);
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
 }
 
@@ -299,7 +301,71 @@ juce::Colour CabinPeqGraph::getColourForFrequency (float frequency)
     if (isGrayscale)
         return juce::Colour::fromFloatRGBA (0.3f, 0.3, 0.3f, 1.0f);
     
-    return juce::Colour::fromFloatRGBA (0.5f, 0.5f, 0.5f, 1.0f);
+    juce::Colour startColor;
+    juce::Colour endColor;
+    
+    float t = (std::log2 (frequency) - std::log2 (MIN_FREQ)) / (std::log2 (MAX_FREQ) - std::log2 (MIN_FREQ));
+    float segment_t;
+    
+    // Interpolate color from the start/end colors in each section
+    if (t < 0.25f)
+    {
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.5f, 1.0f, 1.0f); // Deep blue
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
+        segment_t = t / 0.25f;
+    }
+    else if (t < 0.5f)
+    {
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
+        segment_t = (t - 0.25f) / 0.25f;
+    }
+    else if (t < 0.75f)
+    {
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
+        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
+        segment_t = (t - 0.5f) / 0.25f;
+    }
+    else
+    {
+        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
+        endColor = juce::Colour::fromFloatRGBA(0.7f, 1.0f, 0.3f, 1.0f); // Pastel yellow-green
+        segment_t = (t - 0.75f) / 0.25f;
+    }
+    
+    auto color = startColor.interpolatedWith (endColor, segment_t);
+    return color;
+}
+
+juce::ColourGradient CabinPeqGraph::getCurveGradient()
+{
+    // Create initial gradient with start/end colors
+    juce::Colour startColor = getColourForFrequency (minFreqShowing);
+    juce::Colour endColor = getColourForFrequency (maxFreqShowing);
+    juce::ColourGradient gradient (startColor, 0, 0, endColor, getWidth(), 0, false);
+    
+    // Useful helper to get color at specific point on screen
+    float minFreqLog = std::log2 (minFreqShowing);
+    float maxFreqLog = std::log2 (maxFreqShowing);
+    auto calculateFreqLog = [minFreqLog, maxFreqLog](float factor) -> float
+    {
+        return minFreqLog + factor * (maxFreqLog - minFreqLog);
+    };
+    
+    // Calculate colors at 25%, 50%, and 75%
+    float quarterFreqLog = calculateFreqLog (0.25f);
+    float halfFreqLog = calculateFreqLog (0.5f);
+    float threeQuarterFreqLog = calculateFreqLog (0.75f);
+    float quarterFreqX = (quarterFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+    float halfFreqX = (halfFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+    float threeQuarterFreqX = (threeQuarterFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
+    
+    // Add the colors
+    gradient.addColour (quarterFreqX / getWidth(), getColourForFrequency (std::pow (2, quarterFreqLog)));
+    gradient.addColour (halfFreqX / getWidth(), getColourForFrequency (std::pow (2, halfFreqLog)));
+    gradient.addColour (threeQuarterFreqX / getWidth(), getColourForFrequency (std::pow (2, threeQuarterFreqLog)));
+    
+    return gradient;
 }
 
 juce::Point<float> CabinPeqGraph::coordsForFrequencyAndAmplitude (float freq, float ampl)
