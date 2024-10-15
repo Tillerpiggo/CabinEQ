@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SpatialNoiseGenerator.h"
+#include "SpatialPinkNoiseGenerator.h"
 #include "StereoGainEnvelope.h"
 
 struct NoiseNote
@@ -59,7 +59,7 @@ private:
     void updateBandpassAndPanning();
     void goToNextNote();
 
-//    SpatialNoiseGenerator noiseGenerator;
+    SpatialPinkNoiseGenerator noiseGenerator;
     int numSamplesNoteHasBeenPlaying;
     int currNoteIdx;
     float centerFrequency;

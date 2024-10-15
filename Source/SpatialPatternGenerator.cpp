@@ -17,7 +17,7 @@ SpatialPatternGenerator::SpatialPatternGenerator()
 
 void SpatialPatternGenerator::setSampleRate (float sampleRate)
 {
-//    noiseGenerator.setSampleRate (sampleRate);
+    noiseGenerator.setSampleRate (sampleRate);
     this->sampleRate = sampleRate;
 }
 
@@ -60,7 +60,7 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
     if (currNoteIdx < 0 || currNoteIdx >= notes.size())
         return { 0, 0 };
     
-    std::pair<float, float> sample { 0.0f, 0.0f }; // THIS IS CURRENTLY SILENT - TODO CREATE NEW NOISE GENERATOR CLASS
+    std::pair<float, float> sample = noiseGenerator.getNextSample();
     
     numSamplesNoteHasBeenPlaying++;
     if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)
@@ -110,5 +110,5 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
     leftGain *= gainChange;
     rightGain *= gainChange;
     
-//    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth, getCurrNote().bandwidthEnvelope.first, getCurrNote().bandwidthEnvelope.second);
+    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
 }

@@ -57,7 +57,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     spatialPatternGenerator4.setSampleRate (spec.sampleRate);
     spatialPatternGenerator5.setSampleRate (spec.sampleRate);
     spatialPatternGenerator6.setSampleRate (spec.sampleRate);
-    spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
+//    spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
 }
 
@@ -79,53 +79,39 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 {
-    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
-    /*
-    // JustinExperiments D
-    auto nodeBelow = amplCurve.nodeBelowFreq (freq);
-    auto nodeAbove = amplCurve.nodeAboveFreq (freq);
-
-    if (nodeBelow.has_value() && nodeAbove.has_value())
-    {
-        auto [freqBelow, _] = nodeBelow.value();
-        auto [freqAbove, __] = nodeAbove.value();
-         
-        float octDiff = std::log2 (freqAbove / freqBelow);
-        float ratio = octDiff / 2.0f;
-        
-        float bandwidth = 1.5 * ratio;
-        float semitonesAbove = ratio * 18.0f;
-         
-        MelodicNotes drums =
-        MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
-            .withBandwidth (8.0)
-            .withNoteDurationInSeconds (0.1);
-         
-        MelodicNotes details =
-        MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
-            .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
-            .withNoteDurationInSeconds (0.1);
-        
-        
-        MelodicNotes sideDrums =
-        MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
-            .withCyclingPans ({ -1, -0.5, 0.5, 1 })
-            .withBandwidth (8.0)
-            .withNoteDurationInSeconds (0.05);
-        
-        for (const auto& noiseNote : details.noiseNotes())
-            std::cout << "NoiseNote(" << noiseNote.bandwidth << ", " << noiseNote.freqFactor << ", " << noiseNote.pan <<  std::endl;
-         
-        spatialPatternGenerator.setPattern (drums.noiseNotes());
-        spatialPatternGenerator2.setPattern (details.noiseNotes());
-        spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
-     }
-     */
+//    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
+    
+    float octDiff = bandwidth;
+    float ratio = octDiff / 2.0f;
+    
+    float bandwidthAdjusted = 1.5 * ratio;
+    float semitonesAbove = ratio * 18.0f;
+     
+    MelodicNotes drums =
+    MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
+        .withBandwidth (8.0)
+        .withNoteDurationInSeconds (0.1);
+     
+    MelodicNotes details =
+    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
+        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+        .withNoteDurationInSeconds (0.1);
+    
+    
+    MelodicNotes sideDrums =
+    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+        .withCyclingPans ({ -1, -0.5, 0.5, 1 })
+        .withBandwidth (8.0)
+        .withNoteDurationInSeconds (0.05);
+     
+    spatialPatternGenerator.setPattern (drums.noiseNotes());
+    spatialPatternGenerator2.setPattern (details.noiseNotes());
+    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
 {
-    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
+//    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
 }
 
 void PlaybackManager::setPatternSolo (bool solo)
@@ -161,7 +147,7 @@ void PlaybackManager::setReferenceVolume (float volume)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return spatialPinkNoiseGenerator.getNextSample();
+//    return spatialPinkNoiseGenerator.getNextSample();
     
     auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
     auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
