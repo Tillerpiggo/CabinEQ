@@ -54,6 +54,10 @@
         <FILE id="T6KOdv" name="MelodicNotes.h" compile="0" resource="0" file="Source/MelodicNotes.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="vo2Ieh" name="SpatialPinkNoiseGenerator.cpp" compile="1"
+              resource="0" file="Source/SpatialPinkNoiseGenerator.cpp"/>
+        <FILE id="FonrTG" name="SpatialPinkNoiseGenerator.h" compile="0" resource="0"
+              file="Source/SpatialPinkNoiseGenerator.h"/>
         <FILE id="zjJTaL" name="SpatialPatternGenerator.cpp" compile="1" resource="0"
               file="Source/SpatialPatternGenerator.cpp"/>
         <FILE id="rNkScX" name="SpatialPatternGenerator.h" compile="0" resource="0"

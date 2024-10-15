@@ -38,6 +38,7 @@ const std::pair<float, float> PinkNoiseGenerator::getNextSample()
 //    float rightVal = val * rightAmplitudeCompensation;
     
 //    return delayFilter.processSample ({ leftVal, rightVal });
+    
     return { leftVal, leftVal };
 }
 

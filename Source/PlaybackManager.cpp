@@ -28,17 +28,17 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
     filter.process (ioBlock);
-//    if (isCalibrating)
-//    {
-//        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
-//        {
-//            std::pair<float, float> value = getNextSample();
-//            leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
-//            
-//            if (rightChannel)
-//                rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
-//        }
-//    }
+    if (isCalibrating)
+    {
+        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
+        {
+            std::pair<float, float> value = getNextSample();
+            leftChannel[sample] = value.first * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
+            
+            if (rightChannel)
+                rightChannel[sample] = value.second * 0.05 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
+        }
+    }
 //    else
 //    {
 //        juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
@@ -62,6 +62,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     spatialPatternGenerator4.setSampleRate (spec.sampleRate);
     spatialPatternGenerator5.setSampleRate (spec.sampleRate);
     spatialPatternGenerator6.setSampleRate (spec.sampleRate);
+    spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
 }
 
@@ -83,6 +84,8 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 {
+    std::cout << "Starting ampl calibration" << std::endl;
+    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
     /*
     // JustinExperiments D
     auto nodeBelow = amplCurve.nodeBelowFreq (freq);
@@ -128,7 +131,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
 {
-    
+    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
 }
 
 void PlaybackManager::setPatternSolo (bool solo)
@@ -164,6 +167,8 @@ void PlaybackManager::setReferenceVolume (float volume)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
+    return spatialPinkNoiseGenerator.getNextSample();
+    
     auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
     auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
     auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();

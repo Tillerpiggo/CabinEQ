@@ -16,8 +16,12 @@ public:
     Band (int id, float freq, float ampl, float bandwidth)
         : id (id), freq (freq), ampl (ampl), bandwidth (bandwidth)
     {
-        double Q = std::sqrt (std::pow (2.0, bandwidth)) / (std::pow (2.0, bandwidth) - 1);
-        this->qFactor = Q;
+        this->qFactor = bandwidthToQFactor (bandwidth);
+    }
+    
+    static float bandwidthToQFactor (float bandwidth)
+    {
+        return std::sqrt (std::pow (2.0, bandwidth)) / (std::pow (2.0, bandwidth) - 1);
     }
     
     int id;
