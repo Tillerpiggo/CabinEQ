@@ -11,6 +11,7 @@
 #include "SpatialPinkNoiseGenerator.h"
 
 SpatialPinkNoiseGenerator::SpatialPinkNoiseGenerator()
+    : leftBuffer (1, bufferSize), rightBuffer (1, bufferSize)
 {}
 
 std::pair<float, float> SpatialPinkNoiseGenerator::getNextSample()
@@ -24,8 +25,6 @@ std::pair<float, float> SpatialPinkNoiseGenerator::getNextSample()
     
     float leftVal = leftBuffer.getReadPointer(0)[bufferIdx];
     float rightVal = rightBuffer.getReadPointer(0)[bufferIdx];
-    
-    std::cout << "leftVal: " << leftVal << std::endl;
     
     return { leftVal, rightVal };
 }
