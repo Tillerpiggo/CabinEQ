@@ -43,30 +43,48 @@ struct NoiseNote
     }
 };
 
-class SpatialPatternGenerator {
+//class SpatialPatternGenerator {
+//public:
+//    SpatialPatternGenerator() {}
+//    
+//    void setSampleRate (float sampleRate);
+////    void setPattern (std::vector<NoiseNote> notes);
+////    void setMelodicPattern (std::vector<int> notesInSemitones, float centerFreq, float bandwidth, float noteDurationInMs);
+////    void setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs); // assumes that len(notesInSemitones) == len(pans). Pans should be from [-1, 1]
+////    void setCenterFrequency (float centerFrequency);
+//    std::pair<float, float> getNextSample();
+//
+//private:
+////    NoiseNote getCurrNote();
+////    void updateBandpassAndPanning();
+////    void goToNextNote();
+//
+//    SpatialPinkNoiseGenerator noiseGenerator;
+////    int numSamplesNoteHasBeenPlaying;
+////    int currNoteIdx;
+////    float centerFrequency;
+////    float leftGain;
+////    float rightGain;
+////    float sampleRate;
+////    
+////    std::vector<NoiseNote> notes;
+//};
+//
+
+class SpatialPatternGenerator
+{
 public:
-    SpatialPatternGenerator();
+    SpatialPatternGenerator() {}
     
-    void setSampleRate (float sampleRate);
-    void setPattern (std::vector<NoiseNote> notes);
-    void setMelodicPattern (std::vector<int> notesInSemitones, float centerFreq, float bandwidth, float noteDurationInMs);
-    void setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs); // assumes that len(notesInSemitones) == len(pans). Pans should be from [-1, 1]
-    void setCenterFrequency (float centerFrequency);
-    std::pair<float, float> getNextSample();
-
+    std::pair<float, float> getNextSample()
+    {
+        return pinkNoiseGenerator.getNextSample();
+    }
+    void setSampleRate (float newSampleRate)
+    {
+        pinkNoiseGenerator.setSampleRate (newSampleRate);
+    }
+    
 private:
-    NoiseNote getCurrNote();
-    void updateBandpassAndPanning();
-    void goToNextNote();
-
-    SpatialPinkNoiseGenerator noiseGenerator;
-    int numSamplesNoteHasBeenPlaying;
-    int currNoteIdx;
-    float centerFrequency;
-    float leftGain;
-    float rightGain;
-    float sampleRate;
-    
-    std::vector<NoiseNote> notes;
+    SpatialPinkNoiseGenerator pinkNoiseGenerator;
 };
-

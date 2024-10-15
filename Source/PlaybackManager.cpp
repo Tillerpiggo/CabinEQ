@@ -164,38 +164,38 @@ std::pair<float, float> PlaybackManager::getNextSample()
 //    return spatialPinkNoiseGenerator.getNextSample();
     return wrapperPinkNoiseGenerator.getNextSample();
     
-    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
-    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
-    auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
-    auto [leftSample4, rightSample4] = spatialPatternGenerator4.getNextSample();
-    
-    float leftSample = 0.0f;
-    float rightSample = 0.0f;
-    
-    if (! isSpatialPatternGeneratorMuted)
-    {
-        leftSample += leftSample1;
-        rightSample += rightSample1;
-    }
-    
-    if (! isSpatialPatternGenerator2Muted)
-    {
-        leftSample += leftSample2 * 2.0;
-        rightSample += rightSample2 * 2.0;
-    }
-    
-    if (! isSpatialPatternGenerator3Muted)
-    {
-        leftSample += leftSample3;
-        rightSample += rightSample3;
-    }
-    
-    if (! isSpatialPatternGenerator4Muted)
-    {
-        leftSample += leftSample4;
-        rightSample += rightSample4;
-    }
-    
-//    auto [leftSample6, rightSample6] = spatialPatternGenerator6.getNextSample();
-    return { leftSample, rightSample };
+//    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
+//    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
+//    auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
+//    auto [leftSample4, rightSample4] = spatialPatternGenerator4.getNextSample();
+//    
+//    float leftSample = 0.0f;
+//    float rightSample = 0.0f;
+//    
+//    if (! isSpatialPatternGeneratorMuted)
+//    {
+//        leftSample += leftSample1;
+//        rightSample += rightSample1;
+//    }
+//    
+//    if (! isSpatialPatternGenerator2Muted)
+//    {
+//        leftSample += leftSample2 * 2.0;
+//        rightSample += rightSample2 * 2.0;
+//    }
+//    
+//    if (! isSpatialPatternGenerator3Muted)
+//    {
+//        leftSample += leftSample3;
+//        rightSample += rightSample3;
+//    }
+//    
+//    if (! isSpatialPatternGenerator4Muted)
+//    {
+//        leftSample += leftSample4;
+//        rightSample += rightSample4;
+//    }
+//    
+////    auto [leftSample6, rightSample6] = spatialPatternGenerator6.getNextSample();
+//    return { leftSample, rightSample };
 }

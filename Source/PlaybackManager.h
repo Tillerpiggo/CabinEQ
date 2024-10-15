@@ -61,6 +61,7 @@ private:
     float volume = 0.0f; // in dB
     
     // Sound generation
+    WrapperPinkNoiseGenerator wrapperPinkNoiseGenerator;
     SpatialPatternGenerator spatialPatternGenerator;
     SpatialPatternGenerator spatialPatternGenerator2;
     SpatialPatternGenerator spatialPatternGenerator3;
@@ -68,7 +69,6 @@ private:
     SpatialPatternGenerator spatialPatternGenerator5;
     SpatialPatternGenerator spatialPatternGenerator6;
     SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
-    WrapperPinkNoiseGenerator wrapperPinkNoiseGenerator;
     
     bool isCalibrating;
     bool isProcessing;

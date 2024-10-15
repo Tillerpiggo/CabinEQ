@@ -16,17 +16,20 @@ SpatialPinkNoiseGenerator::SpatialPinkNoiseGenerator()
 
 std::pair<float, float> SpatialPinkNoiseGenerator::getNextSample()
 {
-    if (bufferIdx >= bufferSize)
-    {
-        fillBuffers();
-        bufferIdx = 0;
-    }
+//    if (bufferIdx >= bufferSize)
+//    {
+//        fillBuffers();
+//        bufferIdx = 0;
+//    }
+//    
+//    float leftVal = leftBuffer.getReadPointer(0)[bufferIdx];
+//    float rightVal = rightBuffer.getReadPointer(0)[bufferIdx];
+//    bufferIdx++;
     
-    float leftVal = leftBuffer.getReadPointer(0)[bufferIdx];
-    float rightVal = rightBuffer.getReadPointer(0)[bufferIdx];
-    bufferIdx++;
+    float val = pinkNoise.generate();
+    return { val, val };
     
-    return { leftVal, rightVal };
+//    return { leftVal, rightVal };
 }
 
 void SpatialPinkNoiseGenerator::setSampleRate (float newSampleRate)
@@ -43,17 +46,17 @@ void SpatialPinkNoiseGenerator::setBandpass (float centreFreq, float bandwidth)
 
 void SpatialPinkNoiseGenerator::fillBuffers()
 {
-    leftBuffer.clear();
-    rightBuffer.clear();
-    
-    // Reset the heap blocka nd fill it with new pink noise
-    auto leftBufferPtr = leftBuffer.getWritePointer (0);
-    for (int i = 0; i < bufferSize; ++i)
-        leftBufferPtr[i] = pinkNoise.generate();
-    
-    auto rightBufferPtr = rightBuffer.getWritePointer(0);
-    for (int i = 0; i < bufferSize; ++i)
-        rightBufferPtr[i] = pinkNoise.generate();
+//    leftBuffer.clear();
+//    rightBuffer.clear();
+//    
+//    // Reset the heap blocka nd fill it with new pink noise
+//    auto leftBufferPtr = leftBuffer.getWritePointer (0);
+//    for (int i = 0; i < bufferSize; ++i)
+//        leftBufferPtr[i] = pinkNoise.generate();
+//    
+//    auto rightBufferPtr = rightBuffer.getWritePointer(0);
+//    for (int i = 0; i < bufferSize; ++i)
+//        rightBufferPtr[i] = pinkNoise.generate();
     
     // Process the buffer with the bandpass filter
 //    juce::dsp::AudioBlock<float> leftBlock (leftBuffer);
