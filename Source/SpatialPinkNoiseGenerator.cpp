@@ -55,10 +55,10 @@ void SpatialPinkNoiseGenerator::fillBuffers()
         rightBufferPtr[i] = pinkNoise.generate();
     
     // Process the buffer with the bandpass filter
-//    juce::dsp::AudioBlock<float> leftBlock (leftBuffer);
-//    juce::dsp::AudioBlock<float> rightBlock (rightBuffer);
-//    juce::dsp::ProcessContextReplacing<float> leftContext (leftBlock);
-//    juce::dsp::ProcessContextReplacing<float> rightContext (rightBlock);
-//    bandpass.process (leftContext);
-//    bandpass.process (rightContext);
+    juce::dsp::AudioBlock<float> leftBlock (leftBuffer);
+    juce::dsp::AudioBlock<float> rightBlock (rightBuffer);
+    juce::dsp::ProcessContextReplacing<float> leftContext (leftBlock);
+    juce::dsp::ProcessContextReplacing<float> rightContext (rightBlock);
+    bandpass.process (leftContext);
+    bandpass.process (rightContext);
 }

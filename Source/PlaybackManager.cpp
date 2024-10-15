@@ -84,7 +84,6 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 {
-    std::cout << "Starting ampl calibration" << std::endl;
     spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
     /*
     // JustinExperiments D
