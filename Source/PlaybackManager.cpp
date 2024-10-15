@@ -89,8 +89,8 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //        .withNoteDurationInSeconds (0.2);
     MelodicNotes details =
     MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
-//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
-        .withNoteDurationInSeconds (0.5);
+        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+        .withNoteDurationInSeconds (0.1);
     spatialPatternGenerator.setPattern (details.noiseNotes());
     
     // JustinPatterns D

@@ -27,6 +27,7 @@ std::pair<float, float> SpatialPinkNoiseGenerator::getNextSample()
 //    bufferIdx++;
     
     float val = pinkNoise.generate();
+    val = bandpass.processSample (val); // NOTE: JUCE DOCS SAY THIS CAN CAUSE DENORMALISATION ISSUES. USE SNAPTOZERO() to FIX
     return { val, val };
     
 //    return { leftVal, rightVal };

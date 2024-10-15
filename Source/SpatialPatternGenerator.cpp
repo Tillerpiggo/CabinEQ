@@ -72,11 +72,6 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
     
     auto [leftEnvelopeGain, rightEnvelopeGain] = getCurrNote().getGainAtSample (numSamplesNoteHasBeenPlaying);
     
-//    leftEnvelopeGain = 1;
-//    rightEnvelopeGain = 1;
-//    std::cout << "sample: " << sample.first << std::endl;
-//    std::cout << "leftGain: " << leftGain << std::endl;
-//    std::cout << "leftEnvelopeGain: " << leftEnvelopeGain << std::endl;
     // Apply panning
     return { sample.first * leftGain * leftEnvelopeGain, sample.second * rightGain * rightEnvelopeGain };
 }
@@ -115,8 +110,9 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
     leftGain *= gainChange;
     rightGain *= gainChange;
     
-    leftGain = 1.0f;
-    rightGain = 1.0f;
+//    leftGain = 1.0f;
+//    rightGain = 1.0f;
     
-//    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
+    std::cout << "updating bandpass (freq: " << bandpassFrequency << ", bandwidth: " << getCurrNote().bandwidth << std::endl;
+    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
 }
