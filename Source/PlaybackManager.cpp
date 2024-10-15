@@ -50,7 +50,6 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 void PlaybackManager::updateFilterWithBands (std::vector<Band> bands)
 {
     filter.setBands (bands, spec.sampleRate);
-    filter.prepare (spec);
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)

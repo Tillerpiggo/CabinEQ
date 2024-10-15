@@ -10,70 +10,107 @@
 
 //#pragma once
 //
-//using Filter = juce::dsp::IIR::Filter<float>;
+//#include <vector>
+//#include <memory>
+//#include <iostream>
+//#include <cmath>
+//
+//using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
 //using Coefficients = juce::dsp::IIR::Coefficients<float>;
 //
-///// This manages a list of filters, making it easy to chain parametric bands to process audio
+///// This manages a list of filters for stereo processing, with separate filters for left and right channels.
 //class FilterChain
 //{
 //public:
-//    void setBands (std::vector<Band> bands, double sampleRate)
+//    void setBands (const std::vector<Band>& bands, double sampleRate)
 //    {
-//        std::cout << "setting bands" << std::endl;
-//        this->filters.clear();
-//        for (const auto& band : bands)
+//        this->bands = bands;
+//        this->sampleRate = sampleRate;
+//        this->shouldUpdateFilters = true;
+//        
+//        bool didAddBands = false;
+//        if (bands.size() > filters.size())
 //        {
-//            double Q = std::sqrt (std::pow (2, band.bandwidth)) / (std::pow (2, band.bandwidth) - 1);
-//            addParametricBand (sampleRate, band.freq, Q, band.ampl);
+//            for (int i = 0; i < bands.size(); ++i)
+//            {
+//                if (i >= filters.size())
+//                {
+//                    Band band = bands[i];
+//                    double Q = std::sqrt(std::pow(2.0, band.bandwidth)) / (std::pow(2.0, band.bandwidth) - 1);
+//                    addParametricBand (filters, sampleRate, band.freq, Q, band.ampl);
+//                    didAddBands = true;
+//                }
+//            }
 //        }
 //    }
-//    
-//    void addParametricBand (double sampleRate, double centerFreq, double qFactor, float amplInDB)
-//    {
-//        auto coefficients = Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor, juce::Decibels::decibelsToGain (amplInDB));
-//        addFilter (coefficients);
-//    }
-//    
-//    void addFilter (const Coefficients::Ptr& coefficients)
-//    {
-//        auto filter = std::make_unique<Filter>();
-//        filter->coefficients = coefficients;
-//        filters.push_back (std::move (filter));
-//    }
-//    
+//
 //    void prepare (const juce::dsp::ProcessSpec& spec)
 //    {
+//        this->spec = spec;
+//        sampleRate = spec.sampleRate;
+//        // Prepare filters for the left channel
 //        for (auto& filter : filters)
 //        {
-//            filter->prepare (spec);
+//            filter->prepare(spec);
 //        }
 //    }
-//    
+//
 //    void process (juce::dsp::AudioBlock<float>& block)
 //    {
-////        auto numChannels = block.getNumChannels();
-////            
-////        for (size_t channel = 0; channel < numChannels; ++channel)
-////        {
-////            auto channelBlock = block.getSingleChannelBlock(channel);
-////            juce::dsp::ProcessContextReplacing<float> context(channelBlock);
-////            
-////            for (auto& filter : filters)
-////            {
-////                filter->process(context);
-////            }
-////        }
-//        juce::dsp::ProcessContextReplacing<float> context (block);
+//        // Update filters if needed before processing
+//        if (shouldUpdateFilters)
+//        {
+//            for (int i = 0; i < bands.size(); ++i)
+//            {
+//                Band band = bands[i];
+//                if (i < filters.size())
+//                    updateParametricBand (filters, i, sampleRate, band.freq, band.qFactor, band.ampl);
+//            }
+//            shouldUpdateFilters = false;
+//        }
+//
+//        // Process channel
+//        auto context = juce::dsp::ProcessContextReplacing (block);
 //        for (auto& filter : filters)
 //        {
 //            filter->process (context);
 //        }
 //    }
-//    
+//
 //private:
 //    std::vector<std::unique_ptr<Filter>> filters;
+//    std::vector<Band> bands;
+//    float sampleRate = 44100;
+//    bool shouldUpdateFilters = false;
+//    
+//    juce::dsp::ProcessSpec spec;
+//
+//    void addParametricBand (std::vector<std::unique_ptr<Filter>>& filters,
+//                            double sampleRate, double centerFreq, double qFactor, float amplInDB)
+//    {
+//        auto coefficients = Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
+//                                                         juce::Decibels::decibelsToGain (amplInDB));
+//
+//        addFilter (filters, coefficients);
+//    }
+//    
+//    
+//    void updateParametricBand (std::vector<std::unique_ptr<Filter>>& filters, int idx,
+//                            double sampleRate, double centerFreq, double qFactor, float amplInDB)
+//    {
+//        *filters[idx]->state = *Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor,
+//                                                              juce::Decibels::decibelsToGain (amplInDB));
+//    }
+//    
+//    void addFilter (std::vector<std::unique_ptr<Filter>>& filters,
+//                    const Coefficients::Ptr& coefficients)
+//    {
+//        auto filter = std::make_unique<Filter>();
+//        *filter->state = *coefficients;
+//        filter->prepare (spec);
+//        filters.push_back (std::move(filter));
+//    }
 //};
-
 
 #pragma once
 
@@ -82,7 +119,7 @@
 #include <iostream>
 #include <cmath>
 
-using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
+using Filter = juce::dsp::IIR::Filter<float>;
 using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 /// This manages a list of filters for stereo processing, with separate filters for left and right channels.
@@ -96,15 +133,15 @@ public:
         this->shouldUpdateFilters = true;
         
         bool didAddBands = false;
-        if (bands.size() > filters.size())
+        if (bands.size() > leftFilters.size())
         {
             for (int i = 0; i < bands.size(); ++i)
             {
-                if (i >= filters.size())
+                if (i >= leftFilters.size())
                 {
                     Band band = bands[i];
-                    double Q = std::sqrt(std::pow(2.0, band.bandwidth)) / (std::pow(2.0, band.bandwidth) - 1);
-                    addParametricBand (filters, sampleRate, band.freq, Q, band.ampl);
+                    addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.ampl);
+                    addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.ampl);
                     didAddBands = true;
                 }
             }
@@ -116,7 +153,11 @@ public:
         this->spec = spec;
         sampleRate = spec.sampleRate;
         // Prepare filters for the left channel
-        for (auto& filter : filters)
+        for (auto& filter : leftFilters)
+        {
+            filter->prepare(spec);
+        }
+        for (auto& filter : rightFilters)
         {
             filter->prepare(spec);
         }
@@ -125,27 +166,38 @@ public:
     void process (juce::dsp::AudioBlock<float>& block)
     {
         // Update filters if needed before processing
-        if (shouldUpdateFilters)
+        for (int i = 0; i < bands.size(); ++i)
         {
-            for (int i = 0; i < bands.size(); ++i)
+            Band band = bands[i];
+            if (i < leftFilters.size())
             {
-                Band band = bands[i];
-                if (i < filters.size())
-                    updateParametricBand (filters, i, sampleRate, band.freq, band.qFactor, band.ampl);
+                updateParametricBand (leftFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
+                updateParametricBand (rightFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
             }
-            shouldUpdateFilters = false;
         }
+        shouldUpdateFilters = false;
 
-        // Process channel
-        auto context = juce::dsp::ProcessContextReplacing (block);
-        for (auto& filter : filters)
+        // Process left and right contexts
+        auto leftBlock = block.getSingleChannelBlock (0);
+        auto rightBlock = block.getSingleChannelBlock (1);
+
+        juce::dsp::ProcessContextReplacing<float> leftContext (leftBlock);
+        juce::dsp::ProcessContextReplacing<float> rightContext (rightBlock);
+
+        for (const auto& filter : leftFilters)
         {
-            filter->process (context);
+            filter->process (leftContext);
+        }
+        
+        for (const auto& filter : rightFilters)
+        {
+            filter->process (rightContext);
         }
     }
 
 private:
-    std::vector<std::unique_ptr<Filter>> filters;
+    std::vector<std::unique_ptr<Filter>> leftFilters;
+    std::vector<std::unique_ptr<Filter>> rightFilters;
     std::vector<Band> bands;
     float sampleRate = 44100;
     bool shouldUpdateFilters = false;
@@ -155,26 +207,24 @@ private:
     void addParametricBand (std::vector<std::unique_ptr<Filter>>& filters,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
-        auto coefficients = Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
-                                                         juce::Decibels::decibelsToGain (amplInDB));
-
-        addFilter (filters, coefficients);
+        auto filter = std::make_unique<Filter>();
+        *filter->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
+                                                              juce::Decibels::decibelsToGain (amplInDB));;
+        filter->prepare (spec);
+        filters.push_back (std::move(filter));
     }
     
     
     void updateParametricBand (std::vector<std::unique_ptr<Filter>>& filters, int idx,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
-        *filters[idx]->state = *Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor,
+        *filters[idx]->coefficients = *Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor,
                                                               juce::Decibels::decibelsToGain (amplInDB));
     }
     
     void addFilter (std::vector<std::unique_ptr<Filter>>& filters,
                     const Coefficients::Ptr& coefficients)
     {
-        auto filter = std::make_unique<Filter>();
-        *filter->state = *coefficients;
-        filter->prepare (spec);
-        filters.push_back (std::move(filter));
+        
     }
 };
