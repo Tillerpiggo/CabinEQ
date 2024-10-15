@@ -57,7 +57,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     spatialPatternGenerator4.setSampleRate (spec.sampleRate);
     spatialPatternGenerator5.setSampleRate (spec.sampleRate);
     spatialPatternGenerator6.setSampleRate (spec.sampleRate);
-//    spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
+    spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
+    wrapperPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     hasPreparedFilter = true;
 }
 
@@ -81,32 +82,44 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 {
 //    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
     
-    float octDiff = bandwidth;
-    float ratio = octDiff / 2.0f;
+    // Simple Example Pattern
+//    MelodicNotes simplePattern =
+//    MelodicNotes ({ -12, 0, 12 }, freq)
+//        .withBandwidth (bandwidth)
+//        .withNoteDurationInSeconds (0.2);
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.5);
+//    spatialPatternGenerator.setPattern (details.noiseNotes());
     
-    float bandwidthAdjusted = 1.5 * ratio;
-    float semitonesAbove = ratio * 18.0f;
-     
-    MelodicNotes drums =
-    MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
-        .withBandwidth (8.0)
-        .withNoteDurationInSeconds (0.1);
-     
-    MelodicNotes details =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
-        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
-        .withNoteDurationInSeconds (0.1);
-    
-    
-    MelodicNotes sideDrums =
-    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
-        .withCyclingPans ({ -1, -0.5, 0.5, 1 })
-        .withBandwidth (8.0)
-        .withNoteDurationInSeconds (0.05);
-     
-    spatialPatternGenerator.setPattern (drums.noiseNotes());
-    spatialPatternGenerator2.setPattern (details.noiseNotes());
-    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+    // JustinPatterns D
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
+//        .withBandwidth (8.0)
+//        .withNoteDurationInSeconds (0.1);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
+//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes sideDrums =
+//    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+//        .withCyclingPans ({ -1, -0.5, 0.5, 1 })
+//        .withBandwidth (8.0)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -147,7 +160,9 @@ void PlaybackManager::setReferenceVolume (float volume)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
+//    return spatialPatternGenerator.getNextSample();
 //    return spatialPinkNoiseGenerator.getNextSample();
+    return wrapperPinkNoiseGenerator.getNextSample();
     
     auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
     auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();

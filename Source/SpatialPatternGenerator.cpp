@@ -18,6 +18,7 @@ SpatialPatternGenerator::SpatialPatternGenerator()
 void SpatialPatternGenerator::setSampleRate (float sampleRate)
 {
     noiseGenerator.setSampleRate (sampleRate);
+    noiseGenerator.setBandpass (1000, 1);
     this->sampleRate = sampleRate;
 }
 
@@ -57,23 +58,27 @@ void SpatialPatternGenerator::setCenterFrequency (float centerFrequency)
 
 std::pair<float, float> SpatialPatternGenerator::getNextSample()
 {
-    if (currNoteIdx < 0 || currNoteIdx >= notes.size())
-        return { 0, 0 };
-    
-    std::pair<float, float> sample = noiseGenerator.getNextSample();
-    
-    numSamplesNoteHasBeenPlaying++;
-    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)
-    {
-        goToNextNote();
-    }
-    
-    auto [leftEnvelopeGain, rightEnvelopeGain] = getCurrNote().getGainAtSample (numSamplesNoteHasBeenPlaying);
-    
-//    leftEnvelopeGain = 1;
-//    rightEnvelopeGain = 1;
-    // Apply panning
-    return { sample.first * leftGain * leftEnvelopeGain, sample.second * rightGain * rightEnvelopeGain };
+    return noiseGenerator.getNextSample();
+//    if (currNoteIdx < 0 || currNoteIdx >= notes.size())
+//        return { 0, 0 };
+//    
+//    std::pair<float, float> sample = noiseGenerator.getNextSample();
+//    
+//    numSamplesNoteHasBeenPlaying++;
+//    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)
+//    {
+//        goToNextNote();
+//    }
+//    
+//    auto [leftEnvelopeGain, rightEnvelopeGain] = getCurrNote().getGainAtSample (numSamplesNoteHasBeenPlaying);
+//    
+////    leftEnvelopeGain = 1;
+////    rightEnvelopeGain = 1;
+////    std::cout << "sample: " << sample.first << std::endl;
+////    std::cout << "leftGain: " << leftGain << std::endl;
+////    std::cout << "leftEnvelopeGain: " << leftEnvelopeGain << std::endl;
+//    // Apply panning
+//    return { sample.first * leftGain * leftEnvelopeGain, sample.second * rightGain * rightEnvelopeGain };
 }
 
 NoiseNote SpatialPatternGenerator::getCurrNote()
@@ -103,12 +108,15 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
         bandpassFrequency *= centerFrequency;
     
     // Adjust leftgain and rightgain according to the curr note's angle
-    float angle = (getCurrNote().pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
-    leftGain = std::cos(angle);
-    rightGain = std::sin(angle);
-    float gainChange = std::min (juce::Decibels::decibelsToGain (getCurrNote().ampl), 1.0f);
-    leftGain *= gainChange;
-    rightGain *= gainChange;
+//    float angle = (getCurrNote().pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
+//    leftGain = std::cos(angle);
+//    rightGain = std::sin(angle);
+//    float gainChange = std::min (juce::Decibels::decibelsToGain (getCurrNote().ampl), 1.0f);
+//    leftGain *= gainChange;
+//    rightGain *= gainChange;
     
-    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
+    leftGain = 1.0f;
+    rightGain = 1.0f;
+    
+//    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
 }

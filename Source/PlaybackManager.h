@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "PinkNoiseGenerator.h"
 #include "SpatialPinkNoiseGenerator.h"
+#include "WrapperPinkNoiseGenerator.h"
 #include "Constants.h"
 #include "SpatialPatternGenerator.h"
 #include "MelodicNotes.h"
@@ -67,6 +68,7 @@ private:
     SpatialPatternGenerator spatialPatternGenerator5;
     SpatialPatternGenerator spatialPatternGenerator6;
     SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
+    WrapperPinkNoiseGenerator wrapperPinkNoiseGenerator;
     
     bool isCalibrating;
     bool isProcessing;

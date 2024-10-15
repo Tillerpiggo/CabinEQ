@@ -197,11 +197,6 @@ public:
             newBandwidths.push_back (bandwidths[i % bandwidths.size()]);
         }
         
-        std::cout << "NewNotesInSemitones: " << std::endl;
-        for (const auto& note : newNotesInSemitones)
-        {
-            std::cout << "Note: " << note << ", ";
-        }
         std::cout << std::endl;
         
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, centerFreq, noteDurationInSeconds, sampleRate);
