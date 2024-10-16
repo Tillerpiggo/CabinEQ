@@ -38,8 +38,11 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
-    juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
-    filter.process (ioBlock);
+    if (isProcessing || isCalibrating)
+    {
+        juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
+        filter.process (ioBlock);
+    }
 }
 
 void PlaybackManager::updateFilterWithBands (std::vector<Band> bands)
