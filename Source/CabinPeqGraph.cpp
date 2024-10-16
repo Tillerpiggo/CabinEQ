@@ -71,7 +71,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     }
     
     // If we were going to add a band, do so here
-    else if (addingFreq.has_value() && ! event.mods.isRightButtonDown())
+    else if (addingFreq.has_value() && ! event.mods.isRightButtonDown() && ! isHoveringOverDotControl)
     {
         // Add the band where we click
         draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH);
@@ -102,6 +102,13 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
     soloNoisePatternIfAppropriate (event);
+    
+    // If we're dragging the line, update profile amplitude
+    if (isHoveringOverDotControl)
+    {
+        profileAmpl = ampl;
+        return;
+    }
     
     // If we're dragging a node, update it to our mouse position
     if (draggingId != -1)
@@ -217,7 +224,7 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
     juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
     
     juce::Path centerPath;
-    float centerY = getY() + getHeight() / 2;
+    float centerY = yForAmpl (profileAmpl);
     centerPath.startNewSubPath (getX(), centerY);
     centerPath.lineTo (getX() + getWidth(), centerY);
     g.setColour (centerLineColour);
@@ -307,7 +314,7 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
             float t = static_cast<float> (i) / static_cast<float> (NUM_POINTS);
             
             float freq = frequencyAtTime (t);
-            float ampl = curve.dbAtFrequencyForBand (band, freq);
+            float ampl = curve.dbAtFrequencyForBand (band, freq) + profileAmpl;
             juce::Point<float> coords = coordsForFrequencyAndAmplitude (freq, ampl);
             if (i == 0)
             {
@@ -320,8 +327,8 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         }
         
         // Complete the shape and fill in with band color
-        path.lineTo (juce::Point<float> (getX() + getWidth(), getY() + getHeight() / 2.0f));
-        path.lineTo (juce::Point<float> (getX(), getY() + getHeight() / 2.0f));
+        path.lineTo (juce::Point<float> (getX() + getWidth(), yForAmpl (profileAmpl)));
+        path.lineTo (juce::Point<float> (getX(), yForAmpl (profileAmpl)));
         g.setColour (bandColour);
         g.fillPath (path);
     }
@@ -380,7 +387,7 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     }
     
     // Draw the ghost node for adding
-    if (addingFreq.has_value())
+    if (addingFreq.has_value() && ! isHoveringOverDotControl)
     {
         // Figure out color of node
         juce::Colour addingDotColour = getColourForFrequency (addingFreq.value()).withAlpha (0.5f);
@@ -523,6 +530,11 @@ void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
     
     // Check if we're hovering over the dot control node at the end of the line
     isHoveringOverDotControl = mouseEventDistanceFromFrequencyAndAmplitude (event, MAX_FREQ, profileAmpl) < DIST_TO_ADD_DB;
+    if (isHoveringOverDotControl)
+    {
+        hoveringId = -1;
+        draggingId = -1;
+    }
 }
 
 juce::Colour CabinPeqGraph::getColourForFrequency (float frequency)
