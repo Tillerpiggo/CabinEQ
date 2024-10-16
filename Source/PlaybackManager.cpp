@@ -118,10 +118,18 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (details.noiseNotes());
 //    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
     
-    // Bands I
+//    // Bands I
+//    float semitoneRatio = 5 * bandwidth;
+//    MelodicNotes pattern =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, { -semitoneRatio, 0, semitoneRatio, }, freq, bandwidth, { 0 })
+//        .withNoteDurationInSeconds (0.1);
+//     
+//    spatialPatternGenerator.setPattern (pattern.noiseNotes());
+    
+    // Bands II
     float semitoneRatio = 5 * bandwidth;
     MelodicNotes pattern =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, { -semitoneRatio, 0, semitoneRatio, }, freq, bandwidth, { 0 })
+    MelodicNotes::withMelodicPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, { -semitoneRatio, 0, semitoneRatio, }, freq, bandwidth / 2.0f, { 0 })
         .withNoteDurationInSeconds (0.1);
      
     spatialPatternGenerator.setPattern (pattern.noiseNotes());
@@ -129,6 +137,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
 {
+     
 //    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
 }
 
