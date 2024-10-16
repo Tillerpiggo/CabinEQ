@@ -28,6 +28,12 @@ std::pair<float, float> SpatialPinkNoiseGenerator::getNextSample()
     
     float val = pinkNoise.generate();
     val = bandpass.processSample (val); // NOTE: JUCE DOCS SAY THIS CAN CAUSE DENORMALISATION ISSUES. USE SNAPTOZERO() to FIX
+    if (snapToZeroCounter >= 1000)
+    {
+        bandpass.snapToZero();
+        snapToZeroCounter = 0;
+    }
+    snapToZeroCounter++;
     return { val, val };
     
 //    return { leftVal, rightVal };
@@ -42,6 +48,7 @@ void SpatialPinkNoiseGenerator::setSampleRate (float newSampleRate)
 void SpatialPinkNoiseGenerator::setBandpass (float centreFreq, float bandwidth)
 {
     float freq = std::min (std::max (centreFreq, 20.0f), sampleRate * 0.5f);
+    std::cout << "QFactor: " << Band::bandwidthToQFactor (bandwidth) << std::endl;
     *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
 }
 

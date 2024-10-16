@@ -37,6 +37,7 @@ private:
     PinkNoise pinkNoise;
     juce::Random noiseSrc;
     BandpassFilter bandpass;
+    int snapToZeroCounter = 0;
     
     // Buffers
     int bufferIdx = 0;

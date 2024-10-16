@@ -114,5 +114,14 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
 //    rightGain = 1.0f;
     
     std::cout << "updating bandpass (freq: " << bandpassFrequency << ", bandwidth: " << getCurrNote().bandwidth << std::endl;
-    noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
+    float bandwidth = getCurrNote().bandwidth;
+    if (bandwidth != 0)
+    {
+        noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
+    }
+    else
+    {
+        leftGain = 0;
+        rightGain = 0;
+    }
 }
