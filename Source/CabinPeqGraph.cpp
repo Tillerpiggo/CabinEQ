@@ -224,7 +224,7 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
     juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
     
     juce::Path centerPath;
-    float centerY = yForAmpl (profileAmpl);
+    float centerY = yForAmpl (0);
     centerPath.startNewSubPath (getX(), centerY);
     centerPath.lineTo (getX() + getWidth(), centerY);
     g.setColour (centerLineColour);
@@ -314,7 +314,7 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
             float t = static_cast<float> (i) / static_cast<float> (NUM_POINTS);
             
             float freq = frequencyAtTime (t);
-            float ampl = curve.dbAtFrequencyForBand (band, freq) + profileAmpl;
+            float ampl = curve.dbAtFrequencyForBand (band, freq);
             juce::Point<float> coords = coordsForFrequencyAndAmplitude (freq, ampl);
             if (i == 0)
             {
@@ -327,8 +327,8 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         }
         
         // Complete the shape and fill in with band color
-        path.lineTo (juce::Point<float> (getX() + getWidth(), yForAmpl (profileAmpl)));
-        path.lineTo (juce::Point<float> (getX(), yForAmpl (profileAmpl)));
+        path.lineTo (juce::Point<float> (getX() + getWidth(), yForAmpl (0)));
+        path.lineTo (juce::Point<float> (getX(), yForAmpl (0)));
         g.setColour (bandColour);
         g.fillPath (path);
     }
@@ -356,6 +356,16 @@ void CabinPeqGraph::drawCurve (juce::Graphics& g)
             path.lineTo (coords);
     }
     g.strokePath (path, juce::PathStrokeType (CURVE_THICKNESS));
+    
+    juce::Path rectPath;
+    rectPath.startNewSubPath (getX(), yForAmpl (0));
+    rectPath.lineTo (getX(), yForAmpl (profileAmpl));
+    rectPath.lineTo (getX() + getWidth(), yForAmpl (profileAmpl));
+    rectPath.lineTo (getX() + getWidth(), yForAmpl (0));
+    rectPath.lineTo (getX(), yForAmpl (0));
+    g.setColour (juce::Colours::lightgrey.withAlpha (0.3f));
+    g.fillPath (rectPath);
+    
 }
 
 void CabinPeqGraph::drawDots (juce::Graphics& g)
