@@ -66,6 +66,7 @@ private:
     void drawCurve (juce::Graphics& g);
     void drawDots (juce::Graphics& g);
     void drawLines (juce::Graphics& g);
+    std::vector<float> getLogLines();
     void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color);
     void updateHoveringStatus (const juce::MouseEvent& event); // updates what is being hovered over - whether it's a node or the center line
     

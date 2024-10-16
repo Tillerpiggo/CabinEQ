@@ -291,7 +291,7 @@ void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float 
 void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
-    juce::Colour lineColour = juce::Colours::lightgrey;
+    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.3f);
     juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
     g.setColour (lineColour);
     
@@ -307,24 +307,133 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
     // etc.
     
     std::vector<float> lineFreqs;
+    float startLineFreq = 10;
     float currLineFreq = 10;
     float interval = 10;
+    float numLines = 10;//std::pow (10.0f, std::round (2.0f - std::log10 (maxFreqShowing / minFreqShowing)));
     while (currLineFreq <= 20000)
     {
         lineFreqs.push_back (currLineFreq);
         currLineFreq += interval;
-        if (currLineFreq / interval >= 10)
+        if ((currLineFreq - startLineFreq) / interval >= numLines)
             interval *= 10;
+    }
+    
+    // Add extra lines if the interval between the lines is too large
+    std::vector<float> inBetweenLineFreqs;
+    for (int i = 0; i < lineFreqs.size() - 1; ++i)
+    {
+        // If the interval is too visually large, add in between lines
+        if (xForFreq (lineFreqs[i + 1]) - xForFreq (lineFreqs[i]) > getWidth() / 3.0f)
+        {
+            // Add 10 in between lines
+            float subInterval = (lineFreqs[i + 1] - lineFreqs[i]) / 10.0f;
+            for (int j = lineFreqs[i] + subInterval; j < lineFreqs[i + 1]; j += subInterval)
+                inBetweenLineFreqs.push_back (j);
+        }
+    }
+    
+    for (const auto& inBetweenLineFreq : inBetweenLineFreqs)
+    {
+        std::cout << "inbetweenLineFreq: " << inBetweenLineFreq << std::endl;
+        lineFreqs.push_back (inBetweenLineFreq);
     }
     
     for (const auto& lineFreq : lineFreqs)
     {
-        juce::Path logLinePath;
-        float lineX = xForFreq (lineFreq);
-        logLinePath.startNewSubPath (lineX, getY());
-        logLinePath.lineTo (lineX, getY() + getHeight());
-        g.strokePath (logLinePath, lineStrokeType);
+        if (lineFreq >= minFreqShowing / 1.1f && lineFreq <= maxFreqShowing * 1.1f)
+        {
+            juce::Path logLinePath;
+            float lineX = xForFreq (lineFreq);
+            logLinePath.startNewSubPath (lineX, getY());
+            logLinePath.lineTo (lineX, getY() + getHeight());
+            g.strokePath (logLinePath, lineStrokeType);
+        }
     }
+}
+
+std::vector<float> CabinPeqGraph::getLogLines()
+{
+    std::vector<float> lineFreqs;
+    float minFreq = minFreqShowing;
+    float maxFreq = maxFreqShowing;
+    const float minimalDistance = 50.0f; // Minimal distance in pixels between lines
+    const float visibleXStart = getX();
+    const float visibleXEnd = getX() + getWidth();
+
+    // Step 1: Generate base frequencies
+    int minDecade = static_cast<int>(std::floor(std::log10(minFreq)));
+    int maxDecade = static_cast<int>(std::ceil(std::log10(maxFreq)));
+
+    std::set<float> freqSet; // Use a set to keep frequencies unique and sorted
+    for (int d = minDecade - 1; d <= maxDecade + 1; ++d)
+    {
+        float decadeBase = std::pow(10.0f, d);
+        std::vector<float> multipliers = { 1.0f, 2.0f, 5.0f };
+        for (float m : multipliers)
+        {
+            float f = m * decadeBase;
+            // Include frequencies slightly outside the range to cover edges after mapping
+            if (f >= minFreq * 0.8f && f <= maxFreq * 1.2f)
+            {
+                freqSet.insert(f);
+            }
+        }
+    }
+
+    // Step 2: Create initial intervals
+    std::vector<float> frequencies(freqSet.begin(), freqSet.end());
+    struct Interval
+    {
+        float f1;
+        float f2;
+    };
+    std::list<Interval> intervalsToCheck;
+    for (size_t i = 0; i + 1 < frequencies.size(); ++i)
+    {
+        intervalsToCheck.push_back({ frequencies[i], frequencies[i + 1] });
+    }
+
+    // Step 3: Subdivide intervals as needed
+    while (!intervalsToCheck.empty())
+    {
+        auto it = intervalsToCheck.begin();
+        while (it != intervalsToCheck.end())
+        {
+            float f1 = it->f1;
+            float f2 = it->f2;
+            // Map frequencies to x positions
+            float x1 = xForFreq(f1);
+            float x2 = xForFreq(f2);
+
+            // Check if the interval is within or intersects the visible x range
+            if ((x1 >= visibleXStart && x1 <= visibleXEnd) ||
+                (x2 >= visibleXStart && x2 <= visibleXEnd) ||
+                (x1 <= visibleXStart && x2 >= visibleXEnd) || // Interval spans visible area
+                (x2 <= visibleXStart && x1 >= visibleXEnd))
+            {
+                float deltaX = std::abs(x2 - x1);
+                if (deltaX > minimalDistance)
+                {
+                    // Subdivide interval
+                    float f_mid = std::sqrt(f1 * f2); // Geometric mean for logarithmic scale
+                    freqSet.insert(f_mid);
+                    // Remove current interval and add new intervals
+                    it = intervalsToCheck.erase(it);
+                    intervalsToCheck.push_back({ f1, f_mid });
+                    intervalsToCheck.push_back({ f_mid, f2 });
+                    continue; // Continue without incrementing iterator
+                }
+            }
+            // No subdivision needed, move to next interval
+            ++it;
+        }
+    }
+
+    // Convert set to vector
+    lineFreqs = std::vector<float>(freqSet.begin(), freqSet.end());
+
+    return lineFreqs;
 }
 
 void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
