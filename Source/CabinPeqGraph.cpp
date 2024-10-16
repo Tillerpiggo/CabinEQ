@@ -296,10 +296,8 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
     for (const auto& band : bands)
     {
         // Get the color for the band
-        juce::Colour bandColour = getColourForFrequency (band.freq);
+        juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (0.3f);
         juce::Path path;
-        
-        juce::Point<float> startPoint;
         
         // Draw curve with NUM_POINTS points
         for (int i = 0; i < NUM_POINTS; ++i)
@@ -312,7 +310,6 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
             if (i == 0)
             {
                 path.startNewSubPath (coords);
-                startPoint = coords;
             }
             else
             {
@@ -321,7 +318,8 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         }
         
         // Complete the shape and fill in with band color
-        path.lineTo (startPoint);
+        path.lineTo (juce::Point<float> (getX() + getWidth(), getY() + getHeight() / 2.0f));
+        path.lineTo (juce::Point<float> (getX(), getY() + getHeight() / 2.0f));
         g.setColour (bandColour);
         g.fillPath (path);
     }
