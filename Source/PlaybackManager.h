@@ -57,7 +57,8 @@ private:
     // Audio processing
     FilterChain filter;
     juce::dsp::ProcessSpec spec;
-    juce::dsp::Gain<float> gainProcessor;
+    juce::dsp::Gain<float> profileVolumeProcessor;
+    juce::dsp::Gain<float> overallVolumeProcessor;
     float volume = 0.0f; // in dB
     
     // Sound generation

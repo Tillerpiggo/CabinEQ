@@ -17,8 +17,10 @@ PlaybackManager::PlaybackManager()
       isProcessing (false),
       hasPreparedFilter (false)
 {
-    gainProcessor.setRampDurationSeconds (0.05);
-    gainProcessor.setGainDecibels (0.0f);
+    profileVolumeProcessor.setRampDurationSeconds (0.05);
+    profileVolumeProcessor.setGainDecibels (0.0f);
+    overallVolumeProcessor.setRampDurationSeconds (0.05);
+    overallVolumeProcessor.setGainDecibels (0.0f);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -38,12 +40,15 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
+    juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
+    juce::dsp::ProcessContextReplacing<float> ioContext(ioBlock);
     if (isProcessing || isCalibrating)
     {
-        juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
         filter.process (ioBlock);
-        gainProcessor.process (juce::dsp::ProcessContextReplacing<float> (ioBlock));
+        profileVolumeProcessor.process (ioContext);
     }
+    
+    overallVolumeProcessor.process (ioContext);
 }
 
 //void PlaybackManager::updateFilterWithBands (std::vector<Band> bands)
@@ -54,7 +59,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 void PlaybackManager::updateFilterWithBandProfile (BandProfile bandProfile)
 {
     filter.setBands (bandProfile.getBands(), spec.sampleRate);
-    gainProcessor.setGainDecibels (bandProfile.getVolume());
+    profileVolumeProcessor.setGainDecibels (bandProfile.getVolume());
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
@@ -85,7 +90,7 @@ void PlaybackManager::setIsProcessing (bool isProcessing)
 void PlaybackManager::setVolume (float volume)
 {
     this->volume = volume;
-    gainProcessor.setGainDecibels (volume);
+    overallVolumeProcessor.setGainDecibels (volume);
 }
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
