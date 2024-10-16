@@ -445,7 +445,7 @@ float CabinPeqGraph::xForFreq (float freq)
 
 float CabinPeqGraph::yForAmpl (float ampl)
 {
-    return getHeight() * (1.0f - (ampl - MIN_DB) / (MAX_DB - MIN_DB)); + getY();
+    return getHeight() * (1.0f - (ampl - MIN_DB) / (MAX_DB - MIN_DB)) + getY();
 }
 
 std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForCoords (float x, float y) const
