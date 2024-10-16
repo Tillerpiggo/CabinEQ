@@ -371,12 +371,12 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
         
         // Figure out the radius - it's different if it's hovering vs. dragging
         float dotRadius = DOT_SIZE_DEFAULT;
-        if (band.id == hoveringId || band.id == draggingId)
-        {
-            dotRadius = selectedDotSize;
-        }
+//        if (band.id == hoveringId || band.id == draggingId)
+//        {
+//            dotRadius = selectedDotSize;
+//        }
         
-        drawDot (g, point, dotRadius, dotColour);
+        drawDot (g, point, dotRadius, dotColour, band.id == draggingId);
     }
     
     // Draw the ghost node for adding
@@ -391,19 +391,25 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
         float addingDotRadius = DOT_SIZE_DEFAULT;
         
         // Draw node
-        drawDot (g, point, addingDotRadius, addingDotColour);
+        drawDot (g, point, addingDotRadius, addingDotColour, false);
     }
+    
+    // Draw a dot on the end to control the overall volume of the profile
+    juce::Colour dotColour = juce::Colours::lightgrey;
+    float freq = MAX_FREQ;
+    float ampl = profileAmpl;
+    juce::Point<float> point = coordsForFrequencyAndAmplitude (freq, ampl);
+    drawDot (g, point, DOT_SIZE_DEFAULT, dotColour, isHoveringOverDotControl);
 }
 
-void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour)
+void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected)
 {
-    // Set the colour
-    g.setColour (dotColour);
-    
-    // Draw dot
+    // Draw dot outside
+    g.setColour (dotColour.withAlpha (isSelected ? 1.0f : 0.5f));
     g.fillEllipse (point.x - dotRadius - DOT_PADDING, point.y - dotRadius - DOT_PADDING, (dotRadius + DOT_PADDING) * 2, (dotRadius + DOT_PADDING) * 2);
     
-    // Draw the center of the dot
+    // Draw dot center
+    g.setColour (dotColour.withAlpha (1.0f));
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
 }
 
@@ -514,6 +520,9 @@ void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
         // If we're hovering, we don't want to show the ghost node to add
         addingFreq.reset();
     }
+    
+    // Check if we're hovering over the dot control node at the end of the line
+    isHoveringOverDotControl = mouseEventDistanceFromFrequencyAndAmplitude (event, MAX_FREQ, profileAmpl) < DIST_TO_ADD_DB;
 }
 
 juce::Colour CabinPeqGraph::getColourForFrequency (float frequency)
@@ -658,11 +667,16 @@ std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForMouseEvent (const
 
 float CabinPeqGraph::mouseEventDistanceFromBand (const juce::MouseEvent& event, Band band) const
 {
+    return mouseEventDistanceFromFrequencyAndAmplitude (event, band.freq, band.ampl);
+}
+
+float CabinPeqGraph::mouseEventDistanceFromFrequencyAndAmplitude (const juce::MouseEvent& event, float freq, float ampl) const
+{
     // Calculate distance based on arbitrary scale factors that weight freq and ampl about the same
     // TODO: could theoretically improve the precision of this
-    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
-    float dx = std::abs (timeAtFrequency (freq) - timeAtFrequency (band.freq));
-    float dy = std::abs (ampl - band.ampl);
+    auto [mouseFreq, mouseAmpl] = frequencyAndAmplitudeForMouseEvent (event);
+    float dx = std::abs (timeAtFrequency (mouseFreq) - timeAtFrequency (freq));
+    float dy = std::abs (mouseAmpl - ampl);
     dx *= 39;
     dy *= 0.5;
     

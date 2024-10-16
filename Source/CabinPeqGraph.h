@@ -60,6 +60,7 @@ public:
     
 private:
     std::vector<Band> bands;
+    float profileAmpl;
     Listener* listener;
     
     // Drawing/animation
@@ -69,7 +70,7 @@ private:
     void drawDots (juce::Graphics& g);
     
     std::vector<float> getLogLines();
-    void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color);
+    void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color, bool isSelected);
     void updateHoveringStatus (const juce::MouseEvent& event); // updates what is being hovered over - whether it's a node or the center line
     
     // Colours
@@ -86,6 +87,7 @@ private:
     float timeAtFrequency (float freq) const;
     std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
     float mouseEventDistanceFromBand (const juce::MouseEvent& event, Band band) const; // distance from the node of the band
+    float mouseEventDistanceFromFrequencyAndAmplitude (const juce::MouseEvent& event, float freq, float ampl) const;
     std::optional<Band> getClosestBandToMouseEvent (const juce::MouseEvent& event) const; // which band's node is the closest to the mouse
     
     // Utils to handle calls to the listener if listener is nullptr
@@ -103,6 +105,7 @@ private:
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
     std::optional<float> addingFreq; // the frequency you are hovering over, if you're going to add a point. std::nullopt if you're not hovering in a place where you can add a node
+    bool isHoveringOverDotControl; // if the mouse is hovering over the dot to control the volume of this profile
     bool isPlayingNoisePattern = false;
     float selectedDotSize = DOT_SIZE_DEFAULT;
     
