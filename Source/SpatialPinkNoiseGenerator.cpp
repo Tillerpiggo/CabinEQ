@@ -47,8 +47,7 @@ void SpatialPinkNoiseGenerator::setSampleRate (float newSampleRate)
 
 void SpatialPinkNoiseGenerator::setBandpass (float centreFreq, float bandwidth)
 {
-    float freq = std::min (std::max (centreFreq, 20.0f), sampleRate * 0.5f);
-    std::cout << "QFactor: " << Band::bandwidthToQFactor (bandwidth) << std::endl;
+    float freq = std::min (std::max (centreFreq, 20.0f), sampleRate * 0.49f);
     *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
 }
 
