@@ -46,9 +46,15 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     }
 }
 
-void PlaybackManager::updateFilterWithBands (std::vector<Band> bands)
+//void PlaybackManager::updateFilterWithBands (std::vector<Band> bands)
+//{
+//    filter.setBands (bands, spec.sampleRate);
+//}
+
+void PlaybackManager::updateFilterWithBandProfile (BandProfile bandProfile)
 {
-    filter.setBands (bands, spec.sampleRate);
+    filter.setBands (bandProfile.getBands(), spec.sampleRate);
+    gainProcessor.setGainDecibels (bandProfile.getVolume());
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)

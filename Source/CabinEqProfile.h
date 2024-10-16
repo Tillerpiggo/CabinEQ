@@ -19,7 +19,7 @@ class CabinEqProfile
 public:
     CabinEqProfile (juce::AudioProcessorValueTreeState& apvts, const juce::String identifier);
     
-    const std::vector<Band> getBands() const; // constructs a list of bands matching the ones in memory in the valueTree. For now, we're only doing amplitude bands, so it implicitly uses the amplTree
+    const BandProfile getBandProfile() const; // constructs a list of bands matching the ones in memory in the valueTree. For now, we're only doing amplitude bands, so it implicitly uses the amplTree. Uses whatever the current profileVolume is (assumed to be up to date)
     const std::optional<Band> getBandWithId (const int id) const;
     
     int addBand (const float freq, const float ampl, const float bandwidth);
@@ -28,9 +28,11 @@ public:
     
     void initValueTreeFromAPVTS(); // sets this value tree to match the one in the main apvts
     const juce::String getName() const;
+    const float getVolume() const;
     
     void copyFrom (CabinEqProfile other);
     void renameTo (juce::String newName);
+    void setVolume (float newVolume);
     
 private:
     void addBandToTree (int id, float freq, float ampl, float bandwidth, juce::ValueTree bandTree);
@@ -43,6 +45,7 @@ private:
     
     juce::Identifier idProfile { "Profile" }; // the id/type name of the entire CabinEqProfile value tree
     juce::Identifier idProfileName { "ProfileName" }; // a property on value tree that stores the string name the user gave it
+    juce::Identifier idProfileVolume { "ProfileVolume" };
     juce::Identifier idBand { "Band" };
     juce::Identifier idId { "id" };
     juce::Identifier idFreq { "freq" };
@@ -51,6 +54,7 @@ private:
     juce::Identifier idAmplTree { "AmplTree" };
     juce::ValueTree valueTree;
     juce::String profileName;
+    float profileVolume = 0;
     
     bool hasBeenInitialized = false;
 };

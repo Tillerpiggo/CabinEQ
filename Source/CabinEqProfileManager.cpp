@@ -44,6 +44,11 @@ void CabinEqProfileManager::renameProfile (juce::String profileName, juce::Strin
     getProfileNamed (profileName)->get().renameTo (newProfileName);
 }
 
+void CabinEqProfileManager::setProfileVolume (juce::String profileName, float newVolume)
+{
+    getProfileNamed (profileName)->get().setVolume (newVolume);
+}
+
 void CabinEqProfileManager::initProfiles()
 {
     for (const auto& node: apvts.state)

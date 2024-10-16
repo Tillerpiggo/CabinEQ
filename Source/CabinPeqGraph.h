@@ -32,12 +32,13 @@ public:
         virtual void updateNoisePatternAt (int id, CabinPeqGraph* sender) = 0;
         virtual void stopNoisePattern() = 0;
         virtual void setNoisePatternSolo (bool solo) = 0;
+        virtual void setVolume (float volume, CabinPeqGraph* sender) = 0;
     };
     
     CabinPeqGraph();
     ~CabinPeqGraph() override;
     
-    void setBands (std::vector<Band> bands);
+    void setBandProfile (BandProfile bandProfile);
     
     void paint (juce::Graphics& g) override;
     void resized() override;
@@ -59,8 +60,7 @@ public:
     void setGrayscale (bool grayscale);
     
 private:
-    std::vector<Band> bands;
-    float profileAmpl;
+    BandProfile bandProfile;
     Listener* listener;
     
     // Drawing/animation
@@ -100,6 +100,7 @@ private:
     void stopNoisePattern();
     void setNoisePatternSolo (bool solo);
     void soloNoisePatternIfAppropriate (const juce::MouseEvent& event);
+    void setVolume (float volume);
     
     // Interaction variables
     int draggingId = -1; // not currently dragging any point

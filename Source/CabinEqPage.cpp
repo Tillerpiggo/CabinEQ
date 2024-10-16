@@ -118,7 +118,7 @@ int CabinEqPage::addBand (float freq, float ampl, float bandwidth, CabinPeqGraph
     if (sender == amplGraph.get())
     {
         int addedBandId = processor.addBand (freq, ampl, bandwidth, profileId);
-        amplGraph->setBands (processor.getBands (profileId));
+        amplGraph->setBandProfile (processor.getBandProfile (profileId));
         processor.updateFilter (profileId);
         return addedBandId;
     }
@@ -131,7 +131,7 @@ void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, C
     if (sender == amplGraph.get())
     {
         processor.updateBand (id, freq, ampl, bandwidth, profileId);
-        amplGraph->setBands (processor.getBands (profileId));
+        amplGraph->setBandProfile (processor.getBandProfile (profileId));
         processor.updateFilter (profileId);
     }
 }
@@ -141,7 +141,7 @@ void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
     if (sender == amplGraph.get())
     {
         processor.removeBand (id, profileId);
-        amplGraph->setBands (processor.getBands (profileId));
+        amplGraph->setBandProfile (processor.getBandProfile (profileId));
         processor.updateFilter (profileId);
     }
 }
@@ -170,6 +170,15 @@ void CabinEqPage::stopNoisePattern()
 void CabinEqPage::setNoisePatternSolo (bool solo)
 {
     processor.setNoisePatternSolo (solo);
+}
+
+void CabinEqPage::setVolume (float volume, CabinPeqGraph* sender)
+{
+    if (sender == amplGraph.get())
+    {
+        processor.setProfileVolume (profileId, volume);
+        amplGraph->setBandProfile (processor.getBandProfile (profileId));
+    }
 }
 
 // ====================================================
@@ -443,7 +452,7 @@ void CabinEqPage::unlockApp()
 void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
 {
     profileId = profileIdToGoTo;
-    amplGraph->setBands (processor.getBands (profileId));
+    amplGraph->setBandProfile (processor.getBandProfile (profileId));
     processor.setLastSelectedProfileName (profileId);
     profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter (profileId);

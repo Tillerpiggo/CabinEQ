@@ -37,6 +37,7 @@ public:
     void updateNoisePatternAt (int id, CabinPeqGraph* sender) override;
     void stopNoisePattern() override;
     void setNoisePatternSolo (bool solo) override;
+    void setVolume (float volume, CabinPeqGraph* sender) override;
     
     void sliderValueChanged (juce::Slider *slider) override;
     void textEditorTextChanged (juce::TextEditor& textEditor) override;

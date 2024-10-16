@@ -30,7 +30,7 @@ public:
 
     void processBlock (juce::AudioBuffer<float>& buffer);
     
-    void updateFilterWithBands (std::vector<Band> bands);
+    void updateFilterWithBandProfile (BandProfile bandProfile);
     void prepare (const juce::dsp::ProcessSpec& spec);
     
     void setIsTesting (bool isTesting);

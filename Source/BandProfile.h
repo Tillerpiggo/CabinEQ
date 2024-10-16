@@ -34,13 +34,25 @@ public:
 class BandProfile
 {
 public:
-    BandProfile() {}
+    BandProfile()
+        : bands ({}), volume (0.0f)
+    {}
     
-    const std::vector<Band>& getBands()
+    BandProfile (std::vector<Band> bands, float volume)
+        : bands (bands), volume (volume)
+    {}
+    
+    const std::vector<Band>& getBands() const
     {
         return bands;
     }
+    
+    const float getVolume() const
+    {
+        return volume;
+    }
 private:
     std::vector<Band> bands;
+    float volume;
 };
 

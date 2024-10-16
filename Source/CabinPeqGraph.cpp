@@ -20,10 +20,16 @@ CabinPeqGraph::~CabinPeqGraph()
     removeListener();
 }
 
-void CabinPeqGraph::setBands (std::vector<Band> bands)
+//void CabinPeqGraph::setBands (std::vector<Band> bands)
+//{
+//    this->bands = bands;
+//    this->curve.updateWithBands (bands);
+//}
+
+void CabinPeqGraph::setBandProfile (BandProfile bandProfile)
 {
-    this->bands = bands;
-    this->curve.updateWithBands (bands);
+    this->bandProfile = bandProfile;
+    this->curve.updateWithBands (bandProfile.getBands());
 }
 
 void CabinPeqGraph::paint (juce::Graphics& g)
@@ -106,7 +112,7 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
     // If we're dragging the line, update profile amplitude
     if (isHoveringOverDotControl)
     {
-        profileAmpl = ampl;
+        setVolume (ampl);
         return;
     }
     
@@ -300,7 +306,7 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
 
 void CabinPeqGraph::drawBands (juce::Graphics& g)
 {
-    for (const auto& band : bands)
+    for (const auto& band : bandProfile.getBands())
     {
         // Get the color for the band
         juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (0.3f);
@@ -359,8 +365,8 @@ void CabinPeqGraph::drawCurve (juce::Graphics& g)
     
     juce::Path rectPath;
     rectPath.startNewSubPath (getX(), yForAmpl (0));
-    rectPath.lineTo (getX(), yForAmpl (profileAmpl));
-    rectPath.lineTo (getX() + getWidth(), yForAmpl (profileAmpl));
+    rectPath.lineTo (getX(), yForAmpl (bandProfile.getVolume()));
+    rectPath.lineTo (getX() + getWidth(), yForAmpl (bandProfile.getVolume()));
     rectPath.lineTo (getX() + getWidth(), yForAmpl (0));
     rectPath.lineTo (getX(), yForAmpl (0));
     g.setColour (juce::Colours::lightgrey.withAlpha (0.3f));
@@ -380,7 +386,7 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     
     // reference CabinEqGraph::drawDots for more specific outline
     
-    for (const auto& band : bands)
+    for (const auto& band : bandProfile.getBands())
     {
         // Draw a dot corresponding to the node
         juce::Point<float> point = coordsForFrequencyAndAmplitude (band.freq, band.ampl);
@@ -414,7 +420,7 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     // Draw a dot on the end to control the overall volume of the profile
     juce::Colour dotColour = juce::Colours::lightgrey;
     float freq = MAX_FREQ;
-    float ampl = profileAmpl;
+    float ampl = bandProfile.getVolume();
     juce::Point<float> point = coordsForFrequencyAndAmplitude (freq, ampl);
     drawDot (g, point, DOT_SIZE_DEFAULT, dotColour, isHoveringOverDotControl);
 }
@@ -539,7 +545,7 @@ void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
     }
     
     // Check if we're hovering over the dot control node at the end of the line
-    isHoveringOverDotControl = mouseEventDistanceFromFrequencyAndAmplitude (event, MAX_FREQ, profileAmpl) < DIST_TO_ADD_DB;
+    isHoveringOverDotControl = mouseEventDistanceFromFrequencyAndAmplitude (event, MAX_FREQ, bandProfile.getVolume()) < DIST_TO_ADD_DB;
     if (isHoveringOverDotControl)
     {
         hoveringId = -1;
@@ -710,7 +716,7 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
 {
     float minDist = HOVER_MIN_DIST;
     std::optional<Band> closestBand;
-    for (const auto& band : bands)
+    for (const auto& band : bandProfile.getBands())
     {
         float dist = mouseEventDistanceFromBand (event, band);
         if (dist < minDist)
@@ -804,5 +810,13 @@ void CabinPeqGraph::soloNoisePatternIfAppropriate(const juce::MouseEvent& event)
     if (listener != nullptr)
     {
         listener->setNoisePatternSolo (event.mods.isCtrlDown() || event.mods.isAltDown());
+    }
+}
+
+void CabinPeqGraph::setVolume (float volume)
+{
+    if (listener != nullptr)
+    {
+        listener->setVolume (volume, this);
     }
 }
