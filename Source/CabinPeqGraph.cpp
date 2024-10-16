@@ -292,16 +292,39 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
     juce::Colour lineColour = juce::Colours::lightgrey;
+    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
     g.setColour (lineColour);
     
     juce::Path centerPath;
-    float centerLine = getY() + getHeight() / 2;
-    centerPath.startNewSubPath (getX(), centerLine);
-    centerPath.lineTo (getX() + getWidth(), centerLine);
-    g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS / 2.0));
+    float centerY = getY() + getHeight() / 2;
+    centerPath.startNewSubPath (getX(), centerY);
+    centerPath.lineTo (getX() + getWidth(), centerY);
+    g.strokePath (centerPath, lineStrokeType);
     
     // Draw the log lines
+    // draw lines starting at intervals of 10
+    // every 10 it goes to intervals of 100
+    // etc.
     
+    std::vector<float> lineFreqs;
+    float currLineFreq = 10;
+    float interval = 10;
+    while (currLineFreq <= 20000)
+    {
+        lineFreqs.push_back (currLineFreq);
+        currLineFreq += interval;
+        if (currLineFreq / interval >= 10)
+            interval *= 10;
+    }
+    
+    for (const auto& lineFreq : lineFreqs)
+    {
+        juce::Path logLinePath;
+        float lineX = xForFreq (lineFreq);
+        logLinePath.startNewSubPath (lineX, getY());
+        logLinePath.lineTo (lineX, getY() + getHeight());
+        g.strokePath (logLinePath, lineStrokeType);
+    }
 }
 
 void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
@@ -409,10 +432,20 @@ std::pair<float, float> CabinPeqGraph::getEventCoords (const juce::MouseEvent& e
 juce::Point<float> CabinPeqGraph::coordsForFrequencyAndAmplitude (float freq, float ampl)
 {
     // Calculate (x, y) coords and return
-    float x = getWidth() * timeAtFrequency (freq);
-    float y = getHeight() * (1.0f - (ampl - MIN_DB) / (MAX_DB - MIN_DB));
+    float x = xForFreq (freq);
+    float y = yForAmpl (ampl);
     
-    return { x + getX(), y + getY() };
+    return { x , y };
+}
+
+float CabinPeqGraph::xForFreq (float freq)
+{
+    return getWidth() * timeAtFrequency (freq) + getX();
+}
+
+float CabinPeqGraph::yForAmpl (float ampl)
+{
+    return getHeight() * (1.0f - (ampl - MIN_DB) / (MAX_DB - MIN_DB)); + getY();
 }
 
 std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForCoords (float x, float y) const

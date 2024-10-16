@@ -76,6 +76,8 @@ private:
     // Coordinates
     std::pair<float, float> getEventCoords (const juce::MouseEvent& event) const;
     juce::Point<float> coordsForFrequencyAndAmplitude (float freq, float ampl);
+    float xForFreq (float freq);
+    float yForAmpl (float ampl);
     std::pair<float, float> frequencyAndAmplitudeForCoords (float x, float y) const;
     float frequencyAtTime (float t) const;
     float timeAtFrequency (float freq) const;
