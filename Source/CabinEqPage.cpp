@@ -178,6 +178,7 @@ void CabinEqPage::setVolume (float volume, CabinPeqGraph* sender)
     {
         processor.setProfileVolume (profileId, volume);
         amplGraph->setBandProfile (processor.getBandProfile (profileId));
+        processor.updateFilter (profileId);
     }
 }
 

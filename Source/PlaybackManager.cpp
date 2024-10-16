@@ -51,11 +51,6 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     overallVolumeProcessor.process (ioContext);
 }
 
-//void PlaybackManager::updateFilterWithBands (std::vector<Band> bands)
-//{
-//    filter.setBands (bands, spec.sampleRate);
-//}
-
 void PlaybackManager::updateFilterWithBandProfile (BandProfile bandProfile)
 {
     filter.setBands (bandProfile.getBands(), spec.sampleRate);
@@ -95,46 +90,41 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 {
-//    spatialPinkNoiseGenerator.setBandpass (freq, bandwidth);
-    
-    // Simple Example Pattern
-//    MelodicNotes simplePattern =
-//    MelodicNotes ({ -12, 0, 12 }, freq)
-//        .withBandwidth (bandwidth)
-//        .withNoteDurationInSeconds (0.2);
+//    // JustinPatterns D
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
+//        .withBandwidth (8.0)
+//        .withNoteDurationInSeconds (0.1);
+//     
 //    MelodicNotes details =
 //    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
 //        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
 //        .withNoteDurationInSeconds (0.1);
-//    spatialPatternGenerator.setPattern (details.noiseNotes());
+//    
+//    
+//    MelodicNotes sideDrums =
+//    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+//        .withCyclingPans ({ -1, -0.5, 0.5, 1 })
+//        .withBandwidth (8.0)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
     
-    // JustinPatterns D
-    float octDiff = bandwidth;
-    float ratio = octDiff / 2.0f;
-    
-    float bandwidthAdjusted = 1.5 * ratio;
-    float semitonesAbove = ratio * 18.0f;
-     
-    MelodicNotes drums =
-    MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
-        .withBandwidth (8.0)
+    // Bands I
+    float semitoneRatio = 5 * bandwidth;
+    MelodicNotes pattern =
+    MelodicNotes::withMelodicPattern ({ 1, 0, 0, 1, 0, 0, 1, 0 }, { -semitoneRatio, 0, semitoneRatio, }, freq, bandwidth, { 0 })
         .withNoteDurationInSeconds (0.1);
      
-    MelodicNotes details =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
-        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
-        .withNoteDurationInSeconds (0.1);
-    
-    
-    MelodicNotes sideDrums =
-    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
-        .withCyclingPans ({ -1, -0.5, 0.5, 1 })
-        .withBandwidth (8.0)
-        .withNoteDurationInSeconds (0.05);
-     
-    spatialPatternGenerator.setPattern (drums.noiseNotes());
-    spatialPatternGenerator2.setPattern (details.noiseNotes());
-    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+    spatialPatternGenerator.setPattern (pattern.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
