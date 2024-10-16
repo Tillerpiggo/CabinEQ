@@ -32,6 +32,7 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     g.fillRect (getBoundsInParent());
     
     drawLines (g); // draw lines before so that they are drawn over
+    drawBands (g);
     drawCurve (g);
     drawDots (g);
 }
@@ -208,6 +209,124 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 }
 
 // =============================================
+void CabinPeqGraph::drawLines (juce::Graphics& g)
+{
+    // Draw the center line
+    juce::Colour centerLineColour = juce::Colours::lightgrey;
+    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.3f);
+    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
+    
+    juce::Path centerPath;
+    float centerY = getY() + getHeight() / 2;
+    centerPath.startNewSubPath (getX(), centerY);
+    centerPath.lineTo (getX() + getWidth(), centerY);
+    g.setColour (centerLineColour);
+    g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS));
+    
+    // Draw the other horizontal lines
+    g.setColour (lineColour);
+    int numHorizontalLines = 12;
+    for (float y = getY(); y <= getY() + getHeight(); y += getHeight() / numHorizontalLines)
+    {
+        juce::Path horizontalLinePath;
+        horizontalLinePath.startNewSubPath (getX(), y);
+        horizontalLinePath.lineTo (getX() + getWidth(), y);
+        g.strokePath (horizontalLinePath, lineStrokeType);
+    }
+    
+    // Draw the log lines
+    // draw lines starting at intervals of 10
+    // every 10 it goes to intervals of 100
+    // etc.
+    
+    std::vector<float> lineFreqs;
+    float startLineFreq = 10;
+    float currLineFreq = 10;
+    float interval = 10;
+    float numLines = 10;//std::pow (10.0f, std::round (2.0f - std::log10 (maxFreqShowing / minFreqShowing)));
+    while (currLineFreq <= 20000)
+    {
+        lineFreqs.push_back (currLineFreq);
+        currLineFreq += interval;
+        if ((currLineFreq - startLineFreq) / interval >= numLines)
+            interval *= 10;
+    }
+    
+//    // Add extra lines if the interval between the lines is too large
+//    std::vector<float> inBetweenLineFreqs;
+//    for (int i = 0; i < lineFreqs.size() - 1; ++i)
+//    {
+//        // If the interval is too visually large, add in between lines
+//        if (xForFreq (lineFreqs[i + 1]) - xForFreq (lineFreqs[i]) > getWidth() / 3.0f)
+//        {
+//            // Add 10 in between lines
+//            float subInterval = (lineFreqs[i + 1] - lineFreqs[i]) / 10.0f;
+//            for (int j = lineFreqs[i] + subInterval; j < lineFreqs[i + 1]; j += subInterval)
+//                inBetweenLineFreqs.push_back (j);
+//        }
+//    }
+//
+//    // Add more lines that cut the original in half until no visible interval is too visibly large
+//    for (int i = 0; i < lineFreqs.size() - 1; ++i)
+//    {
+//        // If the interval is too visually large,
+//    }
+//
+//    for (const auto& inBetweenLineFreq : inBetweenLineFreqs)
+//    {
+//        std::cout << "inbetweenLineFreq: " << inBetweenLineFreq << std::endl;
+//        lineFreqs.push_back (inBetweenLineFreq);
+//    }
+    
+    for (const auto& lineFreq : lineFreqs)
+    {
+        if (lineFreq >= minFreqShowing / 1.1f && lineFreq <= maxFreqShowing * 1.1f)
+        {
+            juce::Path logLinePath;
+            float lineX = xForFreq (lineFreq);
+            logLinePath.startNewSubPath (lineX, getY());
+            logLinePath.lineTo (lineX, getY() + getHeight());
+            g.strokePath (logLinePath, lineStrokeType);
+        }
+    }
+}
+
+void CabinPeqGraph::drawBands (juce::Graphics& g)
+{
+    for (const auto& band : bands)
+    {
+        // Get the color for the band
+        juce::Colour bandColour = getColourForFrequency (band.freq);
+        juce::Path path;
+        
+        juce::Point<float> startPoint;
+        
+        // Draw curve with NUM_POINTS points
+        for (int i = 0; i < NUM_POINTS; ++i)
+        {
+            float t = static_cast<float> (i) / static_cast<float> (NUM_POINTS);
+            
+            float freq = frequencyAtTime (t);
+            float ampl = curve.dbAtFrequencyForBand (band, freq);
+            juce::Point<float> coords = coordsForFrequencyAndAmplitude (freq, ampl);
+            if (i == 0)
+            {
+                path.startNewSubPath (coords);
+                startPoint = coords;
+            }
+            else
+            {
+                path.lineTo (coords);
+            }
+        }
+        
+        // Complete the shape and fill in with band color
+        path.lineTo (startPoint);
+        g.setColour (bandColour);
+        g.fillPath (path);
+    }
+}
+
 void CabinPeqGraph::drawCurve (juce::Graphics& g)
 {
     // Get the gradient for the curve
@@ -286,86 +405,6 @@ void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float 
     
     // Draw the center of the dot
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
-}
-
-void CabinPeqGraph::drawLines (juce::Graphics& g)
-{
-    // Draw the center line
-    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.3f);
-    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
-    g.setColour (lineColour);
-    
-    juce::Path centerPath;
-    float centerY = getY() + getHeight() / 2;
-    centerPath.startNewSubPath (getX(), centerY);
-    centerPath.lineTo (getX() + getWidth(), centerY);
-    g.strokePath (centerPath, lineStrokeType);
-    
-    // Draw the other horizontal lines
-    int numHorizontalLines = 12;
-    for (float y = getY(); y <= getY() + getHeight(); y += getHeight() / numHorizontalLines)
-    {
-        juce::Path horizontalLinePath;
-        horizontalLinePath.startNewSubPath (getX(), y);
-        horizontalLinePath.lineTo (getX() + getWidth(), y);
-        g.strokePath (horizontalLinePath, lineStrokeType);
-    }
-    
-    // Draw the log lines
-    // draw lines starting at intervals of 10
-    // every 10 it goes to intervals of 100
-    // etc.
-    
-    std::vector<float> lineFreqs;
-    float startLineFreq = 10;
-    float currLineFreq = 10;
-    float interval = 10;
-    float numLines = 10;//std::pow (10.0f, std::round (2.0f - std::log10 (maxFreqShowing / minFreqShowing)));
-    while (currLineFreq <= 20000)
-    {
-        lineFreqs.push_back (currLineFreq);
-        currLineFreq += interval;
-        if ((currLineFreq - startLineFreq) / interval >= numLines)
-            interval *= 10;
-    }
-    
-//    // Add extra lines if the interval between the lines is too large
-//    std::vector<float> inBetweenLineFreqs;
-//    for (int i = 0; i < lineFreqs.size() - 1; ++i)
-//    {
-//        // If the interval is too visually large, add in between lines
-//        if (xForFreq (lineFreqs[i + 1]) - xForFreq (lineFreqs[i]) > getWidth() / 3.0f)
-//        {
-//            // Add 10 in between lines
-//            float subInterval = (lineFreqs[i + 1] - lineFreqs[i]) / 10.0f;
-//            for (int j = lineFreqs[i] + subInterval; j < lineFreqs[i + 1]; j += subInterval)
-//                inBetweenLineFreqs.push_back (j);
-//        }
-//    }
-//    
-//    // Add more lines that cut the original in half until no visible interval is too visibly large
-//    for (int i = 0; i < lineFreqs.size() - 1; ++i)
-//    {
-//        // If the interval is too visually large,
-//    }
-//    
-//    for (const auto& inBetweenLineFreq : inBetweenLineFreqs)
-//    {
-//        std::cout << "inbetweenLineFreq: " << inBetweenLineFreq << std::endl;
-//        lineFreqs.push_back (inBetweenLineFreq);
-//    }
-    
-    for (const auto& lineFreq : lineFreqs)
-    {
-        if (lineFreq >= minFreqShowing / 1.1f && lineFreq <= maxFreqShowing * 1.1f)
-        {
-            juce::Path logLinePath;
-            float lineX = xForFreq (lineFreq);
-            logLinePath.startNewSubPath (lineX, getY());
-            logLinePath.lineTo (lineX, getY() + getHeight());
-            g.strokePath (logLinePath, lineStrokeType);
-        }
-    }
 }
 
 std::vector<float> CabinPeqGraph::getLogLines()

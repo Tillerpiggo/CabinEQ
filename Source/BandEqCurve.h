@@ -21,9 +21,9 @@ public:
     virtual ~BandEqCurve() = default;
     
     const float dbAtFrequency (float frequency) const;
+    const float dbAtFrequencyForBand (Band band, float frequency) const;
     void updateWithBands (std::vector<Band> bands);
     
 protected:
-    const float dbAtFrequencyForBand (Band band, float frequency) const;
     std::vector<Band> bands;
 };
