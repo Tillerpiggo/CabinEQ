@@ -31,6 +31,7 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     g.setColour (BACKGROUND_COLOR);
     g.fillRect (getBoundsInParent());
     
+    drawLines (g); // draw lines before so that they are drawn over
     drawCurve (g);
     drawDots (g);
 }
@@ -285,6 +286,22 @@ void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float 
     
     // Draw the center of the dot
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
+}
+
+void CabinPeqGraph::drawLines (juce::Graphics& g)
+{
+    // Draw the center line
+    juce::Colour lineColour = juce::Colours::lightgrey;
+    g.setColour (lineColour);
+    
+    juce::Path centerPath;
+    float centerLine = getY() + getHeight() / 2;
+    centerPath.startNewSubPath (getX(), centerLine);
+    centerPath.lineTo (getX() + getWidth(), centerLine);
+    g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS / 2.0));
+    
+    // Draw the log lines
+    
 }
 
 void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
