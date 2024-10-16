@@ -297,6 +297,8 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
     {
         // Get the color for the band
         juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (0.3f);
+        if (band.id == draggingId || band.id == hoveringId)
+            bandColour = bandColour.withAlpha (0.8f);
         juce::Path path;
         
         // Draw curve with NUM_POINTS points
