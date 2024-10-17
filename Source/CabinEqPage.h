@@ -69,7 +69,6 @@ protected:
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
     bool isBypassed = false;
-    bool hasFilterChanged = true;
     
     bool creatingDuplicate = false;
     bool renamingProfile = false;

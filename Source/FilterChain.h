@@ -146,6 +146,12 @@ public:
                 }
             }
         }
+        
+        if (bands.size() < leftFilters.size())
+        {
+            leftFilters.erase (leftFilters.begin() + bands.size(), leftFilters.end());
+            rightFilters.erase (rightFilters.begin() + bands.size(), rightFilters.end());
+        }
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)

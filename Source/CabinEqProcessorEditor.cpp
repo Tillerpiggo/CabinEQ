@@ -11,7 +11,7 @@
 CabinEqProcessorEditor::CabinEqProcessorEditor(CabinEqAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), cabinEqPage (p)
 {
-    setSize (800, 620);
+    setSize (720, 480);
     addAndMakeVisible (cabinEqPage);
 }
 

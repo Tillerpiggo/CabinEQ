@@ -87,6 +87,12 @@
       </GROUP>
       <FILE id="s3hCoT" name="BandEqCurve.cpp" compile="1" resource="0" file="Source/BandEqCurve.cpp"/>
       <FILE id="ZovMg5" name="BandEqCurve.h" compile="0" resource="0" file="Source/BandEqCurve.h"/>
+      <FILE id="gFxyQy" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
+      <FILE id="gAPfh6" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
+      <FILE id="J24ett" name="ArbitraryResponseFilter.cpp" compile="1" resource="0"
+            file="Source/ArbitraryResponseFilter.cpp"/>
+      <FILE id="ItRFbf" name="ArbitraryResponseFilter.h" compile="0" resource="0"
+            file="Source/ArbitraryResponseFilter.h"/>
       <FILE id="Uf5qZJ" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
     </GROUP>
   </MAINGROUP>

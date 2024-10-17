@@ -15,29 +15,12 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
      //, graphs (juce::TabbedButtonBar::Orientation::TabsAtTop)
 {
     amplGraph = std::make_unique<CabinPeqGraph>();
-//    panGraph = std::make_unique<CabinEqGraph>();
-//    phaseGraph = std::make_unique<CabinEqGraph>();
-    
-//    auto backgroundColor = juce::Colour::fromRGB (0.1, 0.1, 0.2); // DRY violation; redundant w/ CabinEqGraph BACKGROUND_COLOR
-//    graphs.addTab ("Volume", backgroundColor, amplGraph.get(), false);
-//    graphs.addTab ("Left/Right", backgroundColor, panGraph.get(), false);
-//    graphs.addTab ("Phase", backgroundColor, phaseGraph.get(), false);
-    
-//    filterQualityDropdown.addItem ("Utopian", 1);
-//    filterQualityDropdown.addItem ("Fantastic", 2);
-//    filterQualityDropdown.addItem ("Great", 3);
-//    filterQualityDropdown.addItem ("Good", 4);
-//    filterQualityDropdown.addItem ("Economy", 5);
-//    filterQualityDropdown.setSelectedId (3);
-//    profileDropdown.addItem ("+ Add Profile", 1);
     
     volumeSlider.setRange (-20.0f, 20.0f);
     volumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     
     amplGraph->addListener (this);
-//    panGraph->addListener (this);
-//    phaseGraph->addListener (this);
     profileDropdown.addListener (this);
     filterQualityDropdown.addListener (this);
     bypassButton.addListener (this);
@@ -45,7 +28,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     volumeSlider.addListener (this);
     
     addAndMakeVisible (amplGraph.get());
-//    addAndMakeVisible (graphs);
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (volumeSlider);
@@ -56,26 +38,23 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 CabinEqPage::~CabinEqPage()
 {
     profileDropdown.removeListener (this);
-//    filterQualityDropdown.removeListener (this);
     bypassButton.removeListener (this);
     volumeSlider.removeListener (this);
     
     amplGraph->removeListener();
-//    panGraph->removeListener();
-//    phaseGraph->removeListener();
     
     processor.removeListener();
 }
 
 void CabinEqPage::paint (juce::Graphics& g)
 {
-//    g.fillAll (colorTheme->getBarBackgroundColor());
+//    g.fillAll (juce::Colours::lightgrey);
 }
 
 void CabinEqPage::resized()
 {
-    int padding = 20; // padding on the top and bottom
-    int componentPadding = 10; // padding between graph, slider, and dropdown
+    int padding = 12; // padding on the top and bottom
+    int componentPadding = 8; // padding between graph, slider, and dropdown
     int dropdownHeight = 30;
     int sliderHeight = 30;
     int labelHeight = 15;
@@ -86,8 +65,8 @@ void CabinEqPage::resized()
     int totalButtonWidth = buttonWidth + duplicateButtonWidth + applyButtonWidth;
 
     // Get heights for each component
-    int availableHeight = getHeight() - (2 * padding);
-    int graphHeight = availableHeight - dropdownHeight - sliderHeight - toggleButtonHeight - labelHeight - 4 * componentPadding;
+    int availableHeight = getHeight();
+    int graphHeight = availableHeight - dropdownHeight - sliderHeight - toggleButtonHeight - 2 * componentPadding;
     
     // Get widths for each component
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
@@ -102,8 +81,7 @@ void CabinEqPage::resized()
     // Row of buttons beneath the graph
     profileDropdown.setBounds (padding, buttonsY, profileDropdownWidth, dropdownHeight);
     filterQualityDropdown.setBounds (padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
-    int currentX = padding + dropdownWidth + buttonWidth;
-    bypassButton.setBounds (padding + dropdownWidth, buttonsY, buttonWidth, dropdownHeight);
+    bypassButton.setBounds (getWidth() - buttonWidth - padding, buttonsY, buttonWidth, dropdownHeight);
 
     // Set bounds for sliders
     int sliderY = buttonsY + dropdownHeight + componentPadding;
@@ -434,7 +412,7 @@ void CabinEqPage::dismissAlertWindow()
                                 
 void CabinEqPage::updateButtonText()
 {
-    bypassButton.setButtonText (isBypassed ? "OFF" : (hasFilterChanged ? "ON*" : "ON"));
+    bypassButton.setButtonText (isBypassed ? "OFF" : "ON");
 }
 
 void CabinEqPage::showForm()
