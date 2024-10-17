@@ -458,7 +458,44 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator3.setPattern (topDrums.noiseNotes());
 //    spatialPatternGenerator4.setPattern (annoyances.noiseNotes());
     
-    // Surrounded IV
+//    // Surrounded IV
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -24, -24, -12, -12, 0, 0, 12, 12, 24, 24 }, freq)
+//        .withBandwidth (5.0f)
+//        .withCyclingPans ({ -1, 1 })
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes ({ 0 }, freq)
+//        .withCyclingPans ({ -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0, -0.1, -0.2, -0.3, -0.4 })
+//        .withBandwidth (1.0f)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -12, 12 }, freq)
+//        .withCyclingPans (10)
+//        .withBandwidth (0.5f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    MelodicNotes topDrums =
+//    MelodicNotes ({ -24, 24 }, freq)
+//        .withBandwidth (5.0f)
+//        .withCyclingPans ({ -0.8, -0.8, -0.4, -0.4, 0.0, 0.0, 0.4, 0.4, 0.8, 0.8 })
+//        .withNoteDurationInSeconds (0.1);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (topDrums.noiseNotes());
+//    spatialPatternGenerator4.setPattern (annoyances.noiseNotes());
+    
+    // Surrounded V
     float octDiff = bandwidth;
     float ratio = octDiff / 2.0f;
     
@@ -466,10 +503,10 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
     float semitonesAbove = ratio * 18.0f;
      
     MelodicNotes drums =
-    MelodicNotes ({ -24, -24, -12, -12, 0, 0, 12, 12, 24, 24 }, freq)
+    MelodicNotes ({ -6, -6, 0, 0, 6, 6 }, freq)
         .withBandwidth (5.0f)
         .withCyclingPans ({ -1, 1 })
-        .withNoteDurationInSeconds (0.2);
+        .withNoteDurationInSeconds (0.1);
      
     MelodicNotes details =
     MelodicNotes ({ 0 }, freq)
@@ -486,7 +523,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
     
     MelodicNotes topDrums =
     MelodicNotes ({ -24, 24 }, freq)
-        .withBandwidth (5.0f)
+        .withBandwidth (2.0f)
         .withCyclingPans ({ -0.8, -0.8, -0.4, -0.4, 0.0, 0.0, 0.4, 0.4, 0.8, 0.8 })
         .withNoteDurationInSeconds (0.1);
      
