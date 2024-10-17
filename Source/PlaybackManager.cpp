@@ -202,7 +202,64 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (details.noiseNotes());
 //    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
     
-    // Cabin Noise II
+//    // Cabin Noise III
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, 36 }, freq)
+//        .withBandwidth (2.5)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 3.0f, { 0 })
+//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes sideDrums =
+//    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+//        .withCyclingPans ({ -1, 1 })
+//        .withBandwidth (4.0)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+////    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+    
+//    // Cabin Noise III.III - interesting results, not sure how to classify them
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, 36, -24, 24 }, freq)
+//        .withBandwidths ({ 2.5, 2.5, 1.0, 1.0 })
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 3.0f, { 0 })
+//        .withCyclingPans ({ -1, 1, 1 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes sideDrums =
+//    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+//        .withCyclingPans ({ -1, 1 })
+//        .withBandwidth (4.0)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+////    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+    
+    // Cabin Noise IV
     float octDiff = bandwidth;
     float ratio = octDiff / 2.0f;
     
@@ -210,25 +267,26 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
     float semitonesAbove = ratio * 18.0f;
      
     MelodicNotes drums =
-    MelodicNotes::withFreqs ({ 100, 10000, 100, 10000 })
-        .withBandwidth (4.0)
-        .withNoteDurationInSeconds (0.1);
+    MelodicNotes ({ -36, 0, 36, 0 }, freq)
+        .withBandwidth (2.5)
+        .withNoteDurationInSeconds (0.2);
      
     MelodicNotes details =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 3.0f, { 0 })
-        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 4.0f, { 0 })
+        .withCyclingPans ({ -0.5, 0.5, 0.5 })
+//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
         .withNoteDurationInSeconds (0.1);
     
     
-    MelodicNotes sideDrums =
-    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
-        .withCyclingPans ({ -1, 1 })
-        .withBandwidth (4.0)
+    MelodicNotes annoyances =
+    MelodicNotes ({ -18, -18, -18, 18, 18, 18 }, freq)
+        .withCyclingPans ({ -1, 0, 1 })
+        .withBandwidth (0.5f)
         .withNoteDurationInSeconds (0.05);
      
     spatialPatternGenerator.setPattern (drums.noiseNotes());
     spatialPatternGenerator2.setPattern (details.noiseNotes());
-//    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
