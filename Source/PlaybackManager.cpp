@@ -317,7 +317,38 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (details.noiseNotes());
 //    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
     
-    // Echoes I
+//    // Echoes I
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, 0, 36, 0 }, freq)
+//        .withBandwidth (bandwidth)
+//        .withCyclingPans ({ -1, 0, 0, 1, 0 })
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 }, { -3, -3, 0, 0, 3, 3, 0, 0 }, freq, bandwidth / 4.0f, { 0 })
+//        .withCyclingPans ({ -1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0, -0.5 })
+//        .withCyclingAmpls ({ 0, 0, -6 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+    
+    // Surrounded I
     float octDiff = bandwidth;
     float ratio = octDiff / 2.0f;
     
@@ -325,28 +356,32 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
     float semitonesAbove = ratio * 18.0f;
      
     MelodicNotes drums =
-    MelodicNotes ({ -36, 0, 36, 0 }, freq)
+    MelodicNotes ({ -36, -36, 0, 0, 36, 36 }, freq)
         .withBandwidth (bandwidth)
-        .withCyclingPans ({ -1, 0, 0, 1, 0 })
+        .withCyclingPans ({ -1, 1 })
         .withNoteDurationInSeconds (0.2);
      
     MelodicNotes details =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 }, { -3, -3, 0, 0, 3, 3, 0, 0 }, freq, bandwidth / 4.0f, { 0 })
-        .withCyclingPans ({ -1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0, -0.5 })
-        .withCyclingAmpls ({ 0, 0, -6 })
-//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+        .withBandwidth (bandwidth / 3.0f)
+        .withCyclingPans ({ -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0, -0.1, -0.2, -0.3, -0.4 })
         .withNoteDurationInSeconds (0.1);
     
     
-    MelodicNotes annoyances =
-    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
-        .withCyclingPans ({ -1, 0, 1 })
-        .withBandwidth (bandwidth / 8.0f)
-        .withNoteDurationInSeconds (0.05);
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+    
+    MelodicNotes topDrums =
+    MelodicNotes ({ -36, 36 }, freq)
+        .withBandwidth (bandwidth)
+        .withCyclingPans ({ -0.8, -0.8, -0.4, -0.4, 0.0, 0.0, 0.4, 0.4, 0.8, 0.8 });
      
     spatialPatternGenerator.setPattern (drums.noiseNotes());
     spatialPatternGenerator2.setPattern (details.noiseNotes());
-    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+    spatialPatternGenerator3.setPattern (topDrums.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
