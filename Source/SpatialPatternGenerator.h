@@ -19,7 +19,8 @@ struct NoiseNote
     NoiseNote (float freqFactor, float bandwidth, int durationInSamples, float pan, std::pair<float, float> bandwidthEnvelope, bool isRelativeToCenterFrequency = true, float ampl = 0.0, StereoGainEnvelope envelope = StereoGainEnvelope::clap())
     : freqFactor (freqFactor), bandwidth (bandwidth), durationInSamples (durationInSamples), pan (pan), envelope (envelope),
       bandwidthEnvelope (bandwidthEnvelope),
-      isRelativeToCenterFrequency (isRelativeToCenterFrequency)
+      isRelativeToCenterFrequency (isRelativeToCenterFrequency),
+      ampl (ampl)
     {}
     
     float freqFactor; // frequency factor from center frequency

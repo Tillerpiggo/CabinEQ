@@ -245,6 +245,24 @@ public:
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, newAmpls, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
+    MelodicNotes withCyclingAmpls (std::vector<float> cyclingAmpls)
+    {
+        std::vector<float> newNotesInSemitones;
+        std::vector<float> newPans;
+        std::vector<float> newBandwidths;
+        std::vector<float> newAmpls;
+        
+        for (int i = 0; i < notesInSemitones.size() * cyclingAmpls.size(); ++i)
+        {
+            newNotesInSemitones.push_back (notesInSemitones[i % notesInSemitones.size()]);
+            newPans.push_back (pans[i % pans.size()]);
+            newBandwidths.push_back (bandwidths[i % bandwidths.size()]);
+            newAmpls.push_back (cyclingAmpls[i % cyclingAmpls.size()]);
+        }
+        
+        return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, newAmpls, centerFreq, noteDurationInSeconds, sampleRate);
+    }
+    
     MelodicNotes withSubdivisions (int numSections, int position) // subdivides into numSections, puts your position in that section. e.g. 3 sections, position = 1 would give you a (0-1-0, 0-1-0) pattern
     {
         std::vector<float> newNotesInSemitones;
@@ -327,7 +345,7 @@ public:
         for (int i = 0; i < notesInSemitones.size(); ++i)
         {
             float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
-            noiseNotes.push_back (NoiseNote(noteFreq, bandwidths[i], noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false));
+            noiseNotes.push_back (NoiseNote(noteFreq, bandwidths[i], noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false, ampls[i]));
         }
         
         return noiseNotes;
@@ -345,7 +363,7 @@ public:
         for (int i = 0; i < notesInSemitones.size(); ++i)
         {
             float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
-            noiseNotes.push_back (NoiseNote(noteFreq, bandwidths[i], noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false));
+            noiseNotes.push_back (NoiseNote(noteFreq, bandwidths[i], noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false, ampls[i]));
             noiseNotes.push_back (NoiseNote(referenceFreq, refBandwidth, noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false)); // reference frequency
         }
         

@@ -26,6 +26,10 @@ void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
 {
     this->notes = notes;
     currNoteIdx = 0;
+    for (const auto& note : notes)
+    {
+        std::cout << "ampl: " << note.ampl << std::endl;
+    }
     numSamplesNoteHasBeenPlaying = 0;
     updateBandpassAndPanning();
 }
@@ -109,6 +113,8 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
     float gainChange = std::min (juce::Decibels::decibelsToGain (getCurrNote().ampl), 1.0f);
     leftGain *= gainChange;
     rightGain *= gainChange;
+    
+    std::cout << "getCurrNote().ampl: " << getCurrNote().ampl << std::endl;
     
 //    leftGain = 1.0f;
 //    rightGain = 1.0f;

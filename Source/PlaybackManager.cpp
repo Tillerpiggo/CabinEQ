@@ -288,7 +288,36 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (details.noiseNotes());
 //    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
     
-    // Cabin Noise V
+//    // Cabin Noise V
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, 0, 36, 0 }, freq)
+//        .withBandwidth (bandwidth)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 4.0f, { 0 })
+//        .withCyclingPans ({ -0.5, 0.5, 0.5 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+    
+    // Echoes I
     float octDiff = bandwidth;
     float ratio = octDiff / 2.0f;
     
@@ -298,11 +327,13 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
     MelodicNotes drums =
     MelodicNotes ({ -36, 0, 36, 0 }, freq)
         .withBandwidth (bandwidth)
+        .withCyclingPans ({ -1, 0, 0, 1, 0 })
         .withNoteDurationInSeconds (0.2);
      
     MelodicNotes details =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 4.0f, { 0 })
-        .withCyclingPans ({ -0.5, 0.5, 0.5 })
+    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 }, { -3, -3, 0, 0, 3, 3, 0, 0 }, freq, bandwidth / 4.0f, { 0 })
+        .withCyclingPans ({ -1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0, -0.5 })
+        .withCyclingAmpls ({ 0, 0, -6 })
 //        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
         .withNoteDurationInSeconds (0.1);
     
