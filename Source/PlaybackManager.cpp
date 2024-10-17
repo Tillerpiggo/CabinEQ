@@ -100,33 +100,33 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 {
-//    // JustinPatterns D
-    float octDiff = bandwidth;
-    float ratio = octDiff / 2.0f;
-    
-    float bandwidthAdjusted = 1.5 * ratio;
-    float semitonesAbove = ratio * 18.0f;
-     
-    MelodicNotes drums =
-    MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
-        .withBandwidth (8.0)
-        .withNoteDurationInSeconds (0.1);
-     
-    MelodicNotes details =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
-        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
-        .withNoteDurationInSeconds (0.1);
-    
-    
-    MelodicNotes sideDrums =
-    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
-        .withCyclingPans ({ -1, -0.5, 0.5, 1 })
-        .withBandwidth (8.0)
-        .withNoteDurationInSeconds (0.05);
-     
-    spatialPatternGenerator.setPattern (drums.noiseNotes());
-    spatialPatternGenerator2.setPattern (details.noiseNotes());
-    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
+////    // JustinPatterns D
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
+//        .withBandwidth (8.0)
+//        .withNoteDurationInSeconds (0.1);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -18, -12, -6, 0, 6, 12, 24, 18, 12, 6, 0, -9, -15 }, freq, 3.0, { 0 })
+//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes sideDrums =
+//    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+//        .withCyclingPans ({ -1, -0.5, 0.5, 1 })
+//        .withBandwidth (8.0)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
     
 //    // Bands I
 //    float semitoneRatio = 5 * bandwidth;
@@ -173,6 +173,34 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator.setPattern (belowNoise.noiseNotes());
 //    spatialPatternGenerator2.setPattern (pattern.noiseNotes());
 //    spatialPatternGenerator3.setPattern (aboveNoise.noiseNotes());
+    
+    // Cabin Noise I
+    float octDiff = bandwidth;
+    float ratio = octDiff / 2.0f;
+    
+    float bandwidthAdjusted = 1.5 * ratio;
+    float semitonesAbove = ratio * 18.0f;
+     
+    MelodicNotes drums =
+    MelodicNotes::withFreqs ({ 100, 400, 1600, 6400, 10000, 8000, 2400, 700, 200 })
+        .withBandwidth (4.0)
+        .withNoteDurationInSeconds (0.1);
+     
+    MelodicNotes details =
+    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 3.0f, { 0 })
+        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+        .withNoteDurationInSeconds (0.1);
+    
+    
+    MelodicNotes sideDrums =
+    MelodicNotes::withFreqs ({ 100, 100, 400, 400, 1600, 1600, 6400, 6400, 10000, 10000, 8000, 8000, 2400, 2400, 700, 700, 200, 200 })
+        .withCyclingPans ({ -1, 1 })
+        .withBandwidth (4.0)
+        .withNoteDurationInSeconds (0.05);
+     
+    spatialPatternGenerator.setPattern (drums.noiseNotes());
+    spatialPatternGenerator2.setPattern (details.noiseNotes());
+    spatialPatternGenerator3.setPattern (sideDrums.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
