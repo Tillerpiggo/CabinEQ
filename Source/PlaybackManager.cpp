@@ -288,37 +288,37 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (details.noiseNotes());
 //    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
     
-    // Cabin Noise V
-    float octDiff = bandwidth;
-    float ratio = octDiff / 2.0f;
-    
-    float bandwidthAdjusted = 1.5 * ratio;
-    float semitonesAbove = ratio * 18.0f;
-     
-    MelodicNotes drums =
-    MelodicNotes ({ -36, 0, 36, 0 }, freq)
-        .withBandwidth (bandwidth)
-        .withNoteDurationInSeconds (0.2);
-     
-    MelodicNotes details =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 4.0f, { 0 })
-        .withCyclingPans ({ -0.5, 0.5, 0.5 })
-//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
-        .withNoteDurationInSeconds (0.1);
-    
-    
-    MelodicNotes annoyances =
-    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
-        .withCyclingPans ({ -1, 0, 1 })
-        .withBandwidth (bandwidth / 8.0f)
-        .withNoteDurationInSeconds (0.05);
-     
-    spatialPatternGenerator.setPattern (drums.noiseNotes());
-    spatialPatternGenerator2.setPattern (details.noiseNotes());
-    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
-    
-    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
-    spatialPatternGenerator3.setPeakFilter (freq, 1.0f, -12.0f);
+//    // Cabin Noise V
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, 0, 36, 0 }, freq)
+//        .withBandwidth (bandwidth)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 4.0f, { 0 })
+//        .withCyclingPans ({ -0.5, 0.5, 0.5 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, 1.0f, -12.0f);
     
 //    // Echoes I
 //    float octDiff = bandwidth;
@@ -684,6 +684,366 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (details.noiseNotes());
 ////    spatialPatternGenerator3.setPattern (topDrums.noiseNotes());
 ////    spatialPatternGenerator4.setPattern (annoyances.noiseNotes());
+    
+//    // Dips I
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 0 }, freq)
+//        .withBandwidth (bandwidth * 2.0f)
+//        .withCyclingPans (8)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 2.0f, { 0 })
+//        .withCyclingPans (20)
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth / 2.0f, -12.0f);
+    
+//    // Dips II
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 0 }, freq)
+//        .withBandwidth (bandwidth * 2.0f)
+//        .withCyclingPans (8)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 2.0f, { 0 })
+//        .withCyclingPans (20)
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -12.0f);
+    
+//    // Dips III
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -12, 12 }, freq)
+//        .withBandwidth (bandwidth * 2.0f)
+//        .withCyclingPans (8)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 2.0f, { 0 })
+//        .withCyclingPans (20)
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -12.0f);
+    
+//    // Dips IV
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -12, 0, 12, 0 }, freq)
+//        .withBandwidth (bandwidth * 2.0f)
+//        .withCyclingPans (8)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 2.0f, { 0 })
+//        .withCyclingPans (20)
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans (10)
+//        .withBandwidth (bandwidth / 4.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth, -8.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -8.0f);
+    
+//    // Dips V
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -12, 0, 12, 0 }, freq)
+//        .withBandwidth (bandwidth * 2.0f)
+//        .withCyclingPans (8)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 2.0f, { 0 })
+//        .withCyclingPans (20)
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans (10)
+//        .withBandwidth (bandwidth / 4.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth, -4.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -4.0f);
+    
+//    // Dips VI
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -18, -6, 6, 18, 6, -6 }, freq)
+//        .withBandwidth (bandwidth * 3.0f)
+//        .withCyclingPans (8)
+//        .withNoteDurationInSeconds (0.1);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 2.0f, { 0 })
+//        .withCyclingPans (20)
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans (10)
+//        .withBandwidth (bandwidth / 4.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth, -10.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -10.0f);
+    
+//    // Dips VII
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -24, -12, 0, 12, 24 }, freq)
+//        .withBandwidth (bandwidth * 3.0f)
+//        .withCyclingPans (20)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 2.0f, { 0 })
+//        .withCyclingPans (20)
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -12, -6, 0, 6, 12, 6, 0, -6 }, freq)
+//        .withCyclingPans (10)
+//        .withBandwidth (bandwidth / 4.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+////    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -12.0f);
+    
+//    // Dips VIII
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -24, -12, 0, 12, 24 }, freq)
+//        .withBandwidth (bandwidth * 3.0f)
+//        .withCyclingPans (20)
+//        .withNoteDurationInSeconds (0.1);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 2.0f, { 0 })
+//        .withCyclingPans (20)
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -12, -6, 0, 6, 12, 6, 0, -6 }, freq)
+//        .withCyclingPans (10)
+//        .withBandwidth (bandwidth / 4.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth, -24.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -24.0f);
+    
+//    // Cabin Noise V (2)
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, 0, 36, 0 }, freq)
+//        .withBandwidth (bandwidth)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -4, -2, 0, 2, 4, 1, -3 }, freq, bandwidth / 4.0f, { 0 })
+//        .withCyclingPans ({ -0.5, 0.5, 0.5 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq, bandwidth, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -12.0f);
+    
+//    // Separations
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 0 }, freq)
+//        .withCyclingPans (10)
+//        .withBandwidth (bandwidth)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { 12 }, freq, bandwidth / 4.0f, { 0 })
+//        .withCyclingPans ({ -0.5, 0.5, 0.5 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+////    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+//    
+//    spatialPatternGenerator.setPeakFilter (freq * 2.0f, bandwidth, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -12.0f);
+    
+    // Cabin Noise VI
+    float octDiff = bandwidth;
+    float ratio = octDiff / 2.0f;
+    
+    float bandwidthAdjusted = 1.5 * ratio;
+    float semitonesAbove = ratio * 18.0f;
+     
+    MelodicNotes drums =
+    MelodicNotes ({ -36, 0, 36, 0 }, freq)
+        .withBandwidth (bandwidth)
+        .withNoteDurationInSeconds (0.2);
+     
+    MelodicNotes details =
+    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -12, -6, 0, 6, 12, 4, -4 }, freq, bandwidth / 4.0f, { 0 })
+        .withCyclingPans ({ -0.5, 0.5, 0.5 })
+//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+        .withNoteDurationInSeconds (0.1);
+    
+    
+    MelodicNotes annoyances =
+    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+        .withCyclingPans ({ -1, 0, 1 })
+        .withBandwidth (bandwidth / 8.0f)
+        .withNoteDurationInSeconds (0.05);
+     
+    spatialPatternGenerator.setPattern (drums.noiseNotes());
+    spatialPatternGenerator2.setPattern (details.noiseNotes());
+    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
+    
+//    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, 1.0f, -12.0f);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
