@@ -215,7 +215,7 @@ private:
     {
         auto filter = std::make_unique<Filter>();
         *filter->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
-                                                              juce::Decibels::decibelsToGain (amplInDB));;
+                                                              juce::Decibels::decibelsToGain (amplInDB));
         filter->prepare (spec);
         filters.push_back (std::move(filter));
     }

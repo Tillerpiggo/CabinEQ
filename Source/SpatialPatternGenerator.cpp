@@ -15,11 +15,13 @@ SpatialPatternGenerator::SpatialPatternGenerator()
 {
 }
 
-void SpatialPatternGenerator::setSampleRate (float sampleRate)
+void SpatialPatternGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    noiseGenerator.setSampleRate (sampleRate);
-//    noiseGenerator.setBandpass (1000, 1);
-//    this->sampleRate = sampleRate;
+    sampleRate = spec.sampleRate;
+    noiseGenerator.setSampleRate (spec.sampleRate);
+    setPeakFilter (1000, 1, 0);
+    leftPeakFilter.prepare (spec);
+    rightPeakFilter.prepare (spec);
 }
 
 void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
@@ -32,6 +34,13 @@ void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
     }
     numSamplesNoteHasBeenPlaying = 0;
     updateBandpassAndPanning();
+}
+
+void SpatialPatternGenerator::setPeakFilter (float centerFreq, float bandwidth, float ampl)
+{
+    float qFactor = Band::bandwidthToQFactor (bandwidth);
+    *leftPeakFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, centerFreq, qFactor, juce::Decibels::decibelsToGain (ampl));
+    *rightPeakFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, centerFreq, qFactor, juce::Decibels::decibelsToGain (ampl));
 }
 
 void SpatialPatternGenerator::setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs)
@@ -67,6 +76,8 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
         return { 0, 0 };
     
     std::pair<float, float> sample = noiseGenerator.getNextSample();
+    sample.first = leftPeakFilter.processSample (sample.first);
+    sample.second = rightPeakFilter.processSample (sample.second);
     
     numSamplesNoteHasBeenPlaying++;
     if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)
