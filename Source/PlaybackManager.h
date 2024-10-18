@@ -20,6 +20,7 @@
 #include "BandProfile.h"
 #include "FilterChain.h"
 #include "ArbitraryResponseFilter.h"
+#include "ArbitrarySequencer.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -71,6 +72,7 @@ private:
     SpatialPatternGenerator spatialPatternGenerator5;
     SpatialPatternGenerator spatialPatternGenerator6;
     SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
+    ArbitrarySequencer arbitrarySequencer;
     ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
     Curve tiltCurve;
     

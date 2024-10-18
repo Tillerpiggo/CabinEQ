@@ -17,7 +17,8 @@ PlaybackManager::PlaybackManager()
     : isCalibrating (false),
       isProcessing (false),
       hasPreparedFilter (false),
-      tiltFilter (8)
+      tiltFilter (8),
+      arbitrarySequencer (std::make_unique<SineWaveGenerator>())
 {
     profileVolumeProcessor.setRampDurationSeconds (0.05);
     profileVolumeProcessor.setGainDecibels (0.0f);
@@ -75,6 +76,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     spatialPatternGenerator4.prepare (spec);
     spatialPatternGenerator5.prepare (spec);
     spatialPatternGenerator6.prepare (spec);
+    arbitrarySequencer.setSampleRate (spec.sampleRate);
     spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     wrapperPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     tiltFilter.prepare (spec);
@@ -1399,39 +1401,70 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (details.noiseNotes());
 //    spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
     
-    // Cabin Noise XVIII
+//    // Cabin Noise XVIII
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -24, -12, 0, 12, 24, 36, 48 }, freq)
+//        .withBandwidth (bandwidth * 2.0f)
+//        .withCyclingAmpls ({ -24 })
+////        .withCyclingPans ({ -0.8, 0.8 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes thinDrums =
+//    MelodicNotes ({ -15, -9, -3, 3, 9, 15, 21, 27 }, freq)
+//        .withBandwidth (bandwidth / 2.0f)
+////        .withCyclingPans ({ -0.8, 0.8 })
+//        .withCyclingAmpls ({ -12 })
+//        .withNoteDurationInSeconds (0.1);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -12, 0, 12, 24, 8, -8 }, freq, bandwidth / 16.0f, { 0 })
+////        .withCyclingPans ({ -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withCyclingAmpls ({ 12 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
+    
+    // Scales I
     bandwidth *= 2.0f;
      
     MelodicNotes drums =
     MelodicNotes ({ -24, -12, 0, 12, 24, 36, 48 }, freq)
         .withBandwidth (bandwidth * 2.0f)
-        .withCyclingAmpls ({ -24 })
+        .withCyclingAmpls ({ -12 })
 //        .withCyclingPans ({ -0.8, 0.8 })
         .withNoteDurationInSeconds (0.1);
     
     MelodicNotes thinDrums =
     MelodicNotes ({ -15, -9, -3, 3, 9, 15, 21, 27 }, freq)
-        .withBandwidth (bandwidth / 2.0f)
+        .withBandwidth (bandwidth / 4.0f)
 //        .withCyclingPans ({ -0.8, 0.8 })
-        .withCyclingAmpls ({ -12 })
+        .withCyclingAmpls ({ 0 })
         .withNoteDurationInSeconds (0.1);
-     
-    MelodicNotes details =
-    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -24, -12, 0, 12, 24, 8, -8 }, freq, bandwidth / 16.0f, { 0 })
-//        .withCyclingPans ({ -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1 })
-//        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
-        .withCyclingAmpls ({ 12 })
-        .withNoteDurationInSeconds (0.1);
-    
     
     MelodicNotes annoyances =
     MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
         .withCyclingPans ({ -1, 0, 1 })
         .withBandwidth (bandwidth / 8.0f)
         .withNoteDurationInSeconds (0.05);
-     
+    
+    std::vector<float> scale { 0, 2, 4, 5, 7, 9, 11, 12 };
+    for (int i = 0; i < scale.size(); ++i)
+        scale[i] -= 5;
+    
+    arbitrarySequencer.setNotes (scale, freq);
     spatialPatternGenerator.setPattern (drums.noiseNotes());
-    spatialPatternGenerator2.setPattern (details.noiseNotes());
     spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
 }
 
@@ -1481,6 +1514,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
     auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
     auto [leftSample4, rightSample4] = spatialPatternGenerator4.getNextSample();
+    auto [leftSample5, rightSample5] = arbitrarySequencer.getNextSample();
     
     float leftSample = 0.0f;
     float rightSample = 0.0f;
@@ -1508,6 +1542,9 @@ std::pair<float, float> PlaybackManager::getNextSample()
         leftSample += leftSample4;
         rightSample += rightSample4;
     }
+    
+    leftSample += leftSample5 * 0.01;
+    rightSample += rightSample5 * 0.01;
     
 //    auto [leftSample6, rightSample6] = spatialPatternGenerator6.getNextSample();
     return { leftSample * 30.0, rightSample * 30.0 };
