@@ -1013,17 +1013,45 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator.setPeakFilter (freq * 2.0f, bandwidth, -12.0f);
 //    spatialPatternGenerator3.setPeakFilter (freq, bandwidth, -12.0f);
     
-    // Cabin Noise VI
-    float octDiff = bandwidth;
-    float ratio = octDiff / 2.0f;
+//    // Cabin Noise VI
+//    float octDiff = bandwidth;
+//    float ratio = octDiff / 2.0f;
+//    
+//    float bandwidthAdjusted = 1.5 * ratio;
+//    float semitonesAbove = ratio * 18.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, 0, 36, 0 }, freq)
+//        .withBandwidth (bandwidth)
+//        .withNoteDurationInSeconds (0.2);
+//     
+//    MelodicNotes details =
+//    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -12, -6, 0, 6, 12, 4, -4 }, freq, bandwidth / 4.0f, { 0 })
+//        .withCyclingPans ({ -0.5, 0.5, 0.5 })
+////        .withCyclingPans ({ -1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -6, -3, 0, 3, 6, 3, 0, -3 }, freq)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (bandwidth / 8.0f)
+//        .withNoteDurationInSeconds (0.05);
+//     
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (details.noiseNotes());
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
     
-    float bandwidthAdjusted = 1.5 * ratio;
-    float semitonesAbove = ratio * 18.0f;
+//    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, 1.0f, -12.0f);
+    
+    // Cabin Noise VII
+    bandwidth *= 2.0f;
      
     MelodicNotes drums =
     MelodicNotes ({ -36, 0, 36, 0 }, freq)
         .withBandwidth (bandwidth)
-        .withNoteDurationInSeconds (0.2);
+        .withNoteDurationInSeconds (0.1);
      
     MelodicNotes details =
     MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, { -12, -6, 0, 6, 12, 4, -4 }, freq, bandwidth / 4.0f, { 0 })
@@ -1040,10 +1068,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
      
     spatialPatternGenerator.setPattern (drums.noiseNotes());
     spatialPatternGenerator2.setPattern (details.noiseNotes());
-    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
-    
-//    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
-//    spatialPatternGenerator3.setPeakFilter (freq, 1.0f, -12.0f);
+//    spatialPatternGenerator3.setPattern (annoyances.noiseNotes());
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
