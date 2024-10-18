@@ -66,7 +66,7 @@ void ArbitrarySequencer::setNotes (const std::vector<float>& notesInSemitones, f
     for (const auto& semitones : notesInSemitones)
     {
         float noteFreq = freq * std::pow (semitoneRatio, semitones);
-        sequenceableNotes.push_back (SequenceableNote (noteFreq, 0.0, 0.0, 0.0, 10000));
+        sequenceableNotes.push_back (SequenceableNote (noteFreq, 0.0, 0.0, 0.0, 7500));
     }
     setNotes (sequenceableNotes, repeating);
 }
