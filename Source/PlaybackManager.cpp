@@ -48,10 +48,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
     juce::dsp::ProcessContextReplacing<float> ioContext(ioBlock);
     
-//    if (isCalibrating)
-//    {
-//        tiltFilter.process (ioContext);
-//    }
+    if (isCalibrating)
+    {
+        tiltFilter.process (ioContext);
+    }
     
     if (isProcessing || isCalibrating)
     {
