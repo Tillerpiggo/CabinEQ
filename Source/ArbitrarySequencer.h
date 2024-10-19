@@ -34,6 +34,7 @@ public:
     void setSampleRate (float newSampleRate);
     void setNotes (const std::vector<SequenceableNote>& notes, bool repeating = true);
     void setNotes (const std::vector<float>& notesInSemitones, float freq, bool repeating = true);
+    void setNotes (const std::vector<float>& notesInSemitones, float freq, int noteDurationInSamples, bool repeating = true);
     void setNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes, bool repeating = true); // plays each note repeated, from 5 different angles (hard right, soft right, center, soft left, hard left)
     void setListener (SequencerListener* newListener);
     

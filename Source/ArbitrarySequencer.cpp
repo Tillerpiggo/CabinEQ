@@ -71,6 +71,18 @@ void ArbitrarySequencer::setNotes (const std::vector<float>& notesInSemitones, f
     setNotes (sequenceableNotes, repeating);
 }
 
+void ArbitrarySequencer::setNotes (const std::vector<float>& notesInSemitones, float freq, int noteDurationInSamples, bool repeating)
+{
+    std::vector<SequenceableNote> sequenceableNotes;
+    float semitoneRatio = std::pow (2.0f, 1.0f / 12.0f);
+    for (const auto& semitones : notesInSemitones)
+    {
+        float noteFreq = freq * std::pow (semitoneRatio, semitones);
+        sequenceableNotes.push_back (SequenceableNote (noteFreq, 0.0, 0.0, 0.0, noteDurationInSamples));
+    }
+    setNotes (sequenceableNotes, repeating);
+}
+
 void ArbitrarySequencer::setNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes, bool repeating)
 {
     auto spatialNotes = getNotesForSpatialCalibration (notes);
