@@ -1662,14 +1662,141 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (details.noiseNotes());
 ////    spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
     
-    // Chords I
+//    // Chords I
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, -24, -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (4.0f)
+//        .withCyclingAmpls ({ -12 })
+////        .withCyclingPans ({ -0.8, 0.8 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes thinDrums =
+//    MelodicNotes ({ -24, -15, -9, -3, 3, 9, 15, 24 }, freq)
+//        .withBandwidth (0.1f)
+////        .withCyclingPans ({ -0.8, 0.8 })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -18, -12, -6, 0, 6, 12, 18 }, freq)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (1.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 2, 4, 5, 7, 9, 11, 12, 11, 9, 7, 5, 4, 2 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 5;
+//    
+//    std::vector<float> scale2;
+//    std::vector<float> scale3;
+//    
+//    for (const auto& note : scale)
+//    {
+//        scale2.push_back (note + 12);
+//        scale3.push_back (note - 12);
+//    }
+//    
+//    arbitrarySequencer.setNotes (scale, freq);
+//    arbitrarySequencer2.setNotes (scale2, freq);
+//    arbitrarySequencer3.setNotes (scale3, freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (annoyances.noiseNotes());
+//    spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
+    
+//    // Tricky I
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, -24, -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (4.0f)
+//        .withCyclingAmpls ({ -12 })
+////        .withCyclingPans ({ -0.8, 0.8 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes thinDrums =
+//    MelodicNotes ({ -24, -15, -9, -3, 3, 9, 15, 24 }, freq)
+//        .withBandwidth (0.1f)
+////        .withCyclingPans ({ -0.8, 0.8 })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -18, -12, -6, 0, 6, 12, 18 }, freq)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (1.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, -1, -8, -5, -3, -3, 4, -3, -1, -1, 0, -1, -8, -5, -3, -8 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] += 3;
+//    
+//    std::vector<float> scale2;
+//    std::vector<float> scale3;
+//    
+//    for (const auto& note : scale)
+//    {
+//        scale2.push_back (note + 12);
+//        scale3.push_back (note - 12);
+//    }
+//    
+//    arbitrarySequencer.setNotes (scale, freq);
+////    arbitrarySequencer2.setNotes (scale2, freq);
+////    arbitrarySequencer3.setNotes (scale3, freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (annoyances.noiseNotes());
+//    spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
+    
+//    // Tricky I
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ -36, -24, -12, 0, 12, 24, 36 }, freq)
+//        .withBandwidth (4.0f)
+//        .withCyclingAmpls ({ -12 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes thinDrums =
+//    MelodicNotes ({ -24, -15, -9, -3, 3, 9, 15, 24 }, freq)
+//        .withBandwidth (0.1f)
+////        .withCyclingPans ({ -0.8, 0.8 })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes annoyances =
+//    MelodicNotes ({ -18, -12, -6, 0, 6, 12, 18 }, freq)
+////        .withCyclingPans ({ -1, 0, 1 })
+//        .withBandwidth (1.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, -1, -8, -5, -3, -3, 4, -3, -1, -1, 0, -1, -8, -5, -3, -8 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] += 3;
+//    
+//    std::vector<float> scale2;
+//    std::vector<float> scale3;
+//    
+//    for (const auto& note : scale)
+//    {
+//        scale2.push_back (note + 12);
+//        scale3.push_back (note - 12);
+//    }
+//    
+//    arbitrarySequencer.setNotes (scale, freq);
+////    arbitrarySequencer2.setNotes (scale2, freq);
+////    arbitrarySequencer3.setNotes (scale3, freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (annoyances.noiseNotes());
+//    spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
+    
+    // Tricky II
     bandwidth *= 2.0f;
      
     MelodicNotes drums =
     MelodicNotes ({ -36, -24, -12, 0, 12, 24, 36 }, freq)
         .withBandwidth (4.0f)
         .withCyclingAmpls ({ -12 })
-//        .withCyclingPans ({ -0.8, 0.8 })
         .withNoteDurationInSeconds (0.1);
     
     MelodicNotes thinDrums =
@@ -1685,9 +1812,9 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
         .withBandwidth (1.0f)
         .withNoteDurationInSeconds (0.05);
     
-    std::vector<float> scale { 0, 2, 4, 5, 7, 9, 11, 12, 11, 9, 7, 5, 4, 2 };
+    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
     for (int i = 0; i < scale.size(); ++i)
-        scale[i] -= 5;
+        scale[i] += 3;
     
     std::vector<float> scale2;
     std::vector<float> scale3;
@@ -1699,8 +1826,8 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
     }
     
     arbitrarySequencer.setNotes (scale, freq);
-    arbitrarySequencer2.setNotes (scale2, freq);
-    arbitrarySequencer3.setNotes (scale3, freq);
+//    arbitrarySequencer2.setNotes (scale2, freq);
+//    arbitrarySequencer3.setNotes (scale3, freq);
     spatialPatternGenerator.setPattern (drums.noiseNotes());
     spatialPatternGenerator2.setPattern (annoyances.noiseNotes());
     spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
@@ -1786,11 +1913,11 @@ std::pair<float, float> PlaybackManager::getNextSample()
     leftSample += leftSample5 * 0.01;
     rightSample += rightSample5 * 0.01;
     
-    leftSample += leftSample6 * 0.01;
-    rightSample += rightSample6 * 0.01;
-    
-    leftSample += leftSample7 * 0.01;
-    rightSample += rightSample7 * 0.01;
+//    leftSample += leftSample6 * 0.01;
+//    rightSample += rightSample6 * 0.01;
+//    
+//    leftSample += leftSample7 * 0.01;
+//    rightSample += rightSample7 * 0.01;
     
 //    auto [leftSample6, rightSample6] = spatialPatternGenerator6.getNextSample();
     return { leftSample * 30.0, rightSample * 30.0 };
