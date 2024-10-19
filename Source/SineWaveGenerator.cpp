@@ -161,7 +161,7 @@ void SineWaveGenerator::updatePhaseIncrementAndAmplitudeCompensation()
     float ampl = note->amplitude;
     float pan = note->pan;
     
-    ampl += -3.0f * std::log2 (freq / 1000.0f); // cabin noise
+    ampl += -4.5f * std::log2 (freq / 1000.0f); // cabin noise
     
     phaseIncrement = 2.0 * juce::MathConstants<float>::pi * freq / sampleRate;
     
