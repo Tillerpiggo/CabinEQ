@@ -2066,8 +2066,8 @@ std::pair<float, float> PlaybackManager::getNextSample()
     leftSample += leftSample5 * 0.01;
     rightSample += rightSample5 * 0.01;
     
-    leftSample += leftSample6 * 0.008;
-    rightSample += rightSample6 * 0.008;
+    leftSample += leftSample6 * 0.01;
+    rightSample += rightSample6 * 0.01;
     
 //    leftSample += leftSample7 * 0.01;
 //    rightSample += rightSample7 * 0.01;
