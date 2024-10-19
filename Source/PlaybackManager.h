@@ -73,6 +73,8 @@ private:
     SpatialPatternGenerator spatialPatternGenerator6;
     SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
     ArbitrarySequencer arbitrarySequencer;
+    ArbitrarySequencer arbitrarySequencer2;
+    ArbitrarySequencer arbitrarySequencer3;
     ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
     Curve tiltCurve;
     
