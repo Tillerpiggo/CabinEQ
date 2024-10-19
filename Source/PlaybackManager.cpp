@@ -48,10 +48,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
     juce::dsp::ProcessContextReplacing<float> ioContext(ioBlock);
     
-    if (isCalibrating)
-    {
-        tiltFilter.process (ioContext);
-    }
+//    if (isCalibrating)
+//    {
+//        tiltFilter.process (ioContext);
+//    }
     
     if (isProcessing || isCalibrating)
     {
@@ -2066,8 +2066,8 @@ std::pair<float, float> PlaybackManager::getNextSample()
     leftSample += leftSample5 * 0.01;
     rightSample += rightSample5 * 0.01;
     
-    leftSample += leftSample6 * 0.01;
-    rightSample += rightSample6 * 0.01;
+    leftSample += leftSample6 * 0.008;
+    rightSample += rightSample6 * 0.008;
     
 //    leftSample += leftSample7 * 0.01;
 //    rightSample += rightSample7 * 0.01;
