@@ -2044,7 +2044,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
         .withNoteDurationInSeconds (0.1);
     
     MelodicNotes annoyances =
-    MelodicNotes ({ -18, -12, -6, 0, 6, 12, 18 }, freq)
+    MelodicNotes ({ -36, -24, -12, 0, 12, 24, 36 }, freq)
         .withCyclingPans (9)
         .withBandwidth (1.0f)
         .withNoteDurationInSeconds (0.05);
