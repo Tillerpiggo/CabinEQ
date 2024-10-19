@@ -1685,11 +1685,22 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
         .withBandwidth (1.0f)
         .withNoteDurationInSeconds (0.05);
     
-    std::vector<float> scale { 0, 4, 0, 7, 0, 14, 12, 14, 12, 9, 5, 3, 12, 9, 5, 3 };
+    std::vector<float> scale { 0, 2, 4, 5, 7, 9, 11, 12, 11, 9, 7, 5, 4, 2 };
     for (int i = 0; i < scale.size(); ++i)
         scale[i] -= 5;
     
+    std::vector<float> scale2;
+    std::vector<float> scale3;
+    
+    for (const auto& note : scale)
+    {
+        scale2.push_back (note + 12);
+        scale3.push_back (note - 12);
+    }
+    
     arbitrarySequencer.setNotes (scale, freq);
+    arbitrarySequencer2.setNotes (scale2, freq);
+    arbitrarySequencer3.setNotes (scale3, freq);
     spatialPatternGenerator.setPattern (drums.noiseNotes());
     spatialPatternGenerator2.setPattern (annoyances.noiseNotes());
     spatialPatternGenerator3.setPattern (thinDrums.noiseNotes());
