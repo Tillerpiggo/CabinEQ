@@ -81,6 +81,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     {
         // Add the band where we click
         draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH);
+        
         selectedDotSize = DOT_SIZE_DRAGGING;
         startDragPosition = coords;
         lastDragPosition = coords;
@@ -214,6 +215,16 @@ void CabinPeqGraph::addListener (Listener* listener)
 void CabinPeqGraph::removeListener()
 {
     this->listener = nullptr;
+}
+
+void CabinPeqGraph::addDataSource (DataSource* dataSource)
+{
+    this->dataSource = dataSource;
+}
+
+void CabinPeqGraph::removeDataSource()
+{
+    this->dataSource = nullptr;
 }
 
 void CabinPeqGraph::setGrayscale (bool isGrayscale)
@@ -731,16 +742,21 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
 
 int CabinPeqGraph::addBand(float freq, float ampl, float bandwidth)
 {
-    std::cout << "adding band" << std::endl;
-    if (listener == nullptr)
+    if (listener == nullptr || dataSource == nullptr) // don't add a band unless we can reflect that change
         return -1;
-    return listener->addBand(freq, ampl, bandwidth, this);
+    
+    int newBandId = listener->addBand(freq, ampl, bandwidth, this);
+    bandProfile = dataSource->getBandProfile();
+    return newBandId;
 }
 
 void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth)
 {
-    if (listener != nullptr)
-        listener->updateBand(id, freq, ampl, bandwidth, this);
+    if (listener == nullptr || dataSource == nullptr)
+        return;
+    
+    listener->updateBand(id, freq, ampl, bandwidth, this);
+    bandProfile = dataSource->getBandProfile();
 }
 
 void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
@@ -769,8 +785,11 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
 
 void CabinPeqGraph::removeBand(int id)
 {
-    if (listener != nullptr)
-        listener->removeBand(id, this);
+    if (listener == nullptr || dataSource == nullptr)
+        return;
+    
+    listener->removeBand (id, this);
+    bandProfile = dataSource->getBandProfile();
 }
 
 void CabinPeqGraph::startNoisePatternAt(int id)
@@ -815,8 +834,9 @@ void CabinPeqGraph::soloNoisePatternIfAppropriate(const juce::MouseEvent& event)
 
 void CabinPeqGraph::setVolume (float volume)
 {
-    if (listener != nullptr)
-    {
-        listener->setVolume (volume, this);
-    }
+    if (listener == nullptr || dataSource == nullptr)
+        return;
+    
+    listener->setVolume (volume, this);
+    bandProfile = dataSource->getBandProfile();
 }

@@ -35,6 +35,16 @@ public:
         virtual void setVolume (float volume, CabinPeqGraph* sender) = 0;
     };
     
+    // Provides information like the BandProfile, the currently playing freq, and other useful information
+    class DataSource
+    {
+    public:
+        virtual ~DataSource() = default;
+        
+        virtual BandProfile getBandProfile() = 0;
+        virtual float getCurrPlayingFreq() = 0;
+    };
+    
     CabinPeqGraph();
     ~CabinPeqGraph() override;
     
@@ -57,11 +67,15 @@ public:
     void addListener (Listener* listener);
     void removeListener();
     
+    void addDataSource (DataSource* dataSource);
+    void removeDataSource();
+    
     void setGrayscale (bool grayscale);
     
 private:
     BandProfile bandProfile;
     Listener* listener;
+    DataSource* dataSource;
     
     // Drawing/animation
     void drawLines (juce::Graphics& g);

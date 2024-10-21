@@ -21,6 +21,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     
     amplGraph->addListener (this);
+    amplGraph->addDataSource (this);
     profileDropdown.addListener (this);
     filterQualityDropdown.addListener (this);
     bypassButton.addListener (this);
@@ -96,7 +97,6 @@ int CabinEqPage::addBand (float freq, float ampl, float bandwidth, CabinPeqGraph
     if (sender == amplGraph.get())
     {
         int addedBandId = processor.addBand (freq, ampl, bandwidth, profileId);
-        amplGraph->setBandProfile (processor.getBandProfile (profileId));
         processor.updateFilter (profileId);
         return addedBandId;
     }
@@ -109,7 +109,6 @@ void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, C
     if (sender == amplGraph.get())
     {
         processor.updateBand (id, freq, ampl, bandwidth, profileId);
-        amplGraph->setBandProfile (processor.getBandProfile (profileId));
         processor.updateFilter (profileId);
     }
 }
@@ -119,7 +118,6 @@ void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
     if (sender == amplGraph.get())
     {
         processor.removeBand (id, profileId);
-        amplGraph->setBandProfile (processor.getBandProfile (profileId));
         processor.updateFilter (profileId);
     }
 }
@@ -155,9 +153,18 @@ void CabinEqPage::setVolume (float volume, CabinPeqGraph* sender)
     if (sender == amplGraph.get())
     {
         processor.setProfileVolume (profileId, volume);
-        amplGraph->setBandProfile (processor.getBandProfile (profileId));
         processor.updateFilter (profileId);
     }
+}
+
+BandProfile CabinEqPage::getBandProfile()
+{
+    return processor.getBandProfile (profileId);
+}
+
+float CabinEqPage::getCurrPlayingFreq()
+{
+    return processor.getCurrPlayingFreq();
 }
 
 // ====================================================

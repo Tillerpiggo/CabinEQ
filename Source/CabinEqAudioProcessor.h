@@ -90,6 +90,8 @@ public:
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
     BandProfile getBandProfile (juce::String profileName);
     
+    float getCurrPlayingFreq();
+    
     std::optional<juce::String> getLastSelectedProfileName();
     void setLastSelectedProfileName (juce::String profileName);
     

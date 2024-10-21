@@ -184,6 +184,11 @@ void PlaybackManager::setReferenceVolume (float volume)
     this->referenceVolume = volume;
 }
 
+float PlaybackManager::getCurrPlayingFreq()
+{
+    return sineSweepGenerator.getCurrFreq();
+}
+
 std::pair<float, float> PlaybackManager::getNextSample()
 {
     return sineSweepGenerator.getNextSample();

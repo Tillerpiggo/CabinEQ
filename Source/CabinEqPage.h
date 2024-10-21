@@ -20,7 +20,8 @@ class CabinEqPage   : public juce::Component,
                       public juce::TextEditor::Listener,
                       public juce::Button::Listener,
                       public CabinPeqGraph::Listener,
-                      public CabinEqAudioProcessor::Listener
+                      public CabinEqAudioProcessor::Listener,
+                      public CabinPeqGraph::DataSource
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -29,7 +30,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    // CabinEQGraphListener methods
+    // CabinPeqGraph::Listener methods
     int addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void removeBand (int id, CabinPeqGraph* sender) override;
@@ -38,6 +39,10 @@ public:
     void stopNoisePattern() override;
     void setNoisePatternSolo (bool solo) override;
     void setVolume (float volume, CabinPeqGraph* sender) override;
+    
+    // CabinPeqGraph::DataSource methods
+    BandProfile getBandProfile() override;
+    float getCurrPlayingFreq() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
     void textEditorTextChanged (juce::TextEditor& textEditor) override;

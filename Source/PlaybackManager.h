@@ -54,6 +54,8 @@ public:
     // Reference calibration
     void setReferencePan (float pan);
     
+    float getCurrPlayingFreq();
+    
 private:
     std::pair<float, float> getNextSample();
     
