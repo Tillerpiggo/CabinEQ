@@ -85,6 +85,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     wrapperPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     noiseSweepGenerator.setSampleRate (spec.sampleRate);
+    noiseSweepGenerator2.setSampleRate (spec.sampleRate);
     tiltFilter.prepare (spec);
     tiltFilter.updateWithCurve (tiltCurve);
     hasPreparedFilter = true;
@@ -108,25 +109,25 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 {
-    // Tricky IV
-    bandwidth *= 2.0f;
-     
-    MelodicNotes drums =
-    MelodicNotes::withFreqs ({ 100, 300, 900, 2700, 8100 })
-        .withBandwidths ({ 1.0f })
-        .withCyclingAmpls ({ 0 })
-        .withNoteDurationInSeconds (0.1);
-    
-    MelodicNotes drums2 =
-    MelodicNotes::withFreqs ({ 500, 1500, 5000 })
-        .withBandwidths ({ 4.0f })
-        .withCyclingAmpls ({ 0 })
-        .withNoteDurationInSeconds (0.1);
-    
-    MelodicNotes backgroundNoise =
-    MelodicNotes::withFreqs ({ 1000 })
-        .withBandwidth (10.0f)
-        .withNoteDurationInSeconds (0.05);
+//    // Tricky IV
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 300, 900, 2700, 8100 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
     
 //    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
 //    for (int i = 0; i < scale.size(); ++i)
@@ -148,8 +149,34 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
 //    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
     
-    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 3.0f, spec.sampleRate));
-    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 2.0f, spec.sampleRate));
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 3.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 0.5f, spec.sampleRate));
+    
+//    // Sweeps Ia - didn't work as well, because I didn't set up noise sweep generator properly
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth * 2.0f, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 0.2f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 1.0f, 0.1f, spec.sampleRate));
+    
+//    // Sweeps Ib - creates way too big of a dig in the midrange for some reason
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth * 2.0f, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 3.0f, 0.2f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 5.0f, 0.1f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (5.0f);
+//    noiseSweepGenerator2.setBandwidth (1.0f);
+    
+//    // Sweeps Ic - really hard to hear what you're doing to the sine sweep exactly
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth * 2.0f, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 0.2f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 5.0f, 0.1f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (5.0f);
+//    noiseSweepGenerator2.setBandwidth (0.5f);
+    
+    // Sweeps Id - changes too subtle
+    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth * 0.5f, 1.0f, spec.sampleRate));
+    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 0.2f, spec.sampleRate));
+    noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 5.0f, 0.1f, spec.sampleRate));
+    noiseSweepGenerator.setBandwidth (5.0f);
+    noiseSweepGenerator2.setBandwidth (0.5f);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -206,6 +233,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto [leftSample4, rightSample4] = spatialPatternGenerator4.getNextSample();
     auto [leftSample5, rightSample5] = sineSweepGenerator.getNextSample();
     auto [leftSample6, rightSample6] = noiseSweepGenerator.getNextSample();
+    auto [leftSample7, rightSample7] = noiseSweepGenerator2.getNextSample();
 //    auto [leftSample5, rightSample5] = arbitrarySequencer.getNextSample();
 //    auto [leftSample6, rightSample6] = arbitrarySequencer2.getNextSample();
 //    auto [leftSample7, rightSample7] = arbitrarySequencer3.getNextSample();
@@ -237,14 +265,14 @@ std::pair<float, float> PlaybackManager::getNextSample()
         rightSample += rightSample4;
     }
     
-    leftSample += leftSample5 * 0.01;
-    rightSample += rightSample5 * 0.01;
+    leftSample += leftSample5 * 0.02;
+    rightSample += rightSample5 * 0.02;
     
-    leftSample += leftSample6;
-    rightSample += rightSample6;
+    leftSample += leftSample6 * 0.5;
+    rightSample += rightSample6 * 0.5;
     
-//    leftSample += leftSample7 * 0.01;
-//    rightSample += rightSample7 * 0.01;
+    leftSample += leftSample7;
+    rightSample += rightSample7;
     
 //    auto [leftSample6, rightSample6] = spatialPatternGenerator6.getNextSample();
     return { leftSample * 30.0, rightSample * 30.0 };

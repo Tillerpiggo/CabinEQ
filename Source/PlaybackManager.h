@@ -77,6 +77,7 @@ private:
     SpatialPatternGenerator spatialPatternGenerator6;
     SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
     NoiseSweepGenerator noiseSweepGenerator;
+    NoiseSweepGenerator noiseSweepGenerator2;
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
     ArbitrarySequencer arbitrarySequencer3;
