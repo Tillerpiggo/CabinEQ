@@ -35,6 +35,10 @@
         <FILE id="VOfEsn" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Sequencers">
+        <FILE id="WzIXXQ" name="SineSweepGenerator.cpp" compile="1" resource="0"
+              file="Source/SineSweepGenerator.cpp"/>
+        <FILE id="sYwXtF" name="SineSweepGenerator.h" compile="0" resource="0"
+              file="Source/SineSweepGenerator.h"/>
         <FILE id="dgYCTx" name="ArbitrarySequencer.cpp" compile="1" resource="0"
               file="Source/ArbitrarySequencer.cpp"/>
         <FILE id="bX0MJX" name="ArbitrarySequencer.h" compile="0" resource="0"
@@ -119,10 +123,11 @@
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" microphonePermissionNeeded="1" microphonePermissionsText="This app requires microphone input to route system audio."
-               hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input">
+               hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
+               customPList="&lt;key&gt;com.apple.security.get-task-allow&lt;/key&gt;&#10;&lt;false/&gt;">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="CabinEQ"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="CabinEQ" codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
