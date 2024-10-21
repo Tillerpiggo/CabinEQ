@@ -86,6 +86,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     wrapperPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     noiseSweepGenerator.setSampleRate (spec.sampleRate);
     noiseSweepGenerator2.setSampleRate (spec.sampleRate);
+    noiseSweepGenerator3.setSampleRate (spec.sampleRate);
+    noiseSweepGenerator4.setSampleRate (spec.sampleRate);
     tiltFilter.prepare (spec);
     tiltFilter.updateWithCurve (tiltCurve);
     hasPreparedFilter = true;
@@ -149,6 +151,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
 //    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
     
+    // With linear up/down sweep, gives oddly neutral results
 //    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 3.0f, spec.sampleRate));
 //    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 0.5f, spec.sampleRate));
     
@@ -171,12 +174,95 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    noiseSweepGenerator.setBandwidth (5.0f);
 //    noiseSweepGenerator2.setBandwidth (0.5f);
     
-    // Sweeps Id - changes too subtle
-    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth * 0.5f, 1.0f, spec.sampleRate));
-    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 0.2f, spec.sampleRate));
-    noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 5.0f, 0.1f, spec.sampleRate));
-    noiseSweepGenerator.setBandwidth (5.0f);
-    noiseSweepGenerator2.setBandwidth (0.5f);
+//    // Sweeps Id - changes too subtle (edit: with linear, more natural)
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth * 0.5f, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 0.2f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 5.0f, 0.1f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (5.0f);
+//    noiseSweepGenerator2.setBandwidth (0.5f);
+    
+//     Sweeps Ie - changes too subtle (edit: with linear, more natural)
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 10.0f, 0.2f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 10.0f, 0.15f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (4.0f);
+//    noiseSweepGenerator2.setBandwidth (1.0f);
+    
+//   // Sweeps If - too tucked back, likely due to high bandwidth
+//   sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth * 0.8f, 2.0f, spec.sampleRate));
+//   noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 6.0f, 0.2f, spec.sampleRate));
+////   noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 10.0f, 0.15f, spec.sampleRate));
+//   noiseSweepGenerator.setBandwidth (4.0f);
+////   noiseSweepGenerator2.setBandwidth (1.0f);
+    
+//    // Sweeps Ig - too tucked back, likely due to high bandwidth
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth * 0.8f, 2.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 10.0f, 1.0f, spec.sampleRate));
+// //   noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 10.0f, 0.15f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.5f);
+// //   noiseSweepGenerator2.setBandwidth (1.0f);
+    
+//    // Sweeps Ih (paralell) - really really subtle changes
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 2.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 2.0f, spec.sampleRate));
+// //   noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 10.0f, 0.15f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.5f);
+// //   noiseSweepGenerator2.setBandwidth (1.0f);
+    
+//    // Sweeps 2 - pleasing, but a bit muddy/uninspired
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (400, 4.0f, 2.0f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1600, 4.0f, 1.7f, spec.sampleRate));
+//    noiseSweepGenerator3.setSweepPattern (SweepPattern (6400, 4.0f, 2.3f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.5f);
+//    noiseSweepGenerator2.setBandwidth (0.5f);
+//    noiseSweepGenerator3.setBandwidth (0.5f);
+    
+//    // Sweeps 2b - more spacious, still pleasing, but quite tucked back
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (400, 4.0f, 2.0f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1600, 4.0f, 1.7f, spec.sampleRate));
+//    noiseSweepGenerator3.setSweepPattern (SweepPattern (6400, 4.0f, 2.3f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (3.0f);
+//    noiseSweepGenerator2.setBandwidth (3.0f);
+//    noiseSweepGenerator3.setBandwidth (3.0f);
+    
+//    // Sweeps 2c - has this really calm, pleasant quality and more separation
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (400, 1.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1600, 1.0f, 0.7f, spec.sampleRate));
+//    noiseSweepGenerator3.setSweepPattern (SweepPattern (6400, 1.0f, 0.3f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.5f);
+//    noiseSweepGenerator2.setBandwidth (0.5f);
+//    noiseSweepGenerator3.setBandwidth (0.5f);
+    
+//    // Sweeps 2d - also pleasant, and the pleasantness is almost concentrated around the frequency regions
+//    // where the noise is at
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (200, 1.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (1000, 1.0f, 0.7f, spec.sampleRate));
+//    noiseSweepGenerator3.setSweepPattern (SweepPattern (6000, 1.0f, 0.3f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.2f);
+//    noiseSweepGenerator2.setBandwidth (0.2f);
+//    noiseSweepGenerator3.setBandwidth (0.2f);
+    
+//    // Sweeps 2e - also pleasant, especially in the upper mids
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (100, 4.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (800, 4.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator3.setSweepPattern (SweepPattern (3200, 4.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.2f);
+//    noiseSweepGenerator2.setBandwidth (0.2f);
+//    noiseSweepGenerator3.setBandwidth (0.2f);
+    
+    // Sweeps 2f - finally an increase in soundstage size, very nice.
+    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+    noiseSweepGenerator.setSweepPattern (SweepPattern (100, 2.0f, 0.5f, spec.sampleRate));
+    noiseSweepGenerator2.setSweepPattern (SweepPattern (800, 2.0f, 0.7f, spec.sampleRate));
+    noiseSweepGenerator3.setSweepPattern (SweepPattern (6400, 2.0f, 0.3f, spec.sampleRate));
+    noiseSweepGenerator.setBandwidth (0.2f);
+    noiseSweepGenerator2.setBandwidth (0.2f);
+    noiseSweepGenerator3.setBandwidth (0.2f);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -234,6 +320,8 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto [leftSample5, rightSample5] = sineSweepGenerator.getNextSample();
     auto [leftSample6, rightSample6] = noiseSweepGenerator.getNextSample();
     auto [leftSample7, rightSample7] = noiseSweepGenerator2.getNextSample();
+    auto [leftSample8, rightSample8] = noiseSweepGenerator3.getNextSample();
+    auto [leftSample9, rightSample9] = noiseSweepGenerator4.getNextSample();
 //    auto [leftSample5, rightSample5] = arbitrarySequencer.getNextSample();
 //    auto [leftSample6, rightSample6] = arbitrarySequencer2.getNextSample();
 //    auto [leftSample7, rightSample7] = arbitrarySequencer3.getNextSample();
@@ -273,6 +361,12 @@ std::pair<float, float> PlaybackManager::getNextSample()
     
     leftSample += leftSample7;
     rightSample += rightSample7;
+    
+    leftSample += leftSample8;
+    rightSample += rightSample8;
+    
+    leftSample += leftSample9;
+    rightSample += rightSample9;
     
 //    auto [leftSample6, rightSample6] = spatialPatternGenerator6.getNextSample();
     return { leftSample * 30.0, rightSample * 30.0 };
