@@ -115,6 +115,7 @@ private:
     void setNoisePatternSolo (bool solo);
     void soloNoisePatternIfAppropriate (const juce::MouseEvent& event);
     void setVolume (float volume);
+    float getCurrPlayingFreq();
     
     // Interaction variables
     int draggingId = -1; // not currently dragging any point

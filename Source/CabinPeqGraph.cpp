@@ -387,15 +387,6 @@ void CabinPeqGraph::drawCurve (juce::Graphics& g)
 
 void CabinPeqGraph::drawDots (juce::Graphics& g)
 {
-    // Pseudocode
-    
-    // Get all bands in band profile
-    
-    // for each band, draw a corresponding point
-    
-    // add necessary exceptions for the dragging/hovering band id, the ghost node, etc.
-    
-    // reference CabinEqGraph::drawDots for more specific outline
     
     for (const auto& band : bandProfile.getBands())
     {
@@ -405,10 +396,6 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
         
         // Figure out the radius - it's different if it's hovering vs. dragging
         float dotRadius = DOT_SIZE_DEFAULT;
-//        if (band.id == hoveringId || band.id == draggingId)
-//        {
-//            dotRadius = selectedDotSize;
-//        }
         
         drawDot (g, point, dotRadius, dotColour, band.id == draggingId);
     }
@@ -434,6 +421,23 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     float ampl = bandProfile.getVolume();
     juce::Point<float> point = coordsForFrequencyAndAmplitude (freq, ampl);
     drawDot (g, point, DOT_SIZE_DEFAULT, dotColour, isHoveringOverDotControl);
+    
+    // Draw a dot for the curr playing freq
+    if (draggingId != -1)
+    {
+        float currPlayingFreq = getCurrPlayingFreq();
+        
+        // Figure out color of node
+        juce::Colour addingDotColour = getColourForFrequency (currPlayingFreq).withAlpha (0.5f);
+        
+        // Calculate coordinates of node
+        float ampl = curve.dbAtFrequency (currPlayingFreq);
+        auto point = coordsForFrequencyAndAmplitude (currPlayingFreq, ampl);
+        float addingDotRadius = DOT_SIZE_DEFAULT;
+        
+        // Draw node
+        drawDot (g, point, addingDotRadius, addingDotColour, false);
+    }
 }
 
 void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected)
@@ -839,4 +843,12 @@ void CabinPeqGraph::setVolume (float volume)
     
     listener->setVolume (volume, this);
     bandProfile = dataSource->getBandProfile();
+}
+
+float CabinPeqGraph::getCurrPlayingFreq()
+{
+    if (dataSource == nullptr)
+        return -1;
+    
+    return dataSource->getCurrPlayingFreq();
 }
