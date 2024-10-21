@@ -107,29 +107,31 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 {
-//    // Tricky IV
-//    bandwidth *= 2.0f;
-//     
-//    MelodicNotes drums =
-//    MelodicNotes::withFreqs ({ 100, 300, 900, 2700, 8100 })
-//        .withBandwidths ({ 1.0f })
-//        .withCyclingAmpls ({ 0 })
-//        .withNoteDurationInSeconds (0.1);
-//    
-//    MelodicNotes drums2 =
-//    MelodicNotes::withFreqs ({ 500, 1500, 5000 })
-//        .withBandwidths ({ 4.0f })
-//        .withCyclingAmpls ({ 0 })
-//        .withNoteDurationInSeconds (0.1);
-//    
-//    MelodicNotes backgroundNoise =
-//    MelodicNotes::withFreqs ({ 1000 })
-//        .withBandwidth (10.0f)
-//        .withNoteDurationInSeconds (0.05);
-//    
+    // Tricky IV
+    bandwidth *= 2.0f;
+     
+    MelodicNotes drums =
+    MelodicNotes::withFreqs ({ 100, 300, 900, 2700, 8100 })
+        .withBandwidths ({ 1.0f })
+        .withCyclingAmpls ({ 0 })
+        .withNoteDurationInSeconds (0.1);
+    
+    MelodicNotes drums2 =
+    MelodicNotes::withFreqs ({ 500, 1500, 5000 })
+        .withBandwidths ({ 4.0f })
+        .withCyclingAmpls ({ 0 })
+        .withNoteDurationInSeconds (0.1);
+    
+    MelodicNotes backgroundNoise =
+    MelodicNotes::withFreqs ({ 1000 })
+        .withBandwidth (10.0f)
+        .withNoteDurationInSeconds (0.05);
+    
 //    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
 //    for (int i = 0; i < scale.size(); ++i)
 //        scale[i] -= 12;
+    
+//    std::vector<float> scale { -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5 };
 //    
 //    std::vector<float> scale2;
 //    std::vector<float> scale3;
@@ -141,11 +143,11 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    }
 //    
 //    arbitrarySequencer.setNotes (scale, freq);
-//    spatialPatternGenerator.setPattern (drums.noiseNotes());
-//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
-//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    spatialPatternGenerator.setPattern (drums.noiseNotes());
+    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
     
-    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 3.0f, spec.sampleRate));
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -191,7 +193,7 @@ float PlaybackManager::getCurrPlayingFreq()
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return sineSweepGenerator.getNextSample();
+//    return sineSweepGenerator.getNextSample();
 //    return spatialPatternGenerator.getNextSample();
 //    return spatialPinkNoiseGenerator.getNextSample();
 //    return wrapperPinkNoiseGenerator.getNextSample();
@@ -200,9 +202,10 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
     auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
     auto [leftSample4, rightSample4] = spatialPatternGenerator4.getNextSample();
-    auto [leftSample5, rightSample5] = arbitrarySequencer.getNextSample();
-    auto [leftSample6, rightSample6] = arbitrarySequencer2.getNextSample();
-    auto [leftSample7, rightSample7] = arbitrarySequencer3.getNextSample();
+    auto [leftSample5, rightSample5] = sineSweepGenerator.getNextSample();
+//    auto [leftSample5, rightSample5] = arbitrarySequencer.getNextSample();
+//    auto [leftSample6, rightSample6] = arbitrarySequencer2.getNextSample();
+//    auto [leftSample7, rightSample7] = arbitrarySequencer3.getNextSample();
     
     float leftSample = 0.0f;
     float rightSample = 0.0f;

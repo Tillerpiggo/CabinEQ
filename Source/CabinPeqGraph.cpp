@@ -751,6 +751,7 @@ int CabinPeqGraph::addBand(float freq, float ampl, float bandwidth)
     
     int newBandId = listener->addBand(freq, ampl, bandwidth, this);
     bandProfile = dataSource->getBandProfile();
+    curve.updateWithBands (bandProfile.getBands());
     return newBandId;
 }
 
@@ -761,6 +762,7 @@ void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth)
     
     listener->updateBand(id, freq, ampl, bandwidth, this);
     bandProfile = dataSource->getBandProfile();
+    curve.updateWithBands (bandProfile.getBands());
 }
 
 void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
@@ -794,6 +796,7 @@ void CabinPeqGraph::removeBand(int id)
     
     listener->removeBand (id, this);
     bandProfile = dataSource->getBandProfile();
+    curve.updateWithBands (bandProfile.getBands());
 }
 
 void CabinPeqGraph::startNoisePatternAt(int id)

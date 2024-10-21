@@ -10,10 +10,7 @@
 
 #include "SineSweepGenerator.h"
 
-SweepPattern::SweepPattern (float centerFreq, float bandwidth, float durationInSeconds, float sampleRate)
-    : centerFreq (centerFreq), bandwidth (bandwidth), sampleRate (sampleRate), durationInSeconds (durationInSeconds),
-      idx (0), cycleLen (durationInSeconds * sampleRate), currFreq (centerFreq)
-{}
+
 
 float SweepPattern::getNextFreq()
 {
