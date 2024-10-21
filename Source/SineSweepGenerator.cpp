@@ -12,12 +12,28 @@
 
 SweepPattern::SweepPattern (float centerFreq, float bandwidth, float durationInSeconds, float sampleRate)
     : centerFreq (centerFreq), bandwidth (bandwidth), sampleRate (sampleRate), durationInSeconds (durationInSeconds),
-      idx (0), cycleLen (durationInSeconds * sampleRate * 0.001), currFreq (-1)
+      idx (0), cycleLen (durationInSeconds * sampleRate), currFreq (centerFreq)
 {}
 
 float SweepPattern::getNextFreq()
 {
-    // TODO: update currFreq and then return it
+    // Calculate the normalized time (0 to 1) within the cycle
+    float normalizedTime = static_cast<float>(idx) / cycleLen;
+
+    // Calculate the sine wave value (-1 to 1) based on the normalized time
+    float sineValue = std::sin(normalizedTime * 2.0f * juce::MathConstants<float>::pi);
+
+    // Map the sine wave value to the logarithmic frequency range
+    float logCenterFreq = std::log2 (centerFreq);
+    float logMinFreq = logCenterFreq - bandwidth / 2.0f;
+    float logMaxFreq = logCenterFreq + bandwidth / 2.0f;
+    float logCurrFreq = juce::jmap (sineValue, -1.0f, 1.0f, logMinFreq, logMaxFreq);
+    currFreq = std::pow (2.0f, logCurrFreq);
+
+    // Increment the index and wrap around if it reaches the cycle length
+    idx = (idx + 1) % cycleLen;
+
+    return currFreq;
 }
 
 float SweepPattern::getCurrFreq() const

@@ -21,6 +21,7 @@
 #include "FilterChain.h"
 #include "ArbitraryResponseFilter.h"
 #include "ArbitrarySequencer.h"
+#include "SineSweepGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -77,6 +78,9 @@ private:
     ArbitrarySequencer arbitrarySequencer3;
     ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
     Curve tiltCurve;
+    
+    // Sweeps
+    SineSweepGenerator sineSweepGenerator;
     
     bool isCalibrating;
     bool isProcessing;

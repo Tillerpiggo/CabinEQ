@@ -37,6 +37,7 @@ const std::pair<float, float> SineWaveGenerator::getNextSample()
         {
             targetFrequency.reset();
         }
+        
         updatePhaseIncrementAndAmplitudeCompensation();
     }
     
