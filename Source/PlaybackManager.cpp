@@ -84,10 +84,10 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     sineSweepGenerator.setSampleRate (spec.sampleRate);
     spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     wrapperPinkNoiseGenerator.setSampleRate (spec.sampleRate);
-    noiseSweepGenerator.setSampleRate (spec.sampleRate);
-    noiseSweepGenerator2.setSampleRate (spec.sampleRate);
-    noiseSweepGenerator3.setSampleRate (spec.sampleRate);
-    noiseSweepGenerator4.setSampleRate (spec.sampleRate);
+    noiseSweepGenerator.prepare (spec);
+    noiseSweepGenerator2.prepare (spec);
+    noiseSweepGenerator3.prepare (spec);
+    noiseSweepGenerator4.prepare (spec);
     tiltFilter.prepare (spec);
     tiltFilter.updateWithCurve (tiltCurve);
     hasPreparedFilter = true;
@@ -255,7 +255,20 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    noiseSweepGenerator2.setBandwidth (0.2f);
 //    noiseSweepGenerator3.setBandwidth (0.2f);
     
-    // Sweeps 2f - finally an increase in soundstage size, very nice.
+    // Sweeps 2f - finally an increase in soundstage size, very nice. (with sine: the results are more fun and maybe more muddy)
+    // edit: with peak filters, the changes are more subtle, and the result is more expansive - less contortion
+//    sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setSweepPattern (SweepPattern (100, 2.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator2.setSweepPattern (SweepPattern (800, 2.0f, 0.7f, spec.sampleRate));
+//    noiseSweepGenerator3.setSweepPattern (SweepPattern (6400, 2.0f, 0.3f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.2f);
+//    noiseSweepGenerator2.setBandwidth (0.2f);
+//    noiseSweepGenerator3.setBandwidth (0.2f);
+//    noiseSweepGenerator.setPeakFilter (50, 0.3f, 6.0f);
+//    noiseSweepGenerator2.setPeakFilter (400, 0.3f, 6.0f);
+//    noiseSweepGenerator3.setPeakFilter (3200, 0.3f, 6.0f);
+    
+    // Sweeps 2g - really big for some reason? And has this nice crunchiness that's super satisfying
     sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 1.0f, spec.sampleRate));
     noiseSweepGenerator.setSweepPattern (SweepPattern (100, 2.0f, 0.5f, spec.sampleRate));
     noiseSweepGenerator2.setSweepPattern (SweepPattern (800, 2.0f, 0.7f, spec.sampleRate));
@@ -263,6 +276,9 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
     noiseSweepGenerator.setBandwidth (0.2f);
     noiseSweepGenerator2.setBandwidth (0.2f);
     noiseSweepGenerator3.setBandwidth (0.2f);
+    noiseSweepGenerator.setPeakFilter (100, 0.3f, -6.0f);
+    noiseSweepGenerator2.setPeakFilter (800, 0.3f, -6.0f);
+    noiseSweepGenerator3.setPeakFilter (6400, 0.3f, -6.0f);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)

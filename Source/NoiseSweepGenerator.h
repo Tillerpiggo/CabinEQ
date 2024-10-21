@@ -21,9 +21,11 @@ public:
     NoiseSweepGenerator();
     
     std::pair<float, float> getNextSample();
-    void setSampleRate (float sampleRate);
+    void prepare (const juce::dsp::ProcessSpec& spec);
     void setBandwidth (float bandwidth);
     void setSweepPattern (SweepPattern sweepPattern); // must be called before getNextSample is called for audio output
+    
+    void setPeakFilter (float centerFreq, float bandwidth, float ampl);
     
 private:
     void setBandpass (float centreFreq);
@@ -39,4 +41,7 @@ private:
     BandpassFilter bandpass;
     float bandwidth = 2.0f;
     int snapToZeroCounter = 0;
+    
+    // Peak filter
+    juce::dsp::IIR::Filter<float> peakFilter;
 };

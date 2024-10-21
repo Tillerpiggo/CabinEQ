@@ -21,10 +21,12 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     
     float pinkNoiseSample = pinkNoise.generate();
     pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
+    pinkNoiseSample = peakFilter.processSample (pinkNoiseSample);
     
     if (snapToZeroCounter >= 1000)
     {
         bandpass.snapToZero();
+        peakFilter.snapToZero();
         snapToZeroCounter = 0;
     }
     snapToZeroCounter++;
@@ -34,9 +36,11 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     return { pinkNoiseSample, pinkNoiseSample };
 }
 
-void NoiseSweepGenerator::setSampleRate (float sampleRate)
+void NoiseSweepGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    this->sampleRate = sampleRate;
+    this->sampleRate = spec.sampleRate;
+    bandpass.prepare (spec);
+    peakFilter.prepare (spec);
 }
 
 void NoiseSweepGenerator::setBandwidth (float bandwidth)
@@ -48,6 +52,12 @@ void NoiseSweepGenerator::setSweepPattern (SweepPattern sweepPattern)
 {
     this->sweepPattern = sweepPattern;
     setBandpass (sweepPattern.getCurrFreq());
+}
+
+void NoiseSweepGenerator::setPeakFilter (float centerFreq, float bandwidth, float ampl)
+{
+    float qFactor = Band::bandwidthToQFactor (bandwidth);
+    *peakFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, centerFreq, qFactor, juce::Decibels::decibelsToGain (ampl));
 }
 
 void NoiseSweepGenerator::setBandpass (float centreFreq)
