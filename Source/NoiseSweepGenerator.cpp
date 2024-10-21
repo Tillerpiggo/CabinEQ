@@ -16,6 +16,9 @@ NoiseSweepGenerator::NoiseSweepGenerator()
     
 std::pair<float, float> NoiseSweepGenerator::getNextSample()
 {
+    if (! sweepPattern.has_value())
+        return { 0.0f, 0.0f };
+    
     float pinkNoiseSample = pinkNoise.generate();
     pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
     
@@ -25,6 +28,9 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
         snapToZeroCounter = 0;
     }
     snapToZeroCounter++;
+    
+    setBandpass (sweepPattern->getNextFreq());
+    
     return { pinkNoiseSample, pinkNoiseSample };
 }
 

@@ -22,6 +22,7 @@
 #include "ArbitraryResponseFilter.h"
 #include "ArbitrarySequencer.h"
 #include "SineSweepGenerator.h"
+#include "NoiseSweepGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -75,6 +76,7 @@ private:
     SpatialPatternGenerator spatialPatternGenerator5;
     SpatialPatternGenerator spatialPatternGenerator6;
     SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
+    NoiseSweepGenerator noiseSweepGenerator;
     ArbitrarySequencer arbitrarySequencer;
     ArbitrarySequencer arbitrarySequencer2;
     ArbitrarySequencer arbitrarySequencer3;

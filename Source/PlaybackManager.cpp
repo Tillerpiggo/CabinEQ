@@ -84,6 +84,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     sineSweepGenerator.setSampleRate (spec.sampleRate);
     spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     wrapperPinkNoiseGenerator.setSampleRate (spec.sampleRate);
+    noiseSweepGenerator.setSampleRate (spec.sampleRate);
     tiltFilter.prepare (spec);
     tiltFilter.updateWithCurve (tiltCurve);
     hasPreparedFilter = true;
@@ -143,11 +144,12 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    }
 //    
 //    arbitrarySequencer.setNotes (scale, freq);
-    spatialPatternGenerator.setPattern (drums.noiseNotes());
-    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
-    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
     
     sineSweepGenerator.setSweepPattern (SweepPattern (freq, bandwidth, 3.0f, spec.sampleRate));
+    noiseSweepGenerator.setSweepPattern (SweepPattern (1000, 5.0f, 2.0f, spec.sampleRate));
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -203,6 +205,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
     auto [leftSample4, rightSample4] = spatialPatternGenerator4.getNextSample();
     auto [leftSample5, rightSample5] = sineSweepGenerator.getNextSample();
+    auto [leftSample6, rightSample6] = noiseSweepGenerator.getNextSample();
 //    auto [leftSample5, rightSample5] = arbitrarySequencer.getNextSample();
 //    auto [leftSample6, rightSample6] = arbitrarySequencer2.getNextSample();
 //    auto [leftSample7, rightSample7] = arbitrarySequencer3.getNextSample();
@@ -237,8 +240,8 @@ std::pair<float, float> PlaybackManager::getNextSample()
     leftSample += leftSample5 * 0.01;
     rightSample += rightSample5 * 0.01;
     
-//    leftSample += leftSample6 * 0.1;
-//    rightSample += rightSample6 * 0.1;
+    leftSample += leftSample6;
+    rightSample += rightSample6;
     
 //    leftSample += leftSample7 * 0.01;
 //    rightSample += rightSample7 * 0.01;
