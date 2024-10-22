@@ -475,7 +475,12 @@ void CabinEqPage::unlockApp()
 void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
 {
     profileId = profileIdToGoTo;
-    amplGraph->setBandProfile (processor.getBandProfile (profileId));
+    
+    BandProfile bandProfile = processor.getBandProfile (profileId);
+    amplGraph->setBandProfile (bandProfile);
+    melodyVolumeSlider.setValue (bandProfile.getMelodyVolume());
+    noiseVolumeSlider.setValue (bandProfile.getNoiseVolume());
+    
     processor.setLastSelectedProfileName (profileId);
     profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter (profileId);

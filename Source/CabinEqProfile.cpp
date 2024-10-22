@@ -19,7 +19,7 @@ const BandProfile CabinEqProfile::getBandProfile() const
     std::vector<Band> bands;
     if (valueTree.isValid())
         bands = getBandsForValueTree (valueTree.getChildWithName (idAmplTree));
-    return BandProfile (bands, profileVolume);
+    return BandProfile (bands, profileVolume, melodyVolume, noiseVolume);
 }
 
 const std::optional<Band> CabinEqProfile::getBandWithId (const int id) const

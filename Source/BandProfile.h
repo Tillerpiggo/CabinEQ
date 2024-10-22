@@ -35,11 +35,11 @@ class BandProfile
 {
 public:
     BandProfile()
-        : bands ({}), volume (0.0f)
+        : bands ({}), volume (0.0f), melodyVolume (0.0f), noiseVolume (0.0f)
     {}
     
-    BandProfile (std::vector<Band> bands, float volume)
-        : bands (bands), volume (volume)
+    BandProfile (std::vector<Band> bands, float volume, float melodyVolume, float noiseVolume)
+        : bands (bands), volume (volume), melodyVolume (melodyVolume), noiseVolume (noiseVolume)
     {}
     
     const std::vector<Band>& getBands() const
@@ -51,8 +51,20 @@ public:
     {
         return volume;
     }
+    
+    const float getMelodyVolume() const
+    {
+        return melodyVolume;
+    }
+    
+    const float getNoiseVolume() const
+    {
+        return noiseVolume;
+    }
 private:
     std::vector<Band> bands;
     float volume;
+    float melodyVolume;
+    float noiseVolume;
 };
 

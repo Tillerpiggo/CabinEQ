@@ -41,6 +41,8 @@ public:
     void setIsCalibrating (bool isCalibrating);
     void setIsProcessing (bool isProcessing);
     void setVolume (float volume);
+    void setMelodyVolume (float melodyVolume);
+    void setNoiseVolume (float noiseVolume);
     
     void startAmplCalibration (float freq, float bandwidth);
     void updateAmplCalibration (float freq, float bandwidth);
@@ -66,6 +68,8 @@ private:
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;
     float volume = 0.0f; // in dB
+    float melodyGain = 1.0f; // in gain
+    float noiseGain = 1.0f; // in gain
     
     // Sound generation
     WrapperPinkNoiseGenerator wrapperPinkNoiseGenerator;

@@ -66,6 +66,8 @@ void PlaybackManager::updateFilterWithBandProfile (BandProfile bandProfile)
 {
     filter.setBands (bandProfile.getBands(), spec.sampleRate);
     profileVolumeProcessor.setGainDecibels (bandProfile.getVolume());
+    melodyGain = juce::Decibels::decibelsToGain (bandProfile.getMelodyVolume());
+    noiseGain = juce::Decibels::decibelsToGain (bandProfile.getNoiseVolume());
 }
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
@@ -107,6 +109,16 @@ void PlaybackManager::setVolume (float volume)
 {
     this->volume = volume;
     overallVolumeProcessor.setGainDecibels (volume);
+}
+
+void PlaybackManager::setMelodyVolume (float melodyVolume)
+{
+    this->melodyGain = juce::Decibels::decibelsToGain (melodyVolume);
+}
+
+void PlaybackManager::setNoiseVolume (float noiseVolume)
+{
+    this->noiseGain = juce::Decibels::decibelsToGain (noiseVolume);
 }
 
 void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
@@ -479,8 +491,11 @@ std::pair<float, float> PlaybackManager::getNextSample()
         rightSample += rightSample4;
     }
     
-    leftSample += leftSample5 * 0.01;
-    rightSample += rightSample5 * 0.01;
+    leftSample *= noiseGain;
+    rightSample *= noiseGain;
+    
+    leftSample += leftSample5 * 0.01 * melodyGain;
+    rightSample += rightSample5 * 0.01 * melodyGain;
     
 //    leftSample += leftSample6;
 //    rightSample += rightSample6;

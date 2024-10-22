@@ -314,7 +314,7 @@ BandProfile CabinEqAudioProcessor::getBandProfile (juce::String profileName)
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         return profile->get().getBandProfile();
-    return BandProfile ({}, 0.0f);
+    return BandProfile ({}, 0.0f, 0.0f, 0.0f);
 }
 
 float CabinEqAudioProcessor::getCurrPlayingFreq()
