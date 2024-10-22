@@ -14,17 +14,6 @@ CabinEqProfile::CabinEqProfile (juce::AudioProcessorValueTreeState& apvts, const
     : apvts (apvts), profileName (identifier)
 {}
 
-//const std::vector<Band> CabinEqProfile::getBands() const
-//{
-//    std::vector<Band> bands;
-//    if (valueTree.isValid())
-//    {
-//        bands = getBandsForValueTree (valueTree.getChildWithName (idAmplTree));
-//    }
-//    
-//    return bands;
-//}
-
 const BandProfile CabinEqProfile::getBandProfile() const
 {
     std::vector<Band> bands;
@@ -102,6 +91,8 @@ void CabinEqProfile::initValueTreeFromAPVTS()
         valueTree = juce::ValueTree (idProfile);
         valueTree.setProperty (idProfileName, profileName, nullptr);
         valueTree.setProperty (idProfileVolume, 0.0f, nullptr);
+        valueTree.setProperty (idMelodyVolume, 0.0f, nullptr);
+        valueTree.setProperty (idNoiseVolume, 0.0f, nullptr);
         
         auto amplBandTree = juce::ValueTree (idAmplTree);
         valueTree.addChild (amplBandTree, 0, nullptr);
@@ -112,6 +103,8 @@ void CabinEqProfile::initValueTreeFromAPVTS()
     {
         profileName = valueTree.getProperty (idProfileName);
         profileVolume = valueTree.getProperty (idProfileVolume);
+        melodyVolume = valueTree.getProperty (idMelodyVolume);
+        noiseVolume = valueTree.getProperty (idNoiseVolume);
     }
     
     hasBeenInitialized = true;
@@ -125,6 +118,16 @@ const juce::String CabinEqProfile::getName() const
 const float CabinEqProfile::getVolume() const
 {
     return profileVolume;
+}
+
+const float CabinEqProfile::getMelodyVolume() const
+{
+    return melodyVolume;
+}
+
+const float CabinEqProfile::getNoiseVolume() const
+{
+    return noiseVolume;
 }
 
 void CabinEqProfile::copyFrom (CabinEqProfile other)
@@ -141,10 +144,22 @@ void CabinEqProfile::renameTo (juce::String newName)
     valueTree.setProperty (idProfileName, newName, nullptr);
 }
 
-void CabinEqProfile::setVolume (float newVolume)
+void CabinEqProfile::setVolume (float profileVolume)
 {
-    profileVolume = newVolume;
-    valueTree.setProperty (idProfileVolume, newVolume, nullptr);
+    this->profileVolume = profileVolume;
+    valueTree.setProperty (idProfileVolume, profileVolume, nullptr);
+}
+
+void CabinEqProfile::setMelodyVolume (float melodyVolume)
+{
+    this->melodyVolume = melodyVolume;
+    valueTree.setProperty (idMelodyVolume, melodyVolume, nullptr);
+}
+
+void CabinEqProfile::setNoiseVolume (float noiseVolume)
+{
+    this->noiseVolume = noiseVolume;
+    valueTree.setProperty (idNoiseVolume, noiseVolume, nullptr);
 }
 
 void CabinEqProfile::addBandToTree (int id, float freq, float ampl, float bandwidth, juce::ValueTree bandTree)

@@ -179,6 +179,11 @@ void ArbitrarySequencer::changeNoteGainWithFrequency (float frequency, float not
     }
 }
 
+float ArbitrarySequencer::getCurrFreq()
+{
+    return getCurrNote().getFrequency();
+}
+
 void ArbitrarySequencer::goToNextNote()
 {
     numSamplesNoteHasBeenPlaying = 0;

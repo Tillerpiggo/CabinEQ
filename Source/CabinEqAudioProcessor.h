@@ -85,7 +85,9 @@ public:
     void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
     void removeProfile (juce::String profileName);
     void renameProfile (juce::String profileName, juce::String newProfileName);
-    void setProfileVolume (juce::String profileName, float newVolume);
+    void setProfileVolume (juce::String profileName, float masterVolume);
+    void setProfileMelodyVolume (juce::String profileName, float melodyVolume);
+    void setProfileNoiseVolume (juce::String profileName, float noiseVolume);
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
     BandProfile getBandProfile (juce::String profileName);

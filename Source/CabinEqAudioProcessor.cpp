@@ -284,9 +284,19 @@ void CabinEqAudioProcessor::renameProfile (juce::String profileName, juce::Strin
     cabinEqProfileManager.renameProfile (profileName, newProfileName);
 }
 
-void CabinEqAudioProcessor::setProfileVolume (juce::String profileName, float newVolume)
+void CabinEqAudioProcessor::setProfileVolume (juce::String profileName, float masterVolume)
 {
-    cabinEqProfileManager.setProfileVolume (profileName, newVolume);
+    cabinEqProfileManager.setProfileVolume (profileName, masterVolume);
+}
+
+void CabinEqAudioProcessor::setProfileMelodyVolume (juce::String profileName, float melodyVolume)
+{
+    cabinEqProfileManager.setProfileMelodyVolume (profileName, melodyVolume);
+}
+
+void CabinEqAudioProcessor::setProfileNoiseVolume (juce::String profileName, float noiseVolume)
+{
+    cabinEqProfileManager.setProfileNoiseVolume (profileName, noiseVolume);
 }
 
 const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const

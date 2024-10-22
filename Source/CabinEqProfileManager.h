@@ -23,7 +23,9 @@ public:
     void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
     void removeProfile (juce::String profileName);
     void renameProfile (juce::String profileName, juce::String newProfileName);
-    void setProfileVolume (juce::String profileVolume, float newVolume);
+    void setProfileVolume (juce::String profileName, float profileVolume);
+    void setProfileMelodyVolume (juce::String profileName, float melodyVolume);
+    void setProfileNoiseVolume (juce::String profileName, float noiseVolume);
     void initProfiles();
     
     const std::vector<juce::String> getProfileNames() const;

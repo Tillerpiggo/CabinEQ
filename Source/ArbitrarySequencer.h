@@ -49,6 +49,8 @@ public:
     void changeNoteGainWithFrequency (float frequency, float noteGain);
     void changeNotePanWithFrequency (float frequency, float notePan);
     
+    float getCurrFreq();
+    
 private:
     void goToNextNote();
     const SequenceableNote& getCurrNote() const;

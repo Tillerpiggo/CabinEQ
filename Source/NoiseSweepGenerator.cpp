@@ -21,7 +21,7 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     
     float pinkNoiseSample = pinkNoise.generate();
     pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
-    pinkNoiseSample = peakFilter.processSample (pinkNoiseSample);
+//    pinkNoiseSample = peakFilter.processSample (pinkNoiseSample);
     
     if (snapToZeroCounter >= 1000)
     {
@@ -31,7 +31,9 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     }
     snapToZeroCounter++;
     
-    setBandpass (sweepPattern->getNextFreq());
+    float nextFreq = sweepPattern->getNextFreq();
+    setBandpass (nextFreq);
+//    setPeakFilter (nextFreq, 0.3f, -6.0f);
     
     return { pinkNoiseSample, pinkNoiseSample };
 }

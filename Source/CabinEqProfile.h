@@ -29,10 +29,14 @@ public:
     void initValueTreeFromAPVTS(); // sets this value tree to match the one in the main apvts
     const juce::String getName() const;
     const float getVolume() const;
+    const float getMelodyVolume() const;
+    const float getNoiseVolume() const;
     
     void copyFrom (CabinEqProfile other);
     void renameTo (juce::String newName);
-    void setVolume (float newVolume);
+    void setVolume (float profileVolume);
+    void setMelodyVolume (float melodyVolume);
+    void setNoiseVolume (float noiseVolume);
     
 private:
     void addBandToTree (int id, float freq, float ampl, float bandwidth, juce::ValueTree bandTree);
@@ -46,6 +50,8 @@ private:
     juce::Identifier idProfile { "Profile" }; // the id/type name of the entire CabinEqProfile value tree
     juce::Identifier idProfileName { "ProfileName" }; // a property on value tree that stores the string name the user gave it
     juce::Identifier idProfileVolume { "ProfileVolume" };
+    juce::Identifier idMelodyVolume { "MelodyVolume" };
+    juce::Identifier idNoiseVolume { "NoiseVolume" };
     juce::Identifier idBand { "Band" };
     juce::Identifier idId { "id" };
     juce::Identifier idFreq { "freq" };
@@ -55,6 +61,8 @@ private:
     juce::ValueTree valueTree;
     juce::String profileName;
     float profileVolume = 0;
+    float melodyVolume = 0;
+    float noiseVolume = 0;
     
     bool hasBeenInitialized = false;
 };

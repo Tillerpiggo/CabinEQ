@@ -16,9 +16,26 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 {
     amplGraph = std::make_unique<CabinPeqGraph>();
     
-    volumeSlider.setRange (-20.0f, 20.0f);
-    volumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    masterVolumeSlider.setRange (-20.0f, 20.0f);
+    masterVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    masterVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    
+    melodyVolumeSlider.setRange (-30.0f, 30.0f);
+    melodyVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    melodyVolumeSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 160, melodyVolumeSlider.getTextBoxHeight());
+    
+    noiseVolumeSlider.setRange (-30.0f, 30.0f);
+    noiseVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    noiseVolumeSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 160, noiseVolumeSlider.getTextBoxHeight());
+    
+    masterVolumeSliderLabel.setText ("Volume", juce::dontSendNotification);
+    masterVolumeSliderLabel.attachToComponent (&masterVolumeSlider, true);
+    
+    melodyVolumeSliderLabel.setText ("Melody", juce::dontSendNotification);
+    melodyVolumeSliderLabel.attachToComponent (&melodyVolumeSlider, true);
+    
+    noiseVolumeSliderLabel.setText ("Noise", juce::dontSendNotification);
+    noiseVolumeSliderLabel.attachToComponent (&noiseVolumeSlider, true);
     
     amplGraph->addListener (this);
     amplGraph->addDataSource (this);
@@ -26,12 +43,20 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     filterQualityDropdown.addListener (this);
     bypassButton.addListener (this);
     processor.addListener (this);
-    volumeSlider.addListener (this);
+    masterVolumeSlider.addListener (this);
+    melodyVolumeSlider.addListener (this);
+    noiseVolumeSlider.addListener (this);
     
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (bypassButton);
-    addAndMakeVisible (volumeSlider);
+    addAndMakeVisible (masterVolumeSlider);
+    addAndMakeVisible (masterVolumeSlider);
+    addAndMakeVisible (melodyVolumeSlider);
+    addAndMakeVisible (noiseVolumeSlider);
+    addAndMakeVisible (masterVolumeSliderLabel);
+    addAndMakeVisible (melodyVolumeSliderLabel);
+    addAndMakeVisible (noiseVolumeSliderLabel);
     
     didLoadData();
 }
@@ -40,7 +65,7 @@ CabinEqPage::~CabinEqPage()
 {
     profileDropdown.removeListener (this);
     bypassButton.removeListener (this);
-    volumeSlider.removeListener (this);
+    masterVolumeSlider.removeListener (this);
     
     amplGraph->removeListener();
     
@@ -67,7 +92,7 @@ void CabinEqPage::resized()
 
     // Get heights for each component
     int availableHeight = getHeight();
-    int graphHeight = availableHeight - dropdownHeight - sliderHeight - toggleButtonHeight - 2 * componentPadding;
+    int graphHeight = availableHeight - dropdownHeight * 2 - sliderHeight - toggleButtonHeight - 2 * componentPadding;
     
     // Get widths for each component
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
@@ -86,8 +111,11 @@ void CabinEqPage::resized()
 
     // Set bounds for sliders
     int sliderY = buttonsY + dropdownHeight + componentPadding;
+    int sliderY2 = sliderY + dropdownHeight + componentPadding;
     int sliderWidth = (getWidth() - (3 * padding)); // Two sliders with padding in between
-    volumeSlider.setBounds (padding, sliderY, sliderWidth, sliderHeight);
+    masterVolumeSlider.setBounds (padding, sliderY, sliderWidth, sliderHeight);
+    melodyVolumeSlider.setBounds (padding, sliderY2, sliderWidth / 2.0f, sliderHeight);
+    noiseVolumeSlider.setBounds (padding + sliderWidth / 2.0f, sliderY2, sliderWidth / 2.0f, sliderHeight);
 }
 
 // ====================================================
@@ -170,9 +198,17 @@ float CabinEqPage::getCurrPlayingFreq()
 // ====================================================
 void CabinEqPage::sliderValueChanged (juce::Slider *slider)
 {
-    if (slider == &volumeSlider)
+    if (slider == &masterVolumeSlider)
     {
         processor.setVolume (slider->getValue());
+    }
+    else if (slider == &melodyVolumeSlider)
+    {
+        processor.setProfileMelodyVolume (profileId, slider->getValue());
+    }
+    else if (slider == &noiseVolumeSlider)
+    {
+        processor.setProfileNoiseVolume (profileId, slider->getValue());
     }
 }
 

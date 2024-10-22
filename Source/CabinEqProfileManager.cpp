@@ -44,9 +44,19 @@ void CabinEqProfileManager::renameProfile (juce::String profileName, juce::Strin
     getProfileNamed (profileName)->get().renameTo (newProfileName);
 }
 
-void CabinEqProfileManager::setProfileVolume (juce::String profileName, float newVolume)
+void CabinEqProfileManager::setProfileVolume (juce::String profileName, float profileVolume)
 {
-    getProfileNamed (profileName)->get().setVolume (newVolume);
+    getProfileNamed (profileName)->get().setVolume (profileVolume);
+}
+
+void CabinEqProfileManager::setProfileMelodyVolume (juce::String profileName, float melodyVolume)
+{
+    getProfileNamed (profileName)->get().setMelodyVolume (melodyVolume);
+}
+
+void CabinEqProfileManager::setProfileNoiseVolume (juce::String profileName, float noiseVolume)
+{
+    getProfileNamed (profileName)->get().setNoiseVolume (noiseVolume);
 }
 
 void CabinEqProfileManager::initProfiles()

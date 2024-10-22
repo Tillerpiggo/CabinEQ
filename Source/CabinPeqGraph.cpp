@@ -823,7 +823,7 @@ void CabinPeqGraph::stopNoisePattern()
     }
 }
 
-void CabinPeqGraph::setNoisePatternSolo(bool solo)
+void CabinPeqGraph::setNoisePatternSolo (bool solo)
 {
     if (listener != nullptr)
     {
@@ -831,7 +831,7 @@ void CabinPeqGraph::setNoisePatternSolo(bool solo)
     }
 }
 
-void CabinPeqGraph::soloNoisePatternIfAppropriate(const juce::MouseEvent& event)
+void CabinPeqGraph::soloNoisePatternIfAppropriate (const juce::MouseEvent& event)
 {
     if (listener != nullptr)
     {

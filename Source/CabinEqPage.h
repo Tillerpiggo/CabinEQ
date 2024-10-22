@@ -89,8 +89,14 @@ protected:
     
     int lastSelectedId = 1;
     
-    juce::Slider volumeSlider;
- 
+    juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
+    juce::Slider melodyVolumeSlider; // controls the volume of the melody in the calibration
+    juce::Slider noiseVolumeSlider; // controls volume of the noise in the calibration
+    
+    juce::Label masterVolumeSliderLabel;
+    juce::Label melodyVolumeSliderLabel;
+    juce::Label noiseVolumeSliderLabel;
+    
     bool isUnlocked = false;
     bool addingFirstProfile = false;
 };
