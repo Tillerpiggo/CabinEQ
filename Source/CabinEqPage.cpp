@@ -18,15 +18,15 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     masterVolumeSlider.setRange (-20.0f, 20.0f);
     masterVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    masterVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    masterVolumeSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
     
     melodyVolumeSlider.setRange (-30.0f, 30.0f);
     melodyVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    melodyVolumeSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 160, melodyVolumeSlider.getTextBoxHeight());
+    melodyVolumeSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, melodyVolumeSlider.getTextBoxHeight());
     
     noiseVolumeSlider.setRange (-30.0f, 30.0f);
     noiseVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    noiseVolumeSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 160, noiseVolumeSlider.getTextBoxHeight());
+    noiseVolumeSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, noiseVolumeSlider.getTextBoxHeight());
     
     masterVolumeSliderLabel.setText ("Volume", juce::dontSendNotification);
     masterVolumeSliderLabel.attachToComponent (&masterVolumeSlider, true);
@@ -110,12 +110,13 @@ void CabinEqPage::resized()
     bypassButton.setBounds (getWidth() - buttonWidth - padding, buttonsY, buttonWidth, dropdownHeight);
 
     // Set bounds for sliders
+    int labelWidth = 60;
     int sliderY = buttonsY + dropdownHeight + componentPadding;
     int sliderY2 = sliderY + dropdownHeight + componentPadding;
     int sliderWidth = (getWidth() - (3 * padding)); // Two sliders with padding in between
-    masterVolumeSlider.setBounds (padding, sliderY, sliderWidth, sliderHeight);
-    melodyVolumeSlider.setBounds (padding, sliderY2, sliderWidth / 2.0f, sliderHeight);
-    noiseVolumeSlider.setBounds (padding + sliderWidth / 2.0f, sliderY2, sliderWidth / 2.0f, sliderHeight);
+    masterVolumeSlider.setBounds (padding + labelWidth, sliderY, sliderWidth - labelWidth, sliderHeight);
+    melodyVolumeSlider.setBounds (padding + labelWidth, sliderY2, sliderWidth / 2.0f - labelWidth, sliderHeight);
+    noiseVolumeSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY2, sliderWidth / 2.0f - labelWidth, sliderHeight);
 }
 
 // ====================================================
