@@ -372,31 +372,103 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
 //    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
     
-    // Scales II
+//    // Scales II
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    arbitrarySequencer.setNotes (scale, freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // Surround Scales I
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (10)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans (3)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans (9);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+    // Surround Scales II
     bandwidth *= 2.0f;
      
     MelodicNotes drums =
     MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
         .withBandwidths ({ 1.0f })
         .withCyclingAmpls ({ 0 })
+        .withCyclingPans (5)
         .withNoteDurationInSeconds (0.1);
     
     MelodicNotes drums2 =
     MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
         .withBandwidths ({ 4.0f })
         .withCyclingAmpls ({ 0 })
+        .withCyclingPans (7)
         .withNoteDurationInSeconds (0.1);
     
     MelodicNotes backgroundNoise =
     MelodicNotes::withFreqs ({ 1000 })
         .withBandwidth (10.0f)
+        .withCyclingPans (3)
         .withNoteDurationInSeconds (0.05);
     
     std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
     for (int i = 0; i < scale.size(); ++i)
         scale[i] -= 12;
     
-    arbitrarySequencer.setNotes (scale, freq);
+    MelodicNotes scaleNotes =
+    MelodicNotes (scale, freq)
+        .withCyclingPans (15);
+    
+    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
     spatialPatternGenerator.setPattern (drums.noiseNotes());
     spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
     spatialPatternGenerator3.setPattern (drums2.noiseNotes());

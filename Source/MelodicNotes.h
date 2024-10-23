@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "SpatialPatternGenerator.h"
+#include "SequenceableNote.h"
 
 // This class helps to create melodic sequences for use by SpatialPatternGenerator
 class MelodicNotes
@@ -349,6 +350,21 @@ public:
         }
         
         return noiseNotes;
+    }
+    
+    std::vector<SequenceableNote> sequenceableNotes()
+    {
+        std::vector<SequenceableNote> sequenceableNotes;
+        float semitoneRatio = std::pow (2.0f, 1.0f / 12.0f);
+        int noteDurationInSamples = noteDurationInSeconds * sampleRate;
+        
+        // Assumes notesInSemitones.size() == pans.size()
+        for (int i = 0; i < notesInSemitones.size(); ++i)
+        {
+            float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
+            sequenceableNotes.push_back (SequenceableNote (noteFreq, ampls[i], pans[i], 0.0f, noteDurationInSamples));
+        }
+        return sequenceableNotes;
     }
     
     std::vector<NoiseNote> noiseNotesWithInterspersedReference (float referenceFreq, float refBandwidth = 3.0)
