@@ -206,10 +206,28 @@ void CabinEqPage::sliderValueChanged (juce::Slider *slider)
     else if (slider == &melodyVolumeSlider)
     {
         processor.setProfileMelodyVolume (profileId, slider->getValue());
+        processor.updateFilter (profileId);
     }
     else if (slider == &noiseVolumeSlider)
     {
         processor.setProfileNoiseVolume (profileId, slider->getValue());
+        processor.updateFilter (profileId);
+    }
+}
+
+void CabinEqPage::sliderDragStarted (juce::Slider *slider)
+{
+    if (slider == &melodyVolumeSlider || slider == &noiseVolumeSlider)
+    {
+        processor.startNoisePatternAt (lastSelectedNodeIdForCalibration, profileId);
+    }
+}
+
+void CabinEqPage::sliderDragEnded (juce::Slider *slider)
+{
+    if (slider == &melodyVolumeSlider || slider == &noiseVolumeSlider)
+    {
+        processor.stopNoisePattern();
     }
 }
 

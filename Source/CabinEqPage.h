@@ -45,6 +45,8 @@ public:
     float getCurrPlayingFreq() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
+    void sliderDragStarted (juce::Slider *slider) override;
+    void sliderDragEnded (juce::Slider *slider) override;
     void textEditorTextChanged (juce::TextEditor& textEditor) override;
     void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorEscapeKeyPressed (juce::TextEditor& textEditor) override;
@@ -88,6 +90,7 @@ protected:
     const juce::String textEditorName = "ProfileEditor";
     
     int lastSelectedId = 1;
+    int lastSelectedNodeIdForCalibration = 0;
     
     juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
     juce::Slider melodyVolumeSlider; // controls the volume of the melody in the calibration
