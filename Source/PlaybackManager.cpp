@@ -318,7 +318,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    noiseSweepGenerator.setBandwidth (0.5f);
 //    noiseSweepGenerator2.setBandwidth (0.5f);
 //    noiseSweepGenerator3.setBandwidth (0.5f);
-    noiseSweepGenerator4.setBandwidth (3.0f);
+//    noiseSweepGenerator4.setBandwidth (3.0f);
 //    noiseSweepGenerator.setPeakFilter (100, 0.3f, -6.0f);
 //    noiseSweepGenerator2.setPeakFilter (800, 0.3f, -6.0f);
 //    noiseSweepGenerator3.setPeakFilter (6400, 0.3f, -6.0f);
@@ -355,7 +355,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
 //    for (int i = 0; i < scale.size(); ++i)
 //        scale[i] -= 12;
-    
+//    
 //    std::vector<float> scale { -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5 };
 //
 //    std::vector<float> scale2;
@@ -437,38 +437,587 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
 //    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
     
-    // Surround Scales II
+//    // Surround Scales II
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (7)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans (3)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans (15);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+    // Surround Scales III
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (3)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (3)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans (3)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans (3);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // Surround Scales IV - weird (but fun) shape
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 500, 1500, 1500, 5000, 5000, 1500, 1500, 5000, 5000, 5000, 5000, 1500, 1500, 500, 500 })
+//        .withCyclingBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans ({ -1, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans (5);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // Surround Scales V - more natural but still oddly curved. It's like there are three columns and it's oddly curved between them. Still fun and an obvious improvement
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 500, 1500, 1500, 5000, 5000, 1500, 1500, 5000, 5000, 5000, 5000, 1500, 1500, 500, 500 })
+//        .withCyclingBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans (5);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // Surround Scales VI - more natural but still oddly curved. It's like there are three columns and it's oddly curved between them. Still fun and an obvious improvement
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingPans ({ -1, 0, 1})
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 500, 1500, 1500, 5000, 5000, 1500, 1500, 5000, 5000, 5000, 5000, 1500, 1500, 500, 500 })
+//        .withCyclingBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans (5);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // Surround Scales VII - really fun and more natural. Still not quite the shape I want but it feels more open, and with that crunchy satisfaction. A bit fatiguing and strange though.
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 500, 1500, 1500, 5000, 5000, 1500, 1500, 5000, 5000, 5000, 5000, 1500, 1500, 500, 500 })
+//        .withCyclingBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans (5);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+    // Surround Scales VIII - didn't really work, it makes the melody way too fast, and the soundstage is weird
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingPans ({ -1, 1, -1, 0, 1, 0, -1, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 500, 1500, 1500, 5000, 5000, 1500, 1500, 5000, 5000, 5000, 5000, 1500, 1500, 500, 500 })
+//        .withCyclingBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans ({ -1, 1, -1, 0, 1, 0, -1, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans ({ -1, 1, -1, 0, 1, 0, -1, 1 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+    // Surround Scales IX - still not as good as Percussive I. Makes some notes in the center harder to hear.
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingPans (7)
+//        .withNoteDurationInSeconds (0.09);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 500, 1500, 1500, 5000, 5000, 1500, 1500, 5000, 5000, 5000, 5000, 1500, 1500, 500, 500 })
+//        .withCyclingBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans (5)
+//        .withNoteDurationInSeconds (0.12);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans (9)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq)
+//        .withCyclingPans ({ -1, 1, -1, 0, 1, 0, -1, 1 });
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+    // Surround Scales X - I really like it, huge bass boost and satisfying boost in the treble as well, but not the perfect shape, still bent in certain weird ways
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.09);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 500, 1500, 1500, 5000, 5000, 1500, 1500, 5000, 5000, 5000, 5000, 1500, 1500, 500, 500 })
+//        .withCyclingBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.12);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withCyclingPans ({ -1, 0, 1 })
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    MelodicNotes scaleNotes =
+//    MelodicNotes (scale, freq);
+//    
+//    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // DiffMelodies I - a really tall signature that is dark, with details overly recessed. Like a dark column.
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 6, 3, 9, 6, 12, 9, 15, 12, 18, 15, 21, 18, 24 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    arbitrarySequencer.setNotes (scale, freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // DiffMelodies II - very separated, realistic results
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
+//    
+//    arbitrarySequencer.setNotes (scale, freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // DiffMelodies III
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+////    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+////    for (int i = 0; i < scale.size(); ++i)
+////        scale[i] -= 12;
+//    
+//    MelodicNotes scale =
+//    MelodicNotes::withFreqs ({ 50, 200, 100, 400, 200, 800, 400, 1600, 800, 3200, 1600, 6400, 3200, 12800 });
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // DiffMelodies IV - getting massive results...
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+////    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+////    for (int i = 0; i < scale.size(); ++i)
+////        scale[i] -= 12;
+//    
+//    MelodicNotes scale =
+//    MelodicNotes::withFreqs ({ 100, 800, 6400, 800, 50, 400, 3200, 400, 200, 1600, 12800, 1600, 200, 1600, 12800, 1600 });
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // DiffMelodies V - even bigger but unnaturally tall, perhaps even arced. Stretched out so stuff the should be in the middle is more in my forehead area.
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+////    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+////    for (int i = 0; i < scale.size(); ++i)
+////        scale[i] -= 12;
+//    
+//    MelodicNotes scale =
+//    MelodicNotes::withFreqs ({ 800, 1600, 800, 1600, 400, 3200, 400, 3200, 200, 6400, 200, 6400, 100, 12800, 100, 12800 });
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // DiffMelodies VI - starting to create a wall of sound...
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+////    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+////    for (int i = 0; i < scale.size(); ++i)
+////        scale[i] -= 12;
+//    
+//    MelodicNotes scale =
+//    MelodicNotes::withFreqs ({ 50, 200, 50, 800, 50, 3200, 50, 12800, 100, 400, 100, 1600, 100, 6400, 100, 6400 });
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // DiffMelodies VII - not perfect but so huge and so beautiful and balanced and just... nice.
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+////    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+////    for (int i = 0; i < scale.size(); ++i)
+////        scale[i] -= 12;
+//    
+//    std::vector<float> scaleSemitones { 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800 };
+//    
+//    std::vector<float> scaleSemitonesAndFreq;
+//    for (int i = 0; i < scaleSemitones.size(); ++i)
+//    {
+//        scaleSemitonesAndFreq.push_back (freq);
+//        scaleSemitonesAndFreq.push_back (scaleSemitones[i]);
+//    }
+//    
+//    MelodicNotes scale =
+//    MelodicNotes::withFreqs (scaleSemitonesAndFreq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+    // DiffMelodies VIII - massive and even more natural. Really hard to set.
     bandwidth *= 2.0f;
      
     MelodicNotes drums =
     MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
         .withBandwidths ({ 1.0f })
         .withCyclingAmpls ({ 0 })
-        .withCyclingPans (5)
         .withNoteDurationInSeconds (0.1);
     
     MelodicNotes drums2 =
     MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
         .withBandwidths ({ 4.0f })
         .withCyclingAmpls ({ 0 })
-        .withCyclingPans (7)
         .withNoteDurationInSeconds (0.1);
     
     MelodicNotes backgroundNoise =
     MelodicNotes::withFreqs ({ 1000 })
         .withBandwidth (10.0f)
-        .withCyclingPans (3)
         .withNoteDurationInSeconds (0.05);
     
-    std::vector<float> scale { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
-    for (int i = 0; i < scale.size(); ++i)
-        scale[i] -= 12;
+//    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+//    for (int i = 0; i < scale.size(); ++i)
+//        scale[i] -= 12;
     
-    MelodicNotes scaleNotes =
-    MelodicNotes (scale, freq)
-        .withCyclingPans (15);
+//    std::vector<float> scaleSemitones { 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800 };
+//    
+//    std::vector<float> scaleSemitonesAndFreq;
+//    for (int i = 0; i < scaleSemitones.size(); ++i)
+//    {
+//        scaleSemitonesAndFreq.push_back (freq);
+//        scaleSemitonesAndFreq.push_back (scaleSemitones[i]);
+//    }
     
-    arbitrarySequencer.setNotes (scaleNotes.sequenceableNotes(), freq);
+    MelodicNotes scale =
+    MelodicNotes ({ 0, -24, 0, -22, 0, -20, 0, 24, 0, 26, 0, 28 }, freq);
+    
+    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
     spatialPatternGenerator.setPattern (drums.noiseNotes());
     spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
     spatialPatternGenerator3.setPattern (drums2.noiseNotes());
