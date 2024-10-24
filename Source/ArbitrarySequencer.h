@@ -49,6 +49,8 @@ public:
     void changeNoteGainWithFrequency (float frequency, float noteGain);
     void changeNotePanWithFrequency (float frequency, float notePan);
     
+    void setSpeedFactor (float speedFactorDB);
+    
     float getCurrFreq();
     
 private:
@@ -65,4 +67,5 @@ private:
     SequencerListener* listener;
     
     bool isRepeating = true;
+    float speedFactor = 1.0f;
 };

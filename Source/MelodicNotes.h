@@ -362,7 +362,7 @@ public:
         for (int i = 0; i < notesInSemitones.size(); ++i)
         {
             float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
-            sequenceableNotes.push_back (SequenceableNote (noteFreq, ampls[i], pans[i], 0.0f, noteDurationInSamples));
+            sequenceableNotes.push_back (SequenceableNote (noteFreq, bandwidths[i] == 0 ? ampls[i] : -100, pans[i], 0.0f, noteDurationInSamples));
         }
         return sequenceableNotes;
     }
