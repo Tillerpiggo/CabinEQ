@@ -51,6 +51,7 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setPattern (std::vector<NoiseNote> notes);
     void setPeakFilter (float centerFreq, float bandwidth, float ampl);
+    void setLowCutFilter (float freq);
     void setMelodicPattern (std::vector<int> notesInSemitones, float centerFreq, float bandwidth, float noteDurationInMs);
     void setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs); // assumes that len(notesInSemitones) == len(pans). Pans should be from [-1, 1]
     void setCenterFrequency (float centerFrequency);

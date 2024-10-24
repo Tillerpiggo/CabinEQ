@@ -981,18 +981,66 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
 //    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
     
-    // DiffMelodies VIII - massive and even more natural. Really hard to set.
+//    // Separation II 2
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes ({ -24, 24, -24, 24, -24, 24, -24, 24 }, freq)
+//        .withCyclingBandwidths ({ 1.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+////    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+////    for (int i = 0; i < scale.size(); ++i)
+////        scale[i] -= 12;
+//    
+////    std::vector<float> scaleSemitones { 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800 };
+////    
+////    std::vector<float> scaleSemitonesAndFreq;
+////    for (int i = 0; i < scaleSemitones.size(); ++i)
+////    {
+////        scaleSemitonesAndFreq.push_back (freq);
+////        scaleSemitonesAndFreq.push_back (scaleSemitones[i]);
+////    }
+//    
+////    std::vector<float> scaleVals { 0, 12, 24, 12, 7, 19, 21, 15, 4, 16, 17, 16, 17, 16, 12, 12 };
+////    for (int i = 0; i < scaleVals.size(); ++i)
+////        scaleVals[i] -= 15;
+//    
+//    std::vector<float> scaleVals { -2, 0, 2, 0 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+//    spatialPatternGenerator3.setPeakFilter (freq, 1.5f, -12.0f);
+    
+    // Separation III
     bandwidth *= 2.0f;
      
     MelodicNotes drums =
-    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
-        .withBandwidths ({ 1.0f })
+    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
+        .withBandwidths ({ 0.5f })
         .withCyclingAmpls ({ 0 })
         .withNoteDurationInSeconds (0.1);
     
     MelodicNotes drums2 =
-    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
-        .withBandwidths ({ 4.0f })
+    MelodicNotes::withFreqs ({ 100, 2000 })
+        .withCyclingBandwidths ({ 1.5f })
         .withCyclingAmpls ({ 0 })
         .withNoteDurationInSeconds (0.1);
     
@@ -1001,26 +1049,17 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
         .withBandwidth (10.0f)
         .withNoteDurationInSeconds (0.05);
     
-//    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
-//    for (int i = 0; i < scale.size(); ++i)
-//        scale[i] -= 12;
-    
-//    std::vector<float> scaleSemitones { 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800 };
-//    
-//    std::vector<float> scaleSemitonesAndFreq;
-//    for (int i = 0; i < scaleSemitones.size(); ++i)
-//    {
-//        scaleSemitonesAndFreq.push_back (freq);
-//        scaleSemitonesAndFreq.push_back (scaleSemitones[i]);
-//    }
+    std::vector<float> scaleVals { -2, 0, 2, 0 };
     
     MelodicNotes scale =
-    MelodicNotes ({ 0, -24, 0, -22, 0, -20, 0, 24, 0, 26, 0, 28 }, freq);
+    MelodicNotes (scaleVals, freq);
     
     arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
-    spatialPatternGenerator.setPattern (drums.noiseNotes());
-    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
     spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+//    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
