@@ -35,7 +35,7 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     setBandpass (nextFreq);
 //    setPeakFilter (nextFreq, 0.3f, -6.0f);
     
-    return { pinkNoiseSample, pinkNoiseSample };
+    return { pinkNoiseSample * leftAmplitudeCompensation, pinkNoiseSample * rightAmplitudeCompensation };
 }
 
 void NoiseSweepGenerator::prepare (const juce::dsp::ProcessSpec& spec)
@@ -48,6 +48,14 @@ void NoiseSweepGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 void NoiseSweepGenerator::setBandwidth (float bandwidth)
 {
     this->bandwidth = bandwidth;
+}
+
+void NoiseSweepGenerator::setPan (float pan)
+{
+    this->pan = pan;
+    float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
+    leftAmplitudeCompensation = std::cos(angle);
+    rightAmplitudeCompensation = std::sin(angle);
 }
 
 void NoiseSweepGenerator::setSweepPattern (SweepPattern sweepPattern)

@@ -875,7 +875,7 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator.setPattern (drums.noiseNotes());
 //    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
 //    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
-    
+//    
 //    // DiffMelodies V - even bigger but unnaturally tall, perhaps even arced. Stretched out so stuff the should be in the middle is more in my forehead area.
 //    bandwidth *= 2.0f;
 //     
@@ -1029,37 +1029,462 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
 //    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
 //    spatialPatternGenerator3.setPeakFilter (freq, 1.5f, -12.0f);
     
-    // Separation III
-    bandwidth *= 2.0f;
-     
-    MelodicNotes drums =
-    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
-        .withBandwidths ({ 0.5f })
-        .withCyclingAmpls ({ 0 })
-        .withNoteDurationInSeconds (0.1);
+//    // Separation III
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 100, 2000 })
+//        .withCyclingBandwidths ({ 1.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -2, 0, 2, 0 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+////    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+////    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
     
-    MelodicNotes drums2 =
-    MelodicNotes::withFreqs ({ 100, 2000 })
-        .withCyclingBandwidths ({ 1.5f })
-        .withCyclingAmpls ({ 0 })
-        .withNoteDurationInSeconds (0.1);
+//    // Separation IV
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes ({ -20, 20 }, freq)
+//        .withCyclingBandwidths ({ 1.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -2, -1, 0, 1, 2, 1, 0, -1 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+////    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+////    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
     
+//    // Separation V
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 200, 6000 })
+//        .withCyclingBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -2, -1, 0, 1, 2, 1, 0, -1 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+////    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+////    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
+    
+//    // Separation VI - pleasant on Yamahas
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 100, 2000 })
+//        .withCyclingBandwidths ({ 1.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -4, 0, 4 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+////    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+////    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
+    
+//    // Separation VII - makes it obvious, resists cutting and boosting
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 100, 2000 })
+//        .withCyclingBandwidths ({ 1.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+////    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+////    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
+    
+//    // Separation VII - pleasant on Yamahas
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 100, 2000, 7000 })
+//        .withCyclingBandwidths ({ 1.5f, 1.5f, 0.3f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+////    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+////    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
+    
+    // Separation VIII
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes ({ 8, -8, 8, -8, 8, -8, 8, -8 }, freq)
+//        .withBandwidths ({ 0.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.1);
+    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1000, 10000 })
+//        .withCyclingBandwidths ({ 0.5f, 0.5f, 0.5f })
+//        .withCyclingAmpls ({ 0 })
+//        .withNoteDurationInSeconds (0.4);
+    
+    // Sweep II - Giving nice results on AKG 702 but idk what i'm doing
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    noiseSweepGenerator.setSweepPattern(SweepPattern(1000, 4.0f, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.2);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+////    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+////    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+////    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
+    
+//    // Sweep III - getting great results just trying to even it out a bit
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    noiseSweepGenerator.setSweepPattern(SweepPattern(1000, 6.0f, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.2);
+////    spatialPatternGenerator.setPattern (drums.noiseNotes());
+////    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+////    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+////    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+////    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
+    
+//    // Sweep IV
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    noiseSweepGenerator.setSweepPattern(SweepPattern(1000, 6.0f, 1.0f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (2.0);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+//    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
+    
+//    // Sweep VII - pretty amazing results with this ngl
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    noiseSweepGenerator.setSweepPattern(SweepPattern(freq, bandwidth * 2.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.1f);
+//    noiseSweepGenerator.setPan (1.0f);
+    
+//    // Sweep VIII - super crisp
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    noiseSweepGenerator.setSweepPattern(SweepPattern(freq, bandwidth * 2.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.1f);
+//    noiseSweepGenerator.setPan (0.8f);
+    
+    // Sweep IX
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    noiseSweepGenerator.setSweepPattern(SweepPattern(freq, bandwidth * 2.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.1f);
+//    noiseSweepGenerator.setPan (0.6f);
+    
+//    // Sweep X
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withNoteDurationInSeconds (0.05);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    noiseSweepGenerator.setSweepPattern(SweepPattern(freq, bandwidth * 2.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.1f);
+//    noiseSweepGenerator.setPan (0.0f);
+    
+//    // DiffMelodies V
+//    bandwidth *= 2.0f;
+//     
+//    MelodicNotes drums =
+//    MelodicNotes::withFreqs ({ 100, 8100, 900, 2700, 300, 200, 5000, 1200 })
+//        .withBandwidths ({ 1.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withPan (0.5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes drums2 =
+//    MelodicNotes::withFreqs ({ 500, 1500, 5000, 1500, 5000, 5000, 1500, 500 })
+//        .withBandwidths ({ 4.0f })
+//        .withCyclingAmpls ({ 0 })
+//        .withPan (0.5)
+//        .withNoteDurationInSeconds (0.1);
+//    
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withFreqs ({ 1000 })
+//        .withBandwidth (10.0f)
+//        .withPan (0.5)
+//        .withNoteDurationInSeconds (0.05);
+//    
+////    std::vector<float> scale { 0, 12, 24, 19, 5, 7, 17, 19, 24, 12, 0, 12, 24, 12, 0, 12 };
+////    for (int i = 0; i < scale.size(); ++i)
+////        scale[i] -= 12;
+//    
+//    MelodicNotes scale =
+//    MelodicNotes::withFreqs ({ 100, 800, 6400, 800, 50, 400, 3200, 400, 200, 1600, 12800, 1600, 200, 1600, 12800, 1600 })
+//        .withPan (0.5);
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (drums.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
+    
+//    // Experiments in Noise
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withPattern({ 1, 0, 0, 0, 1, 0, 0, 0 }, 200, 0.8f)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    MelodicNotes backgroundNoise2 =
+//    MelodicNotes::withPattern({ 0, 0, 1, 0, 0, 0, 1, 0 }, 1000, 0.8f)
+//        .withBandwidth (0.8f)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    MelodicNotes backgroundNoise3 =
+//    MelodicNotes::withPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, 5000, 0.8f)
+//        .withBandwidth (0.8f)
+//        .withNoteDurationInSeconds (0.15);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
+//    spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
+////    noiseSweepGenerator.setSweepPattern(SweepPattern(freq, bandwidth * 2.0f, 0.5f, spec.sampleRate));
+////    noiseSweepGenerator.setBandwidth (0.1f);
+    
+//    // Experiments in Noise - got a super nice curve by going for intelligibility of the hits
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 200, 1000, 5000 }, 1.0f, { 0.0f })
+//        .withNoteDurationInSeconds (0.08);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
+//    spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
+//    noiseSweepGenerator.setSweepPattern(SweepPattern(freq, bandwidth * 2.0f, 0.5f, spec.sampleRate));
+//    noiseSweepGenerator.setBandwidth (0.1f);
+    
+//    // Experiments in Noise - very pleasing separation, has the new almost woofy effect that's nice.
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 1000 }, 1.0f, { 0.0f })
+//        .withNoteDurationInSeconds (0.08);
+//    
+//    MelodicNotes backgroundNoise2 =
+//    MelodicNotes::withMelodicPattern({ 1, 0, 1, 0 }, { 200 }, 1.0f, { 0.0f })
+//        .withNoteDurationInSeconds (0.08);
+//    
+//    MelodicNotes backgroundNoise3 =
+//    MelodicNotes::withMelodicPattern({ 0, 1, 0, 1 }, { 5000 }, 1.0f, { 0.0f })
+//        .withNoteDurationInSeconds (0.08);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, freq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+//    spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
+//    spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
+    
+    // Experiments in Noise II
     MelodicNotes backgroundNoise =
-    MelodicNotes::withFreqs ({ 1000 })
-        .withBandwidth (10.0f)
-        .withNoteDurationInSeconds (0.05);
+    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 1000 }, 0.5f, { 0.0f })
+        .withNoteDurationInSeconds (0.08);
     
-    std::vector<float> scaleVals { -2, 0, 2, 0 };
+    MelodicNotes backgroundNoise2 =
+    MelodicNotes::withMelodicPattern({ 1, 0, 1, 0, 1, 0, 1, 0 }, { 200 }, 0.5f, { 0.0f })
+        .withNoteDurationInSeconds (0.08);
+    
+    MelodicNotes backgroundNoise3 =
+    MelodicNotes::withMelodicPattern({ 1, 1, 0, 0, 1, 1, 0, 0 }, { 5000 }, 0.5f, { 0.0f })
+        .withNoteDurationInSeconds (0.08);
+    
+    std::vector<float> scaleVals { -12, 0, 12 };
     
     MelodicNotes scale =
     MelodicNotes (scaleVals, freq);
     
     arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
-//    spatialPatternGenerator.setPattern (drums.noiseNotes());
-//    spatialPatternGenerator2.setPattern (backgroundNoise.noiseNotes());
-    spatialPatternGenerator3.setPattern (drums2.noiseNotes());
-//    spatialPatternGenerator.setPeakFilter (freq, 1.0f, -12.0f);
-//    spatialPatternGenerator3.setPeakFilter (freq, 0.5f, -12.0f);
+    spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
+    spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
+    spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
+    
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -1114,15 +1539,11 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
     auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
     auto [leftSample4, rightSample4] = spatialPatternGenerator4.getNextSample();
-//    auto [leftSample5, rightSample5] = sineSweepGenerator.getNextSample();
     auto [leftSample5, rightSample5] = arbitrarySequencer.getNextSample();
     auto [leftSample6, rightSample6] = noiseSweepGenerator.getNextSample();
     auto [leftSample7, rightSample7] = noiseSweepGenerator2.getNextSample();
     auto [leftSample8, rightSample8] = noiseSweepGenerator3.getNextSample();
     auto [leftSample9, rightSample9] = noiseSweepGenerator4.getNextSample();
-//    auto [leftSample5, rightSample5] = arbitrarySequencer.getNextSample();
-//    auto [leftSample6, rightSample6] = arbitrarySequencer2.getNextSample();
-//    auto [leftSample7, rightSample7] = arbitrarySequencer3.getNextSample();
     
     float leftSample = 0.0f;
     float rightSample = 0.0f;
@@ -1154,9 +1575,9 @@ std::pair<float, float> PlaybackManager::getNextSample()
     leftSample *= noiseGain;
     rightSample *= noiseGain;
     
-    leftSample += leftSample5 * 0.01 * melodyGain;
-    rightSample += rightSample5 * 0.01 * melodyGain;
-    
+//    leftSample += leftSample5 * 0.01 * melodyGain;
+//    rightSample += rightSample5 * 0.01 * melodyGain;
+//    
 //    leftSample += leftSample6;
 //    rightSample += rightSample6;
 //    

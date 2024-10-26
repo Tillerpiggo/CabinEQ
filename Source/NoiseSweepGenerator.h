@@ -23,6 +23,7 @@ public:
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setBandwidth (float bandwidth);
+    void setPan (float pan);
     void setSweepPattern (SweepPattern sweepPattern); // must be called before getNextSample is called for audio output
     
     void setPeakFilter (float centerFreq, float bandwidth, float ampl);
@@ -40,6 +41,9 @@ private:
     using BandpassFilter = juce::dsp::IIR::Filter<float>;
     BandpassFilter bandpass;
     float bandwidth = 2.0f;
+    float pan = 0.0f;
+    float leftAmplitudeCompensation = 1.0f; // in gain
+    float rightAmplitudeCompensation = 1.0f; // in gain
     int snapToZeroCounter = 0;
     
     // Peak filter
