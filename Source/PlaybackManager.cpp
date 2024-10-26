@@ -119,17 +119,29 @@ void PlaybackManager::setCalibrationVolume (float calibrationVolume)
 void PlaybackManager::setSpacing (float spacing)
 {
     this->spacing = spacing;
-    spatialPatternGenerator.setNoteCenterFreq (centerFreq * std::pow (2.0f, -spacing));
-    spatialPatternGenerator2.setNoteCenterFreq (centerFreq);
-    spatialPatternGenerator3.setNoteCenterFreq (centerFreq * std::pow (2.0f, spacing));
+    updateSpatialPatternGenerators();
 }
 
 void PlaybackManager::setBandwidth (float bandwidth)
 {
     this->bandwidth = bandwidth;
-    spatialPatternGenerator.setNoteBandwidth (bandwidth);
+    spatialPatternGenerator.setNoteBandwidth (bandwidth * 2.0f);
     spatialPatternGenerator2.setNoteBandwidth (bandwidth);
-    spatialPatternGenerator3.setNoteBandwidth (bandwidth);
+    spatialPatternGenerator3.setNoteBandwidth (bandwidth * 2.0f);
+}
+
+void PlaybackManager::setPitch (float pitch)
+{
+    this->centerFreq = pitch;
+    updateSpatialPatternGenerators();
+}
+
+void PlaybackManager::updateSpatialPatternGenerators()
+{
+    spatialPatternGenerator.setNoteCenterFreq (centerFreq * std::pow (2.0f, -spacing));
+    spatialPatternGenerator2.setNoteCenterFreq (centerFreq);
+    spatialPatternGenerator3.setNoteCenterFreq (centerFreq * std::pow (2.0f, spacing));
+    spatialPatternGenerator3.setPeakFilter (centerFreq * std::pow (2.0f, spacing), 0.1f, -12.0f);
 }
 
 //void PlaybackManager::setMelodyVolume (float melodyVolume)
@@ -142,7 +154,7 @@ void PlaybackManager::setBandwidth (float bandwidth)
 //    this->noiseGain = juce::Decibels::decibelsToGain (noiseVolume);
 //}
 
-void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
+void PlaybackManager::startCalibration()
 {
     // Experiments in Noise II
     MelodicNotes backgroundNoise =
@@ -160,12 +172,13 @@ void PlaybackManager::startAmplCalibration (float freq, float bandwidth)
     std::vector<float> scaleVals { -12, 0, 12 };
     
     MelodicNotes scale =
-    MelodicNotes (scaleVals, freq);
+    MelodicNotes (scaleVals, centerFreq);
     
-    arbitrarySequencer.setNotes (scale.sequenceableNotes(), freq);
+    arbitrarySequencer.setNotes (scale.sequenceableNotes(), centerFreq);
     spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
     spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
     spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
+    spatialPatternGenerator3.setPeakFilter (1000, 0.1f, -12.0f);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)

@@ -75,10 +75,11 @@ public:
     void setCalibrationVolume (float calibrationVolume);
     void setSpacing (float spacing);
     void setBandwidth (float bandwidth);
+    void setPitch (float pitchInHz);
     void setMutedGens (std::vector<bool> mutedGens);
     
     // Calibration noises
-    void startNoisePatternAt (int id, juce::String profileName);
+    void startNoisePattern();
     void updateNoisePatternAt (int id, juce::String profileName);
     void stopNoisePattern();
     void setNoisePatternSolo (bool solo);

@@ -44,8 +44,10 @@ public:
     void setCalibrationVolume (float calibrationVolume);
     void setSpacing (float spacing);
     void setBandwidth (float bandwidth);
+    void setPitch (float pitchInHz);
+    void updateSpatialPatternGenerators(); // update spatial pattern generators to match the current pitch and bandwidth
     
-    void startAmplCalibration (float freq, float bandwidth);
+    void startCalibration();
     void updateAmplCalibration (float freq, float bandwidth);
     void setPatternSolo (bool solo);
     

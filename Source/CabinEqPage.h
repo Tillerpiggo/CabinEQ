@@ -34,7 +34,7 @@ public:
     int addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void removeBand (int id, CabinPeqGraph* sender) override;
-    void startNoisePatternAt (int id, CabinPeqGraph* sender) override;
+    void startNoisePattern() override;
     void updateNoisePatternAt (int id, CabinPeqGraph* sender) override;
     void stopNoisePattern() override;
     void setNoisePatternSolo (bool solo) override;
@@ -94,13 +94,18 @@ protected:
     
     juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
     juce::Slider calibrationVolumeSlider; // controls calibration volume, relative to master volume
+    juce::TextButton startStopButton { "START" }; // starts or stops the calibration itself
     juce::Slider spacingSlider; // controls spacing between the 3 noise patterns
     juce::Slider bandwidthSlider; // controls the bandwidths of the noise patterns
+    juce::Slider pitchSlider; // controls the center of the bandwidth
     
     juce::Label masterVolumeSliderLabel;
     juce::Label calibrationVolumeSliderLabel;
     juce::Label spacingSliderLabel;
     juce::Label bandwidthSliderLabel;
+    juce::Label pitchSliderLabel;
+    
+    bool playingNoisePattern = false;
     
     bool isUnlocked = false;
     bool addingFirstProfile = false;

@@ -235,38 +235,34 @@ void CabinEqAudioProcessor::setBandwidth (float bandwidth)
     playbackManager.setBandwidth (bandwidth);
 }
 
+void CabinEqAudioProcessor::setPitch (float pitch)
+{
+    playbackManager.setPitch (pitch);
+}
+
 void CabinEqAudioProcessor::setMutedGens (std::vector<bool> mutedGens)
 {
     playbackManager.setMutedGenerators (mutedGens);
 }
 
-void CabinEqAudioProcessor::startNoisePatternAt (int id, juce::String profileName)
+void CabinEqAudioProcessor::startNoisePattern()
 {
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        auto band = profile->get().getBandWithId (id);
-        if (band.has_value())
-        {
-            playbackManager.startAmplCalibration (band->freq, band->bandwidth);
-            playbackManager.setIsCalibrating (true);
-        }
-        
-    }
+    playbackManager.startCalibration();
+    playbackManager.setIsCalibrating (true);
 }
 
 void CabinEqAudioProcessor::updateNoisePatternAt (int id, juce::String profileName)
 {
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        auto band = profile->get().getBandWithId (id);
-        if (band.has_value())
-        {
-            playbackManager.updateAmplCalibration (band->freq, band->bandwidth);
-            playbackManager.setIsCalibrating (true);
-        }
-    }
+//    auto profile = profileNamed (profileName);
+//    if (profile.has_value())
+//    {
+//        auto band = profile->get().getBandWithId (id);
+//        if (band.has_value())
+//        {
+//            playbackManager.updateAmplCalibration (band->freq, band->bandwidth);
+//            playbackManager.setIsCalibrating (true);
+//        }
+//    }
 }
 
 void CabinEqAudioProcessor::stopNoisePattern()

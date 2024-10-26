@@ -32,10 +32,14 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     bandwidthSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     bandwidthSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, bandwidthSlider.getTextBoxHeight());
     
+    pitchSlider.setRange (10.0f, 20000.0f);
+    pitchSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    pitchSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, pitchSlider.getTextBoxHeight());
+    
     masterVolumeSliderLabel.setText ("Volume", juce::dontSendNotification);
     masterVolumeSliderLabel.attachToComponent (&masterVolumeSlider, true);
     
-    calibrationVolumeSliderLabel.setText ("Calibration Volume", juce::dontSendNotification);
+    calibrationVolumeSliderLabel.setText ("Calibration", juce::dontSendNotification);
     calibrationVolumeSliderLabel.attachToComponent (&calibrationVolumeSlider, true);
     
     spacingSliderLabel.setText ("Spacing", juce::dontSendNotification);
@@ -43,6 +47,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     bandwidthSliderLabel.setText ("Bandwidth", juce::dontSendNotification);
     bandwidthSliderLabel.attachToComponent (&bandwidthSlider, true);
+    
+    pitchSliderLabel.setText ("Pitch", juce::dontSendNotification);
+    pitchSliderLabel.attachToComponent (&pitchSlider, true);
     
     amplGraph->addListener (this);
     amplGraph->addDataSource (this);
@@ -52,21 +59,26 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     processor.addListener (this);
     masterVolumeSlider.addListener (this);
     calibrationVolumeSlider.addListener (this);
+    startStopButton.addListener (this);
     spacingSlider.addListener (this);
     bandwidthSlider.addListener (this);
+    pitchSlider.addListener (this);
     
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (masterVolumeSlider);
     addAndMakeVisible (masterVolumeSlider);
+    addAndMakeVisible (startStopButton);
     addAndMakeVisible (calibrationVolumeSlider);
     addAndMakeVisible (spacingSlider);
     addAndMakeVisible (bandwidthSlider);
+    addAndMakeVisible (pitchSlider);
     addAndMakeVisible (masterVolumeSliderLabel);
     addAndMakeVisible (calibrationVolumeSliderLabel);
     addAndMakeVisible (spacingSliderLabel);
     addAndMakeVisible (bandwidthSliderLabel);
+    addAndMakeVisible (pitchSliderLabel);
     
     didLoadData();
 }
@@ -102,7 +114,7 @@ void CabinEqPage::resized()
 
     // Get heights for each component
     int availableHeight = getHeight();
-    int graphHeight = availableHeight - dropdownHeight * 3 - sliderHeight - toggleButtonHeight - 3 * componentPadding;
+    int graphHeight = availableHeight - dropdownHeight * 4 - sliderHeight - toggleButtonHeight - 4 * componentPadding;
     
     // Get widths for each component
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
@@ -124,11 +136,14 @@ void CabinEqPage::resized()
     int sliderY = buttonsY + dropdownHeight + componentPadding;
     int sliderY2 = sliderY + dropdownHeight + componentPadding;
     int sliderY3 = sliderY2 + dropdownHeight + componentPadding;
+    int sliderY4 = sliderY3 + dropdownHeight + componentPadding;
     int sliderWidth = (getWidth() - (3 * padding)); // Two sliders with padding in between
     masterVolumeSlider.setBounds (padding + labelWidth, sliderY, sliderWidth - labelWidth, sliderHeight);
-    calibrationVolumeSlider.setBounds (padding + labelWidth, sliderY2, sliderWidth - labelWidth, sliderHeight);
+    calibrationVolumeSlider.setBounds (padding + labelWidth, sliderY2, sliderWidth - labelWidth - buttonWidth, sliderHeight);
+    startStopButton.setBounds (getWidth() - buttonWidth - padding, sliderY2, buttonWidth, sliderHeight);
     spacingSlider.setBounds (padding + labelWidth, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
     bandwidthSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
+    pitchSlider.setBounds (padding + labelWidth, sliderY4, sliderWidth / 2.0f - labelWidth, sliderHeight);
 }
 
 // ====================================================
@@ -163,20 +178,20 @@ void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
     }
 }
 
-void CabinEqPage::startNoisePatternAt (int id, CabinPeqGraph* sender)
+void CabinEqPage::startNoisePattern()
 {
-    if (sender == amplGraph.get())
-    {
-        processor.startNoisePatternAt (id, profileId);
-    }
+//    if (sender == amplGraph.get())
+//    {
+//        processor.startNoisePattern(At (id, profileId);)
+//    }
 }
 
 void CabinEqPage::updateNoisePatternAt (int id, CabinPeqGraph* sender)
 {
-    if (sender == amplGraph.get())
-    {
-        processor.updateNoisePatternAt  (id, profileId);
-    }
+//    if (sender == amplGraph.get())
+//    {
+//        processor.updateNoisePatternAt  (id, profileId);
+//    }
 }
 
 void CabinEqPage::stopNoisePattern()
@@ -226,6 +241,10 @@ void CabinEqPage::sliderValueChanged (juce::Slider *slider)
     else if (slider == &bandwidthSlider)
     {
         processor.setBandwidth (slider->getValue());
+    }
+    else if (slider == &pitchSlider)
+    {
+        processor.setPitch (slider->getValue());
     }
 }
 
@@ -424,6 +443,14 @@ void CabinEqPage::buttonClicked (juce::Button *button)
     {
         toggleBypass();
         processor.setIsProcessing (! isBypassed);
+    }
+    else if (button == &startStopButton)
+    {
+        playingNoisePattern = ! playingNoisePattern;
+        if (playingNoisePattern)
+            processor.startNoisePattern();
+        else
+            processor.stopNoisePattern();
     }
 }
 

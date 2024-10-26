@@ -99,7 +99,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     if (draggingId != -1)
     {
         updateBand (draggingId, freq, ampl, startDragBandwidth);
-        startNoisePatternAt (draggingId);
+//        startNoisePatternAt (draggingId);star
     }
 }
 
@@ -799,20 +799,20 @@ void CabinPeqGraph::removeBand(int id)
     curve.updateWithBands (bandProfile.getBands());
 }
 
-void CabinPeqGraph::startNoisePatternAt(int id)
+void CabinPeqGraph::startNoisePattern()
 {
-    if (listener != nullptr)
-    {
-        listener->startNoisePatternAt(id, this);
-    }
+//    if (listener != nullptr)
+//    {
+//        listener->startNoisePattern();
+//    }
 }
 
 void CabinPeqGraph::updateNoisePatternAt(int id)
 {
-    if (listener != nullptr)
-    {
-        listener->updateNoisePatternAt(id, this);
-    }
+//    if (listener != nullptr)
+//    {
+//        listener->updateNoisePatternAt(id, this);
+//    }
 }
 
 void CabinPeqGraph::stopNoisePattern()
