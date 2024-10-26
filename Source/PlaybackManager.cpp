@@ -125,9 +125,9 @@ void PlaybackManager::setSpacing (float spacing)
 void PlaybackManager::setBandwidth (float bandwidth)
 {
     this->bandwidth = bandwidth;
-    spatialPatternGenerator.setNoteBandwidth (bandwidth * 2.0f);
+    spatialPatternGenerator.setNoteBandwidth (bandwidth * 4.0f);
     spatialPatternGenerator2.setNoteBandwidth (bandwidth);
-    spatialPatternGenerator3.setNoteBandwidth (bandwidth * 2.0f);
+    spatialPatternGenerator3.setNoteBandwidth (bandwidth * 4.0f);
 }
 
 void PlaybackManager::setPitch (float pitch)
@@ -158,11 +158,11 @@ void PlaybackManager::startCalibration()
 {
     // Experiments in Noise II
     MelodicNotes backgroundNoise =
-    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 1000 }, 0.5f, { 0.0f })
+    MelodicNotes::withMelodicPattern({ 1, 0, 1, 0, 1, 0, 1, 0 }, { 200 }, 0.5f, { 0.0f })
         .withNoteDurationInSeconds (0.08);
     
     MelodicNotes backgroundNoise2 =
-    MelodicNotes::withMelodicPattern({ 1, 0, 1, 0, 1, 0, 1, 0 }, { 200 }, 0.5f, { 0.0f })
+    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 1000 }, 0.5f, { 0.0f })
         .withNoteDurationInSeconds (0.08);
     
     MelodicNotes backgroundNoise3 =
