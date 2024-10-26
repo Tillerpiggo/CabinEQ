@@ -72,6 +72,9 @@ public:
     void setIsProcessing (bool isProcessing);
     void setBypassBalance (float balance);
     void setVolume (float volume);
+    void setCalibrationVolume (float calibrationVolume);
+    void setSpacing (float spacing);
+    void setBandwidth (float bandwidth);
     void setMutedGens (std::vector<bool> mutedGens);
     
     // Calibration noises

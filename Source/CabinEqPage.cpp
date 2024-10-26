@@ -20,22 +20,29 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     masterVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     masterVolumeSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
     
-    melodyVolumeSlider.setRange (-30.0f, 30.0f);
-    melodyVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    melodyVolumeSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, melodyVolumeSlider.getTextBoxHeight());
+    calibrationVolumeSlider.setRange (-20.0f, 20.0f);
+    calibrationVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    calibrationVolumeSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
     
-    noiseVolumeSlider.setRange (-30.0f, 30.0f);
-    noiseVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    noiseVolumeSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, noiseVolumeSlider.getTextBoxHeight());
+    spacingSlider.setRange (0.0f, 5.0f);
+    spacingSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    spacingSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, spacingSlider.getTextBoxHeight());
+    
+    bandwidthSlider.setRange (0.05f, 6.0f);
+    bandwidthSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    bandwidthSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, bandwidthSlider.getTextBoxHeight());
     
     masterVolumeSliderLabel.setText ("Volume", juce::dontSendNotification);
     masterVolumeSliderLabel.attachToComponent (&masterVolumeSlider, true);
     
-    melodyVolumeSliderLabel.setText ("Melody", juce::dontSendNotification);
-    melodyVolumeSliderLabel.attachToComponent (&melodyVolumeSlider, true);
+    calibrationVolumeSliderLabel.setText ("Calibration Volume", juce::dontSendNotification);
+    calibrationVolumeSliderLabel.attachToComponent (&calibrationVolumeSlider, true);
     
-    noiseVolumeSliderLabel.setText ("Noise", juce::dontSendNotification);
-    noiseVolumeSliderLabel.attachToComponent (&noiseVolumeSlider, true);
+    spacingSliderLabel.setText ("Spacing", juce::dontSendNotification);
+    spacingSliderLabel.attachToComponent (&spacingSlider, true);
+    
+    bandwidthSliderLabel.setText ("Bandwidth", juce::dontSendNotification);
+    bandwidthSliderLabel.attachToComponent (&bandwidthSlider, true);
     
     amplGraph->addListener (this);
     amplGraph->addDataSource (this);
@@ -44,19 +51,22 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     bypassButton.addListener (this);
     processor.addListener (this);
     masterVolumeSlider.addListener (this);
-    melodyVolumeSlider.addListener (this);
-    noiseVolumeSlider.addListener (this);
+    calibrationVolumeSlider.addListener (this);
+    spacingSlider.addListener (this);
+    bandwidthSlider.addListener (this);
     
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (masterVolumeSlider);
     addAndMakeVisible (masterVolumeSlider);
-    addAndMakeVisible (melodyVolumeSlider);
-    addAndMakeVisible (noiseVolumeSlider);
+    addAndMakeVisible (calibrationVolumeSlider);
+    addAndMakeVisible (spacingSlider);
+    addAndMakeVisible (bandwidthSlider);
     addAndMakeVisible (masterVolumeSliderLabel);
-    addAndMakeVisible (melodyVolumeSliderLabel);
-    addAndMakeVisible (noiseVolumeSliderLabel);
+    addAndMakeVisible (calibrationVolumeSliderLabel);
+    addAndMakeVisible (spacingSliderLabel);
+    addAndMakeVisible (bandwidthSliderLabel);
     
     didLoadData();
 }
@@ -92,7 +102,7 @@ void CabinEqPage::resized()
 
     // Get heights for each component
     int availableHeight = getHeight();
-    int graphHeight = availableHeight - dropdownHeight * 2 - sliderHeight - toggleButtonHeight - 2 * componentPadding;
+    int graphHeight = availableHeight - dropdownHeight * 3 - sliderHeight - toggleButtonHeight - 3 * componentPadding;
     
     // Get widths for each component
     int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
@@ -113,10 +123,12 @@ void CabinEqPage::resized()
     int labelWidth = 60;
     int sliderY = buttonsY + dropdownHeight + componentPadding;
     int sliderY2 = sliderY + dropdownHeight + componentPadding;
+    int sliderY3 = sliderY2 + dropdownHeight + componentPadding;
     int sliderWidth = (getWidth() - (3 * padding)); // Two sliders with padding in between
     masterVolumeSlider.setBounds (padding + labelWidth, sliderY, sliderWidth - labelWidth, sliderHeight);
-    melodyVolumeSlider.setBounds (padding + labelWidth, sliderY2, sliderWidth / 2.0f - labelWidth, sliderHeight);
-    noiseVolumeSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY2, sliderWidth / 2.0f - labelWidth, sliderHeight);
+    calibrationVolumeSlider.setBounds (padding + labelWidth, sliderY2, sliderWidth - labelWidth, sliderHeight);
+    spacingSlider.setBounds (padding + labelWidth, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
+    bandwidthSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
 }
 
 // ====================================================
@@ -203,32 +215,34 @@ void CabinEqPage::sliderValueChanged (juce::Slider *slider)
     {
         processor.setVolume (slider->getValue());
     }
-    else if (slider == &melodyVolumeSlider)
+    else if (slider == &calibrationVolumeSlider)
     {
-        processor.setProfileMelodyVolume (profileId, slider->getValue());
-        processor.updateFilter (profileId);
+        processor.setCalibrationVolume (slider->getValue());
     }
-    else if (slider == &noiseVolumeSlider)
+    else if (slider == &spacingSlider)
     {
-        processor.setProfileNoiseVolume (profileId, slider->getValue());
-        processor.updateFilter (profileId);
+        processor.setSpacing (slider->getValue());
+    }
+    else if (slider == &bandwidthSlider)
+    {
+        processor.setBandwidth (slider->getValue());
     }
 }
 
 void CabinEqPage::sliderDragStarted (juce::Slider *slider)
 {
-    if (slider == &melodyVolumeSlider || slider == &noiseVolumeSlider)
-    {
-        processor.startNoisePatternAt (lastSelectedNodeIdForCalibration, profileId);
-    }
+//    if (slider == &melodyVolumeSlider || slider == &noiseVolumeSlider)
+//    {
+//        processor.startNoisePatternAt (lastSelectedNodeIdForCalibration, profileId);
+//    }
 }
 
 void CabinEqPage::sliderDragEnded (juce::Slider *slider)
 {
-    if (slider == &melodyVolumeSlider || slider == &noiseVolumeSlider)
-    {
-        processor.stopNoisePattern();
-    }
+//    if (slider == &melodyVolumeSlider || slider == &noiseVolumeSlider)
+//    {
+//        processor.stopNoisePattern();
+//    }
 }
 
 void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)
@@ -496,8 +510,6 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     
     BandProfile bandProfile = processor.getBandProfile (profileId);
     amplGraph->setBandProfile (bandProfile);
-    melodyVolumeSlider.setValue (bandProfile.getMelodyVolume());
-    noiseVolumeSlider.setValue (bandProfile.getNoiseVolume());
     
     processor.setLastSelectedProfileName (profileId);
     profileDropdown.setText (profileIdToGoTo);

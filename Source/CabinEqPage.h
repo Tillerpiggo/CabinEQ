@@ -93,12 +93,14 @@ protected:
     int lastSelectedNodeIdForCalibration = 0;
     
     juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
-    juce::Slider melodyVolumeSlider; // controls the volume of the melody in the calibration
-    juce::Slider noiseVolumeSlider; // controls volume of the noise in the calibration
+    juce::Slider calibrationVolumeSlider; // controls calibration volume, relative to master volume
+    juce::Slider spacingSlider; // controls spacing between the 3 noise patterns
+    juce::Slider bandwidthSlider; // controls the bandwidths of the noise patterns
     
     juce::Label masterVolumeSliderLabel;
-    juce::Label melodyVolumeSliderLabel;
-    juce::Label noiseVolumeSliderLabel;
+    juce::Label calibrationVolumeSliderLabel;
+    juce::Label spacingSliderLabel;
+    juce::Label bandwidthSliderLabel;
     
     bool isUnlocked = false;
     bool addingFirstProfile = false;

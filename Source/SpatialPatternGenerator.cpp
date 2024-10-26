@@ -69,6 +69,15 @@ void SpatialPatternGenerator::setCenterFrequency (float centerFrequency)
     this->centerFrequency = centerFrequency;
 }
 
+void SpatialPatternGenerator::setNoteCenterFreq (float noteCenterFreq)
+{
+    this->noteCenterFreq = noteCenterFreq;
+}
+void SpatialPatternGenerator::setNoteBandwidth (float noteBandwidth)
+{
+    this->noteBandwidth = noteBandwidth;
+}
+
 std::pair<float, float> SpatialPatternGenerator::getNextSample()
 {
 //    return noiseGenerator.getNextSample();
@@ -125,15 +134,12 @@ void SpatialPatternGenerator::updateBandpassAndPanning()
     leftGain *= gainChange;
     rightGain *= gainChange;
     
-    std::cout << "getCurrNote().ampl: " << getCurrNote().ampl << std::endl;
-    
-//    leftGain = 1.0f;
-//    rightGain = 1.0f;
-    
     float bandwidth = getCurrNote().bandwidth;
     if (bandwidth != 0)
     {
-        noiseGenerator.setBandpass (bandpassFrequency, getCurrNote().bandwidth);
+        if (noteBandwidth.has_value()) bandwidth = noteBandwidth.value();
+        if (noteCenterFreq.has_value()) bandpassFrequency = noteCenterFreq.value();
+        noiseGenerator.setBandpass (bandpassFrequency, bandwidth);
     }
     else
     {

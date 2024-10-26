@@ -220,6 +220,21 @@ void CabinEqAudioProcessor::setVolume (float volume)
     playbackManager.setVolume (volume);
 }
 
+void CabinEqAudioProcessor::setCalibrationVolume (float calibrationVolume)
+{
+    playbackManager.setCalibrationVolume (calibrationVolume);
+}
+
+void CabinEqAudioProcessor::setSpacing (float spacing)
+{
+    playbackManager.setSpacing (spacing);
+}
+
+void CabinEqAudioProcessor::setBandwidth (float bandwidth)
+{
+    playbackManager.setBandwidth (bandwidth);
+}
+
 void CabinEqAudioProcessor::setMutedGens (std::vector<bool> mutedGens)
 {
     playbackManager.setMutedGenerators (mutedGens);

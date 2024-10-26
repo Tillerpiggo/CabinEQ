@@ -55,6 +55,8 @@ public:
     void setMelodicPattern (std::vector<int> notesInSemitones, float centerFreq, float bandwidth, float noteDurationInMs);
     void setMelodicPattern (std::vector<int> notesInSemitones, std::vector<float> pans, float centerFreq, float bandwidth, float noteDurationInMs); // assumes that len(notesInSemitones) == len(pans). Pans should be from [-1, 1]
     void setCenterFrequency (float centerFrequency);
+    void setNoteCenterFreq (float noteCenterFreq); // change the center freq of all notes being played
+    void setNoteBandwidth (float noteBandwidth); // change the bandwidth of all notes being played (with non-zero bandwidth)
     std::pair<float, float> getNextSample();
 
 private:
@@ -74,6 +76,11 @@ private:
     juce::dsp::IIR::Filter<float> rightPeakFilter;
     
     std::vector<NoiseNote> notes;
+    
+    // For dynamic changes
+    std::optional<float> noteCenterFreq; // will override all notes center freq if set
+    std::optional<float> noteBandwidth; // will override all notes (with non-0 bandwidth) if set
+    
 };
 
 
