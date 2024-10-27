@@ -141,7 +141,7 @@ void PlaybackManager::updateSpatialPatternGenerators()
     spatialPatternGenerator.setNoteCenterFreq (centerFreq * std::pow (2.0f, -spacing));
     spatialPatternGenerator2.setNoteCenterFreq (centerFreq);
     spatialPatternGenerator3.setNoteCenterFreq (centerFreq * std::pow (2.0f, spacing));
-    spatialPatternGenerator3.setPeakFilter (centerFreq * std::pow (2.0f, spacing), 0.1f, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (centerFreq * std::pow (2.0f, spacing), 0.1f, -12.0f);
 }
 
 //void PlaybackManager::setMelodyVolume (float melodyVolume)
@@ -178,7 +178,7 @@ void PlaybackManager::startCalibration()
     spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
     spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
     spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
-    spatialPatternGenerator3.setPeakFilter (1000, 0.1f, -12.0f);
+//    spatialPatternGenerator3.setPeakFilter (1000, 0.1f, -12.0f);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
