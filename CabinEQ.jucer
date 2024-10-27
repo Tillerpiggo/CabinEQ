@@ -35,6 +35,10 @@
         <FILE id="VOfEsn" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Sequencers">
+        <FILE id="t1XNqp" name="MelodicNoiseSequencer.cpp" compile="1" resource="0"
+              file="Source/MelodicNoiseSequencer.cpp"/>
+        <FILE id="EZQ9U5" name="MelodicNoiseSequencer.h" compile="0" resource="0"
+              file="Source/MelodicNoiseSequencer.h"/>
         <FILE id="IjP5j6" name="SweepPattern.cpp" compile="1" resource="0"
               file="Source/SweepPattern.cpp"/>
         <FILE id="TI4MYv" name="SweepPattern.h" compile="0" resource="0" file="Source/SweepPattern.h"/>
@@ -65,6 +69,9 @@
         <FILE id="T6KOdv" name="MelodicNotes.h" compile="0" resource="0" file="Source/MelodicNotes.h"/>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
+        <FILE id="tNnueT" name="CutoffFilter.cpp" compile="1" resource="0"
+              file="Source/CutoffFilter.cpp"/>
+        <FILE id="BRZUUe" name="CutoffFilter.h" compile="0" resource="0" file="Source/CutoffFilter.h"/>
         <FILE id="YZazfN" name="WrapperPinkNoiseGenerator.cpp" compile="1"
               resource="0" file="Source/WrapperPinkNoiseGenerator.cpp"/>
         <FILE id="LX5hPS" name="WrapperPinkNoiseGenerator.h" compile="0" resource="0"

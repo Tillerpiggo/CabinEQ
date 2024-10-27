@@ -23,6 +23,7 @@
 #include "ArbitrarySequencer.h"
 #include "SineSweepGenerator.h"
 #include "NoiseSweepGenerator.h"
+#include "MelodicNoiseSequencer.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
