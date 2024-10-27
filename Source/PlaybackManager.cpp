@@ -136,11 +136,11 @@ void PlaybackManager::setPitch (float pitch)
 
 void PlaybackManager::updateSpatialPatternGenerators()
 {
-    spatialPatternGenerator.setNoteCenterFreq (centerFreq);
-    spatialPatternGenerator2.setNoteCenterFreq (centerFreq);
-    spatialPatternGenerator.setNoteBandwidth (bandwidth);
-    spatialPatternGenerator2.setNoteBandwidth (bandwidth);
-    spatialPatternGenerator2.setPeakFilter (centerFreq, bandwidth / 2.0f, -12.0f);
+//    spatialPatternGenerator.setNoteCenterFreq (centerFreq);
+//    spatialPatternGenerator2.setNoteCenterFreq (centerFreq);
+//    spatialPatternGenerator.setNoteBandwidth (bandwidth);
+//    spatialPatternGenerator2.setNoteBandwidth (bandwidth);
+//    spatialPatternGenerator2.setPeakFilter (centerFreq, bandwidth, -30.0f);
 //    spatialPatternGenerator3.setNoteCenterFreq (centerFreq * std::pow (2.0f, spacing));
 //    spatialPatternGenerator3.setPeakFilter (centerFreq * std::pow (2.0f, spacing), 0.1f, -12.0f);
 }
@@ -178,6 +178,8 @@ void PlaybackManager::startCalibration()
     arbitrarySequencer.setNotes (scale.sequenceableNotes(), centerFreq);
     spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
     spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
+    spatialPatternGenerator.setNoteBandwidth (100.0f);
+    spatialPatternGenerator2.setNoteBandwidth (100.0f);
 //    spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
 //    spatialPatternGenerator3.setPeakFilter (1000, 0.1f, -12.0f);
 }
