@@ -48,10 +48,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
     juce::dsp::ProcessContextReplacing<float> ioContext(ioBlock);
     
-//    if (isCalibrating)
-//    {
-//        tiltFilter.process (ioContext);
-//    }
+    if (isCalibrating)
+    {
+        tiltFilter.process (ioContext);
+    }
     
     if (isProcessing || isCalibrating)
     {
@@ -192,10 +192,17 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
 //    melodicNoiseSequencer.setPattern (melody.noiseNotes());
 //    std::cout << "set melodic pattern" << std::endl;
     
-    // Endgame I
+//    // Endgame I
+//    MelodicNotes melody =
+//    MelodicNotes ({ -12, 0, 12, 0, 5, 7, 0, -5 }, freq)
+//        .withNoteDurationInSeconds (0.2f);
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    std::cout << "set melodic pattern" << std::endl;
+    
+    // Endgame II
     MelodicNotes melody =
-    MelodicNotes ({ -12, 0, 12, 0, 5, 7, 0, -5 }, freq)
-        .withNoteDurationInSeconds (0.1f);
+    MelodicNotes ({ -12, 0, 12, 5, -5, 0, 7, -5 }, freq)
+        .withNoteDurationInSeconds (0.2f);
     melodicNoiseSequencer.setPattern (melody.noiseNotes());
     std::cout << "set melodic pattern" << std::endl;
 }

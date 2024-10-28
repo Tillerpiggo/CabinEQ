@@ -232,7 +232,6 @@ private:
     void updateParametricBand (std::vector<std::unique_ptr<Filter>>& filters, int idx,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
-        std::cout << "update parametric band in filter chain" << std::endl;
         *filters[idx]->coefficients = *Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor,
                                                               juce::Decibels::decibelsToGain (amplInDB));
     }
