@@ -24,17 +24,22 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     calibrationVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     calibrationVolumeSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
     
+    sineVolumeSlider.setRange (-20.0f, 20.0f);
+    sineVolumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    sineVolumeSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+    
     spacingSlider.setRange (0.0f, 5.0f);
     spacingSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     spacingSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, spacingSlider.getTextBoxHeight());
     
-    bandwidthSlider.setRange (0.05f, 6.0f);
-    bandwidthSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    bandwidthSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, bandwidthSlider.getTextBoxHeight());
-    
     pitchSlider.setRange (10.0f, 20000.0f);
+    pitchSlider.setSkewFactorFromMidPoint (1000.0f);
     pitchSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     pitchSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, pitchSlider.getTextBoxHeight());
+    
+    speedSlider.setRange (0.2f, 5.0f);
+    speedSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    speedSlider.setTextBoxStyle (juce::Slider::TextBoxLeft, false, 0, pitchSlider.getTextBoxHeight());
     
     masterVolumeSliderLabel.setText ("Volume", juce::dontSendNotification);
     masterVolumeSliderLabel.attachToComponent (&masterVolumeSlider, true);
@@ -42,14 +47,17 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     calibrationVolumeSliderLabel.setText ("Calibration", juce::dontSendNotification);
     calibrationVolumeSliderLabel.attachToComponent (&calibrationVolumeSlider, true);
     
+    sineVolumeSliderLabel.setText ("Sines", juce::dontSendNotification);
+    sineVolumeSliderLabel.attachToComponent (&sineVolumeSlider, true);
+    
     spacingSliderLabel.setText ("Spacing", juce::dontSendNotification);
     spacingSliderLabel.attachToComponent (&spacingSlider, true);
     
-    bandwidthSliderLabel.setText ("Bandwidth", juce::dontSendNotification);
-    bandwidthSliderLabel.attachToComponent (&bandwidthSlider, true);
-    
     pitchSliderLabel.setText ("Pitch", juce::dontSendNotification);
     pitchSliderLabel.attachToComponent (&pitchSlider, true);
+    
+    speedSliderLabel.setText ("Speed", juce::dontSendNotification);
+    speedSliderLabel.attachToComponent (&speedSlider, true);
     
     amplGraph->addListener (this);
     amplGraph->addDataSource (this);
@@ -60,9 +68,10 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     masterVolumeSlider.addListener (this);
     calibrationVolumeSlider.addListener (this);
     startStopButton.addListener (this);
+    sineVolumeSlider.addListener (this);
     spacingSlider.addListener (this);
-    bandwidthSlider.addListener (this);
     pitchSlider.addListener (this);
+    speedSlider.addListener (this);
     
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
@@ -71,14 +80,16 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (masterVolumeSlider);
     addAndMakeVisible (startStopButton);
     addAndMakeVisible (calibrationVolumeSlider);
+    addAndMakeVisible (sineVolumeSlider);
     addAndMakeVisible (spacingSlider);
-    addAndMakeVisible (bandwidthSlider);
     addAndMakeVisible (pitchSlider);
+    addAndMakeVisible (speedSlider);
     addAndMakeVisible (masterVolumeSliderLabel);
     addAndMakeVisible (calibrationVolumeSliderLabel);
+    addAndMakeVisible (sineVolumeSliderLabel);
     addAndMakeVisible (spacingSliderLabel);
-    addAndMakeVisible (bandwidthSliderLabel);
     addAndMakeVisible (pitchSliderLabel);
+    addAndMakeVisible (speedSliderLabel);
     
     didLoadData();
 }
@@ -141,9 +152,10 @@ void CabinEqPage::resized()
     masterVolumeSlider.setBounds (padding + labelWidth, sliderY, sliderWidth - labelWidth, sliderHeight);
     calibrationVolumeSlider.setBounds (padding + labelWidth, sliderY2, sliderWidth - labelWidth - buttonWidth, sliderHeight);
     startStopButton.setBounds (getWidth() - buttonWidth - padding, sliderY2, buttonWidth, sliderHeight);
-    spacingSlider.setBounds (padding + labelWidth, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
-    bandwidthSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
+    sineVolumeSlider.setBounds (padding + labelWidth, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
+    spacingSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
     pitchSlider.setBounds (padding + labelWidth, sliderY4, sliderWidth / 2.0f - labelWidth, sliderHeight);
+    speedSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY4, sliderWidth / 2.0f - labelWidth, sliderHeight);
 }
 
 // ====================================================
@@ -234,17 +246,21 @@ void CabinEqPage::sliderValueChanged (juce::Slider *slider)
     {
         processor.setCalibrationVolume (slider->getValue());
     }
+    else if (slider == &sineVolumeSlider)
+    {
+        processor.setSineVolume (slider->getValue());
+    }
     else if (slider == &spacingSlider)
     {
         processor.setSpacing (slider->getValue());
     }
-    else if (slider == &bandwidthSlider)
-    {
-        processor.setBandwidth (slider->getValue());
-    }
     else if (slider == &pitchSlider)
     {
         processor.setPitch (slider->getValue());
+    }
+    else if (slider == &speedSlider)
+    {
+        processor.setSpeed (slider->getValue());
     }
 }
 

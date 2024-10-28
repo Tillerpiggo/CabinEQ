@@ -73,9 +73,10 @@ public:
     void setBypassBalance (float balance);
     void setVolume (float volume);
     void setCalibrationVolume (float calibrationVolume);
+    void setSineVolume (float sineVolume);
     void setSpacing (float spacing);
-    void setBandwidth (float bandwidth);
     void setPitch (float pitchInHz);
+    void setSpeed (float speedFactor);
     void setMutedGens (std::vector<bool> mutedGens);
     
     // Calibration noises

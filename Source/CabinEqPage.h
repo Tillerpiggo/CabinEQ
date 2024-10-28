@@ -95,15 +95,17 @@ protected:
     juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
     juce::Slider calibrationVolumeSlider; // controls calibration volume, relative to master volume
     juce::TextButton startStopButton { "START" }; // starts or stops the calibration itself
-    juce::Slider spacingSlider; // controls spacing between the 3 noise patterns
-    juce::Slider bandwidthSlider; // controls the bandwidths of the noise patterns
+    juce::Slider sineVolumeSlider; // controls spacing between the 3 noise patterns
+    juce::Slider spacingSlider; // controls the spacing in pitch of the noise patterns
     juce::Slider pitchSlider; // controls the center of the bandwidth
+    juce::Slider speedSlider; // controls the speed of calibration
     
     juce::Label masterVolumeSliderLabel;
     juce::Label calibrationVolumeSliderLabel;
+    juce::Label sineVolumeSliderLabel;
     juce::Label spacingSliderLabel;
-    juce::Label bandwidthSliderLabel;
     juce::Label pitchSliderLabel;
+    juce::Label speedSliderLabel;
     
     bool playingNoisePattern = false;
     

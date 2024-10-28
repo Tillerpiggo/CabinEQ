@@ -35,13 +35,14 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     
     if (isCalibrating)
     {
+        float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume) * juce::Decibels::decibelsToGain (referenceVolume);
         for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
         {
             std::pair<float, float> value = getNextSample();
-            leftChannel[sample] = value.first * 0.15 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
+            leftChannel[sample] = value.first * 0.15 * 0.5 * volumeOffset;
             
             if (rightChannel)
-                rightChannel[sample] = value.second * 0.15 * 0.5  * juce::Decibels::decibelsToGain (referenceVolume);
+                rightChannel[sample] = value.second * 0.15 * 0.5 * volumeOffset;
         }
     }
     
@@ -117,22 +118,28 @@ void PlaybackManager::setCalibrationVolume (float calibrationVolume)
     this->calibrationVolume = calibrationVolume;
 }
 
+void PlaybackManager::setSineVolume (float sineVolume)
+{
+    this->sineVolume = sineVolume;
+    // TODO - implement
+}
+
 void PlaybackManager::setSpacing (float spacing)
 {
     this->spacing = spacing;
     updateSpatialPatternGenerators();
 }
 
-void PlaybackManager::setBandwidth (float bandwidth)
+void PlaybackManager::setPitch (float pitchInHz)
 {
-    this->bandwidth = bandwidth;
+    this->centerFreq = pitchInHz;
     updateSpatialPatternGenerators();
 }
 
-void PlaybackManager::setPitch (float pitch)
+void PlaybackManager::setSpeed (float speedFactor)
 {
-    this->centerFreq = pitch;
-    updateSpatialPatternGenerators();
+    this->speedFactor = speedFactor;
+    // TODO - implement
 }
 
 void PlaybackManager::updateSpatialPatternGenerators()

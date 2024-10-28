@@ -43,9 +43,10 @@ public:
     void setIsProcessing (bool isProcessing);
     void setVolume (float volume);
     void setCalibrationVolume (float calibrationVolume);
+    void setSineVolume (float sineVolumeInDB);
     void setSpacing (float spacing);
-    void setBandwidth (float bandwidth);
     void setPitch (float pitchInHz);
+    void setSpeed (float speedFactor);
     void updateSpatialPatternGenerators(); // update spatial pattern generators to match the current pitch and bandwidth
     
     void startCalibrationCenteredAt (float freq, float bandwidth);
@@ -73,9 +74,10 @@ private:
     juce::dsp::Gain<float> overallVolumeProcessor;
     float volume = 0.0f; // in dB
     float calibrationVolume = 0.0f; // in dB
+    float sineVolume = 0.0f; // in dB
     float spacing = 3.0f; // in octaves
-    float bandwidth = 1.0f; // in octaves
     float centerFreq = 1000.0f; // in hz
+    float speedFactor = 1.0f; // scalar factor
     
     // Sound generation
     WrapperPinkNoiseGenerator wrapperPinkNoiseGenerator;
