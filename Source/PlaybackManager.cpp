@@ -250,8 +250,15 @@ float PlaybackManager::getCurrPlayingFreq()
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-//    return { 0.0f, 0.0f };
-    return melodicNoiseSequencer.getNextSample();
+    pan += 0.0001f;
+    if (pan > 1.0f)
+        pan = -1.0f;
+    float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
+    float leftAmplitudeCompensation = std::cos(angle);
+    float rightAmplitudeCompensation = std::sin(angle);
+    
+    auto sample = melodicNoiseSequencer.getNextSample();
+    return { sample.first * leftAmplitudeCompensation, sample.second * rightAmplitudeCompensation };
 //    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
 //    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
 //    auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();

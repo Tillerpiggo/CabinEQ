@@ -110,4 +110,6 @@ private:
     bool isSpatialPatternGenerator2Muted = false;
     bool isSpatialPatternGenerator3Muted = false;
     bool isSpatialPatternGenerator4Muted = false;
+    
+    float pan = 0.0f;
 };
