@@ -94,6 +94,7 @@ private:
     ArbitrarySequencer arbitrarySequencer2;
     ArbitrarySequencer arbitrarySequencer3;
     ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
+    PinkNoise pinkNoise;
     MelodicNoiseSequencer melodicNoiseSequencer;
     Curve tiltCurve;
     

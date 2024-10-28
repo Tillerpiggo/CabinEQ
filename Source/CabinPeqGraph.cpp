@@ -746,14 +746,12 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
 
 int CabinPeqGraph::addBand(float freq, float ampl, float bandwidth)
 {
-    std::cout << "trying to add band" << std::endl;
     if (listener == nullptr || dataSource == nullptr) // don't add a band unless we can reflect that change
         return -1;
     
     int newBandId = listener->addBand(freq, ampl, bandwidth, this);
     bandProfile = dataSource->getBandProfile();
     curve.updateWithBands (bandProfile.getBands());
-    std::cout << "added band" << std::endl;
     return newBandId;
 }
 

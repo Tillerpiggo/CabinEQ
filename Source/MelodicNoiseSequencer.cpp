@@ -20,7 +20,9 @@ void MelodicNoiseSequencer::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->sampleRate = spec.sampleRate;
     notchFilter.prepare (spec);
-    std::cout << "prepared notch filter" << std::endl;
+    sineWaveGenerator.setSampleRate (spec.sampleRate);
+    spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
+    spatialPinkNoiseGenerator.setBandpass (1000.0f, 0.5f);
 }
 
 void MelodicNoiseSequencer::setPattern (std::vector<NoiseNote> notes)
@@ -39,6 +41,7 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     
     float noiseSample = pinkNoise.generate();
     float sineSample = sineWaveGenerator.getNextSample().first;
+    sineSample = spatialPinkNoiseGenerator.getNextSample().first;
     
     noiseSample = notchFilter.processSample (noiseSample);
     
@@ -55,7 +58,8 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     }
     snapToZeroCounter++;
     
-    float sample = noiseSample * 15.0f + sineSample * 0.5f * envelopeGain;
+//    float sample = noiseSample * 15.0f + sineSample * 0.5f * envelopeGain;f
+    float sample = noiseSample * 15.0f + sineSample * 15.0f * envelopeGain;
     return { sample, sample };
     
 }
@@ -72,7 +76,8 @@ void MelodicNoiseSequencer::updateNotchFilter()
     float freq = getCurrNote().freqFactor; // assume this is absolute, not relative
     if (freq >= sampleRate * 0.49)
         return;
-    *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeNotch (sampleRate, freq, 2.5f);
+    *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeNotch (sampleRate, freq, 0.5f);
+    spatialPinkNoiseGenerator.setBandpass (freq, 0.1f);
 }
 
 void MelodicNoiseSequencer::goToNextNote()

@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "PinkNoise.h"
 #include "SpatialPatternGenerator.h" // for NoiseNote
+#include "SpatialPinkNoiseGenerator.h"
 #include "SineWaveGenerator.h"
 
 class MelodicNoiseSequencer
@@ -39,5 +40,6 @@ private:
     
     juce::dsp::IIR::Filter<float> notchFilter; // to add a notch in the main noise
     SineWaveGenerator sineWaveGenerator;
+    SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
     int snapToZeroCounter = 0;
 };

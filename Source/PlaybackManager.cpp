@@ -199,10 +199,45 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
 //    melodicNoiseSequencer.setPattern (melody.noiseNotes());
 //    std::cout << "set melodic pattern" << std::endl;
     
-    // Endgame II
+//    // Endgame II
+//    MelodicNotes melody =
+//    MelodicNotes ({ -12, 0, 12, 5, -5, 0, 7, -5 }, freq)
+//        .withNoteDurationInSeconds (0.2f);
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    std::cout << "set melodic pattern" << std::endl;
+    
+//    // Endgame III - not tall enough...
+//    MelodicNotes melody =
+//    MelodicNotes ({ -12, -7, -5, -2, -1, 0, 2, -1, 0, 5, 7, 9, 11, 12, 14, 12 }, freq)
+//        .withNoteDurationInSeconds (0.15f);
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    std::cout << "set melodic pattern" << std::endl;
+    
+//    // Endgame IV - good, very square, too muddy/kick drum too high up
+//    MelodicNotes melody =
+//    MelodicNotes ({ -12, -6, 0, 6, 12, 6, 0, -6 }, freq)
+//        .withNoteDurationInSeconds (0.15f);
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    std::cout << "set melodic pattern" << std::endl;
+    
+//    // Endgame V - more natural but still not quite right...
+//    MelodicNotes melody =
+//    MelodicNotes ({ -12, 0, -11, 1, -10, 2, -9, 3, -8, 4, -7, 5, -6, 6, -5, 7, -4, 8, -3, 9, -2, 10, -1, 11, 0, 12  }, freq)
+//        .withNoteDurationInSeconds (0.15f);
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    std::cout << "set melodic pattern" << std::endl;
+    
+//    // Endgame VI - quite stable, discouraging large changes on small bandwidths... might be on to something, however it's also not encouraging much change at all. The changes are good though.
+//    MelodicNotes melody =
+//    MelodicNotes ({ -12, -9, -6, -3, 0, 3, 6, 9, 12, 9, 6, 3, 0, -3, -6, -9 }, freq)
+//        .withNoteDurationInSeconds (0.15f);
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    std::cout << "set melodic pattern" << std::endl;
+    
+    // Endgame VI - quite stable, discouraging large changes on small bandwidths... might be on to something, however it's also not encouraging much change at all. The changes are good though.
     MelodicNotes melody =
-    MelodicNotes ({ -12, 0, 12, 5, -5, 0, 7, -5 }, freq)
-        .withNoteDurationInSeconds (0.2f);
+    MelodicNotes::withFreqs ({ 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 6400, 3200, 1600, 800, 400, 200, 100 })
+        .withNoteDurationInSeconds (0.15f);
     melodicNoiseSequencer.setPattern (melody.noiseNotes());
     std::cout << "set melodic pattern" << std::endl;
 }
@@ -258,7 +293,10 @@ std::pair<float, float> PlaybackManager::getNextSample()
     float rightAmplitudeCompensation = std::sin(angle);
     
     auto sample = melodicNoiseSequencer.getNextSample();
-    return { sample.first * leftAmplitudeCompensation, sample.second * rightAmplitudeCompensation };
+    auto noiseSample = pinkNoise.generate() * 15.0f;
+    noiseSample *= 0.0f;//std::abs (leftAmplitudeCompensation - rightAmplitudeCompensation);
+    
+    return { sample.first * leftAmplitudeCompensation + noiseSample * rightAmplitudeCompensation, sample.second * rightAmplitudeCompensation + noiseSample * leftAmplitudeCompensation };
 //    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
 //    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
 //    auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();

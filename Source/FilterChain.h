@@ -128,7 +128,6 @@ class FilterChain
 public:
     void setBands (const std::vector<Band>& bands, double sampleRate)
     {
-        std::cout << "setting bands" << std::endl;
         this->bands = bands;
         this->sampleRate = sampleRate;
         this->shouldUpdateFilters = true;
@@ -153,13 +152,10 @@ public:
             leftFilters.erase (leftFilters.begin() + bands.size(), leftFilters.end());
             rightFilters.erase (rightFilters.begin() + bands.size(), rightFilters.end());
         }
-        
-        std::cout << "successfully set bands" << std::endl;
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
-        std::cout << "prepare filter chain" << std::endl;
         this->spec = spec;
         sampleRate = spec.sampleRate;
         // Prepare filters for the left channel
@@ -220,7 +216,6 @@ private:
     void addParametricBand (std::vector<std::unique_ptr<Filter>>& filters,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
-        std::cout << "add parametric band in filter chain" << std::endl;
         auto filter = std::make_unique<Filter>();
         *filter->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
                                                               juce::Decibels::decibelsToGain (amplInDB));
