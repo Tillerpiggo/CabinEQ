@@ -263,16 +263,16 @@ void CabinEqAudioProcessor::startMelodicPatternAt (int nodeId, juce::String prof
 
 void CabinEqAudioProcessor::updateNoisePatternAt (int id, juce::String profileName)
 {
-//    auto profile = profileNamed (profileName);
-//    if (profile.has_value())
-//    {
-//        auto band = profile->get().getBandWithId (id);
-//        if (band.has_value())
-//        {
-//            playbackManager.updateAmplCalibration (band->freq, band->bandwidth);
-//            playbackManager.setIsCalibrating (true);
-//        }
-//    }
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        auto band = profile->get().getBandWithId (id);
+        if (band.has_value())
+        {
+            playbackManager.updateAmplCalibration (band->freq, band->bandwidth);
+            playbackManager.setIsCalibrating (true);
+        }
+    }
 }
 
 void CabinEqAudioProcessor::stopNoisePattern()
@@ -340,7 +340,8 @@ BandProfile CabinEqAudioProcessor::getBandProfile (juce::String profileName)
 
 float CabinEqAudioProcessor::getCurrPlayingFreq()
 {
-    return playbackManager.getCurrPlayingFreq();
+    return 1000.0f;
+//    return playbackManager.getCurrPlayingFreq();
 }
 
 std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()
