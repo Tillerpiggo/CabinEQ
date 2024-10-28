@@ -175,21 +175,20 @@ public:
 
     void process (juce::dsp::AudioBlock<float>& block)
     {
-//        std::cout << "process in filter chain" << std::endl;
-//        if (shouldUpdateFilters)
-//        {
-//            // Update filters if needed before processing
-//            for (int i = 0; i < bands.size(); ++i)
-//            {
-//                Band band = bands[i];
-//                if (i < leftFilters.size())
-//                {
-//                    updateParametricBand (leftFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
-//                    updateParametricBand (rightFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
-//                }
-//            }
-//            shouldUpdateFilters = false;
-//        }
+        if (shouldUpdateFilters)
+        {
+            // Update filters if needed before processing
+            for (int i = 0; i < bands.size(); ++i)
+            {
+                Band band = bands[i];
+                if (i < leftFilters.size())
+                {
+                    updateParametricBand (leftFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
+                    updateParametricBand (rightFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
+                }
+            }
+            shouldUpdateFilters = false;
+        }
 
         // Process left and right contexts
         auto leftBlock = block.getSingleChannelBlock (0);

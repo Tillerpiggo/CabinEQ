@@ -48,10 +48,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
     juce::dsp::ProcessContextReplacing<float> ioContext(ioBlock);
     
-    if (isCalibrating)
-    {
-        tiltFilter.process (ioContext);
-    }
+//    if (isCalibrating)
+//    {
+//        tiltFilter.process (ioContext);
+//    }
     
     if (isProcessing || isCalibrating)
     {
@@ -185,9 +185,17 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
 ////    spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
 ////    spatialPatternGenerator3.setPeakFilter (1000, 0.1f, -12.0f);
     
+//    // Works ok but weird, not ideal
+//    MelodicNotes melody =
+//    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 0, 5, 7, 5, 12, 7 }, freq, 1.0f, { 0.0f })
+//        .withNoteDurationInSeconds (0.2f);
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    std::cout << "set melodic pattern" << std::endl;
+    
+    // Endgame I
     MelodicNotes melody =
-    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 0, 5, 7, 5, 12, 7 }, freq, 1.0f, { 0.0f })
-        .withNoteDurationInSeconds (0.2f);
+    MelodicNotes ({ -12, 0, 12, 0, 5, 7, 0, -5 }, freq)
+        .withNoteDurationInSeconds (0.1f);
     melodicNoiseSequencer.setPattern (melody.noiseNotes());
     std::cout << "set melodic pattern" << std::endl;
 }
@@ -235,8 +243,8 @@ float PlaybackManager::getCurrPlayingFreq()
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return { 0.0f, 0.0f };
-//    return melodicNoiseSequencer.getNextSample();
+//    return { 0.0f, 0.0f };
+    return melodicNoiseSequencer.getNextSample();
 //    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
 //    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
 //    auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();

@@ -39,4 +39,5 @@ private:
     
     juce::dsp::IIR::Filter<float> notchFilter; // to add a notch in the main noise
     SineWaveGenerator sineWaveGenerator;
+    int snapToZeroCounter = 0;
 };

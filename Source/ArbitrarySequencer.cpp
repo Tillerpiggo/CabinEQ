@@ -201,7 +201,8 @@ void ArbitrarySequencer::goToNextNote()
 
 const SequenceableNote& ArbitrarySequencer::getCurrNote() const
 {
-    if (currNoteIdx < 0 || currNoteIdx >= notes.size()) return notes.at (0);
+    if (currNoteIdx < 0 || currNoteIdx >= notes.size())
+        std::cerr << "ERROR IN ArbitrarySequencer - getting curr note before assigning any notes" << std::endl;
     return notes.at (currNoteIdx);
 }
 

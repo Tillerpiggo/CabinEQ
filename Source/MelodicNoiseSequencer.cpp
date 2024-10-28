@@ -48,14 +48,20 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     
     float envelopeGain = getCurrNote().getGainAtSample (numSamplesNoteHasBeenPlaying).first;
     
-    float sample = noiseSample + sineSample * envelopeGain;
+    if (snapToZeroCounter >= 1000)
+    {
+        notchFilter.snapToZero();
+        snapToZeroCounter = 0;
+    }
+    snapToZeroCounter++;
+    
+    float sample = noiseSample * 15.0f + sineSample * 0.5f * envelopeGain;
     return { sample, sample };
     
 }
 
 NoiseNote MelodicNoiseSequencer::getCurrNote()
 {
-    std::cout << "get curr note" << std::endl;
     if (currNoteIdx < 0 || currNoteIdx >= notes.size())
         return notes[0];
     return notes[currNoteIdx];
@@ -64,9 +70,9 @@ NoiseNote MelodicNoiseSequencer::getCurrNote()
 void MelodicNoiseSequencer::updateNotchFilter()
 {
     float freq = getCurrNote().freqFactor; // assume this is absolute, not relative
-    std::cout << "attempting to make notch filter with sampleRate " << sampleRate << ", freq " << freq << ", Q factor 0.5f" << std::endl;
-    *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeNotch (sampleRate, freq, 0.5f);
-    std::cout << "made notch filter" << std::endl;
+    if (freq >= sampleRate * 0.49)
+        return;
+    *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeNotch (sampleRate, freq, 2.5f);
 }
 
 void MelodicNoiseSequencer::goToNextNote()
@@ -76,6 +82,8 @@ void MelodicNoiseSequencer::goToNextNote()
     
     if (currNoteIdx >= notes.size())
         currNoteIdx = 0;
+    
+    sineWaveGenerator.setNote (Note (getCurrNote().freqFactor, 0.0f, 0.0f, 0.0f));
     
     updateNotchFilter();
 }
