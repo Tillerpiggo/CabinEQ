@@ -33,6 +33,16 @@ void MelodicNoiseSequencer::setPattern (std::vector<NoiseNote> notes)
     updateNotchFilter();
 }
 
+void MelodicNoiseSequencer::setSineVolume (float sineVolume)
+{
+    this->sineVolume = sineVolume;
+}
+
+void MelodicNoiseSequencer::setSpeedFactor (float speedFactor)
+{
+    this->speedFactor = speedFactor;
+}
+
 std::pair<float, float> MelodicNoiseSequencer::getNextSample()
 {
     // If we don't have notes, return nothing
@@ -45,7 +55,7 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     noiseSample = notchFilter.processSample (noiseSample);
     
     numSamplesNoteHasBeenPlaying++;
-    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)
+    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples * speedFactor)
         goToNextNote();
     
     float envelopeGain = getCurrNote().getGainAtSample (numSamplesNoteHasBeenPlaying).first;
@@ -57,7 +67,7 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     }
     snapToZeroCounter++;
     
-    float sample = noiseSample * 15.0f + sineSample * 0.15f * envelopeGain;
+    float sample = noiseSample * 15.0f + sineSample * 0.15f * juce::Decibels::decibelsToGain (sineVolume) * envelopeGain;
     return { sample, sample };
     
 }

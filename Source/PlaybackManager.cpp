@@ -121,7 +121,7 @@ void PlaybackManager::setCalibrationVolume (float calibrationVolume)
 void PlaybackManager::setSineVolume (float sineVolume)
 {
     this->sineVolume = sineVolume;
-    // TODO - implement
+    melodicNoiseSequencer.setSineVolume (sineVolume);
 }
 
 void PlaybackManager::setSpacing (float spacing)
@@ -139,7 +139,7 @@ void PlaybackManager::setPitch (float pitchInHz)
 void PlaybackManager::setSpeed (float speedFactor)
 {
     this->speedFactor = speedFactor;
-    // TODO - implement
+    melodicNoiseSequencer.setSpeedFactor (speedFactor);
 }
 
 void PlaybackManager::updateSpatialPatternGenerators()

@@ -23,6 +23,8 @@ public:
     
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setPattern (std::vector<NoiseNote> notes);
+    void setSineVolume (float sineVolume);
+    void setSpeedFactor (float speedFactor);
     std::pair<float, float> getNextSample();
     
 private:
@@ -42,4 +44,6 @@ private:
     SineWaveGenerator sineWaveGenerator;
     SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
     int snapToZeroCounter = 0;
+    float sineVolume = 0.0f; // in db
+    float speedFactor = 1.0f;
 };
