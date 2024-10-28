@@ -59,7 +59,7 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     snapToZeroCounter++;
     
 //    float sample = noiseSample * 15.0f + sineSample * 0.5f * envelopeGain;f
-    float sample = noiseSample * 15.0f + sineSample * 15.0f * envelopeGain;
+    float sample = noiseSample * 15.0f + sineSample * 45.0f * envelopeGain;
     return { sample, sample };
     
 }
@@ -77,7 +77,7 @@ void MelodicNoiseSequencer::updateNotchFilter()
     if (freq >= sampleRate * 0.49)
         return;
     *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeNotch (sampleRate, freq, 0.5f);
-    spatialPinkNoiseGenerator.setBandpass (freq, 0.1f);
+    spatialPinkNoiseGenerator.setBandpass (freq, 0.5f);
 }
 
 void MelodicNoiseSequencer::goToNextNote()

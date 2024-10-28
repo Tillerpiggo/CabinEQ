@@ -294,7 +294,7 @@ std::pair<float, float> PlaybackManager::getNextSample()
     
     auto sample = melodicNoiseSequencer.getNextSample();
     auto noiseSample = pinkNoise.generate() * 15.0f;
-    noiseSample *= 0.0f;//std::abs (leftAmplitudeCompensation - rightAmplitudeCompensation);
+    noiseSample *= std::abs (leftAmplitudeCompensation - rightAmplitudeCompensation);
     
     return { sample.first * leftAmplitudeCompensation + noiseSample * rightAmplitudeCompensation, sample.second * rightAmplitudeCompensation + noiseSample * leftAmplitudeCompensation };
 //    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
