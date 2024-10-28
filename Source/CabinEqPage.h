@@ -34,7 +34,7 @@ public:
     int addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void removeBand (int id, CabinPeqGraph* sender) override;
-    void startNoisePattern() override;
+    void startMelodicPatternAt (int id, CabinPeqGraph* sender) override;
     void updateNoisePatternAt (int id, CabinPeqGraph* sender) override;
     void stopNoisePattern() override;
     void setNoisePatternSolo (bool solo) override;

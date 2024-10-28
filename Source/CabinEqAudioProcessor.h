@@ -79,7 +79,7 @@ public:
     void setMutedGens (std::vector<bool> mutedGens);
     
     // Calibration noises
-    void startNoisePattern();
+    void startMelodicPatternAt (int nodeId, juce::String profileName);
     void updateNoisePatternAt (int id, juce::String profileName);
     void stopNoisePattern();
     void setNoisePatternSolo (bool solo);

@@ -28,7 +28,7 @@ public:
         virtual int addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender) = 0;
         virtual void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) = 0;
         virtual void removeBand (int id, CabinPeqGraph* sender) = 0;
-        virtual void startNoisePattern() = 0;
+        virtual void startMelodicPatternAt (int id, CabinPeqGraph* sender) = 0;
         virtual void updateNoisePatternAt (int id, CabinPeqGraph* sender) = 0;
         virtual void stopNoisePattern() = 0;
         virtual void setNoisePatternSolo (bool solo) = 0;
@@ -109,7 +109,7 @@ private:
     void updateBand (int id, float freq, float ampl, float bandwidth);
     void updateBandFromDrag (const juce::MouseEvent& event);
     void removeBand (int id);
-    void startNoisePattern();
+    void startMelodicPatternAt (int id);
     void updateNoisePatternAt (int id);
     void stopNoisePattern();
     void setNoisePatternSolo (bool solo);

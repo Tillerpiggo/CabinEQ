@@ -245,10 +245,20 @@ void CabinEqAudioProcessor::setMutedGens (std::vector<bool> mutedGens)
     playbackManager.setMutedGenerators (mutedGens);
 }
 
-void CabinEqAudioProcessor::startNoisePattern()
+void CabinEqAudioProcessor::startMelodicPatternAt (int nodeId, juce::String profileName)
 {
-    playbackManager.startCalibration();
-    playbackManager.setIsCalibrating (true);
+    auto profile = profileNamed (profileName);
+    if (profile.has_value())
+    {
+        std::cout << "trying to get band with id" << std::endl;
+        auto band = profile->get().getBandWithId (nodeId);
+        if (band.has_value())
+        {
+            std::cout << "starting calibration centered at" << std::endl;
+            playbackManager.startCalibrationCenteredAt (band->freq, band->bandwidth);
+            playbackManager.setIsCalibrating (true);
+        }
+    }
 }
 
 void CabinEqAudioProcessor::updateNoisePatternAt (int id, juce::String profileName)

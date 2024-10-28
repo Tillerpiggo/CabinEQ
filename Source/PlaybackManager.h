@@ -48,7 +48,7 @@ public:
     void setPitch (float pitchInHz);
     void updateSpatialPatternGenerators(); // update spatial pattern generators to match the current pitch and bandwidth
     
-    void startCalibration();
+    void startCalibrationCenteredAt (float freq, float bandwidth);
     void updateAmplCalibration (float freq, float bandwidth);
     void setPatternSolo (bool solo);
     
@@ -94,6 +94,7 @@ private:
     ArbitrarySequencer arbitrarySequencer2;
     ArbitrarySequencer arbitrarySequencer3;
     ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
+    MelodicNoiseSequencer melodicNoiseSequencer;
     Curve tiltCurve;
     
     // Sweeps

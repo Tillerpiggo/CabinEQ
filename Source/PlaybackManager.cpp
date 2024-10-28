@@ -90,6 +90,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     noiseSweepGenerator2.prepare (spec);
     noiseSweepGenerator3.prepare (spec);
     noiseSweepGenerator4.prepare (spec);
+    melodicNoiseSequencer.prepare (spec);
     tiltFilter.prepare (spec);
     tiltFilter.updateWithCurve (tiltCurve);
     hasPreparedFilter = true;
@@ -155,33 +156,40 @@ void PlaybackManager::updateSpatialPatternGenerators()
 //    this->noiseGain = juce::Decibels::decibelsToGain (noiseVolume);
 //}
 
-void PlaybackManager::startCalibration()
+void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
 {
-    // Experiments in Noise II
-    MelodicNotes backgroundNoise =
-    MelodicNotes::withMelodicPattern({ 1, 0, 1, 0, 1, 0, 1, 0 }, { 200 }, 0.5f, { 0.0f })
-        .withNoteDurationInSeconds (0.08);
+    std::cout << "starting calibration centered at " << std::endl;
+//    // Experiments in Noise II
+//    MelodicNotes backgroundNoise =
+//    MelodicNotes::withMelodicPattern({ 1, 0, 1, 0, 1, 0, 1, 0 }, { 200 }, 0.5f, { 0.0f })
+//        .withNoteDurationInSeconds (0.08);
+//    
+//    MelodicNotes backgroundNoise2 =
+//    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 1000 }, 0.5f, { 0.0f })
+//        .withNoteDurationInSeconds (0.08);
+//    
+//    MelodicNotes backgroundNoise3 =
+//    MelodicNotes::withMelodicPattern({ 1, 1, 0, 0, 1, 1, 0, 0 }, { 5000 }, 0.5f, { 0.0f })
+//        .withNoteDurationInSeconds (0.08);
+//    
+//    std::vector<float> scaleVals { -12, 0, 12 };
+//    
+//    MelodicNotes scale =
+//    MelodicNotes (scaleVals, centerFreq);
+//    
+//    arbitrarySequencer.setNotes (scale.sequenceableNotes(), centerFreq);
+//    spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
+//    spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
+//    spatialPatternGenerator.setNoteBandwidth (100.0f);
+//    spatialPatternGenerator2.setNoteBandwidth (100.0f);
+////    spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
+////    spatialPatternGenerator3.setPeakFilter (1000, 0.1f, -12.0f);
     
-    MelodicNotes backgroundNoise2 =
-    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 1000 }, 0.5f, { 0.0f })
-        .withNoteDurationInSeconds (0.08);
-    
-    MelodicNotes backgroundNoise3 =
-    MelodicNotes::withMelodicPattern({ 1, 1, 0, 0, 1, 1, 0, 0 }, { 5000 }, 0.5f, { 0.0f })
-        .withNoteDurationInSeconds (0.08);
-    
-    std::vector<float> scaleVals { -12, 0, 12 };
-    
-    MelodicNotes scale =
-    MelodicNotes (scaleVals, centerFreq);
-    
-    arbitrarySequencer.setNotes (scale.sequenceableNotes(), centerFreq);
-    spatialPatternGenerator.setPattern (backgroundNoise.noiseNotes());
-    spatialPatternGenerator2.setPattern (backgroundNoise2.noiseNotes());
-    spatialPatternGenerator.setNoteBandwidth (100.0f);
-    spatialPatternGenerator2.setNoteBandwidth (100.0f);
-//    spatialPatternGenerator3.setPattern (backgroundNoise3.noiseNotes());
-//    spatialPatternGenerator3.setPeakFilter (1000, 0.1f, -12.0f);
+    MelodicNotes melody =
+    MelodicNotes::withMelodicPattern({ 1, 0, 0, 1, 0, 0, 1, 0 }, { 0, 5, 7, 5, 12, 7 }, freq, 1.0f, { 0.0f })
+        .withNoteDurationInSeconds (0.2f);
+    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+    std::cout << "set melodic pattern" << std::endl;
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -227,9 +235,11 @@ float PlaybackManager::getCurrPlayingFreq()
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
-    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
-    auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
-    
-    return { leftSample1 + leftSample2 + leftSample3, rightSample1 + rightSample2 + rightSample3 };
+    return { 0.0f, 0.0f };
+//    return melodicNoiseSequencer.getNextSample();
+//    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
+//    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
+//    auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
+//    
+//    return { leftSample1 + leftSample2 + leftSample3, rightSample1 + rightSample2 + rightSample3 };
 }

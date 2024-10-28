@@ -55,8 +55,6 @@ int CabinEqProfile::addBand (const float freq, const float ampl, const float ban
     int id = getNextIdForBandInTree (amplBandTree);
     addBandToTree (id, freq, ampl, bandwidth, amplBandTree);
     
-//    printBandTree (amplBandTree);
-    
     return id;
 }
 

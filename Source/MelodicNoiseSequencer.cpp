@@ -18,7 +18,9 @@ MelodicNoiseSequencer::MelodicNoiseSequencer()
 
 void MelodicNoiseSequencer::prepare (const juce::dsp::ProcessSpec& spec)
 {
+    this->sampleRate = spec.sampleRate;
     notchFilter.prepare (spec);
+    std::cout << "prepared notch filter" << std::endl;
 }
 
 void MelodicNoiseSequencer::setPattern (std::vector<NoiseNote> notes)
@@ -53,6 +55,7 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
 
 NoiseNote MelodicNoiseSequencer::getCurrNote()
 {
+    std::cout << "get curr note" << std::endl;
     if (currNoteIdx < 0 || currNoteIdx >= notes.size())
         return notes[0];
     return notes[currNoteIdx];
@@ -61,8 +64,9 @@ NoiseNote MelodicNoiseSequencer::getCurrNote()
 void MelodicNoiseSequencer::updateNotchFilter()
 {
     float freq = getCurrNote().freqFactor; // assume this is absolute, not relative
-    
+    std::cout << "attempting to make notch filter with sampleRate " << sampleRate << ", freq " << freq << ", Q factor 0.5f" << std::endl;
     *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeNotch (sampleRate, freq, 0.5f);
+    std::cout << "made notch filter" << std::endl;
 }
 
 void MelodicNoiseSequencer::goToNextNote()

@@ -99,7 +99,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     if (draggingId != -1)
     {
         updateBand (draggingId, freq, ampl, startDragBandwidth);
-//        startNoisePatternAt (draggingId);star
+        startMelodicPatternAt (draggingId);
     }
 }
 
@@ -746,12 +746,14 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
 
 int CabinPeqGraph::addBand(float freq, float ampl, float bandwidth)
 {
+    std::cout << "trying to add band" << std::endl;
     if (listener == nullptr || dataSource == nullptr) // don't add a band unless we can reflect that change
         return -1;
     
     int newBandId = listener->addBand(freq, ampl, bandwidth, this);
     bandProfile = dataSource->getBandProfile();
     curve.updateWithBands (bandProfile.getBands());
+    std::cout << "added band" << std::endl;
     return newBandId;
 }
 
@@ -799,20 +801,20 @@ void CabinPeqGraph::removeBand(int id)
     curve.updateWithBands (bandProfile.getBands());
 }
 
-void CabinPeqGraph::startNoisePattern()
+void CabinPeqGraph::startMelodicPatternAt (int id)
 {
-//    if (listener != nullptr)
-//    {
-//        listener->startNoisePattern();
-//    }
+    if (listener != nullptr)
+    {
+        listener->startMelodicPatternAt (id, this);
+    }
 }
 
-void CabinPeqGraph::updateNoisePatternAt(int id)
+void CabinPeqGraph::updateNoisePatternAt (int id)
 {
-//    if (listener != nullptr)
-//    {
-//        listener->updateNoisePatternAt(id, this);
-//    }
+    if (listener != nullptr)
+    {
+        listener->updateNoisePatternAt (id, this);
+    }
 }
 
 void CabinPeqGraph::stopNoisePattern()

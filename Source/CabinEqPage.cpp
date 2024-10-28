@@ -178,12 +178,12 @@ void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
     }
 }
 
-void CabinEqPage::startNoisePattern()
+void CabinEqPage::startMelodicPatternAt (int id, CabinPeqGraph *sender)
 {
-//    if (sender == amplGraph.get())
-//    {
-//        processor.startNoisePattern(At (id, profileId);)
-//    }
+    if (sender == amplGraph.get())
+    {
+        processor.startMelodicPatternAt (id, profileId);
+    }
 }
 
 void CabinEqPage::updateNoisePatternAt (int id, CabinPeqGraph* sender)
@@ -444,14 +444,14 @@ void CabinEqPage::buttonClicked (juce::Button *button)
         toggleBypass();
         processor.setIsProcessing (! isBypassed);
     }
-    else if (button == &startStopButton)
-    {
-        playingNoisePattern = ! playingNoisePattern;
-        if (playingNoisePattern)
-            processor.startNoisePattern();
-        else
-            processor.stopNoisePattern();
-    }
+//    else if (button == &startStopButton)
+//    {
+//        playingNoisePattern = ! playingNoisePattern;
+//        if (playingNoisePattern)
+//            processor.startMelodicPatternAt (dragging, <#juce::String profileName#>);
+//        else
+//            processor.stopNoisePattern();
+//    }
 }
 
 void CabinEqPage::didLoadData()

@@ -128,6 +128,7 @@ class FilterChain
 public:
     void setBands (const std::vector<Band>& bands, double sampleRate)
     {
+        std::cout << "setting bands" << std::endl;
         this->bands = bands;
         this->sampleRate = sampleRate;
         this->shouldUpdateFilters = true;
@@ -152,10 +153,13 @@ public:
             leftFilters.erase (leftFilters.begin() + bands.size(), leftFilters.end());
             rightFilters.erase (rightFilters.begin() + bands.size(), rightFilters.end());
         }
+        
+        std::cout << "successfully set bands" << std::endl;
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
+        std::cout << "prepare filter chain" << std::endl;
         this->spec = spec;
         sampleRate = spec.sampleRate;
         // Prepare filters for the left channel
@@ -171,17 +175,21 @@ public:
 
     void process (juce::dsp::AudioBlock<float>& block)
     {
-        // Update filters if needed before processing
-        for (int i = 0; i < bands.size(); ++i)
-        {
-            Band band = bands[i];
-            if (i < leftFilters.size())
-            {
-                updateParametricBand (leftFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
-                updateParametricBand (rightFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
-            }
-        }
-        shouldUpdateFilters = false;
+//        std::cout << "process in filter chain" << std::endl;
+//        if (shouldUpdateFilters)
+//        {
+//            // Update filters if needed before processing
+//            for (int i = 0; i < bands.size(); ++i)
+//            {
+//                Band band = bands[i];
+//                if (i < leftFilters.size())
+//                {
+//                    updateParametricBand (leftFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
+//                    updateParametricBand (rightFilters, i, sampleRate, band.freq, band.qFactor, band.ampl);
+//                }
+//            }
+//            shouldUpdateFilters = false;
+//        }
 
         // Process left and right contexts
         auto leftBlock = block.getSingleChannelBlock (0);
@@ -213,6 +221,7 @@ private:
     void addParametricBand (std::vector<std::unique_ptr<Filter>>& filters,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
+        std::cout << "add parametric band in filter chain" << std::endl;
         auto filter = std::make_unique<Filter>();
         *filter->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
                                                               juce::Decibels::decibelsToGain (amplInDB));
@@ -224,6 +233,7 @@ private:
     void updateParametricBand (std::vector<std::unique_ptr<Filter>>& filters, int idx,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
+        std::cout << "update parametric band in filter chain" << std::endl;
         *filters[idx]->coefficients = *Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor,
                                                               juce::Decibels::decibelsToGain (amplInDB));
     }
