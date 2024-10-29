@@ -64,8 +64,8 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
         bandpassSample = 0;
     }
     
-    lowerNoiseSample = lowPassFilter.processSample (lowerNoiseSample);
-    upperNoiseSample = highPassFilter.processSample (upperNoiseSample);
+//    lowerNoiseSample = lowPassFilter.processSample (lowerNoiseSample);
+//    upperNoiseSample = highPassFilter.processSample (upperNoiseSample);
     bandpassSample = bandpassFilter.processSample (bandpassSample);
     
     numSamplesNoteHasBeenPlaying++;
@@ -101,8 +101,8 @@ void MelodicNoiseSequencer::updateFilters()
 {
     
     // Update the high and low pass filters
-    float freqFactor = 2.5f; // factor above and below center that we place the high/low pass filters
-    float q = 3.0f;
+    float freqFactor = 3.0f; // factor above and below center that we place the high/low pass filters
+    float q = 2.0f;
     float freq = getCurrNote().freqFactor * freqOffsetFactor; // assume this is absolute, not relative
     if (freq * freqFactor >= sampleRate * 0.49 || freq / freqFactor <= 10)
         return;
@@ -115,7 +115,7 @@ void MelodicNoiseSequencer::updateFilters()
     {
         *lowPassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, freq / freqFactor, q);
         *highPassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, freq * freqFactor, q);
-        *bandpassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, 1.0f);
+        *bandpassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, 15.0f);
     }
 }
 
