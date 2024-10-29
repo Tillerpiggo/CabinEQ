@@ -66,7 +66,7 @@ public:
         float noteDurationInSeconds = 0.1;
         int noteIdx = 0;
         
-        for (int i = 0; i < hits.size() * noteFreqs.size() * notePans.size(); ++i)
+        for (int i = 0; i < hits.size(); ++i)
         {
             if (hits[i % hits.size()])
             {

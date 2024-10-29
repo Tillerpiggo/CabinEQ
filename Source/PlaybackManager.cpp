@@ -267,6 +267,7 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
     // Mario I
     MelodicNotes melody =
     MelodicNotes::withMelodicPattern ({ 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 4, 4, 4, 0, 4, 7, -5 }, freq, 1.0f, { 1.0f })
+        .withRepeatedTranspositions ({ -12, 0, 12 })
         .withNoteDurationInSeconds (0.1f);
     
     melodicNoiseSequencer.setPattern (melody.noiseNotes());

@@ -140,7 +140,8 @@ void MelodicNoiseSequencer::goToNextNote()
     int octaveOffset = distr(gen);
     octaveOffset = 0.0f;
     
-    freqOffsetFactor = std::pow (2.0f, static_cast<float> (octaveOffset));
+//    freqOffsetFactor = std::pow (2.0f, static_cast<float> (octaveOffset));
+    freqOffsetFactor = 1.0f;
     
     float noteFreq = getCurrNote().freqFactor * freqOffsetFactor;
     while (noteFreq < 20.0f)
