@@ -241,12 +241,20 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
 //    melodicNoiseSequencer.setPattern (melody.noiseNotes());
 //    std::cout << "set melodic pattern" << std::endl;
     
-    // Endgame VI - quite stable, discouraging large changes on small bandwidths... might be on to something, however it's also not encouraging much change at all. The changes are good though.
+//    // Endgame VI - quite stable, discouraging large changes on small bandwidths... might be on to something, however it's also not encouraging much change at all. The changes are good though.
+//    MelodicNotes melody =
+//    MelodicNotes::withFreqs ({ 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 6400, 3200, 1600, 800, 400, 200, 100 })
+//        .withNoteDurationInSeconds (0.15f);
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    std::cout << "set melodic pattern" << std::endl;
+    
+    // Lamb I
     MelodicNotes melody =
-    MelodicNotes::withFreqs ({ 50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 6400, 3200, 1600, 800, 400, 200, 100 })
-        .withNoteDurationInSeconds (0.15f);
+    MelodicNotes::withMelodicPattern ({ 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 }, { 4, 2, 0, 2, 4, 4, 4, 2, 2, 2, 4, 7, 7, 4, 2, 0, 2, 4, 4, 4, 4, 2, 2, 4, 2, 0 }, freq, 1.0f, { 0.0f })
+        .withNoteDurationInSeconds (0.25f);
+    
     melodicNoiseSequencer.setPattern (melody.noiseNotes());
-    std::cout << "set melodic pattern" << std::endl;
+    melodicNoiseSequencer.setOctaveRange (bandwidth);
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -298,10 +306,12 @@ std::pair<float, float> PlaybackManager::getNextSample()
     float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
     float leftAmplitudeCompensation = std::cos(angle);
     float rightAmplitudeCompensation = std::sin(angle);
+    leftAmplitudeCompensation = 1.0f;
+    rightAmplitudeCompensation = 1.0f;
     
     auto sample = melodicNoiseSequencer.getNextSample();
     auto noiseSample = pinkNoise.generate() * 15.0f;
-    noiseSample *= std::abs (leftAmplitudeCompensation - rightAmplitudeCompensation);
+    noiseSample *= 0.0f;//std::abs (leftAmplitudeCompensation - rightAmplitudeCompensation);
     
     return { sample.first * leftAmplitudeCompensation + noiseSample * rightAmplitudeCompensation, sample.second * rightAmplitudeCompensation + noiseSample * leftAmplitudeCompensation };
 //    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();

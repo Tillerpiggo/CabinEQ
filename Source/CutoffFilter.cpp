@@ -1,13 +1,13 @@
-///*
-//  ==============================================================================
-//
-//    CutoffFilter.cpp
-//    Created: 27 Oct 2024 1:12:36pm
-//    Author:  Tyler Gee
-//
-//  ==============================================================================
-//*/
-//
+/*
+  ==============================================================================
+
+    CutoffFilter.cpp
+    Created: 27 Oct 2024 1:12:36pm
+    Author:  Tyler Gee
+
+  ==============================================================================
+*/
+
 //#include "CutoffFilter.h"
 //
 //CutoffFilter::CutoffFilter()
@@ -44,13 +44,12 @@
 //
 //using Filter = juce::dsp::IIR::Filter<float>;
 //using Coefficients = Filter::CoefficientsPtr;
-//Filter::CoefficientsPtr CutoffFilter::setWithLowPassCoefficients (float freq)
+//void CutoffFilter::setWithLowPassCoefficients (float freq)
 //{
-//    Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
-//                                                          juce::Decibels::decibelsToGain (amplInDB));
+//    setFilterCoefficients (Coefficients::makeLowPass);
 //}
 //
-//Filter::CoefficientsPtr CutoffFilter::setWithHighPassCoefficients (float freq)
+//void CutoffFilter::setWithHighPassCoefficients (float freq)
 //{
 //    
 //}
@@ -59,4 +58,4 @@
 //{
 //    
 //}
-//
+
