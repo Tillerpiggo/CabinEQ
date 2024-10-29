@@ -138,6 +138,7 @@ void MelodicNoiseSequencer::goToNextNote()
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distr(-std::round (octaveRange), std::round (octaveRange));
     int octaveOffset = distr(gen);
+    octaveOffset = 0.0f;
     
     freqOffsetFactor = std::pow (2.0f, static_cast<float> (octaveOffset));
     

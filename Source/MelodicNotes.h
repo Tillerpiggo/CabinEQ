@@ -127,6 +127,45 @@ public:
         return MelodicNotes (notesInSemitones, pans, bandwidths, ampls, centerFreq, noteDurationInSeconds, 44100); // todo - include actual sample rate
     }
     
+    static MelodicNotes withOctaveAdjustedMelodicPattern (std::vector<bool> hits, std::vector<float> noteFreqs, float freq, std::vector<float> octaves)
+    {
+        std::vector<float> notesInSemitones;
+        std::vector<float> pans;
+        std::vector<float> bandwidths;
+        std::vector<float> ampls;
+        float noteDurationInSeconds = 0.1;
+        int noteIdx = 0;
+        
+        std::vector<float> relativeNoteFreqs;
+        float centerFreq = noteFreqs[0];
+        for (const auto& freq : noteFreqs)
+        {
+            float semitonesFromCenterFreq = 12.0f * std::log2 (freq / centerFreq);
+            relativeNoteFreqs.push_back (semitonesFromCenterFreq);
+        }
+        
+        for (int i = 0; i < hits.size() * noteFreqs.size(); ++i)
+        {
+            if (hits[i % hits.size()])
+            {
+                notesInSemitones.push_back (relativeNoteFreqs[noteIdx % noteFreqs.size()] + 12 * octaves[noteIdx % octaves.size()]);
+                pans.push_back (0);
+                bandwidths.push_back (1);
+                ampls.push_back (0);
+                noteIdx++;
+            }
+            else
+            {
+                notesInSemitones.push_back (0);
+                pans.push_back (0);
+                bandwidths.push_back (0);
+                ampls.push_back (0);
+            }
+        }
+        
+        return MelodicNotes (notesInSemitones, pans, bandwidths, ampls, centerFreq, noteDurationInSeconds, 44100); // todo - include actual sample rate
+    }
+    
     MelodicNotes withPans (std::vector<float> newPans)
     {
         return MelodicNotes (notesInSemitones, newPans, bandwidths, ampls, centerFreq, noteDurationInSeconds, sampleRate);
