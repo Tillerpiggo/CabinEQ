@@ -248,10 +248,26 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
 //    melodicNoiseSequencer.setPattern (melody.noiseNotes());
 //    std::cout << "set melodic pattern" << std::endl;
     
-    // Lamb I
+//    // Lamb I
+//    MelodicNotes melody =
+//    MelodicNotes::withMelodicPattern ({ 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 }, { 4, 2, 0, 2, 4, 4, 4, 2, 2, 2, 4, 7, 7, 4, 2, 0, 2, 4, 4, 4, 4, 2, 2, 4, 2, 0 }, freq, 1.0f, { 0.0f })
+//        .withNoteDurationInSeconds (0.25f);
+//    
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    melodicNoiseSequencer.setOctaveRange (bandwidth);
+    
+//    // Bach I
+//    MelodicNotes melody =
+//    MelodicNotes ({ 0, 4, 7, 12, 16, 7, 12, 16, 0, 4, 7, 12, 16, 7, 12, 16, 0, 2, 9, 14, 17, 2, 9, 14 }, freq)
+//        .withNoteDurationInSeconds (0.25f);
+//    
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    melodicNoiseSequencer.setOctaveRange (bandwidth);
+    
+    // Mario I
     MelodicNotes melody =
-    MelodicNotes::withMelodicPattern ({ 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 }, { 4, 2, 0, 2, 4, 4, 4, 2, 2, 2, 4, 7, 7, 4, 2, 0, 2, 4, 4, 4, 4, 2, 2, 4, 2, 0 }, freq, 1.0f, { 0.0f })
-        .withNoteDurationInSeconds (0.25f);
+    MelodicNotes::withMelodicPattern ({ 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 4, 4, 4, 0, 4, 7, -5 }, freq, 1.0f, { 1.0f })
+        .withNoteDurationInSeconds (0.1f);
     
     melodicNoiseSequencer.setPattern (melody.noiseNotes());
     melodicNoiseSequencer.setOctaveRange (bandwidth);

@@ -103,8 +103,8 @@ protected:
     juce::Label masterVolumeSliderLabel;
     juce::Label calibrationVolumeSliderLabel;
     juce::Label sineVolumeSliderLabel;
-    juce::Label spacingSliderLabel;
-    juce::Label pitchSliderLabel;
+//    juce::Label spacingSliderLabel;
+//    juce::Label pitchSliderLabel;
     juce::Label speedSliderLabel;
     
     bool playingNoisePattern = false;

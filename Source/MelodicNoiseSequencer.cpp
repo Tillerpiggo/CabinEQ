@@ -72,7 +72,7 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     bandpassSample = bandpassFilter.processSample (bandpassSample);
     
     numSamplesNoteHasBeenPlaying++;
-    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples * speedFactor)
+    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples / speedFactor)
         goToNextNote();
     
     float envelopeGain = getCurrNote().getGainAtSample (numSamplesNoteHasBeenPlaying).first;
