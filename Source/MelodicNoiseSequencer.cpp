@@ -116,10 +116,10 @@ void MelodicNoiseSequencer::updateFilters()
     }
     else
     {
-        *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeNotch (sampleRate, freq, 5.0f);
+        *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeNotch (sampleRate, freq, 1.0f);
         *lowPassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, freq / freqFactor, q);
         *highPassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, freq * freqFactor, q);
-        *bandpassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, 15.0f);
+        *bandpassFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, 5.0f);
     }
 }
 
