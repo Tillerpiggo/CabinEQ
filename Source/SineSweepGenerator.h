@@ -12,7 +12,6 @@
 
 #include <JuceHeader.h>
 #include "SineWaveGenerator.h"
-#include "Constants.h"
 #include "Curve.h"
 #include "SweepPattern.h"
 

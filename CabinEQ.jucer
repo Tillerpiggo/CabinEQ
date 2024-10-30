@@ -76,10 +76,6 @@
         <FILE id="tNnueT" name="CutoffFilter.cpp" compile="1" resource="0"
               file="Source/CutoffFilter.cpp"/>
         <FILE id="BRZUUe" name="CutoffFilter.h" compile="0" resource="0" file="Source/CutoffFilter.h"/>
-        <FILE id="YZazfN" name="WrapperPinkNoiseGenerator.cpp" compile="1"
-              resource="0" file="Source/WrapperPinkNoiseGenerator.cpp"/>
-        <FILE id="LX5hPS" name="WrapperPinkNoiseGenerator.h" compile="0" resource="0"
-              file="Source/WrapperPinkNoiseGenerator.h"/>
         <FILE id="vo2Ieh" name="SpatialPinkNoiseGenerator.cpp" compile="1"
               resource="0" file="Source/SpatialPinkNoiseGenerator.cpp"/>
         <FILE id="FonrTG" name="SpatialPinkNoiseGenerator.h" compile="0" resource="0"
@@ -88,10 +84,6 @@
               file="Source/SpatialPatternGenerator.cpp"/>
         <FILE id="rNkScX" name="SpatialPatternGenerator.h" compile="0" resource="0"
               file="Source/SpatialPatternGenerator.h"/>
-        <FILE id="JrYIN0" name="SpatialNoiseGenerator.cpp" compile="1" resource="0"
-              file="Source/SpatialNoiseGenerator.cpp"/>
-        <FILE id="IfcntI" name="SpatialNoiseGenerator.h" compile="0" resource="0"
-              file="Source/SpatialNoiseGenerator.h"/>
         <FILE id="K8VCnE" name="PitchedGenerator.h" compile="0" resource="0"
               file="Source/PitchedGenerator.h"/>
         <FILE id="u9ZaeK" name="SineWaveGenerator.cpp" compile="1" resource="0"
@@ -115,7 +107,6 @@
             file="Source/ArbitraryResponseFilter.cpp"/>
       <FILE id="ItRFbf" name="ArbitraryResponseFilter.h" compile="0" resource="0"
             file="Source/ArbitraryResponseFilter.h"/>
-      <FILE id="Uf5qZJ" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

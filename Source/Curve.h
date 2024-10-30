@@ -15,8 +15,6 @@
 #include <complex>
 #include <cmath>
 
-#include "Constants.h"
-
 class Curve
 {
 public:

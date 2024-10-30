@@ -13,8 +13,6 @@
 #include <JuceHeader.h>
 #include "PinkNoiseGenerator.h"
 #include "SpatialPinkNoiseGenerator.h"
-#include "WrapperPinkNoiseGenerator.h"
-#include "Constants.h"
 #include "SpatialPatternGenerator.h"
 #include "MelodicNotes.h"
 #include "BandProfile.h"
@@ -80,7 +78,6 @@ private:
     float speedFactor = 1.0f; // scalar factor
     
     // Sound generation
-    WrapperPinkNoiseGenerator wrapperPinkNoiseGenerator;
     SpatialPatternGenerator spatialPatternGenerator;
     SpatialPatternGenerator spatialPatternGenerator2;
     SpatialPatternGenerator spatialPatternGenerator3;

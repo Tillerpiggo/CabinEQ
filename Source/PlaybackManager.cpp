@@ -86,7 +86,6 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     arbitrarySequencer3.setSampleRate (spec.sampleRate);
     sineSweepGenerator.setSampleRate (spec.sampleRate);
     spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
-    wrapperPinkNoiseGenerator.setSampleRate (spec.sampleRate);
     noiseSweepGenerator.prepare (spec);
     noiseSweepGenerator2.prepare (spec);
     noiseSweepGenerator3.prepare (spec);
