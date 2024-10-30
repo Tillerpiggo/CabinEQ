@@ -278,6 +278,8 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
     
     // Glyphs II
     noiseSweepGenerator.setSweepPattern (SweepPattern ({ { 50.0, -1 }, { 50.0, 1 }, { 500.0, 1 }, { 500.0, -1 }, { 5000.0, 1 }, { 5000.0, -1 }, { 500.0, -1 }, { 500.0, 1 }, { 50.0, 1 }, { 50.0, -1 }}, 4.0f, spec.sampleRate));
+    
+    
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
