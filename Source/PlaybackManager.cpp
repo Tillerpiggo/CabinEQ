@@ -273,8 +273,11 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
 //    melodicNoiseSequencer.setPattern (melody.noiseNotes());
 //    melodicNoiseSequencer.setOctaveRange (bandwidth);
     
-    // Glyphs I
-    noiseSweepGenerator.setSweepPattern (SweepPattern ({ { 50.0, -1 }, { 15000, 1 }, { 50.0, 1 }, { 15000, -1 }}, 4.0f, spec.sampleRate));
+//    // Glyphs I - The X Glyph works well but compresses the soundstage into a square too much. Diagonal lines are tough to start with
+//    noiseSweepGenerator.setSweepPattern (SweepPattern ({ { 50.0, -1 }, { 15000, 1 }, { 50.0, 1 }, { 15000, -1 }}, 4.0f, spec.sampleRate));
+    
+    // Glyphs II
+    noiseSweepGenerator.setSweepPattern (SweepPattern ({ { 50.0, -1 }, { 50.0, 1 }, { 500.0, 1 }, { 500.0, -1 }, { 5000.0, 1 }, { 5000.0, -1 }, { 500.0, -1 }, { 500.0, 1 }, { 50.0, 1 }, { 50.0, -1 }}, 4.0f, spec.sampleRate));
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
