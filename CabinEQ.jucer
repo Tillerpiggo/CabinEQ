@@ -36,6 +36,7 @@
         <FILE id="SYoPuJ" name="AudioPattern.h" compile="0" resource="0" file="Source/AudioPattern.h"/>
         <FILE id="KOH1dO" name="DifficultyRange.h" compile="0" resource="0"
               file="Source/DifficultyRange.h"/>
+        <FILE id="nbwoaQ" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
       </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>

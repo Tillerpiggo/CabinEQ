@@ -9,3 +9,33 @@
 */
 
 #include "GlyphGenerator.h"
+
+GlyphGenerator::GlyphGenerator()
+{
+    
+}
+
+std::pair<float, float> GlyphGenerator::getNextSample()
+{
+    if (isMuted || ! glyph.has_value())
+        return { 0.0f, 0.0f };
+    
+    return noiseSweepGenerator.getNextSample();
+}
+
+void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
+{
+    noiseSweepGenerator.prepare (spec);
+}
+
+void GlyphGenerator::setGlyph (Glyph glyph)
+{
+    this->glyph = glyph;
+    noiseSweepGenerator.setSweepPattern (glyph.getSweepPattern());
+    isMuted = false;
+}
+
+void GlyphGenerator::mute()
+{
+    isMuted = true;
+}
