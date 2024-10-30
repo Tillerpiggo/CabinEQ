@@ -31,9 +31,9 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     }
     snapToZeroCounter++;
     
-    float nextFreq = sweepPattern->getNextFreq();
+    auto [nextFreq, nextPan] = sweepPattern->getNextFrequencyAndPan();
     setBandpass (nextFreq);
-//    setPeakFilter (nextFreq, 0.3f, -6.0f);
+    setPan (nextPan); // updates leftAmplitudeCompensation and rightAmplitudeCompensation
     
     return { pinkNoiseSample * leftAmplitudeCompensation, pinkNoiseSample * rightAmplitudeCompensation };
 }
@@ -61,7 +61,9 @@ void NoiseSweepGenerator::setPan (float pan)
 void NoiseSweepGenerator::setSweepPattern (SweepPattern sweepPattern)
 {
     this->sweepPattern = sweepPattern;
-    setBandpass (sweepPattern.getCurrFreq());
+    auto [currFreq, currPan] = sweepPattern.getCurrFrequencyAndPan();
+    setBandpass (currFreq);
+    setPan (currPan);
 }
 
 void NoiseSweepGenerator::setPeakFilter (float centerFreq, float bandwidth, float ampl)

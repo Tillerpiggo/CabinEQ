@@ -19,7 +19,7 @@ std::pair<float, float> SineSweepGenerator::getNextSample()
     if (! sweepPattern.has_value())
         return { 0.0f, 0.0f };
     
-    sineWaveGenerator.setFrequency (sweepPattern->getNextFreq());
+    sineWaveGenerator.setFrequency (sweepPattern->getNextFrequencyAndPan().first);
     return sineWaveGenerator.getNextSample();
 }
 
@@ -31,12 +31,12 @@ void SineSweepGenerator::setSampleRate (float newSampleRate)
 void SineSweepGenerator::setSweepPattern (SweepPattern sweepPattern) // must be called before getNextSample is called
 {
     this->sweepPattern = sweepPattern;
-    sineWaveGenerator.setNote (Note (sweepPattern.getCurrFreq(), 0.0f, 0.0f, 0.0f));
+    sineWaveGenerator.setNote (Note (sweepPattern.getCurrFrequencyAndPan().first, 0.0f, 0.0f, 0.0f));
 }
 
 float SineSweepGenerator::getCurrFreq() const
 {
     if (! sweepPattern.has_value())
         return -1;
-    return sweepPattern->getCurrFreq();
+    return sweepPattern->getCurrFrequencyAndPan().first;
 }

@@ -264,14 +264,17 @@ void PlaybackManager::startCalibrationCenteredAt (float freq, float bandwidth)
 //    melodicNoiseSequencer.setPattern (melody.noiseNotes());
 //    melodicNoiseSequencer.setOctaveRange (bandwidth);
     
-    // Mario I
-    MelodicNotes melody =
-    MelodicNotes::withMelodicPattern ({ 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 4, 4, 4, 0, 4, 7, -5 }, freq, 1.0f, { 1.0f })
-        .withRepeatedTranspositions ({ -12, 0, 12 })
-        .withNoteDurationInSeconds (0.1f);
+//    // Mario I
+//    MelodicNotes melody =
+//    MelodicNotes::withMelodicPattern ({ 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 4, 4, 4, 0, 4, 7, -5 }, freq, 1.0f, { 1.0f })
+//        .withRepeatedTranspositions ({ -12, 0, 12 })
+//        .withNoteDurationInSeconds (0.1f);
+//    
+//    melodicNoiseSequencer.setPattern (melody.noiseNotes());
+//    melodicNoiseSequencer.setOctaveRange (bandwidth);
     
-    melodicNoiseSequencer.setPattern (melody.noiseNotes());
-    melodicNoiseSequencer.setOctaveRange (bandwidth);
+    // Glyphs I
+    noiseSweepGenerator.setSweepPattern (SweepPattern ({ { 50.0, -1 }, { 15000, 1 }, { 50.0, 1 }, { 15000, -1 }}, 4.0f, spec.sampleRate));
 }
 
 void PlaybackManager::updateAmplCalibration (float freq, float bandwidth)
@@ -317,20 +320,27 @@ float PlaybackManager::getCurrPlayingFreq()
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    pan += 0.0001f;
-    if (pan > 1.0f)
-        pan = -1.0f;
-    float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
-    float leftAmplitudeCompensation = std::cos(angle);
-    float rightAmplitudeCompensation = std::sin(angle);
-    leftAmplitudeCompensation = 1.0f;
-    rightAmplitudeCompensation = 1.0f;
+    // Spatial
+    return noiseSweepGenerator.getNextSample();
     
-    auto sample = melodicNoiseSequencer.getNextSample();
-    auto noiseSample = pinkNoise.generate() * 15.0f;
-    noiseSample *= 0.0f;//std::abs (leftAmplitudeCompensation - rightAmplitudeCompensation);
+    // Intelligibility
+//    pan += 0.0001f;
+//    if (pan > 1.0f)
+//        pan = -1.0f;
+//    float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
+//    float leftAmplitudeCompensation = std::cos(angle);
+//    float rightAmplitudeCompensation = std::sin(angle);
+//    leftAmplitudeCompensation = 1.0f;
+//    rightAmplitudeCompensation = 1.0f;
+//    
+//    auto sample = melodicNoiseSequencer.getNextSample();
+//    auto noiseSample = pinkNoise.generate() * 15.0f;
+//    noiseSample *= 0.0f;//std::abs (leftAmplitudeCompensation - rightAmplitudeCompensation);
+//    
+//    return { sample.first * leftAmplitudeCompensation + noiseSample * rightAmplitudeCompensation, sample.second * rightAmplitudeCompensation + noiseSample * leftAmplitudeCompensation };
     
-    return { sample.first * leftAmplitudeCompensation + noiseSample * rightAmplitudeCompensation, sample.second * rightAmplitudeCompensation + noiseSample * leftAmplitudeCompensation };
+    
+    
 //    auto [leftSample1, rightSample1] = spatialPatternGenerator.getNextSample();
 //    auto [leftSample2, rightSample2] = spatialPatternGenerator2.getNextSample();
 //    auto [leftSample3, rightSample3] = spatialPatternGenerator3.getNextSample();
