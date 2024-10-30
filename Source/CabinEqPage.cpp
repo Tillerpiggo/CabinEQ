@@ -82,18 +82,14 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (bypassButton);
     addAndMakeVisible (masterVolumeSlider);
     addAndMakeVisible (masterVolumeSlider);
-    addAndMakeVisible (startStopButton);
-    addAndMakeVisible (calibrationVolumeSlider);
-    addAndMakeVisible (sineVolumeSlider);
+//    addAndMakeVisible (startStopButton);
+//    addAndMakeVisible (calibrationVolumeSlider);
+//    addAndMakeVisible (sineVolumeSlider);
 //    addAndMakeVisible (spacingSlider);
 //    addAndMakeVisible (pitchSlider);
-    addAndMakeVisible (speedSlider);
+//    addAndMakeVisible (speedSlider);
     addAndMakeVisible (masterVolumeSliderLabel);
-    addAndMakeVisible (calibrationVolumeSliderLabel);
-    addAndMakeVisible (sineVolumeSliderLabel);
-//    addAndMakeVisible (spacingSliderLabel);
-//    addAndMakeVisible (pitchSliderLabel);
-    addAndMakeVisible (speedSliderLabel);
+    addAndMakeVisible (stepView);
     
     didLoadData();
 }
@@ -160,6 +156,8 @@ void CabinEqPage::resized()
 //    spacingSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
 //    pitchSlider.setBounds (padding + labelWidth, sliderY4, sliderWidth / 2.0f - labelWidth, sliderHeight);
     speedSlider.setBounds (padding + labelWidth + sliderWidth / 2.0f, sliderY3, sliderWidth / 2.0f - labelWidth, sliderHeight);
+    
+    stepView.setBounds (getX(), sliderY2, getWidth(), getHeight() - sliderY2);
 }
 
 // ====================================================

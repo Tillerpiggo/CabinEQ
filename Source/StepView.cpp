@@ -34,7 +34,7 @@ StepView::~StepView()
 
 void StepView::paint (juce::Graphics& g)
 {
-    
+    g.setColour (juce::Colours::red);
 }
 
 void StepView::resized()
@@ -55,7 +55,10 @@ void StepView::resized()
 
 void StepView::sliderValueChanged (juce::Slider *slider)
 {
-    if (slider == &difficultySlider && listener != nullptr)
+    if (listener == nullptr)
+        return;
+    
+    if (slider == &difficultySlider)
     {
         listener->setDifficulty (difficultySlider.getValue());
     }

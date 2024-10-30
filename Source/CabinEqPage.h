@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
 #include "CabinPeqGraph.h"
+#include "StepView.h"
 
 class CabinEqPage   : public juce::Component,
                       public juce::Slider::Listener,
@@ -82,6 +83,7 @@ protected:
     int fftSize = 16;
     
     std::unique_ptr<CabinPeqGraph> amplGraph;
+    StepView stepView;
     juce::ComboBox profileDropdown;
     juce::ComboBox filterQualityDropdown;
     std::unique_ptr<juce::AlertWindow> alertWindow;

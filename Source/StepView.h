@@ -41,7 +41,7 @@ public:
     void setListener (Listener* listener);
     
 private:
-    Listener* listener;
+    Listener* listener = nullptr;
     
     juce::Slider difficultySlider;
     juce::TextButton playButton { "Play" };
