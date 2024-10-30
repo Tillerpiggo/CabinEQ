@@ -26,12 +26,14 @@ void MelodicNoiseSequencer::prepare (const juce::dsp::ProcessSpec& spec)
     spatialPinkNoiseGenerator.setSampleRate (spec.sampleRate);
 }
 
-void MelodicNoiseSequencer::setPattern (std::vector<NoiseNote> notes)
+void MelodicNoiseSequencer::setPattern (std::vector<NoiseNote> notes, float relativeNoiseGain)
 {
     this->notes = notes;
+    this->relativeNoiseGain = relativeNoiseGain;
     currNoteIdx = 0;
     numSamplesNoteHasBeenPlaying = 0;
     updateFilters();
+    isMuted = false;
 }
 
 void MelodicNoiseSequencer::setSineVolume (float sineVolume)
@@ -52,7 +54,7 @@ void MelodicNoiseSequencer::setOctaveRange (float octaveRange)
 std::pair<float, float> MelodicNoiseSequencer::getNextSample()
 {
     // If we don't have notes, return nothing
-    if (currNoteIdx < 0 || currNoteIdx >= notes.size())
+    if (currNoteIdx < 0 || currNoteIdx >= notes.size() || isMuted)
         return { 0.0f, 0.0f };
     
     float lowerNoiseSample = lowerNoise.generate();
@@ -87,7 +89,7 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     }
     snapToZeroCounter++;
     
-    float sample = noiseSample * 10.0f + sineSample * 0.15f * juce::Decibels::decibelsToGain (sineVolume) * envelopeGain;
+    float sample = noiseSample * 10.0f * relativeNoiseGain + sineSample * 0.15f * juce::Decibels::decibelsToGain (sineVolume) * envelopeGain;
 //    float sample = lowerNoiseSample * 10.0f + upperNoiseSample * 10.0f + bandpassSample * 10.0f * juce::Decibels::decibelsToGain (sineVolume) * envelopeGain;
 //    float sample = bandpassSample * 10.0f * juce::Decibels::decibelsToGain (sineVolume) * envelopeGain;
     return { sample, sample };
