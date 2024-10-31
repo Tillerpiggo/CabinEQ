@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Layout.h"
 
 // This provides a UI to adjust a single Step, which for now is just a difficulty slider, a button to play the reference audio, and instruction text
 class StepView  : public juce::Component,

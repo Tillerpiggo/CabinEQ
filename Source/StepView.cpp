@@ -39,18 +39,12 @@ void StepView::paint (juce::Graphics& g)
 
 void StepView::resized()
 {
-    int padding = 20;
-    int componentY = getHeight() / 2.0f;
-    int componentHeight = 40;
+    std::vector<juce::Component*> components { &difficultySlider, &playButton, &prevButton, &nextButton };
     
-    // Find slider + button dimensions
-    int availableWidth = getWidth() - 2 * padding;
-    int sliderWidth = availableWidth * 3.0f / 4.0f;
-    int buttonWidth = availableWidth * 1.0f / 4.0f - padding / 2.0f;
-    
-    // Place slider + button on screen
-    difficultySlider.setBounds (padding, componentY, sliderWidth, componentHeight);
-    playButton.setBounds (getWidth() - padding - buttonWidth, componentY, buttonWidth, componentHeight);
+    Layout layout (getBounds(), 4);
+    layout.addRowWithEvenlySpacedRects (2);
+    layout.addRowWithEvenlySpacedRects (2);
+    layout.setBoundsOfComponents (components);
 }
 
 void StepView::sliderValueChanged (juce::Slider *slider)
