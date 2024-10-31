@@ -16,9 +16,11 @@
 class Row
 {
 public:
-    Row (std::pair<float, float> widthRange, FlexibleLayoutDimension height); // implicitly starts as a single rect that takes up the entire row, with height that is evenly distributed
+    Row (std::pair<float, float> widthRange, FlexibleLayoutDimension height = FlexibleLayoutDimension::fill()); // implicitly starts as a single rect that takes up the entire row, with height that is evenly distributed
     
-    void withRectWidths (std::vector<FlexibleLayoutDimension> widths);
+    Row (std::pair<float, float> widthRange, FlexibleLayoutDimension height, std::vector<FlexibleLayoutDimension> rectWidths, float padding);
+    
+    Row withRectWidths (std::vector<FlexibleLayoutDimension> widths);
     void setPadding (float padding); // sets internal padding
     
     std::vector<std::pair<float, float>> getWidthRanges(); // returns the width ranges, in order from left to right, of all the rectangles in this row
@@ -29,5 +31,8 @@ private:
     std::vector<FlexibleLayoutDimension> rectWidths;
     std::pair<float, float> widthRange;
     float padding;
+    
+    std::vector<std::pair<float, float>> widthRanges;
+    bool widthRangesAreUpdated = false;
 };
 

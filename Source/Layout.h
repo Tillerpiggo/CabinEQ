@@ -23,11 +23,17 @@ public:
     
     // Multiple rectangles in a row or column
     void addRowWithEvenlySpacedRects (int numRects);
-    void addRowWithRectWidths (std::vector<FLD> rectWidths);
+    void addRowWithRectWidths (std::vector<FlexibleLayoutDimension> rectWidths);
     
-    juce::Rectangle getRectAtRow (int rowIdx, int rectIdx); // rect idx is the index of the rect in the row, from left to right
+    juce::Rectangle<float> getRectAtRow (int rowIdx, int rectIdx); // rect idx is the index of the rect in the row, from left to right
     
 private:
+    std::pair<float, float> getWidthRange();
+    std::vector<std::pair<float, float>> getHeightRanges();
+    
     juce::Rectangle<float> bounds; // the total bounds of this layout
     std::vector<Row> rows;
+    
+    std::vector<std::pair<float, float>> heightRanges;
+    bool heightRangesAreUpdated = false;
 };
