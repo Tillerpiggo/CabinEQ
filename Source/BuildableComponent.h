@@ -13,17 +13,18 @@
 #include <JuceHeader.h>
 
 // This is a component that provides helper methods that automate some of the boilerplate when adding sliders and buttons to a juce::Component
-class BuildableComponent  : juce::Component,
-                            juce::Button::Listener,
-                            juce::Slider::Listener
+class BuildableComponent  : public juce::Component,
+                            public juce::Button::Listener,
+                            public juce::Slider::Listener
 {
+public:
     BuildableComponent();
     ~BuildableComponent() override;
     
     void sliderValueChanged (juce::Slider *slider) override;
     void buttonClicked (juce::Button *button) override;
     
-private:
+protected:
     void addButton (juce::Button& button);
     void addSlider (juce::Slider& slider, float lowerBound = 0.0f, float upperBound = 1.0f, float startVal = 0.5f);
     void addSliderAndLabel (juce::Slider& slider, juce::Label& label, juce::String labelText, float lowerBound = 0.0f, float upperBound = 1.0f, float startVal = 0.5f);
@@ -31,6 +32,7 @@ private:
     void addButtonAction (juce::Button* buttonPtr, std::function<void(juce::Button*)> buttonAction);
     void addSliderAction (juce::Slider* sliderPtr, std::function<void(juce::Slider*)> sliderAction);
     
+private:
     std::vector<juce::Button*> buttons;
     std::vector<juce::Slider*> sliders;
     std::unordered_map<juce::Button*, std::function<void(juce::Button*)>> buttonActions;

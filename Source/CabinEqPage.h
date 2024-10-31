@@ -11,15 +11,14 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "BuildableComponent.h"
 #include "CabinEqAudioProcessor.h"
 #include "CabinPeqGraph.h"
 #include "StepView.h"
 
-class CabinEqPage   : public juce::Component,
-                      public juce::Slider::Listener,
+class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
-                      public juce::Button::Listener,
                       public CabinPeqGraph::Listener,
                       public CabinEqAudioProcessor::Listener,
                       public CabinPeqGraph::DataSource
@@ -45,17 +44,15 @@ public:
     BandProfile getBandProfile() override;
     float getCurrPlayingFreq() override;
     
-    void sliderValueChanged (juce::Slider *slider) override;
-    void sliderDragStarted (juce::Slider *slider) override;
-    void sliderDragEnded (juce::Slider *slider) override;
+//    void sliderValueChanged (juce::Slider *slider) override;
+//    void sliderDragStarted (juce::Slider *slider) override;
+//    void sliderDragEnded (juce::Slider *slider) override;
     void textEditorTextChanged (juce::TextEditor& textEditor) override;
     void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorEscapeKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorFocusLost (juce::TextEditor& textEditor) override;
     void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
     void inputAttemptWhenModal() override;
-    
-    void buttonClicked (juce::Button *button) override;
     
     void didLoadData() override;
     
@@ -95,19 +92,7 @@ protected:
     int lastSelectedNodeIdForCalibration = 0;
     
     juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
-    juce::Slider calibrationVolumeSlider; // controls calibration volume, relative to master volume
-    juce::TextButton startStopButton { "START" }; // starts or stops the calibration itself
-    juce::Slider sineVolumeSlider; // controls spacing between the 3 noise patterns
-    juce::Slider spacingSlider; // controls the spacing in pitch of the noise patterns
-    juce::Slider pitchSlider; // controls the center of the bandwidth
-    juce::Slider speedSlider; // controls the speed of calibration
-    
     juce::Label masterVolumeSliderLabel;
-    juce::Label calibrationVolumeSliderLabel;
-    juce::Label sineVolumeSliderLabel;
-//    juce::Label spacingSliderLabel;
-//    juce::Label pitchSliderLabel;
-    juce::Label speedSliderLabel;
     
     bool playingNoisePattern = false;
     
