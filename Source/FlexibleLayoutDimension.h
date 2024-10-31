@@ -30,12 +30,12 @@ public:
     
     static FlexibleLayoutDimension fixed (float fixedValue)
     {
-        return FlexibleLayoutDimension (Type::fixed, std::nullopt, std::nullopt);
+        return FlexibleLayoutDimension (Type::fixed, fixedValue, std::nullopt);
     }
     
     static FlexibleLayoutDimension proportional (float proportionalValue)
     {
-        return FlexibleLayoutDimension (Type::proportional, proportionalValue, std::nullopt);
+        return FlexibleLayoutDimension (Type::proportional, std::nullopt, proportionalValue);
     }
     
     const Type& getType() const
@@ -87,6 +87,8 @@ public:
         
         if (staticLength > availableLength)
             std::cerr << "Trying to create lengthRanges with static widths exceeding total available space" << std::endl;
+        
+        std::cout << "calculating length ranges 2" << std::endl;
         
         // Calculate out how much width is remaining
         int numDynamicLengths = 0;

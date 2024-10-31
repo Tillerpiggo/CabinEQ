@@ -19,13 +19,13 @@ class Layout
 public:
     Layout (juce::Rectangle<int> bounds, float padding = 0.0f); // implicitly starts as a rectangle that takes up the full area
     
-    void setBoundsOfComponents (std::vector<juce::Component*>& components);
+    void setBoundsOfComponents (std::vector<juce::Component*> components);
     void layoutComponentsInGrid (std::vector<std::vector<juce::Component*>> components); // creates an evenly spaced grid to layout the components matching the 2D vector input, and sets the bounds of the components
     void setPadding (float padding);
     
     // Multiple rectangles in a row or column
-    void addRowWithEvenlySpacedRects (int numRects);
-    void addRowWithRectWidths (std::vector<FlexibleLayoutDimension> rectWidths);
+    void addRowWithEvenlySpacedRects (int numRects, FlexibleLayoutDimension height = FlexibleLayoutDimension::fill());
+    void addRowWithRectWidths (std::vector<FlexibleLayoutDimension> rectWidths, FlexibleLayoutDimension height = FlexibleLayoutDimension::fill());
     
     juce::Rectangle<int> getBoundsAt (int rowIdx, int rectIdx); // rect idx is the index of the rect in the row, from left to right. Returns the bounds relative to the parent component (i.e. relative to the top corner of bounds)
     

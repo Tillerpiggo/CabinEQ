@@ -63,45 +63,15 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
-    int padding = 12; // padding on the top and bottom
-    int componentPadding = 8; // padding between graph, slider, and dropdown
-    int dropdownHeight = 30;
-    int sliderHeight = 30;
-    int labelHeight = 15;
-    int buttonWidth = 100;
-    int applyButtonWidth = 100;
-    int duplicateButtonWidth = 100;
-    int toggleButtonHeight = 30;
-    int totalButtonWidth = buttonWidth + duplicateButtonWidth + applyButtonWidth;
-
-    // Get heights for each component
-    int availableHeight = getHeight();
-    int graphHeight = availableHeight - dropdownHeight * 4 - sliderHeight - toggleButtonHeight - 4 * componentPadding;
-    
-    // Get widths for each component
-    int dropdownWidth = getWidth() - (2 * padding) - totalButtonWidth;
-    int profileDropdownWidth = static_cast<int>(dropdownWidth * 0.75); // 75% width
-    int filterQualityDropdownWidth = dropdownWidth - profileDropdownWidth; // Remaining 25% width
-
-    int buttonsY = padding + graphHeight + componentPadding;
-
-    // Set bounds for ampl graph to fill most of the space
-    amplGraph->setBounds (0, padding, getWidth(), graphHeight);
-    
-    // Row of buttons beneath the graph
-    profileDropdown.setBounds (padding, buttonsY, profileDropdownWidth, dropdownHeight);
-    filterQualityDropdown.setBounds (padding + profileDropdownWidth, buttonsY, filterQualityDropdownWidth, dropdownHeight);
-    bypassButton.setBounds (getWidth() - buttonWidth - padding, buttonsY, buttonWidth, dropdownHeight);
-
-    // Set bounds for sliders
-    int labelWidth = 60;
-    int sliderY = buttonsY + dropdownHeight + componentPadding;
-    int sliderY2 = sliderY + dropdownHeight + componentPadding;
-    int sliderY3 = sliderY2 + dropdownHeight + componentPadding;
-    int sliderY4 = sliderY3 + dropdownHeight + componentPadding;
-    int sliderWidth = (getWidth() - (3 * padding)); // Two sliders with padding in between
-    masterVolumeSlider.setBounds (padding + labelWidth, sliderY, sliderWidth - labelWidth, sliderHeight);
-    stepView.setBounds (getX(), sliderY2, getWidth(), getHeight() - sliderY2);
+    Layout layout (getBounds(), 20.0f);
+    layout.addRowWithEvenlySpacedRects (1, FlexibleLayoutDimension::proportional (0.7)); // the graph
+    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80) }, FlexibleLayoutDimension::fixed (40));
+    layout.addRowWithEvenlySpacedRects (1, FlexibleLayoutDimension::fixed (40)); // master volume slider
+    layout.addRowWithEvenlySpacedRects (1); // step view
+    layout.setBoundsOfComponents ({ amplGraph.get(),
+                                    &profileDropdown, &bypassButton,
+                                    &masterVolumeSlider,
+                                    &stepView });
 }
 
 // ====================================================
