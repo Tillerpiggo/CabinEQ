@@ -12,19 +12,25 @@
 
 StepView::StepView()
 {
-    difficultySlider.setRange (0.0f, 1.0f);
-    difficultySlider.setValue (0.5f);
-    difficultySlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    // Add components
+    addSlider (difficultySlider, 0.0f, 1.0f, 0.5f);
+    addButton (playButton);
+    addButton (prevButton);
+    addButton (nextButton);
     
-    difficultySlider.addListener (this);
-    playButton.addListener (this);
-    prevButton.addListener (this);
-    nextButton.addListener (this);
-    
-    addAndMakeVisible (difficultySlider);
-    addAndMakeVisible (playButton);
-    addAndMakeVisible (prevButton);
-    addAndMakeVisible (nextButton);
+    // Add actions
+    addSliderAction (&difficultySlider, [this](juce::Slider*) {
+        if (listener != nullptr) listener->setDifficulty (difficultySlider.getValue());
+    });
+    addButtonAction (&playButton, [this](juce::Button*) {
+        if (listener != nullptr) listener->playReferencePattern();
+    });
+    addButtonAction (&prevButton, [this](juce::Button*) {
+        if (listener != nullptr) listener->goToPrevStep();
+    });
+    addButtonAction (&nextButton, [this](juce::Button*) {
+        if (listener != nullptr) listener->goToNextStep();
+    });
 }
 
 StepView::~StepView()
@@ -42,35 +48,4 @@ void StepView::resized()
     Layout layout (getBounds(), 4);
     layout.layoutComponentsInGrid({ { &difficultySlider, &playButton },
                                     { &prevButton, &nextButton }});
-}
-
-void StepView::sliderValueChanged (juce::Slider *slider)
-{
-    if (listener == nullptr)
-        return;
-    
-    if (slider == &difficultySlider)
-    {
-        listener->setDifficulty (difficultySlider.getValue());
-    }
-}
-
-void StepView::buttonClicked (juce::Button *button)
-{
-    if (listener == nullptr)
-        return;
-    
-    if (button == &playButton)
-    {
-        listener->playReferencePattern();
-    }
-    else if (button == &prevButton)
-    {
-        listener->goToPrevStep();
-    }
-    else if (button == &nextButton)
-    {
-        listener->goToNextStep();
-    }
-    
 }

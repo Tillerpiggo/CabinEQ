@@ -12,11 +12,10 @@
 
 #include <JuceHeader.h>
 #include "Layout.h"
+#include "BuildableComponent.h"
 
 // This provides a UI to adjust a single Step, which for now is just a difficulty slider, a button to play the reference audio, and instruction text
-class StepView  : public juce::Component,
-                  public juce::Slider::Listener,
-                  public juce::Button::Listener
+class StepView  : public BuildableComponent
 {
 public:
     class Listener
@@ -35,9 +34,6 @@ public:
     
     void paint (juce::Graphics& g) override;
     void resized() override;
-    
-    void sliderValueChanged (juce::Slider *slider) override;
-    void buttonClicked (juce::Button *button) override;
     
     void setListener (Listener* listener);
     
