@@ -10,20 +10,25 @@
 
 #include "Layout.h"
 
-Layout::Layout (juce::Rectangle<float> bounds)
-    : bounds (bounds), rows ({})
+Layout::Layout (juce::Rectangle<float> bounds, float padding)
+    : bounds (bounds), rows ({}), padding (padding)
 {
     
 }
 
-void Layout::setBounds (std::vector<juce::Component>& components)
+void Layout::setBoundsOfComponents (std::vector<juce::Component>& components)
 {
-    int componentIdx = 0;
-    for (const auto& component : components)
+    for (int componentIdx = 0; componentIdx < components.size(); ++componentIdx)
     {
-        // set component bounds with row and subrow idx
-        componentIdx++;
+        auto [rowIdx, rectIdx] = getRowAndRectIdx (componentIdx);
+        components[componentIdx].setBounds (getRectAtRow (rowIdx, rectIdx));
     }
+}
+
+void Layout::setPadding (float padding)
+{
+    this->padding = padding;
+    heightRangesAreUpdated = false;
 }
 
 void Layout::addRowWithEvenlySpacedRects (int numRects)
@@ -37,11 +42,11 @@ void Layout::addRowWithRectWidths (std::vector<FlexibleLayoutDimension> rectWidt
                         .withRectWidths (rectWidths));
 }
 
-juce::Rectangle<float> Layout::getRectAtRow (int rowIdx, int rectIdx)
+juce::Rectangle<int> Layout::getRectAtRow (int rowIdx, int rectIdx)
 {
     auto widthRange = rows[rowIdx].getWidthRanges()[rectIdx];
     auto heightRange = getHeightRanges()[rowIdx];
-    return juce::Rectangle<float> (widthRange.first, heightRange.first, widthRange.second, heightRange.second);
+    return juce::Rectangle<int> (widthRange.first, heightRange.first, widthRange.second, heightRange.second);
 }
 
 std::pair<float, float> Layout::getWidthRange()
@@ -54,8 +59,38 @@ std::vector<std::pair<float, float>> Layout::getHeightRanges()
     if (heightRangesAreUpdated)
         return heightRanges;
     
-    heightRanges = FlexibleLayoutDimension::lengthRangesForFlexibleLayoutDimensions (rowHeights, widthRange, padding);
+    std::pair<float, float> heightRange = { bounds.getY(), bounds.getY() + bounds.getHeight() };
+    heightRanges = FlexibleLayoutDimension::lengthRangesForFlexibleLayoutDimensions (getRowHeights(), heightRange, padding);
     heightRangesAreUpdated = true;
     
     return heightRanges;
+}
+
+std::vector<FlexibleLayoutDimension> Layout::getRowHeights()
+{
+    std::vector<FlexibleLayoutDimension> rowHeights;
+    for (const auto& row : rows)
+        rowHeights.push_back (row.getHeight());
+    return rowHeights;
+}
+
+std::pair<int, int> Layout::getRowAndRectIdx (int componentIdx)
+{
+    int runningTotal = 0;
+    for (int rowIdx = 0; rowIdx < rows.size(); ++rowIdx)
+    {
+        const Row& row = rows[rowIdx];
+        int numRectsInRow = row.getNumRects();
+
+        if (componentIdx < runningTotal + numRectsInRow)
+        {
+            int rectIdx = componentIdx - runningTotal;
+            return {rowIdx, rectIdx};
+        }
+
+        runningTotal += numRectsInRow;
+    }
+
+    // If componentIdx is out of range, return invalid indices
+    return { -1, -1 };
 }

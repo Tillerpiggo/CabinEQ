@@ -24,7 +24,8 @@ public:
     void setPadding (float padding); // sets internal padding
     
     std::vector<std::pair<float, float>> getWidthRanges(); // returns the width ranges, in order from left to right, of all the rectangles in this row
-    FlexibleLayoutDimension getHeight();
+    FlexibleLayoutDimension getHeight() const;
+    int getNumRects() const;
     
 private:
     FlexibleLayoutDimension height;

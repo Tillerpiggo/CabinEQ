@@ -43,7 +43,12 @@ std::vector<std::pair<float, float>> Row::getWidthRanges()
     return widthRanges;
 }
 
-FlexibleLayoutDimension Row::getHeight()
+FlexibleLayoutDimension Row::getHeight() const
 {
     return height;
+}
+
+int Row::getNumRects() const
+{
+    return rectWidths.size();
 }
