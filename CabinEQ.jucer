@@ -47,6 +47,12 @@
           <FILE id="opxwON" name="FlexibleLayoutDimension.h" compile="0" resource="0"
                 file="Source/FlexibleLayoutDimension.h"/>
         </GROUP>
+        <GROUP id="{B048BDD0-58B8-CA2D-450B-C2F061BCB7DA}" name="Helper">
+          <FILE id="YJa9TJ" name="BuildableComponent.cpp" compile="1" resource="0"
+                file="Source/BuildableComponent.cpp"/>
+          <FILE id="ZVJieY" name="BuildableComponent.h" compile="0" resource="0"
+                file="Source/BuildableComponent.h"/>
+        </GROUP>
         <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
         <FILE id="XTfbD5" name="CabinPeqGraph.cpp" compile="1" resource="0"

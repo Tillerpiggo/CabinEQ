@@ -47,7 +47,6 @@ const std::optional<Band> CabinEqProfile::getBandWithId (const int id) const
 
 int CabinEqProfile::addBand (const float freq, const float ampl, const float bandwidth)
 {
-    std::cout << "adding band" << std::endl;
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     

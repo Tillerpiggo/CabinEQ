@@ -20,6 +20,7 @@ public:
     Layout (juce::Rectangle<int> bounds, float padding = 0.0f); // implicitly starts as a rectangle that takes up the full area
     
     void setBoundsOfComponents (std::vector<juce::Component*>& components);
+    void layoutComponentsInGrid (std::vector<std::vector<juce::Component*>> components); // creates an evenly spaced grid to layout the components matching the 2D vector input, and sets the bounds of the components
     void setPadding (float padding);
     
     // Multiple rectangles in a row or column

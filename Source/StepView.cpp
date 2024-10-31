@@ -39,12 +39,9 @@ void StepView::paint (juce::Graphics& g)
 
 void StepView::resized()
 {
-    std::vector<juce::Component*> components { &difficultySlider, &playButton, &prevButton, &nextButton };
-    
     Layout layout (getBounds(), 4);
-    layout.addRowWithEvenlySpacedRects (2);
-    layout.addRowWithEvenlySpacedRects (2);
-    layout.setBoundsOfComponents (components);
+    layout.layoutComponentsInGrid({ { &difficultySlider, &playButton },
+                                    { &prevButton, &nextButton }});
 }
 
 void StepView::sliderValueChanged (juce::Slider *slider)

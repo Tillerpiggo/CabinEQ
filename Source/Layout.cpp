@@ -28,6 +28,16 @@ void Layout::setBoundsOfComponents (std::vector<juce::Component*>& components)
     }
 }
 
+void Layout::layoutComponentsInGrid (std::vector<std::vector<juce::Component*>> components)
+{
+    for (const auto& componentRow : components)
+        addRowWithEvenlySpacedRects (static_cast<int> (componentRow.size()));
+    
+    for (int rowIdx = 0; rowIdx < components.size(); ++rowIdx)
+        for (int rectIdx = 0; rectIdx < components[rowIdx].size(); ++rectIdx)
+            components[rowIdx][rectIdx]->setBounds (getBoundsAt (rowIdx, rectIdx));
+}
+
 void Layout::setPadding (float padding)
 {
     this->padding = padding;
