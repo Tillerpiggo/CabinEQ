@@ -35,6 +35,9 @@
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
         <FILE id="IsbkTz" name="BandProfile.h" compile="0" resource="0" file="Source/BandProfile.h"/>
         <FILE id="B7G5KQ" name="QualityStep.h" compile="0" resource="0" file="Source/QualityStep.h"/>
+        <FILE id="cyinty" name="SpatialStep.h" compile="0" resource="0" file="Source/SpatialStep.h"/>
+        <FILE id="ApKM6n" name="IntelligibilityStep.h" compile="0" resource="0"
+              file="Source/IntelligibilityStep.h"/>
         <FILE id="KOdH6F" name="AudioPattern.cpp" compile="1" resource="0"
               file="Source/AudioPattern.cpp"/>
         <FILE id="SYoPuJ" name="AudioPattern.h" compile="0" resource="0" file="Source/AudioPattern.h"/>
