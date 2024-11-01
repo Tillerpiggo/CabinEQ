@@ -72,10 +72,6 @@ public:
     
     void setVolume (float volume);
     void setIsProcessing (bool isProcessing);
-    void setDifficulty (float difficulty);
-    void setIsPlaying (bool isPlaying);
-    void goToNextStep();
-    void goToPrevStep();
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -101,6 +97,13 @@ public:
     // Listener
     void addListener (Listener* listener);
     void removeListener();
+    
+    // StepView Methods
+    void setDifficulty (float difficulty);
+    void setIsPlaying (bool isPlaying);
+    QualityStep goToPrevStep();
+    QualityStep goToNextStep();
+    void setStage (int stageIdx);
 
 private:
     std::optional<std::reference_wrapper<CabinEqProfile>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.

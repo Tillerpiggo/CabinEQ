@@ -93,12 +93,6 @@ void PlaybackManager::setVolume (float volume)
     overallVolumeProcessor.setGainDecibels (volume);
 }
 
-void PlaybackManager::setQualityStep (QualityStep qualityStep)
-{
-    this->qualityStep = qualityStep;
-    setStage (0); // set the quality stage to 0 by default
-}
-
 float PlaybackManager::getCurrPlayingFreq()
 {
     return 1000.0f;
@@ -108,6 +102,13 @@ float PlaybackManager::getCurrPlayingFreq()
 int PlaybackManager::getStage() const
 {
     return stageIdx;
+}
+
+
+void PlaybackManager::setQualityStep (QualityStep qualityStep)
+{
+    this->qualityStep = qualityStep;
+    setStage (0); // set the quality stage to 0 by default
 }
 
 void PlaybackManager::setStage (int stageIdx)

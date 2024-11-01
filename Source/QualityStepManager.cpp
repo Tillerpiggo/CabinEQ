@@ -45,12 +45,12 @@ void QualityStepManager::goToPrevStep()
         stepIdx--;
 }
 
-QualityStep QualityStepManager::addSpatialStep (SpatialStep spatialStep)
+void QualityStepManager::addSpatialStep (SpatialStep spatialStep)
 {
     steps.push_back (QualityStep::spatial (spatialStep));
 }
 
-QualityStep QualityStepManager::addIntelligibilityStep (IntelligibilityStep intelligibilityStep)
+void QualityStepManager::addIntelligibilityStep (IntelligibilityStep intelligibilityStep)
 {
     steps.push_back (QualityStep::intelligibility (intelligibilityStep));
 }

@@ -43,10 +43,10 @@ public:
     void setSpatialPattern (Glyph glyph);
     
     float getCurrPlayingFreq();
-    
     int getStage() const;
-    void setStage (int stageIdx);
+    
     void setQualityStep (QualityStep qualityStep);
+    void setStage (int stageIdx);
     
 private:
     std::pair<float, float> getNextSample();

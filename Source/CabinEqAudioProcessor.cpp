@@ -25,7 +25,8 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 
 #endif
 {
-    
+    // Initialize QualityStepManager steps imperatively
+    // TODO: Implement
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()
@@ -220,27 +221,6 @@ void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
     playbackManager.setIsProcessing (isProcessing);
 }
 
-void CabinEqAudioProcessor::setDifficulty (float difficulty)
-{
-    // TODO: implement this
-}
-
-void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
-{
-    // The pattern the is playing should be set elsewhere. This will simply toggle whether the playbackManager is generating noise or not.
-    playbackManager.setIsCalibrating (isPlaying);
-}
-
-void CabinEqAudioProcessor::goToNextStep()
-{
-    // TODO: implement this
-}
-
-void CabinEqAudioProcessor::goToPrevStep()
-{
-    // TODO: implement this
-}
-
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
 {
     cabinEqProfileManager.addProfile (profileName);
@@ -342,6 +322,37 @@ void CabinEqAudioProcessor::addListener (Listener* listener)
 void CabinEqAudioProcessor::removeListener()
 {
     // VERY BAD FIX THIS: eh whatever
+}
+
+void CabinEqAudioProcessor::setDifficulty (float difficulty)
+{
+    // TODO - implement this
+}
+
+void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
+{
+    playbackManager.setIsCalibrating (isPlaying);
+}
+
+QualityStep CabinEqAudioProcessor::goToPrevStep()
+{
+    qualityStepManager.goToPrevStep();
+    QualityStep qualityStep = qualityStepManager.getCurrStep();
+    playbackManager.setQualityStep (qualityStep);
+    return qualityStep;
+}
+
+QualityStep CabinEqAudioProcessor::goToNextStep()
+{
+    qualityStepManager.goToNextStep();
+    QualityStep qualityStep = qualityStepManager.getCurrStep();
+    playbackManager.setQualityStep (qualityStep);
+    return qualityStep;
+}
+
+void CabinEqAudioProcessor::setStage (int stageIdx)
+{
+    playbackManager.setStage (stageIdx);
 }
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const

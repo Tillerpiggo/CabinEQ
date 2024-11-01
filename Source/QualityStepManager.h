@@ -23,11 +23,9 @@ public:
     void goToNextStep();
     void goToPrevStep();
     
-    QualityStep addSpatialStep (SpatialStep spatialStep);
-    
-    QualityStep addIntelligibilityStep (IntelligibilityStep intelligibilityStep);
+    void addSpatialStep (SpatialStep spatialStep);
+    void addIntelligibilityStep (IntelligibilityStep intelligibilityStep);
 
-    
 private:
     std::vector<QualityStep> steps;
     int stepIdx = 0;
