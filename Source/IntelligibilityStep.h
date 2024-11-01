@@ -34,6 +34,14 @@ public:
         return stages;
     }
     
+    const MelodicNotes& patternAtStage (int stageIdx) const
+    {
+        if (stageIdx < 0 || stageIdx >= stages.size())
+            std::cerr << "patternAtStage called with stageIdx out of bounds in SpatialStep" << std::endl;
+        
+        return stages[stageIdx];
+    }
+    
 private:
     float sineWaveDbAboveNoise = 3.0f;
     std::vector<MelodicNotes> stages; // each stage is a melody - to complete the step, pass all stages

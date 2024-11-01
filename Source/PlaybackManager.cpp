@@ -92,29 +92,11 @@ void PlaybackManager::setVolume (float volume)
     this->volume = volume;
     overallVolumeProcessor.setGainDecibels (volume);
 }
-//
-//void PlaybackManager::setQualityStep (QualityStep qualityStep)
-//{
-//    // Take the quality step and update our own sequencers accordingly
-//    switch (qualityStep.getType())
-//    {
-//        case QualityStep::Type::spatial:
-//            glyphGenerator.setGlyph (Glyph (qualityStep.getSpatialStep().get))
-//            melodicNoiseSequencer.mute();
-//            break;
-//    }
-//}
 
-void PlaybackManager::setMelodicPattern (MelodicNotes melodicNotes)
+void PlaybackManager::setQualityStep (QualityStep qualityStep)
 {
-    melodicNoiseSequencer.setPattern (melodicNotes.noiseNotes());
-    glyphGenerator.mute();
-}
-
-void PlaybackManager::setSpatialPattern (Glyph glyph)
-{
-    glyphGenerator.setGlyph (glyph);
-    melodicNoiseSequencer.mute();
+    this->qualityStep = qualityStep;
+    setStage (0); // set the quality stage to 0 by default
 }
 
 float PlaybackManager::getCurrPlayingFreq()
@@ -123,10 +105,46 @@ float PlaybackManager::getCurrPlayingFreq()
     // TODO: Implement based on QualityStep
 }
 
+int PlaybackManager::getStage() const
+{
+    return stageIdx;
+}
+
+void PlaybackManager::setStage (int stageIdx)
+{
+    this->stageIdx = stageIdx;
+    updateSequencersFromQualityStep();
+}
+
 std::pair<float, float> PlaybackManager::getNextSample()
 {
     auto [melodicLeftSample, melodicRightSample] = melodicNoiseSequencer.getNextSample();
     auto [glyphLeftSample, glyphRightSample] = glyphGenerator.getNextSample();
     
     return { melodicLeftSample + glyphLeftSample, melodicRightSample + glyphRightSample };
+}
+
+void PlaybackManager::updateSequencersFromQualityStep()
+{
+    if (! qualityStep.has_value())
+        std::cerr << "Calling updateSequencersFromQualityStep with null qualityStep in PlaybackManager" << std::endl;
+    
+    switch (qualityStep->getType())
+    {
+        case QualityStep::Type::spatial:
+        {
+            auto glyph = qualityStep->getSpatialPatternAtStage (stageIdx);
+            glyphGenerator.setGlyph (glyph);
+            melodicNoiseSequencer.mute();
+            break;
+        }
+            
+        case QualityStep::Type::intelligibility:
+        {
+            auto melody = qualityStep->getIntelligibilityPatternAtStage (stageIdx);
+            melodicNoiseSequencer.setPattern (melody.noiseNotes());
+            glyphGenerator.mute();
+            break;
+        }
+    }
 }

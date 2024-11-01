@@ -44,8 +44,13 @@ public:
     
     float getCurrPlayingFreq();
     
+    int getStage() const;
+    void setStage (int stageIdx);
+    void setQualityStep (QualityStep qualityStep);
+    
 private:
     std::pair<float, float> getNextSample();
+    void updateSequencersFromQualityStep();
     
     // Audio processing
     FilterChain filter;
@@ -61,6 +66,10 @@ private:
     MelodicNoiseSequencer melodicNoiseSequencer;
     ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
     Curve tiltCurve;
+    
+    // State
+    std::optional<QualityStep> qualityStep;
+    int stageIdx = 0;
     
     bool isProcessing;
     bool isCalibrating;

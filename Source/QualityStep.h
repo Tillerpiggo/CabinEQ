@@ -38,14 +38,20 @@ public:
         return type;
     }
     
-    const SpatialStep getSpatialStep() const
+    const Glyph getSpatialPatternAtStage (int stageIdx)
     {
-        return spatialStep.value();
+        if (type != Type::spatial)
+            std::cerr << "Calling getSpatialPatternAtStage on non-spatial QualityStep" << std::endl;
+        
+        return spatialStep->patternAtStage (stageIdx);
     }
     
-    const IntelligibilityStep getIntelligibilityStep() const
+    const MelodicNotes getIntelligibilityPatternAtStage (int stageIdx)
     {
-        return intelligibilityStep.value();
+        if (type != Type::intelligibility)
+            std::cerr << "Calling getIntelligibilityPatternAtStage on non-intelligibility QualityStep" << std::endl;
+        
+        return intelligibilityStep->patternAtStage (stageIdx);
     }
     
 private:

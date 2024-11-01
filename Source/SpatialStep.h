@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SweepPattern.h"
+#include "Glyph.h"
 
 // This represents a headphone audio test for spatial properties. It includes information to play the main test, as well as variations of the test or multiple distinct test audios to "pass" the test.
 class SpatialStep
@@ -19,17 +19,25 @@ class SpatialStep
 public:
     SpatialStep();
     
-    void addStage (SweepPattern stage)
+    void addStage (Glyph stage)
     {
         stages.push_back (stage);
     }
     
-    const std::vector<SweepPattern>& getStages() const
+    const std::vector<Glyph>& getStages() const
     {
         return stages;
     }
     
+    const Glyph& patternAtStage (int stageIdx) const
+    {
+        if (stageIdx < 0 || stageIdx >= stages.size())
+            std::cerr << "patternAtStage called with stageIdx out of bounds in SpatialStep" << std::endl;
+        
+        return stages[stageIdx];
+    }
+    
 private:
-    std::vector<SweepPattern> stages; // each stage is a sweep pattern - to complete the step, you must be able to clearly hear all sweep patterns
+    std::vector<Glyph> stages; // each stage is a sweep pattern - to complete the step, you must be able to clearly hear all sweep patterns
 };
 
