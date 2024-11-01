@@ -227,10 +227,8 @@ void CabinEqAudioProcessor::setDifficulty (float difficulty)
 
 void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
 {
-//    std::cout << "set is playing to " << isPlaying << std::endl;
-//    playbackManager.setAudioPattern (qualityStepManager.getCurrStep().getAudioPattern());
-//    std::cout << "got curr step" << std::endl;
-//    playbackManager.setIsCalibrating (isPlaying);
+    // The pattern the is playing should be set elsewhere. This will simply toggle whether the playbackManager is generating noise or not.
+    playbackManager.setIsCalibrating (isPlaying);
 }
 
 void CabinEqAudioProcessor::goToNextStep()

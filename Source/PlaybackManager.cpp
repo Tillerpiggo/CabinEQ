@@ -92,11 +92,29 @@ void PlaybackManager::setVolume (float volume)
     this->volume = volume;
     overallVolumeProcessor.setGainDecibels (volume);
 }
+//
+//void PlaybackManager::setQualityStep (QualityStep qualityStep)
+//{
+//    // Take the quality step and update our own sequencers accordingly
+//    switch (qualityStep.getType())
+//    {
+//        case QualityStep::Type::spatial:
+//            glyphGenerator.setGlyph (Glyph (qualityStep.getSpatialStep().get))
+//            melodicNoiseSequencer.mute();
+//            break;
+//    }
+//}
 
-void PlaybackManager::setAudioPattern (AudioPattern audioPattern)
+void PlaybackManager::setMelodicPattern (MelodicNotes melodicNotes)
 {
-    audioPattern.applyToSequencer (melodicNoiseSequencer);
-    audioPattern.applyToSequencer (glyphGenerator);
+    melodicNoiseSequencer.setPattern (melodicNotes.noiseNotes());
+    glyphGenerator.mute();
+}
+
+void PlaybackManager::setSpatialPattern (Glyph glyph)
+{
+    glyphGenerator.setGlyph (glyph);
+    melodicNoiseSequencer.mute();
 }
 
 float PlaybackManager::getCurrPlayingFreq()
