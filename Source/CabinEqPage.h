@@ -21,7 +21,8 @@ class CabinEqPage   : public BuildableComponent,
                       public juce::TextEditor::Listener,
                       public CabinPeqGraph::Listener,
                       public CabinEqAudioProcessor::Listener,
-                      public CabinPeqGraph::DataSource
+                      public CabinPeqGraph::DataSource,
+                      public StepView::Listener
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -39,6 +40,12 @@ public:
     // CabinPeqGraph::DataSource methods
     BandProfile getBandProfile() override;
     float getCurrPlayingFreq() override;
+    
+    // StepView Listener methods
+    void setDifficulty (float difficulty) override;
+    void setIsPlaying (bool isPlaying) override;
+    void goToNextStep() override;
+    void goToPrevStep() override;
     
     // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;

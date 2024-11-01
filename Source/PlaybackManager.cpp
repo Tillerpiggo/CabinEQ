@@ -53,9 +53,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     if (isProcessing)
     {
         filter.process (ioBlock);
+        profileVolumeProcessor.process (ioContext);
     }
-    
-    profileVolumeProcessor.process (ioContext);
     overallVolumeProcessor.process (ioContext);
 }
 
@@ -84,6 +83,7 @@ void PlaybackManager::setIsProcessing (bool isFilterProcessing)
 
 void PlaybackManager::setIsCalibrating (bool isCalibrating)
 {
+    std::cout << "setting is calibrating to " << isCalibrating << std::endl;
     this->isCalibrating = isCalibrating;
 }
 
@@ -93,13 +93,22 @@ void PlaybackManager::setVolume (float volume)
     overallVolumeProcessor.setGainDecibels (volume);
 }
 
+void PlaybackManager::setAudioPattern (AudioPattern audioPattern)
+{
+    audioPattern.applyToSequencer (melodicNoiseSequencer);
+    audioPattern.applyToSequencer (glyphGenerator);
+}
 
 float PlaybackManager::getCurrPlayingFreq()
 {
+    return 1000.0f;
     // TODO: Implement based on QualityStep
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    // TODO: Implement based on QualityStep
+    auto [melodicLeftSample, melodicRightSample] = melodicNoiseSequencer.getNextSample();
+    auto [glyphLeftSample, glyphRightSample] = glyphGenerator.getNextSample();
+    
+    return { melodicLeftSample + glyphLeftSample, melodicRightSample + glyphRightSample };
 }

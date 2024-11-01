@@ -23,6 +23,7 @@ public:
     
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setPattern (std::vector<NoiseNote> notes, float relativeNoiseGain = 1.0f);
+    void setMelodyVolume (float melodyVolume);
     void setSineVolume (float sineVolume);
     void setSpeedFactor (float speedFactor);
     void setOctaveRange (float octaveRange);
@@ -33,13 +34,13 @@ public:
 private:
     NoiseNote getCurrNote();
     void updateFilters();
+    void updatePeakFilter();
     void goToNextNote();
     
     std::vector<NoiseNote> notes;
     
-    PinkNoise lowerNoise;
-    PinkNoise upperNoise;
-    PinkNoise noteNoise;
+    PinkNoise pinkNoise;
+    SineWaveGenerator sineWaveGenerator;
     
     int numSamplesNoteHasBeenPlaying;
     int currNoteIdx;
@@ -47,14 +48,14 @@ private:
     bool isMuted = false;
     float relativeNoiseGain = 1.0f;
     
-    juce::dsp::IIR::Filter<float> notchFilter; // to add a notch in the main noise
-    juce::dsp::IIR::Filter<float> bandpassFilter;
-    juce::dsp::IIR::Filter<float> lowPassFilter;
-    juce::dsp::IIR::Filter<float> highPassFilter;
-    SineWaveGenerator sineWaveGenerator;
-    SpatialPinkNoiseGenerator spatialPinkNoiseGenerator;
+    juce::dsp::IIR::Filter<float> peakFilter;
+//    juce::dsp::IIR::Filter<float> notchFilter; // to add a notch in the main noise
+//    juce::dsp::IIR::Filter<float> bandpassFilter;
+//    juce::dsp::IIR::Filter<float> lowPassFilter;
+//    juce::dsp::IIR::Filter<float> highPassFilter;
     int snapToZeroCounter = 0;
-    float sineVolume = 0.0f; // in db
+    float melodyVolume = 0.0f; // in db
+    float sineVolume = 3.0f;
     float speedFactor = 1.0f;
     float freqOffsetFactor = 1.0f;
     float octaveRange = 3.0f; // +- octaves of randomization

@@ -21,6 +21,7 @@
 #include "NoiseSweepGenerator.h"
 #include "MelodicNoiseSequencer.h"
 #include "GlyphGenerator.h"
+#include "AudioPattern.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -38,6 +39,7 @@ public:
     void setIsProcessing (bool isFilterProcessing);
     void setIsCalibrating (bool isCalibrating);
     void setVolume (float volume);
+    void setAudioPattern (AudioPattern audioPattern);
     
     float getCurrPlayingFreq();
     

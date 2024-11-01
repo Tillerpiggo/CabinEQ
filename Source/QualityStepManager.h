@@ -12,11 +12,12 @@
 
 #include <JuceHeader.h>
 #include "QualityStep.h"
+#include "MelodicNotes.h"
 
 class QualityStepManager
 {
 public:
-    QualityStepManager (std::vector<QualityStep> steps);
+    QualityStepManager();
     
     QualityStep getCurrStep();
     void goToNextStep();

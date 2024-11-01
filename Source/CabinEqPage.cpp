@@ -36,6 +36,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     amplGraph->addDataSource (this);
     profileDropdown.addListener (this);
     processor.addListener (this);
+    stepView.setListener (this);
     
     // Extra stuff, will clean up later
     addAndMakeVisible (amplGraph.get());
@@ -123,6 +124,26 @@ BandProfile CabinEqPage::getBandProfile()
 float CabinEqPage::getCurrPlayingFreq()
 {
     return processor.getCurrPlayingFreq();
+}
+
+void CabinEqPage::setDifficulty (float difficulty)
+{
+    processor.setDifficulty (difficulty);
+}
+
+void CabinEqPage::setIsPlaying (bool isPlaying)
+{
+    processor.setIsPlaying (isPlaying);
+}
+
+void CabinEqPage::goToNextStep()
+{
+    processor.goToNextStep();
+}
+
+void CabinEqPage::goToPrevStep()
+{
+    processor.goToPrevStep();
 }
 
 // ====================================================

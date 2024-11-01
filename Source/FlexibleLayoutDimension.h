@@ -88,8 +88,6 @@ public:
         if (staticLength > availableLength)
             std::cerr << "Trying to create lengthRanges with static widths exceeding total available space" << std::endl;
         
-        std::cout << "calculating length ranges 2" << std::endl;
-        
         // Calculate out how much width is remaining
         int numDynamicLengths = 0;
         for (const auto& length : lengths)

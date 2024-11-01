@@ -60,8 +60,6 @@ void Layout::addRowWithRectWidths (std::vector<FlexibleLayoutDimension> rectWidt
 
 juce::Rectangle<int> Layout::getBoundsAt (int rowIdx, int rectIdx)
 {
-    std::cout << "rowIdx: " << rowIdx << ", rectIdx: " << rectIdx << std::endl;
-    
     auto widthRange = rows[rowIdx].getWidthRanges()[rectIdx];
     auto heightRange = getHeightRanges()[rowIdx];
     return juce::Rectangle<int> (widthRange.first, heightRange.first - bounds.getY(), widthRange.second - widthRange.first, heightRange.second - heightRange.first);
@@ -74,15 +72,12 @@ std::pair<float, float> Layout::getWidthRange()
 
 std::vector<std::pair<float, float>> Layout::getHeightRanges()
 {
-    std::cout << "getting height ranges" << std::endl;
     if (heightRangesAreUpdated)
         return heightRanges;
     
     std::pair<float, float> heightRange = { bounds.getY(), bounds.getY() + bounds.getHeight() };
     heightRanges = FlexibleLayoutDimension::lengthRangesForFlexibleLayoutDimensions (getRowHeights(), heightRange, padding);
     heightRangesAreUpdated = true;
-    
-    std::cout << "updated height ranges. There are " << heightRanges.size() << " height ranges" << std::endl;
     
     return heightRanges;
 }

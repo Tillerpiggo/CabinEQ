@@ -24,7 +24,7 @@ public:
         virtual ~Listener() = default;
         
         virtual void setDifficulty (float difficulty) = 0;
-        virtual void playReferencePattern() = 0;
+        virtual void setIsPlaying (bool isPlaying) = 0;
         virtual void goToNextStep() = 0;
         virtual void goToPrevStep() = 0;
     };
@@ -45,4 +45,6 @@ private:
     juce::TextButton playButton { "Play" };
     juce::TextButton prevButton { "PREV" };
     juce::TextButton nextButton { "NEXT" };
+    
+    bool isPlaying = false;
 };

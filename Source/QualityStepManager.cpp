@@ -11,14 +11,25 @@
 #include "QualityStepManager.h"
 
 
-QualityStepManager::QualityStepManager (std::vector<QualityStep> steps)
-    : steps (steps)
+QualityStepManager::QualityStepManager()
 {
+    // Let's hard code the steps in here
+    std::vector<QualityStep> initialSteps;
     
+    // Add a super mario pattern
+    MelodicNotes superMarioMelody =
+    MelodicNotes::withMelodicPattern ({ 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 4, 4, 4, 0, 4, 7, -5 }, 10000.0f, 1.0f, { 1.0f })
+        .withNoteDurationInSeconds (0.1f);
+    AudioPattern superMarioPattern = AudioPattern::intelligibility(superMarioMelody.noiseNotes());
+    
+    initialSteps.push_back (QualityStep (QualityStep::Type::intelligibility, superMarioPattern, DifficultyRange (0.5f, 2.0f, 5.0f, 2.0f)));
+    
+    steps = initialSteps;
 }
 
 QualityStep QualityStepManager::getCurrStep()
 {
+    std::cout << "getitng curr step" << std::endl;
     return steps[stepIdx];
 }
 

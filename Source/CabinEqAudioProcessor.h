@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PlaybackManager.h"
 #include "CabinEqProfileManager.h"
+#include "QualityStepManager.h"
 
 //==============================================================================
 /**
@@ -71,7 +72,10 @@ public:
     
     void setVolume (float volume);
     void setIsProcessing (bool isProcessing);
-    // TODO: Add in the start/stop of calibration
+    void setDifficulty (float difficulty);
+    void setIsPlaying (bool isPlaying);
+    void goToNextStep();
+    void goToPrevStep();
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -103,6 +107,7 @@ private:
 
     PlaybackManager playbackManager;
     CabinEqProfileManager cabinEqProfileManager;
+    QualityStepManager qualityStepManager;
     
     juce::dsp::ProcessSpec spec;
     

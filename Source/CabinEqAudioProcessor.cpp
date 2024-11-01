@@ -220,6 +220,29 @@ void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
     playbackManager.setIsProcessing (isProcessing);
 }
 
+void CabinEqAudioProcessor::setDifficulty (float difficulty)
+{
+    // TODO: implement this
+}
+
+void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
+{
+    std::cout << "set is playing to " << isPlaying << std::endl;
+    playbackManager.setAudioPattern (qualityStepManager.getCurrStep().getAudioPattern());
+    std::cout << "got curr step" << std::endl;
+    playbackManager.setIsCalibrating (isPlaying);
+}
+
+void CabinEqAudioProcessor::goToNextStep()
+{
+    // TODO: implement this
+}
+
+void CabinEqAudioProcessor::goToPrevStep()
+{
+    // TODO: implement this
+}
+
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
 {
     cabinEqProfileManager.addProfile (profileName);

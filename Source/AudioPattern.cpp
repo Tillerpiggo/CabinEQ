@@ -15,27 +15,26 @@ AudioPattern::AudioPattern()
 {
 }
 
-AudioPattern::AudioPattern (Type type, std::optional<SweepPattern> sweepPattern, std::optional<std::vector<NoiseNote>> noiseNotes, std::optional<float> relativeNoiseGain)
+AudioPattern::AudioPattern (Type type, std::optional<SweepPattern> sweepPattern, std::optional<std::vector<NoiseNote>> noiseNotes)
 {
     this->type = type;
     this->sweepPattern = sweepPattern;
     this->noiseNotes = noiseNotes;
-    this->relativeNoiseGain = relativeNoiseGain;
 }
 
-AudioPattern AudioPattern::glyph (SweepPattern sweepPattern)
+AudioPattern AudioPattern::spatial (SweepPattern sweepPattern)
 {
-    return AudioPattern (Type::glyph, sweepPattern, std::nullopt, std::nullopt);
+    return AudioPattern (Type::spatial, sweepPattern, std::nullopt);
 }
 
-AudioPattern AudioPattern::melodic (std::vector<NoiseNote> noiseNotes, float relativeNoiseGain)
+AudioPattern AudioPattern::intelligibility (std::vector<NoiseNote> noiseNotes)
 {
-    return AudioPattern (Type::melodic, std::nullopt, noiseNotes, relativeNoiseGain);
+    return AudioPattern (Type::intelligibility, std::nullopt, noiseNotes);
 }
 
 void AudioPattern::applyToSequencer (GlyphGenerator& glyphGenerator)
 {
-    if (type != Type::glyph)
+    if (type != Type::spatial)
     {
         glyphGenerator.mute();
         return;
@@ -46,11 +45,11 @@ void AudioPattern::applyToSequencer (GlyphGenerator& glyphGenerator)
 
 void AudioPattern::applyToSequencer (MelodicNoiseSequencer& melodicNoiseSequencer)
 {
-    if (type != Type::melodic)
+    if (type != Type::intelligibility)
     {
         melodicNoiseSequencer.mute();
         return;
     }
     
-    melodicNoiseSequencer.setPattern (noiseNotes.value(), relativeNoiseGain.value());
+    melodicNoiseSequencer.setPattern (noiseNotes.value());
 }

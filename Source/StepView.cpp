@@ -23,7 +23,9 @@ StepView::StepView()
         if (listener != nullptr) listener->setDifficulty (difficultySlider.getValue());
     });
     addButtonAction (&playButton, [this](juce::Button*) {
-        if (listener != nullptr) listener->playReferencePattern();
+        isPlaying = ! isPlaying;
+        if (listener != nullptr)
+            listener->setIsPlaying (isPlaying);
     });
     addButtonAction (&prevButton, [this](juce::Button*) {
         if (listener != nullptr) listener->goToPrevStep();
@@ -48,4 +50,9 @@ void StepView::resized()
     Layout layout (getBounds(), 4);
     layout.layoutComponentsInGrid({ { &difficultySlider, &playButton },
                                     { &prevButton, &nextButton }});
+}
+
+void StepView::setListener (Listener* listener)
+{
+    this->listener = listener;
 }

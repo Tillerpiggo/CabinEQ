@@ -20,15 +20,15 @@ class AudioPattern
 public:
     enum class Type
     {
-        glyph, // essentially spatial
-        melodic, // essentially intelligibility
+        spatial, // essentially spatial
+        intelligibility, // essentially intelligibility
         none // essentially silent
     };
     
     AudioPattern(); // creates a blank audio pattern where nothing is played
-    AudioPattern (Type type, std::optional<SweepPattern> sweepPattern, std::optional<std::vector<NoiseNote>> noiseNotes, std::optional<float> relativeNoiseGain);
-    static AudioPattern glyph (SweepPattern sweepPattern);
-    static AudioPattern melodic (std::vector<NoiseNote> noiseNotes, float relativeNoiseGain);
+    AudioPattern (Type type, std::optional<SweepPattern> sweepPattern, std::optional<std::vector<NoiseNote>> noiseNotes);
+    static AudioPattern spatial (SweepPattern sweepPattern);
+    static AudioPattern intelligibility (std::vector<NoiseNote> noiseNotes);
     
     void applyToSequencer (GlyphGenerator& glyphGenerator);
     void applyToSequencer (MelodicNoiseSequencer& melodicNoiseSequencer);
@@ -37,5 +37,4 @@ private:
     Type type;
     std::optional<SweepPattern> sweepPattern;
     std::optional<std::vector<NoiseNote>> noiseNotes;
-    std::optional<float> relativeNoiseGain;
 };
