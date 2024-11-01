@@ -41,6 +41,7 @@ private:
     Listener* listener = nullptr;
     
     juce::Slider difficultySlider;
+    juce::Label difficultySliderLabel;
     juce::TextButton playButton { "Play" };
     juce::TextButton prevButton { "PREV" };
     juce::TextButton nextButton { "NEXT" };

@@ -69,21 +69,9 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
-    void setIsProcessing (bool isProcessing);
-    void setBypassBalance (float balance);
     void setVolume (float volume);
-    void setCalibrationVolume (float calibrationVolume);
-    void setSineVolume (float sineVolume);
-    void setSpacing (float spacing);
-    void setPitch (float pitchInHz);
-    void setSpeed (float speedFactor);
-    void setMutedGens (std::vector<bool> mutedGens);
-    
-    // Calibration noises
-    void startMelodicPatternAt (int nodeId, juce::String profileName);
-    void updateNoisePatternAt (int id, juce::String profileName);
-    void stopNoisePattern();
-    void setNoisePatternSolo (bool solo);
+    void setIsProcessing (bool isProcessing);
+    // TODO: Add in the start/stop of calibration
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -91,8 +79,6 @@ public:
     void removeProfile (juce::String profileName);
     void renameProfile (juce::String profileName, juce::String newProfileName);
     void setProfileVolume (juce::String profileName, float masterVolume);
-    void setProfileMelodyVolume (juce::String profileName, float melodyVolume);
-    void setProfileNoiseVolume (juce::String profileName, float noiseVolume);
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
     BandProfile getBandProfile (juce::String profileName);

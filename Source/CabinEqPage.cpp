@@ -106,32 +106,6 @@ void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
     }
 }
 
-void CabinEqPage::startMelodicPatternAt (int id, CabinPeqGraph *sender)
-{
-    if (sender == amplGraph.get())
-    {
-        processor.startMelodicPatternAt (id, profileId);
-    }
-}
-
-void CabinEqPage::updateNoisePatternAt (int id, CabinPeqGraph* sender)
-{
-//    if (sender == amplGraph.get())
-//    {
-//        processor.updateNoisePatternAt  (id, profileId);
-//    }
-}
-
-void CabinEqPage::stopNoisePattern()
-{
-    processor.stopNoisePattern();
-}
-
-void CabinEqPage::setNoisePatternSolo (bool solo)
-{
-    processor.setNoisePatternSolo (solo);
-}
-
 void CabinEqPage::setVolume (float volume, CabinPeqGraph* sender)
 {
     if (sender == amplGraph.get())

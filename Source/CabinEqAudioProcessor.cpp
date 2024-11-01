@@ -210,84 +210,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout CabinEqAudioProcessor::creat
 }
 
 //==============================================================================
-void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
-{
-    playbackManager.setIsProcessing (isProcessing);
-}
-
 void CabinEqAudioProcessor::setVolume (float volume)
 {
     playbackManager.setVolume (volume);
 }
 
-void CabinEqAudioProcessor::setCalibrationVolume (float calibrationVolume)
+void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
 {
-    playbackManager.setCalibrationVolume (calibrationVolume);
-}
-
-void CabinEqAudioProcessor::setSineVolume (float sineVolume)
-{
-    playbackManager.setSineVolume (sineVolume);
-}
-
-void CabinEqAudioProcessor::setSpacing (float spacing)
-{
-    playbackManager.setSpacing (spacing);
-}
-
-void CabinEqAudioProcessor::setPitch (float pitchInHz)
-{
-    playbackManager.setPitch (pitchInHz);
-}
-
-void CabinEqAudioProcessor::setSpeed (float speedFactor)
-{
-    playbackManager.setSpeed (speedFactor);
-}
-
-void CabinEqAudioProcessor::setMutedGens (std::vector<bool> mutedGens)
-{
-    playbackManager.setMutedGenerators (mutedGens);
-}
-
-void CabinEqAudioProcessor::startMelodicPatternAt (int nodeId, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        std::cout << "trying to get band with id" << std::endl;
-        auto band = profile->get().getBandWithId (nodeId);
-        if (band.has_value())
-        {
-            std::cout << "starting calibration centered at" << std::endl;
-            playbackManager.startCalibrationCenteredAt (band->freq, band->bandwidth);
-            playbackManager.setIsCalibrating (true);
-        }
-    }
-}
-
-void CabinEqAudioProcessor::updateNoisePatternAt (int id, juce::String profileName)
-{
-    auto profile = profileNamed (profileName);
-    if (profile.has_value())
-    {
-        auto band = profile->get().getBandWithId (id);
-        if (band.has_value())
-        {
-            playbackManager.updateAmplCalibration (band->freq, band->bandwidth);
-            playbackManager.setIsCalibrating (true);
-        }
-    }
-}
-
-void CabinEqAudioProcessor::stopNoisePattern()
-{
-    playbackManager.setIsCalibrating (false);
-}
-
-void CabinEqAudioProcessor::setNoisePatternSolo (bool solo)
-{
-    playbackManager.setPatternSolo (solo);
+    playbackManager.setIsProcessing (isProcessing);
 }
 
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
@@ -313,16 +243,6 @@ void CabinEqAudioProcessor::renameProfile (juce::String profileName, juce::Strin
 void CabinEqAudioProcessor::setProfileVolume (juce::String profileName, float masterVolume)
 {
     cabinEqProfileManager.setProfileVolume (profileName, masterVolume);
-}
-
-void CabinEqAudioProcessor::setProfileMelodyVolume (juce::String profileName, float melodyVolume)
-{
-    cabinEqProfileManager.setProfileMelodyVolume (profileName, melodyVolume);
-}
-
-void CabinEqAudioProcessor::setProfileNoiseVolume (juce::String profileName, float noiseVolume)
-{
-    cabinEqProfileManager.setProfileNoiseVolume (profileName, noiseVolume);
 }
 
 const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const

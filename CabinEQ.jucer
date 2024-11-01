@@ -27,6 +27,10 @@
               file="Source/CabinEqProfileManager.cpp"/>
         <FILE id="LJWMjo" name="CabinEqProfileManager.h" compile="0" resource="0"
               file="Source/CabinEqProfileManager.h"/>
+        <FILE id="P7D4Fv" name="QualityStepManager.cpp" compile="1" resource="0"
+              file="Source/QualityStepManager.cpp"/>
+        <FILE id="Jdl3qk" name="QualityStepManager.h" compile="0" resource="0"
+              file="Source/QualityStepManager.h"/>
       </GROUP>
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
         <FILE id="IsbkTz" name="BandProfile.h" compile="0" resource="0" file="Source/BandProfile.h"/>

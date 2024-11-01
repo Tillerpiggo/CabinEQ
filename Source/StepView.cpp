@@ -13,7 +13,7 @@
 StepView::StepView()
 {
     // Add components
-    addSlider (difficultySlider, 0.0f, 1.0f, 0.5f);
+    addSliderAndLabel (difficultySlider, difficultySliderLabel, "Difficulty", 0.0f, 1.0f, 0.5f);
     addButton (playButton);
     addButton (prevButton);
     addButton (nextButton);

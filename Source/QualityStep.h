@@ -21,9 +21,9 @@ public:
     {
         spatial,
         intelligibility
-    }
+    };
     
-    QualityStep (Type type, AudioPattern testPattern, AudioPattern referencePattern, DifficultyRange difficultyRange);
+    QualityStep (Type type, AudioPattern testPattern, AudioPattern referencePattern, DifficultyRange difficultyRange)
         : type (type), testPattern (testPattern), referencePattern (referencePattern), difficultyRange (difficultyRange)
     {}
     
@@ -37,7 +37,7 @@ public:
         return referencePattern;
     }
     
-    const AudioPattern& getDifficultyRange() const
+    const DifficultyRange& getDifficultyRange() const
     {
         return difficultyRange;
     }
@@ -47,4 +47,4 @@ private:
     AudioPattern testPattern;
     AudioPattern referencePattern;
     DifficultyRange difficultyRange;
-}
+};

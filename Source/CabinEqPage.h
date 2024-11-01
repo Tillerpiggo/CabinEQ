@@ -34,19 +34,13 @@ public:
     int addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) override;
     void removeBand (int id, CabinPeqGraph* sender) override;
-    void startMelodicPatternAt (int id, CabinPeqGraph* sender) override;
-    void updateNoisePatternAt (int id, CabinPeqGraph* sender) override;
-    void stopNoisePattern() override;
-    void setNoisePatternSolo (bool solo) override;
     void setVolume (float volume, CabinPeqGraph* sender) override;
     
     // CabinPeqGraph::DataSource methods
     BandProfile getBandProfile() override;
     float getCurrPlayingFreq() override;
     
-//    void sliderValueChanged (juce::Slider *slider) override;
-//    void sliderDragStarted (juce::Slider *slider) override;
-//    void sliderDragEnded (juce::Slider *slider) override;
+    // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;
     void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorEscapeKeyPressed (juce::TextEditor& textEditor) override;

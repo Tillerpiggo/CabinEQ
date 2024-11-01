@@ -20,12 +20,6 @@ CabinPeqGraph::~CabinPeqGraph()
     removeListener();
 }
 
-//void CabinPeqGraph::setBands (std::vector<Band> bands)
-//{
-//    this->bands = bands;
-//    this->curve.updateWithBands (bands);
-//}
-
 void CabinPeqGraph::setBandProfile (BandProfile bandProfile)
 {
     this->bandProfile = bandProfile;
@@ -50,7 +44,6 @@ void CabinPeqGraph::resized()
 
 void CabinPeqGraph::mouseMove (const juce::MouseEvent &event)
 {
-    soloNoisePatternIfAppropriate (event);
     updateHoveringStatus (event);
 }
 
@@ -59,8 +52,6 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     auto coords = getEventCoords (event);
-    
-    soloNoisePatternIfAppropriate (event);
     
     // Begin to track dragging
     lastDistanceFromDragStartX = 0;
@@ -99,7 +90,6 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     if (draggingId != -1)
     {
         updateBand (draggingId, freq, ampl, startDragBandwidth);
-        startMelodicPatternAt (draggingId);
     }
 }
 
@@ -107,8 +97,6 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 {
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
-    
-    soloNoisePatternIfAppropriate (event);
     
     // If we're dragging the line, update profile amplitude
     if (isHoveringOverDotControl)
@@ -121,7 +109,6 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
     if (draggingId != -1)
     {
         updateBandFromDrag (event);
-        updateNoisePatternAt (draggingId);
         
         lastDragPosition = getEventCoords (event);
     }
@@ -158,17 +145,12 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
     
     // Change the dot size back to normal
     selectedDotSize = DOT_SIZE_DEFAULT;
-    
-    // We stopped dragging, so stop playing the noise pattern
-    stopNoisePattern();
 }
 
 void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
     // Useful constants
     auto [freq, _] = frequencyAndAmplitudeForMouseEvent (event);
-    
-    soloNoisePatternIfAppropriate (event);
     
     // Math to figure out how much the left/right side of the window should move
     float windowWidthChangePercent = 1 - (wheel.deltaY);
@@ -188,18 +170,6 @@ void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::M
     maxFreqShowing = std::min (projectedMaxFreq, MAX_FREQ);
     
     updateHoveringStatus (event);
-}
-
-bool CabinPeqGraph::keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent)
-{
-    setNoisePatternSolo (juce::KeyPress::isKeyCurrentlyDown (juce::ModifierKeys::ctrlModifier) || juce::KeyPress::isKeyCurrentlyDown (juce::ModifierKeys::altModifier));
-    return true;
-}
-
-bool CabinPeqGraph::keyStateChanged (bool isKeyDown, juce::Component *originatingComponent)
-{
-    setNoisePatternSolo (juce::KeyPress::isKeyCurrentlyDown (juce::ModifierKeys::ctrlModifier) || juce::KeyPress::isKeyCurrentlyDown (juce::ModifierKeys::altModifier));
-    return true;
 }
 
 void CabinPeqGraph::timerCallback()
@@ -275,32 +245,6 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
         if ((currLineFreq - startLineFreq) / interval >= numLines)
             interval *= 10;
     }
-    
-//    // Add extra lines if the interval between the lines is too large
-//    std::vector<float> inBetweenLineFreqs;
-//    for (int i = 0; i < lineFreqs.size() - 1; ++i)
-//    {
-//        // If the interval is too visually large, add in between lines
-//        if (xForFreq (lineFreqs[i + 1]) - xForFreq (lineFreqs[i]) > getWidth() / 3.0f)
-//        {
-//            // Add 10 in between lines
-//            float subInterval = (lineFreqs[i + 1] - lineFreqs[i]) / 10.0f;
-//            for (int j = lineFreqs[i] + subInterval; j < lineFreqs[i + 1]; j += subInterval)
-//                inBetweenLineFreqs.push_back (j);
-//        }
-//    }
-//
-//    // Add more lines that cut the original in half until no visible interval is too visibly large
-//    for (int i = 0; i < lineFreqs.size() - 1; ++i)
-//    {
-//        // If the interval is too visually large,
-//    }
-//
-//    for (const auto& inBetweenLineFreq : inBetweenLineFreqs)
-//    {
-//        std::cout << "inbetweenLineFreq: " << inBetweenLineFreq << std::endl;
-//        lineFreqs.push_back (inBetweenLineFreq);
-//    }
     
     for (const auto& lineFreq : lineFreqs)
     {
@@ -797,46 +741,6 @@ void CabinPeqGraph::removeBand(int id)
     listener->removeBand (id, this);
     bandProfile = dataSource->getBandProfile();
     curve.updateWithBands (bandProfile.getBands());
-}
-
-void CabinPeqGraph::startMelodicPatternAt (int id)
-{
-    if (listener != nullptr)
-    {
-        listener->startMelodicPatternAt (id, this);
-    }
-}
-
-void CabinPeqGraph::updateNoisePatternAt (int id)
-{
-    if (listener != nullptr)
-    {
-        listener->updateNoisePatternAt (id, this);
-    }
-}
-
-void CabinPeqGraph::stopNoisePattern()
-{
-    if (listener != nullptr)
-    {
-        listener->stopNoisePattern();
-    }
-}
-
-void CabinPeqGraph::setNoisePatternSolo (bool solo)
-{
-    if (listener != nullptr)
-    {
-        listener->setNoisePatternSolo(solo);
-    }
-}
-
-void CabinPeqGraph::soloNoisePatternIfAppropriate (const juce::MouseEvent& event)
-{
-    if (listener != nullptr)
-    {
-        listener->setNoisePatternSolo (event.mods.isCtrlDown() || event.mods.isAltDown());
-    }
 }
 
 void CabinPeqGraph::setVolume (float volume)

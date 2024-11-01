@@ -17,6 +17,7 @@ public:
     DifficultyRange (float lowestSpeedFactor = 1.0f, float highestSpeedFactor = 1.0f, float lowestNoiseLevelPercent = 1.0f, float highestNoiseLevelPercent = 1.0f)
         : lowestSpeedFactor (lowestSpeedFactor), highestSpeedFactor (highestSpeedFactor),
           lowestNoiseLevelPercent (lowestNoiseLevelPercent), highestNoiseLevelPercent (highestNoiseLevelPercent)
+    {}
     
     std::pair<float, float> getSpeedAndNoiseLevelForDifficulty (float difficulty) // difficulty from 0 (easiest) to 1 (hardest)
     {
@@ -35,4 +36,4 @@ private:
     float highestSpeedFactor;
     float lowestNoiseLevelPercent;
     float highestNoiseLevelPercent;
-}
+};

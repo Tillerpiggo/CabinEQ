@@ -21,7 +21,10 @@ public:
         : sweepPattern (sweepPattern)
     {}
     
-    const SweepPattern& getSweepPattern() const;
+    const SweepPattern& getSweepPattern() const
+    {
+        return sweepPattern;
+    }
     
 private:
     SweepPattern sweepPattern;

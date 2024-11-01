@@ -16,7 +16,6 @@
 #include "BandEqCurve.h"
 
 class CabinPeqGraph  : public juce::Component,
-                       public juce::KeyListener,
                        public juce::Timer
 {
 public:
@@ -28,10 +27,6 @@ public:
         virtual int addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender) = 0;
         virtual void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) = 0;
         virtual void removeBand (int id, CabinPeqGraph* sender) = 0;
-        virtual void startMelodicPatternAt (int id, CabinPeqGraph* sender) = 0;
-        virtual void updateNoisePatternAt (int id, CabinPeqGraph* sender) = 0;
-        virtual void stopNoisePattern() = 0;
-        virtual void setNoisePatternSolo (bool solo) = 0;
         virtual void setVolume (float volume, CabinPeqGraph* sender) = 0;
     };
     
@@ -58,9 +53,6 @@ public:
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
-    
-    bool keyPressed (const juce::KeyPress &key, juce::Component *originatingComponent) override;
-    bool keyStateChanged (bool isKeyDown, juce::Component *originatingComponent) override;
     
     void timerCallback() override;
     
@@ -109,11 +101,6 @@ private:
     void updateBand (int id, float freq, float ampl, float bandwidth);
     void updateBandFromDrag (const juce::MouseEvent& event);
     void removeBand (int id);
-    void startMelodicPatternAt (int id);
-    void updateNoisePatternAt (int id);
-    void stopNoisePattern();
-    void setNoisePatternSolo (bool solo);
-    void soloNoisePatternIfAppropriate (const juce::MouseEvent& event);
     void setVolume (float volume);
     float getCurrPlayingFreq();
     
