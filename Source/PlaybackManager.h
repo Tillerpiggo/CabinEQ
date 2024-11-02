@@ -50,7 +50,6 @@ public:
     void setQualityStep (QualityStep qualityStep);
     void setStage (int stageIdx);
     void sequenceDidFinish() override;
-    void setListener (SequencerListener* listener);
     
 private:
     std::pair<float, float> getNextSample();
@@ -78,5 +77,4 @@ private:
     bool isProcessing;
     bool isCalibrating;
     bool isCycling;
-    SequencerListener* listener;
 };

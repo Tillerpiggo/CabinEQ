@@ -131,7 +131,7 @@ void PlaybackManager::sequenceDidFinish()
     if (! isCycling)
         return;
     
-    if (! qualityStep.has_value() || listener == nullptr)
+    if (! qualityStep.has_value())
         return;
     
     // Go to the next stage
