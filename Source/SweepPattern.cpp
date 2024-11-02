@@ -127,8 +127,8 @@ std::pair<float, float> SweepPattern::getNextFrequencyAndPan()
     // Wrap around the cycle
     if (idx >= cycleLen)
     {
-//        if (listener != nullptr)
-//            listener->sequenceDidFinish();
+        if (listener != nullptr)
+            listener->sequenceDidFinish();
         idx = 0;
     }
         

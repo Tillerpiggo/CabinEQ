@@ -22,8 +22,8 @@ PlaybackManager::PlaybackManager()
     overallVolumeProcessor.setRampDurationSeconds (0.05);
     overallVolumeProcessor.setGainDecibels (0.0f);
     
-//    glyphGenerator.setListener (this);
-//    melodicNoiseSequencer.setListener (this);
+    glyphGenerator.setListener (this);
+    melodicNoiseSequencer.setListener (this);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -91,6 +91,7 @@ void PlaybackManager::setIsCalibrating (bool isCalibrating)
 
 void PlaybackManager::setIsCycling (bool isCycling)
 {
+    std::cout << "isCycling: " << isCycling << std::endl;
     this->isCycling = isCycling;
 }
 
@@ -125,6 +126,7 @@ void PlaybackManager::setStage (int stageIdx)
 
 void PlaybackManager::sequenceDidFinish()
 {
+    std::cout << "sequence did finish" << std::endl;
     // Only do something (move to the next stage) on sequence finish if we're cycling
     if (! isCycling)
         return;

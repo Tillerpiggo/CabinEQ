@@ -78,6 +78,7 @@ void NoiseSweepGenerator::setPeakFilter (float centerFreq, float bandwidth, floa
 void NoiseSweepGenerator::setListener (SequencerListener* listener)
 {
     this->listener = listener;
+    std::cout << "set noise sweep generator listener" << std::endl;
     if (sweepPattern.has_value())
         sweepPattern->setListener (listener);
 }
