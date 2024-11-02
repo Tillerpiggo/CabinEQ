@@ -27,10 +27,9 @@ void MelodicNoiseSequencer::prepare (const juce::dsp::ProcessSpec& spec)
     peakFilter.prepare (spec);
 }
 
-void MelodicNoiseSequencer::setPattern (std::vector<NoiseNote> notes, float relativeNoiseGain)
+void MelodicNoiseSequencer::setPattern (std::vector<NoiseNote> notes)
 {
     this->notes = notes;
-    this->relativeNoiseGain = relativeNoiseGain;
     currNoteIdx = 0;
     numSamplesNoteHasBeenPlaying = 0;
     updateFilters();
@@ -47,6 +46,11 @@ void MelodicNoiseSequencer::setSpeedFactor (float speedFactor)
     this->speedFactor = speedFactor;
 }
 
+void MelodicNoiseSequencer::setNoiseGain (float noiseGain)
+{
+    this->noiseGain = noiseGain;
+}
+
 void MelodicNoiseSequencer::setOctaveRange (float octaveRange)
 {
     this->octaveRange = octaveRange;
@@ -58,7 +62,7 @@ std::pair<float, float> MelodicNoiseSequencer::getNextSample()
     if (currNoteIdx < 0 || currNoteIdx >= notes.size() || isMuted)
         return { 0.0f, 0.0f };
     
-    float noiseSample = pinkNoise.generate();
+    float noiseSample = pinkNoise.generate() * noiseGain;
 //    updatePeakFilter();
 //    float lowerNoiseSample = lowerNoise.generate();
 //    float upperNoiseSample = upperNoise.generate();

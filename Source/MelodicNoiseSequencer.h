@@ -23,10 +23,11 @@ public:
     MelodicNoiseSequencer();
     
     void prepare (const juce::dsp::ProcessSpec& spec);
-    void setPattern (std::vector<NoiseNote> notes, float relativeNoiseGain = 1.0f);
+    void setPattern (std::vector<NoiseNote> notes);
     void setMelodyVolume (float melodyVolume);
     void setSineVolume (float sineVolume);
     void setSpeedFactor (float speedFactor);
+    void setNoiseGain (float noiseGain);
     void setOctaveRange (float octaveRange);
     std::pair<float, float> getNextSample();
     
@@ -48,7 +49,6 @@ private:
     int currNoteIdx;
     float sampleRate;
     bool isMuted = false;
-    float relativeNoiseGain = 1.0f;
     
     juce::dsp::IIR::Filter<float> peakFilter;
 //    juce::dsp::IIR::Filter<float> notchFilter; // to add a notch in the main noise
@@ -59,6 +59,7 @@ private:
     float melodyVolume = 0.0f; // in db
     float sineVolume = 3.0f;
     float speedFactor = 1.0f;
+    float noiseGain = 1.0f;
     float freqOffsetFactor = 1.0f;
     float octaveRange = 3.0f; // +- octaves of randomization
     
