@@ -39,36 +39,36 @@ void BuildableComponent::buttonClicked (juce::Button *button)
     }
 }
 
-void BuildableComponent::addButton (juce::Button& button)
+void BuildableComponent::addButton (juce::Button* button)
 {
-    addAndMakeVisible (button);
-    button.addListener (this);
+    addAndMakeVisible (*button);
+    button->addListener (this);
     
-    buttons.push_back (&button);
+    buttons.push_back (button);
 }
 
-void BuildableComponent::addSlider (juce::Slider& slider, float lowerBound, float upperBound, float startVal)
+void BuildableComponent::addSlider (juce::Slider* slider, float lowerBound, float upperBound, float startVal)
 {
-    addAndMakeVisible (slider);
-    slider.setRange (lowerBound, upperBound);
-    slider.setValue (startVal);
-    slider.setSliderStyle (juce::Slider::LinearHorizontal);
-    slider.addListener (this);
+    addAndMakeVisible (*slider);
+    slider->setRange (lowerBound, upperBound);
+    slider->setValue (startVal);
+    slider->setSliderStyle (juce::Slider::LinearHorizontal);
+    slider->addListener (this);
     
-    sliders.push_back (&slider);
+    sliders.push_back (slider);
 }
 
-void BuildableComponent::addSliderAndLabel (juce::Slider& slider, juce::Label& label, juce::String labelText, float lowerBound, float upperBound, float startVal)
+void BuildableComponent::addSliderAndLabel (juce::Slider* slider, juce::Label* label, juce::String labelText, float lowerBound, float upperBound, float startVal)
 {
-    addAndMakeVisible (slider);
+    addAndMakeVisible (*slider);
     addAndMakeVisible (label);
-    slider.setRange (lowerBound, upperBound);
-    slider.setValue (startVal);
-    slider.setSliderStyle (juce::Slider::LinearHorizontal);
-    label.setText (labelText, juce::dontSendNotification);
-    label.attachToComponent (&slider, true);
+    slider->setRange (lowerBound, upperBound);
+    slider->setValue (startVal);
+    slider->setSliderStyle (juce::Slider::LinearHorizontal);
+    label->setText (labelText, juce::dontSendNotification);
+    label->attachToComponent (slider, true);
     
-    slider.addListener (this);
+    slider->addListener (this);
     
 }
 

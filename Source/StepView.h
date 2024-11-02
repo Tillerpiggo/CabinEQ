@@ -26,6 +26,8 @@ public:
         
         virtual void setDifficulty (float difficulty) = 0;
         virtual void setIsPlaying (bool isPlaying) = 0;
+        virtual void setIsCycling (bool isCycling) = 0;
+        virtual void setStage (int stage) = 0;
         virtual void goToNextStep() = 0;
         virtual void goToPrevStep() = 0;
     };
@@ -38,6 +40,7 @@ public:
     
     void setListener (Listener* listener);
     void updateWithQualityStep (QualityStep qualityStep);
+    void setStage (int stage);
     
 private:
     Listener* listener = nullptr;
@@ -50,4 +53,5 @@ private:
     std::vector<std::unique_ptr<juce::TextButton>> stageButtons;
     
     bool isPlaying = false;
+    bool isCycling = false;
 };

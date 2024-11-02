@@ -27,24 +27,42 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 {
     // Stages
     
-    // Step I - Major Scale
+    // Add a super mario pattern
+    MelodicNotes superMarioMelody =
+    MelodicNotes::withMelodicPattern ({ 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 4 - 48, 4 - 24, 4, 0 + 24, 4 + 48, 7 + 24, -5 }, 10000.0f, 1.0f, { 1.0f })
+        .withNoteDurationInSeconds (0.2f)
+        .withTransposition(-18);
+    
+//    // Step I - Major Scale
     IntelligibilityStep step1;
-    MelodicNotes majorScale = MelodicNotes ({ 0, 2, 4, 5, 7, 9, 11, 12 }, 1500.0f);
-    step1.addStage (majorScale);
-    step1.addStage (majorScale.withTransposition (-24.0f));
-    step1.addStage (majorScale.withTransposition (24.0f));
+//    MelodicNotes majorScale = MelodicNotes ({ 0, 2, 4, 5, 7, 9, 11, 12 }, 1600.0f)
+//        .withNoteDurationInSeconds (0.2f);
+    MelodicNotes wideScale = MelodicNotes ({ -12, 0, 5, 7, 9, 7, 11, 14 }, 1000.0f)
+        .withRepeatedTranspositions ({ -24, 0, 24 });
+    step1.addStage (wideScale);
+//    step1.addStage (majorScale.withTransposition (-24));
+//    step1.addStage (majorScale.withTransposition (24));
     
     // Step II - Up and Down
     SpatialStep step2;
-    SweepPattern upDown ({{ -20, 0 }, { 15000, 0 }}, 2.0f, spec.sampleRate);
+    SweepPattern upDown ({{ 100, 0 }, { 10000, 0 }}, 2.0f, 44100);
     step2.addStage (upDown);
     step2.addStage (upDown.withPan (-1));
     step2.addStage (upDown.withPan (1));
     
+    // Step II - Left and Right
+    SpatialStep step3;
+    SweepPattern leftRight ({{ 1000, -1 }, { 1000, 1 }, { 1000, -1 }}, 2.0f, 44100);
+    step2.addStage (leftRight.withTranspositionInOctaves (-3));
+    step2.addStage (leftRight.withTranspositionInOctaves (-1.5));
+    step2.addStage (leftRight);
+    step2.addStage (leftRight.withTranspositionInOctaves (1.5));
+    step2.addStage (leftRight.withTranspositionInOctaves (3));
     
     // Initialize QualityStepManager steps imperatively
     qualityStepManager.addIntelligibilityStep (step1);
     qualityStepManager.addSpatialStep (step2);
+    qualityStepManager.addSpatialStep (step3);
     
     playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }
@@ -354,6 +372,16 @@ void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
     playbackManager.setIsCalibrating (isPlaying);
 }
 
+void CabinEqAudioProcessor::setIsCycling (bool isCycling)
+{
+    playbackManager.setIsCycling (isCycling);
+}
+
+QualityStep CabinEqAudioProcessor::getCurrStep()
+{
+    return qualityStepManager.getCurrStep();
+}
+
 QualityStep CabinEqAudioProcessor::goToPrevStep()
 {
     qualityStepManager.goToPrevStep();
@@ -368,6 +396,11 @@ QualityStep CabinEqAudioProcessor::goToNextStep()
     QualityStep qualityStep = qualityStepManager.getCurrStep();
     playbackManager.setQualityStep (qualityStep);
     return qualityStep;
+}
+
+int CabinEqAudioProcessor::getStage()
+{
+    return playbackManager.getStage();
 }
 
 void CabinEqAudioProcessor::setStage (int stageIdx)

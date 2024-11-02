@@ -25,9 +25,9 @@ public:
     void buttonClicked (juce::Button *button) override;
     
 protected:
-    void addButton (juce::Button& button);
-    void addSlider (juce::Slider& slider, float lowerBound = 0.0f, float upperBound = 1.0f, float startVal = 0.5f);
-    void addSliderAndLabel (juce::Slider& slider, juce::Label& label, juce::String labelText, float lowerBound = 0.0f, float upperBound = 1.0f, float startVal = 0.5f);
+    void addButton (juce::Button* button);
+    void addSlider (juce::Slider* slider, float lowerBound = 0.0f, float upperBound = 1.0f, float startVal = 0.5f);
+    void addSliderAndLabel (juce::Slider* slider, juce::Label* label, juce::String labelText, float lowerBound = 0.0f, float upperBound = 1.0f, float startVal = 0.5f);
     
     void addButtonAction (juce::Button* buttonPtr, std::function<void(juce::Button*)> buttonAction);
     void addSliderAction (juce::Slider* sliderPtr, std::function<void(juce::Slider*)> sliderAction);

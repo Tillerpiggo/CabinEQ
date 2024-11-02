@@ -13,6 +13,7 @@
 #include "SweepPattern.h"
 #include "PinkNoise.h"
 #include "BandProfile.h"
+#include "SequencerListener.h"
 
 /// Generates noise sweeps of various bandwidths and overall envelope
 class NoiseSweepGenerator
@@ -27,6 +28,7 @@ public:
     void setSweepPattern (SweepPattern sweepPattern); // must be called before getNextSample is called for audio output
     
     void setPeakFilter (float centerFreq, float bandwidth, float ampl);
+    void setListener (SequencerListener* listener);
     
 private:
     void setBandpass (float centreFreq);
@@ -48,4 +50,6 @@ private:
     
     // Peak filter
     juce::dsp::IIR::Filter<float> peakFilter;
+    
+    SequencerListener* listener = listener;
 };

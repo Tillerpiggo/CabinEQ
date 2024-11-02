@@ -44,6 +44,8 @@ public:
     // StepView::Listener methods
     void setDifficulty (float difficulty) override;
     void setIsPlaying (bool isPlaying) override;
+    void setIsCycling (bool isCycling) override;
+    void setStage (int stage) override;
     void goToNextStep() override;
     void goToPrevStep() override;
     

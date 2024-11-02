@@ -54,6 +54,19 @@ public:
         return intelligibilityStep->patternAtStage (stageIdx);
     }
     
+    int getNumStages()
+    {
+        switch (type)
+        {
+            case Type::spatial:
+                return spatialStep->getNumStages();
+                break;
+            case Type::intelligibility:
+                return intelligibilityStep->getNumStages();
+                break;
+        }
+    }
+    
 private:
     QualityStep (Type type, std::optional<SpatialStep> spatialStep, std::optional<IntelligibilityStep> intelligibilityStep)
         : type (type), spatialStep (spatialStep), intelligibilityStep (intelligibilityStep)

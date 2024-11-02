@@ -39,3 +39,8 @@ void GlyphGenerator::mute()
 {
     isMuted = true;
 }
+
+void GlyphGenerator::setListener (SequencerListener* listener)
+{
+    noiseSweepGenerator.setListener (listener);
+}

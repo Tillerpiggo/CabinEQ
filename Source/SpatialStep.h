@@ -38,6 +38,11 @@ public:
         return stages[stageIdx];
     }
     
+    int getNumStages() const
+    {
+        return stages.size();
+    }
+    
 private:
     std::vector<Glyph> stages; // each stage is a sweep pattern - to complete the step, you must be able to clearly hear all sweep patterns
 };

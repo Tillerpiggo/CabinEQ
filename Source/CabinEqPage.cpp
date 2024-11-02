@@ -16,10 +16,10 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     amplGraph = std::make_unique<CabinPeqGraph>();
     
     // Sliders
-    addSliderAndLabel (masterVolumeSlider, masterVolumeSliderLabel, "Volume", -20.0f, 20.0f, 0.0f);
+    addSliderAndLabel (&masterVolumeSlider, &masterVolumeSliderLabel, "Volume", -20.0f, 20.0f, 0.0f);
     
     // Buttons
-    addButton (bypassButton);
+    addButton (&bypassButton);
     
     // Slider Actions
     addSliderAction (&masterVolumeSlider, [this](juce::Slider* slider) {
@@ -136,14 +136,27 @@ void CabinEqPage::setIsPlaying (bool isPlaying)
     processor.setIsPlaying (isPlaying);
 }
 
+void setIsCycling (bool isCycling)
+{
+    processor.setIsCycling (isCycling);
+}
+
+void CabinEqPage::setStage (int stage)
+{
+    processor.setStage (stage);
+    stepView.setStage (stage);
+}
+
 void CabinEqPage::goToNextStep()
 {
     stepView.updateWithQualityStep (processor.goToNextStep());
+    stepView.setStage (0);
 }
 
 void CabinEqPage::goToPrevStep()
 {
     stepView.updateWithQualityStep (processor.goToPrevStep());
+    stepView.setStage (0);
 }
 
 // ====================================================
@@ -407,6 +420,7 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     processor.setLastSelectedProfileName (profileId);
     profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter (profileId);
+    stepView.updateWithQualityStep (processor.getCurrStep());
 }
 
 bool CabinEqPage::isDuplicateProfileName (juce::String profileName)

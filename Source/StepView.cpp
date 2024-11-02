@@ -13,10 +13,10 @@
 StepView::StepView()
 {
     // Add components
-    addSliderAndLabel (difficultySlider, difficultySliderLabel, "Difficulty", 0.0f, 1.0f, 0.5f);
-    addButton (playButton);
-    addButton (prevButton);
-    addButton (nextButton);
+    addSliderAndLabel (&difficultySlider, &difficultySliderLabel, "Difficulty", 0.0f, 1.0f, 0.5f);
+    addButton (&playButton);
+    addButton (&prevButton);
+    addButton (&nextButton);
     
     // Add actions
     addSliderAction (&difficultySlider, [this](juce::Slider*) {
@@ -79,5 +79,39 @@ void StepView::setListener (Listener* listener)
 
 void StepView::updateWithQualityStep (QualityStep qualityStep)
 {
-    // TODO - update button row with appropriate # of stages in this quality step
+    // Remove the current stage buttons
+    for (int i = 0; i < stageButtons.size(); ++i)
+    {
+        removeButton (stageButtons[i].get());
+    }
+    stageButtons.clear();
+    
+    // Add in the new stage buttons with appropriate actions, based on the number of stages in the quality step
+    for (int i = 0; i < qualityStep.getNumStages(); ++i)
+    {
+        stageButtons.push_back (std::make_unique<juce::TextButton> ("Stage " + std::to_string (i + 1)));
+        addButton (stageButtons[i].get());
+        addButtonAction (stageButtons[i].get(), [this, i](juce::Button* buttonPtr) {
+            listener->setStage (i);
+        });
+    }
+    
+    // Add a final button
+    stageButtons.push_back (std::make_unique<juce::TextButton> ("CYCLE"));
+    addButton (stageButtons[stageButtons.size() - 1].get());
+    addButtonAction (stageButtons[stageButtons.size() - 1].get(), [this](juce::Button* buttonPtr) {
+        isCycling = ! isCycling;
+        listener->setIsCycling (isCycling);
+    });
+    
+    resized();
+}
+
+void StepView::setStage (int stage)
+{
+    for (int i = 0; i < stageButtons.size() - 1; ++i)
+    {
+        juce::Colour colour = (stage == i) ? juce::Colours::lightblue : juce::Colours::blue;
+        stageButtons[i]->setColour (juce::TextButton::buttonColourId, colour);
+    }
 }

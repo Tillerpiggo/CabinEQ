@@ -126,7 +126,12 @@ std::pair<float, float> SweepPattern::getNextFrequencyAndPan()
 
     // Wrap around the cycle
     if (idx >= cycleLen)
+    {
+        if (listener != nullptr)
+            listener->onCycleFinish();
         idx = 0;
+    }
+        
     
     return { currFreq, currPan };
 }
@@ -146,4 +151,23 @@ SweepPattern SweepPattern::withPan (float pan)
     }
     
     return SweepPattern (pannedPoints, durationInSeconds, sampleRate);
+}
+
+SweepPattern SweepPattern::withTranspositionInOctaves (float numOctaves)
+{
+    std::vector<std::pair<float, float>> transposedPoints;
+    
+    float freqFactor = std::pow (2.0f, numOctaves);
+    
+    for (const auto& point : points)
+    {
+        transposedPoints.push_back ({ point.first * freqFactor, point.second });
+    }
+    
+    return SweepPattern (transposedPoints, durationInSeconds, sampleRate);
+}
+
+void SweepPattern::setListener (SequencerListener* listener)
+{
+    this->listener = listener;
 }

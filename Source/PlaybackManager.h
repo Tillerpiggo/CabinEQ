@@ -22,11 +22,12 @@
 #include "MelodicNoiseSequencer.h"
 #include "GlyphGenerator.h"
 #include "QualityStep.h"
+#include "SequencerListener.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
 /// process audio or play sine tones as needed.
-class PlaybackManager
+class PlaybackManager  : public SequencerListener
 {
 public:
     PlaybackManager();
@@ -38,6 +39,7 @@ public:
     
     void setIsProcessing (bool isFilterProcessing);
     void setIsCalibrating (bool isCalibrating);
+    void setIsCycling (bool isCycling);
     void setVolume (float volume);
     void setMelodicPattern (MelodicNotes melodicNotes);
     void setSpatialPattern (Glyph glyph);
@@ -46,7 +48,10 @@ public:
     int getStage() const;
     
     void setQualityStep (QualityStep qualityStep);
+    int getStage();
     void setStage (int stageIdx);
+    void onCycleFinish() override;
+    void setListener (SequencerListener* listener);
     
 private:
     std::pair<float, float> getNextSample();
@@ -73,4 +78,6 @@ private:
     
     bool isProcessing;
     bool isCalibrating;
+    bool isCycling;
+    SequencerListener* listener;
 };

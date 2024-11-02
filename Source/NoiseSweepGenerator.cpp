@@ -19,7 +19,7 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     if (! sweepPattern.has_value())
         return { 0.0f, 0.0f };
     
-    float pinkNoiseSample = pinkNoise.generate();
+    float pinkNoiseSample = pinkNoise.generate() * 10.0f;
     pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
 //    pinkNoiseSample = peakFilter.processSample (pinkNoiseSample);
     
@@ -64,6 +64,9 @@ void NoiseSweepGenerator::setSweepPattern (SweepPattern sweepPattern)
     auto [currFreq, currPan] = sweepPattern.getCurrFrequencyAndPan();
     setBandpass (currFreq);
     setPan (currPan);
+    
+    // Make sure to update the sweep pattern with our listener
+    this->sweepPattern->setListener (listener);
 }
 
 void NoiseSweepGenerator::setPeakFilter (float centerFreq, float bandwidth, float ampl)
@@ -72,8 +75,17 @@ void NoiseSweepGenerator::setPeakFilter (float centerFreq, float bandwidth, floa
     *peakFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, centerFreq, qFactor, juce::Decibels::decibelsToGain (ampl));
 }
 
+void NoiseSweepGenerator::setListener (SequencerListener* listener)
+{
+    this->listener = listener;
+    if (sweepPattern.has_value())
+        sweepPattern->setListener (listener);
+}
+
 void NoiseSweepGenerator::setBandpass (float centreFreq)
 {
     float freq = std::min (std::max (centreFreq, 20.0f), sampleRate * 0.49f);
+//    float freq = 1000.0f;
+//    std::cout << "freq: " << freq << std::endl;
     *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
 }

@@ -8,32 +8,10 @@
   ==============================================================================
 */
 
-//#pragma once
-//
-//#include <JuceHeader.h>
-//
-//class SweepPattern
-//{
-//public:
-//    SweepPattern (float centerFreq, float bandwidth, float durationInSeconds, float sampleRate);
-//    
-//    float getNextFreq(); // returns the next frequency. Should be called each sample.
-//    float getCurrFreq() const; // returns the current frequency, without changing anything
-//    
-//private:
-//    float centerFreq;
-//    float bandwidth;
-//    float sampleRate;
-//    float durationInSeconds;
-//    
-//    int idx; // the time we are at in the cycle
-//    int cycleLen; // # samples the cycle is
-//    float currFreq;
-//};
-
 #pragma once
 
 #include <JuceHeader.h>
+#include "SequencerListener.h"
 
 class SweepPattern
 {
@@ -44,6 +22,9 @@ public:
     std::pair<float, float> getCurrFrequencyAndPan() const;
     
     SweepPattern withPan (float pan); // returns a new sweep pattern with all of the points at this pan
+    SweepPattern withTranspositionInOctaves (float numOctaves);
+    
+    void setListener (SequencerListener* listener);
 
 private:
     std::vector<std::pair<float, float>> points; // Vector of (frequency, pan) pairs
@@ -68,4 +49,6 @@ private:
     float segmentEndPan;
 
     void advanceSegment(); // Advance to the next segment
+    
+    SequencerListener* listener;
 };

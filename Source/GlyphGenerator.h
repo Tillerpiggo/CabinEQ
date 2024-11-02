@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "NoiseSweepGenerator.h"
 #include "Glyph.h"
+#include "SequencerListener.h"
 
 // Allows the easy playing of spatial glyphs. For now, it just plays SweepPatterns, since Glyphs are a wrapper for SweepPattern, but this class will handle more sophisticated sequencing of such patterns in the future.
 class GlyphGenerator
@@ -25,9 +26,12 @@ public:
     void setGlyph (Glyph glyph);
     void mute();
     
+    void setListener (SequencerListener* listener);
+    
 private:
     std::optional<Glyph> glyph;
     bool isMuted = false;
     
     NoiseSweepGenerator noiseSweepGenerator;
+    SequencerListener* listener;
 };

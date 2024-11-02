@@ -85,8 +85,8 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
         return { 0, 0 };
     
     std::pair<float, float> sample = noiseGenerator.getNextSample();
-    sample.first = leftPeakFilter.processSample (sample.first);
-    sample.second = rightPeakFilter.processSample (sample.second);
+    sample.first = leftPeakFilter.processSample (sample.first) * 10.0f;
+    sample.second = rightPeakFilter.processSample (sample.second) * 10.0f;
     
     numSamplesNoteHasBeenPlaying++;
     if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)

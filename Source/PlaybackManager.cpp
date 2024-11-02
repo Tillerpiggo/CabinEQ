@@ -21,6 +21,9 @@ PlaybackManager::PlaybackManager()
     profileVolumeProcessor.setGainDecibels (0.0f);
     overallVolumeProcessor.setRampDurationSeconds (0.05);
     overallVolumeProcessor.setGainDecibels (0.0f);
+    
+    glyphGenerator.setListener (this);
+    melodicNoiseSequencer.setListener (this);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -83,8 +86,12 @@ void PlaybackManager::setIsProcessing (bool isFilterProcessing)
 
 void PlaybackManager::setIsCalibrating (bool isCalibrating)
 {
-    std::cout << "setting is calibrating to " << isCalibrating << std::endl;
     this->isCalibrating = isCalibrating;
+}
+
+void PlaybackManager::setIsCycling (bool isCycling)
+{
+    this->isCycling = isCycling;
 }
 
 void PlaybackManager::setVolume (float volume)
@@ -111,10 +118,29 @@ void PlaybackManager::setQualityStep (QualityStep qualityStep)
     setStage (0); // set the quality stage to 0 by default
 }
 
+int PlaybackManager::getStage()
+{
+    return stageIdx;
+}
+
 void PlaybackManager::setStage (int stageIdx)
 {
     this->stageIdx = stageIdx;
     updateSequencersFromQualityStep();
+}
+
+void PlaybackManager::onCycleFinish()
+{
+    if (! qualityStep.has_value() || listener == nullptr)
+        return;
+    
+    // Go to the next stage
+    stageIdx++;
+    if (stageIdx >= qualityStep->getNumStages())
+        stageIdx = 0;
+    
+    // Update patterns
+    setStage (stageIdx);
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

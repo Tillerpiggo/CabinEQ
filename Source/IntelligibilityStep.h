@@ -43,6 +43,11 @@ public:
         return stages[stageIdx];
     }
     
+    int getNumStages() const
+    {
+        return stages.size();
+    }
+    
 private:
     float sineWaveDbAboveNoise = 3.0f;
     std::vector<MelodicNotes> stages; // each stage is a melody - to complete the step, pass all stages
