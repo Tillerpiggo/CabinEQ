@@ -81,3 +81,47 @@ void BuildableComponent::addSliderAction (juce::Slider* sliderPtr, std::function
 {
     sliderActions[sliderPtr] = sliderAction;
 }
+
+void BuildableComponent::removeButton (juce::Button* buttonToRemove)
+{
+    // Find the button in buttons array and remove it
+    int buttonIdxToRemove = -1;
+    for (int i = 0; i < buttons.size(); ++i)
+    {
+        if (buttonToRemove == buttons[i])
+        {
+            buttonIdxToRemove = i;
+            break;
+        }
+    }
+    buttons.erase (buttons.begin() + buttonIdxToRemove);
+    
+    // If we can find it in the button actions map, remove it too
+    auto buttonActionIter = buttonActions.find (buttonToRemove);
+    if (buttonActionIter != buttonActions.end())
+    {
+        buttonActions.erase (buttonActionIter);
+    }
+}
+
+void BuildableComponent::removeSlider (juce::Slider* sliderToRemove)
+{
+    // Find the slider in buttons array and remove it
+    int sliderIdxToRemove = -1;
+    for (int i = 0; i < sliders.size(); ++i)
+    {
+        if (sliderToRemove == sliders[i])
+        {
+            sliderIdxToRemove = i;
+            break;
+        }
+    }
+    sliders.erase (sliders.begin() + sliderIdxToRemove);
+    
+    // If we can find it in the slider actions map, remove it too
+    auto sliderActionIter = sliderActions.find (sliderToRemove);
+    if (sliderActionIter != sliderActions.end())
+    {
+        sliderActions.erase (sliderActionIter);
+    }
+}

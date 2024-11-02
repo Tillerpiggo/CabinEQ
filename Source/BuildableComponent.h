@@ -32,6 +32,9 @@ protected:
     void addButtonAction (juce::Button* buttonPtr, std::function<void(juce::Button*)> buttonAction);
     void addSliderAction (juce::Slider* sliderPtr, std::function<void(juce::Slider*)> sliderAction);
     
+    void removeButton (juce::Button* buttonToRemove); // removes the button and any associated action
+    void removeSlider (juce::Slider* sliderToRemove);
+    
 private:
     std::vector<juce::Button*> buttons;
     std::vector<juce::Slider*> sliders;
