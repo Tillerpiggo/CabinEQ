@@ -35,6 +35,12 @@ void GlyphGenerator::setGlyph (Glyph glyph)
     isMuted = false;
 }
 
+void GlyphGenerator::setSpeedFactor (float speedFactor)
+{
+    this->speedFactor = speedFactor;
+    noiseSweepGenerator.setSpeedFactor (speedFactor);
+}
+
 void GlyphGenerator::mute()
 {
     isMuted = true;

@@ -18,7 +18,7 @@ class SweepPattern
 public:
     SweepPattern (const std::vector<std::pair<float, float>>& points, float durationInSeconds, float sampleRate);
     
-    std::pair<float, float> getNextFrequencyAndPan();
+    std::pair<float, float> getNextFrequencyAndPan (float speedFactor = 1.0f);
     std::pair<float, float> getCurrFrequencyAndPan() const;
     
     SweepPattern withPan (float pan); // returns a new sweep pattern with all of the points at this pan
@@ -33,12 +33,12 @@ private:
     float sampleRate;
     float durationInSeconds;
 
-    int idx;               // Current overall sample index
-    int cycleLen;          // Total samples in the cycle
+    float idx;               // Current overall sample index
+    float cycleLen;          // Total samples in the cycle
     int currSegment;       // Index of current segment
     int totalSegments;
     int samplesPerSegment; // Samples in the current segment
-    int segmentSampleIdx;  // Sample index within the current segment
+    float segmentSampleIdx;  // Sample index within the current segment
 
     float currFreq;
     float currPan;

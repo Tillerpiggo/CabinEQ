@@ -40,6 +40,7 @@ public:
     void setIsProcessing (bool isFilterProcessing);
     void setIsCalibrating (bool isCalibrating);
     void setIsCycling (bool isCycling);
+    void setDifficulty (float difficulty); // value from [0, 1] where 1 is normal and 0 is no noise/half speed
     void setVolume (float volume);
     void setMelodicPattern (MelodicNotes melodicNotes);
     void setSpatialPattern (Glyph glyph);
@@ -63,6 +64,7 @@ private:
     float volume = 0.0f; // in dB
     float calibrationVolume = 0.0f; // in dB
     float spacing = 3.0f; // in octaves
+    float difficulty = 1.0f;
     
     // Sound generation
     GlyphGenerator glyphGenerator;

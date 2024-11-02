@@ -46,18 +46,18 @@
 
 SweepPattern::SweepPattern (const std::vector<std::pair<float, float>>& points, float durationInSeconds, float sampleRate)
     : points (points), sampleRate (sampleRate), durationInSeconds (durationInSeconds),
-      currFreq (points[0].first), currPan (points[0].second),
-      currSegment(0), segmentSampleIdx(0)
+        currSegment(0), segmentSampleIdx(0),
+        currFreq (points[0].first), currPan (points[0].second)
 {
     // Ensure at least 2 points
     jassert(points.size() >= 2 && "SweepPattern requires at least 2 points");
 
     totalSegments = points.size();
-    cycleLen = static_cast<int>(durationInSeconds * sampleRate);
+    cycleLen = durationInSeconds * sampleRate;
 
     // Calculate samples per segment for even distribution
     int baseSamplesPerSegment = cycleLen / totalSegments;
-    int remainderSamples = cycleLen % totalSegments;
+    int remainderSamples = static_cast<int> (cycleLen) % totalSegments;
 
     segmentSampleCounts.resize(totalSegments, baseSamplesPerSegment);
 
@@ -102,10 +102,10 @@ void SweepPattern::advanceSegment()
     samplesPerSegment = segmentSampleCounts[currSegment];
 }
 
-std::pair<float, float> SweepPattern::getNextFrequencyAndPan()
+std::pair<float, float> SweepPattern::getNextFrequencyAndPan (float speedFactor)
 {
     // Calculate interpolation factor
-    float t = static_cast<float>(segmentSampleIdx) / samplesPerSegment;
+    float t = segmentSampleIdx / samplesPerSegment;
 
     // Logarithmic interpolation for frequency
     float startLogFreq = std::log2(segmentStartFreq);
@@ -117,8 +117,8 @@ std::pair<float, float> SweepPattern::getNextFrequencyAndPan()
     currPan = juce::jmap(t, segmentStartPan, segmentEndPan);
 
     // Advance indices
-    segmentSampleIdx++;
-    idx++;
+    segmentSampleIdx += speedFactor;
+    idx += speedFactor;
 
     // Move to next segment if necessary
     if (segmentSampleIdx >= samplesPerSegment)
@@ -132,7 +132,6 @@ std::pair<float, float> SweepPattern::getNextFrequencyAndPan()
         idx = 0;
     }
         
-    
     return { currFreq, currPan };
 }
 

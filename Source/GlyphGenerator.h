@@ -24,6 +24,7 @@ public:
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setGlyph (Glyph glyph);
+    void setSpeedFactor (float speedFactor);
     void mute();
     
     void setListener (SequencerListener* listener);
@@ -34,4 +35,6 @@ private:
     
     NoiseSweepGenerator noiseSweepGenerator;
     SequencerListener* listener;
+    
+    float speedFactor = 1.0f;
 };

@@ -95,6 +95,15 @@ void PlaybackManager::setIsCycling (bool isCycling)
     this->isCycling = isCycling;
 }
 
+void PlaybackManager::setDifficulty (float difficulty)
+{
+    this->difficulty = difficulty;
+    float speedFactor = 0.5 * difficulty + 0.5; // map from [0, 1] to [0.5, 1]
+    melodicNoiseSequencer.setNoiseGain (difficulty);
+    melodicNoiseSequencer.setSpeedFactor (speedFactor); // map from [0, 1] to [0.5, 1]
+    glyphGenerator.setSpeedFactor (speedFactor);
+}
+
 void PlaybackManager::setVolume (float volume)
 {
     this->volume = volume;

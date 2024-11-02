@@ -28,6 +28,7 @@ public:
     void setSweepPattern (SweepPattern sweepPattern); // must be called before getNextSample is called for audio output
     
     void setPeakFilter (float centerFreq, float bandwidth, float ampl);
+    void setSpeedFactor (float speedFactor);
     void setListener (SequencerListener* listener);
     
 private:
@@ -46,6 +47,7 @@ private:
     float pan = 0.0f;
     float leftAmplitudeCompensation = 1.0f; // in gain
     float rightAmplitudeCompensation = 1.0f; // in gain
+    float speedFactor = 1.0f;
     int snapToZeroCounter = 0;
     
     // Peak filter

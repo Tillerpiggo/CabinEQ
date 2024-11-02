@@ -31,7 +31,7 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     }
     snapToZeroCounter++;
     
-    auto [nextFreq, nextPan] = sweepPattern->getNextFrequencyAndPan();
+    auto [nextFreq, nextPan] = sweepPattern->getNextFrequencyAndPan (speedFactor);
     setBandpass (nextFreq);
     setPan (nextPan); // updates leftAmplitudeCompensation and rightAmplitudeCompensation
     
@@ -73,6 +73,11 @@ void NoiseSweepGenerator::setPeakFilter (float centerFreq, float bandwidth, floa
 {
     float qFactor = Band::bandwidthToQFactor (bandwidth);
     *peakFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makePeakFilter (sampleRate, centerFreq, qFactor, juce::Decibels::decibelsToGain (ampl));
+}
+
+void NoiseSweepGenerator::setSpeedFactor (float speedFactor)
+{
+    this->speedFactor = speedFactor;
 }
 
 void NoiseSweepGenerator::setListener (SequencerListener* listener)
