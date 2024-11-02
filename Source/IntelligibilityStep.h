@@ -17,7 +17,8 @@
 class IntelligibilityStep
 {
 public:
-    IntelligibilityStep();
+    IntelligibilityStep()
+    {}
     
     void addStage (MelodicNotes stage)
     {

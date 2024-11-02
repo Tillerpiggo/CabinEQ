@@ -138,12 +138,12 @@ void CabinEqPage::setIsPlaying (bool isPlaying)
 
 void CabinEqPage::goToNextStep()
 {
-    processor.goToNextStep();
+    stepView.updateWithQualityStep (processor.goToNextStep());
 }
 
 void CabinEqPage::goToPrevStep()
 {
-    processor.goToPrevStep();
+    stepView.updateWithQualityStep (processor.goToPrevStep());
 }
 
 // ====================================================

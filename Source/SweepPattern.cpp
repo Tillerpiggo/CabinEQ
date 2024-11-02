@@ -135,3 +135,15 @@ std::pair<float, float> SweepPattern::getCurrFrequencyAndPan() const
 {
     return { currFreq, currPan };
 }
+
+SweepPattern SweepPattern::withPan (float pan)
+{
+    std::vector<std::pair<float, float>> pannedPoints;
+    
+    for (const auto& point : points)
+    {
+        pannedPoints.push_back ({ point.first, pan });
+    }
+    
+    return SweepPattern (pannedPoints, durationInSeconds, sampleRate);
+}

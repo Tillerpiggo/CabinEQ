@@ -20,7 +20,8 @@ StepView::StepView()
     
     // Add actions
     addSliderAction (&difficultySlider, [this](juce::Slider*) {
-        if (listener != nullptr) listener->setDifficulty (difficultySlider.getValue());
+        if (listener != nullptr)
+            listener->setDifficulty (difficultySlider.getValue());
     });
     addButtonAction (&playButton, [this](juce::Button*) {
         isPlaying = ! isPlaying;
@@ -28,10 +29,12 @@ StepView::StepView()
             listener->setIsPlaying (isPlaying);
     });
     addButtonAction (&prevButton, [this](juce::Button*) {
-        if (listener != nullptr) listener->goToPrevStep();
+        if (listener != nullptr)
+            listener->goToPrevStep();
     });
     addButtonAction (&nextButton, [this](juce::Button*) {
-        if (listener != nullptr) listener->goToNextStep();
+        if (listener != nullptr)
+            listener->goToNextStep();
     });
 }
 
@@ -55,4 +58,9 @@ void StepView::resized()
 void StepView::setListener (Listener* listener)
 {
     this->listener = listener;
+}
+
+void StepView::updateWithQualityStep (QualityStep qualityStep)
+{
+    // TODO - update button row with appropriate # of stages in this quality step
 }

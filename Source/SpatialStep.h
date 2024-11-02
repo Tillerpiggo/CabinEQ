@@ -17,7 +17,8 @@
 class SpatialStep
 {
 public:
-    SpatialStep();
+    SpatialStep()
+    {}
     
     void addStage (Glyph stage)
     {

@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "Layout.h"
 #include "BuildableComponent.h"
+#include "QualityStep.h"
 
 // This provides a UI to adjust a single Step, which for now is just a difficulty slider, a button to play the reference audio, and instruction text
 class StepView  : public BuildableComponent
@@ -36,6 +37,7 @@ public:
     void resized() override;
     
     void setListener (Listener* listener);
+    void updateWithQualityStep (QualityStep qualityStep);
     
 private:
     Listener* listener = nullptr;

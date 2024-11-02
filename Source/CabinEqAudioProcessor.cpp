@@ -25,8 +25,28 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 
 #endif
 {
+    // Stages
+    
+    // Step I - Major Scale
+    IntelligibilityStep step1;
+    MelodicNotes majorScale = MelodicNotes ({ 0, 2, 4, 5, 7, 9, 11, 12 }, 1500.0f);
+    step1.addStage (majorScale);
+    step1.addStage (majorScale.withTransposition (-24.0f));
+    step1.addStage (majorScale.withTransposition (24.0f));
+    
+    // Step II - Up and Down
+    SpatialStep step2;
+    SweepPattern upDown ({{ -20, 0 }, { 15000, 0 }}, 2.0f, spec.sampleRate);
+    step2.addStage (upDown);
+    step2.addStage (upDown.withPan (-1));
+    step2.addStage (upDown.withPan (1));
+    
+    
     // Initialize QualityStepManager steps imperatively
-    // TODO: Implement
+    qualityStepManager.addIntelligibilityStep (step1);
+    qualityStepManager.addSpatialStep (step2);
+    
+    playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()

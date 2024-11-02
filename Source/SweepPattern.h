@@ -42,6 +42,8 @@ public:
     
     std::pair<float, float> getNextFrequencyAndPan();
     std::pair<float, float> getCurrFrequencyAndPan() const;
+    
+    SweepPattern withPan (float pan); // returns a new sweep pattern with all of the points at this pan
 
 private:
     std::vector<std::pair<float, float>> points; // Vector of (frequency, pan) pairs

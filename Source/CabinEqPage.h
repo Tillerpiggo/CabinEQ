@@ -41,7 +41,7 @@ public:
     BandProfile getBandProfile() override;
     float getCurrPlayingFreq() override;
     
-    // StepView Listener methods
+    // StepView::Listener methods
     void setDifficulty (float difficulty) override;
     void setIsPlaying (bool isPlaying) override;
     void goToNextStep() override;
