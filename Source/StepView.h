@@ -16,7 +16,8 @@
 #include "QualityStep.h"
 
 // This provides a UI to adjust a single Step, which for now is just a difficulty slider, a button to play the reference audio, and instruction text
-class StepView  : public BuildableComponent
+class StepView  : public BuildableComponent,
+                  public juce::Timer
 {
 public:
     class Listener
@@ -32,6 +33,13 @@ public:
         virtual void goToPrevStep() = 0;
     };
     
+    class DataSource
+    {
+    public:
+        virtual ~DataSource() = default;
+        virtual int getCurrStage() = 0;
+    };
+    
     StepView();
     ~StepView() override;
     
@@ -39,11 +47,15 @@ public:
     void resized() override;
     
     void setListener (Listener* listener);
+    void setDataSource (DataSource* dataSource);
     void updateWithQualityStep (QualityStep qualityStep);
     void setStage (int stage);
     
+    void timerCallback() override;
+    
 private:
     Listener* listener = nullptr;
+    DataSource* dataSource = nullptr;
     
     juce::Slider difficultySlider;
     juce::Label difficultySliderLabel;
@@ -54,4 +66,7 @@ private:
     
     bool isPlaying = false;
     bool isCycling = false;
+    int stage = 0;
+    
+    void updateStageButtonColours();
 };

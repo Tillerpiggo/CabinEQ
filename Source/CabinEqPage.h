@@ -22,7 +22,8 @@ class CabinEqPage   : public BuildableComponent,
                       public CabinPeqGraph::Listener,
                       public CabinEqAudioProcessor::Listener,
                       public CabinPeqGraph::DataSource,
-                      public StepView::Listener
+                      public StepView::Listener,
+                      public StepView::DataSource
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -48,6 +49,9 @@ public:
     void setStage (int stage) override;
     void goToNextStep() override;
     void goToPrevStep() override;
+    
+    // StepView::DataSource methods
+    int getCurrStage() override;
     
     // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;

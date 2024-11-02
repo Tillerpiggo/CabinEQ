@@ -36,11 +36,19 @@ StepView::StepView()
         if (listener != nullptr)
             listener->goToNextStep();
     });
+    
+    startTimer (10);
 }
 
 StepView::~StepView()
 {
-    
+    stopTimer();
+}
+
+void StepView::timerCallback()
+{
+    if (dataSource != nullptr)
+        setStage (dataSource->getCurrStage());
 }
 
 void StepView::paint (juce::Graphics& g)
@@ -77,6 +85,11 @@ void StepView::setListener (Listener* listener)
     this->listener = listener;
 }
 
+void StepView::setDataSource (DataSource* dataSource)
+{
+    this->dataSource = dataSource;
+}
+
 void StepView::updateWithQualityStep (QualityStep qualityStep)
 {
     // Remove the current stage buttons
@@ -108,6 +121,15 @@ void StepView::updateWithQualityStep (QualityStep qualityStep)
 }
 
 void StepView::setStage (int stage)
+{
+    if (stage != this->stage)
+    {
+        this->stage = stage;
+        updateStageButtonColours();
+    }
+}
+
+void StepView::updateStageButtonColours()
 {
     for (int i = 0; i < stageButtons.size() - 1; ++i)
     {

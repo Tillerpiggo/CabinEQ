@@ -105,7 +105,7 @@ public:
     QualityStep getCurrStep();
     QualityStep goToPrevStep();
     QualityStep goToNextStep();
-    int getStage();
+    int getCurrStage();
     void setStage (int stageIdx);
 
 private:

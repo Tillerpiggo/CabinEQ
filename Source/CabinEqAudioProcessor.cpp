@@ -398,9 +398,9 @@ QualityStep CabinEqAudioProcessor::goToNextStep()
     return qualityStep;
 }
 
-int CabinEqAudioProcessor::getStage()
+int CabinEqAudioProcessor::getCurrStage()
 {
-    return playbackManager.getStage();
+    return playbackManager.getCurrStage();
 }
 
 void CabinEqAudioProcessor::setStage (int stageIdx)

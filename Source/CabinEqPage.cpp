@@ -37,6 +37,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     profileDropdown.addListener (this);
     processor.addListener (this);
     stepView.setListener (this);
+    stepView.setDataSource (this);
     
     // Extra stuff, will clean up later
     addAndMakeVisible (amplGraph.get());
@@ -157,6 +158,11 @@ void CabinEqPage::goToPrevStep()
 {
     stepView.updateWithQualityStep (processor.goToPrevStep());
     stepView.setStage (0);
+}
+
+int CabinEqPage::getCurrStage()
+{
+    return processor.getCurrStage();
 }
 
 // ====================================================

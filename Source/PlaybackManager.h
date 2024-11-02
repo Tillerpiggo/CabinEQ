@@ -45,12 +45,11 @@ public:
     void setSpatialPattern (Glyph glyph);
     
     float getCurrPlayingFreq();
-    int getStage() const;
+    int getCurrStage() const;
     
     void setQualityStep (QualityStep qualityStep);
-    int getStage();
     void setStage (int stageIdx);
-//    void sequenceDidFinish() override;
+    void sequenceDidFinish() override;
     void setListener (SequencerListener* listener);
     
 private:

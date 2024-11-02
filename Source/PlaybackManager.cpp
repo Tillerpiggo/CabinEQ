@@ -106,21 +106,15 @@ float PlaybackManager::getCurrPlayingFreq()
     // TODO: Implement based on QualityStep
 }
 
-int PlaybackManager::getStage() const
+int PlaybackManager::getCurrStage() const
 {
     return stageIdx;
 }
-
 
 void PlaybackManager::setQualityStep (QualityStep qualityStep)
 {
     this->qualityStep = qualityStep;
     setStage (0); // set the quality stage to 0 by default
-}
-
-int PlaybackManager::getStage()
-{
-    return stageIdx;
 }
 
 void PlaybackManager::setStage (int stageIdx)
@@ -129,19 +123,23 @@ void PlaybackManager::setStage (int stageIdx)
     updateSequencersFromQualityStep();
 }
 
-//void PlaybackManager::sequenceDidFinish()
-//{
-//    if (! qualityStep.has_value() || listener == nullptr)
-//        return;
-//    
-//    // Go to the next stage
-//    stageIdx++;
-//    if (stageIdx >= qualityStep->getNumStages())
-//        stageIdx = 0;
-//    
-//    // Update patterns
-//    setStage (stageIdx);
-//}
+void PlaybackManager::sequenceDidFinish()
+{
+    // Only do something (move to the next stage) on sequence finish if we're cycling
+    if (! isCycling)
+        return;
+    
+    if (! qualityStep.has_value() || listener == nullptr)
+        return;
+    
+    // Go to the next stage
+    stageIdx++;
+    if (stageIdx >= qualityStep->getNumStages())
+        stageIdx = 0;
+    
+    // Update patterns
+    setStage (stageIdx);
+}
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
