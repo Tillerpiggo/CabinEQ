@@ -51,8 +51,25 @@ void StepView::paint (juce::Graphics& g)
 void StepView::resized()
 {
     Layout layout (getBounds(), 4);
-    layout.layoutComponentsInGrid({ { &difficultySlider, &playButton },
-                                    { &prevButton, &nextButton }});
+    
+    // difficultySlider + playButton
+    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80) });
+    
+    // stageButtons
+    layout.addRowWithRectWidths(std::vector<FlexibleLayoutDimension>(stageButtons.size() + 2, FlexibleLayoutDimension::fill()));
+    
+    // prevButton + nextButton
+    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80), FlexibleLayoutDimension::fixed (80), FlexibleLayoutDimension::fill() }); // prevButton + nextButton
+    
+    // apply to components
+    difficultySlider.setBounds (layout.getBoundsAt (0, 0));
+    playButton.setBounds (layout.getBoundsAt (0, 1));
+    for (int i = 0; i < stageButtons.size(); ++i)
+    {
+        stageButtons[i]->setBounds (layout.getBoundsAt (1, i + 1));
+    }
+    prevButton.setBounds (layout.getBoundsAt (2, 1));
+    nextButton.setBounds (layout.getBoundsAt (2, 2));
 }
 
 void StepView::setListener (Listener* listener)

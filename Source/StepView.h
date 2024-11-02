@@ -47,6 +47,7 @@ private:
     juce::TextButton playButton { "Play" };
     juce::TextButton prevButton { "PREV" };
     juce::TextButton nextButton { "NEXT" };
+    std::vector<std::unique_ptr<juce::TextButton>> stageButtons;
     
     bool isPlaying = false;
 };
