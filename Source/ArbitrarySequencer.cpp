@@ -89,7 +89,7 @@ void ArbitrarySequencer::setNotesForSpatialCalibration (const std::vector<Sequen
     setNotes (spatialNotes, repeating);
 }
 
-void ArbitrarySequencer::setListener(SequencerListener* newListener)
+void ArbitrarySequencer::setListener(ArbitrarySequencer::SequencerListener* newListener)
 {
     listener = newListener;
 }
@@ -209,9 +209,7 @@ const SequenceableNote& ArbitrarySequencer::getCurrNote() const
 void ArbitrarySequencer::notifyListener()
 {
     if (listener != nullptr)
-    {
         listener->sequenceDidFinish();
-    }
 }
 
 std::vector<SequenceableNote> ArbitrarySequencer::getNotesForSpatialCalibration (const std::vector<SequenceableNote>& notes)

@@ -15,16 +15,23 @@
 #include "SineWaveGenerator.h"
 #include "PitchedGenerator.h"
 
-class SequencerListener
-{
-public:
-    virtual ~SequencerListener() = default;
-    virtual void sequenceDidFinish() = 0;
-};
+//class SequencerListener
+//{
+//public:
+//    virtual ~SequencerListener() = default;
+//    virtual void sequenceDidFinish() = 0;
+//};
 
 class ArbitrarySequencer
 {
 public:
+    class SequencerListener
+    {
+    public:
+        virtual ~SequencerListener() = default;
+        virtual void sequenceDidFinish() = 0;
+    };
+    
     ArbitrarySequencer (std::unique_ptr<PitchedGenerator> pitchedGenerator);
     
     std::pair<float, float> getNextSample();

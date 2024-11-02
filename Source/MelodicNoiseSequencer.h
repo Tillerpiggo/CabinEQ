@@ -15,6 +15,7 @@
 #include "SpatialPatternGenerator.h" // for NoiseNote
 #include "SpatialPinkNoiseGenerator.h"
 #include "SineWaveGenerator.h"
+#include "SequencerListener.h"
 
 class MelodicNoiseSequencer
 {
@@ -30,6 +31,7 @@ public:
     std::pair<float, float> getNextSample();
     
     void mute();
+    void setListener (SequencerListener* listener);
     
 private:
     NoiseNote getCurrNote();
@@ -59,4 +61,6 @@ private:
     float speedFactor = 1.0f;
     float freqOffsetFactor = 1.0f;
     float octaveRange = 3.0f; // +- octaves of randomization
+    
+    SequencerListener* listener;
 };

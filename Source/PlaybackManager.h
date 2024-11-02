@@ -50,7 +50,7 @@ public:
     void setQualityStep (QualityStep qualityStep);
     int getStage();
     void setStage (int stageIdx);
-    void onCycleFinish() override;
+//    void sequenceDidFinish() override;
     void setListener (SequencerListener* listener);
     
 private:

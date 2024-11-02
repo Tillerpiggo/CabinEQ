@@ -22,8 +22,8 @@ PlaybackManager::PlaybackManager()
     overallVolumeProcessor.setRampDurationSeconds (0.05);
     overallVolumeProcessor.setGainDecibels (0.0f);
     
-    glyphGenerator.setListener (this);
-    melodicNoiseSequencer.setListener (this);
+//    glyphGenerator.setListener (this);
+//    melodicNoiseSequencer.setListener (this);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -129,19 +129,19 @@ void PlaybackManager::setStage (int stageIdx)
     updateSequencersFromQualityStep();
 }
 
-void PlaybackManager::onCycleFinish()
-{
-    if (! qualityStep.has_value() || listener == nullptr)
-        return;
-    
-    // Go to the next stage
-    stageIdx++;
-    if (stageIdx >= qualityStep->getNumStages())
-        stageIdx = 0;
-    
-    // Update patterns
-    setStage (stageIdx);
-}
+//void PlaybackManager::sequenceDidFinish()
+//{
+//    if (! qualityStep.has_value() || listener == nullptr)
+//        return;
+//    
+//    // Go to the next stage
+//    stageIdx++;
+//    if (stageIdx >= qualityStep->getNumStages())
+//        stageIdx = 0;
+//    
+//    // Update patterns
+//    setStage (stageIdx);
+//}
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {

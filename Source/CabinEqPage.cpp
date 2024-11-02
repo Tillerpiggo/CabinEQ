@@ -136,7 +136,7 @@ void CabinEqPage::setIsPlaying (bool isPlaying)
     processor.setIsPlaying (isPlaying);
 }
 
-void setIsCycling (bool isCycling)
+void CabinEqPage::setIsCycling (bool isCycling)
 {
     processor.setIsCycling (isCycling);
 }

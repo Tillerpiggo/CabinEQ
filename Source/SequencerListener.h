@@ -14,5 +14,5 @@ class SequencerListener
 {
 public:
     virtual ~SequencerListener() = default;
-    virtual void onCycleFinish();
+//    virtual void sequenceDidFinish();
 };

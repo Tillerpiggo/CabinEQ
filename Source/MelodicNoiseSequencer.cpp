@@ -106,6 +106,11 @@ void MelodicNoiseSequencer::mute()
     isMuted = true;
 }
 
+void MelodicNoiseSequencer::setListener (SequencerListener* listener)
+{
+    this->listener = listener;
+}
+
 NoiseNote MelodicNoiseSequencer::getCurrNote()
 {
     if (currNoteIdx < 0 || currNoteIdx >= notes.size())
@@ -155,7 +160,11 @@ void MelodicNoiseSequencer::goToNextNote()
     currNoteIdx++;
     
     if (currNoteIdx >= notes.size())
+    {
+//        if (listener != nullptr)
+//            listener->sequenceDidFinish();
         currNoteIdx = 0;
+    }
     
     // Generate random octave offset from -5 and 5
     std::random_device rd;
