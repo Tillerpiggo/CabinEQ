@@ -20,7 +20,13 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     if (isMuted || ! glyph.has_value())
         return { 0.0f, 0.0f };
     
-    return noiseSweepGenerator.getNextSample();
+    switch (glyph->getType())
+    {
+        case Glyph::Type::sweep:
+            return noiseSweepGenerator.getNextSample();
+        case Glyph::Type::pattern:
+            return spatialPatternGenerator.getNextSample();
+    }
 }
 
 void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
@@ -31,7 +37,16 @@ void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 void GlyphGenerator::setGlyph (Glyph glyph)
 {
     this->glyph = glyph;
-    noiseSweepGenerator.setSweepPattern (glyph.getSweepPattern());
+    switch (glyph.getType())
+    {
+        case Glyph::Type::sweep:
+            noiseSweepGenerator.setSweepPattern (glyph.getSweepPattern().value());
+            break;
+        case Glyph::Type::pattern:
+            spatialPatternGenerator.setPattern (glyph.getSpatialPattern().value());
+            break;
+    }
+    
     isMuted = false;
 }
 
@@ -39,6 +54,7 @@ void GlyphGenerator::setSpeedFactor (float speedFactor)
 {
     this->speedFactor = speedFactor;
     noiseSweepGenerator.setSpeedFactor (speedFactor);
+    spatialPatternGenerator.setSpeedFactor (speedFactor);
 }
 
 void GlyphGenerator::mute()
@@ -49,9 +65,19 @@ void GlyphGenerator::mute()
 void GlyphGenerator::setListener (SequencerListener* listener)
 {
     noiseSweepGenerator.setListener (listener);
+    spatialPatternGenerator.setListener (listener);
 }
 
 std::optional<float> GlyphGenerator::getCurrPlayingFreq()
 {
-    return noiseSweepGenerator.getCurrPlayingFreq();
+    if (! glyph.has_value())
+        return std::nullopt;
+    
+    switch (glyph->getType())
+    {
+        case Glyph::Type::sweep:
+            return noiseSweepGenerator.getCurrPlayingFreq();
+        case Glyph::Type::pattern:
+            return spatialPatternGenerator.getCurrPlayingFreq();
+    }
 }

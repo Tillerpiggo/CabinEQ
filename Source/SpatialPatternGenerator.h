@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "SpatialPinkNoiseGenerator.h"
 #include "StereoGainEnvelope.h"
+#include "SequencerListener.h"
 
 struct NoiseNote
 {
@@ -58,6 +59,10 @@ public:
     void setNoteCenterFreq (float noteCenterFreq); // change the center freq of all notes being played
     void setNoteBandwidth (float noteBandwidth); // change the bandwidth of all notes being played (with non-zero bandwidth)
     std::pair<float, float> getNextSample();
+    
+    void setSpeedFactor (float speedFactor);
+    void setListener (SequencerListener* listener);
+    std::optional<float> getCurrPlayingFreq();
 
 private:
     NoiseNote getCurrNote();
@@ -71,6 +76,7 @@ private:
     float leftGain;
     float rightGain;
     float sampleRate;
+    float speedFactor = 1.0f;
     
     juce::dsp::IIR::Filter<float> leftPeakFilter;
     juce::dsp::IIR::Filter<float> rightPeakFilter;
@@ -81,23 +87,6 @@ private:
     std::optional<float> noteCenterFreq; // will override all notes center freq if set
     std::optional<float> noteBandwidth; // will override all notes (with non-0 bandwidth) if set
     
+    SequencerListener* listener;
+    
 };
-
-
-//class SpatialPatternGenerator
-//{
-//public:
-//    SpatialPatternGenerator() {}
-//    
-//    std::pair<float, float> getNextSample()
-//    {
-//        return pinkNoiseGenerator.getNextSample();
-//    }
-//    void setSampleRate (float newSampleRate)
-//    {
-//        pinkNoiseGenerator.setSampleRate (newSampleRate);
-//    }
-//    
-//private:
-//    SpatialPinkNoiseGenerator pinkNoiseGenerator;
-//};

@@ -89,7 +89,7 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
     sample.second = rightPeakFilter.processSample (sample.second) * 10.0f;
     
     numSamplesNoteHasBeenPlaying++;
-    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples)
+    if (numSamplesNoteHasBeenPlaying >= getCurrNote().durationInSamples / speedFactor)
     {
         goToNextNote();
     }
@@ -98,6 +98,24 @@ std::pair<float, float> SpatialPatternGenerator::getNextSample()
     
     // Apply panning
     return { sample.first * leftGain * leftEnvelopeGain, sample.second * rightGain * rightEnvelopeGain };
+}
+
+void SpatialPatternGenerator::setSpeedFactor (float speedFactor)
+{
+    this->speedFactor = speedFactor;
+}
+
+void SpatialPatternGenerator::setListener (SequencerListener* listener)
+{
+    this->listener = listener;
+}
+
+std::optional<float> SpatialPatternGenerator::getCurrPlayingFreq()
+{
+    if (notes.size() == 0)
+        return std::nullopt;
+    
+    return getCurrNote().freqFactor;
 }
 
 NoiseNote SpatialPatternGenerator::getCurrNote()
@@ -114,6 +132,8 @@ void SpatialPatternGenerator::goToNextNote()
     
     if (currNoteIdx >= notes.size())
     {
+        if (listener != nullptr)
+            listener->sequenceDidFinish();
         currNoteIdx = 0;
     }
     

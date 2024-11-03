@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "NoiseSweepGenerator.h"
+#include "SpatialPatternGenerator.h"
 #include "Glyph.h"
 #include "SequencerListener.h"
 
@@ -36,6 +37,7 @@ private:
     bool isMuted = false;
     
     NoiseSweepGenerator noiseSweepGenerator;
+    SpatialPatternGenerator spatialPatternGenerator;
     SequencerListener* listener;
     
     float speedFactor = 1.0f;

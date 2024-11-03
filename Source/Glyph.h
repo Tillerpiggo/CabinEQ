@@ -10,22 +10,46 @@
 
 #pragma once
 
-// Data structure for defining spatial patterns for playback via GlyphGenerator. For now, it is just a wrapper around SweepPattern
-
 #include "SweepPattern.h"
+#include "MelodicNotes.h"
 
+// Data structure for defining spatial patterns for playback via GlyphGenerator. For now, it is just a wrapper around SweepPattern
 class Glyph
 {
 public:
+    enum class Type
+    {
+        sweep,
+        pattern
+    };
+    
     Glyph (SweepPattern sweepPattern)
-        : sweepPattern (sweepPattern)
+        : type (Type::sweep), sweepPattern (sweepPattern)
     {}
     
-    const SweepPattern& getSweepPattern() const
+    Glyph (MelodicNotes melodicNotes)
+        : type (Type::pattern), melodicNotes (melodicNotes)
+    {}
+    
+    const Type getType() const
+    {
+        return type;
+    }
+    
+    const std::optional<SweepPattern> getSweepPattern() const
     {
         return sweepPattern;
     }
     
+    const std::optional<std::vector<NoiseNote>> getSpatialPattern()
+    {
+        if (! melodicNotes.has_value())
+            return std::nullopt;
+        return melodicNotes->noiseNotes();
+    }
+    
 private:
-    SweepPattern sweepPattern;
+    Type type;
+    std::optional<SweepPattern> sweepPattern;
+    std::optional<MelodicNotes> melodicNotes;
 };

@@ -25,14 +25,6 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 
 #endif
 {
-    // Stages
-    
-    // Add a super mario pattern
-    MelodicNotes superMarioMelody =
-    MelodicNotes::withMelodicPattern ({ 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 4 - 48, 4 - 24, 4, 0 + 24, 4 + 48, 7 + 24, -5 }, 10000.0f, 1.0f, { 1.0f })
-        .withNoteDurationInSeconds (0.2f)
-        .withTransposition(-18);
-    
 //    // Step I - Major Scale
     IntelligibilityStep step1;
 //    MelodicNotes majorScale = MelodicNotes ({ 0, 2, 4, 5, 7, 9, 11, 12 }, 1600.0f)
