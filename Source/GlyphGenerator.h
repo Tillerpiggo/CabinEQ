@@ -29,6 +29,8 @@ public:
     
     void setListener (SequencerListener* listener);
     
+    std::optional<float> getCurrPlayingFreq();
+    
 private:
     std::optional<Glyph> glyph;
     bool isMuted = false;

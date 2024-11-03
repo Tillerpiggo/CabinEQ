@@ -88,6 +88,14 @@ void NoiseSweepGenerator::setListener (SequencerListener* listener)
         sweepPattern->setListener (listener);
 }
 
+std::optional<float> NoiseSweepGenerator::getCurrPlayingFreq()
+{
+    if (! sweepPattern.has_value())
+        return std::nullopt;
+    
+    return sweepPattern->getCurrFrequencyAndPan().first;
+}
+
 void NoiseSweepGenerator::setBandpass (float centreFreq)
 {
     float freq = std::min (std::max (centreFreq, 20.0f), sampleRate * 0.49f);

@@ -115,6 +115,14 @@ void MelodicNoiseSequencer::setListener (SequencerListener* listener)
     this->listener = listener;
 }
 
+std::optional<float> MelodicNoiseSequencer::getCurrPlayingFreq()
+{
+    if (notes.size() == 0)
+        return std::nullopt;
+    
+    return getCurrNote().freqFactor * freqOffsetFactor;
+}
+
 NoiseNote MelodicNoiseSequencer::getCurrNote()
 {
     if (currNoteIdx < 0 || currNoteIdx >= notes.size())

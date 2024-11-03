@@ -45,7 +45,7 @@ public:
     void setMelodicPattern (MelodicNotes melodicNotes);
     void setSpatialPattern (Glyph glyph);
     
-    float getCurrPlayingFreq();
+    std::optional<float> getCurrPlayingFreq();
     int getCurrStage() const;
     
     void setQualityStep (QualityStep qualityStep);

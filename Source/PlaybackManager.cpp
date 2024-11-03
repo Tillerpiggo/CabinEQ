@@ -110,10 +110,18 @@ void PlaybackManager::setVolume (float volume)
     overallVolumeProcessor.setGainDecibels (volume);
 }
 
-float PlaybackManager::getCurrPlayingFreq()
+std::optional<float> PlaybackManager::getCurrPlayingFreq()
 {
-    return 1000.0f;
-    // TODO: Implement based on QualityStep
+    if (qualityStep.has_value() || ! isCalibrating)
+        return std::nullopt;
+    
+    switch (qualityStep->getType())
+    {
+        case QualityStep::Type::spatial:
+            return glyphGenerator.getCurrPlayingFreq();
+        case QualityStep::Type::intelligibility:
+            return melodicNoiseSequencer.getCurrPlayingFreq();
+    }
 }
 
 int PlaybackManager::getCurrStage() const

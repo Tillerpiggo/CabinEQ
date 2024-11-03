@@ -31,6 +31,8 @@ public:
     void setSpeedFactor (float speedFactor);
     void setListener (SequencerListener* listener);
     
+    std::optional<float> getCurrPlayingFreq();
+    
 private:
     void setBandpass (float centreFreq);
     

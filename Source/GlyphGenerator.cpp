@@ -50,3 +50,8 @@ void GlyphGenerator::setListener (SequencerListener* listener)
 {
     noiseSweepGenerator.setListener (listener);
 }
+
+std::optional<float> GlyphGenerator::getCurrPlayingFreq()
+{
+    return noiseSweepGenerator.getCurrPlayingFreq();
+}

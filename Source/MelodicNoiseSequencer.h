@@ -34,6 +34,8 @@ public:
     void mute();
     void setListener (SequencerListener* listener);
     
+    std::optional<float> getCurrPlayingFreq();
+    
 private:
     NoiseNote getCurrNote();
     void updateFilters();
