@@ -105,6 +105,11 @@ void SpatialPatternGenerator::setSpeedFactor (float speedFactor)
     this->speedFactor = speedFactor;
 }
 
+void SpatialPatternGenerator::setFreqFactor (float freqFactor)
+{
+    this->freqFactor = freqFactor;
+}
+
 void SpatialPatternGenerator::setListener (SequencerListener* listener)
 {
     this->listener = listener;
@@ -115,7 +120,7 @@ std::optional<float> SpatialPatternGenerator::getCurrPlayingFreq()
     if (notes.size() == 0)
         return std::nullopt;
     
-    return getCurrNote().freqFactor;
+    return getCurrNote().freqFactor * freqFactor;
 }
 
 NoiseNote SpatialPatternGenerator::getCurrNote()
@@ -142,7 +147,7 @@ void SpatialPatternGenerator::goToNextNote()
 
 void SpatialPatternGenerator::updateBandpassAndPanning()
 {
-    float bandpassFrequency = getCurrNote().freqFactor;
+    float bandpassFrequency = getCurrNote().freqFactor * freqFactor;
     if (getCurrNote().isRelativeToCenterFrequency)
         bandpassFrequency *= centerFrequency;
     

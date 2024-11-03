@@ -61,6 +61,7 @@ public:
     std::pair<float, float> getNextSample();
     
     void setSpeedFactor (float speedFactor);
+    void setFreqFactor (float freqFactor);
     void setListener (SequencerListener* listener);
     std::optional<float> getCurrPlayingFreq();
 
@@ -77,6 +78,7 @@ private:
     float rightGain;
     float sampleRate;
     float speedFactor = 1.0f;
+    float freqFactor = 1.0f;
     
     juce::dsp::IIR::Filter<float> leftPeakFilter;
     juce::dsp::IIR::Filter<float> rightPeakFilter;

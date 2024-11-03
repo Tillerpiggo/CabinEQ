@@ -125,7 +125,7 @@ std::optional<float> MelodicNoiseSequencer::getCurrPlayingFreq()
     if (notes.size() == 0)
         return std::nullopt;
     
-    return getCurrNote().freqFactor * freqOffsetFactor;
+    return getCurrNote().freqFactor * freqFactor;
 }
 
 NoiseNote MelodicNoiseSequencer::getCurrNote()

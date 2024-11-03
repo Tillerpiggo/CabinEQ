@@ -58,6 +58,12 @@ void GlyphGenerator::setSpeedFactor (float speedFactor)
     spatialPatternGenerator.setSpeedFactor (speedFactor);
 }
 
+void GlyphGenerator::setFreqFactor (float freqFactor)
+{
+//    noiseSweepGenerator.setFreqFactor (freqFactor);
+    spatialPatternGenerator.setFreqFactor (freqFactor);
+}
+
 void GlyphGenerator::mute()
 {
     isMuted = true;

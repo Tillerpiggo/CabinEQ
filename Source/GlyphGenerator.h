@@ -26,6 +26,7 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setGlyph (Glyph glyph);
     void setSpeedFactor (float speedFactor);
+    void setFreqFactor (float freqFactor);
     void mute();
     
     void setListener (SequencerListener* listener);

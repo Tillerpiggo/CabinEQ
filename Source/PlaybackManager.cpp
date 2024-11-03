@@ -107,7 +107,7 @@ void PlaybackManager::setDifficulty (float difficulty)
 void PlaybackManager::setOctaveShift (float octaveShift)
 {
     melodicNoiseSequencer.setFreqFactor (std::pow (2.0f, octaveShift));
-//    glyphGenerator.setFreqFactor (std::pow (2.0f, octaveShift)));
+    glyphGenerator.setFreqFactor (std::pow (2.0f, octaveShift));
 }
 
 void PlaybackManager::setVolume (float volume)

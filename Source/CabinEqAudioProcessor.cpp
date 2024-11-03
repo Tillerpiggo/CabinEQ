@@ -25,23 +25,42 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 
 #endif
 {
-//    // Step I - Scaling Melody
-    IntelligibilityStep step1;
+    // Step I - Intervals
+//    IntelligibilityStep step1;
     MelodicNotes wideScale = MelodicNotes ({ -12, 0, 5, 7, 9, 7, 11, 14 }, 800.0f);
-    step1.addStage (wideScale.withTransposition (-48));
-    step1.addStage (wideScale.withTransposition (-24));
-    step1.addStage (wideScale.withTransposition (0));
-    step1.addStage (wideScale.withTransposition (24));
-    step1.addStage (wideScale.withTransposition (48));
+//    step1.addStage (wideScale.withTransposition (-48));
+//    step1.addStage (wideScale.withTransposition (-24));
+//    step1.addStage (wideScale.withTransposition (0));
+//    step1.addStage (wideScale.withTransposition (24));
+//    step1.addStage (wideScale.withTransposition (48));
     
-    // Step II - Three Stack
+    IntelligibilityStep step1;
+    MelodicNotes majorFifth = MelodicNotes ({ 0, 4, 7, 4 }, 500.0f);
+    MelodicNotes majorThird = MelodicNotes ({ 0, 3, 7, 3 }, 500.0f);
+    MelodicNotes octave = MelodicNotes ({ 0, 12 }, 500.0f);
+    MelodicNotes majorSecond = MelodicNotes ({ 0, 2 }, 500.0f);
+    step1.addStage (majorFifth);
+    step1.addStage (majorThird);
+    step1.addStage (octave);
+    step1.addStage (majorSecond);
+    step1.addStage (wideScale);
+    
+//    // Step II - Three Stack
+//    SpatialStep step2;
+//    MelodicNotes threeStack =
+//    MelodicNotes::withFreqs ({ 200, 1000, 5000 })
+//        .withBandwidth (2.0f);
+//    step2.addStage (threeStack);
+//    step2.addStage (threeStack.withPan (-1));
+//    step2.addStage (threeStack.withPan (1));
+    
+    // Step II - square separation
     SpatialStep step2;
-    MelodicNotes threeStack =
-    MelodicNotes::withFreqs ({ 200, 1000, 5000 })
-        .withBandwidth (2.0f);
-    step2.addStage (threeStack);
-    step2.addStage (threeStack.withPan (-1));
-    step2.addStage (threeStack.withPan (1));
+    MelodicNotes square =
+    MelodicNotes::withFreqs ({ 200, 2000, 200, 2000 })
+        .withPans ({ -0.5, 0.5, 0.5, -0.5 })
+        .withBandwidth (1.5f);
+    step2.addStage (square);
     
     // Step III - Solfeggietto
     IntelligibilityStep step3;
