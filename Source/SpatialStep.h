@@ -25,6 +25,16 @@ public:
         stages.push_back (stage);
     }
     
+    void addStage (MelodicNotes melodicNotes)
+    {
+        stages.push_back (Glyph (melodicNotes));
+    }
+    
+    void addStage (SweepPattern sweepPattern)
+    {
+        stages.push_back (Glyph (sweepPattern));
+    }
+    
     const std::vector<Glyph>& getStages() const
     {
         return stages;

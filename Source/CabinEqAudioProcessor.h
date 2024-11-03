@@ -100,6 +100,7 @@ public:
     
     // StepView Methods
     void setDifficulty (float difficulty);
+    void setOctaveShift (float octaveShift);
     void setIsPlaying (bool isPlaying);
     void setIsCycling (bool isCycling);
     QualityStep getCurrStep();

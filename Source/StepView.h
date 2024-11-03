@@ -26,6 +26,7 @@ public:
         virtual ~Listener() = default;
         
         virtual void setDifficulty (float difficulty) = 0;
+        virtual void setOctaveShift (float octaveShift) = 0;
         virtual void setIsPlaying (bool isPlaying) = 0;
         virtual void setIsCycling (bool isCycling) = 0;
         virtual void setStage (int stage) = 0;
@@ -59,6 +60,8 @@ private:
     
     juce::Slider difficultySlider;
     juce::Label difficultySliderLabel;
+    juce::Slider pitchSlider;
+    juce::Label pitchSliderLabel;
     juce::TextButton playButton { "Play" };
     juce::TextButton prevButton { "PREV" };
     juce::TextButton nextButton { "NEXT" };

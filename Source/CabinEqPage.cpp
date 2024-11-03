@@ -140,6 +140,11 @@ void CabinEqPage::setDifficulty (float difficulty)
     processor.setDifficulty (difficulty);
 }
 
+void CabinEqPage::setOctaveShift (float octaveShift)
+{
+    processor.setOctaveShift (octaveShift);
+}
+
 void CabinEqPage::setIsPlaying (bool isPlaying)
 {
     processor.setIsPlaying (isPlaying);

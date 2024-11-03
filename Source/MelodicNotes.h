@@ -374,6 +374,11 @@ public:
         return MelodicNotes (newNotesInSemitones, pans, bandwidths, ampls, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
+    MelodicNotes withTranspositionInOctaves (float octaves)
+    {
+        return withTransposition (octaves * 12.0f);
+    }
+    
     std::vector<NoiseNote> noiseNotes()
     {
         std::vector<NoiseNote> noiseNotes;

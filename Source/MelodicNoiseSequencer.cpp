@@ -46,6 +46,11 @@ void MelodicNoiseSequencer::setSpeedFactor (float speedFactor)
     this->speedFactor = speedFactor;
 }
 
+void MelodicNoiseSequencer::setFreqFactor (float freqFactor)
+{
+    this->freqFactor = freqFactor;
+}
+
 void MelodicNoiseSequencer::setNoiseGain (float noiseGain)
 {
     this->noiseGain = noiseGain;
@@ -186,21 +191,21 @@ void MelodicNoiseSequencer::goToNextNote()
     octaveOffset = 0.0f;
     
 //    freqOffsetFactor = std::pow (2.0f, static_cast<float> (octaveOffset));
-    freqOffsetFactor = 1.0f;
+//    freqOffsetFactor = 1.0f;
+//    
+//    float noteFreq = getCurrNote().freqFactor * freqOffsetFactor;
+//    while (noteFreq < 20.0f)
+//    {
+//        freqOffsetFactor *= 2.0f;
+//        noteFreq = getCurrNote().freqFactor * freqOffsetFactor;
+//    }
+//    while (noteFreq > 17000.0f)
+//    {
+//        freqOffsetFactor /= 2.0f;
+//        noteFreq = getCurrNote().freqFactor * freqOffsetFactor;
+//    }
     
-    float noteFreq = getCurrNote().freqFactor * freqOffsetFactor;
-    while (noteFreq < 20.0f)
-    {
-        freqOffsetFactor *= 2.0f;
-        noteFreq = getCurrNote().freqFactor * freqOffsetFactor;
-    }
-    while (noteFreq > 17000.0f)
-    {
-        freqOffsetFactor /= 2.0f;
-        noteFreq = getCurrNote().freqFactor * freqOffsetFactor;
-    }
-    
-    sineWaveGenerator.setNote (Note (getCurrNote().freqFactor * freqOffsetFactor, 0.0f, 0.0f, 0.0f));
+    sineWaveGenerator.setNote (Note (getCurrNote().freqFactor * freqFactor, 0.0f, 0.0f, 0.0f));
     
     updateFilters();
 }

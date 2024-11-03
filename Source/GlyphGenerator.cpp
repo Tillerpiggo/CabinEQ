@@ -32,6 +32,7 @@ std::pair<float, float> GlyphGenerator::getNextSample()
 void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
     noiseSweepGenerator.prepare (spec);
+    spatialPatternGenerator.prepare (spec);
 }
 
 void GlyphGenerator::setGlyph (Glyph glyph)

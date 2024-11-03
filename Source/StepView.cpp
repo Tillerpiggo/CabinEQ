@@ -14,6 +14,8 @@ StepView::StepView()
 {
     // Add components
     addSliderAndLabel (&difficultySlider, &difficultySliderLabel, "Difficulty", 0.0f, 1.0f, 0.5f);
+    addSliderAndLabel (&pitchSlider, &pitchSliderLabel, "Pitch", -5, 5, 0);
+    pitchSlider.setSkewFactorFromMidPoint (0);
     addButton (&playButton);
     addButton (&prevButton);
     addButton (&nextButton);
@@ -22,6 +24,10 @@ StepView::StepView()
     addSliderAction (&difficultySlider, [this](juce::Slider*) {
         if (listener != nullptr)
             listener->setDifficulty (difficultySlider.getValue());
+    });
+    addSliderAction (&pitchSlider, [this](juce::Slider*) {
+        if (listener != nullptr)
+            listener->setOctaveShift (pitchSlider.getValue());
     });
     addButtonAction (&playButton, [this](juce::Button*) {
         isPlaying = ! isPlaying;
@@ -59,26 +65,38 @@ void StepView::paint (juce::Graphics& g)
 
 void StepView::resized()
 {
+    // Add a row of stage buttons in between two spaces
+    std::vector<Space> stageButtonSpaces;
+    stageButtonSpaces.push_back (Space());
+    for (const auto& stageButton : stageButtons)
+        stageButtonSpaces.push_back (stageButton.get());
+    stageButtonSpaces.push_back (Space());
+    
     Layout layout (getBounds(), 4);
+    layout.addRow ({ Space (80), Space (&difficultySlider), Space (80), Space (&pitchSlider), Space (&playButton, 80) });
+    layout.addRow (stageButtonSpaces);
+    layout.addRow ({ Space(), Space (&prevButton, 80), Space (&nextButton, 80), Space() });
     
-    // difficultySlider + playButton
-    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fixed (80), FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80) });
+    layout.updateComponentBounds();
     
-    // stageButtons
-    layout.addRowWithRectWidths(std::vector<FlexibleLayoutDimension>(stageButtons.size() + 2, FlexibleLayoutDimension::fill()));
-    
-    // prevButton + nextButton
-    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80), FlexibleLayoutDimension::fixed (80), FlexibleLayoutDimension::fill() }); // prevButton + nextButton
-    
-    // apply to components
-    difficultySlider.setBounds (layout.getBoundsAt (0, 1));
-    playButton.setBounds (layout.getBoundsAt (0, 2));
-    for (int i = 0; i < stageButtons.size(); ++i)
-    {
-        stageButtons[i]->setBounds (layout.getBoundsAt (1, i + 1));
-    }
-    prevButton.setBounds (layout.getBoundsAt (2, 1));
-    nextButton.setBounds (layout.getBoundsAt (2, 2));
+//    // difficultySlider + playButton
+//    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fixed (80), FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80) });
+//    
+//    // stageButtons
+//    layout.addRowWithRectWidths(std::vector<FlexibleLayoutDimension>(stageButtons.size() + 2, FlexibleLayoutDimension::fill()));
+//    
+//    // prevButton + nextButton
+//    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80), FlexibleLayoutDimension::fixed (80), FlexibleLayoutDimension::fill() }); // prevButton + nextButton
+//    
+//    // apply to components
+//    difficultySlider.setBounds (layout.getBoundsAt (0, 1));
+//    playButton.setBounds (layout.getBoundsAt (0, 2));
+//    for (int i = 0; i < stageButtons.size(); ++i)
+//    {
+//        stageButtons[i]->setBounds (layout.getBoundsAt (1, i + 1));
+//    }
+//    prevButton.setBounds (layout.getBoundsAt (2, 1));
+//    nextButton.setBounds (layout.getBoundsAt (2, 2));
 }
 
 void StepView::setListener (Listener* listener)

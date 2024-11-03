@@ -27,6 +27,7 @@ public:
     void setMelodyVolume (float melodyVolume);
     void setSineVolume (float sineVolume);
     void setSpeedFactor (float speedFactor);
+    void setFreqFactor (float freqFactor);
     void setNoiseGain (float noiseGain);
     void setOctaveRange (float octaveRange);
     std::pair<float, float> getNextSample();
@@ -61,6 +62,7 @@ private:
     float melodyVolume = 0.0f; // in db
     float sineVolume = 3.0f;
     float speedFactor = 1.0f;
+    float freqFactor = 1.0f; // amount to offset frequency by
     float noiseGain = 1.0f;
     float freqOffsetFactor = 1.0f;
     float octaveRange = 3.0f; // +- octaves of randomization
