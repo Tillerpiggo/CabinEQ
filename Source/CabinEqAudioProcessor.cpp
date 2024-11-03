@@ -364,7 +364,7 @@ void CabinEqAudioProcessor::removeListener()
 
 void CabinEqAudioProcessor::setDifficulty (float difficulty)
 {
-    // TODO - implement this
+    playbackManager.setDifficulty (difficulty);
 }
 
 void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)

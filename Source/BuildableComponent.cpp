@@ -61,10 +61,11 @@ void BuildableComponent::addSlider (juce::Slider* slider, float lowerBound, floa
 void BuildableComponent::addSliderAndLabel (juce::Slider* slider, juce::Label* label, juce::String labelText, float lowerBound, float upperBound, float startVal)
 {
     addAndMakeVisible (*slider);
-    addAndMakeVisible (label);
+    addAndMakeVisible (*label);
     slider->setRange (lowerBound, upperBound);
     slider->setValue (startVal);
     slider->setSliderStyle (juce::Slider::LinearHorizontal);
+    slider->setTextBoxStyle (juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     label->setText (labelText, juce::dontSendNotification);
     label->attachToComponent (slider, true);
     

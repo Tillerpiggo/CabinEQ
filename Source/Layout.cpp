@@ -20,11 +20,12 @@ void Layout::setBoundsOfComponents (std::vector<juce::Component*> components)
 {
     for (int componentIdx = 0; componentIdx < components.size(); ++componentIdx)
     {
+        if (components[componentIdx] == nullptr)
+            continue;
+        
         auto [rowIdx, rectIdx] = getRowAndRectIdx (componentIdx);
         auto bounds = getBoundsAt (rowIdx, rectIdx);
         components[componentIdx]->setBounds (bounds);
-//        
-//        std::cout << "Bounds(x: " << bounds.getX() << ", y: " << bounds.getY() << ", width: " << bounds.getWidth() << ", height: " << bounds.getHeight() << ")" << std::endl;
     }
 }
 
@@ -58,11 +59,35 @@ void Layout::addRowWithRectWidths (std::vector<FlexibleLayoutDimension> rectWidt
     heightRangesAreUpdated = false;
 }
 
+void Layout::addRow (std::vector<Space> spaces, float height)
+{
+    
+    std::vector<FlexibleLayoutDimension> widths;
+    for (const auto& space : spaces)
+    {
+        widths.push_back (space.getFlexibleLayoutDimension());
+        components.push_back (space.getComponentPtr());
+    }
+    
+    FlexibleLayoutDimension heightDimension = FlexibleLayoutDimension::fill();
+    if (height > 0 && height < 1)
+        heightDimension = FlexibleLayoutDimension::proportional (height);
+    else if (height >= 1)
+        heightDimension = FlexibleLayoutDimension::fixed (height);
+    
+    addRowWithRectWidths (widths, heightDimension);
+}
+
 juce::Rectangle<int> Layout::getBoundsAt (int rowIdx, int rectIdx)
 {
     auto widthRange = rows[rowIdx].getWidthRanges()[rectIdx];
     auto heightRange = getHeightRanges()[rowIdx];
     return juce::Rectangle<int> (widthRange.first, heightRange.first - bounds.getY(), widthRange.second - widthRange.first, heightRange.second - heightRange.first);
+}
+
+void Layout::updateComponentBounds()
+{
+    setBoundsOfComponents (components);
 }
 
 std::pair<float, float> Layout::getWidthRange()

@@ -65,15 +65,23 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
+//    Layout layout (getBounds(), 20.0f);
+//    layout.addRowWithEvenlySpacedRects (1, FlexibleLayoutDimension::proportional (0.7)); // the graph
+//    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80) }, FlexibleLayoutDimension::fixed (40));
+//    layout.addRowWithEvenlySpacedRects (1, FlexibleLayoutDimension::fixed (40)); // master volume slider
+//    layout.addRowWithEvenlySpacedRects (1); // step view
+//    layout.setBoundsOfComponents ({ amplGraph.get(),
+//                                    &profileDropdown, &bypassButton,
+//                                    &masterVolumeSlider, &masterVolumeSlider,
+//                                    &stepView });
+//    layout.updateComponentBounds();
+    
     Layout layout (getBounds(), 20.0f);
-    layout.addRowWithEvenlySpacedRects (1, FlexibleLayoutDimension::proportional (0.7)); // the graph
-    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80) }, FlexibleLayoutDimension::fixed (40));
-    layout.addRowWithEvenlySpacedRects (1, FlexibleLayoutDimension::fixed (40)); // master volume slider
-    layout.addRowWithEvenlySpacedRects (1); // step view
-    layout.setBoundsOfComponents ({ amplGraph.get(),
-                                    &profileDropdown, &bypassButton,
-                                    &masterVolumeSlider,
-                                    &stepView });
+    layout.addRow ({ Space (amplGraph.get()) }, 0.7);
+    layout.addRow ({ Space (&profileDropdown), Space (&bypassButton).withFixedSize (80) }, 40);
+    layout.addRow ({ Space (80), Space (&masterVolumeSlider) }, 40);
+    layout.addRow ({ Space (&stepView) });
+    layout.updateComponentBounds();
 }
 
 // ====================================================
