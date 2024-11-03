@@ -66,7 +66,7 @@ private:
     
     bool isPlaying = false;
     bool isCycling = false;
-    int stage = 0;
+    int stage = -1;
     
     void updateStageButtonColours();
 };

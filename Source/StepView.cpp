@@ -27,6 +27,7 @@ StepView::StepView()
         isPlaying = ! isPlaying;
         if (listener != nullptr)
             listener->setIsPlaying (isPlaying);
+        playButton.setButtonText (isPlaying ? "Pause" : "Play");
     });
     addButtonAction (&prevButton, [this](juce::Button*) {
         if (listener != nullptr)
@@ -110,30 +111,30 @@ void StepView::updateWithQualityStep (QualityStep qualityStep)
     }
     
     // Add a final button
-    stageButtons.push_back (std::make_unique<juce::TextButton> ("CYCLE"));
+    stageButtons.push_back (std::make_unique<juce::TextButton> ("Loop"));
     addButton (stageButtons[stageButtons.size() - 1].get());
     addButtonAction (stageButtons[stageButtons.size() - 1].get(), [this](juce::Button* buttonPtr) {
         isCycling = ! isCycling;
         listener->setIsCycling (isCycling);
+        buttonPtr->setButtonText (isCycling ? "Stop Looping" : "Loop");
     });
+    
+    setStage (0);
     
     resized();
 }
 
 void StepView::setStage (int stage)
 {
-    if (stage != this->stage)
-    {
-        this->stage = stage;
-        updateStageButtonColours();
-    }
+    this->stage = stage;
+    updateStageButtonColours();
 }
 
 void StepView::updateStageButtonColours()
 {
     for (int i = 0; i < stageButtons.size() - 1; ++i)
     {
-        juce::Colour colour = (stage == i) ? juce::Colours::lightblue : juce::Colours::blue;
+        juce::Colour colour = (stage == i) ? juce::Colours::darkred : juce::Colours::darkred.withSaturation (0.5);
         stageButtons[i]->setColour (juce::TextButton::buttonColourId, colour);
     }
 }

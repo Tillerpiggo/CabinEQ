@@ -112,7 +112,7 @@ void PlaybackManager::setVolume (float volume)
 
 std::optional<float> PlaybackManager::getCurrPlayingFreq()
 {
-    if (qualityStep.has_value() || ! isCalibrating)
+    if (! qualityStep.has_value() || ! isCalibrating)
         return std::nullopt;
     
     switch (qualityStep->getType())

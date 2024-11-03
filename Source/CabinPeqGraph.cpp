@@ -368,13 +368,14 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     
     // Draw a dot for the curr playing freq
     std::optional<float> currPlayingFreq = getCurrPlayingFreq();
-    if (draggingId != -1 && currPlayingFreq.has_value())
+    if (currPlayingFreq.has_value())
     {
         // Figure out color of node
         juce::Colour addingDotColour = getColourForFrequency (currPlayingFreq.value()).withAlpha (0.5f);
         
         // Calculate coordinates of node
-        float ampl = curve.dbAtFrequency (currPlayingFreq.value());
+//        float ampl = curve.dbAtFrequency (currPlayingFreq.value());
+        float ampl = 0;
         auto point = coordsForFrequencyAndAmplitude (currPlayingFreq.value(), ampl);
         float addingDotRadius = DOT_SIZE_DEFAULT;
         
