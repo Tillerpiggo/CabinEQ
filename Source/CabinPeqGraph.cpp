@@ -367,16 +367,15 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     drawDot (g, point, DOT_SIZE_DEFAULT, dotColour, isHoveringOverDotControl);
     
     // Draw a dot for the curr playing freq
-    if (draggingId != -1)
+    std::optional<float> currPlayingFreq = getCurrPlayingFreq();
+    if (draggingId != -1 && currPlayingFreq.has_value())
     {
-        float currPlayingFreq = getCurrPlayingFreq();
-        
         // Figure out color of node
-        juce::Colour addingDotColour = getColourForFrequency (currPlayingFreq).withAlpha (0.5f);
+        juce::Colour addingDotColour = getColourForFrequency (currPlayingFreq.value()).withAlpha (0.5f);
         
         // Calculate coordinates of node
-        float ampl = curve.dbAtFrequency (currPlayingFreq);
-        auto point = coordsForFrequencyAndAmplitude (currPlayingFreq, ampl);
+        float ampl = curve.dbAtFrequency (currPlayingFreq.value());
+        auto point = coordsForFrequencyAndAmplitude (currPlayingFreq.value(), ampl);
         float addingDotRadius = DOT_SIZE_DEFAULT;
         
         // Draw node
@@ -752,10 +751,10 @@ void CabinPeqGraph::setVolume (float volume)
     bandProfile = dataSource->getBandProfile();
 }
 
-float CabinPeqGraph::getCurrPlayingFreq()
+std::optional<float> CabinPeqGraph::getCurrPlayingFreq()
 {
     if (dataSource == nullptr)
-        return -1;
+        return std::nullopt;
     
     return dataSource->getCurrPlayingFreq();
 }

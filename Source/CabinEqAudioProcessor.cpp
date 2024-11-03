@@ -302,10 +302,9 @@ BandProfile CabinEqAudioProcessor::getBandProfile (juce::String profileName)
     return BandProfile ({}, 0.0f, 0.0f, 0.0f);
 }
 
-float CabinEqAudioProcessor::getCurrPlayingFreq()
+std::optional<float> CabinEqAudioProcessor::getCurrPlayingFreq()
 {
-    return 1000.0f;
-//    return playbackManager.getCurrPlayingFreq();
+    return playbackManager.getCurrPlayingFreq();
 }
 
 std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()

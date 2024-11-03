@@ -40,7 +40,7 @@ public:
     
     // CabinPeqGraph::DataSource methods
     BandProfile getBandProfile() override;
-    float getCurrPlayingFreq() override;
+    std::optional<float> getCurrPlayingFreq() override;
     
     // StepView::Listener methods
     void setDifficulty (float difficulty) override;

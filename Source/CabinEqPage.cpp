@@ -130,7 +130,7 @@ BandProfile CabinEqPage::getBandProfile()
     return processor.getBandProfile (profileId);
 }
 
-float CabinEqPage::getCurrPlayingFreq()
+std::optional<float> CabinEqPage::getCurrPlayingFreq()
 {
     return processor.getCurrPlayingFreq();
 }
