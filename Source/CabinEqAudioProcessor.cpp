@@ -188,6 +188,18 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
     
+    // Step Triangle
+    SpatialStep triangleStep;
+    float bandwidth = 1.0f;
+    MelodicNotes above = MelodicNotes::withFreqs ({ 5000 }).withPan (0).withNoteDurationInSeconds (0.1f).withBandwidth (bandwidth);
+    MelodicNotes lowerLeft = MelodicNotes::withFreqs ({ 200 }).withPan (-1).withNoteDurationInSeconds (0.09f).withBandwidth (bandwidth);
+    MelodicNotes lowerRight = MelodicNotes::withFreqs ({ 200 }).withPan (1).withNoteDurationInSeconds (0.11f).withBandwidth (bandwidth);
+    MelodicNotes center = MelodicNotes::withMelodicPattern ({ 1, 1, 1, 0 }, { 1000.0f }, bandwidth, { 0 }).withPan (0).withNoteDurationInSeconds (0.2f);
+    Glyph triangleGlyph = Glyph({ above, lowerLeft, lowerRight, center });
+    Glyph triangleSweep = Glyph(SweepPattern ({ {200, -1}, {5000, 0}, {200, 1}, { 200, -1 }}, 1.0f, sampleRate));
+    triangleStep.addStage (triangleGlyph);
+    triangleStep.addStage (triangleSweep);
+    
     // Step 0 - Grids
     SpatialStep step0;
     Glyph twoByTwo ({ { 100, -1 }, { 700, 1 }, { 5000, 0 }, { 5000, 0 }});
@@ -273,6 +285,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     step4.addStage (zigZag);
     
     // Initialize QualityStepManager steps imperatively
+    qualityStepManager.addSpatialStep (triangleStep);
     qualityStepManager.addSpatialStep (step0);
     qualityStepManager.addIntelligibilityStep (step1);
     qualityStepManager.addSpatialStep (step2);

@@ -89,6 +89,6 @@ private:
     std::optional<float> noteCenterFreq; // will override all notes center freq if set
     std::optional<float> noteBandwidth; // will override all notes (with non-0 bandwidth) if set
     
-    SequencerListener* listener;
+    SequencerListener* listener = nullptr;
     
 };

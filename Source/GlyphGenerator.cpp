@@ -38,6 +38,15 @@ std::pair<float, float> GlyphGenerator::getNextSample()
                 nextSample.second += pointSample.second;
             }
             break;
+        case Glyph::Type::spatialPatterns:
+            nextSample = { 0.0f, 0.0f };
+            for (auto& spatialGenerator : spatialPatternGenerators)
+            {
+                auto spatialSample = spatialGenerator.getNextSample();
+                nextSample.first += spatialSample.first;
+                nextSample.second += spatialSample.second;
+            }
+            break;
     }
     
 //    float pinkNoiseCenterSample = pinkNoiseCenter.generate();
@@ -115,7 +124,9 @@ std::optional<float> GlyphGenerator::getCurrPlayingFreq()
         case Glyph::Type::pattern:
             return spatialPatternGenerator.getCurrPlayingFreq();
         case Glyph::Type::grid:
-            return 1000.0f;
+            return std::nullopt;
+        case Glyph::Type::spatialPatterns:
+            return std::nullopt;
     }
 }
 
@@ -147,7 +158,9 @@ void GlyphGenerator::prepareSpatialPatternGenerators()
         spatialPatternGenerators.push_back (SpatialPatternGenerator());
     
     for (auto& generator : spatialPatternGenerators)
+    {
         generator.prepare (spec);
+    }
     
     auto& patterns = glyph->getSpatialPatterns();
     for (int i = 0; i < spatialPatternGenerators.size(); ++i)
