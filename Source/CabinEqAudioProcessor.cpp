@@ -25,87 +25,93 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 
 #endif
 {
-    // Step I - Intervals
+//    // Step 0 - Grids
+//    SpatialStep step0;
+//    Glyph twoByTwo ({ { 100, -1 }, { 100, 1 }, { 5000, -1 }, { 5000, 1 }});
+//    step0.addStage (twoByTwo);
+//    
+//    // Step I - Intervals
+////    IntelligibilityStep step1;
+//    MelodicNotes wideScale = MelodicNotes ({ -12, 0, 5, 7, 9, 7, 11, 14 }, 800.0f);
+////    step1.addStage (wideScale.withTransposition (-48));
+////    step1.addStage (wideScale.withTransposition (-24));
+////    step1.addStage (wideScale.withTransposition (0));
+////    step1.addStage (wideScale.withTransposition (24));
+////    step1.addStage (wideScale.withTransposition (48));
+//    
 //    IntelligibilityStep step1;
-    MelodicNotes wideScale = MelodicNotes ({ -12, 0, 5, 7, 9, 7, 11, 14 }, 800.0f);
-//    step1.addStage (wideScale.withTransposition (-48));
-//    step1.addStage (wideScale.withTransposition (-24));
-//    step1.addStage (wideScale.withTransposition (0));
-//    step1.addStage (wideScale.withTransposition (24));
-//    step1.addStage (wideScale.withTransposition (48));
-    
-    IntelligibilityStep step1;
-    MelodicNotes majorFifth = MelodicNotes ({ 0, 4, 7, 4 }, 500.0f);
-    MelodicNotes majorThird = MelodicNotes ({ 0, 3, 7, 3 }, 500.0f);
-    MelodicNotes octave = MelodicNotes ({ 0, 12 }, 500.0f);
-    MelodicNotes majorSecond = MelodicNotes ({ 0, 2 }, 500.0f);
-    step1.addStage (majorFifth);
-    step1.addStage (majorThird);
-    step1.addStage (octave);
-    step1.addStage (majorSecond);
-    step1.addStage (wideScale);
-    
-//    // Step II - Three Stack
+//    MelodicNotes majorFifth = MelodicNotes ({ 0, 4, 7, 4 }, 500.0f);
+//    MelodicNotes majorThird = MelodicNotes ({ 0, 3, 7, 3 }, 500.0f);
+//    MelodicNotes octave = MelodicNotes ({ 0, 12 }, 500.0f);
+//    MelodicNotes majorSecond = MelodicNotes ({ 0, 2 }, 500.0f);
+//    step1.addStage (majorFifth);
+//    step1.addStage (majorThird);
+//    step1.addStage (octave);
+//    step1.addStage (majorSecond);
+//    step1.addStage (wideScale);
+//    
+////    // Step II - Three Stack
+////    SpatialStep step2;
+////    MelodicNotes threeStack =
+////    MelodicNotes::withFreqs ({ 200, 1000, 5000 })
+////        .withBandwidth (2.0f);
+////    step2.addStage (threeStack);
+////    step2.addStage (threeStack.withPan (-1));
+////    step2.addStage (threeStack.withPan (1));
+//    
+//    // Step II - square separation
 //    SpatialStep step2;
-//    MelodicNotes threeStack =
-//    MelodicNotes::withFreqs ({ 200, 1000, 5000 })
-//        .withBandwidth (2.0f);
-//    step2.addStage (threeStack);
-//    step2.addStage (threeStack.withPan (-1));
-//    step2.addStage (threeStack.withPan (1));
-    
-    // Step II - square separation
-    SpatialStep step2;
-    MelodicNotes square =
-    MelodicNotes::withFreqs ({ 200, 2000, 200, 2000 })
-        .withPans ({ -0.5, 0.5, 0.5, -0.5 })
-        .withBandwidth (1.5f);
-    MelodicNotes sequence =
-    MelodicNotes::withFreqs ({ 200, 4000 })
-        .withBandwidth (1.0f)
-        .withNoteDurationInSeconds (0.1);
-    step2.addStage (square);
-    step2.addStage (sequence);
-    
-    MelodicNotes horizontal =
-    MelodicNotes::withFreqs ({ 500, 500 })
-        .withBandwidth (1.0f)
-        .withPans ({ -0.5, 0.5 })
-        .withNoteDurationInSeconds (0.1);
-    step2.addStage (horizontal);
+//    MelodicNotes square =
+//    MelodicNotes::withFreqs ({ 200, 2000, 200, 2000 })
+//        .withPans ({ -0.5, 0.5, 0.5, -0.5 })
+//        .withBandwidth (1.5f);
+//    MelodicNotes sequence =
+//    MelodicNotes::withFreqs ({ 200, 4000 })
+//        .withBandwidth (1.0f)
+//        .withNoteDurationInSeconds (0.1);
+//    step2.addStage (square);
 //    step2.addStage (sequence);
-    
-    // Step III - Solfeggietto
-    IntelligibilityStep step3;
-    MelodicNotes solfeggietto =
-    MelodicNotes ({ 0, -3, 0, 4, 9, 12, 11, 9, 8, 4, 8, 11, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 23, 21, 20, 18, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 20, 16, 20, 23, 28, 26, 24, 23, 24, 21, 24, 28, 33, 36, 35, 33, 35, 33, 32, 30, 28, 26, 24, 23, 24, 21, 16, 12, 9, 33, 28, 24, 29, 2, 5, 9, 14, 17, 21, 24, 23, 19, 14, 11, 7, 31, 26, 23, 28, 0, 4, 7, 12, 16, 19, 23, 21, 18, 17, 18, 21, 18, 17, 18, 24, 21, 16, 18, 24, 21, 16, 18, 23, 21, 15, 18, 30, 21, 15, 18, 27, 21, 11, 18, 21, 18, 15, 11, 19, -8, -5, -1, 4, 7, 6, 4, 3, -1, 3, 6, 11, 9, 7, 6, 7, 4, 7, 11, 16, 19, 18, 16, 18, 16, 15, 13, 11, 9, 7, 6, 7, 4, 7, 11, 16, 19, 18, 16, 15, 11, 15, 18, 23, 21, 19, 18, 19, 16, 19, 23, 28, 31, 30, 28, 30, 28, 27, 25, 23, 21, 19, 18, 19, 4, -8, 16, 19, 23, 28, 23, 19, 16, 2, -10, 28, 23, 20, 16, 20, 23, 28, 21, 12, 16, 28, 16, 21, 12, 16, 28, 16, 20, 11, 16, 26, 16, 20, 11, 16, 26, 16, 24, 9, -3, 21, 24, 28, 33, 28, 24, 21, 7, -5, 33, 28, 25, 21, 25, 28, 33, 26, 17, 21, 33, 21, 26, 17, 21, 33, 21, 25, 16, 21, 31, 21, 25, 16, 21, 31, 21, 29, -10, -7, -3, 2, 5, 4, 2, 1, -3, 1, 4, 9, 7, 5, 4, 5, 2, 5, 9, 14, 17, 16, 14, 16, 14, 13, 11, 9, 7, 5, 4, 5, 2, 5, 9, 14, 17, 16, 14, 13, 9, 13, 16, 21, 19, 17, 16, 17, 14, 17, 21, 26, 29, 28, 26, 28, 26, 25, 23, 21, 19, 17, 16, 17, 17, 26, 21, 17, 14, 14, 21, 17, 14, 9, 9, 17, 14, 9, 5, 5, 14, 9, 5, -2, -14, 29, 26, 25, 26, 28, 26, 25, 26, -3, -15, 17, 14, 13, 14, 16, 14, 13, 14, -4, -16, 35, 26, 28, 29, 28, 26, 24, 23, 24, -3, -15, 28, 33, 28, 31, 2, 29, 28, 26, 24, 4, -8, 23, 24, 23, 21, 23, 21, 12, 16, 28, 16, 21, 12, 16, 28, 16, 20, 11, 16, 26, 16, 20, 11, 16, 26, 16, 19, 9, 16, 25, 16, 19, 9, 16, 25, 16, 18, 14, 24, 33, 24, 18, 14, 24, 33, 24, 17, 7, 14, 23, 14, 17, 7, 14, 23, 14, 16, 12, 22, 31, 22, 16, 12, 22, 31, 22, 15, 5, 12, 21, 12, 15, 5, 12, 21, 12, 12, 3, 21, 33, 21, 12, 3, 21, 33, 21, 12, 4, 21, 24, 28, 33, 28, 24, 21, 28, 24, 21, 16, 26, -8, 23, 20, 14, 12, -3, 0, 4, 9, 12, 11, 9, 8, 4, 8, 11, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 23, 21, 20, 18, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 20, 16, 20, 23, 28, 26, 24, 23, 24, 21, 24, 28, 33, 36, 35, 32, 33, 28, 24, 23, 21, 16, 12, 11, 9}, 800.0f);
-    step3.addStage (solfeggietto.withTranspositionInOctaves (-2));
-    step3.addStage (solfeggietto.withTranspositionInOctaves (0));
-    step3.addStage (solfeggietto.withTranspositionInOctaves (2));
-    
-    // Step IV - fancy pattern
-    SpatialStep step4;
-    float lowFreq = 20;
-    float hiFreq = 15000;
-    float sampleRate = 44100; // for now, but this isn't ideal
-    SweepPattern forwardSlash ({{ lowFreq, -1 }, { hiFreq, 1 }}, 2.0f, sampleRate);
-    SweepPattern downwardsRight ({{ hiFreq, 1 }, { lowFreq, 1 }}, 2.0f, sampleRate);
-    SweepPattern backslash ({{ lowFreq, 1 }, { hiFreq, -1 }}, 2.0f, sampleRate);
-    SweepPattern downwardsLeft ({{ hiFreq, -1 }, { lowFreq, -1 }}, 2.0f, sampleRate);
-    SweepPattern zigZag ({{ 20, -1 }, { 200, 1 }, { 2000, -1 }, { 200, 1 }, { 20, -1 }}, 2.0f, sampleRate);
-    step4.addStage (forwardSlash);
-    step4.addStage (downwardsRight);
-    step4.addStage  (backslash);
-    step4.addStage (downwardsLeft);
-    step4.addStage (zigZag);
-    
-    // Initialize QualityStepManager steps imperatively
-    qualityStepManager.addIntelligibilityStep (step1);
-    qualityStepManager.addSpatialStep (step2);
-    qualityStepManager.addIntelligibilityStep (step3);
-    qualityStepManager.addSpatialStep (step4);
-    
-    playbackManager.setQualityStep (qualityStepManager.getCurrStep());
+//    
+//    MelodicNotes horizontal =
+//    MelodicNotes::withFreqs ({ 500, 500 })
+//        .withBandwidth (1.0f)
+//        .withPans ({ -0.5, 0.5 })
+//        .withNoteDurationInSeconds (0.1);
+//    step2.addStage (horizontal);
+////    step2.addStage (sequence);
+//    
+//    // Step III - Solfeggietto
+//    IntelligibilityStep step3;
+//    MelodicNotes solfeggietto =
+//    MelodicNotes ({ 0, -3, 0, 4, 9, 12, 11, 9, 8, 4, 8, 11, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 23, 21, 20, 18, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 20, 16, 20, 23, 28, 26, 24, 23, 24, 21, 24, 28, 33, 36, 35, 33, 35, 33, 32, 30, 28, 26, 24, 23, 24, 21, 16, 12, 9, 33, 28, 24, 29, 2, 5, 9, 14, 17, 21, 24, 23, 19, 14, 11, 7, 31, 26, 23, 28, 0, 4, 7, 12, 16, 19, 23, 21, 18, 17, 18, 21, 18, 17, 18, 24, 21, 16, 18, 24, 21, 16, 18, 23, 21, 15, 18, 30, 21, 15, 18, 27, 21, 11, 18, 21, 18, 15, 11, 19, -8, -5, -1, 4, 7, 6, 4, 3, -1, 3, 6, 11, 9, 7, 6, 7, 4, 7, 11, 16, 19, 18, 16, 18, 16, 15, 13, 11, 9, 7, 6, 7, 4, 7, 11, 16, 19, 18, 16, 15, 11, 15, 18, 23, 21, 19, 18, 19, 16, 19, 23, 28, 31, 30, 28, 30, 28, 27, 25, 23, 21, 19, 18, 19, 4, -8, 16, 19, 23, 28, 23, 19, 16, 2, -10, 28, 23, 20, 16, 20, 23, 28, 21, 12, 16, 28, 16, 21, 12, 16, 28, 16, 20, 11, 16, 26, 16, 20, 11, 16, 26, 16, 24, 9, -3, 21, 24, 28, 33, 28, 24, 21, 7, -5, 33, 28, 25, 21, 25, 28, 33, 26, 17, 21, 33, 21, 26, 17, 21, 33, 21, 25, 16, 21, 31, 21, 25, 16, 21, 31, 21, 29, -10, -7, -3, 2, 5, 4, 2, 1, -3, 1, 4, 9, 7, 5, 4, 5, 2, 5, 9, 14, 17, 16, 14, 16, 14, 13, 11, 9, 7, 5, 4, 5, 2, 5, 9, 14, 17, 16, 14, 13, 9, 13, 16, 21, 19, 17, 16, 17, 14, 17, 21, 26, 29, 28, 26, 28, 26, 25, 23, 21, 19, 17, 16, 17, 17, 26, 21, 17, 14, 14, 21, 17, 14, 9, 9, 17, 14, 9, 5, 5, 14, 9, 5, -2, -14, 29, 26, 25, 26, 28, 26, 25, 26, -3, -15, 17, 14, 13, 14, 16, 14, 13, 14, -4, -16, 35, 26, 28, 29, 28, 26, 24, 23, 24, -3, -15, 28, 33, 28, 31, 2, 29, 28, 26, 24, 4, -8, 23, 24, 23, 21, 23, 21, 12, 16, 28, 16, 21, 12, 16, 28, 16, 20, 11, 16, 26, 16, 20, 11, 16, 26, 16, 19, 9, 16, 25, 16, 19, 9, 16, 25, 16, 18, 14, 24, 33, 24, 18, 14, 24, 33, 24, 17, 7, 14, 23, 14, 17, 7, 14, 23, 14, 16, 12, 22, 31, 22, 16, 12, 22, 31, 22, 15, 5, 12, 21, 12, 15, 5, 12, 21, 12, 12, 3, 21, 33, 21, 12, 3, 21, 33, 21, 12, 4, 21, 24, 28, 33, 28, 24, 21, 28, 24, 21, 16, 26, -8, 23, 20, 14, 12, -3, 0, 4, 9, 12, 11, 9, 8, 4, 8, 11, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 23, 21, 20, 18, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 20, 16, 20, 23, 28, 26, 24, 23, 24, 21, 24, 28, 33, 36, 35, 32, 33, 28, 24, 23, 21, 16, 12, 11, 9}, 800.0f);
+//    step3.addStage (solfeggietto.withTranspositionInOctaves (-2));
+//    step3.addStage (solfeggietto.withTranspositionInOctaves (0));
+//    step3.addStage (solfeggietto.withTranspositionInOctaves (2));
+//    
+//    // Step IV - fancy pattern
+//    SpatialStep step4;
+//    float lowFreq = 20;
+//    float hiFreq = 15000;
+//    float sampleRate = 44100; // for now, but this isn't ideal
+//    SweepPattern forwardSlash ({{ lowFreq, -1 }, { hiFreq, 1 }}, 2.0f, sampleRate);
+//    SweepPattern downwardsRight ({{ hiFreq, 1 }, { lowFreq, 1 }}, 2.0f, sampleRate);
+//    SweepPattern backslash ({{ lowFreq, 1 }, { hiFreq, -1 }}, 2.0f, sampleRate);
+//    SweepPattern downwardsLeft ({{ hiFreq, -1 }, { lowFreq, -1 }}, 2.0f, sampleRate);
+//    SweepPattern zigZag ({{ 20, -1 }, { 200, 1 }, { 2000, -1 }, { 200, 1 }, { 20, -1 }}, 2.0f, sampleRate);
+//    step4.addStage (forwardSlash);
+//    step4.addStage (downwardsRight);
+//    step4.addStage  (backslash);
+//    step4.addStage (downwardsLeft);
+//    step4.addStage (zigZag);
+//    
+//    // Initialize QualityStepManager steps imperatively
+//    qualityStepManager.addSpatialStep (step0);
+//    qualityStepManager.addIntelligibilityStep (step1);
+//    qualityStepManager.addSpatialStep (step2);
+//    qualityStepManager.addIntelligibilityStep (step3);
+//    qualityStepManager.addSpatialStep (step4);
+//    
+//    playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()
@@ -181,6 +187,93 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
+    
+    // Step 0 - Grids
+    SpatialStep step0;
+    Glyph twoByTwo ({ { 100, 0 }, { 700, 1 }, { 5000, -1 }});
+    step0.addStage (twoByTwo);
+    
+    // Step I - Intervals
+//    IntelligibilityStep step1;
+    MelodicNotes wideScale = MelodicNotes ({ -12, 0, 5, 7, 9, 7, 11, 14 }, 800.0f);
+//    step1.addStage (wideScale.withTransposition (-48));
+//    step1.addStage (wideScale.withTransposition (-24));
+//    step1.addStage (wideScale.withTransposition (0));
+//    step1.addStage (wideScale.withTransposition (24));
+//    step1.addStage (wideScale.withTransposition (48));
+    
+    IntelligibilityStep step1;
+    MelodicNotes majorFifth = MelodicNotes ({ 0, 4, 7, 4 }, 500.0f);
+    MelodicNotes majorThird = MelodicNotes ({ 0, 3, 7, 3 }, 500.0f);
+    MelodicNotes octave = MelodicNotes ({ 0, 12 }, 500.0f);
+    MelodicNotes majorSecond = MelodicNotes ({ 0, 2 }, 500.0f);
+    step1.addStage (majorFifth);
+    step1.addStage (majorThird);
+    step1.addStage (octave);
+    step1.addStage (majorSecond);
+    step1.addStage (wideScale);
+    
+//    // Step II - Three Stack
+//    SpatialStep step2;
+//    MelodicNotes threeStack =
+//    MelodicNotes::withFreqs ({ 200, 1000, 5000 })
+//        .withBandwidth (2.0f);
+//    step2.addStage (threeStack);
+//    step2.addStage (threeStack.withPan (-1));
+//    step2.addStage (threeStack.withPan (1));
+    
+    // Step II - square separation
+    SpatialStep step2;
+    MelodicNotes square =
+    MelodicNotes::withFreqs ({ 200, 2000, 200, 2000 })
+        .withPans ({ -0.5, 0.5, 0.5, -0.5 })
+        .withBandwidth (1.5f);
+    MelodicNotes sequence =
+    MelodicNotes::withFreqs ({ 200, 4000 })
+        .withBandwidth (1.0f)
+        .withNoteDurationInSeconds (0.1);
+    step2.addStage (square);
+    step2.addStage (sequence);
+    
+    MelodicNotes horizontal =
+    MelodicNotes::withFreqs ({ 500, 500 })
+        .withBandwidth (1.0f)
+        .withPans ({ -0.5, 0.5 })
+        .withNoteDurationInSeconds (0.1);
+    step2.addStage (horizontal);
+//    step2.addStage (sequence);
+    
+    // Step III - Solfeggietto
+    IntelligibilityStep step3;
+    MelodicNotes solfeggietto =
+    MelodicNotes ({ 0, -3, 0, 4, 9, 12, 11, 9, 8, 4, 8, 11, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 23, 21, 20, 18, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 20, 16, 20, 23, 28, 26, 24, 23, 24, 21, 24, 28, 33, 36, 35, 33, 35, 33, 32, 30, 28, 26, 24, 23, 24, 21, 16, 12, 9, 33, 28, 24, 29, 2, 5, 9, 14, 17, 21, 24, 23, 19, 14, 11, 7, 31, 26, 23, 28, 0, 4, 7, 12, 16, 19, 23, 21, 18, 17, 18, 21, 18, 17, 18, 24, 21, 16, 18, 24, 21, 16, 18, 23, 21, 15, 18, 30, 21, 15, 18, 27, 21, 11, 18, 21, 18, 15, 11, 19, -8, -5, -1, 4, 7, 6, 4, 3, -1, 3, 6, 11, 9, 7, 6, 7, 4, 7, 11, 16, 19, 18, 16, 18, 16, 15, 13, 11, 9, 7, 6, 7, 4, 7, 11, 16, 19, 18, 16, 15, 11, 15, 18, 23, 21, 19, 18, 19, 16, 19, 23, 28, 31, 30, 28, 30, 28, 27, 25, 23, 21, 19, 18, 19, 4, -8, 16, 19, 23, 28, 23, 19, 16, 2, -10, 28, 23, 20, 16, 20, 23, 28, 21, 12, 16, 28, 16, 21, 12, 16, 28, 16, 20, 11, 16, 26, 16, 20, 11, 16, 26, 16, 24, 9, -3, 21, 24, 28, 33, 28, 24, 21, 7, -5, 33, 28, 25, 21, 25, 28, 33, 26, 17, 21, 33, 21, 26, 17, 21, 33, 21, 25, 16, 21, 31, 21, 25, 16, 21, 31, 21, 29, -10, -7, -3, 2, 5, 4, 2, 1, -3, 1, 4, 9, 7, 5, 4, 5, 2, 5, 9, 14, 17, 16, 14, 16, 14, 13, 11, 9, 7, 5, 4, 5, 2, 5, 9, 14, 17, 16, 14, 13, 9, 13, 16, 21, 19, 17, 16, 17, 14, 17, 21, 26, 29, 28, 26, 28, 26, 25, 23, 21, 19, 17, 16, 17, 17, 26, 21, 17, 14, 14, 21, 17, 14, 9, 9, 17, 14, 9, 5, 5, 14, 9, 5, -2, -14, 29, 26, 25, 26, 28, 26, 25, 26, -3, -15, 17, 14, 13, 14, 16, 14, 13, 14, -4, -16, 35, 26, 28, 29, 28, 26, 24, 23, 24, -3, -15, 28, 33, 28, 31, 2, 29, 28, 26, 24, 4, -8, 23, 24, 23, 21, 23, 21, 12, 16, 28, 16, 21, 12, 16, 28, 16, 20, 11, 16, 26, 16, 20, 11, 16, 26, 16, 19, 9, 16, 25, 16, 19, 9, 16, 25, 16, 18, 14, 24, 33, 24, 18, 14, 24, 33, 24, 17, 7, 14, 23, 14, 17, 7, 14, 23, 14, 16, 12, 22, 31, 22, 16, 12, 22, 31, 22, 15, 5, 12, 21, 12, 15, 5, 12, 21, 12, 12, 3, 21, 33, 21, 12, 3, 21, 33, 21, 12, 4, 21, 24, 28, 33, 28, 24, 21, 28, 24, 21, 16, 26, -8, 23, 20, 14, 12, -3, 0, 4, 9, 12, 11, 9, 8, 4, 8, 11, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 23, 21, 20, 18, 16, 14, 12, 11, 12, 9, 12, 16, 21, 24, 23, 21, 20, 16, 20, 23, 28, 26, 24, 23, 24, 21, 24, 28, 33, 36, 35, 32, 33, 28, 24, 23, 21, 16, 12, 11, 9}, 800.0f);
+    step3.addStage (solfeggietto.withTranspositionInOctaves (-2));
+    step3.addStage (solfeggietto.withTranspositionInOctaves (0));
+    step3.addStage (solfeggietto.withTranspositionInOctaves (2));
+    
+    // Step IV - fancy pattern
+    SpatialStep step4;
+    float lowFreq = 20;
+    float hiFreq = 15000;
+    SweepPattern forwardSlash ({{ lowFreq, -1 }, { hiFreq, 1 }}, 2.0f, sampleRate);
+    SweepPattern downwardsRight ({{ hiFreq, 1 }, { lowFreq, 1 }}, 2.0f, sampleRate);
+    SweepPattern backslash ({{ lowFreq, 1 }, { hiFreq, -1 }}, 2.0f, sampleRate);
+    SweepPattern downwardsLeft ({{ hiFreq, -1 }, { lowFreq, -1 }}, 2.0f, sampleRate);
+    SweepPattern zigZag ({{ 20, -1 }, { 200, 1 }, { 2000, -1 }, { 200, 1 }, { 20, -1 }}, 2.0f, sampleRate);
+    step4.addStage (forwardSlash);
+    step4.addStage (downwardsRight);
+    step4.addStage  (backslash);
+    step4.addStage (downwardsLeft);
+    step4.addStage (zigZag);
+    
+    // Initialize QualityStepManager steps imperatively
+    qualityStepManager.addSpatialStep (step0);
+    qualityStepManager.addIntelligibilityStep (step1);
+    qualityStepManager.addSpatialStep (step2);
+    qualityStepManager.addIntelligibilityStep (step3);
+    qualityStepManager.addSpatialStep (step4);
+    
+    playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }
 
 void CabinEqAudioProcessor::releaseResources()

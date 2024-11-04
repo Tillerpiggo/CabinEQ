@@ -29,20 +29,30 @@ std::pair<float, float> GlyphGenerator::getNextSample()
         case Glyph::Type::pattern:
             nextSample = spatialPatternGenerator.getNextSample();
             break;
+        case Glyph::Type::grid:
+            nextSample = { 0.0f, 0.0f };
+            for (auto& pointGenerator : pointGenerators)
+            {
+                auto pointSample = pointGenerator.getNextSample();
+                nextSample.first += pointSample.first;
+                nextSample.second += pointSample.second;
+            }
+            break;
     }
     
-    float pinkNoiseCenterSample = pinkNoiseCenter.generate();
-    float pinkNoiseLeftSample = pinkNoiseLeft.generate();
-    float pinkNoiseRightSample = pinkNoiseRight.generate();
-    
-    nextSample.first += pinkNoiseCenterSample + pinkNoiseLeftSample * 2.0f;
-    nextSample.second += pinkNoiseCenterSample + pinkNoiseRightSample * 2.0f;
+//    float pinkNoiseCenterSample = pinkNoiseCenter.generate();
+//    float pinkNoiseLeftSample = pinkNoiseLeft.generate();
+//    float pinkNoiseRightSample = pinkNoiseRight.generate();
+//    
+//    nextSample.first += pinkNoiseCenterSample + pinkNoiseLeftSample * 2.0f;
+//    nextSample.second += pinkNoiseCenterSample + pinkNoiseRightSample * 2.0f;
     
     return nextSample;
 }
 
 void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
+    this->spec = spec;
     noiseSweepGenerator.prepare (spec);
     spatialPatternGenerator.prepare (spec);
 }
@@ -57,6 +67,9 @@ void GlyphGenerator::setGlyph (Glyph glyph)
             break;
         case Glyph::Type::pattern:
             spatialPatternGenerator.setPattern (glyph.getSpatialPattern().value());
+            break;
+        case Glyph::Type::grid:
+            preparePointGenerators();
             break;
     }
     
@@ -98,5 +111,28 @@ std::optional<float> GlyphGenerator::getCurrPlayingFreq()
             return noiseSweepGenerator.getCurrPlayingFreq();
         case Glyph::Type::pattern:
             return spatialPatternGenerator.getCurrPlayingFreq();
+        case Glyph::Type::grid:
+            return 1000.0f;
+    }
+}
+
+void GlyphGenerator::preparePointGenerators()
+{
+    // add + prepare all point generators
+    for (int i = 0; i < glyph->getPoints().size() - pointGenerators.size(); ++i)
+        pointGenerators.push_back (NoiseSweepGenerator());
+    
+    for (auto& pointGenerator : pointGenerators)
+        pointGenerator.prepare (spec);
+    
+    auto& points = glyph->getPoints();
+    for (int i = 0; i < pointGenerators.size(); ++i)
+    {
+        std::pair<float, float> leftPoint = points[i];
+        std::pair<float, float> rightPoint = points[i];
+        leftPoint.second *= -1;
+        rightPoint.second *= 1;
+        pointGenerators[i].setSweepPattern (SweepPattern ({ leftPoint, rightPoint }, 1.0f + i * 0.1f, spec.sampleRate));
+        pointGenerators[i].setBandwidth (0.5f);
     }
 }

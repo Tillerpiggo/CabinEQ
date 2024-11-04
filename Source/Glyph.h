@@ -20,7 +20,8 @@ public:
     enum class Type
     {
         sweep,
-        pattern
+        pattern,
+        grid // a bunch of (frequency, pan) points
     };
     
     Glyph (SweepPattern sweepPattern)
@@ -29,6 +30,10 @@ public:
     
     Glyph (MelodicNotes melodicNotes)
         : type (Type::pattern), melodicNotes (melodicNotes)
+    {}
+    
+    Glyph (std::vector<std::pair<float, float>> points)
+        : type (Type::grid), points (points)
     {}
     
     const Type getType() const
@@ -48,8 +53,14 @@ public:
         return melodicNotes->noiseNotes();
     }
     
+    const std::vector<std::pair<float, float>> getPoints() const
+    {
+        return points;
+    }
+    
 private:
     Type type;
     std::optional<SweepPattern> sweepPattern;
     std::optional<MelodicNotes> melodicNotes;
+    std::vector<std::pair<float, float>> points;
 };

@@ -35,6 +35,10 @@ public:
     std::optional<float> getCurrPlayingFreq();
     
 private:
+    void preparePointGenerators();
+    
+    juce::dsp::ProcessSpec spec;
+    
     std::optional<Glyph> glyph;
     bool isMuted = false;
     
@@ -44,6 +48,8 @@ private:
     NoiseSweepGenerator noiseSweepGenerator;
     SpatialPatternGenerator spatialPatternGenerator;
     SequencerListener* listener;
+    
+    std::vector<NoiseSweepGenerator> pointGenerators;
     
     float speedFactor = 1.0f;
 };

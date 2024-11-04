@@ -45,7 +45,7 @@ private:
     // Bandpass filter
     using BandpassFilter = juce::dsp::IIR::Filter<float>;
     BandpassFilter bandpass;
-    float bandwidth = 2.0f;
+    float bandwidth = 0.5f;
     float pan = 0.0f;
     float leftAmplitudeCompensation = 1.0f; // in gain
     float rightAmplitudeCompensation = 1.0f; // in gain
