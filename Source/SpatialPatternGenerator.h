@@ -51,6 +51,7 @@ public:
     
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setPattern (const std::vector<NoiseNote> notes);
+    void mute();
     void setPeakFilter (float centerFreq, float bandwidth, float ampl);
     void setLowCutFilter (float freq);
     void setMelodicPattern (std::vector<int> notesInSemitones, float centerFreq, float bandwidth, float noteDurationInMs);
@@ -79,6 +80,7 @@ private:
     float sampleRate;
     float speedFactor = 1.0f;
     float freqFactor = 1.0f;
+    bool isMuted = false;
     
     juce::dsp::IIR::Filter<float> leftPeakFilter;
     juce::dsp::IIR::Filter<float> rightPeakFilter;

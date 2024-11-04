@@ -26,14 +26,23 @@ void SpatialPatternGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 
 void SpatialPatternGenerator::setPattern (const std::vector<NoiseNote> notes)
 {
+    std::cout << "setting pattern" << std::endl;
     this->notes = notes;
     currNoteIdx = 0;
+    std::cout << "setting note idx to 0" << std::endl;
     for (const auto& note : notes)
     {
         std::cout << "ampl: " << note.ampl << std::endl;
     }
     numSamplesNoteHasBeenPlaying = 0;
     updateBandpassAndPanning();
+    
+    isMuted = false;
+}
+
+void SpatialPatternGenerator::mute()
+{
+    isMuted = true;
 }
 
 void SpatialPatternGenerator::setPeakFilter (float centerFreq, float bandwidth, float ampl)

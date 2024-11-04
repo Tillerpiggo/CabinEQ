@@ -51,7 +51,7 @@ private:
     SequencerListener* listener;
     
     std::vector<NoiseSweepGenerator> pointGenerators;
-    std::vector<SpatialPatternGenerator> spatialPatternGenerators;
+    std::vector<std::unique_ptr<SpatialPatternGenerator>> spatialPatternGenerators;
     
     float speedFactor = 1.0f;
 };

@@ -41,6 +41,18 @@ public:
         : type (Type::spatialPatterns), spatialPatterns (spatialPatterns)
     {}
     
+    static Glyph shapeFromCorners (std::vector<std::pair<float, float>> corners, float bandwidth = 1.0f)
+    {
+        std::vector<MelodicNotes> spatialPatternsFromCorners;
+        for (int i = 0; i < corners.size(); ++i)
+        {
+            MelodicNotes newNotes =
+            MelodicNotes::withFreqs ({ corners[i].first }).withPan (corners[i].second).withCyclingBandwidths ({ bandwidth, 0.0f }).withNoteDurationInSeconds (0.1 + 0.02 * i);
+            spatialPatternsFromCorners.push_back (newNotes);
+        }
+        return Glyph (spatialPatternsFromCorners);
+    }
+    
     const Type getType() const
     {
         return type;

@@ -206,7 +206,9 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     MelodicNotes squareNotes = MelodicNotes::withFreqs ({ 200, 200, 5000, 5000 }).withPans ({ -1, 1, -1, 1 }).withNoteDurationInSeconds (0.2f);
     MelodicNotes center = MelodicNotes::withMelodicPattern ({ 1, 1, 1, 0 }, { 1000.0f }, bandwidth, { 0 }).withNoteDurationInSeconds (0.2f);
     Glyph squareGlyph = Glyph ({ squareNotes, center });
+    Glyph squareShape = Glyph::shapeFromCorners ({{ 200, -1 }, { 200, 1 }, { 5000, -1 }, { 5000, 1 }});
     squareStep.addStage (squareGlyph);
+    squareStep.addStage (squareShape);
     
     // Step 0 - Grids
     SpatialStep step0;

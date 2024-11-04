@@ -42,7 +42,7 @@ std::pair<float, float> GlyphGenerator::getNextSample()
             nextSample = { 0.0f, 0.0f };
             for (auto& spatialGenerator : spatialPatternGenerators)
             {
-                auto spatialSample = spatialGenerator.getNextSample();
+                auto spatialSample = spatialGenerator->getNextSample();
                 nextSample.first += spatialSample.first;
                 nextSample.second += spatialSample.second;
             }
@@ -68,6 +68,7 @@ void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 
 void GlyphGenerator::setGlyph (Glyph glyph)
 {
+    std::cout << "setting glyph" << std::endl;
     this->glyph = glyph;
     switch (glyph.getType())
     {
@@ -86,6 +87,8 @@ void GlyphGenerator::setGlyph (Glyph glyph)
     }
     
     isMuted = false;
+    
+    std::cout << "finished setting glyph" << std::endl;
 }
 
 void GlyphGenerator::setSpeedFactor (float speedFactor)
@@ -133,7 +136,8 @@ std::optional<float> GlyphGenerator::getCurrPlayingFreq()
 void GlyphGenerator::preparePointGenerators()
 {
     // add + prepare all point generators
-    for (int i = 0; i < glyph->getPoints().size() - pointGenerators.size(); ++i)
+    size_t numToAdd = glyph->getPoints().size() - pointGenerators.size();
+    for (int i = 0; i < numToAdd; ++i)
         pointGenerators.push_back (NoiseSweepGenerator());
     
     for (auto& pointGenerator : pointGenerators)
@@ -154,17 +158,25 @@ void GlyphGenerator::preparePointGenerators()
 void GlyphGenerator::prepareSpatialPatternGenerators()
 {
     // add + prepare all spatial pattern generators
-    for (int i = 0; i < glyph->getSpatialPatterns().size() - spatialPatternGenerators.size(); ++i)
-        spatialPatternGenerators.push_back (SpatialPatternGenerator());
+    std::cout << "glyph->getSpatialPatterns().size(): " << glyph->getSpatialPatterns().size() << "Spatialsize: " << spatialPatternGenerators.size() << std::endl;
     
-    for (auto& generator : spatialPatternGenerators)
+    int numToAdd = glyph->getSpatialPatterns().size() - spatialPatternGenerators.size();
+    for (int i = 0; i < numToAdd; ++i)
     {
-        generator.prepare (spec);
+        std::cout << "adding generator" << std::endl;
+        spatialPatternGenerators.push_back (std::make_unique<SpatialPatternGenerator>());
+        spatialPatternGenerators[spatialPatternGenerators.size() - 1]->prepare (spec);
     }
+    
+    
+    std::cout << "Spatialsize: " << spatialPatternGenerators.size() << std::endl;
     
     auto& patterns = glyph->getSpatialPatterns();
     for (int i = 0; i < spatialPatternGenerators.size(); ++i)
     {
-        spatialPatternGenerators[i].setPattern (patterns[i].noiseNotes());
+        if (i < patterns.size())
+            spatialPatternGenerators[i]->setPattern (patterns[i].noiseNotes());
+        else
+            spatialPatternGenerators[i]->mute();
     }
 }
