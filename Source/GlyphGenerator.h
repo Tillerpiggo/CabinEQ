@@ -14,6 +14,7 @@
 #include "NoiseSweepGenerator.h"
 #include "SpatialPatternGenerator.h"
 #include "Glyph.h"
+#include "PinkNoise.h"
 #include "SequencerListener.h"
 
 // Allows the easy playing of spatial glyphs. For now, it just plays SweepPatterns, since Glyphs are a wrapper for SweepPattern, but this class will handle more sophisticated sequencing of such patterns in the future.
@@ -37,6 +38,9 @@ private:
     std::optional<Glyph> glyph;
     bool isMuted = false;
     
+    PinkNoise pinkNoiseCenter;
+    PinkNoise pinkNoiseLeft;
+    PinkNoise pinkNoiseRight;
     NoiseSweepGenerator noiseSweepGenerator;
     SpatialPatternGenerator spatialPatternGenerator;
     SequencerListener* listener;

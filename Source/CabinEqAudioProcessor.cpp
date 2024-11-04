@@ -60,7 +60,20 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
     MelodicNotes::withFreqs ({ 200, 2000, 200, 2000 })
         .withPans ({ -0.5, 0.5, 0.5, -0.5 })
         .withBandwidth (1.5f);
+    MelodicNotes sequence =
+    MelodicNotes::withFreqs ({ 200, 4000 })
+        .withBandwidth (1.0f)
+        .withNoteDurationInSeconds (0.1);
     step2.addStage (square);
+    step2.addStage (sequence);
+    
+    MelodicNotes horizontal =
+    MelodicNotes::withFreqs ({ 500, 500 })
+        .withBandwidth (1.0f)
+        .withPans ({ -0.5, 0.5 })
+        .withNoteDurationInSeconds (0.1);
+    step2.addStage (horizontal);
+//    step2.addStage (sequence);
     
     // Step III - Solfeggietto
     IntelligibilityStep step3;
@@ -79,10 +92,12 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
     SweepPattern downwardsRight ({{ hiFreq, 1 }, { lowFreq, 1 }}, 2.0f, sampleRate);
     SweepPattern backslash ({{ lowFreq, 1 }, { hiFreq, -1 }}, 2.0f, sampleRate);
     SweepPattern downwardsLeft ({{ hiFreq, -1 }, { lowFreq, -1 }}, 2.0f, sampleRate);
+    SweepPattern zigZag ({{ 20, -1 }, { 200, 1 }, { 2000, -1 }, { 200, 1 }, { 20, -1 }}, 2.0f, sampleRate);
     step4.addStage (forwardSlash);
     step4.addStage (downwardsRight);
     step4.addStage  (backslash);
     step4.addStage (downwardsLeft);
+    step4.addStage (zigZag);
     
     // Initialize QualityStepManager steps imperatively
     qualityStepManager.addIntelligibilityStep (step1);

@@ -12,7 +12,7 @@
 
 GlyphGenerator::GlyphGenerator()
 {
-    
+    noiseSweepGenerator.setBandwidth (0.5f);
 }
 
 std::pair<float, float> GlyphGenerator::getNextSample()
@@ -20,13 +20,25 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     if (isMuted || ! glyph.has_value())
         return { 0.0f, 0.0f };
     
+    std::pair<float, float> nextSample;
     switch (glyph->getType())
     {
         case Glyph::Type::sweep:
-            return noiseSweepGenerator.getNextSample();
+            nextSample = noiseSweepGenerator.getNextSample();
+            break;
         case Glyph::Type::pattern:
-            return spatialPatternGenerator.getNextSample();
+            nextSample = spatialPatternGenerator.getNextSample();
+            break;
     }
+    
+    float pinkNoiseCenterSample = pinkNoiseCenter.generate();
+    float pinkNoiseLeftSample = pinkNoiseLeft.generate();
+    float pinkNoiseRightSample = pinkNoiseRight.generate();
+    
+    nextSample.first += pinkNoiseCenterSample + pinkNoiseLeftSample * 2.0f;
+    nextSample.second += pinkNoiseCenterSample + pinkNoiseRightSample * 2.0f;
+    
+    return nextSample;
 }
 
 void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
