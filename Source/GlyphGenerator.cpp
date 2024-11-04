@@ -71,6 +71,9 @@ void GlyphGenerator::setGlyph (Glyph glyph)
         case Glyph::Type::grid:
             preparePointGenerators();
             break;
+        case Glyph::Type::spatialPatterns:
+            prepareSpatialPatternGenerators();
+            break;
     }
     
     isMuted = false;
@@ -130,9 +133,25 @@ void GlyphGenerator::preparePointGenerators()
     {
         std::pair<float, float> leftPoint = points[i];
         std::pair<float, float> rightPoint = points[i];
-        leftPoint.second *= -1;
-        rightPoint.second *= 1;
-        pointGenerators[i].setSweepPattern (SweepPattern ({ leftPoint, rightPoint }, 1.0f + i * 0.1f, spec.sampleRate));
-        pointGenerators[i].setBandwidth (0.5f);
+        leftPoint.first = 100;
+        rightPoint.first = 14000;
+        pointGenerators[i].setSweepPattern (SweepPattern ({ leftPoint, rightPoint }, 1.0f, spec.sampleRate));
+        pointGenerators[i].setBandwidth (1.0f);
+    }
+}
+
+void GlyphGenerator::prepareSpatialPatternGenerators()
+{
+    // add + prepare all spatial pattern generators
+    for (int i = 0; i < glyph->getSpatialPatterns().size() - spatialPatternGenerators.size(); ++i)
+        spatialPatternGenerators.push_back (SpatialPatternGenerator());
+    
+    for (auto& generator : spatialPatternGenerators)
+        generator.prepare (spec);
+    
+    auto& patterns = glyph->getSpatialPatterns();
+    for (int i = 0; i < spatialPatternGenerators.size(); ++i)
+    {
+        spatialPatternGenerators[i].setPattern (patterns[i].noiseNotes());
     }
 }

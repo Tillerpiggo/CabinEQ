@@ -21,7 +21,8 @@ public:
     {
         sweep,
         pattern,
-        grid // a bunch of (frequency, pan) points
+        grid, // a bunch of (frequency, pan) points
+        spatialPatterns
     };
     
     Glyph (SweepPattern sweepPattern)
@@ -34,6 +35,10 @@ public:
     
     Glyph (std::vector<std::pair<float, float>> points)
         : type (Type::grid), points (points)
+    {}
+    
+    Glyph (std::vector<MelodicNotes> spatialPatterns)
+        : type (Type::spatialPatterns), spatialPatterns (spatialPatterns)
     {}
     
     const Type getType() const
@@ -58,9 +63,15 @@ public:
         return points;
     }
     
+    const std::vector<MelodicNotes> getSpatialPatterns()
+    {
+        return spatialPatterns;
+    }
+    
 private:
     Type type;
     std::optional<SweepPattern> sweepPattern;
     std::optional<MelodicNotes> melodicNotes;
     std::vector<std::pair<float, float>> points;
+    std::vector<MelodicNotes> spatialPatterns;
 };

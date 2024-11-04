@@ -36,6 +36,7 @@ public:
     
 private:
     void preparePointGenerators();
+    void prepareSpatialPatternGenerators();
     
     juce::dsp::ProcessSpec spec;
     
@@ -50,6 +51,7 @@ private:
     SequencerListener* listener;
     
     std::vector<NoiseSweepGenerator> pointGenerators;
+    std::vector<SpatialPatternGenerator> spatialPatternGenerators;
     
     float speedFactor = 1.0f;
 };

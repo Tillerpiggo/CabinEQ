@@ -190,7 +190,13 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     // Step 0 - Grids
     SpatialStep step0;
-    Glyph twoByTwo ({ { 100, 0 }, { 700, 1 }, { 5000, -1 }});
+    Glyph twoByTwo ({ { 100, -1 }, { 700, 1 }, { 5000, 0 }, { 5000, 0 }});
+    Glyph justBass ({ { 100, -1 }});
+    Glyph justMid ({ { 700, 0 }});
+    Glyph justTreble ({ { 5000, 1 }});
+    step0.addStage (justBass);
+    step0.addStage (justMid);
+    step0.addStage (justTreble);
     step0.addStage (twoByTwo);
     
     // Step I - Intervals

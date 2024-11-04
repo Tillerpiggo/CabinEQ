@@ -379,7 +379,7 @@ public:
         return withTransposition (octaves * 12.0f);
     }
     
-    std::vector<NoiseNote> noiseNotes()
+    std::vector<NoiseNote> noiseNotes() const
     {
         std::vector<NoiseNote> noiseNotes;
         

@@ -24,7 +24,7 @@ void SpatialPatternGenerator::prepare (const juce::dsp::ProcessSpec& spec)
     rightPeakFilter.prepare (spec);
 }
 
-void SpatialPatternGenerator::setPattern (std::vector<NoiseNote> notes)
+void SpatialPatternGenerator::setPattern (const std::vector<NoiseNote> notes)
 {
     this->notes = notes;
     currNoteIdx = 0;
