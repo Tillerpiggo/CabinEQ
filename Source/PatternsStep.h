@@ -23,6 +23,8 @@ public:
     
     void addStage (FauxMusicPattern stage)
     {
+        std::cout << "pushing back stage" << std::endl;
+        std::cout << "stage size: " << stage.getNumPatterns() << std::endl;
         stages.push_back (stage);
     }
     

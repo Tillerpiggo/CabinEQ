@@ -24,7 +24,8 @@ std::pair<float, float> MultiplePatternGenerator::getNextSample()
     
     for (auto& noiseGenerator : noiseGenerators)
     {
-        auto noiseGeneratorSample = noiseGenerator.getNextSample();
+//        std::cout << "noise generator! " << std::endl;
+        auto noiseGeneratorSample = noiseGenerator->getNextSample();
         nextSample.first += noiseGeneratorSample.first;
         nextSample.second += noiseGeneratorSample.second;
     }
@@ -58,20 +59,22 @@ void MultiplePatternGenerator::setPattern (FauxMusicPattern fauxMusicPattern)
     // For all existing generators, simply set their pattern
     for (int i = 0; i < noiseGenerators.size(); ++i)
     {
-        noiseGenerators[i].setPattern (fauxMusicPattern.getPatterns()[i]);
-        noiseGenerators[i].setFrequencyRange (fauxMusicPattern.getFreqRanges()[i]);
+        noiseGenerators[i]->setPattern (fauxMusicPattern.getPatterns()[i]);
+        noiseGenerators[i]->setFrequencyRange (fauxMusicPattern.getFreqRanges()[i]);
     }
     
     // For any new needed generators, add them, prepare them, and then set their pattern
     int numToAdd = static_cast<int> (fauxMusicPattern.getNumPatterns()) - static_cast<int> (noiseGenerators.size());
+    std::cout << "num to add: " << numToAdd << std::endl;
     int numNoiseGenerators = static_cast<int> (noiseGenerators.size());
     for (int i = 0; i < numToAdd; ++i)
     {
+        std::cout << "adding noise generator" << std::endl;
         int idx = i + numNoiseGenerators;
-        noiseGenerators.push_back (NoiseGenerator());
-        noiseGenerators[idx].setPattern (fauxMusicPattern.getPatterns()[i]);
-        noiseGenerators[idx].setFrequencyRange (fauxMusicPattern.getFreqRanges()[i]);
-        noiseGenerators[idx].prepare (spec);
+        noiseGenerators.push_back (std::make_unique<NoiseGenerator>());
+        noiseGenerators[idx]->setPattern (fauxMusicPattern.getPatterns()[i]);
+        noiseGenerators[idx]->setFrequencyRange (fauxMusicPattern.getFreqRanges()[i]);
+        noiseGenerators[idx]->prepare (spec);
     }
     
     isMuted = false;

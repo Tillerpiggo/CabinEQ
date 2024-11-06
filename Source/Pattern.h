@@ -43,4 +43,5 @@ private:
     GainEnvelope gainEnvelope;
     float hitDurationInSamples = 10000; // made up, gets scaled later
     float sampleIdx = 0;
+    float hitIdx = 0;
 };

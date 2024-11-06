@@ -20,8 +20,8 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     if (! pattern.has_value())
         return { 0.0f, 0.0f };
     
-    if (shouldUpdateFilters)
-        updateFilters();
+//    if (shouldUpdateFilters)
+//        updateFilters();
     
     if (bufferIdx >= bufferSize)
     {

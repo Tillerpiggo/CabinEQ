@@ -208,6 +208,7 @@ void PlaybackManager::updateSequencersFromQualityStep()
         case QualityStep::Type::patterns:
         {
             auto pattern = qualityStep->getPatternAtStage (stageIdx);
+            std::cout << "pattern size: " << pattern.getNumPatterns() << std::endl;
             multiplePatternGenerator.setPattern (pattern);
             melodicNoiseSequencer.mute();
             glyphGenerator.mute();

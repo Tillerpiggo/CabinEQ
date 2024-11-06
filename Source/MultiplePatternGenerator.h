@@ -30,7 +30,7 @@ public:
     void mute();
     
 private:
-    std::vector<NoiseGenerator> noiseGenerators;
+    std::vector<std::unique_ptr<NoiseGenerator>> noiseGenerators;
     juce::dsp::ProcessSpec spec;
     bool isMuted = false;
 };

@@ -49,5 +49,5 @@ private:
     
     // Pattern
     std::optional<Pattern> pattern;
-    float percentIncrementPerSample = 0.1; // adjust this to taste, I guess
+    float percentIncrementPerSample = 0.01; // adjust this to taste, I guess
 };

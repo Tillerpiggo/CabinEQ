@@ -15,6 +15,13 @@ FauxMusicPattern::FauxMusicPattern (std::vector<Pattern> patterns, std::vector<s
 {
 }
 
+FauxMusicPattern::FauxMusicPattern (std::vector<std::vector<bool>> hitPatterns, std::vector<std::pair<float, float>> freqRanges)
+    : freqRanges (freqRanges)
+{
+    // Initialize patterns
+    for (const auto& hitPattern : hitPatterns)
+        patterns.push_back (Pattern (hitPattern));
+}
 
 const std::vector<Pattern>& FauxMusicPattern::getPatterns() const
 {

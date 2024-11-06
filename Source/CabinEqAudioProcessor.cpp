@@ -200,6 +200,13 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //    triangleStep.addStage (triangleGlyph);
 //    triangleStep.addStage (triangleSweep);
     
+    // Patterns
+    PatternsStep patterns;
+//    FauxMusicPattern fauxMusicPattern ({{ 1, 0, 1, 0 }, { 1, 1, 0, 0 }, { 0, 0, 1, 1 }}, {{ 20, 200 }, { 200, 2000 }, { 2000, 20000 }});
+    FauxMusicPattern fauxMusicPattern ({{ 1, 0, 1, 0 }}, {{ 20, 200 }});
+    patterns.addStage (fauxMusicPattern);
+    std::cout << "fauxMusicPattern size: " << fauxMusicPattern.getNumPatterns() << std::endl;
+    
     // SpatialStep
     SpatialStep higher;
     higher.addStage (Glyph (SweepPattern ({{ 200, -1 }, { 10000, -1 }}, 1.0f, sampleRate)));
@@ -328,6 +335,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     // Initialize QualityStepManager steps imperatively
 //    qualityStepManager.addSpatialStep (triangleStep);
+    qualityStepManager.addPatternsStep (patterns);
     qualityStepManager.addSpatialStep (higher);
 //    qualityStepManager.addSpatialStep (verticalStep);
 //    qualityStepManager.addSpatialStep (squareStep);

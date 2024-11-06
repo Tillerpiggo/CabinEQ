@@ -19,6 +19,8 @@ class FauxMusicPattern
 public:
     FauxMusicPattern (std::vector<Pattern> patterns, std::vector<std::pair<float, float>> freqRanges); // len(patterns) == len(freqRanges)
     
+    FauxMusicPattern (std::vector<std::vector<bool>> hitPatterns, std::vector<std::pair<float, float>> freqRanges);
+    
     const std::vector<Pattern>& getPatterns() const;
     const std::vector<std::pair<float, float>>& getFreqRanges() const;
     const int getNumPatterns() const;
