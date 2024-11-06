@@ -23,6 +23,7 @@
 #include "GlyphGenerator.h"
 #include "QualityStep.h"
 #include "SequencerListener.h"
+#include "MultiplePatternGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -70,6 +71,7 @@ private:
     // Sound generation
     GlyphGenerator glyphGenerator;
     MelodicNoiseSequencer melodicNoiseSequencer;
+    MultiplePatternGenerator multiplePatternGenerator;
     ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
     Curve tiltCurve;
     

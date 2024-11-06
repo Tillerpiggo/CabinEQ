@@ -25,6 +25,7 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setCenterFrequencyAndBandwidth (float centerFreq, float bandwidthInOctaves);
     void setStartAndEndFrequency (float startFreq, float endFreq);
+    void setFrequencyRange (std::pair<float, float> freqRange);
     void setPattern (Pattern pattern);
     
 private:

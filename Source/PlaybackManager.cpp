@@ -73,6 +73,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     
     glyphGenerator.prepare (spec);
     melodicNoiseSequencer.prepare (spec);
+    multiplePatternGenerator.prepare (spec);
     
     filter.prepare (spec);
     tiltFilter.prepare (spec);
@@ -102,6 +103,8 @@ void PlaybackManager::setDifficulty (float difficulty)
     melodicNoiseSequencer.setNoiseGain (difficulty);
     melodicNoiseSequencer.setSpeedFactor (speedFactor); // map from [0, 1] to [0.5, 1]
     glyphGenerator.setSpeedFactor (speedFactor);
+    
+    // TODO: add multiple pattern generator related functions here
 }
 
 void PlaybackManager::setOctaveShift (float octaveShift)
@@ -127,6 +130,8 @@ std::optional<float> PlaybackManager::getCurrPlayingFreq()
             return glyphGenerator.getCurrPlayingFreq();
         case QualityStep::Type::intelligibility:
             return melodicNoiseSequencer.getCurrPlayingFreq();
+        case QualityStep::Type::patterns:
+            return std::nullopt;
     }
 }
 
@@ -170,8 +175,9 @@ std::pair<float, float> PlaybackManager::getNextSample()
 {
     auto [melodicLeftSample, melodicRightSample] = melodicNoiseSequencer.getNextSample();
     auto [glyphLeftSample, glyphRightSample] = glyphGenerator.getNextSample();
+    auto [patternsLeftSample, patternsRightSample] = multiplePatternGenerator.getNextSample();
     
-    return { melodicLeftSample + glyphLeftSample, melodicRightSample + glyphRightSample };
+    return { melodicLeftSample + glyphLeftSample + patternsLeftSample, melodicRightSample + glyphRightSample + patternsRightSample };
 }
 
 void PlaybackManager::updateSequencersFromQualityStep()
@@ -186,6 +192,7 @@ void PlaybackManager::updateSequencersFromQualityStep()
             auto glyph = qualityStep->getSpatialPatternAtStage (stageIdx);
             glyphGenerator.setGlyph (glyph);
             melodicNoiseSequencer.mute();
+            multiplePatternGenerator.mute();
             break;
         }
             
@@ -193,6 +200,16 @@ void PlaybackManager::updateSequencersFromQualityStep()
         {
             auto melody = qualityStep->getIntelligibilityPatternAtStage (stageIdx);
             melodicNoiseSequencer.setPattern (melody.noiseNotes());
+            glyphGenerator.mute();
+            multiplePatternGenerator.mute();
+            break;
+        }
+            
+        case QualityStep::Type::patterns:
+        {
+            auto pattern = qualityStep->getPatternAtStage (stageIdx);
+            multiplePatternGenerator.setPattern (pattern);
+            melodicNoiseSequencer.mute();
             glyphGenerator.mute();
             break;
         }

@@ -64,6 +64,16 @@ void NoiseGenerator::setStartAndEndFrequency (float startFreq, float endFreq)
     shouldUpdateFilters = true;
 }
 
+void NoiseGenerator::setFrequencyRange (std::pair<float, float> freqRange)
+{
+    setStartAndEndFrequency (freqRange.first, freqRange.second);
+}
+
+void NoiseGenerator::setPattern (Pattern pattern)
+{
+    this->pattern = pattern;
+}
+
 void NoiseGenerator::fillBuffer()
 {
     buffer.clear();

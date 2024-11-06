@@ -19,6 +19,9 @@ std::pair<float, float> MultiplePatternGenerator::getNextSample()
 {
     std::pair<float, float> nextSample { 0.0f, 0.0f };
     
+    if (isMuted)
+        return nextSample;
+    
     for (auto& noiseGenerator : noiseGenerators)
     {
         auto noiseGeneratorSample = noiseGenerator.getNextSample();
@@ -31,10 +34,6 @@ std::pair<float, float> MultiplePatternGenerator::getNextSample()
 
 void MultiplePatternGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    for (auto& noiseGenerator : noiseGenerators)
-    {
-        noiseGenerator.prepare (spec);
-    }
     this->spec = spec;
 }
 
@@ -48,14 +47,32 @@ void MultiplePatternGenerator::setFreqFactor (float freqFactor)
     // TODO: Implement
 }
 
-void MultiplePatternGenerator::addPattern (std::vector<bool> hits)
+void MultiplePatternGenerator::mute()
 {
-    NoiseGenerator newNoiseGenerator;
-    newNoiseGenerator.setPattern (Pattern (hits));
+    isMuted = true;
 }
 
-void MultiplePatternGenerator::addPatterns (std::vector<std::vector<bool>> hitsVector)
+
+void MultiplePatternGenerator::setPattern (FauxMusicPattern fauxMusicPattern)
 {
-    for (const auto& hits : hitsVector)
-        addPattern (hits);
+    // For all existing generators, simply set their pattern
+    for (int i = 0; i < noiseGenerators.size(); ++i)
+    {
+        noiseGenerators[i].setPattern (fauxMusicPattern.getPatterns()[i]);
+        noiseGenerators[i].setFrequencyRange (fauxMusicPattern.getFreqRanges()[i]);
+    }
+    
+    // For any new needed generators, add them, prepare them, and then set their pattern
+    int numToAdd = static_cast<int> (fauxMusicPattern.getNumPatterns()) - static_cast<int> (noiseGenerators.size());
+    int numNoiseGenerators = static_cast<int> (noiseGenerators.size());
+    for (int i = 0; i < numToAdd; ++i)
+    {
+        int idx = i + numNoiseGenerators;
+        noiseGenerators.push_back (NoiseGenerator());
+        noiseGenerators[idx].setPattern (fauxMusicPattern.getPatterns()[i]);
+        noiseGenerators[idx].setFrequencyRange (fauxMusicPattern.getFreqRanges()[i]);
+        noiseGenerators[idx].prepare (spec);
+    }
+    
+    isMuted = false;
 }

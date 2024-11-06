@@ -12,6 +12,7 @@
 
 #include "SpatialStep.h"
 #include "IntelligibilityStep.h"
+#include "PatternsStep.h"
 
 // This class is a wrapper for a SpatialQualityStep and IntelligibilityQualityStep designed to make it easier to use them interchangeably.
 class QualityStep
@@ -20,17 +21,23 @@ public:
     enum class Type
     {
         spatial,
-        intelligibility
+        intelligibility,
+        patterns
     };
     
     static QualityStep spatial (SpatialStep spatialStep)
     {
-        return QualityStep (Type::spatial, spatialStep, std::nullopt);
+        return QualityStep (Type::spatial, spatialStep, std::nullopt, std::nullopt);
     }
     
     static QualityStep intelligibility (IntelligibilityStep intelligibilityStep)
     {
-        return QualityStep (Type::intelligibility, std::nullopt, intelligibilityStep);
+        return QualityStep (Type::intelligibility, std::nullopt, intelligibilityStep, std::nullopt);
+    }
+    
+    static QualityStep patterns (PatternsStep patternsStep)
+    {
+        return QualityStep (Type::patterns, std::nullopt, std::nullopt, patternsStep);
     }
     
     const Type getType() const
@@ -54,56 +61,35 @@ public:
         return intelligibilityStep->patternAtStage (stageIdx);
     }
     
+    const FauxMusicPattern getPatternAtStage (int stageIdx)
+    {
+        if (type != Type::patterns)
+            std::cerr << "Calling getPatternsAtStage on non-patterns QualityStep" << std::endl;
+        
+        return patternsStep->patternAtStage (stageIdx);
+    }
+    
     int getNumStages()
     {
         switch (type)
         {
             case Type::spatial:
                 return spatialStep->getNumStages();
-                break;
             case Type::intelligibility:
                 return intelligibilityStep->getNumStages();
-                break;
+            case Type::patterns:
+                return patternsStep->getNumStages();
         }
     }
     
 private:
-    QualityStep (Type type, std::optional<SpatialStep> spatialStep, std::optional<IntelligibilityStep> intelligibilityStep)
-        : type (type), spatialStep (spatialStep), intelligibilityStep (intelligibilityStep)
+    QualityStep (Type type, std::optional<SpatialStep> spatialStep, std::optional<IntelligibilityStep> intelligibilityStep, std::optional<PatternsStep> patternsStep)
+        : type (type), spatialStep (spatialStep), intelligibilityStep (intelligibilityStep), patternsStep (patternsStep)
     {
     }
     
     Type type;
     std::optional<SpatialStep> spatialStep;
     std::optional<IntelligibilityStep> intelligibilityStep;
+    std::optional<PatternsStep> patternsStep;
 };
-
-//// This represents a single headphone test audio. It includes information to play the test, show the reference (what you're supposed to be listening for), and adjust the difficulty, for both spatial and intelligiblity based tests.
-//class QualityStep
-//{
-//public:
-//    enum class Type
-//    {
-//        spatial,
-//        intelligibility
-//    };
-//
-//    QualityStep (Type type, AudioPattern testPattern, DifficultyRange difficultyRange)
-//        : type (type), testPattern (testPattern), difficultyRange (difficultyRange)
-//    {}
-//
-//    const AudioPattern& getAudioPattern() const
-//    {
-//        return testPattern;
-//    }
-//
-//    const DifficultyRange& getDifficultyRange() const
-//    {
-//        return difficultyRange;
-//    }
-//
-//private:
-//    Type type;
-//    AudioPattern testPattern;
-//    DifficultyRange difficultyRange;
-//};

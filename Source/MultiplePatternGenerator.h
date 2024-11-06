@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 
 #include "NoiseGenerator.h"
+#include "FauxMusicPattern.h"
 
 // This class provides a simple interface to adding and playing multiple noise patterns simultaneously
 class MultiplePatternGenerator
@@ -25,11 +26,11 @@ public:
     
     void setSpeedFactor (float speedFactor); // does nothing, for now
     void setFreqFactor (float freqFactor); // does nothing, for now
-    
-    void addPattern (std::vector<bool> hits); // lets just work on hits for now, and add frequency sweeps in later. Let's make it so that you should call this before calling prepare
-    void addPatterns (std::vector<std::vector<bool>> hits);
+    void setPattern (FauxMusicPattern pattern); // also must be called after prepare. Assumes len(hits) == len(freqRanges)
+    void mute();
     
 private:
     std::vector<NoiseGenerator> noiseGenerators;
     juce::dsp::ProcessSpec spec;
+    bool isMuted = false;
 };

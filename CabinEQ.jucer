@@ -38,12 +38,17 @@
         <FILE id="cyinty" name="SpatialStep.h" compile="0" resource="0" file="Source/SpatialStep.h"/>
         <FILE id="ApKM6n" name="IntelligibilityStep.h" compile="0" resource="0"
               file="Source/IntelligibilityStep.h"/>
+        <FILE id="EydLzl" name="PatternsStep.h" compile="0" resource="0" file="Source/PatternsStep.h"/>
         <FILE id="KOdH6F" name="AudioPattern.cpp" compile="1" resource="0"
               file="Source/AudioPattern.cpp"/>
         <FILE id="SYoPuJ" name="AudioPattern.h" compile="0" resource="0" file="Source/AudioPattern.h"/>
         <FILE id="KOH1dO" name="DifficultyRange.h" compile="0" resource="0"
               file="Source/DifficultyRange.h"/>
         <FILE id="nbwoaQ" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
+        <FILE id="MJSFfb" name="FauxMusicPattern.cpp" compile="1" resource="0"
+              file="Source/FauxMusicPattern.cpp"/>
+        <FILE id="s1PAyt" name="FauxMusicPattern.h" compile="0" resource="0"
+              file="Source/FauxMusicPattern.h"/>
         <FILE id="sv59Y7" name="Pattern.cpp" compile="1" resource="0" file="Source/Pattern.cpp"/>
         <FILE id="Yn5yLj" name="Pattern.h" compile="0" resource="0" file="Source/Pattern.h"/>
       </GROUP>

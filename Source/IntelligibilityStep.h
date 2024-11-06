@@ -45,7 +45,7 @@ public:
     
     int getNumStages() const
     {
-        return stages.size();
+        return static_cast<int> (stages.size());
     }
     
 private:
