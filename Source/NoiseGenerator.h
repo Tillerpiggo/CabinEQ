@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "CutoffFilter.h"
 #include "PinkNoise.h"
+#include "Pattern.h"
 
 // This class generates pink noise with a certain center frequency and bandwidth ( or starting frequency and ending frequency )
 class NoiseGenerator
@@ -24,6 +25,7 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setCenterFrequencyAndBandwidth (float centerFreq, float bandwidthInOctaves);
     void setStartAndEndFrequency (float startFreq, float endFreq);
+    void setPattern (Pattern pattern);
     
 private:
     void fillBuffer();
@@ -43,4 +45,8 @@ private:
     int bufferIdx = 0;
     int bufferSize; // above so it's initialized before buffer
     juce::AudioBuffer<float> buffer;
+    
+    // Pattern
+    std::optional<Pattern> pattern;
+    float percentIncrementPerSample = 0.1; // adjust this to taste, I guess
 };

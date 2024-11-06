@@ -30,9 +30,9 @@ public:
         float freqFactor;
     };
     
-    Pattern (std::vector<bool> hits, float cycleLengthInSeconds, float sampleRate); // for now, set freqPattern and pan pattern to static patterns of 1.0f/0.0f (so no change)
+    Pattern (std::vector<bool> hits); // for now, set freqPattern and pan pattern to static patterns of 1.0f/0.0f (so no change)
     
-    Feature getNextFeature(); // the feature for the next sample
+    Feature getNextFeature (float percentIncrement); // the feature for the next sample
     Feature getCurrFeature();
     
 private:
@@ -40,10 +40,7 @@ private:
     std::optional<SweepPattern> freqPattern;
     std::optional<SweepPattern> panPattern;
     
-    float cycleLengthInSeconds;
-    float sampleRate;
-    
     GainEnvelope gainEnvelope;
-    int hitDurationInSamples;
-    int sampleIdx = 0;
+    float hitDurationInSamples = 10000; // made up, gets scaled later
+    float sampleIdx = 0;
 };

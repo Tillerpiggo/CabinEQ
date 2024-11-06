@@ -10,24 +10,24 @@
 
 #include "Pattern.h"
 
-Pattern::Pattern (std::vector<bool> hits, float cycleLengthInSeconds, float sampleRate)
-    : hits (hits), cycleLengthInSeconds (cycleLengthInSeconds), sampleRate (sampleRate), hitDurationInSamples (sampleRate * cycleLengthInSeconds / hits.size())
+Pattern::Pattern (std::vector<bool> hits)
+    : hits (hits)
 {
 }
 
-Pattern::Feature Pattern::getNextFeature()
+Pattern::Feature Pattern::getNextFeature (float percentIncrement)
 {
     if (sampleIdx >= hitDurationInSamples)
-        sampleIdx++;
+        sampleIdx = remainder (sampleIdx, hitDurationInSamples);
     
     float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples);
     
-    sampleIdx++;
+    sampleIdx += percentIncrement * 100;
     return Feature (gain, gain, 1.0f);
 }
 
 Pattern::Feature Pattern::getCurrFeature()
 {
     float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples);
-    return Feature (1.0f, 1.0f, 1.0f);
+    return Feature (gain, gain, 1.0f);
 }

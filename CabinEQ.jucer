@@ -116,6 +116,10 @@
           <FILE id="K8VCnE" name="PitchedGenerator.h" compile="0" resource="0"
                 file="Source/PitchedGenerator.h"/>
         </GROUP>
+        <FILE id="mDOWTb" name="MultiplePatternGenerator.cpp" compile="1" resource="0"
+              file="Source/MultiplePatternGenerator.cpp"/>
+        <FILE id="MiiREf" name="MultiplePatternGenerator.h" compile="0" resource="0"
+              file="Source/MultiplePatternGenerator.h"/>
         <FILE id="GRxmzC" name="NoiseGenerator.cpp" compile="1" resource="0"
               file="Source/NoiseGenerator.cpp"/>
         <FILE id="CIoINj" name="NoiseGenerator.h" compile="0" resource="0"

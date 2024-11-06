@@ -17,6 +17,9 @@ NoiseGenerator::NoiseGenerator()
 
 std::pair<float, float> NoiseGenerator::getNextSample()
 {
+    if (! pattern.has_value())
+        return { 0.0f, 0.0f };
+    
     if (shouldUpdateFilters)
         updateFilters();
     
@@ -26,8 +29,9 @@ std::pair<float, float> NoiseGenerator::getNextSample()
         bufferIdx = 0;
     }
     
+    auto feature = pattern->getNextFeature (percentIncrementPerSample);
     float val = buffer.getReadPointer(0)[bufferIdx];
-    std::pair<float, float> nextSample { val * leftGain, val * rightGain };
+    std::pair<float, float> nextSample { val * leftGain * feature.leftGain, val * rightGain * feature.rightGain };
     
     bufferIdx++;
     
