@@ -80,10 +80,40 @@ public:
         return spatialPatterns;
     }
     
+    std::optional<SweepPattern> getPitchSweepPattern() const
+    {
+        return pitchSweepPattern;
+    }
+    
+    void setPitchPattern (SweepPattern pitchSweepPattern)
+    {
+        this->pitchSweepPattern = pitchSweepPattern;
+    }
+    
+    float getNextPitch()
+    {
+        return pitchSweepPattern->getNextFrequencyAndPan().first;
+    }
+    
+    Glyph withPan (float pan)
+    {
+        std::vector<MelodicNotes> newSpatialPatterns;
+        for (const auto& spatialPattern : spatialPatterns)
+        {
+            newSpatialPatterns.push_back (spatialPattern.withPan (pan));
+        }
+        Glyph newGlyph = Glyph (newSpatialPatterns);
+        if (pitchSweepPattern.has_value())
+            newGlyph.setPitchPattern (pitchSweepPattern.value());
+        
+        return newGlyph;
+    }
+    
 private:
     Type type;
     std::optional<SweepPattern> sweepPattern;
     std::optional<MelodicNotes> melodicNotes;
     std::vector<std::pair<float, float>> points;
     std::vector<MelodicNotes> spatialPatterns;
+    std::optional<SweepPattern> pitchSweepPattern;
 };

@@ -114,6 +114,10 @@
           <FILE id="K8VCnE" name="PitchedGenerator.h" compile="0" resource="0"
                 file="Source/PitchedGenerator.h"/>
         </GROUP>
+        <FILE id="GRxmzC" name="NoiseGenerator.cpp" compile="1" resource="0"
+              file="Source/NoiseGenerator.cpp"/>
+        <FILE id="CIoINj" name="NoiseGenerator.h" compile="0" resource="0"
+              file="Source/NoiseGenerator.h"/>
         <FILE id="Nm4Y5z" name="NoiseSweepGenerator.cpp" compile="1" resource="0"
               file="Source/NoiseSweepGenerator.cpp"/>
         <FILE id="QfQPIf" name="NoiseSweepGenerator.h" compile="0" resource="0"

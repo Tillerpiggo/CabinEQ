@@ -15,7 +15,7 @@
 class CutoffFilter
 {
 public:
-    enum class CutoffType
+    enum class Type
     {
         lowPass,
         highPass,
@@ -23,8 +23,8 @@ public:
     
     CutoffFilter();
     void process (juce::dsp::AudioBlock<float>& block);
-    void prepare (juce::dsp::ProcessSpec& spec);
-    void setCutoff (CutoffType type, float freq);
+    void prepare (const juce::dsp::ProcessSpec& spec);
+    void setCutoff (Type type, float freq);
     
 private:
     using Filter = juce::dsp::IIR::Filter<float>;
@@ -56,7 +56,7 @@ private:
         *cutoffFilter.template get<Index>().coefficients = *coefficients[Index];
     }
     
-    CutoffType filterType;
+    Type filterType;
     float filterFreq;
     bool shouldUpdateFilter = false;
 };

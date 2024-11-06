@@ -89,8 +89,7 @@ void SpatialPatternGenerator::setNoteBandwidth (float noteBandwidth)
 
 std::pair<float, float> SpatialPatternGenerator::getNextSample()
 {
-//    return noiseGenerator.getNextSample();
-    if (currNoteIdx < 0 || currNoteIdx >= notes.size())
+    if (currNoteIdx < 0 || currNoteIdx >= notes.size() || isMuted)
         return { 0, 0 };
     
     std::pair<float, float> sample = noiseGenerator.getNextSample();

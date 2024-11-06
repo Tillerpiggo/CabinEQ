@@ -35,6 +35,18 @@ public:
         stages.push_back (Glyph (sweepPattern));
     }
     
+    void addShape (std::vector<std::pair<float, float>> shapeCorners, float sampleRate, float bandwidth = 1.0f)
+    {
+        // Add a pattern shape
+        Glyph cornerGlyph = Glyph::shapeFromCorners (shapeCorners, bandwidth);
+        
+        // Add a pattern sweep
+        Glyph shapeGlyph = Glyph (SweepPattern (shapeCorners, 2.0f, sampleRate));
+        
+        stages.push_back (cornerGlyph);
+        stages.push_back (shapeGlyph);
+    }
+    
     const std::vector<Glyph>& getStages() const
     {
         return stages;

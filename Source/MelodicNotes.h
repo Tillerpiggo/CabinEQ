@@ -231,7 +231,7 @@ public:
         return MelodicNotes (newNotesInSemitones, newPans, newBandwidths, newAmpls, centerFreq, noteDurationInSeconds, sampleRate);
     }
     
-    MelodicNotes withPan (float newPan)
+    MelodicNotes withPan (float newPan) const
     {
         return MelodicNotes (notesInSemitones, std::vector<float> (notesInSemitones.size(), newPan), bandwidths, ampls, centerFreq, noteDurationInSeconds, sampleRate);
     }

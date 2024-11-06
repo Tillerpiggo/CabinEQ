@@ -49,6 +49,11 @@ std::pair<float, float> GlyphGenerator::getNextSample()
             break;
     }
     
+    if (glyph->getPitchSweepPattern().has_value())
+    {
+        setFreqFactor (glyph->getNextPitch());
+    }
+    
 //    float pinkNoiseCenterSample = pinkNoiseCenter.generate();
 //    float pinkNoiseLeftSample = pinkNoiseLeft.generate();
 //    float pinkNoiseRightSample = pinkNoiseRight.generate();
@@ -102,6 +107,9 @@ void GlyphGenerator::setFreqFactor (float freqFactor)
 {
 //    noiseSweepGenerator.setFreqFactor (freqFactor);
     spatialPatternGenerator.setFreqFactor (freqFactor);
+    
+    for (auto& generator : spatialPatternGenerators)
+        generator->setFreqFactor (freqFactor);
 }
 
 void GlyphGenerator::mute()

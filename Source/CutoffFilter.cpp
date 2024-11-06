@@ -15,7 +15,7 @@ CutoffFilter::CutoffFilter()
     
 }
 
-void CutoffFilter::setCutoff (CutoffType type, float freq)
+void CutoffFilter::setCutoff (Type type, float freq)
 {
     filterType = type;
     filterFreq = freq;
@@ -28,10 +28,10 @@ void CutoffFilter::process (juce::dsp::AudioBlock<float>& block)
     {
         switch (filterType)
         {
-            case CutoffType::lowPass:
+            case Type::lowPass:
                 setWithLowPassCoefficients (filterFreq);
                 break;
-            case CutoffType::highPass:
+            case Type::highPass:
                 setWithHighPassCoefficients (filterFreq);
                 break;
         }
@@ -42,7 +42,7 @@ void CutoffFilter::process (juce::dsp::AudioBlock<float>& block)
     cutoffFilter.process (context);
 }
 
-void CutoffFilter::prepare (juce::dsp::ProcessSpec& spec)
+void CutoffFilter::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->sampleRate = spec.sampleRate;
     cutoffFilter.prepare (spec);

@@ -28,6 +28,7 @@ public:
     void setGlyph (Glyph glyph);
     void setSpeedFactor (float speedFactor);
     void setFreqFactor (float freqFactor);
+    void setPitchOscillation (SweepPattern sweepPattern);
     void mute();
     
     void setListener (SequencerListener* listener);

@@ -200,15 +200,47 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //    triangleStep.addStage (triangleGlyph);
 //    triangleStep.addStage (triangleSweep);
     
-    // Step Square
-    SpatialStep squareStep;
-    float bandwidth = 1.0f;
-    MelodicNotes squareNotes = MelodicNotes::withFreqs ({ 200, 200, 5000, 5000 }).withPans ({ -1, 1, -1, 1 }).withNoteDurationInSeconds (0.2f);
-    MelodicNotes center = MelodicNotes::withMelodicPattern ({ 1, 1, 1, 0 }, { 1000.0f }, bandwidth, { 0 }).withNoteDurationInSeconds (0.2f);
-    Glyph squareGlyph = Glyph ({ squareNotes, center });
-    Glyph squareShape = Glyph::shapeFromCorners ({{ 200, -1 }, { 200, 1 }, { 5000, -1 }, { 5000, 1 }});
-    squareStep.addStage (squareGlyph);
-    squareStep.addStage (squareShape);
+    // SpatialStep
+    SpatialStep higher;
+    higher.addStage (Glyph (SweepPattern ({{ 200, -1 }, { 10000, -1 }}, 1.0f, sampleRate)));
+    higher.addStage (Glyph (SweepPattern ({{ 200, 1 }, { 10000, 1 }}, 1.0f, sampleRate)));
+    MelodicNotes lowPattern = MelodicNotes::withFreqs ({ 100 }).withCyclingBandwidths ({ 2.0f, 0.0f, 2.0f, 0.0f });
+    MelodicNotes midPattern = MelodicNotes::withFreqs ({ 1000 }).withCyclingBandwidths ({ 2.0f, 0.0f, 0.0f, 2.0f });
+    MelodicNotes hiPattern = MelodicNotes::withFreqs ({ 10000 }).withCyclingBandwidths ({ 2.0f, 2.0f, 0.0f, 0.0f });
+    Glyph wrinkleFinder = Glyph ({ lowPattern, midPattern, hiPattern });
+    wrinkleFinder.setPitchPattern (SweepPattern ({{ 0.33f, 0 }, { 3.0f, 0 }}, 5.0f, sampleRate));
+    higher.addStage (wrinkleFinder);
+    higher.addStage (wrinkleFinder.withPan (1));
+    higher.addStage (wrinkleFinder.withPan (-1));
+    
+    MelodicNotes lowPatternHigh = MelodicNotes::withFreqs ({ 2000 }).withCyclingBandwidths ({ 0.3f, 0.0f, 0.3f, 0.0f });
+    MelodicNotes midPatternHigh = MelodicNotes::withFreqs ({ 4000 }).withCyclingBandwidths ({ 0.3f, 0.0f, 0.0f, 0.3f });
+    MelodicNotes hiPatternHigh = MelodicNotes::withFreqs ({ 8000 }).withCyclingBandwidths ({ 0.3f, 0.3f, 0.0f, 0.0f });
+    Glyph highWrinkleFinder = Glyph ({ lowPatternHigh, midPatternHigh, hiPatternHigh });
+    highWrinkleFinder.setPitchPattern (SweepPattern ({{ 1.5f, 0 }, { 1.0f / 1.5f, 0 }}, 5.0f, sampleRate));
+    higher.addStage (highWrinkleFinder);
+    
+//    higher.addStage (Glyph (MelodicNotes::withFreqs ({ 5000, 5000 }).withCyclingPans ({ -1, 1 }).withCyclingBandwidths ({ 0.5f, 0.5f, 1.0f, 1.0f, 1.5f, 1.5f })));
+    
+//    // Step Vertical
+//    SpatialStep verticalStep;
+//    verticalStep.addShape ({{ 100, 0 }, { 15000, 0 }}, sampleRate, 0.2f);
+//    
+//    // Step Square
+//    SpatialStep squareStep;
+//    squareStep.addShape ({{ 200, -1 }, { 200, 1 }, { 5000, 1 }, { 5000, -1 }}, sampleRate); // square
+//    squareStep.addShape ({{ 200, -1 }, { 5000, 1 }, { 5000, -1 }, { 200, 1 }}, sampleRate); // hourglass
+//    squareStep.addShape ({{ 1000, -1 }, { 200, 0 }, { 1000, 1 }, { 5000, 0 }}, sampleRate); // diamond
+//    squareStep.addShape ({{ 600, -0.5 }, { 600, 0.5 }, { 2000, 0.5 }, { 2000, -0.5 }}, sampleRate); // small square
+//    squareStep.addShape ({{ 2000, -0.5 }, { 2000, 0.5 }, { 5000, 0.5 }, { 5000, -0.5 }}, sampleRate); // small square
+//    float bandwidth = 1.0f;
+//    MelodicNotes squareNotes = MelodicNotes::withFreqs ({ 200, 200, 5000, 5000 }).withPans ({ -1, 1, -1, 1 }).withNoteDurationInSeconds (0.2f);
+//    MelodicNotes center = MelodicNotes::withMelodicPattern ({ 1, 1, 1, 0 }, { 1000.0f }, bandwidth, { 0 }).withNoteDurationInSeconds (0.2f);
+//    Glyph squareGlyph = Glyph ({ squareNotes, center });
+//    Glyph squareShape = Glyph::shapeFromCorners ({{ 200, -1 }, { 200, 1 }, { 5000, -1 }, { 5000, 1 }});
+//    squareStep.addStage (squareGlyph);
+//    squareStep.addStage (squareShape);
+    
     
     // Step 0 - Grids
     SpatialStep step0;
@@ -296,7 +328,9 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     // Initialize QualityStepManager steps imperatively
 //    qualityStepManager.addSpatialStep (triangleStep);
-    qualityStepManager.addSpatialStep (squareStep);
+    qualityStepManager.addSpatialStep (higher);
+//    qualityStepManager.addSpatialStep (verticalStep);
+//    qualityStepManager.addSpatialStep (squareStep);
     qualityStepManager.addSpatialStep (step0);
     qualityStepManager.addIntelligibilityStep (step1);
     qualityStepManager.addSpatialStep (step2);
