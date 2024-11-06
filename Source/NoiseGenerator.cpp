@@ -13,6 +13,7 @@
 NoiseGenerator::NoiseGenerator()
     : bufferSize (2048), buffer (1, bufferSize)
 {
+    fillBuffer();
 }
 
 std::pair<float, float> NoiseGenerator::getNextSample()
