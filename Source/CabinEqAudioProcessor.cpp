@@ -188,8 +188,14 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
     
+    SpatialStep placeholderStep;
+    placeholderStep.addStage (Glyph(SweepPattern({{ 1000, 0 }, { 1000, 0 }}, 1.0, spec.sampleRate)));
     
-//    qualityStepManager.addSpatialStep (step4);
+    PatternsStep patternStep;
+    patternStep.addStage (HiddenPattern ({{ -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }}, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }}));
+    
+    qualityStepManager.addSpatialStep (placeholderStep);
+    qualityStepManager.addPatternsStep (patternStep);
     
     playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }

@@ -41,7 +41,7 @@ private:
     NoiseSweepGenerator hiddenGenerator; // for the main pattern
     std::vector<NoiseSweepGenerator> confoundingGenerators; // for the confounding noise
     
-    float hiddenBandwidth;
-    float confoundingBandwidth;
+    float hiddenBandwidth = 1.0f;
+    float confoundingBandwidth = 2.0f;
     float speedFactor = 1.0f;
 };
