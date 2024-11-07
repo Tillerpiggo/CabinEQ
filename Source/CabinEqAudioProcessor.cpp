@@ -192,7 +192,15 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     placeholderStep.addStage (Glyph(SweepPattern({{ 1000, 0 }, { 1000, 0 }}, 1.0, spec.sampleRate)));
     
     PatternsStep patternStep;
+    // X Pattern
     patternStep.addStage (HiddenPattern ({{ -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }}, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }}));
+    // Diamond pattern
+    patternStep.addStage (HiddenPattern ({{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }}, {{ 1, -1 }, { 1, 1 },{ -1, 1 }, { -1, -1 }}));
+    
+    // Plus pattern
+    patternStep.addStage (HiddenPattern ({{ -1, 1 }, { 0, 1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { -1, 0 }}, { { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
+    
+    
     
     qualityStepManager.addSpatialStep (placeholderStep);
     qualityStepManager.addPatternsStep (patternStep);

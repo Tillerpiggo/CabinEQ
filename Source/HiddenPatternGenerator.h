@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "HiddenPattern.h"
 #include "NoiseSweepGenerator.h"
+#include "GainEnvelope.h"
 
 // Allows the easy playing of hidden patterns, as well as live adjustments of the bandwidths of the pattern/confounding noise and the tempo
 class HiddenPatternGenerator
@@ -44,4 +45,11 @@ private:
     float hiddenBandwidth = 1.0f;
     float confoundingBandwidth = 2.0f;
     float speedFactor = 1.0f;
+    
+    // Pattern
+    std::vector<bool> hits { 1, 0, 1, 0 }; // true for a hit and false for a rest
+    GainEnvelope gainEnvelope;
+    float hitDurationInSamples = 10000; // TODO: arbitrary, also change this to seconds
+    float sampleIdx = 0;
+    float hitIdx = 0;
 };

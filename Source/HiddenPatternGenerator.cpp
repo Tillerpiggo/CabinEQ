@@ -22,6 +22,25 @@ std::pair<float, float> HiddenPatternGenerator::getNextSample()
     
     std::pair<float, float> nextSample = hiddenGenerator.getNextSample();
     
+    // Calculate and apply gain
+    if (sampleIdx >= hitDurationInSamples)
+    {
+        sampleIdx = remainder (sampleIdx, hitDurationInSamples);
+        hitIdx++;
+        if (hitIdx >= hits.size())
+            hitIdx = 0;
+    }
+    
+    float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples);
+    
+    nextSample.first *= gain;
+    nextSample.second *= gain;
+    
+    sampleIdx++;
+    
+    if (hits[hitIdx] == false)
+        nextSample = { 0.0f, 0.0f };
+    
     for (auto& confoundingGenerator : confoundingGenerators)
     {
         auto confoundingSample = confoundingGenerator.getNextSample();
