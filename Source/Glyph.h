@@ -33,8 +33,8 @@ public:
         : type (Type::pattern), melodicNotes (melodicNotes)
     {}
     
-    Glyph (std::vector<std::pair<float, float>> points)
-        : type (Type::grid), points (points)
+    Glyph (std::vector<SweepPattern> sweepPatterns)
+        : type (Type::grid), sweepPatterns (sweepPatterns)
     {}
     
     Glyph (std::vector<MelodicNotes> spatialPatterns)
@@ -70,9 +70,9 @@ public:
         return melodicNotes->noiseNotes();
     }
     
-    const std::vector<std::pair<float, float>> getPoints() const
+    const std::vector<SweepPattern> getSweepPatterns() const
     {
-        return points;
+        return sweepPatterns;
     }
     
     const std::vector<MelodicNotes> getSpatialPatterns()
@@ -113,7 +113,7 @@ private:
     Type type;
     std::optional<SweepPattern> sweepPattern;
     std::optional<MelodicNotes> melodicNotes;
-    std::vector<std::pair<float, float>> points;
+    std::vector<SweepPattern> sweepPatterns;
     std::vector<MelodicNotes> spatialPatterns;
     std::optional<SweepPattern> pitchSweepPattern;
 };

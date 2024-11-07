@@ -26,8 +26,8 @@ std::pair<float, float> MultiplePatternGenerator::getNextSample()
     {
 //        std::cout << "noise generator! " << std::endl;
         auto noiseGeneratorSample = noiseGenerator->getNextSample();
-        nextSample.first += noiseGeneratorSample.first;
-        nextSample.second += noiseGeneratorSample.second;
+        nextSample.first += noiseGeneratorSample.first * 5.0f;
+        nextSample.second += noiseGeneratorSample.second * 5.0f;
     }
     
     return nextSample;
@@ -45,7 +45,8 @@ void MultiplePatternGenerator::setSpeedFactor (float speedFactor)
 
 void MultiplePatternGenerator::setFreqFactor (float freqFactor)
 {
-    // TODO: Implement
+    this->freqFactor = freqFactor;
+    setPattern (pattern.value());
 }
 
 void MultiplePatternGenerator::mute()
@@ -60,7 +61,10 @@ void MultiplePatternGenerator::setPattern (FauxMusicPattern fauxMusicPattern)
     for (int i = 0; i < noiseGenerators.size(); ++i)
     {
         noiseGenerators[i]->setPattern (fauxMusicPattern.getPatterns()[i]);
-        noiseGenerators[i]->setFrequencyRange (fauxMusicPattern.getFreqRanges()[i]);
+        auto shiftedFreqRange = fauxMusicPattern.getFreqRanges()[i];
+        shiftedFreqRange.first *= freqFactor;
+        shiftedFreqRange.second *= freqFactor;
+        noiseGenerators[i]->setFrequencyRange (shiftedFreqRange);
     }
     
     // For any new needed generators, add them, prepare them, and then set their pattern
@@ -78,4 +82,5 @@ void MultiplePatternGenerator::setPattern (FauxMusicPattern fauxMusicPattern)
     }
     
     isMuted = false;
+    this->pattern = fauxMusicPattern;
 }

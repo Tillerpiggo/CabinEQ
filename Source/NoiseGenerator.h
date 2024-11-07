@@ -32,11 +32,21 @@ private:
     void fillBuffer();
     void updateFilters();
     
+    template<typename ChainType, typename CoefficientType>
+    void updateCutFilter (ChainType& chain, const CoefficientType& coefficients);
+    
+    template<int Index, typename ChainType, typename CoefficientType>
+    void update (ChainType& chain, CoefficientType& coefficients);
+    
     // Noise generation
-    CutoffFilter lowCutFilter, highCutFilter;
+    using Filter = juce::dsp::IIR::Filter<float>;
+    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter,
+                                                Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter>;
+    using BandpassFilter = juce::dsp::ProcessorChain<CutFilter, CutFilter>;
+    using Coefficients = Filter::CoefficientsPtr;
+    BandpassFilter bandpass;
     PinkNoise pinkNoise;
     juce::dsp::ProcessSpec spec;
-    bool shouldUpdateFilters = false;
     
     // Frequency and panning
     float startFreq, endFreq;

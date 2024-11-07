@@ -40,7 +40,7 @@ void AudioPattern::applyToSequencer (GlyphGenerator& glyphGenerator)
         return;
     }
     
-    glyphGenerator.setGlyph (Glyph (sweepPattern.value()));
+//    glyphGenerator.setGlyph (Glyph (sweepPattern.value()));
 }
 
 void AudioPattern::applyToSequencer (MelodicNoiseSequencer& melodicNoiseSequencer)

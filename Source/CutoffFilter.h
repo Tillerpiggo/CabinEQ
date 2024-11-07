@@ -57,6 +57,6 @@ private:
     }
     
     Type filterType;
-    float filterFreq;
+    float filterFreq = 1000.0f;
     bool shouldUpdateFilter = false;
 };

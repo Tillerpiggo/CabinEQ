@@ -33,4 +33,6 @@ private:
     std::vector<std::unique_ptr<NoiseGenerator>> noiseGenerators;
     juce::dsp::ProcessSpec spec;
     bool isMuted = false;
+    float freqFactor = 1.0f;
+    std::optional<FauxMusicPattern> pattern;
 };

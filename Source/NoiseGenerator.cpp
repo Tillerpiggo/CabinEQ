@@ -21,9 +21,6 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     if (! pattern.has_value())
         return { 0.0f, 0.0f };
     
-//    if (shouldUpdateFilters)
-//        updateFilters();
-    
     if (bufferIdx >= bufferSize)
     {
         fillBuffer();
@@ -42,8 +39,8 @@ std::pair<float, float> NoiseGenerator::getNextSample()
 void NoiseGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
-    lowCutFilter.prepare (spec);
-    highCutFilter.prepare (spec);
+//    lowCutFilter.prepare (spec);
+//    highCutFilter.prepare (spec);
 }
 
 void NoiseGenerator::setCenterFrequencyAndBandwidth (float centerFreq, float bandwidthInOctaves)
@@ -55,19 +52,20 @@ void NoiseGenerator::setCenterFrequencyAndBandwidth (float centerFreq, float ban
         startFreq = 20.0f;
     if (endFreq >= 20000.0f)
         endFreq = 20000.0f;
-    shouldUpdateFilters = true;
 }
 
 void NoiseGenerator::setStartAndEndFrequency (float startFreq, float endFreq)
 {
     this->startFreq = startFreq;
     this->endFreq = endFreq;
-    shouldUpdateFilters = true;
+    updateFilters();
 }
 
 void NoiseGenerator::setFrequencyRange (std::pair<float, float> freqRange)
 {
-    setStartAndEndFrequency (freqRange.first, freqRange.second);
+    float lowFreq = std::max (freqRange.first, 20.0f);
+    float highFreq = std::min (freqRange.second, 18000.0f);
+    setStartAndEndFrequency (lowFreq, highFreq);
 }
 
 void NoiseGenerator::setPattern (Pattern pattern)
@@ -86,12 +84,50 @@ void NoiseGenerator::fillBuffer()
     
     // Bandpass the noise with the cut filters
     juce::dsp::AudioBlock<float> block (buffer);
-    lowCutFilter.process (block);
-    highCutFilter.process (block);
+    juce::dsp::ProcessContextReplacing<float> context (block);
+    bandpass.process (context);
+//    lowCutFilter.process (block);
+//    highCutFilter.process (block);
 }
+
+//void NoiseGenerator::updateFilters()
+//{
+//    lowCutFilter.setCutoff (CutoffFilter::Type::highPass, startFreq);
+//    highCutFilter.setCutoff (CutoffFilter::Type::lowPass, endFreq);
+//}
 
 void NoiseGenerator::updateFilters()
 {
-    lowCutFilter.setCutoff (CutoffFilter::Type::highPass, startFreq);
-    highCutFilter.setCutoff (CutoffFilter::Type::lowPass, endFreq);
+    // Update the low cut filter
+    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod (startFreq,
+                                                                                                       44100, // TODO: this is super bad fix fix fix
+                                                                                                       2 * (8));
+    auto& lowCut = bandpass.get<0>();
+    updateCutFilter (lowCut, lowCutCoefficients);
+    
+    // Update the high cut filter
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod (endFreq,
+                                                                                                       44100, // TODO: this is super bad fix fix fix
+                                                                                                       2 * (8));
+    auto& highCut = bandpass.get<1>();
+    updateCutFilter(highCut, highCutCoefficients);
+}
+
+template<typename ChainType, typename CoefficientType>
+void NoiseGenerator::updateCutFilter(ChainType& chain, const CoefficientType& coefficients)
+{
+    update<7>(chain, coefficients);
+    update<6>(chain, coefficients);
+    update<5>(chain, coefficients);
+    update<4>(chain, coefficients);
+    update<3>(chain, coefficients);
+    update<2>(chain, coefficients);
+    update<1>(chain, coefficients);
+    update<0>(chain, coefficients);
+}
+
+template<int Index, typename ChainType, typename CoefficientType>
+void NoiseGenerator::update (ChainType& chain, CoefficientType& coefficients)
+{
+    *chain.template get<Index>().coefficients =  *coefficients[Index];
 }

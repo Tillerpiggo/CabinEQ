@@ -30,6 +30,7 @@ public:
     void setPeakFilter (float centerFreq, float bandwidth, float ampl);
     void setSpeedFactor (float speedFactor);
     void setListener (SequencerListener* listener);
+    void setFreqFactor (float freqFactor);
     
     std::optional<float> getCurrPlayingFreq();
     

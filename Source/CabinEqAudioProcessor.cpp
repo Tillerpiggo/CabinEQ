@@ -188,6 +188,37 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
     
+//    // Sweeps
+    SpatialStep sweeps;
+    SweepPattern sPattern ({{ 50, -1 }, { 400, 1 }, { 3200, -1 }, { 10000, 1 }, { 3200, -1 }, { 400, 1 }}, 2.0f, sampleRate);
+    SweepPattern confounding1 ({{ 800, -1.0 }, { 400, 0.0 }, { 200, -1.0 }}, 1.0f, sampleRate);
+    SweepPattern confounding2 ({{ 6400, 1.0 }, { 3200, 0.0 }, { 1600, 1.0 }}, 1.0f, sampleRate);
+    SweepPattern confounding3 ({{ 18000, -1.0 }, { 12800, 0.0 }, { 6400, -1.0 }}, 1.0f, sampleRate);
+    SweepPattern confounding4 ({{ 50, 1.0 }, { 50, 0.5 }}, 1.0f, sampleRate);
+    SweepPattern sPatternRev ({{ 50, 1 }, { 400, -1 }, { 3200, 1 }, { 12800, -1 }, { 3200, 1 }, { 400, -1 }}, 2.0f, sampleRate);
+    SweepPattern confounding1Rev ({{ 400, 1.0 }, { 400, 0.5 }}, 1.0f, sampleRate);
+    SweepPattern confounding2Rev ({{ 3200, -1.0 }, { 3200, -0.5 }}, 1.0f, sampleRate);
+    SweepPattern confounding3Rev ({{ 12800, 1.0 }, { 12800, 0.5 }}, 1.0f, sampleRate);
+    SweepPattern confounding4Rev ({{ 50, -1.0 }, { 50, -0.5 }}, 1.0f, sampleRate);
+    
+    SweepPattern smallerPattern ({{ 20, -0.5 }, { 160, 0.5 }, { 1280, -0.5 }, { 10000, 0.5 }, { 1280, -0.5 }, { 160, 0.5 } }, 2.0f, sampleRate);
+    SweepPattern obstacle1 ({{ 160, 0 }, { 160, 0 }}, 2.0f, sampleRate);
+    SweepPattern obstacle2 ({{ 1280, 0 }, { 1280, 0 }}, 2.0f, sampleRate);
+    SweepPattern obstacle3 ({{ 10000, 0 }, { 10000, 0 }}, 2.0f, sampleRate);
+    sweeps.addStage (Glyph ({ sPattern, confounding1, confounding2, confounding3, confounding4 }));
+    sweeps.addStage (Glyph ({ sPatternRev, confounding1Rev, confounding2Rev, confounding3Rev, confounding4Rev }));
+//    sweeps.addStage (Glyph ({ smallerPattern, obstacle1, obstacle2, obstacle3 }));
+    
+//    // Diamond Sweep
+//    SpatialStep sweeps;
+//    SweepPattern diamond ({{ 100, 0 }, { 1000, 1 }, { 10000, 0 }, { 1000, -1 }}, 2.0f, sampleRate);
+//    SweepPattern corner1 ({{ 100, -1 }, { 100, -1 }}, 1.0f, sampleRate);
+//    SweepPattern corner2 ({{ 10000, -1 }, { 10000, -1 }}, 1.0f, sampleRate);
+//    SweepPattern corner3 ({{ 100, 1 }, { 100, 1 }}, 1.0f, sampleRate);
+//    SweepPattern corner4 ({{ 10000, 1 }, { 10000, 1 }}, 1.0f, sampleRate);
+//    SweepPattern corner5 ({{ 1000, 0 }, { 1000, 0 }}, 1.0f, sampleRate);
+//    sweeps.addStage (Glyph ({ diamond, corner1, corner2, corner3, corner4 }));
+    
 //    // Step Triangle
 //    SpatialStep triangleStep;
 //    float bandwidth = 1.0f;
@@ -202,30 +233,123 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     // Patterns
     PatternsStep patterns;
-//    FauxMusicPattern fauxMusicPattern ({{ 1, 0, 1, 0 }, { 1, 1, 0, 0 }, { 0, 0, 1, 1 }}, {{ 20, 200 }, { 200, 2000 }, { 2000, 20000 }});
-    FauxMusicPattern fauxMusicPattern ({{ 1, 0, 1, 0 }}, {{ 20, 200 }});
+    FauxMusicPattern fauxMusicPattern ({{ 1, 0, 1, 0 }, { 1, 1, 0, 0 }, { 0, 0, 1, 1 }}, {{ 20, 400 }, { 200, 4000 }, { 2000, 20000 }});
     patterns.addStage (fauxMusicPattern);
     std::cout << "fauxMusicPattern size: " << fauxMusicPattern.getNumPatterns() << std::endl;
     
+    // X Pattern
+    SpatialStep xPattern;
+    float xBandwidth = 2.0f;
+    MelodicNotes diagonal1 =
+    MelodicNotes::withMelodicPattern ({ 1, 0, 1, 0 }, { 50, 100, 200, 400, 800, 1600, 3200, 6400 }, 2.0f, { -1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1 });
+    xPattern.addStage (Glyph ({ diagonal1 }));
+    
     // SpatialStep
     SpatialStep higher;
-    higher.addStage (Glyph (SweepPattern ({{ 200, -1 }, { 10000, -1 }}, 1.0f, sampleRate)));
-    higher.addStage (Glyph (SweepPattern ({{ 200, 1 }, { 10000, 1 }}, 1.0f, sampleRate)));
-    MelodicNotes lowPattern = MelodicNotes::withFreqs ({ 100 }).withCyclingBandwidths ({ 2.0f, 0.0f, 2.0f, 0.0f });
-    MelodicNotes midPattern = MelodicNotes::withFreqs ({ 1000 }).withCyclingBandwidths ({ 2.0f, 0.0f, 0.0f, 2.0f });
-    MelodicNotes hiPattern = MelodicNotes::withFreqs ({ 10000 }).withCyclingBandwidths ({ 2.0f, 2.0f, 0.0f, 0.0f });
+    float bandwidth = 2.0f;
+    float freqFactor = 2.0f;
+    MelodicNotes lowPattern = MelodicNotes::withFreqs ({ 100, 400, 1600, 6400 }).withCyclingBandwidths ({ bandwidth, 0.0f, bandwidth, 0.0f });
+    MelodicNotes midPattern = MelodicNotes::withFreqs ({ 300, 900, 2700, 8100  }).withCyclingBandwidths ({ bandwidth, 0.0f, 0.0f, bandwidth });
+    MelodicNotes hiPattern = MelodicNotes::withFreqs ({ 500, 1500, 4500, 1500 }).withCyclingBandwidths ({ bandwidth, bandwidth, 0.0f, 0.0f });
+    
+    SweepPattern pitchPattern = SweepPattern ({{ 0.33f, 0 }, { 3.0f, 0 }}, 5.0f, sampleRate);
     Glyph wrinkleFinder = Glyph ({ lowPattern, midPattern, hiPattern });
-    wrinkleFinder.setPitchPattern (SweepPattern ({{ 0.33f, 0 }, { 3.0f, 0 }}, 5.0f, sampleRate));
+    Glyph lowWrinkleFinder = Glyph ({ lowPattern });
+    Glyph midWrinkleFinder = Glyph ({ midPattern });
+    Glyph highWrinkleFinder = Glyph ({ hiPattern });
+    
+    wrinkleFinder.setPitchPattern (pitchPattern);
+    lowWrinkleFinder.setPitchPattern (pitchPattern);
+    midWrinkleFinder.setPitchPattern (pitchPattern);
+    highWrinkleFinder.setPitchPattern (pitchPattern);
+    
+    higher.addStage (lowWrinkleFinder);
+    higher.addStage (midWrinkleFinder);
+    higher.addStage (highWrinkleFinder);
     higher.addStage (wrinkleFinder);
     higher.addStage (wrinkleFinder.withPan (1));
     higher.addStage (wrinkleFinder.withPan (-1));
     
-    MelodicNotes lowPatternHigh = MelodicNotes::withFreqs ({ 2000 }).withCyclingBandwidths ({ 0.3f, 0.0f, 0.3f, 0.0f });
-    MelodicNotes midPatternHigh = MelodicNotes::withFreqs ({ 4000 }).withCyclingBandwidths ({ 0.3f, 0.0f, 0.0f, 0.3f });
-    MelodicNotes hiPatternHigh = MelodicNotes::withFreqs ({ 8000 }).withCyclingBandwidths ({ 0.3f, 0.3f, 0.0f, 0.0f });
-    Glyph highWrinkleFinder = Glyph ({ lowPatternHigh, midPatternHigh, hiPatternHigh });
-    highWrinkleFinder.setPitchPattern (SweepPattern ({{ 1.5f, 0 }, { 1.0f / 1.5f, 0 }}, 5.0f, sampleRate));
-    higher.addStage (highWrinkleFinder);
+//    // Patterns
+//    PatternsStep patterns;
+//    FauxMusicPattern fauxMusicPattern ({{ 1, 0, 1, 0 }, { 1, 1, 0, 0 }, { 0, 0, 1, 1 }}, {{ 20, 400 }, { 200, 4000 }, { 2000, 20000 }});
+//    patterns.addStage (fauxMusicPattern);
+//    std::cout << "fauxMusicPattern size: " << fauxMusicPattern.getNumPatterns() << std::endl;
+//    
+//    // SpatialStep
+//    SpatialStep higher;
+//    float bandwidth = 2.0f;
+//    float freqFactor = 2.0f;
+//    MelodicNotes lowPattern = MelodicNotes::withFreqs ({ 50 * freqFactor }).withCyclingBandwidths ({ bandwidth, 0.0f, bandwidth, 0.0f });
+//    MelodicNotes midPattern = MelodicNotes::withFreqs ({ 500 * freqFactor }).withCyclingBandwidths ({ bandwidth, 0.0f, 0.0f, bandwidth });
+//    MelodicNotes hiPattern = MelodicNotes::withFreqs ({ 5000 * freqFactor }).withCyclingBandwidths ({ bandwidth, bandwidth, 0.0f, 0.0f });
+//    
+//    SweepPattern pitchPattern = SweepPattern ({{ 0.33f, 0 }, { 3.0f, 0 }}, 5.0f, sampleRate);
+//    Glyph wrinkleFinder = Glyph ({ lowPattern, midPattern, hiPattern });
+//    Glyph lowWrinkleFinder = Glyph ({ lowPattern });
+//    Glyph midWrinkleFinder = Glyph ({ midPattern });
+//    Glyph highWrinkleFinder = Glyph ({ hiPattern });
+//    
+//    wrinkleFinder.setPitchPattern (pitchPattern);
+//    lowWrinkleFinder.setPitchPattern (pitchPattern);
+//    midWrinkleFinder.setPitchPattern (pitchPattern);
+//    highWrinkleFinder.setPitchPattern (pitchPattern);
+//    
+//    higher.addStage (lowWrinkleFinder);
+//    higher.addStage (midWrinkleFinder);
+//    higher.addStage (highWrinkleFinder);
+//    higher.addStage (wrinkleFinder);
+//    higher.addStage (wrinkleFinder.withPan (1));
+//    higher.addStage (wrinkleFinder.withPan (-1));
+    
+//    MelodicNotes lowPatternHigh = MelodicNotes::withFreqs ({ 2000 }).withCyclingBandwidths ({ 0.3f, 0.0f, 0.3f, 0.0f });
+//    MelodicNotes midPatternHigh = MelodicNotes::withFreqs ({ 4000 }).withCyclingBandwidths ({ 0.3f, 0.0f, 0.0f, 0.3f });
+//    MelodicNotes hiPatternHigh = MelodicNotes::withFreqs ({ 8000 }).withCyclingBandwidths ({ 0.3f, 0.3f, 0.0f, 0.0f });
+    
+//    // SpatialStep
+    SpatialStep higher2;
+////    float bandwidth = 2.5f;
+////    float freqFactor = 1.3;
+//    MelodicNotes lowPattern2 = MelodicNotes::withFreqs ({ 200 }).withCyclingBandwidths ({ 3.0f, 0.0f, 3.0f, 0.0f });
+//    MelodicNotes midPattern2 = MelodicNotes::withFreqs ({ 5000 }).withCyclingBandwidths ({ 0.5f, 0.0f, 0.0f, 0.5f });
+//    MelodicNotes hiPattern2 = MelodicNotes::withFreqs ({ 7500 }).withCyclingBandwidths ({ 0.5f, 0.5f, 0.0f, 0.0f });
+//    
+//    SweepPattern pitchPattern2 = SweepPattern ({{ 0.33f, 0 }, { 3.0f, 0 }}, 5.0f, sampleRate);
+//    Glyph wrinkleFinder2 = Glyph ({ lowPattern2, midPattern2, hiPattern2 });
+//    Glyph lowWrinkleFinder2 = Glyph ({ lowPattern2 });
+//    Glyph midWrinkleFinder2 = Glyph ({ midPattern2 });
+//    Glyph highWrinkleFinder2 = Glyph ({ hiPattern2 });
+//    
+//    wrinkleFinder2.setPitchPattern (pitchPattern);
+//    lowWrinkleFinder2.setPitchPattern (pitchPattern);
+//    midWrinkleFinder2.setPitchPattern (pitchPattern);
+//    highWrinkleFinder2.setPitchPattern (pitchPattern);
+//    
+//    higher2.addStage (lowWrinkleFinder2);
+//    higher2.addStage (midWrinkleFinder2);
+//    higher2.addStage (highWrinkleFinder2);
+//    higher2.addStage (wrinkleFinder2);
+//    higher2.addStage (wrinkleFinder2.withPan (1));
+//    higher2.addStage (wrinkleFinder2.withPan (-1));
+    
+    MelodicNotes lowPatternHigh = MelodicNotes::withFreqs ({ 100 }).withCyclingBandwidths ({ 2.5f, 0.0f, 0.3f, 0.0f });
+    MelodicNotes midPatternHigh = MelodicNotes::withFreqs ({ 500 }).withCyclingBandwidths ({ 0.3f, 0.0f, 0.0f, 0.3f });
+    MelodicNotes hiPatternHigh = MelodicNotes::withFreqs ({ 2500 }).withCyclingBandwidths ({ 2.5f, 0.3f, 0.0f, 0.0f });
+    Glyph highWrinkleFinder2 = Glyph ({ lowPatternHigh, midPatternHigh, hiPatternHigh });
+    Glyph lowWrinkleFinder2 = Glyph ({ lowPatternHigh });
+    Glyph midWrinkleFinder2 = Glyph ({ midPatternHigh });
+    Glyph hiWrinkleFinder2 = Glyph ({ hiPatternHigh });
+    SweepPattern pitchPattern2 ({{ 3.0f, 0 }, { 1.0f / 3.0f, 0 }}, 6.0f, sampleRate);
+    lowWrinkleFinder2.setPitchPattern (pitchPattern2);
+    midWrinkleFinder2.setPitchPattern (pitchPattern2);
+    highWrinkleFinder2.setPitchPattern (pitchPattern2);
+    higher2.addStage (lowWrinkleFinder2);
+    higher2.addStage (midWrinkleFinder2);
+    higher2.addStage (hiWrinkleFinder2);
+    highWrinkleFinder2.setPitchPattern (pitchPattern2);
+    higher2.addStage (highWrinkleFinder2);
+    higher2.addStage (highWrinkleFinder2.withPan (-1));
+    higher2.addStage (highWrinkleFinder2.withPan (1));
     
 //    higher.addStage (Glyph (MelodicNotes::withFreqs ({ 5000, 5000 }).withCyclingPans ({ -1, 1 }).withCyclingBandwidths ({ 0.5f, 0.5f, 1.0f, 1.0f, 1.5f, 1.5f })));
     
@@ -250,15 +374,15 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     
     // Step 0 - Grids
-    SpatialStep step0;
-    Glyph twoByTwo ({ { 100, -1 }, { 700, 1 }, { 5000, 0 }, { 5000, 0 }});
-    Glyph justBass ({ { 100, -1 }});
-    Glyph justMid ({ { 700, 0 }});
-    Glyph justTreble ({ { 5000, 1 }});
-    step0.addStage (justBass);
-    step0.addStage (justMid);
-    step0.addStage (justTreble);
-    step0.addStage (twoByTwo);
+//    SpatialStep step0;
+//    Glyph twoByTwo ({ { 100, -1 }, { 700, 1 }, { 5000, 0 }, { 5000, 0 }});
+//    Glyph justBass ({ { 100, -1 }});
+//    Glyph justMid ({ { 700, 0 }});
+//    Glyph justTreble ({ { 5000, 1 }});
+//    step0.addStage (justBass);
+//    step0.addStage (justMid);
+//    step0.addStage (justTreble);
+//    step0.addStage (twoByTwo);
     
     // Step I - Intervals
 //    IntelligibilityStep step1;
@@ -334,12 +458,11 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     step4.addStage (zigZag);
     
     // Initialize QualityStepManager steps imperatively
-//    qualityStepManager.addSpatialStep (triangleStep);
-    qualityStepManager.addPatternsStep (patterns);
+    qualityStepManager.addSpatialStep (sweeps);
+    qualityStepManager.addSpatialStep (xPattern);
     qualityStepManager.addSpatialStep (higher);
-//    qualityStepManager.addSpatialStep (verticalStep);
-//    qualityStepManager.addSpatialStep (squareStep);
-    qualityStepManager.addSpatialStep (step0);
+    qualityStepManager.addSpatialStep (higher2);
+//    qualityStepManager.addSpatialStep (step0);
     qualityStepManager.addIntelligibilityStep (step1);
     qualityStepManager.addSpatialStep (step2);
     qualityStepManager.addIntelligibilityStep (step3);

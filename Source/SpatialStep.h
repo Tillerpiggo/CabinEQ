@@ -30,9 +30,9 @@ public:
         stages.push_back (Glyph (melodicNotes));
     }
     
-    void addStage (SweepPattern sweepPattern)
+    void addStage (std::vector<SweepPattern> sweepPatterns)
     {
-        stages.push_back (Glyph (sweepPattern));
+        stages.push_back (Glyph (sweepPatterns));
     }
     
     void addShape (std::vector<std::pair<float, float>> shapeCorners, float sampleRate, float bandwidth = 1.0f)
@@ -41,7 +41,7 @@ public:
         Glyph cornerGlyph = Glyph::shapeFromCorners (shapeCorners, bandwidth);
         
         // Add a pattern sweep
-        Glyph shapeGlyph = Glyph (SweepPattern (shapeCorners, 2.0f, sampleRate));
+        Glyph shapeGlyph = Glyph ({ SweepPattern (shapeCorners, 2.0f, sampleRate) });
         
         stages.push_back (cornerGlyph);
         stages.push_back (shapeGlyph);

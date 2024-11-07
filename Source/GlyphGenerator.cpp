@@ -106,10 +106,13 @@ void GlyphGenerator::setSpeedFactor (float speedFactor)
 void GlyphGenerator::setFreqFactor (float freqFactor)
 {
 //    noiseSweepGenerator.setFreqFactor (freqFactor);
-    spatialPatternGenerator.setFreqFactor (freqFactor);
+//    spatialPatternGenerator.setFreqFactor (freqFactor);
+//    
+//    for (auto& generator : spatialPatternGenerators)
+//        generator->setFreqFactor (freqFactor);
     
-    for (auto& generator : spatialPatternGenerators)
-        generator->setFreqFactor (freqFactor);
+//    for (auto& generator : pointGenerators)
+//        generator->setFreqFactor (freqFactor);
 }
 
 void GlyphGenerator::mute()
@@ -144,21 +147,17 @@ std::optional<float> GlyphGenerator::getCurrPlayingFreq()
 void GlyphGenerator::preparePointGenerators()
 {
     // add + prepare all point generators
-    size_t numToAdd = glyph->getPoints().size() - pointGenerators.size();
+    size_t numToAdd = glyph->getSweepPatterns().size() - pointGenerators.size();
     for (int i = 0; i < numToAdd; ++i)
         pointGenerators.push_back (NoiseSweepGenerator());
     
     for (auto& pointGenerator : pointGenerators)
         pointGenerator.prepare (spec);
     
-    auto& points = glyph->getPoints();
+    auto& sweepPatterns = glyph->getSweepPatterns();
     for (int i = 0; i < pointGenerators.size(); ++i)
     {
-        std::pair<float, float> leftPoint = points[i];
-        std::pair<float, float> rightPoint = points[i];
-        leftPoint.first = 100;
-        rightPoint.first = 14000;
-        pointGenerators[i].setSweepPattern (SweepPattern ({ leftPoint, rightPoint }, 1.0f, spec.sampleRate));
+        pointGenerators[i].setSweepPattern (sweepPatterns[i]);
         pointGenerators[i].setBandwidth (1.0f);
     }
 }
