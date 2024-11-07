@@ -31,7 +31,7 @@ public:
     std::optional<float> getCurrPlayingFreq();
     
 private:
-    void prepareGeneratorsWithHiddenPattern(); // adds and prepares any generates needed to render the pattern, removes unnecessary generators, and sets the patterns for all of them
+    void updateBandwidthsAndSpeedFactors();
     
     juce::dsp::ProcessSpec spec;
     

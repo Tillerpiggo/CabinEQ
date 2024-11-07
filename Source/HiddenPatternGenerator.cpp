@@ -36,7 +36,6 @@ void HiddenPatternGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
     hiddenGenerator.prepare (spec);
-    // prepare other generators as they are added
 }
 
 void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
@@ -69,33 +68,44 @@ void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
         }
     }
     
+    isMuted = false;
 }
 
 void HiddenPatternGenerator::setSpeedFactor (float speedFactor)
 {
-    
+    this->speedFactor = speedFactor;
+    updateBandwidthsAndSpeedFactors();
 }
 
 void HiddenPatternGenerator::setHiddenBandwidth (float hiddenBandwidth)
 {
-    
+    this->hiddenBandwidth = hiddenBandwidth;
+    updateBandwidthsAndSpeedFactors();
 }
 
 void HiddenPatternGenerator::setConfoundingBandwidth (float confoundingBandwidth)
 {
+    this->confoundingBandwidth = confoundingBandwidth;
+    updateBandwidthsAndSpeedFactors();
+}
+
+void HiddenPatternGenerator::updateBandwidthsAndSpeedFactors()
+{
+    hiddenGenerator.setBandwidth (hiddenBandwidth);
+    hiddenGenerator.setSpeedFactor (speedFactor);
     
+    for (auto& confoundingGenerator : confoundingGenerators)
+    {
+        confoundingGenerator.setBandwidth (confoundingBandwidth);
+    }
 }
 
 void HiddenPatternGenerator::mute()
 {
-    
+    isMuted = true;
 }
 
 std::optional<float> HiddenPatternGenerator::getCurrPlayingFreq()
 {
-    
-}
-
-void HiddenPatternGenerator::prepareGeneratorsWithHiddenPattern()
-{
+    return hiddenGenerator.getCurrPlayingFreq();
 }
