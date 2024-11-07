@@ -33,6 +33,7 @@ public:
     void setFreqFactor (float freqFactor);
     
     std::optional<float> getCurrPlayingFreq();
+    void mute();
     
 private:
     void setBandpass (float centreFreq);
@@ -57,4 +58,6 @@ private:
     juce::dsp::IIR::Filter<float> peakFilter;
     
     SequencerListener* listener = listener;
+    
+    bool isMuted = false;
 };

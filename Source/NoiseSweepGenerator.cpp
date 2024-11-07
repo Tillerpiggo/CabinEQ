@@ -16,7 +16,7 @@ NoiseSweepGenerator::NoiseSweepGenerator()
     
 std::pair<float, float> NoiseSweepGenerator::getNextSample()
 {
-    if (! sweepPattern.has_value())
+    if (isMuted || ! sweepPattern.has_value())
         return { 0.0f, 0.0f };
     
     float pinkNoiseSample = pinkNoise.generate() * 10.0f;
@@ -67,6 +67,7 @@ void NoiseSweepGenerator::setSweepPattern (SweepPattern sweepPattern)
     
     // Make sure to update the sweep pattern with our listener
     this->sweepPattern->setListener (listener);
+    isMuted = false;
 }
 
 void NoiseSweepGenerator::setPeakFilter (float centerFreq, float bandwidth, float ampl)
@@ -94,6 +95,11 @@ std::optional<float> NoiseSweepGenerator::getCurrPlayingFreq()
         return std::nullopt;
     
     return sweepPattern->getCurrFrequencyAndPan().first;
+}
+
+void NoiseSweepGenerator::mute()
+{
+    isMuted = true;
 }
 
 void NoiseSweepGenerator::setBandpass (float centreFreq)

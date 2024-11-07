@@ -232,10 +232,10 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //    triangleStep.addStage (triangleSweep);
     
     // Patterns
-    PatternsStep patterns;
-    FauxMusicPattern fauxMusicPattern ({{ 1, 0, 1, 0 }, { 1, 1, 0, 0 }, { 0, 0, 1, 1 }}, {{ 20, 400 }, { 200, 4000 }, { 2000, 20000 }});
-    patterns.addStage (fauxMusicPattern);
-    std::cout << "fauxMusicPattern size: " << fauxMusicPattern.getNumPatterns() << std::endl;
+//    PatternsStep patterns;
+//    FauxMusicPattern fauxMusicPattern ({{ 1, 0, 1, 0 }, { 1, 1, 0, 0 }, { 0, 0, 1, 1 }}, {{ 20, 400 }, { 200, 4000 }, { 2000, 20000 }});
+//    patterns.addStage (fauxMusicPattern);
+//    std::cout << "fauxMusicPattern size: " << fauxMusicPattern.getNumPatterns() << std::endl;
     
     // X Pattern
     SpatialStep xPattern;

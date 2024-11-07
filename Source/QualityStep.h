@@ -61,7 +61,7 @@ public:
         return intelligibilityStep->patternAtStage (stageIdx);
     }
     
-    const FauxMusicPattern getPatternAtStage (int stageIdx)
+    const HiddenPattern getPatternAtStage (int stageIdx)
     {
         if (type != Type::patterns)
             std::cerr << "Calling getPatternsAtStage on non-patterns QualityStep" << std::endl;
