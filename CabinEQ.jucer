@@ -45,6 +45,9 @@
         <FILE id="KOH1dO" name="DifficultyRange.h" compile="0" resource="0"
               file="Source/DifficultyRange.h"/>
         <FILE id="nbwoaQ" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
+        <FILE id="HEZUbQ" name="HiddenPattern.cpp" compile="1" resource="0"
+              file="Source/HiddenPattern.cpp"/>
+        <FILE id="LnZOLr" name="HiddenPattern.h" compile="0" resource="0" file="Source/HiddenPattern.h"/>
         <FILE id="MJSFfb" name="FauxMusicPattern.cpp" compile="1" resource="0"
               file="Source/FauxMusicPattern.cpp"/>
         <FILE id="s1PAyt" name="FauxMusicPattern.h" compile="0" resource="0"
@@ -96,6 +99,10 @@
                 file="Source/SweepPattern.cpp"/>
           <FILE id="TI4MYv" name="SweepPattern.h" compile="0" resource="0" file="Source/SweepPattern.h"/>
         </GROUP>
+        <FILE id="TtWJFa" name="HiddenPatternGenerator.cpp" compile="1" resource="0"
+              file="Source/HiddenPatternGenerator.cpp"/>
+        <FILE id="BaBzuW" name="HiddenPatternGenerator.h" compile="0" resource="0"
+              file="Source/HiddenPatternGenerator.h"/>
         <FILE id="TBcTbv" name="GlyphGenerator.cpp" compile="1" resource="0"
               file="Source/GlyphGenerator.cpp"/>
         <FILE id="nMRFuc" name="GlyphGenerator.h" compile="0" resource="0"

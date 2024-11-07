@@ -158,7 +158,7 @@ void GlyphGenerator::preparePointGenerators()
     for (int i = 0; i < pointGenerators.size(); ++i)
     {
         pointGenerators[i].setSweepPattern (sweepPatterns[i]);
-        pointGenerators[i].setBandwidth (1.0f);
+        pointGenerators[i].setBandwidth (0.25f);
     }
 }
 

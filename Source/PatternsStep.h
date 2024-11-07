@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 
-#include "FauxMusicPattern.h"
+#include "HiddenPattern.h"
 
 // This represents a headphone audio test for faux music/multiple patterns. It includes information to play the patterns as well as how they change (although only the patterns themselves and the respective frequencies are included right now)
 class PatternsStep
@@ -21,19 +21,19 @@ public:
     PatternsStep()
     {}
     
-    void addStage (FauxMusicPattern stage)
+    void addStage (HiddenPattern stage)
     {
-        std::cout << "pushing back stage" << std::endl;
-        std::cout << "stage size: " << stage.getNumPatterns() << std::endl;
+//        std::cout << "pushing back stage" << std::endl;
+//        std::cout << "stage size: " << stage.getNumPatterns() << std::endl;
         stages.push_back (stage);
     }
     
-    const std::vector<FauxMusicPattern>& getStages() const 
+    const std::vector<HiddenPattern>& getStages() const
     {
         return stages;
     }
     
-    const FauxMusicPattern& patternAtStage (int stageIdx) const
+    const HiddenPattern& patternAtStage (int stageIdx) const
     {
         if (stageIdx < 0 || stageIdx >= stages.size())
             std::cerr << "patternAtStage called with stageIdx out of bounds in PatternsStep" << std::endl;
@@ -47,5 +47,5 @@ public:
     }
     
 private:
-    std::vector<FauxMusicPattern> stages;
+    std::vector<HiddenPattern> stages;
 };
