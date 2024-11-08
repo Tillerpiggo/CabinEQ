@@ -22,13 +22,13 @@ public:
                    std::vector<std::pair<float, float>> hiddenPath,
                    std::vector<std::pair<float, float>> confoundingCoords,
                    float hiddenBandwidth = 2.0f,
-                   float confoundingBandwidth = 2.0f,
+                   float confoundingBandwidth = 1.0f,
                    float cycleLengthInSeconds = 3.0f);
     
     HiddenPattern (std::vector<bool> hits,
                    std::vector<std::vector<int>> pattern2D,
                    float hiddenBandwidth = 2.0f,
-                   float confoundingBandwidth = 2.0f,
+                   float confoundingBandwidth = 1.0f,
                    float cycleLengthInSeconds = 3.0f);
     
     MelodicNotes getMelodicPattern();
@@ -43,8 +43,8 @@ public:
     
 private:
     std::pair<float, float> frequencyAndPanForCoords (std::pair<float, float>); // transforms a coordinate pair (with y in [-1, 1]) to frequency
-    float MIN_FREQ = 50.0f;
-    float MAX_FREQ = 15000.0f;
+    float MIN_FREQ = 80.0f;
+    float MAX_FREQ = 12000.0f;
     
     std::vector<bool> hits;
     std::vector<std::pair<float, float>> hiddenPath; // coordinate pairs defining the path of the hidden pattern

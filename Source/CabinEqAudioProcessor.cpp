@@ -193,18 +193,36 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     PatternsStep patternStep;
     
+    // Spatial Drum Pattern
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 1 }, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }, { 1, 0 }}, {{ 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}, 2.0f));
+    
+    
+    // Initial plus patttern
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ 0, -1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }}, {{ 0, 0.5 }, { 0.5, 0 }, { -0.5, 0 }, { 0, -0.5 }}));
+    
+    // Complementary clover pattern
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ -0.5, -0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, 0.5 }}, {{ -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { 0, 0 }}, 2.0f));
+    
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ -1.0f, -0.75f }, { 0.0f, 0.0f }, { 1.0f, 0.75f }, { 0.0f, 0.0f }, { 1.0f, -0.75f }, { 0.0f, 0.0f }, { -1.0f, 0.75f }, { 0.0f, 0.0f }}, {{ -1, -0.375 }, { -1, 0.375 }, { 1, 0.375 }, { 1, -0.375 }}));
+    
     // Fishy Pattern
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, -1 }, { 1, 0 }, { -1, 1 }, { 0, 0 }, { 1, -1 }, { -1, 0 }, { 1, -1 }, { 0, 0 }}, {{ 1, 0 }, { 0, 1 }, { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, -1 }, { 1, 0 }, { -1, 1 }, { 0, 0 }, { 1, -1 }, { -1, 0 }, { 1, -1 }, { 0, 0 }}, {{ 1, 0 }, { 0, 1 }, { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
     
-    // Drum Pattern
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 0, -1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, -1 }}, {{ -1, -1 }, { -1, 0 }, { -1, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }}));
+//    // Drum Pattern
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 0, -1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, -1 }}, {{ -1, -1 }, { -1, 0 }, { -1, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }}));
     
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {
-        { 1, 0, 0, 5 },
-        { 0, 2, 6, 0 },
-        { 0, 7, 3, 0 },
-        { 8, 0, 0, 4 }}
-    ));
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {
+//        { 1, 0, 0, 5 },
+//        { 0, 2, 6, 0 },
+//        { 0, 7, 3, 0 },
+//        { 8, 0, 0, 4 }}
+//    ));
+//    
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 0, 0 }, {
+//        { 0, 0, 0, 0 },
+//        { 1, 0, 0, 2 },
+//        { 0, 0, 0, 0 }}
+//    ));
     
 //    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
 //        { 1, 0, 9, 0, 0 },
@@ -214,29 +232,29 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //        { 5, 0, 0, 0, 0 }}
 //    ));
     
-    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
-        { 0, 0, 0, 0, 0, 0, 0 },
-        { 7, 0, 0, 9, 0, 0, 8 },
-        { 1, 0, 0, 3, 0, 0, 2 },
-        { 4, 0, 0, 6, 0, 0, 5 },
-        { 0, 0, 0, 0, 0, 0, 0 }},
-    2.0f, 1.0f));
-    
-    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
-        { 0, 0, 0, 0, 8, 0, 0 },
-        { 2, 0, 0, 0, 0, 0, 5 },
-        { 0, 0, 7, 1, 4, 0, 0 },
-        { 6, 0, 0, 0, 0, 0, 3 },
-        { 0, 0, 0, 0, 9, 0, 0 }},
-    2.0f, 1.0f));
-    
-    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
-        { 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 0, 0 }},
-    2.0f, 1.0f));
+//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
+//        { 0, 0, 0, 0, 0, 0, 0 },
+//        { 7, 0, 0, 9, 0, 0, 8 },
+//        { 1, 0, 0, 3, 0, 0, 2 },
+//        { 4, 0, 0, 6, 0, 0, 5 },
+//        { 0, 0, 0, 0, 0, 0, 0 }},
+//    2.0f, 1.0f));
+//    
+//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
+//        { 0, 0, 0, 0, 8, 0, 0 },
+//        { 2, 0, 0, 0, 0, 0, 5 },
+//        { 0, 0, 7, 1, 4, 0, 0 },
+//        { 6, 0, 0, 0, 0, 0, 3 },
+//        { 0, 0, 0, 0, 9, 0, 0 }},
+//    2.0f, 1.0f));
+//    
+//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 1 }, {
+//        { 0, 0, 0, 3, 0, 0, 0 },
+//        { 0, 0, 0, 0, 0, 0, 0 },
+//        { 2, 0, 0, 0, 0, 0, 4 },
+//        { 0, 0, 0, 0, 0, 0, 0 },
+//        { 0, 0, 0, 1, 0, 0, 0 }},
+//    2.0f, 1.0f));
     
 //    // X Pattern
 //    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }}, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }}));

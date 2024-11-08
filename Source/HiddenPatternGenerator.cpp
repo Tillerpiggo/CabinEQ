@@ -21,8 +21,6 @@ std::pair<float, float> HiddenPatternGenerator::getNextSample()
         return { 0.0f, 0.0f };
     
     std::pair<float, float> nextSample = hiddenSequencer.getNextSample();
-    nextSample.first *= 10.0f;
-    nextSample.second *= 10.0f;
     
 //    // Calculate and apply gain
 //    if (sampleIdx >= hitDurationInSamples)
@@ -64,6 +62,8 @@ void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
 {
     // Update hidden sweep pattern
     this->hiddenPattern = hiddenPattern;
+    this->hiddenBandwidth = hiddenPattern.getHiddenBandwidth();
+    this->confoundingBandwidth = hiddenPattern.getConfoundingBandwidth();
 //    hiddenGenerator.setSweepPattern (hiddenPattern.getHiddenSweepPattern (spec.sampleRate));
     hiddenSequencer.setPattern (hiddenPattern.getMelodicPattern().noiseNotes());
     
@@ -91,15 +91,18 @@ void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
     }
     
     isMuted = false;
-    
-    this->hiddenBandwidth = hiddenPattern.getHiddenBandwidth();
-    this->confoundingBandwidth = hiddenPattern.getConfoundingBandwidth();
     updateBandwidthsAndSpeedFactors();
 }
 
 void HiddenPatternGenerator::setSpeedFactor (float speedFactor)
 {
     this->speedFactor = speedFactor;
+    updateBandwidthsAndSpeedFactors();
+}
+
+void HiddenPatternGenerator::setFreqFactor (float freqFactor)
+{
+    this->freqFactor = freqFactor;
     updateBandwidthsAndSpeedFactors();
 }
 
@@ -126,10 +129,12 @@ void HiddenPatternGenerator::updateBandwidthsAndSpeedFactors()
 //    hiddenGenerator.setBandwidth (hiddenBandwidth);
 //    hiddenGenerator.setSpeedFactor (speedFactor);
     hiddenSequencer.setSpeedFactor (speedFactor);
+    hiddenSequencer.setFreqFactor (freqFactor);
     
     for (auto& confoundingGenerator : confoundingGenerators)
     {
         confoundingGenerator.setBandwidth (confoundingBandwidth * confoundingBandwidthMultiplier);
+        confoundingGenerator.setFreqFactor (freqFactor);
     }
 }
 

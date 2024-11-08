@@ -31,6 +31,7 @@ public:
     void setConfoundingBandwidthMultiplier (float confoundingBandwidthMultiplier);
     void mute();
     void setIsFrozen (bool isFrozen);
+    void setFreqFactor (float freqFactor);
     
     std::optional<float> getCurrPlayingFreq();
     
@@ -58,4 +59,5 @@ private:
     float hitDurationInSamples = 3000; // TODO: arbitrary, also change this to seconds
     float sampleIdx = 0;
     float hitIdx = 0;
+    float freqFactor = 1.0f;
 };

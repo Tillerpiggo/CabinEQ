@@ -53,6 +53,7 @@ private:
     float leftAmplitudeCompensation = 1.0f; // in gain
     float rightAmplitudeCompensation = 1.0f; // in gain
     float speedFactor = 1.0f;
+    float freqFactor = 1.0f;
     int snapToZeroCounter = 0;
     
     // Peak filter
