@@ -178,8 +178,8 @@ void MelodicNoiseSequencer::goToNextNote()
     
     if (currNoteIdx >= notes.size())
     {
-        if (listener != nullptr)
-            listener->sequenceDidFinish();
+//        if (listener != nullptr)
+//            listener->sequenceDidFinish();
         currNoteIdx = 0;
     }
     

@@ -192,13 +192,59 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     placeholderStep.addStage (Glyph(SweepPattern({{ 1000, 0 }, { 1000, 0 }}, 1.0, spec.sampleRate)));
     
     PatternsStep patternStep;
-    // X Pattern
-    patternStep.addStage (HiddenPattern ({{ -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }}, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }}));
-    // Diamond pattern
-    patternStep.addStage (HiddenPattern ({{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }}, {{ 1, -1 }, { 1, 1 },{ -1, 1 }, { -1, -1 }}));
     
-    // Plus pattern
-    patternStep.addStage (HiddenPattern ({{ -1, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 0, -1 }, { 0, 0 }}, { { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
+    // Fishy Pattern
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, -1 }, { 1, 0 }, { -1, 1 }, { 0, 0 }, { 1, -1 }, { -1, 0 }, { 1, -1 }, { 0, 0 }}, {{ 1, 0 }, { 0, 1 }, { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
+    
+    // Drum Pattern
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 0, -1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, -1 }}, {{ -1, -1 }, { -1, 0 }, { -1, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }}));
+    
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {
+        { 1, 0, 0, 5 },
+        { 0, 2, 6, 0 },
+        { 0, 7, 3, 0 },
+        { 8, 0, 0, 4 }}
+    ));
+    
+//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
+//        { 1, 0, 9, 0, 0 },
+//        { 0, 0, 0, 8, 2 },
+//        { 3, 7, 10, 0, 0 },
+//        { 8, 0, 0, 6, 4 },
+//        { 5, 0, 0, 0, 0 }}
+//    ));
+    
+    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
+        { 0, 0, 0, 0, 0, 0, 0 },
+        { 7, 0, 0, 9, 0, 0, 8 },
+        { 1, 0, 0, 3, 0, 0, 2 },
+        { 4, 0, 0, 6, 0, 0, 5 },
+        { 0, 0, 0, 0, 0, 0, 0 }},
+    2.0f, 1.0f));
+    
+    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
+        { 0, 0, 0, 0, 8, 0, 0 },
+        { 2, 0, 0, 0, 0, 0, 5 },
+        { 0, 0, 7, 1, 4, 0, 0 },
+        { 6, 0, 0, 0, 0, 0, 3 },
+        { 0, 0, 0, 0, 9, 0, 0 }},
+    2.0f, 1.0f));
+    
+    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
+        { 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0 }},
+    2.0f, 1.0f));
+    
+//    // X Pattern
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }}, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }}));
+//    // Diamond pattern
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }}, {{ 1, -1 }, { 1, 1 },{ -1, 1 }, { -1, -1 }}));
+//    
+//    // Plus pattern
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 0, -1 }, { 0, 0 }}, { { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
     
 //    // Weird pattern
 //    patternStep.addStage (HiddenPattern ({{ -0.5, 1}, { 0.5, 0 }, { 0, -0.7 }, { -0.5, 0 }}))

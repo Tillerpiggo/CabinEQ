@@ -390,7 +390,7 @@ public:
         for (int i = 0; i < notesInSemitones.size(); ++i)
         {
             float noteFreq = centerFreq * std::pow (semitoneRatio, notesInSemitones[i]);
-            noiseNotes.push_back (NoiseNote(noteFreq, bandwidths[i], noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false, ampls[i]));
+            noiseNotes.push_back (NoiseNote(noteFreq, bandwidths[i], noteDurationInSamples, pans[i], { 1.0f, 1.0f }, false, ampls[i], { 4000 }));
         }
         
         return noiseNotes;

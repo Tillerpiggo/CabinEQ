@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "HiddenPattern.h"
 #include "NoiseSweepGenerator.h"
+#include "MelodicNoiseSequencer.h"
 #include "GainEnvelope.h"
 
 // Allows the easy playing of hidden patterns, as well as live adjustments of the bandwidths of the pattern/confounding noise and the tempo
@@ -42,7 +43,8 @@ private:
     bool isMuted = false;
     bool isFrozen = false;
     
-    NoiseSweepGenerator hiddenGenerator; // for the main pattern
+//    NoiseSweepGenerator hiddenGenerator; // for the main pattern
+    SpatialPatternGenerator hiddenSequencer; // for the main pattern, played melodically
     std::vector<NoiseSweepGenerator> confoundingGenerators; // for the confounding noise
     
     float hiddenBandwidth = 1.0f;

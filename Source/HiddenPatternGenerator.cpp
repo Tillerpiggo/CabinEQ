@@ -20,26 +20,28 @@ std::pair<float, float> HiddenPatternGenerator::getNextSample()
     if (isMuted || ! hiddenPattern.has_value())
         return { 0.0f, 0.0f };
     
-    std::pair<float, float> nextSample = hiddenGenerator.getNextSample();
+    std::pair<float, float> nextSample = hiddenSequencer.getNextSample();
+    nextSample.first *= 10.0f;
+    nextSample.second *= 10.0f;
     
-    // Calculate and apply gain
-    if (sampleIdx >= hitDurationInSamples)
-    {
-        sampleIdx = remainder (sampleIdx, hitDurationInSamples);
-        hitIdx++;
-        if (hitIdx >= hits.size())
-            hitIdx = 0;
-    }
+//    // Calculate and apply gain
+//    if (sampleIdx >= hitDurationInSamples)
+//    {
+//        sampleIdx = remainder (sampleIdx, hitDurationInSamples);
+//        hitIdx++;
+//        if (hitIdx >= hits.size())
+//            hitIdx = 0;
+//    }
+//    
+//    float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples);
+//    
+//    nextSample.first *= gain;
+//    nextSample.second *= gain;
     
-    float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples);
+//    sampleIdx++;
     
-    nextSample.first *= gain;
-    nextSample.second *= gain;
-    
-    sampleIdx++;
-    
-    if (hits[hitIdx] == false)
-        nextSample = { 0.0f, 0.0f };
+//    if (hits[hitIdx] == false)
+//        nextSample = { 0.0f, 0.0f };
     
     for (auto& confoundingGenerator : confoundingGenerators)
     {
@@ -54,14 +56,16 @@ std::pair<float, float> HiddenPatternGenerator::getNextSample()
 void HiddenPatternGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
-    hiddenGenerator.prepare (spec);
+//    hiddenGenerator.prepare (spec);
+    hiddenSequencer.prepare (spec);
 }
 
 void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
 {
     // Update hidden sweep pattern
     this->hiddenPattern = hiddenPattern;
-    hiddenGenerator.setSweepPattern (hiddenPattern.getHiddenSweepPattern (spec.sampleRate));
+//    hiddenGenerator.setSweepPattern (hiddenPattern.getHiddenSweepPattern (spec.sampleRate));
+    hiddenSequencer.setPattern (hiddenPattern.getMelodicPattern().noiseNotes());
     
     // Add needed generators
     auto confoundingSweepPatterns = hiddenPattern.getConfoundingSweepPatterns (spec.sampleRate);
@@ -119,8 +123,9 @@ void HiddenPatternGenerator::setConfoundingBandwidthMultiplier (float confoundin
 
 void HiddenPatternGenerator::updateBandwidthsAndSpeedFactors()
 {
-    hiddenGenerator.setBandwidth (hiddenBandwidth);
-    hiddenGenerator.setSpeedFactor (speedFactor);
+//    hiddenGenerator.setBandwidth (hiddenBandwidth);
+//    hiddenGenerator.setSpeedFactor (speedFactor);
+    hiddenSequencer.setSpeedFactor (speedFactor);
     
     for (auto& confoundingGenerator : confoundingGenerators)
     {
@@ -136,10 +141,10 @@ void HiddenPatternGenerator::mute()
 void HiddenPatternGenerator::setIsFrozen (bool isFrozen)
 {
     this->isFrozen = isFrozen;
-    this->hiddenGenerator.setIsFrozen (isFrozen);
+//    this->hiddenGenerator.setIsFrozen (isFrozen);
 }
 
 std::optional<float> HiddenPatternGenerator::getCurrPlayingFreq()
 {
-    return hiddenGenerator.getCurrPlayingFreq();
+    return hiddenSequencer.getCurrPlayingFreq();
 }
