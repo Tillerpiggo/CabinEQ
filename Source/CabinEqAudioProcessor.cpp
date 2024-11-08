@@ -198,8 +198,11 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     patternStep.addStage (HiddenPattern ({{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }}, {{ 1, -1 }, { 1, 1 },{ -1, 1 }, { -1, -1 }}));
     
     // Plus pattern
-    patternStep.addStage (HiddenPattern ({{ -1, 1 }, { 0, 1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { -1, 0 }}, { { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
+    patternStep.addStage (HiddenPattern ({{ -1, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 0, -1 }, { 0, 0 }}, { { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
     
+//    // Weird pattern
+//    patternStep.addStage (HiddenPattern ({{ -0.5, 1}, { 0.5, 0 }, { 0, -0.7 }, { -0.5, 0 }}))
+//
     
     
     qualityStepManager.addSpatialStep (placeholderStep);
@@ -397,6 +400,8 @@ int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const fl
     {
         return profile->get().addBand (freq, ampl, bandwidth);
     }
+    
+    playbackManager.setIsFrozen (true);
         
     return -1;
 }
@@ -406,6 +411,8 @@ void CabinEqAudioProcessor::updateBand (const int id, const float freq, const fl
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().updateBand (id, freq, ampl, bandwidth);
+    
+    playbackManager.setIsFrozen (false);
 }
 
 void CabinEqAudioProcessor::removeBand (const int id, juce::String profileName)

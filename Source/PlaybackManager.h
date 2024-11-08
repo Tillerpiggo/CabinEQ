@@ -46,6 +46,7 @@ public:
     void setVolume (float volume);
     void setMelodicPattern (MelodicNotes melodicNotes);
     void setSpatialPattern (Glyph glyph);
+    void setIsFrozen (bool isFrozen);
     
     std::optional<float> getCurrPlayingFreq();
     int getCurrStage() const;
@@ -82,4 +83,5 @@ private:
     bool isProcessing;
     bool isCalibrating;
     bool isCycling;
+    bool isFrozen = false;
 };

@@ -10,8 +10,8 @@
 
 #include "HiddenPattern.h"
 
-HiddenPattern::HiddenPattern (std::vector<std::pair<float, float>> hiddenPath, std::vector<std::pair<float, float>> confoundingCoords, float cycleLengthInSeconds)
-    : hiddenPath (hiddenPath), confoundingCoords (confoundingCoords), cycleLengthInSeconds (cycleLengthInSeconds)
+HiddenPattern::HiddenPattern (std::vector<std::pair<float, float>> hiddenPath, std::vector<std::pair<float, float>> confoundingCoords, float hiddenBandwidth, float confoundingBandwidth, float cycleLengthInSeconds)
+    : hiddenPath (hiddenPath), confoundingCoords (confoundingCoords), cycleLengthInSeconds (cycleLengthInSeconds), hiddenBandwidth (hiddenBandwidth), confoundingBandwidth (confoundingBandwidth)
 {}
 
 SweepPattern HiddenPattern::getHiddenSweepPattern (float sampleRate)
@@ -34,6 +34,16 @@ std::vector<SweepPattern> HiddenPattern::getConfoundingSweepPatterns (float samp
     }
     
     return confoundingSweepPatterns;
+}
+
+float HiddenPattern::getHiddenBandwidth()
+{
+    return hiddenBandwidth;
+}
+
+float HiddenPattern::getConfoundingBandwidth()
+{
+    return confoundingBandwidth;
 }
 
 std::pair<float, float> HiddenPattern::frequencyAndPanForCoords (std::pair<float, float> coords)

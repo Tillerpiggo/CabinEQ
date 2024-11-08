@@ -31,7 +31,7 @@ std::pair<float, float> NoiseSweepGenerator::getNextSample()
     }
     snapToZeroCounter++;
     
-    auto [nextFreq, nextPan] = sweepPattern->getNextFrequencyAndPan (speedFactor);
+    auto [nextFreq, nextPan] = sweepPattern->getNextFrequencyAndPan (isFrozen ? 0.0f : speedFactor);
     setBandpass (nextFreq);
     setPan (nextPan); // updates leftAmplitudeCompensation and rightAmplitudeCompensation
     
@@ -100,6 +100,11 @@ std::optional<float> NoiseSweepGenerator::getCurrPlayingFreq()
 void NoiseSweepGenerator::mute()
 {
     isMuted = true;
+}
+
+void NoiseSweepGenerator::setIsFrozen (bool isFrozen)
+{
+    this->isFrozen = isFrozen;
 }
 
 void NoiseSweepGenerator::setBandpass (float centreFreq)

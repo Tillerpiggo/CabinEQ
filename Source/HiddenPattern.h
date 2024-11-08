@@ -17,10 +17,13 @@
 class HiddenPattern
 {
 public:
-    HiddenPattern (std::vector<std::pair<float, float>> hiddenPath, std::vector<std::pair<float, float>> confoundingCoords, float cycleLengthInSeconds = 3.0f);
+    HiddenPattern (std::vector<std::pair<float, float>> hiddenPath, std::vector<std::pair<float, float>> confoundingCoords, float hiddenBandwidth = 1.0f, float confoundingBandwidth = 2.0f, float cycleLengthInSeconds = 3.0f);
     
     SweepPattern getHiddenSweepPattern (float sampleRate);
     std::vector<SweepPattern> getConfoundingSweepPatterns (float sampleRate);
+    
+    float getHiddenBandwidth();
+    float getConfoundingBandwidth();
     
 private:
     std::pair<float, float> frequencyAndPanForCoords (std::pair<float, float>); // transforms a coordinate pair (with y in [-1, 1]) to frequency
@@ -31,4 +34,6 @@ private:
     std::vector<std::pair<float, float>> confoundingCoords; // coordinate pairs for confounding noise
     
     float cycleLengthInSeconds; // defines length of cycle in seconds for the entire hidden path
+    float hiddenBandwidth;
+    float confoundingBandwidth;
 };

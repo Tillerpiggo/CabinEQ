@@ -27,7 +27,9 @@ public:
     void setSpeedFactor (float speedFactor);
     void setHiddenBandwidth (float hiddenBandwidth);
     void setConfoundingBandwidth (float confoundingBandwidth);
+    void setConfoundingBandwidthMultiplier (float confoundingBandwidthMultiplier);
     void mute();
+    void setIsFrozen (bool isFrozen);
     
     std::optional<float> getCurrPlayingFreq();
     
@@ -38,18 +40,20 @@ private:
     
     std::optional<HiddenPattern> hiddenPattern;
     bool isMuted = false;
+    bool isFrozen = false;
     
     NoiseSweepGenerator hiddenGenerator; // for the main pattern
     std::vector<NoiseSweepGenerator> confoundingGenerators; // for the confounding noise
     
     float hiddenBandwidth = 1.0f;
     float confoundingBandwidth = 2.0f;
+    float confoundingBandwidthMultiplier = 1.0f;
     float speedFactor = 1.0f;
     
     // Pattern
     std::vector<bool> hits { 1, 0, 1, 0 }; // true for a hit and false for a rest
     GainEnvelope gainEnvelope;
-    float hitDurationInSamples = 10000; // TODO: arbitrary, also change this to seconds
+    float hitDurationInSamples = 3000; // TODO: arbitrary, also change this to seconds
     float sampleIdx = 0;
     float hitIdx = 0;
 };

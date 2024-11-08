@@ -96,6 +96,11 @@ void PlaybackManager::setIsCycling (bool isCycling)
     this->isCycling = isCycling;
 }
 
+void PlaybackManager::setIsFrozen (bool isFrozen)
+{
+    hiddenPatternGenerator.setIsFrozen (isFrozen);
+}
+
 void PlaybackManager::setDifficulty (float difficulty)
 {
     this->difficulty = difficulty;
@@ -104,7 +109,7 @@ void PlaybackManager::setDifficulty (float difficulty)
     melodicNoiseSequencer.setSpeedFactor (speedFactor); // map from [0, 1] to [0.5, 1]
     glyphGenerator.setSpeedFactor (speedFactor);
     
-    // TODO: add multiple pattern generator related functions here
+    hiddenPatternGenerator.setConfoundingBandwidthMultiplier (difficulty);
 }
 
 void PlaybackManager::setOctaveShift (float octaveShift)

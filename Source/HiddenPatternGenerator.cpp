@@ -62,7 +62,6 @@ void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
     // Update hidden sweep pattern
     this->hiddenPattern = hiddenPattern;
     hiddenGenerator.setSweepPattern (hiddenPattern.getHiddenSweepPattern (spec.sampleRate));
-    hiddenGenerator.setBandwidth (hiddenBandwidth);
     
     // Add needed generators
     auto confoundingSweepPatterns = hiddenPattern.getConfoundingSweepPatterns (spec.sampleRate);
@@ -88,6 +87,10 @@ void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
     }
     
     isMuted = false;
+    
+    this->hiddenBandwidth = hiddenPattern.getHiddenBandwidth();
+    this->confoundingBandwidth = hiddenPattern.getConfoundingBandwidth();
+    updateBandwidthsAndSpeedFactors();
 }
 
 void HiddenPatternGenerator::setSpeedFactor (float speedFactor)
@@ -108,6 +111,12 @@ void HiddenPatternGenerator::setConfoundingBandwidth (float confoundingBandwidth
     updateBandwidthsAndSpeedFactors();
 }
 
+void HiddenPatternGenerator::setConfoundingBandwidthMultiplier (float confoundingBandwidthMultiplier)
+{
+    this->confoundingBandwidthMultiplier = confoundingBandwidthMultiplier;
+    updateBandwidthsAndSpeedFactors();
+}
+
 void HiddenPatternGenerator::updateBandwidthsAndSpeedFactors()
 {
     hiddenGenerator.setBandwidth (hiddenBandwidth);
@@ -115,13 +124,19 @@ void HiddenPatternGenerator::updateBandwidthsAndSpeedFactors()
     
     for (auto& confoundingGenerator : confoundingGenerators)
     {
-        confoundingGenerator.setBandwidth (confoundingBandwidth);
+        confoundingGenerator.setBandwidth (confoundingBandwidth * confoundingBandwidthMultiplier);
     }
 }
 
 void HiddenPatternGenerator::mute()
 {
     isMuted = true;
+}
+
+void HiddenPatternGenerator::setIsFrozen (bool isFrozen)
+{
+    this->isFrozen = isFrozen;
+    this->hiddenGenerator.setIsFrozen (isFrozen);
 }
 
 std::optional<float> HiddenPatternGenerator::getCurrPlayingFreq()

@@ -34,6 +34,7 @@ public:
     
     std::optional<float> getCurrPlayingFreq();
     void mute();
+    void setIsFrozen (bool isFrozen);
     
 private:
     void setBandpass (float centreFreq);
@@ -60,4 +61,5 @@ private:
     SequencerListener* listener = listener;
     
     bool isMuted = false;
+    bool isFrozen = false;
 };
