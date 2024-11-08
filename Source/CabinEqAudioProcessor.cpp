@@ -193,18 +193,27 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     PatternsStep patternStep;
     
+    // Vertical Expansion
+    float centerPan = 0;
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ centerPan, 0 }, { centerPan, 0.2 }}, {{ centerPan, 0.5 }, { centerPan, -0.5 }}));
+    
+    float leftPan = -1;
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ leftPan, 0 }, { leftPan, 0.2 }}, {{ leftPan, 0.5 }, { leftPan, -0.5 }}));
+    
+    float rightPan = 1;
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ rightPan, 0 }, { rightPan, 0.2 }}, {{ rightPan, 0.5 }, { rightPan, -0.5 }}));
+    
     // Spatial Drum Pattern
 //    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 1 }, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }, { 1, 0 }}, {{ 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}, 2.0f));
     
-    
-    // Initial plus patttern
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ 0, -1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }}, {{ 0, 0.5 }, { 0.5, 0 }, { -0.5, 0 }, { 0, -0.5 }}));
-    
-    // Complementary clover pattern
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ -0.5, -0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, 0.5 }}, {{ -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { 0, 0 }}, 2.0f));
-    
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ -1.0f, -0.75f }, { 0.0f, 0.0f }, { 1.0f, 0.75f }, { 0.0f, 0.0f }, { 1.0f, -0.75f }, { 0.0f, 0.0f }, { -1.0f, 0.75f }, { 0.0f, 0.0f }}, {{ -1, -0.375 }, { -1, 0.375 }, { 1, 0.375 }, { 1, -0.375 }}));
-    
+//    // Initial plus patttern
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ 0, -1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }}, {{ 0, 0.5 }, { 0.5, 0 }, { -0.5, 0 }, { 0, -0.5 }}));
+//    
+//    // Complementary clover pattern
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ -0.5, -0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, 0.5 }}, {{ -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { 0, 0 }}, 2.0f));
+//    
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ -1.0f, -0.75f }, { 0.0f, 0.0f }, { 1.0f, 0.75f }, { 0.0f, 0.0f }, { 1.0f, -0.75f }, { 0.0f, 0.0f }, { -1.0f, 0.75f }, { 0.0f, 0.0f }}, {{ -1, -0.375 }, { -1, 0.375 }, { 1, 0.375 }, { 1, -0.375 }}));
+//    
     // Fishy Pattern
 //    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, -1 }, { 1, 0 }, { -1, 1 }, { 0, 0 }, { 1, -1 }, { -1, 0 }, { 1, -1 }, { 0, 0 }}, {{ 1, 0 }, { 0, 1 }, { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
     

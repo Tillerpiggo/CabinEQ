@@ -20,26 +20,29 @@ std::pair<float, float> HiddenPatternGenerator::getNextSample()
     if (isMuted || ! hiddenPattern.has_value())
         return { 0.0f, 0.0f };
     
-    std::pair<float, float> nextSample = hiddenSequencer.getNextSample();
+//    std::pair<float, float> nextSample = hiddenSequencer.getNextSample();
+    std::pair<float, float> nextSample = hiddenGenerator.getNextSample();
+//    nextSample.first *= 10.0f;
+//    nextSample.second *= 10.0f;
     
-//    // Calculate and apply gain
-//    if (sampleIdx >= hitDurationInSamples)
-//    {
-//        sampleIdx = remainder (sampleIdx, hitDurationInSamples);
-//        hitIdx++;
-//        if (hitIdx >= hits.size())
-//            hitIdx = 0;
-//    }
-//    
-//    float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples);
-//    
-//    nextSample.first *= gain;
-//    nextSample.second *= gain;
+    // Calculate and apply gain
+    if (sampleIdx >= hitDurationInSamples)
+    {
+        sampleIdx = remainder (sampleIdx, hitDurationInSamples);
+        hitIdx++;
+        if (hitIdx >= hits.size())
+            hitIdx = 0;
+    }
     
-//    sampleIdx++;
+    float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples);
     
-//    if (hits[hitIdx] == false)
-//        nextSample = { 0.0f, 0.0f };
+    nextSample.first *= gain;
+    nextSample.second *= gain;
+    
+    sampleIdx++;
+    
+    if (hits[hitIdx] == false)
+        nextSample = { 0.0f, 0.0f };
     
     for (auto& confoundingGenerator : confoundingGenerators)
     {
@@ -54,8 +57,8 @@ std::pair<float, float> HiddenPatternGenerator::getNextSample()
 void HiddenPatternGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
-//    hiddenGenerator.prepare (spec);
-    hiddenSequencer.prepare (spec);
+    hiddenGenerator.prepare (spec);
+//    hiddenSequencer.prepare (spec);
 }
 
 void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
@@ -64,8 +67,8 @@ void HiddenPatternGenerator::setPattern (HiddenPattern hiddenPattern)
     this->hiddenPattern = hiddenPattern;
     this->hiddenBandwidth = hiddenPattern.getHiddenBandwidth();
     this->confoundingBandwidth = hiddenPattern.getConfoundingBandwidth();
-//    hiddenGenerator.setSweepPattern (hiddenPattern.getHiddenSweepPattern (spec.sampleRate));
-    hiddenSequencer.setPattern (hiddenPattern.getMelodicPattern().noiseNotes());
+    hiddenGenerator.setSweepPattern (hiddenPattern.getHiddenSweepPattern (spec.sampleRate));
+//    hiddenSequencer.setPattern (hiddenPattern.getMelodicPattern().noiseNotes());
     
     // Add needed generators
     auto confoundingSweepPatterns = hiddenPattern.getConfoundingSweepPatterns (spec.sampleRate);
@@ -127,9 +130,10 @@ void HiddenPatternGenerator::setConfoundingBandwidthMultiplier (float confoundin
 void HiddenPatternGenerator::updateBandwidthsAndSpeedFactors()
 {
 //    hiddenGenerator.setBandwidth (hiddenBandwidth);
-//    hiddenGenerator.setSpeedFactor (speedFactor);
-    hiddenSequencer.setSpeedFactor (speedFactor);
-    hiddenSequencer.setFreqFactor (freqFactor);
+    hiddenGenerator.setSpeedFactor (speedFactor);
+    hiddenGenerator.setFreqFactor (freqFactor);
+//    hiddenSequencer.setSpeedFactor (speedFactor);
+//    hiddenSequencer.setFreqFactor (freqFactor);
     
     for (auto& confoundingGenerator : confoundingGenerators)
     {

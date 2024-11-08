@@ -44,7 +44,7 @@ private:
     bool isMuted = false;
     bool isFrozen = false;
     
-//    NoiseSweepGenerator hiddenGenerator; // for the main pattern
+    NoiseSweepGenerator hiddenGenerator; // for the main pattern
     SpatialPatternGenerator hiddenSequencer; // for the main pattern, played melodically
     std::vector<NoiseSweepGenerator> confoundingGenerators; // for the confounding noise
     
