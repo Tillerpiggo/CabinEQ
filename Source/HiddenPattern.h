@@ -31,6 +31,10 @@ public:
                    float confoundingBandwidth = 1.0f,
                    float cycleLengthInSeconds = 3.0f);
     
+    static HiddenPattern alongPath (std::vector<std::pair<float, float>> path, int numHits);
+    static std::pair<float, float> GetPositionAlongPath(const std::vector<std::pair<float, float>>& path, float t);
+    static std::pair<float, float> GetDirectionAlongPath(const std::vector<std::pair<float, float>>& path, float t);
+    
     MelodicNotes getMelodicPattern();
     SweepPattern getHiddenSweepPattern (float sampleRate);
     std::vector<SweepPattern> getConfoundingSweepPatterns (float sampleRate);
@@ -43,7 +47,7 @@ public:
     
 private:
     std::pair<float, float> frequencyAndPanForCoords (std::pair<float, float>); // transforms a coordinate pair (with y in [-1, 1]) to frequency
-    float MIN_FREQ = 80.0f;
+    float MIN_FREQ = 160.0f;
     float MAX_FREQ = 12000.0f;
     
     std::vector<bool> hits;

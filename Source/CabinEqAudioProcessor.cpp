@@ -193,15 +193,31 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     PatternsStep patternStep;
     
-    // Vertical Expansion
-    float centerPan = 0;
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ centerPan, 0 }, { centerPan, 0.2 }}, {{ centerPan, 0.5 }, { centerPan, -0.5 }}));
+    // 2D Taut
+    float left = -1;
+    float center = 0;
+    float right = 1;
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 0, 0 }}, {{ 0, 0.25 }, { 0, -0.25 }}));
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, 0 }}, {{ -1, 0.25 }, { -1, -0.25 }, { -0.5, 0 }}));
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 1, 0 }}, {{ 1, 0.25 }, { 1, -0.25 }, { 0.5, 0 }}));
     
-    float leftPan = -1;
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ leftPan, 0 }, { leftPan, 0.2 }}, {{ leftPan, 0.5 }, { leftPan, -0.5 }}));
+    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {{ left, -1 }, { 0, 0 }, { right, 1 }, { center, -1 }, { 0, 0 }, { center, 1 }, { right, -1 }, { 0, 0 }, { left, 1 }, { left, 0 }, { center, 0 }, { right, 0 }}, {{ -0.5, 0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }}));
     
-    float rightPan = 1;
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ rightPan, 0 }, { rightPan, 0.2 }}, {{ rightPan, 0.5 }, { rightPan, -0.5 }}));
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }, { 0.5, 0.5 }}, {{ left, -1 }, { 0, 0 }, { right, 1 }, { center, -1 }, { 0, 0 }, { center, 1 }, { right, -1 }, { 0, 0 }, { left, 1 }, { left, 0 }, { center, 0 }, { right, 0 }}));
+    
+//    // Vertical Expansion
+//    float centerPan = 0;
+//    patternStep.addStage (HiddenPattern::alongPath ({{ 0, -1 }, { 0, 1 }}, 3));
+//    patternStep.addStage (HiddenPattern::alongPath ({{ 0, -1 }, { 0, 1 }}, 5));
+//    patternStep.addStage (HiddenPattern::alongPath ({{ -1, -1 }, { 1, 1 }}, 3));
+//    patternStep.addStage (HiddenPattern::alongPath ({{ 1, -1 }, { -1, 1 }}, 3));
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ centerPan, 0 }, { centerPan, 0.2 }}, {{ centerPan, 0.5 }, { centerPan, -0.5 }}));
+//    
+//    float leftPan = -1;
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ leftPan, 0 }, { leftPan, 0.2 }}, {{ leftPan, 0.5 }, { leftPan, -0.5 }}));
+//    
+//    float rightPan = 1;
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ rightPan, 0 }, { rightPan, 0.2 }}, {{ rightPan, 0.5 }, { rightPan, -0.5 }}));
     
     // Spatial Drum Pattern
 //    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 1 }, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }, { 1, 0 }}, {{ 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}, 2.0f));
