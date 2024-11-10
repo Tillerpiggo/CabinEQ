@@ -35,15 +35,18 @@ std::pair<float, float> FractalPatternGenerator::getNextSample()
     nextSample.first *= gain;
     nextSample.second *= gain;
     
+    if (hits[hitIdx] == false)
+        nextSample = { 0.0f, 0.0f };
+    
     sampleIdx++;
     
-//    // Add confounding noises
-//    for (auto& confoundingGenerator : confoundingGenerators)
-//    {
-//        auto confoundingSample = confoundingGenerator.getNextSample();
-//        nextSample.first += confoundingSample.first;
-//        nextSample.second += confoundingSample.second;
-//    }
+    // Add confounding noises
+    for (auto& confoundingGenerator : confoundingGenerators)
+    {
+        auto confoundingSample = confoundingGenerator.getNextSample();
+        nextSample.first += confoundingSample.first;
+        nextSample.second += confoundingSample.second;
+    }
     
     updateGeneratorBandpassFilters();
     currTime += timeIncrement * speedFactor;

@@ -18,17 +18,19 @@ class FractalPattern
 public:
     FractalPattern(int complexity);
 
-    std::pair<float, float> getFrequencyAndPanAtTime(float time); // time is from [0, 1)
+    // Returns frequency (Hz) and pan [-1, 1] at given time [0, 1)
+    std::pair<float, float> getFrequencyAndPanAtTime(float time);
 
 private:
-    void generateMooreCurve();
-    void mooreCurve(int level, int dir, int &x, int &y);
-    void rot(int n, int &x, int &y, int rx, int ry);
+    void generateCurve();
+    uint32_t mortonEncode2D(uint32_t x, uint32_t y);
+    void computeSegmentLengths();
 
     int complexity;
-    int order;
-    int size;
+    int gridSize;
     int numPoints;
 
     std::vector<std::pair<float, float>> points;
+    std::vector<float> segmentLengths;
+    float totalLength;
 };
