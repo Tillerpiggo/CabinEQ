@@ -197,6 +197,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     fractalStep.addStage (FractalPattern (2));
     fractalStep.addStage (FractalPattern (3));
     fractalStep.addStage (FractalPattern (4));
+    fractalStep.addStage (FractalPattern (5));
     
     PatternsStep patternStep;
     

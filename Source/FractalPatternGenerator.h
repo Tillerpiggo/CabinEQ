@@ -46,7 +46,7 @@ private:
     int numConfoundingGenerators = 3;
     std::vector<float> offsets { 0.1, -0.1, 0.2 };
     
-    float bandwidth = 1.0f;
+    float bandwidth = 0.5f;
     float speedFactor = 0.1f;
     float currTime = 0.0f; // value in the cycle, from 0 to 1, where we're at
     float timeIncrement = 1.0f / 60000.0f;

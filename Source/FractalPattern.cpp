@@ -74,7 +74,7 @@ void FractalPattern::generateCurve()
 
         // Map x_norm to frequency using logarithmic scale
         float f_min = 20.0f;      // Minimum frequency (Hz)
-        float f_max = 20000.0f;   // Maximum frequency (Hz)
+        float f_max = 12000.0f;   // Maximum frequency (Hz)
         float frequency = f_min * powf(f_max / f_min, x_norm);
 
         // Map y_norm to pan [-1, 1]
@@ -204,20 +204,26 @@ std::pair<float, float> FractalPattern::getFrequencyAndPanAtTime(float time)
     // Retrieve points for interpolation, wrapping around if necessary
     const auto& p0 = points[segmentIndex];
     const auto& p1 = points[(segmentIndex + 1) % N];
+    
+    // Interpolate frequency logarithmically
+    float logFreq0 = log10f(p0.first);
+    float logFreq1 = log10f(p1.first);
+    float logFreq = logFreq0 + t_interp * (logFreq1 - logFreq0);
+    float frequency = powf(10.0f, logFreq);
 
-    // Interpolate frequency using the Bark scale
-    float freq0 = p0.first;
-    float freq1 = p1.first;
-
-    // Convert frequencies to Bark scale
-    float bark0 = freqToBark(freq0);
-    float bark1 = freqToBark(freq1);
-
-    // Interpolate linearly in the Bark scale
-    float bark = bark0 + t_interp * (bark1 - bark0);
-
-    // Convert back to frequency from Bark scale
-    float frequency = barkToFreq(bark);
+//    // Interpolate frequency using the Bark scale
+//    float freq0 = p0.first;
+//    float freq1 = p1.first;
+//
+//    // Convert frequencies to Bark scale
+//    float bark0 = freqToBark(freq0);
+//    float bark1 = freqToBark(freq1);
+//
+//    // Interpolate linearly in the Bark scale
+//    float bark = bark0 + t_interp * (bark1 - bark0);
+//
+//    // Convert back to frequency from Bark scale
+//    float frequency = barkToFreq(bark);
 
     // Interpolate pan linearly
     float pan = p0.second + t_interp * (p1.second - p0.second);
