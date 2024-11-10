@@ -10,9 +10,36 @@
 
 #pragma once
 
-#include <JuceHeader.h>
+//#include <JuceHeader.h>
+//
+//// This class represents a space-filling curve pattern with a certain complexity that fills a space. It uses this to give you the frequency and panning at any time along the curve.
+//class FractalPattern
+//{
+//public:
+//    FractalPattern(int complexity);
+//
+//    // Returns frequency (Hz) and pan [-1, 1] at given time [0, 1)
+//    std::pair<float, float> getFrequencyAndPanAtTime(float time);
+//
+//private:
+//    void generateCurve();
+//    uint32_t mortonEncode2D(uint32_t x, uint32_t y);
+//    void computeSegmentLengths();
+//
+//    int complexity;
+//    int gridSize;
+//    int numPoints;
+//
+//    std::vector<std::pair<float, float>> points;
+//    std::vector<float> segmentLengths;
+//    float totalLength;
+//};
 
-// This class represents a space-filling curve pattern with a certain complexity that fills a space. It uses this to give you the frequency and panning at any time along the curve.
+#pragma once
+
+#include <vector>
+#include <utility>
+
 class FractalPattern
 {
 public:
@@ -23,11 +50,14 @@ public:
 
 private:
     void generateCurve();
-    uint32_t mortonEncode2D(uint32_t x, uint32_t y);
+    uint64_t mortonEncode2D(uint32_t xBits, uint32_t yBits, uint32_t x, uint32_t y);
     void computeSegmentLengths();
+    float freqToBark (float freq);
+    float barkToFreq (float bark);
 
     int complexity;
-    int gridSize;
+    int gridSizeX;
+    int gridSizeY;
     int numPoints;
 
     std::vector<std::pair<float, float>> points;

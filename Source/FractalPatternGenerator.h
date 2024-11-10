@@ -44,7 +44,7 @@ private:
     NoiseGenerator hiddenGenerator;
     std::vector<NoiseGenerator> confoundingGenerators;
     int numConfoundingGenerators = 3;
-    std::vector<float> offsets { 0.25, 0.5, 0.75 };
+    std::vector<float> offsets { 0.1, -0.1, 0.2 };
     
     float bandwidth = 1.0f;
     float speedFactor = 0.1f;
