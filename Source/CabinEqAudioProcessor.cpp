@@ -304,7 +304,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     qualityStepManager.addFractalStep (fractalStep);
 //    qualityStepManager.addSpatialStep (placeholderStep);
-//    qualityStepManager.addPatternsStep (patternStep);
+    qualityStepManager.addPatternsStep (patternStep);
     
     playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }

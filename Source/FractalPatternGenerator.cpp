@@ -98,7 +98,7 @@ void FractalPatternGenerator::mute()
 
 std::optional<float> FractalPatternGenerator::getCurrPlayingFreq()
 {
-    return std::nullopt;
+    return fractalPattern->getFrequencyAndPanAtTime (currTime).first;
 }
 
 void FractalPatternGenerator::updateBandwidth()

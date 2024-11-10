@@ -13,7 +13,7 @@
 const float Curve::valueAtTime (float t)
 {
     float freq = t * 22050;
-    float dbOffset = -3.0f * std::log2 (std::max (freq, 20.0f) / 1000.0f);
+    float dbOffset = -1.5f * std::log2 (std::max (freq, 20.0f) / 1000.0f);
     return dbOffset;
 }
 /*

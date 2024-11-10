@@ -44,12 +44,12 @@ private:
     NoiseGenerator hiddenGenerator;
     std::vector<NoiseGenerator> confoundingGenerators;
     int numConfoundingGenerators = 3;
-    std::vector<float> offsets { 0.1, -0.1, 0.2 };
+    std::vector<float> offsets { 0.25, 0.5, 0.75 };
     
-    float bandwidth = 0.5f;
+    float bandwidth = 1.0f;
     float speedFactor = 0.1f;
     float currTime = 0.0f; // value in the cycle, from 0 to 1, where we're at
-    float timeIncrement = 1.0f / 60000.0f;
+    float timeIncrement = 1.0f / 10000.0f;
     
     // Hidden pattern
     std::vector<bool> hits { 1, 0, 1, 0 }; // true for a hit and false for a rest

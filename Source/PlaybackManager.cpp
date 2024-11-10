@@ -111,6 +111,7 @@ void PlaybackManager::setDifficulty (float difficulty)
     glyphGenerator.setSpeedFactor (speedFactor);
     
     hiddenPatternGenerator.setConfoundingBandwidthMultiplier (difficulty);
+    fractalPatternGenerator.setSpeedFactor (difficulty);
     
     // TODO: have this impact speed for fractalPatternGenerator
 }
@@ -141,6 +142,8 @@ std::optional<float> PlaybackManager::getCurrPlayingFreq()
             return melodicNoiseSequencer.getCurrPlayingFreq();
         case QualityStep::Type::patterns:
             return std::nullopt;
+        case QualityStep::Type::fractal:
+            return fractalPatternGenerator.getCurrPlayingFreq();
     }
 }
 
