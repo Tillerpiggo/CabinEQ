@@ -11,9 +11,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "CutoffFilter.h"
 #include "PinkNoise.h"
-#include "Pattern.h"
+#include "BandProfile.h"
 
 // This class generates pink noise with a certain center frequency and bandwidth ( or starting frequency and ending frequency )
 class NoiseGenerator
@@ -23,41 +22,21 @@ public:
     
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
-    void setCenterFrequencyAndBandwidth (float centerFreq, float bandwidthInOctaves);
-    void setStartAndEndFrequency (float startFreq, float endFreq);
-    void setFrequencyRange (std::pair<float, float> freqRange);
-    void setPattern (Pattern pattern);
+    void setBandwidth (float bandwidth);
+    void setBandpass (float centerFreq);
+    void setPan (float pan);
     
 private:
-    void fillBuffer();
-    void updateFilters();
+    float sampleRate;
     
-    template<typename ChainType, typename CoefficientType>
-    void updateCutFilter (ChainType& chain, const CoefficientType& coefficients);
-    
-    template<int Index, typename ChainType, typename CoefficientType>
-    void update (ChainType& chain, CoefficientType& coefficients);
-    
-    // Noise generation
-    using Filter = juce::dsp::IIR::Filter<float>;
-    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter,
-                                                Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter>;
-    using BandpassFilter = juce::dsp::ProcessorChain<CutFilter, CutFilter>;
-    using Coefficients = Filter::CoefficientsPtr;
-    BandpassFilter bandpass;
+    // Pink noise generation
     PinkNoise pinkNoise;
-    juce::dsp::ProcessSpec spec;
+    juce::dsp::IIR::Filter<float> bandpass;
+    int snapToZeroCounter = 0;
     
-    // Frequency and panning
-    float startFreq, endFreq;
-    float leftGain = 1.0f, rightGain = 1.0f;
-    
-    // Buffered generation
-    int bufferIdx = 0;
-    int bufferSize; // above so it's initialized before buffer
-    juce::AudioBuffer<float> buffer;
-    
-    // Pattern
-    std::optional<Pattern> pattern;
-    float percentIncrementPerSample = 0.01; // adjust this to taste, I guess
+    // Constants
+    float bandwidth = 0.5f;
+    float pan = 0.0f;
+    float leftGain = 0.0f;
+    float rightGain = 0.0f;
 };

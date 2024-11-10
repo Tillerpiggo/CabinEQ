@@ -99,6 +99,10 @@
                 file="Source/SweepPattern.cpp"/>
           <FILE id="TI4MYv" name="SweepPattern.h" compile="0" resource="0" file="Source/SweepPattern.h"/>
         </GROUP>
+        <FILE id="hhSB6o" name="FractalPatternGenerator.cpp" compile="1" resource="0"
+              file="Source/FractalPatternGenerator.cpp"/>
+        <FILE id="ODaSou" name="FractalPatternGenerator.h" compile="0" resource="0"
+              file="Source/FractalPatternGenerator.h"/>
         <FILE id="TtWJFa" name="HiddenPatternGenerator.cpp" compile="1" resource="0"
               file="Source/HiddenPatternGenerator.cpp"/>
         <FILE id="BaBzuW" name="HiddenPatternGenerator.h" compile="0" resource="0"
