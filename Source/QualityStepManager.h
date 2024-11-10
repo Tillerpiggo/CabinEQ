@@ -26,6 +26,7 @@ public:
     void addSpatialStep (SpatialStep spatialStep);
     void addIntelligibilityStep (IntelligibilityStep intelligibilityStep);
     void addPatternsStep (PatternsStep patternsStep);
+    void addFractalStep (FractalStep fractalStep);
 
 private:
     std::vector<QualityStep> steps;

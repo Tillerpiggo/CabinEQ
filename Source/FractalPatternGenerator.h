@@ -47,14 +47,14 @@ private:
     std::vector<float> offsets { 0.25, 0.5, 0.75 };
     
     float bandwidth = 1.0f;
-    float speedFactor = 1.0f;
+    float speedFactor = 0.1f;
     float currTime = 0.0f; // value in the cycle, from 0 to 1, where we're at
-    float timeIncrement = 1.0f / 40000.0f;
+    float timeIncrement = 1.0f / 120000.0f;
     
     // Hidden pattern
     std::vector<bool> hits { 1, 0, 1, 0 }; // true for a hit and false for a rest
     GainEnvelope gainEnvelope;
-    float hitDurationInSamples = 2000; // TODO: arbitrary + change this to seconds + maybe make this scale with speed as well
+    float hitDurationInSamples = 10000; // TODO: arbitrary + change this to seconds + maybe make this scale with speed as well
     float sampleIdx = 0;
     float hitIdx = 0;
 };

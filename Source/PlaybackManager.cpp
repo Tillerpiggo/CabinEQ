@@ -74,6 +74,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     glyphGenerator.prepare (spec);
     melodicNoiseSequencer.prepare (spec);
     hiddenPatternGenerator.prepare (spec);
+    fractalPatternGenerator.prepare (spec);
     
     filter.prepare (spec);
     tiltFilter.prepare (spec);
@@ -110,6 +111,8 @@ void PlaybackManager::setDifficulty (float difficulty)
     glyphGenerator.setSpeedFactor (speedFactor);
     
     hiddenPatternGenerator.setConfoundingBandwidthMultiplier (difficulty);
+    
+    // TODO: have this impact speed for fractalPatternGenerator
 }
 
 void PlaybackManager::setOctaveShift (float octaveShift)
@@ -182,8 +185,9 @@ std::pair<float, float> PlaybackManager::getNextSample()
     auto [melodicLeftSample, melodicRightSample] = melodicNoiseSequencer.getNextSample();
     auto [glyphLeftSample, glyphRightSample] = glyphGenerator.getNextSample();
     auto [patternsLeftSample, patternsRightSample] = hiddenPatternGenerator.getNextSample();
+    auto [fractalLeftSample, fractalRightSample] = fractalPatternGenerator.getNextSample();
     
-    return { melodicLeftSample + glyphLeftSample + patternsLeftSample, melodicRightSample + glyphRightSample + patternsRightSample };
+    return { melodicLeftSample + glyphLeftSample + patternsLeftSample + fractalLeftSample, melodicRightSample + glyphRightSample + patternsRightSample + fractalRightSample };
 }
 
 void PlaybackManager::updateSequencersFromQualityStep()
@@ -199,6 +203,7 @@ void PlaybackManager::updateSequencersFromQualityStep()
             glyphGenerator.setGlyph (glyph);
             melodicNoiseSequencer.mute();
             hiddenPatternGenerator.mute();
+            fractalPatternGenerator.mute();
             break;
         }
             
@@ -208,6 +213,7 @@ void PlaybackManager::updateSequencersFromQualityStep()
             melodicNoiseSequencer.setPattern (melody.noiseNotes());
             glyphGenerator.mute();
             hiddenPatternGenerator.mute();
+            fractalPatternGenerator.mute();
             break;
         }
             
@@ -217,6 +223,17 @@ void PlaybackManager::updateSequencersFromQualityStep()
             hiddenPatternGenerator.setPattern (pattern);
             melodicNoiseSequencer.mute();
             glyphGenerator.mute();
+            fractalPatternGenerator.mute();
+            break;
+        }
+            
+        case QualityStep::Type::fractal:
+        {
+            auto pattern = qualityStep->getFractalPatternAtStage (stageIdx);
+            fractalPatternGenerator.setPattern (pattern);
+            glyphGenerator.mute();
+            melodicNoiseSequencer.mute();
+            hiddenPatternGenerator.mute();
             break;
         }
     }

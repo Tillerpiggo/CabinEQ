@@ -191,6 +191,10 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     SpatialStep placeholderStep;
     placeholderStep.addStage (Glyph(SweepPattern({{ 1000, 0 }, { 1000, 0 }}, 1.0, spec.sampleRate)));
     
+    // FractalStep
+    FractalStep fractalStep;
+    fractalStep.addStage (FractalPattern (2));
+    
     PatternsStep patternStep;
     
     // 2D Taut
@@ -294,8 +298,9 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //
     
     
-    qualityStepManager.addSpatialStep (placeholderStep);
-    qualityStepManager.addPatternsStep (patternStep);
+    qualityStepManager.addFractalStep (fractalStep);
+//    qualityStepManager.addSpatialStep (placeholderStep);
+//    qualityStepManager.addPatternsStep (patternStep);
     
     playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }

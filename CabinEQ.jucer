@@ -39,6 +39,7 @@
         <FILE id="ApKM6n" name="IntelligibilityStep.h" compile="0" resource="0"
               file="Source/IntelligibilityStep.h"/>
         <FILE id="EydLzl" name="PatternsStep.h" compile="0" resource="0" file="Source/PatternsStep.h"/>
+        <FILE id="Nxg6ju" name="FractalStep.h" compile="0" resource="0" file="Source/FractalStep.h"/>
         <FILE id="KOdH6F" name="AudioPattern.cpp" compile="1" resource="0"
               file="Source/AudioPattern.cpp"/>
         <FILE id="SYoPuJ" name="AudioPattern.h" compile="0" resource="0" file="Source/AudioPattern.h"/>

@@ -24,6 +24,7 @@
 #include "QualityStep.h"
 #include "SequencerListener.h"
 #include "HiddenPatternGenerator.h"
+#include "FractalPatternGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -73,6 +74,7 @@ private:
     GlyphGenerator glyphGenerator;
     MelodicNoiseSequencer melodicNoiseSequencer;
     HiddenPatternGenerator hiddenPatternGenerator;
+    FractalPatternGenerator fractalPatternGenerator;
     ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
     Curve tiltCurve;
     

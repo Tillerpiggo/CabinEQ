@@ -46,3 +46,8 @@ void QualityStepManager::addPatternsStep (PatternsStep patternsStep)
 {
     steps.push_back (QualityStep::patterns (patternsStep));
 }
+
+void QualityStepManager::addFractalStep (FractalStep fractalStep)
+{
+    steps.push_back (QualityStep::fractal (fractalStep));
+}

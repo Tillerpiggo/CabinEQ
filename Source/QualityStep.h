@@ -13,6 +13,7 @@
 #include "SpatialStep.h"
 #include "IntelligibilityStep.h"
 #include "PatternsStep.h"
+#include "FractalStep.h"
 
 // This class is a wrapper for a SpatialQualityStep and IntelligibilityQualityStep designed to make it easier to use them interchangeably.
 class QualityStep
@@ -22,22 +23,28 @@ public:
     {
         spatial,
         intelligibility,
-        patterns
+        patterns,
+        fractal
     };
     
     static QualityStep spatial (SpatialStep spatialStep)
     {
-        return QualityStep (Type::spatial, spatialStep, std::nullopt, std::nullopt);
+        return QualityStep (Type::spatial, spatialStep, std::nullopt, std::nullopt, std::nullopt);
     }
     
     static QualityStep intelligibility (IntelligibilityStep intelligibilityStep)
     {
-        return QualityStep (Type::intelligibility, std::nullopt, intelligibilityStep, std::nullopt);
+        return QualityStep (Type::intelligibility, std::nullopt, intelligibilityStep, std::nullopt, std::nullopt);
     }
     
     static QualityStep patterns (PatternsStep patternsStep)
     {
-        return QualityStep (Type::patterns, std::nullopt, std::nullopt, patternsStep);
+        return QualityStep (Type::patterns, std::nullopt, std::nullopt, patternsStep, std::nullopt);
+    }
+    
+    static QualityStep fractal (FractalStep fractalStep)
+    {
+        return QualityStep (Type::fractal, std::nullopt, std::nullopt, std::nullopt, fractalStep);
     }
     
     const Type getType() const
@@ -69,6 +76,14 @@ public:
         return patternsStep->patternAtStage (stageIdx);
     }
     
+    const FractalPattern getFractalPatternAtStage (int stageIdx)
+    {
+        if (type != Type::fractal)
+            std::cerr << "Calling getFractalPatternAtStage on non-spatial QualityStep" << std::endl;
+        
+        return fractalStep->patternAtStage (stageIdx);
+    }
+    
     int getNumStages()
     {
         switch (type)
@@ -79,12 +94,14 @@ public:
                 return intelligibilityStep->getNumStages();
             case Type::patterns:
                 return patternsStep->getNumStages();
+            case Type::fractal:
+                return fractalStep->getNumStages();
         }
     }
     
 private:
-    QualityStep (Type type, std::optional<SpatialStep> spatialStep, std::optional<IntelligibilityStep> intelligibilityStep, std::optional<PatternsStep> patternsStep)
-        : type (type), spatialStep (spatialStep), intelligibilityStep (intelligibilityStep), patternsStep (patternsStep)
+    QualityStep (Type type, std::optional<SpatialStep> spatialStep, std::optional<IntelligibilityStep> intelligibilityStep, std::optional<PatternsStep> patternsStep, std::optional<FractalStep> fractalStep)
+        : type (type), spatialStep (spatialStep), intelligibilityStep (intelligibilityStep), patternsStep (patternsStep), fractalStep (fractalStep)
     {
     }
     
@@ -92,4 +109,5 @@ private:
     std::optional<SpatialStep> spatialStep;
     std::optional<IntelligibilityStep> intelligibilityStep;
     std::optional<PatternsStep> patternsStep;
+    std::optional<FractalStep> fractalStep;
 };
