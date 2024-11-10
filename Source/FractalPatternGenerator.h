@@ -54,7 +54,7 @@ private:
     // Hidden pattern
     std::vector<bool> hits { 1, 0, 1, 0 }; // true for a hit and false for a rest
     GainEnvelope gainEnvelope;
-    float hitDurationInSamples = 2000; // TODO: arbitrary + change this to seconds + maybe make this scale with speed as well
+    float hitDurationInSamples = 20000; // TODO: arbitrary + change this to seconds + maybe make this scale with speed as well
     float sampleIdx = 0;
     float hitIdx = 0;
 };
