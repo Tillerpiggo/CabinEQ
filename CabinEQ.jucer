@@ -48,6 +48,10 @@
         <FILE id="HEZUbQ" name="HiddenPattern.cpp" compile="1" resource="0"
               file="Source/HiddenPattern.cpp"/>
         <FILE id="LnZOLr" name="HiddenPattern.h" compile="0" resource="0" file="Source/HiddenPattern.h"/>
+        <FILE id="OsORxm" name="FractalPattern.cpp" compile="1" resource="0"
+              file="Source/FractalPattern.cpp"/>
+        <FILE id="YPHmDn" name="FractalPattern.h" compile="0" resource="0"
+              file="Source/FractalPattern.h"/>
         <FILE id="MJSFfb" name="FauxMusicPattern.cpp" compile="1" resource="0"
               file="Source/FauxMusicPattern.cpp"/>
         <FILE id="s1PAyt" name="FauxMusicPattern.h" compile="0" resource="0"

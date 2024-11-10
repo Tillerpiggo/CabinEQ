@@ -48,7 +48,8 @@ private:
     
     float bandwidth = 1.0f;
     float speedFactor = 1.0f;
-    float currVal = 0.0f; // value in the cycle, from 0 to 1, where we're at
+    float currTime = 0.0f; // value in the cycle, from 0 to 1, where we're at
+    float timeIncrement = 1.0f / 40000.0f;
     
     // Hidden pattern
     std::vector<bool> hits { 1, 0, 1, 0 }; // true for a hit and false for a rest

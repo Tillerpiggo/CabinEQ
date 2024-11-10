@@ -46,6 +46,7 @@ std::pair<float, float> FractalPatternGenerator::getNextSample()
     }
     
     updateGeneratorBandpassFilters();
+    currTime += timeIncrement * speedFactor;
     
     return nextSample;
 }
@@ -121,13 +122,13 @@ void FractalPatternGenerator::updateNoiseGenerators()
 void FractalPatternGenerator::updateGeneratorBandpassFilters()
 {
     // Get the hidden generator value
-    auto [hiddenFreq, hiddenPan] = fractalPattern.getFreqAndPanAtValue (currVal);
+    auto [hiddenFreq, hiddenPan] = fractalPattern->getFrequencyAndPanAtTime (currTime);
     hiddenGenerator.setBandpass (hiddenFreq);
     hiddenGenerator.setPan (hiddenPan);
     
     for (int i = 0; i < confoundingGenerators.size(); ++i)
     {
-        auto [freq, pan] = fractalPattern.getFreqAndPanAtValue (remainder (currVal + offsets[i], 1.0f));
+        auto [freq, pan] = fractalPattern->getFrequencyAndPanAtTime (remainder (currTime + offsets[i], 1.0f));
         confoundingGenerators[i].setBandpass (freq);
         confoundingGenerators[i].setPan (pan);
     }
