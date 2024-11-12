@@ -45,6 +45,8 @@ public:
     // StepView::Listener methods
     void setDifficulty (float difficulty) override;
     void setOctaveShift (float octaveShift) override;
+    void setHelicopterSpeed (float helicopterSpeed) override;
+    void setBandwidth (float bandwidth) override;
     void setIsPlaying (bool isPlaying) override;
     void setIsCycling (bool isCycling) override;
     void setStage (int stage) override;

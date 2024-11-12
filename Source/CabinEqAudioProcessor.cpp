@@ -542,6 +542,16 @@ void CabinEqAudioProcessor::setOctaveShift (float octaveShift)
     playbackManager.setOctaveShift (octaveShift);
 }
 
+void CabinEqAudioProcessor::setHelicopterSpeed (float helicopterSpeed)
+{
+    playbackManager.setHelicopterSpeed (helicopterSpeed);
+}
+
+void CabinEqAudioProcessor::setBandwidth (float bandwidth)
+{
+    playbackManager.setBandwidth (bandwidth);
+}
+
 void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
 {
     playbackManager.setIsCalibrating (isPlaying);

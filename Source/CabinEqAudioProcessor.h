@@ -101,6 +101,8 @@ public:
     // StepView Methods
     void setDifficulty (float difficulty);
     void setOctaveShift (float octaveShift);
+    void setHelicopterSpeed (float helicopterSpeed);
+    void setBandwidth (float bandwidth);
     void setIsPlaying (bool isPlaying);
     void setIsCycling (bool isCycling);
     QualityStep getCurrStep();

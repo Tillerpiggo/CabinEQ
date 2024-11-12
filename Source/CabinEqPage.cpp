@@ -145,6 +145,16 @@ void CabinEqPage::setOctaveShift (float octaveShift)
     processor.setOctaveShift (octaveShift);
 }
 
+void CabinEqPage::setHelicopterSpeed (float helicopterSpeed)
+{
+    processor.setHelicopterSpeed (helicopterSpeed);
+}
+
+void CabinEqPage::setBandwidth (float bandwidth)
+{
+    processor.setBandwidth (bandwidth);
+}
+
 void CabinEqPage::setIsPlaying (bool isPlaying)
 {
     processor.setIsPlaying (isPlaying);

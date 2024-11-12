@@ -75,6 +75,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     melodicNoiseSequencer.prepare (spec);
     hiddenPatternGenerator.prepare (spec);
     fractalPatternGenerator.prepare (spec);
+    fractalPatternGenerator.setNumConfoundingGenerators (8);
     
     filter.prepare (spec);
     tiltFilter.prepare (spec);
@@ -121,6 +122,23 @@ void PlaybackManager::setOctaveShift (float octaveShift)
     melodicNoiseSequencer.setFreqFactor (std::pow (2.0f, octaveShift));
     glyphGenerator.setFreqFactor (std::pow (2.0f, octaveShift));
     hiddenPatternGenerator.setFreqFactor (std::pow (2.0f, octaveShift));
+    fractalPatternGenerator.setConfoundingGain (octaveShift);
+//    if (octaveShift < 1.0f)
+//        fractalPatternGenerator.setNumConfoundingGenerators (0);
+//    else if (octaveShift > 1.0f)
+//        fractalPatternGenerator.setNumConfoundingGenerators (5);
+//    else
+//        fractalPatternGenerator.setNumConfoundingGenerators (3);
+}
+
+void PlaybackManager::setHelicopterSpeed (float helicopterSpeed)
+{
+    fractalPatternGenerator.setHelicopterSpeed (helicopterSpeed);
+}
+
+void PlaybackManager::setBandwidth (float bandwidth)
+{
+    fractalPatternGenerator.setBandwidth (bandwidth);
 }
 
 void PlaybackManager::setVolume (float volume)

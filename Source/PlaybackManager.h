@@ -44,6 +44,8 @@ public:
     void setIsCycling (bool isCycling);
     void setDifficulty (float difficulty); // value from [0, 1] where 1 is normal and 0 is no noise/half speed
     void setOctaveShift (float octaveShift); // scalar factor for how much to octaves to shift frequency by
+    void setHelicopterSpeed (float helicopterSpeed);
+    void setBandwidth (float bandwidth);
     void setVolume (float volume);
     void setMelodicPattern (MelodicNotes melodicNotes);
     void setSpatialPattern (Glyph glyph);

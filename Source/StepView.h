@@ -27,6 +27,8 @@ public:
         
         virtual void setDifficulty (float difficulty) = 0;
         virtual void setOctaveShift (float octaveShift) = 0;
+        virtual void setHelicopterSpeed (float helicopterSpeed) = 0;
+        virtual void setBandwidth (float bandwidth) = 0;
         virtual void setIsPlaying (bool isPlaying) = 0;
         virtual void setIsCycling (bool isCycling) = 0;
         virtual void setStage (int stage) = 0;
@@ -62,6 +64,10 @@ private:
     juce::Label difficultySliderLabel;
     juce::Slider pitchSlider;
     juce::Label pitchSliderLabel;
+    juce::Slider helicopterSlider;
+    juce::Label helicopterLabel;
+    juce::Slider bandwidthSlider;
+    juce::Label bandwidthLabel;
     juce::TextButton playButton { "Play" };
     juce::TextButton prevButton { "PREV" };
     juce::TextButton nextButton { "NEXT" };

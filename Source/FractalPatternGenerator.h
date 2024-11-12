@@ -25,8 +25,10 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setPattern (FractalPattern fractalPattern);
     void setSpeedFactor (float speedFactor);
+    void setHelicopterSpeed (float helicopterSpeed);
     void setBandwidth (float bandwidth);
     void setNumConfoundingGenerators (int numConfoundingGenerators);
+    void setConfoundingGain (float gain);
     void mute();
     
     std::optional<float> getCurrPlayingFreq();
@@ -44,9 +46,11 @@ private:
     NoiseGenerator hiddenGenerator;
     std::vector<NoiseGenerator> confoundingGenerators;
     int numConfoundingGenerators = 3;
-    std::vector<float> offsets { 0.25, 0.5, 0.75 };
+    std::vector<float> offsets { 0.15, -0.15, 0.5 };
     
-    float bandwidth = 1.0f;
+    float confoundingGain = 1.0f;
+    
+    float bandwidth = 2.0f;
     float speedFactor = 0.1f;
     float currTime = 0.0f; // value in the cycle, from 0 to 1, where we're at
     float timeIncrement = 1.0f / 120000.0f;
@@ -54,7 +58,9 @@ private:
     // Hidden pattern
     std::vector<bool> hits { 1, 0, 1, 0 }; // true for a hit and false for a rest
     GainEnvelope gainEnvelope;
-    float hitDurationInSamples = 2000; // TODO: arbitrary + change this to seconds + maybe make this scale with speed as well
+    float hitDurationInSamples = 5000; // TODO: arbitrary + change this to seconds + maybe make this scale with speed as well
     float sampleIdx = 0;
     float hitIdx = 0;
+    
+    float helicopterSpeed = 1.0f;
 };

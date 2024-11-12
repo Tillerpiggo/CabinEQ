@@ -22,15 +22,15 @@ std::pair<float, float> FractalPatternGenerator::getNextSample()
     std::pair<float, float> nextSample = hiddenGenerator.getNextSample();
     
     // Calculate and aplpy gain
-    if (sampleIdx >= hitDurationInSamples)
+    if (sampleIdx >= hitDurationInSamples / helicopterSpeed)
     {
-        sampleIdx = remainder (sampleIdx, hitDurationInSamples);
+        sampleIdx = remainder (sampleIdx, hitDurationInSamples / helicopterSpeed);
         hitIdx++;
         if (hitIdx >= hits.size())
             hitIdx = 0;
     }
     
-    float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples);
+    float gain = gainEnvelope.gainAtSample (sampleIdx, hitDurationInSamples / helicopterSpeed);
     
     nextSample.first *= gain;
     nextSample.second *= gain;
@@ -44,8 +44,8 @@ std::pair<float, float> FractalPatternGenerator::getNextSample()
     for (auto& confoundingGenerator : confoundingGenerators)
     {
         auto confoundingSample = confoundingGenerator.getNextSample();
-        nextSample.first += confoundingSample.first;
-        nextSample.second += confoundingSample.second;
+        nextSample.first += confoundingSample.first * confoundingGain;
+        nextSample.second += confoundingSample.second * confoundingGain;
     }
     
     updateGeneratorBandpassFilters();
@@ -74,9 +74,15 @@ void FractalPatternGenerator::setSpeedFactor (float speedFactor)
     this->speedFactor = speedFactor;
 }
 
+void FractalPatternGenerator::setHelicopterSpeed (float helicopterSpeed)
+{
+    this->helicopterSpeed = helicopterSpeed;
+}
+
 void FractalPatternGenerator::setBandwidth (float bandwidth)
 {
     this->bandwidth = bandwidth;
+    updateBandwidth();
 }
 
 void FractalPatternGenerator::setNumConfoundingGenerators (int numConfoundingGenerators)
@@ -89,6 +95,11 @@ void FractalPatternGenerator::setNumConfoundingGenerators (int numConfoundingGen
     {
         offsets.push_back (static_cast<float> (i + 1) * fraction);
     }
+}
+
+void FractalPatternGenerator::setConfoundingGain (float gain)
+{
+    this->confoundingGain = gain;
 }
 
 void FractalPatternGenerator::mute()
