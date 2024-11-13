@@ -59,6 +59,10 @@
               file="Source/FauxMusicPattern.h"/>
         <FILE id="sv59Y7" name="Pattern.cpp" compile="1" resource="0" file="Source/Pattern.cpp"/>
         <FILE id="Yn5yLj" name="Pattern.h" compile="0" resource="0" file="Source/Pattern.h"/>
+        <FILE id="avYfQi" name="RandomBandPattern.cpp" compile="1" resource="0"
+              file="Source/RandomBandPattern.cpp"/>
+        <FILE id="kqemxZ" name="RandomBandPattern.h" compile="0" resource="0"
+              file="Source/RandomBandPattern.h"/>
       </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <GROUP id="{3B5A2BE2-E6B6-3B7A-F6E4-7F90726FB230}" name="Layout">
