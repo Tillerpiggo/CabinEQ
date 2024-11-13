@@ -71,6 +71,7 @@ public:
     juce::AudioProcessorValueTreeState parameters;
     
     void setVolume (float volume);
+    void setPitch (float pitch);
     void setIsProcessing (bool isProcessing);
     
     // Profiles
@@ -93,6 +94,8 @@ public:
     int addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName);
     void updateBand (const int id, const float freq, const float ampl, const float bandwidth, juce::String profileName);
     void removeBand (const int id, juce::String profileName);
+//    int addBands (std::vector<Band> bands, juce::String profileName);
+//    void updateBands (const int firstId, std::vector<Band> bands, juce::String profileName);
     
     // Listener
     void addListener (Listener* listener);

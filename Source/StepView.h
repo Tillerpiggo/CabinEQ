@@ -62,8 +62,8 @@ private:
     
     juce::Slider difficultySlider;
     juce::Label difficultySliderLabel;
-    juce::Slider pitchSlider;
-    juce::Label pitchSliderLabel;
+    juce::Slider noiseSlider;
+    juce::Label noiseSliderLabel;
     juce::Slider helicopterSlider;
     juce::Label helicopterLabel;
     juce::Slider bandwidthSlider;

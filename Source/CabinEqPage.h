@@ -103,6 +103,9 @@ protected:
     
     juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
     juce::Label masterVolumeSliderLabel;
+    juce::Slider pitchSlider;
+    juce::Label pitchSliderLabel;
+    
     
     bool playingNoisePattern = false;
     

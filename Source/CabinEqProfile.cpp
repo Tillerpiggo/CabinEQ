@@ -78,6 +78,29 @@ void CabinEqProfile::updateBand (const int id, const float freq, const float amp
     updateBandInTree (id, freq, ampl, bandwidth, amplBandTree);
 }
 
+//int CabinEqProfile::addBands (std::vector<Band> bands, juce::String profileName)
+//{
+//    if (! hasBeenInitialized)
+//        initValueTreeFromAPVTS();
+//    
+//    auto amplBandTree = valueTree.getChildWithName (idAmplTree);
+//    int firstId = getNextIdForBandInTree (amplBandTree);
+//    for (int i = 0; i < bands.size(); ++i)
+//        addBandToTree (firstId + i, bands[i].freq, bands[i].ampl, bands[i].bandwidth, amplBandTree);
+//    
+//    return firstId;
+//}
+//
+//void CabinEqProfile::updateBands (const int firstId, std::vector<Band> bands, juce::String profileName)
+//{
+//    if (! hasBeenInitialized)
+//        initValueTreeFromAPVTS();
+//    
+//    auto amplBandTree = valueTree.getChildWithName (idAmplTree);
+//    for (int i = 0; i < bands.size(); ++i)
+//        updateBandInTree (firstId + i, bands[i].freq, bands[i].ampl, bands[i].bandwidth, amplBandTree);
+//}
+
 void CabinEqProfile::initValueTreeFromAPVTS()
 {
     valueTree = apvts.state.getChildWithProperty (idProfileName, profileName);

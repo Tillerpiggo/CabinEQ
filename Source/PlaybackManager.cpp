@@ -52,6 +52,19 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     {
         tiltFilter.process (ioContext);
     }
+//    
+//    if (isCalibrating)
+//    {
+//        float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume);
+//        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
+//        {
+//            std::pair<float, float> value = getNextSample();
+//            leftChannel[sample] += value.first * 0.15 * 0.5 * volumeOffset;
+//            
+//            if (rightChannel)
+//                rightChannel[sample] += value.second * 0.15 * 0.5 * volumeOffset;
+//        }
+//    }
     
     if (isProcessing)
     {
@@ -145,6 +158,12 @@ void PlaybackManager::setVolume (float volume)
 {
     this->volume = volume;
     overallVolumeProcessor.setGainDecibels (volume);
+}
+
+void PlaybackManager::setPitch (float pitch)
+{
+    this->pitch = pitch;
+    filter.setPitch (pitch);
 }
 
 std::optional<float> PlaybackManager::getCurrPlayingFreq()

@@ -189,7 +189,10 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     playbackManager.prepare (spec);
     
     SpatialStep placeholderStep;
-    placeholderStep.addStage (Glyph(SweepPattern({{ 1000, 0 }, { 1000, 0 }}, 1.0, spec.sampleRate)));
+    placeholderStep.addStage (Glyph( SweepPattern({{ 200, 0 }, { 10000, 0 }}, 1.0, spec.sampleRate)));
+    
+    // Basic up and down
+    
     
     // FractalStep
     FractalStep fractalStep;
@@ -301,7 +304,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //    patternStep.addStage (HiddenPattern ({{ -0.5, 1}, { 0.5, 0 }, { 0, -0.7 }, { -0.5, 0 }}))
 //
     
-    
+    qualityStepManager.addSpatialStep (placeholderStep);
     qualityStepManager.addFractalStep (fractalStep);
 //    qualityStepManager.addSpatialStep (placeholderStep);
     qualityStepManager.addPatternsStep (patternStep);
@@ -421,6 +424,11 @@ void CabinEqAudioProcessor::setVolume (float volume)
     playbackManager.setVolume (volume);
 }
 
+void CabinEqAudioProcessor::setPitch (float pitch)
+{
+    playbackManager.setPitch (pitch);
+}
+
 void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
 {
     playbackManager.setIsProcessing (isProcessing);
@@ -519,6 +527,20 @@ void CabinEqAudioProcessor::removeBand (const int id, juce::String profileName)
     if (profile.has_value())
         profile->get().removeBand (id);
 }
+
+//int CabinEqAudioProcessor::addBands (std::vector<Band> bands, juce::String profileName)
+//{
+//    auto profile = profileNamed (profileName);
+//    if (profile.has_value())
+//        profile->get().addBands (bands);
+//}
+//
+//void CabinEqAudioProcessor::updateBands (const int firstId, std::vector<Band>, juce::String profileName)
+//{
+//    auto profile = profileNamed (profileName);
+//    if (profile.has_value())
+//        profile->get().updateBands (bands);
+//}
 
 
 

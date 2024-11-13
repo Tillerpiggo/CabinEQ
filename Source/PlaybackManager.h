@@ -47,6 +47,7 @@ public:
     void setHelicopterSpeed (float helicopterSpeed);
     void setBandwidth (float bandwidth);
     void setVolume (float volume);
+    void setPitch (float pitch);
     void setMelodicPattern (MelodicNotes melodicNotes);
     void setSpatialPattern (Glyph glyph);
     void setIsFrozen (bool isFrozen);
@@ -68,6 +69,7 @@ private:
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;
     float volume = 0.0f; // in dB
+    float pitch = 1.0f; // scalar
     float calibrationVolume = 0.0f; // in dB
     float spacing = 3.0f; // in octaves
     float difficulty = 1.0f;

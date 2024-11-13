@@ -25,6 +25,8 @@ public:
     int addBand (const float freq, const float ampl, const float bandwidth);
     void removeBand (const int id);
     void updateBand (const int id, const float freq, const float ampl, const float bandwidth);
+    int addBands (std::vector<Band> bands);
+    void updateBands (const int firstId, std::vector<Band> bands);
     
     void initValueTreeFromAPVTS(); // sets this value tree to match the one in the main apvts
     const juce::String getName() const;

@@ -14,7 +14,7 @@ StepView::StepView()
 {
     // Add components
     addSliderAndLabel (&difficultySlider, &difficultySliderLabel, "Difficulty", 0.0f, 1.0f, 0.5f);
-    addSliderAndLabel (&pitchSlider, &pitchSliderLabel, "Noise", 0.0f, 1.0f, 0.5f);
+    addSliderAndLabel (&noiseSlider, &noiseSliderLabel, "Noise", 0.0f, 1.0f, 0.5f);
     addSliderAndLabel (&helicopterSlider, &helicopterLabel, "Helicopter", 0.1f, 5.0f, 1.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 5.0f, 1.0f);
     
@@ -28,9 +28,9 @@ StepView::StepView()
         if (listener != nullptr)
             listener->setDifficulty (difficultySlider.getValue());
     });
-    addSliderAction (&pitchSlider, [this](juce::Slider*) {
+    addSliderAction (&noiseSlider, [this](juce::Slider*) {
         if (listener != nullptr)
-            listener->setOctaveShift (pitchSlider.getValue());
+            listener->setOctaveShift (noiseSlider.getValue());
     });
     addSliderAction (&helicopterSlider, [this](juce::Slider*) {
         if (listener != nullptr)
@@ -84,7 +84,7 @@ void StepView::resized()
     stageButtonSpaces.push_back (Space());
     
     Layout layout (getBounds(), 4);
-    layout.addRow ({ Space (80), Space (&difficultySlider), Space (80), Space (&pitchSlider), Space (&playButton, 80) });
+    layout.addRow ({ Space (80), Space (&difficultySlider), Space (80), Space (&noiseSlider), Space (&playButton, 80) });
     layout.addRow ({ Space (80), Space (&helicopterSlider), Space (80), Space (&bandwidthSlider) });
     layout.addRow (stageButtonSpaces);
     layout.addRow ({ Space(), Space (&prevButton, 80), Space (&nextButton, 80), Space() });
