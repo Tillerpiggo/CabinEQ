@@ -204,18 +204,18 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     PatternsStep patternStep;
     
-    // 2D Taut
-    float left = -1;
-    float center = 0;
-    float right = 1;
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 0, 0 }}, {{ 0, 0.25 }, { 0, -0.25 }}));
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, 0 }}, {{ -1, 0.25 }, { -1, -0.25 }, { -0.5, 0 }}));
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 1, 0 }}, {{ 1, 0.25 }, { 1, -0.25 }, { 0.5, 0 }}));
-    
-    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {{ left, -1 }, { 0, 0 }, { right, 1 }, { center, -1 }, { 0, 0 }, { center, 1 }, { right, -1 }, { 0, 0 }, { left, 1 }, { left, 0 }, { center, 0 }, { right, 0 }}, {{ -0.5, 0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }}));
-    
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }, { 0.5, 0.5 }}, {{ left, -1 }, { 0, 0 }, { right, 1 }, { center, -1 }, { 0, 0 }, { center, 1 }, { right, -1 }, { 0, 0 }, { left, 1 }, { left, 0 }, { center, 0 }, { right, 0 }}));
-    
+//    // 2D Taut
+//    float left = -1;
+//    float center = 0;
+//    float right = 1;
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 0, 0 }}, {{ 0, 0.25 }, { 0, -0.25 }}));
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, 0 }}, {{ -1, 0.25 }, { -1, -0.25 }, { -0.5, 0 }}));
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 1, 0 }}, {{ 1, 0.25 }, { 1, -0.25 }, { 0.5, 0 }}));
+//    
+//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {{ left, -1 }, { 0, 0 }, { right, 1 }, { center, -1 }, { 0, 0 }, { center, 1 }, { right, -1 }, { 0, 0 }, { left, 1 }, { left, 0 }, { center, 0 }, { right, 0 }}, {{ -0.5, 0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }}));
+//    
+//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }, { 0.5, 0.5 }}, {{ left, -1 }, { 0, 0 }, { right, 1 }, { center, -1 }, { 0, 0 }, { center, 1 }, { right, -1 }, { 0, 0 }, { left, 1 }, { left, 0 }, { center, 0 }, { right, 0 }}));
+//    
 //    // Vertical Expansion
 //    float centerPan = 0;
 //    patternStep.addStage (HiddenPattern::alongPath ({{ 0, -1 }, { 0, 1 }}, 3));
@@ -292,22 +292,22 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //        { 0, 0, 0, 1, 0, 0, 0 }},
 //    2.0f, 1.0f));
     
-//    // X Pattern
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }}, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }}));
-//    // Diamond pattern
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }}, {{ 1, -1 }, { 1, 1 },{ -1, 1 }, { -1, -1 }}));
-//    
-//    // Plus pattern
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 0, -1 }, { 0, 0 }}, { { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
+    // X Pattern
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }}, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }}));
+    // Diamond pattern
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }}, {{ 1, -1 }, { 1, 1 },{ -1, 1 }, { -1, -1 }}));
+    // Plus pattern
+    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 0, -1 }, { 0, 0 }}, { { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
     
 //    // Weird pattern
 //    patternStep.addStage (HiddenPattern ({{ -0.5, 1}, { 0.5, 0 }, { 0, -0.7 }, { -0.5, 0 }}))
 //
     
+    qualityStepManager.addPatternsStep (patternStep);
     qualityStepManager.addSpatialStep (placeholderStep);
     qualityStepManager.addFractalStep (fractalStep);
 //    qualityStepManager.addSpatialStep (placeholderStep);
-    qualityStepManager.addPatternsStep (patternStep);
+    
     
     playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }
@@ -427,6 +427,11 @@ void CabinEqAudioProcessor::setVolume (float volume)
 void CabinEqAudioProcessor::setPitch (float pitch)
 {
     playbackManager.setPitch (pitch);
+}
+
+void CabinEqAudioProcessor::setShuffle (float shuffle)
+{
+    playbackManager.setShuffle (shuffle);
 }
 
 void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)

@@ -48,6 +48,7 @@ public:
     void setBandwidth (float bandwidth);
     void setVolume (float volume);
     void setPitch (float pitch);
+    void setShuffle (float shuffle);
     void setMelodicPattern (MelodicNotes melodicNotes);
     void setSpatialPattern (Glyph glyph);
     void setIsFrozen (bool isFrozen);

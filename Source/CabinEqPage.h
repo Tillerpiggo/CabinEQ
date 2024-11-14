@@ -105,7 +105,8 @@ protected:
     juce::Label masterVolumeSliderLabel;
     juce::Slider pitchSlider;
     juce::Label pitchSliderLabel;
-    
+    juce::Slider shuffleSlider;
+    juce::Label shuffleLabel;
     
     bool playingNoisePattern = false;
     

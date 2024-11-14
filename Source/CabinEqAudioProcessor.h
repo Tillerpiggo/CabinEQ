@@ -72,6 +72,7 @@ public:
     
     void setVolume (float volume);
     void setPitch (float pitch);
+    void setShuffle (float shuffle);
     void setIsProcessing (bool isProcessing);
     
     // Profiles

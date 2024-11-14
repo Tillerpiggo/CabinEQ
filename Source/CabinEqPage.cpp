@@ -17,7 +17,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     // Sliders
     addSliderAndLabel (&masterVolumeSlider, &masterVolumeSliderLabel, "Volume", -20.0f, 20.0f, 0.0f);
-    addSliderAndLabel (&pitchSlider, &pitchSliderLabel, "Pitch", 0.5f, 2.0f, 0.1f);
+    addSliderAndLabel (&pitchSlider, &pitchSliderLabel, "Pitch", 0.5f, 2.0f, 0.5f);
+    addSliderAndLabel (&shuffleSlider, &shuffleLabel, "Shuffle", 0.0f, 1.0f, 0.0f);
     
     // Buttons
     addButton (&bypassButton);
@@ -29,7 +30,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addSliderAction (&pitchSlider, [this](juce::Slider* slider) {
         processor.setPitch (slider->getValue());
     });
-    
+    addSliderAction (&shuffleSlider, [this](juce::Slider* slider) {
+        processor.setShuffle (slider->getValue());
+    });
     // Button Actions
     addButtonAction (&bypassButton, [this](juce::Button* button) {
         toggleBypass();
@@ -83,8 +86,9 @@ void CabinEqPage::resized()
     Layout layout (getBounds(), 20.0f);
     layout.addRow ({ Space (amplGraph.get()) }, 0.7);
     layout.addRow ({ Space (&profileDropdown), Space (&bypassButton).withFixedSize (80) }, 40);
-    layout.addRow ({ Space (80), Space (&masterVolumeSlider) }, 40);
-    layout.addRow ({ Space (80), Space (&pitchSlider) }, 40);
+    layout.addRow ({ Space (80), Space (&masterVolumeSlider) }, 20);
+    layout.addRow ({ Space (80), Space (&pitchSlider) }, 20);
+    layout.addRow ({ Space (80), Space (&shuffleSlider) }, 20);
     layout.addRow ({ Space (&stepView) });
     layout.updateComponentBounds();
 }

@@ -166,6 +166,11 @@ void PlaybackManager::setPitch (float pitch)
     filter.setPitch (pitch);
 }
 
+void PlaybackManager::setShuffle (float shuffle)
+{
+    filter.setShuffle (shuffle);
+}
+
 std::optional<float> PlaybackManager::getCurrPlayingFreq()
 {
     if (! qualityStep.has_value() || ! isCalibrating)

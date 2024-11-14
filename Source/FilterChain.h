@@ -179,8 +179,11 @@ public:
                 Band band = bands[i];
                 if (i < leftFilters.size())
                 {
-                    updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch, band.qFactor, band.ampl);
-                    updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch, band.qFactor, band.ampl);
+                    float shuffleFactor = 1.0f - shuffle * 0.1f;
+                    if (i % 2 == 0)
+                        shuffleFactor = 1.0f - shuffle * 0.7f;
+                    updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.ampl);
+                    updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.ampl);
                 }
             }
             shouldUpdateFilters = false;
@@ -209,6 +212,12 @@ public:
         this->pitch = pitch;
         shouldUpdateFilters = true;
     }
+    
+    void setShuffle (float shuffle)
+    {
+        this->shuffle = shuffle;
+        shouldUpdateFilters = true;
+    }
 
 private:
     std::vector<std::unique_ptr<Filter>> leftFilters;
@@ -220,6 +229,7 @@ private:
     juce::dsp::ProcessSpec spec;
     
     float pitch = 1.0f;
+    float shuffle = 0.0f;
 
     void addParametricBand (std::vector<std::unique_ptr<Filter>>& filters,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
