@@ -98,6 +98,10 @@
               file="Source/HiddenPatternGenerator.cpp"/>
         <FILE id="BaBzuW" name="HiddenPatternGenerator.h" compile="0" resource="0"
               file="Source/HiddenPatternGenerator.h"/>
+        <FILE id="ju4dFJ" name="GlyphGenerator.cpp" compile="1" resource="0"
+              file="Source/GlyphGenerator.cpp"/>
+        <FILE id="ouThxh" name="GlyphGenerator.h" compile="0" resource="0"
+              file="Source/GlyphGenerator.h"/>
         <FILE id="TBcTbv" name="OldGlyphGenerator.cpp" compile="1" resource="0"
               file="Source/OldGlyphGenerator.cpp"/>
         <FILE id="nMRFuc" name="OldGlyphGenerator.h" compile="0" resource="0"
