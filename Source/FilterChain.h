@@ -184,7 +184,7 @@ public:
                         shuffleFactor = 1.0f - shuffle * 0.7f;
                     updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.ampl);
                     updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.ampl);
-                }
+                } add
             }
             shouldUpdateFilters = false;
         }
