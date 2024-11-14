@@ -41,3 +41,8 @@ bool GlyphManager::hasPrev()
 {
     return glyphIdx > 0;
 }
+
+void GlyphManager::addGlyph (Glyph glyph)
+{
+    glyphs.push_back (glyph);
+}

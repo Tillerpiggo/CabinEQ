@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "PlaybackManager.h"
 #include "CabinEqProfileManager.h"
-#include "QualityStepManager.h"
+#include "GlyphManager.h"
 
 //==============================================================================
 /**
@@ -71,8 +71,6 @@ public:
     juce::AudioProcessorValueTreeState parameters;
     
     void setVolume (float volume);
-    void setPitch (float pitch);
-    void setShuffle (float shuffle);
     void setIsProcessing (bool isProcessing);
     
     // Profiles
@@ -95,32 +93,30 @@ public:
     int addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName);
     void updateBand (const int id, const float freq, const float ampl, const float bandwidth, juce::String profileName);
     void removeBand (const int id, juce::String profileName);
-//    int addBands (std::vector<Band> bands, juce::String profileName);
-//    void updateBands (const int firstId, std::vector<Band> bands, juce::String profileName);
     
     // Listener
     void addListener (Listener* listener);
     void removeListener();
     
     // StepView Methods
-    void setDifficulty (float difficulty);
-    void setOctaveShift (float octaveShift);
-    void setHelicopterSpeed (float helicopterSpeed);
-    void setBandwidth (float bandwidth);
-    void setIsPlaying (bool isPlaying);
-    void setIsCycling (bool isCycling);
-    QualityStep getCurrStep();
-    QualityStep goToPrevStep();
-    QualityStep goToNextStep();
-    int getCurrStage();
-    void setStage (int stageIdx);
+//    void setDifficulty (float difficulty);
+//    void setOctaveShift (float octaveShift);
+//    void setHelicopterSpeed (float helicopterSpeed);
+//    void setBandwidth (float bandwidth);
+//    void setIsPlaying (bool isPlaying);
+//    void setIsCycling (bool isCycling);
+//    QualityStep getCurrStep();
+//    QualityStep goToPrevStep();
+//    QualityStep goToNextStep();
+//    int getCurrStage();
+//    void setStage (int stageIdx);
 
 private:
     std::optional<std::reference_wrapper<CabinEqProfile>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
 
     PlaybackManager playbackManager;
     CabinEqProfileManager cabinEqProfileManager;
-    QualityStepManager qualityStepManager;
+    GlyphManager glyphManager;
     
     juce::dsp::ProcessSpec spec;
     

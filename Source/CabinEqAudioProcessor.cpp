@@ -187,129 +187,6 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
-    
-    SpatialStep placeholderStep;
-    placeholderStep.addStage (OldGlyph( SweepPattern({{ 200, 0 }, { 10000, 0 }}, 1.0, spec.sampleRate)));
-    
-    // Basic up and down
-    
-    
-    // FractalStep
-    FractalStep fractalStep;
-    fractalStep.addStage (FractalPattern (1));
-    fractalStep.addStage (FractalPattern (2));
-    fractalStep.addStage (FractalPattern (3));
-    fractalStep.addStage (FractalPattern (4));
-    fractalStep.addStage (FractalPattern (5));
-    
-    PatternsStep patternStep;
-    
-//    // 2D Taut
-//    float left = -1;
-//    float center = 0;
-//    float right = 1;
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 0, 0 }}, {{ 0, 0.25 }, { 0, -0.25 }}));
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, 0 }}, {{ -1, 0.25 }, { -1, -0.25 }, { -0.5, 0 }}));
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 1, 0 }}, {{ 1, 0.25 }, { 1, -0.25 }, { 0.5, 0 }}));
-//    
-//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {{ left, -1 }, { 0, 0 }, { right, 1 }, { center, -1 }, { 0, 0 }, { center, 1 }, { right, -1 }, { 0, 0 }, { left, 1 }, { left, 0 }, { center, 0 }, { right, 0 }}, {{ -0.5, 0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }}));
-//    
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }, { 0.5, 0.5 }}, {{ left, -1 }, { 0, 0 }, { right, 1 }, { center, -1 }, { 0, 0 }, { center, 1 }, { right, -1 }, { 0, 0 }, { left, 1 }, { left, 0 }, { center, 0 }, { right, 0 }}));
-//    
-//    // Vertical Expansion
-//    float centerPan = 0;
-//    patternStep.addStage (HiddenPattern::alongPath ({{ 0, -1 }, { 0, 1 }}, 3));
-//    patternStep.addStage (HiddenPattern::alongPath ({{ 0, -1 }, { 0, 1 }}, 5));
-//    patternStep.addStage (HiddenPattern::alongPath ({{ -1, -1 }, { 1, 1 }}, 3));
-//    patternStep.addStage (HiddenPattern::alongPath ({{ 1, -1 }, { -1, 1 }}, 3));
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ centerPan, 0 }, { centerPan, 0.2 }}, {{ centerPan, 0.5 }, { centerPan, -0.5 }}));
-//    
-//    float leftPan = -1;
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ leftPan, 0 }, { leftPan, 0.2 }}, {{ leftPan, 0.5 }, { leftPan, -0.5 }}));
-//    
-//    float rightPan = 1;
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ rightPan, 0 }, { rightPan, 0.2 }}, {{ rightPan, 0.5 }, { rightPan, -0.5 }}));
-    
-    // Spatial Drum Pattern
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 1 }, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }, { 1, 0 }}, {{ 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}, 2.0f));
-    
-//    // Initial plus patttern
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ 0, -1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }}, {{ 0, 0.5 }, { 0.5, 0 }, { -0.5, 0 }, { 0, -0.5 }}));
-//    
-//    // Complementary clover pattern
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ -0.5, -0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, 0.5 }}, {{ -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { 0, 0 }}, 2.0f));
-//    
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 1, 0 }, {{ -1.0f, -0.75f }, { 0.0f, 0.0f }, { 1.0f, 0.75f }, { 0.0f, 0.0f }, { 1.0f, -0.75f }, { 0.0f, 0.0f }, { -1.0f, 0.75f }, { 0.0f, 0.0f }}, {{ -1, -0.375 }, { -1, 0.375 }, { 1, 0.375 }, { 1, -0.375 }}));
-//    
-    // Fishy Pattern
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ -1, -1 }, { 1, 0 }, { -1, 1 }, { 0, 0 }, { 1, -1 }, { -1, 0 }, { 1, -1 }, { 0, 0 }}, {{ 1, 0 }, { 0, 1 }, { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
-    
-//    // Drum Pattern
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {{ 0, -1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, -1 }}, {{ -1, -1 }, { -1, 0 }, { -1, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }}));
-    
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0 }, {
-//        { 1, 0, 0, 5 },
-//        { 0, 2, 6, 0 },
-//        { 0, 7, 3, 0 },
-//        { 8, 0, 0, 4 }}
-//    ));
-//    
-//    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 0, 0, 0 }, {
-//        { 0, 0, 0, 0 },
-//        { 1, 0, 0, 2 },
-//        { 0, 0, 0, 0 }}
-//    ));
-    
-//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
-//        { 1, 0, 9, 0, 0 },
-//        { 0, 0, 0, 8, 2 },
-//        { 3, 7, 10, 0, 0 },
-//        { 8, 0, 0, 6, 4 },
-//        { 5, 0, 0, 0, 0 }}
-//    ));
-    
-//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
-//        { 0, 0, 0, 0, 0, 0, 0 },
-//        { 7, 0, 0, 9, 0, 0, 8 },
-//        { 1, 0, 0, 3, 0, 0, 2 },
-//        { 4, 0, 0, 6, 0, 0, 5 },
-//        { 0, 0, 0, 0, 0, 0, 0 }},
-//    2.0f, 1.0f));
-//    
-//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 0 }, {
-//        { 0, 0, 0, 0, 8, 0, 0 },
-//        { 2, 0, 0, 0, 0, 0, 5 },
-//        { 0, 0, 7, 1, 4, 0, 0 },
-//        { 6, 0, 0, 0, 0, 0, 3 },
-//        { 0, 0, 0, 0, 9, 0, 0 }},
-//    2.0f, 1.0f));
-//    
-//    patternStep.addStage (HiddenPattern ({ 1, 1, 1, 1 }, {
-//        { 0, 0, 0, 3, 0, 0, 0 },
-//        { 0, 0, 0, 0, 0, 0, 0 },
-//        { 2, 0, 0, 0, 0, 0, 4 },
-//        { 0, 0, 0, 0, 0, 0, 0 },
-//        { 0, 0, 0, 1, 0, 0, 0 }},
-//    2.0f, 1.0f));
-    
-    // X Pattern
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }}, {{ 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 }}));
-    // Diamond pattern
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }}, {{ 1, -1 }, { 1, 1 },{ -1, 1 }, { -1, -1 }}));
-    // Plus pattern
-    patternStep.addStage (HiddenPattern ({ 1, 0, 1, 0, 1, 1, 1, 0 }, {{ -1, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 0, -1 }, { 0, 0 }}, { { 0.5, 0.5 }, { -0.5, 0.5 }, { -0.5, -0.5 }, { 0.5, -0.5 }}));
-    
-//    // Weird pattern
-//    patternStep.addStage (HiddenPattern ({{ -0.5, 1}, { 0.5, 0 }, { 0, -0.7 }, { -0.5, 0 }}))
-//
-    
-    qualityStepManager.addPatternsStep (patternStep);
-    qualityStepManager.addSpatialStep (placeholderStep);
-    qualityStepManager.addFractalStep (fractalStep);
-//    qualityStepManager.addSpatialStep (placeholderStep);
-    
-    
-    playbackManager.setQualityStep (qualityStepManager.getCurrStep());
 }
 
 void CabinEqAudioProcessor::releaseResources()
@@ -424,16 +301,6 @@ void CabinEqAudioProcessor::setVolume (float volume)
     playbackManager.setVolume (volume);
 }
 
-void CabinEqAudioProcessor::setPitch (float pitch)
-{
-    playbackManager.setPitch (pitch);
-}
-
-void CabinEqAudioProcessor::setShuffle (float shuffle)
-{
-    playbackManager.setShuffle (shuffle);
-}
-
 void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
 {
     playbackManager.setIsProcessing (isProcessing);
@@ -533,22 +400,6 @@ void CabinEqAudioProcessor::removeBand (const int id, juce::String profileName)
         profile->get().removeBand (id);
 }
 
-//int CabinEqAudioProcessor::addBands (std::vector<Band> bands, juce::String profileName)
-//{
-//    auto profile = profileNamed (profileName);
-//    if (profile.has_value())
-//        profile->get().addBands (bands);
-//}
-//
-//void CabinEqAudioProcessor::updateBands (const int firstId, std::vector<Band>, juce::String profileName)
-//{
-//    auto profile = profileNamed (profileName);
-//    if (profile.has_value())
-//        profile->get().updateBands (bands);
-//}
-
-
-
 void CabinEqAudioProcessor::addListener (Listener* listener)
 {
     this->listeners.push_back (listener);
@@ -557,67 +408,6 @@ void CabinEqAudioProcessor::addListener (Listener* listener)
 void CabinEqAudioProcessor::removeListener()
 {
     // VERY BAD FIX THIS: eh whatever
-}
-
-void CabinEqAudioProcessor::setDifficulty (float difficulty)
-{
-    playbackManager.setDifficulty (difficulty);
-}
-
-void CabinEqAudioProcessor::setOctaveShift (float octaveShift)
-{
-    playbackManager.setOctaveShift (octaveShift);
-}
-
-void CabinEqAudioProcessor::setHelicopterSpeed (float helicopterSpeed)
-{
-    playbackManager.setHelicopterSpeed (helicopterSpeed);
-}
-
-void CabinEqAudioProcessor::setBandwidth (float bandwidth)
-{
-    playbackManager.setBandwidth (bandwidth);
-}
-
-void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
-{
-    playbackManager.setIsCalibrating (isPlaying);
-}
-
-void CabinEqAudioProcessor::setIsCycling (bool isCycling)
-{
-    playbackManager.setIsCycling (isCycling);
-}
-
-QualityStep CabinEqAudioProcessor::getCurrStep()
-{
-    return qualityStepManager.getCurrStep();
-}
-
-QualityStep CabinEqAudioProcessor::goToPrevStep()
-{
-    qualityStepManager.goToPrevStep();
-    QualityStep qualityStep = qualityStepManager.getCurrStep();
-    playbackManager.setQualityStep (qualityStep);
-    return qualityStep;
-}
-
-QualityStep CabinEqAudioProcessor::goToNextStep()
-{
-    qualityStepManager.goToNextStep();
-    QualityStep qualityStep = qualityStepManager.getCurrStep();
-    playbackManager.setQualityStep (qualityStep);
-    return qualityStep;
-}
-
-int CabinEqAudioProcessor::getCurrStage()
-{
-    return playbackManager.getCurrStage();
-}
-
-void CabinEqAudioProcessor::setStage (int stageIdx)
-{
-    playbackManager.setStage (stageIdx);
 }
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const

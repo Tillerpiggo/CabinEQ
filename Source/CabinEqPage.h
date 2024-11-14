@@ -21,9 +21,7 @@ class CabinEqPage   : public BuildableComponent,
                       public juce::TextEditor::Listener,
                       public CabinPeqGraph::Listener,
                       public CabinEqAudioProcessor::Listener,
-                      public CabinPeqGraph::DataSource,
-                      public StepView::Listener,
-                      public StepView::DataSource
+                      public CabinPeqGraph::DataSource
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -41,20 +39,6 @@ public:
     // CabinPeqGraph::DataSource methods
     BandProfile getBandProfile() override;
     std::optional<float> getCurrPlayingFreq() override;
-    
-    // StepView::Listener methods
-    void setDifficulty (float difficulty) override;
-    void setOctaveShift (float octaveShift) override;
-    void setHelicopterSpeed (float helicopterSpeed) override;
-    void setBandwidth (float bandwidth) override;
-    void setIsPlaying (bool isPlaying) override;
-    void setIsCycling (bool isCycling) override;
-    void setStage (int stage) override;
-    void goToNextStep() override;
-    void goToPrevStep() override;
-    
-    // StepView::DataSource methods
-    int getCurrStage() override;
     
     // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;
@@ -90,9 +74,7 @@ protected:
     int fftSize = 16;
     
     std::unique_ptr<CabinPeqGraph> amplGraph;
-    StepView stepView;
     juce::ComboBox profileDropdown;
-    juce::ComboBox filterQualityDropdown;
     std::unique_ptr<juce::AlertWindow> alertWindow;
     
     const juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
@@ -103,10 +85,6 @@ protected:
     
     juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
     juce::Label masterVolumeSliderLabel;
-    juce::Slider pitchSlider;
-    juce::Label pitchSliderLabel;
-    juce::Slider shuffleSlider;
-    juce::Label shuffleLabel;
     
     bool playingNoisePattern = false;
     

@@ -17,12 +17,14 @@
 class GlyphManager
 {
 public:
-    GlyphManager (std::vector<Glyph> glyphs);
+    GlyphManager (std::vector<Glyph> glyphs = {});
     Glyph getCurrGlyph();
     void goToNext();
     void goToPrev();
     bool hasNext();
     bool hasPrev();
+    
+    void addGlyph (Glyph glyph);
     
 private:
     std::vector<Glyph> glyphs;

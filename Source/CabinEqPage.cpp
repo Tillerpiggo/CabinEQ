@@ -17,8 +17,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     // Sliders
     addSliderAndLabel (&masterVolumeSlider, &masterVolumeSliderLabel, "Volume", -20.0f, 20.0f, 0.0f);
-    addSliderAndLabel (&pitchSlider, &pitchSliderLabel, "Pitch", 0.5f, 2.0f, 0.5f);
-    addSliderAndLabel (&shuffleSlider, &shuffleLabel, "Shuffle", 0.0f, 1.0f, 0.0f);
     
     // Buttons
     addButton (&bypassButton);
@@ -26,12 +24,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     // Slider Actions
     addSliderAction (&masterVolumeSlider, [this](juce::Slider* slider) {
         processor.setVolume (slider->getValue());
-    });
-    addSliderAction (&pitchSlider, [this](juce::Slider* slider) {
-        processor.setPitch (slider->getValue());
-    });
-    addSliderAction (&shuffleSlider, [this](juce::Slider* slider) {
-        processor.setShuffle (slider->getValue());
     });
     // Button Actions
     addButtonAction (&bypassButton, [this](juce::Button* button) {
@@ -43,13 +35,10 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     amplGraph->addDataSource (this);
     profileDropdown.addListener (this);
     processor.addListener (this);
-    stepView.setListener (this);
-    stepView.setDataSource (this);
     
     // Extra stuff, will clean up later
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
-    addAndMakeVisible (stepView);
     
     didLoadData();
 }
@@ -72,24 +61,10 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
-//    Layout layout (getBounds(), 20.0f);
-//    layout.addRowWithEvenlySpacedRects (1, FlexibleLayoutDimension::proportional (0.7)); // the graph
-//    layout.addRowWithRectWidths ({ FlexibleLayoutDimension::fill(), FlexibleLayoutDimension::fixed (80) }, FlexibleLayoutDimension::fixed (40));
-//    layout.addRowWithEvenlySpacedRects (1, FlexibleLayoutDimension::fixed (40)); // master volume slider
-//    layout.addRowWithEvenlySpacedRects (1); // step view
-//    layout.setBoundsOfComponents ({ amplGraph.get(),
-//                                    &profileDropdown, &bypassButton,
-//                                    &masterVolumeSlider, &masterVolumeSlider,
-//                                    &stepView });
-//    layout.updateComponentBounds();
-    
     Layout layout (getBounds(), 20.0f);
     layout.addRow ({ Space (amplGraph.get()) }, 0.7);
     layout.addRow ({ Space (&profileDropdown), Space (&bypassButton).withFixedSize (80) }, 40);
     layout.addRow ({ Space (80), Space (&masterVolumeSlider) }, 20);
-    layout.addRow ({ Space (80), Space (&pitchSlider) }, 20);
-    layout.addRow ({ Space (80), Space (&shuffleSlider) }, 20);
-    layout.addRow ({ Space (&stepView) });
     layout.updateComponentBounds();
 }
 
@@ -144,58 +119,6 @@ std::optional<float> CabinEqPage::getCurrPlayingFreq()
     return processor.getCurrPlayingFreq();
 }
 
-void CabinEqPage::setDifficulty (float difficulty)
-{
-    processor.setDifficulty (difficulty);
-}
-
-void CabinEqPage::setOctaveShift (float octaveShift)
-{
-    processor.setOctaveShift (octaveShift);
-}
-
-void CabinEqPage::setHelicopterSpeed (float helicopterSpeed)
-{
-    processor.setHelicopterSpeed (helicopterSpeed);
-}
-
-void CabinEqPage::setBandwidth (float bandwidth)
-{
-    processor.setBandwidth (bandwidth);
-}
-
-void CabinEqPage::setIsPlaying (bool isPlaying)
-{
-    processor.setIsPlaying (isPlaying);
-}
-
-void CabinEqPage::setIsCycling (bool isCycling)
-{
-    processor.setIsCycling (isCycling);
-}
-
-void CabinEqPage::setStage (int stage)
-{
-    processor.setStage (stage);
-    stepView.setStage (stage);
-}
-
-void CabinEqPage::goToNextStep()
-{
-    stepView.updateWithQualityStep (processor.goToNextStep());
-    stepView.setStage (0);
-}
-
-void CabinEqPage::goToPrevStep()
-{
-    stepView.updateWithQualityStep (processor.goToPrevStep());
-    stepView.setStage (0);
-}
-
-int CabinEqPage::getCurrStage()
-{
-    return processor.getCurrStage();
-}
 
 // ====================================================
 void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)
@@ -343,27 +266,6 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
         
         lastSelectedId = profileDropdown.getSelectedId();
     }
-    else if (comboBoxThatHasChanged == &filterQualityDropdown)
-    {
-        auto fftSizeBefore = fftSize;
-        switch (filterQualityDropdown.getSelectedItemIndex())
-        {
-            case 0:
-                fftSize = 21;
-                break;
-            case 1:
-                fftSize = 18;
-                break;
-            case 2:
-                fftSize = 16;
-                break;
-            case 3:
-                fftSize = 12;
-                break;
-            case 4:
-                fftSize = 10;
-        }
-    }
 }
 
 void CabinEqPage::inputAttemptWhenModal()
@@ -458,7 +360,6 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     processor.setLastSelectedProfileName (profileId);
     profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter (profileId);
-    stepView.updateWithQualityStep (processor.getCurrStep());
 }
 
 bool CabinEqPage::isDuplicateProfileName (juce::String profileName)
