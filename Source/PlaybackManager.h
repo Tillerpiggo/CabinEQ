@@ -29,8 +29,8 @@ public:
     void updateFilterWithBandProfile (BandProfile bandProfile);
     void prepare (const juce::dsp::ProcessSpec& spec);
     
-    void setIsProcessing (bool isFilterProcessing);
-    void setIsCalibrating (bool isCalibrating);
+    void setIsFilterOn (bool isFilterOn);
+    void setIsPlayingNoise (bool isPlayingNoise);
     void setBandwidth (float bandwidth);
     void setVolume (float volume);
     
@@ -54,6 +54,6 @@ private:
     Curve tiltCurve;
     
     // State
-    bool isProcessing; // if the EQ curve is being applied
-    bool isCalibrating; // if calibration audio is being played rather than system audio
+    bool isFilterOn; // if the EQ curve is being applied
+    bool isPlayingNoise; // if calibration audio is being played rather than system audio
 };

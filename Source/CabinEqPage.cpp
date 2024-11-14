@@ -28,7 +28,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     // Button Actions
     addButtonAction (&bypassButton, [this](juce::Button* button) {
         toggleBypass();
-        processor.setIsProcessing (! isBypassed);
+        processor.setIsFilterOn (! isBypassed);
     });
     
     amplGraph->addListener (this);
@@ -271,7 +271,7 @@ void CabinEqPage::inputAttemptWhenModal()
 void CabinEqPage::didLoadData()
 {
     addingFirstProfile = true;
-    processor.setIsProcessing (! isBypassed);
+    processor.setIsFilterOn (! isBypassed);
     auto lastSelectedProfileName = processor.getLastSelectedProfileName();
     if (lastSelectedProfileName.has_value())
     {

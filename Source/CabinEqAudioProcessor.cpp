@@ -301,9 +301,14 @@ void CabinEqAudioProcessor::setVolume (float volume)
     playbackManager.setVolume (volume);
 }
 
-void CabinEqAudioProcessor::setIsProcessing (bool isProcessing)
+void CabinEqAudioProcessor::setIsFilterOn (bool isFilterOn)
 {
-    playbackManager.setIsProcessing (isProcessing);
+    playbackManager.setIsFilterOn (isFilterOn);
+}
+
+void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
+{
+    playbackManager.setIsPlayingNoise (isPlaying);
 }
 
 void CabinEqAudioProcessor::addProfile (juce::String profileName)

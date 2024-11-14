@@ -71,7 +71,8 @@ public:
     juce::AudioProcessorValueTreeState parameters;
     
     void setVolume (float volume);
-    void setIsProcessing (bool isProcessing);
+    void setIsFilterOn (bool isFilterOn);
+    void setIsPlaying (bool isPlaying);
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -102,7 +103,6 @@ public:
     void goToNextGlyph();
     void goToPrevGlyph();
     Glyph getCurrGlyph();
-    
     
     std::pair<float, float> getCurrPlayingPos();
     

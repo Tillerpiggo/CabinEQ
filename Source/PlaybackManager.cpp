@@ -15,7 +15,8 @@
 
 PlaybackManager::PlaybackManager()
     : tiltFilter (12),
-      isCalibrating (false)
+      isPlayingNoise (false),
+      isFilterOn (true)
 {
     profileVolumeProcessor.setRampDurationSeconds (0.05);
     profileVolumeProcessor.setGainDecibels (0.0f);
@@ -28,7 +29,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     auto* leftChannel = ioBuffer.getWritePointer(0);
     auto* rightChannel = ioBuffer.getNumChannels() > 1 ? ioBuffer.getWritePointer(1) : nullptr;
     
-    if (isCalibrating)
+    if (isPlayingNoise)
     {
         float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume);
         for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
@@ -45,12 +46,12 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     juce::dsp::ProcessContextReplacing<float> ioContext(ioBlock);
     
     // TODO: combine this audio processing logic for compile-time optimization with processorChain
-    if (isCalibrating)
+    if (isPlayingNoise)
     {
         tiltFilter.process (ioContext);
     }
     
-    if (isProcessing)
+    if (isFilterOn)
     {
         filter.process (ioBlock);
         profileVolumeProcessor.process (ioContext);
@@ -74,14 +75,14 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     tiltFilter.updateWithCurve (tiltCurve);
 }
 
-void PlaybackManager::setIsProcessing (bool isFilterProcessing)
+void PlaybackManager::setIsFilterOn (bool isFilterOn)
 {
-    this->isProcessing = isFilterProcessing;
+    this->isFilterOn = isFilterOn;
 }
 
-void PlaybackManager::setIsCalibrating (bool isCalibrating)
+void PlaybackManager::setIsPlayingNoise (bool isPlayingNoise)
 {
-    this->isCalibrating = isCalibrating;
+    this->isPlayingNoise = isPlayingNoise;
 }
 
 void PlaybackManager::setVolume (float volume)
