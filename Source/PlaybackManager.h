@@ -50,7 +50,7 @@ public:
     void setPitch (float pitch);
     void setShuffle (float shuffle);
     void setMelodicPattern (MelodicNotes melodicNotes);
-    void setSpatialPattern (Glyph glyph);
+    void setSpatialPattern (OldGlyph glyph);
     void setIsFrozen (bool isFrozen);
     
     std::optional<float> getCurrPlayingFreq();

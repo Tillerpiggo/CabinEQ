@@ -33,6 +33,10 @@
               file="Source/QualityStepManager.h"/>
       </GROUP>
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
+        <FILE id="zz9fEW" name="Glyph.cpp" compile="1" resource="0" file="Source/Glyph.cpp"/>
+        <FILE id="ucSEwm" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
+        <FILE id="Nv37CZ" name="Stroke.cpp" compile="1" resource="0" file="Source/Stroke.cpp"/>
+        <FILE id="EaX6Yr" name="Stroke.h" compile="0" resource="0" file="Source/Stroke.h"/>
         <FILE id="IsbkTz" name="BandProfile.h" compile="0" resource="0" file="Source/BandProfile.h"/>
         <FILE id="B7G5KQ" name="QualityStep.h" compile="0" resource="0" file="Source/QualityStep.h"/>
         <FILE id="cyinty" name="SpatialStep.h" compile="0" resource="0" file="Source/SpatialStep.h"/>
@@ -40,7 +44,7 @@
               file="Source/IntelligibilityStep.h"/>
         <FILE id="EydLzl" name="PatternsStep.h" compile="0" resource="0" file="Source/PatternsStep.h"/>
         <FILE id="Nxg6ju" name="FractalStep.h" compile="0" resource="0" file="Source/FractalStep.h"/>
-        <FILE id="nbwoaQ" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
+        <FILE id="nbwoaQ" name="OldGlyph.h" compile="0" resource="0" file="Source/OldGlyph.h"/>
         <FILE id="OsORxm" name="FractalPattern.cpp" compile="1" resource="0"
               file="Source/FractalPattern.cpp"/>
         <FILE id="YPHmDn" name="FractalPattern.h" compile="0" resource="0"

@@ -13,7 +13,7 @@
 #include <JuceHeader.h>
 #include "NoiseSweepGenerator.h"
 #include "SpatialPatternGenerator.h"
-#include "Glyph.h"
+#include "OldGlyph.h"
 #include "PinkNoise.h"
 #include "SequencerListener.h"
 
@@ -25,7 +25,7 @@ public:
     
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
-    void setGlyph (Glyph glyph);
+    void setGlyph (OldGlyph glyph);
     void setSpeedFactor (float speedFactor);
     void setFreqFactor (float freqFactor);
     void setPitchOscillation (SweepPattern sweepPattern);
@@ -41,7 +41,7 @@ private:
     
     juce::dsp::ProcessSpec spec;
     
-    std::optional<Glyph> glyph;
+    std::optional<OldGlyph> glyph;
     bool isMuted = false;
     
     PinkNoise pinkNoiseCenter;

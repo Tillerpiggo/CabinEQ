@@ -12,7 +12,7 @@
 
 #include "GlyphGenerator.h"
 #include "MelodicNoiseSequencer.h"
-#include "Glyph.h"
+#include "OldGlyph.h"
 
 // This represents an audio pattern consisting of either a sweep pattern that can be fed into a GlyphGenerator, or a sequence of noise notes that can be fed into a MelodicNoiseGenerator as well as information about the level of confounding noise.
 class AudioPattern

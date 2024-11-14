@@ -189,7 +189,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     playbackManager.prepare (spec);
     
     SpatialStep placeholderStep;
-    placeholderStep.addStage (Glyph( SweepPattern({{ 200, 0 }, { 10000, 0 }}, 1.0, spec.sampleRate)));
+    placeholderStep.addStage (OldGlyph( SweepPattern({{ 200, 0 }, { 10000, 0 }}, 1.0, spec.sampleRate)));
     
     // Basic up and down
     

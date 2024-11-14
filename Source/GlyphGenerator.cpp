@@ -23,13 +23,13 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     std::pair<float, float> nextSample;
     switch (glyph->getType())
     {
-        case Glyph::Type::sweep:
+        case OldGlyph::Type::sweep:
             nextSample = noiseSweepGenerator.getNextSample();
             break;
-        case Glyph::Type::pattern:
+        case OldGlyph::Type::pattern:
             nextSample = spatialPatternGenerator.getNextSample();
             break;
-        case Glyph::Type::grid:
+        case OldGlyph::Type::grid:
             nextSample = { 0.0f, 0.0f };
             for (auto& pointGenerator : pointGenerators)
             {
@@ -38,7 +38,7 @@ std::pair<float, float> GlyphGenerator::getNextSample()
                 nextSample.second += pointSample.second;
             }
             break;
-        case Glyph::Type::spatialPatterns:
+        case OldGlyph::Type::spatialPatterns:
             nextSample = { 0.0f, 0.0f };
             for (auto& spatialGenerator : spatialPatternGenerators)
             {
@@ -71,22 +71,22 @@ void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
     spatialPatternGenerator.prepare (spec);
 }
 
-void GlyphGenerator::setGlyph (Glyph glyph)
+void GlyphGenerator::setGlyph (OldGlyph glyph)
 {
     std::cout << "setting glyph" << std::endl;
     this->glyph = glyph;
     switch (glyph.getType())
     {
-        case Glyph::Type::sweep:
+        case OldGlyph::Type::sweep:
             noiseSweepGenerator.setSweepPattern (glyph.getSweepPattern().value());
             break;
-        case Glyph::Type::pattern:
+        case OldGlyph::Type::pattern:
             spatialPatternGenerator.setPattern (glyph.getSpatialPattern().value());
             break;
-        case Glyph::Type::grid:
+        case OldGlyph::Type::grid:
             preparePointGenerators();
             break;
-        case Glyph::Type::spatialPatterns:
+        case OldGlyph::Type::spatialPatterns:
             prepareSpatialPatternGenerators();
             break;
     }
@@ -133,13 +133,13 @@ std::optional<float> GlyphGenerator::getCurrPlayingFreq()
     
     switch (glyph->getType())
     {
-        case Glyph::Type::sweep:
+        case OldGlyph::Type::sweep:
             return noiseSweepGenerator.getCurrPlayingFreq();
-        case Glyph::Type::pattern:
+        case OldGlyph::Type::pattern:
             return spatialPatternGenerator.getCurrPlayingFreq();
-        case Glyph::Type::grid:
+        case OldGlyph::Type::grid:
             return std::nullopt;
-        case Glyph::Type::spatialPatterns:
+        case OldGlyph::Type::spatialPatterns:
             return std::nullopt;
     }
 }

@@ -52,7 +52,7 @@ public:
         return type;
     }
     
-    const Glyph getSpatialPatternAtStage (int stageIdx)
+    const OldGlyph getSpatialPatternAtStage (int stageIdx)
     {
         if (type != Type::spatial)
             std::cerr << "Calling getSpatialPatternAtStage on non-spatial QualityStep" << std::endl;
