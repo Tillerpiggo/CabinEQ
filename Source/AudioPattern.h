@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "GlyphGenerator.h"
+#include "OldGlyphGenerator.h"
 #include "MelodicNoiseSequencer.h"
 #include "OldGlyph.h"
 
@@ -30,7 +30,7 @@ public:
     static AudioPattern spatial (SweepPattern sweepPattern);
     static AudioPattern intelligibility (std::vector<NoiseNote> noiseNotes);
     
-    void applyToSequencer (GlyphGenerator& glyphGenerator);
+    void applyToSequencer (OldGlyphGenerator& glyphGenerator);
     void applyToSequencer (MelodicNoiseSequencer& melodicNoiseSequencer);
     
 private:

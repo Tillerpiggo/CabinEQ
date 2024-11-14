@@ -8,14 +8,14 @@
   ==============================================================================
 */
 
-#include "GlyphGenerator.h"
+#include "OldGlyphGenerator.h"
 
-GlyphGenerator::GlyphGenerator()
+OldGlyphGenerator::OldGlyphGenerator()
 {
     noiseSweepGenerator.setBandwidth (0.5f);
 }
 
-std::pair<float, float> GlyphGenerator::getNextSample()
+std::pair<float, float> OldGlyphGenerator::getNextSample()
 {
     if (isMuted || ! glyph.has_value())
         return { 0.0f, 0.0f };
@@ -64,14 +64,14 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     return nextSample;
 }
 
-void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
+void OldGlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
     noiseSweepGenerator.prepare (spec);
     spatialPatternGenerator.prepare (spec);
 }
 
-void GlyphGenerator::setGlyph (OldGlyph glyph)
+void OldGlyphGenerator::setGlyph (OldGlyph glyph)
 {
     std::cout << "setting glyph" << std::endl;
     this->glyph = glyph;
@@ -96,14 +96,14 @@ void GlyphGenerator::setGlyph (OldGlyph glyph)
     std::cout << "finished setting glyph" << std::endl;
 }
 
-void GlyphGenerator::setSpeedFactor (float speedFactor)
+void OldGlyphGenerator::setSpeedFactor (float speedFactor)
 {
     this->speedFactor = speedFactor;
     noiseSweepGenerator.setSpeedFactor (speedFactor);
     spatialPatternGenerator.setSpeedFactor (speedFactor);
 }
 
-void GlyphGenerator::setFreqFactor (float freqFactor)
+void OldGlyphGenerator::setFreqFactor (float freqFactor)
 {
 //    noiseSweepGenerator.setFreqFactor (freqFactor);
 //    spatialPatternGenerator.setFreqFactor (freqFactor);
@@ -115,18 +115,18 @@ void GlyphGenerator::setFreqFactor (float freqFactor)
 //        generator->setFreqFactor (freqFactor);
 }
 
-void GlyphGenerator::mute()
+void OldGlyphGenerator::mute()
 {
     isMuted = true;
 }
 
-void GlyphGenerator::setListener (SequencerListener* listener)
+void OldGlyphGenerator::setListener (SequencerListener* listener)
 {
     noiseSweepGenerator.setListener (listener);
     spatialPatternGenerator.setListener (listener);
 }
 
-std::optional<float> GlyphGenerator::getCurrPlayingFreq()
+std::optional<float> OldGlyphGenerator::getCurrPlayingFreq()
 {
     if (! glyph.has_value())
         return std::nullopt;
@@ -144,7 +144,7 @@ std::optional<float> GlyphGenerator::getCurrPlayingFreq()
     }
 }
 
-void GlyphGenerator::preparePointGenerators()
+void OldGlyphGenerator::preparePointGenerators()
 {
     // add + prepare all point generators
     size_t numToAdd = glyph->getSweepPatterns().size() - pointGenerators.size();
@@ -162,7 +162,7 @@ void GlyphGenerator::preparePointGenerators()
     }
 }
 
-void GlyphGenerator::prepareSpatialPatternGenerators()
+void OldGlyphGenerator::prepareSpatialPatternGenerators()
 {
     // add + prepare all spatial pattern generators
     std::cout << "glyph->getSpatialPatterns().size(): " << glyph->getSpatialPatterns().size() << "Spatialsize: " << spatialPatternGenerators.size() << std::endl;

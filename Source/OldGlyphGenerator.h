@@ -18,10 +18,10 @@
 #include "SequencerListener.h"
 
 // Allows the easy playing of spatial glyphs. For now, it just plays SweepPatterns, since Glyphs are a wrapper for SweepPattern, but this class will handle more sophisticated sequencing of such patterns in the future.
-class GlyphGenerator
+class OldGlyphGenerator
 {
 public:
-    GlyphGenerator();
+    OldGlyphGenerator();
     
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);

@@ -20,7 +20,7 @@
 #include "ArbitrarySequencer.h"
 #include "NoiseSweepGenerator.h"
 #include "MelodicNoiseSequencer.h"
-#include "GlyphGenerator.h"
+#include "OldGlyphGenerator.h"
 #include "QualityStep.h"
 #include "SequencerListener.h"
 #include "HiddenPatternGenerator.h"
@@ -76,7 +76,7 @@ private:
     float difficulty = 1.0f;
     
     // Sound generation
-    GlyphGenerator glyphGenerator;
+    OldGlyphGenerator glyphGenerator;
     MelodicNoiseSequencer melodicNoiseSequencer;
     HiddenPatternGenerator hiddenPatternGenerator;
     FractalPatternGenerator fractalPatternGenerator;

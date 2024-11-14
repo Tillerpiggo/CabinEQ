@@ -32,7 +32,7 @@ AudioPattern AudioPattern::intelligibility (std::vector<NoiseNote> noiseNotes)
     return AudioPattern (Type::intelligibility, std::nullopt, noiseNotes);
 }
 
-void AudioPattern::applyToSequencer (GlyphGenerator& glyphGenerator)
+void AudioPattern::applyToSequencer (OldGlyphGenerator& glyphGenerator)
 {
     if (type != Type::spatial)
     {
