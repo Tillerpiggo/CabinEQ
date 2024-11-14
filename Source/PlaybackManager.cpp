@@ -21,9 +21,6 @@ PlaybackManager::PlaybackManager()
     profileVolumeProcessor.setGainDecibels (0.0f);
     overallVolumeProcessor.setRampDurationSeconds (0.05);
     overallVolumeProcessor.setGainDecibels (0.0f);
-    
-    glyphGenerator.setListener (this);
-    melodicNoiseSequencer.setListener (this);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -52,19 +49,6 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     {
         tiltFilter.process (ioContext);
     }
-//    
-//    if (isCalibrating)
-//    {
-//        float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume);
-//        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
-//        {
-//            std::pair<float, float> value = getNextSample();
-//            leftChannel[sample] += value.first * 0.15 * 0.5 * volumeOffset;
-//            
-//            if (rightChannel)
-//                rightChannel[sample] += value.second * 0.15 * 0.5 * volumeOffset;
-//        }
-//    }
     
     if (isProcessing)
     {
@@ -85,11 +69,6 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     this->spec = spec;
     
     glyphGenerator.prepare (spec);
-    melodicNoiseSequencer.prepare (spec);
-    hiddenPatternGenerator.prepare (spec);
-    fractalPatternGenerator.prepare (spec);
-    fractalPatternGenerator.setNumConfoundingGenerators (8);
-    
     filter.prepare (spec);
     tiltFilter.prepare (spec);
     tiltFilter.updateWithCurve (tiltCurve);
@@ -105,181 +84,13 @@ void PlaybackManager::setIsCalibrating (bool isCalibrating)
     this->isCalibrating = isCalibrating;
 }
 
-void PlaybackManager::setIsCycling (bool isCycling)
-{
-    std::cout << "isCycling: " << isCycling << std::endl;
-    this->isCycling = isCycling;
-}
-
-void PlaybackManager::setIsFrozen (bool isFrozen)
-{
-    hiddenPatternGenerator.setIsFrozen (isFrozen);
-}
-
-void PlaybackManager::setDifficulty (float difficulty)
-{
-    this->difficulty = difficulty;
-    float speedFactor = 0.5 * difficulty + 0.5; // map from [0, 1] to [0.5, 1]
-    melodicNoiseSequencer.setNoiseGain (difficulty);
-    melodicNoiseSequencer.setSpeedFactor (speedFactor); // map from [0, 1] to [0.5, 1]
-    glyphGenerator.setSpeedFactor (speedFactor);
-    
-    hiddenPatternGenerator.setConfoundingBandwidthMultiplier (difficulty);
-    fractalPatternGenerator.setSpeedFactor (difficulty);
-    
-    // TODO: have this impact speed for fractalPatternGenerator
-}
-
-void PlaybackManager::setOctaveShift (float octaveShift)
-{
-    melodicNoiseSequencer.setFreqFactor (std::pow (2.0f, octaveShift));
-    glyphGenerator.setFreqFactor (std::pow (2.0f, octaveShift));
-    hiddenPatternGenerator.setFreqFactor (std::pow (2.0f, octaveShift));
-    fractalPatternGenerator.setConfoundingGain (octaveShift);
-//    if (octaveShift < 1.0f)
-//        fractalPatternGenerator.setNumConfoundingGenerators (0);
-//    else if (octaveShift > 1.0f)
-//        fractalPatternGenerator.setNumConfoundingGenerators (5);
-//    else
-//        fractalPatternGenerator.setNumConfoundingGenerators (3);
-}
-
-void PlaybackManager::setHelicopterSpeed (float helicopterSpeed)
-{
-    fractalPatternGenerator.setHelicopterSpeed (helicopterSpeed);
-}
-
-void PlaybackManager::setBandwidth (float bandwidth)
-{
-    fractalPatternGenerator.setBandwidth (bandwidth);
-}
-
 void PlaybackManager::setVolume (float volume)
 {
     this->volume = volume;
     overallVolumeProcessor.setGainDecibels (volume);
 }
 
-void PlaybackManager::setPitch (float pitch)
-{
-    this->pitch = pitch;
-    filter.setPitch (pitch);
-}
-
-void PlaybackManager::setShuffle (float shuffle)
-{
-    filter.setShuffle (shuffle);
-}
-
-std::optional<float> PlaybackManager::getCurrPlayingFreq()
-{
-    if (! qualityStep.has_value() || ! isCalibrating)
-        return std::nullopt;
-    
-    switch (qualityStep->getType())
-    {
-        case QualityStep::Type::spatial:
-            return glyphGenerator.getCurrPlayingFreq();
-        case QualityStep::Type::intelligibility:
-            return melodicNoiseSequencer.getCurrPlayingFreq();
-        case QualityStep::Type::patterns:
-            return std::nullopt;
-        case QualityStep::Type::fractal:
-            return fractalPatternGenerator.getCurrPlayingFreq();
-    }
-}
-
-int PlaybackManager::getCurrStage() const
-{
-    return stageIdx;
-}
-
-void PlaybackManager::setQualityStep (QualityStep qualityStep)
-{
-    this->qualityStep = qualityStep;
-    setStage (0); // set the quality stage to 0 by default
-}
-
-void PlaybackManager::setStage (int stageIdx)
-{
-    this->stageIdx = stageIdx;
-    updateSequencersFromQualityStep();
-}
-
-void PlaybackManager::sequenceDidFinish()
-{
-    std::cout << "sequence did finish" << std::endl;
-    // Only do something (move to the next stage) on sequence finish if we're cycling
-    if (! isCycling)
-        return;
-    
-    if (! qualityStep.has_value())
-        return;
-    
-    // Go to the next stage
-    stageIdx++;
-    if (stageIdx >= qualityStep->getNumStages())
-        stageIdx = 0;
-    
-    // Update patterns
-    setStage (stageIdx);
-}
-
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    auto [melodicLeftSample, melodicRightSample] = melodicNoiseSequencer.getNextSample();
-    auto [glyphLeftSample, glyphRightSample] = glyphGenerator.getNextSample();
-    auto [patternsLeftSample, patternsRightSample] = hiddenPatternGenerator.getNextSample();
-    auto [fractalLeftSample, fractalRightSample] = fractalPatternGenerator.getNextSample();
-    
-    return { melodicLeftSample + glyphLeftSample + patternsLeftSample + fractalLeftSample, melodicRightSample + glyphRightSample + patternsRightSample + fractalRightSample };
-}
-
-void PlaybackManager::updateSequencersFromQualityStep()
-{
-    if (! qualityStep.has_value())
-        std::cerr << "Calling updateSequencersFromQualityStep with null qualityStep in PlaybackManager" << std::endl;
-    
-    switch (qualityStep->getType())
-    {
-        case QualityStep::Type::spatial:
-        {
-            auto glyph = qualityStep->getSpatialPatternAtStage (stageIdx);
-            glyphGenerator.setGlyph (glyph);
-            melodicNoiseSequencer.mute();
-            hiddenPatternGenerator.mute();
-            fractalPatternGenerator.mute();
-            break;
-        }
-            
-        case QualityStep::Type::intelligibility:
-        {
-            auto melody = qualityStep->getIntelligibilityPatternAtStage (stageIdx);
-            melodicNoiseSequencer.setPattern (melody.noiseNotes());
-            glyphGenerator.mute();
-            hiddenPatternGenerator.mute();
-            fractalPatternGenerator.mute();
-            break;
-        }
-            
-        case QualityStep::Type::patterns:
-        {
-            auto pattern = qualityStep->getPatternAtStage (stageIdx);
-            hiddenPatternGenerator.setPattern (pattern);
-            melodicNoiseSequencer.mute();
-            glyphGenerator.mute();
-            fractalPatternGenerator.mute();
-            break;
-        }
-            
-        case QualityStep::Type::fractal:
-        {
-            auto pattern = qualityStep->getFractalPatternAtStage (stageIdx);
-            fractalPatternGenerator.setPattern (pattern);
-            glyphGenerator.mute();
-            melodicNoiseSequencer.mute();
-            hiddenPatternGenerator.mute();
-            break;
-        }
-    }
+    return glyphGenerator.getNextSample();
 }

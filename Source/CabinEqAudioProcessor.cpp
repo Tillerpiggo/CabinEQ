@@ -349,11 +349,6 @@ BandProfile CabinEqAudioProcessor::getBandProfile (juce::String profileName)
     return BandProfile ({}, 0.0f, 0.0f, 0.0f);
 }
 
-std::optional<float> CabinEqAudioProcessor::getCurrPlayingFreq()
-{
-    return playbackManager.getCurrPlayingFreq();
-}
-
 std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()
 {
     return cabinEqProfileManager.getLastSelectedProfileName();
@@ -378,8 +373,6 @@ int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const fl
     {
         return profile->get().addBand (freq, ampl, bandwidth);
     }
-    
-    playbackManager.setIsFrozen (true);
         
     return -1;
 }
@@ -389,8 +382,6 @@ void CabinEqAudioProcessor::updateBand (const int id, const float freq, const fl
     auto profile = profileNamed (profileName);
     if (profile.has_value())
         profile->get().updateBand (id, freq, ampl, bandwidth);
-    
-    playbackManager.setIsFrozen (false);
 }
 
 void CabinEqAudioProcessor::removeBand (const int id, juce::String profileName)

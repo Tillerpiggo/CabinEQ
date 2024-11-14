@@ -38,7 +38,6 @@ public:
     
     // CabinPeqGraph::DataSource methods
     BandProfile getBandProfile() override;
-    std::optional<float> getCurrPlayingFreq() override;
     
     // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;

@@ -114,11 +114,6 @@ BandProfile CabinEqPage::getBandProfile()
     return processor.getBandProfile (profileId);
 }
 
-std::optional<float> CabinEqPage::getCurrPlayingFreq()
-{
-    return processor.getCurrPlayingFreq();
-}
-
 
 // ====================================================
 void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)

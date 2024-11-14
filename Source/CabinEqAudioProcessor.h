@@ -83,8 +83,6 @@ public:
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
     BandProfile getBandProfile (juce::String profileName);
     
-    std::optional<float> getCurrPlayingFreq();
-    
     std::optional<juce::String> getLastSelectedProfileName();
     void setLastSelectedProfileName (juce::String profileName);
     
@@ -97,19 +95,6 @@ public:
     // Listener
     void addListener (Listener* listener);
     void removeListener();
-    
-    // StepView Methods
-//    void setDifficulty (float difficulty);
-//    void setOctaveShift (float octaveShift);
-//    void setHelicopterSpeed (float helicopterSpeed);
-//    void setBandwidth (float bandwidth);
-//    void setIsPlaying (bool isPlaying);
-//    void setIsCycling (bool isCycling);
-//    QualityStep getCurrStep();
-//    QualityStep goToPrevStep();
-//    QualityStep goToNextStep();
-//    int getCurrStage();
-//    void setStage (int stageIdx);
 
 private:
     std::optional<std::reference_wrapper<CabinEqProfile>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.

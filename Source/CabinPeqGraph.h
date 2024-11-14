@@ -37,7 +37,6 @@ public:
         virtual ~DataSource() = default;
         
         virtual BandProfile getBandProfile() = 0;
-        virtual std::optional<float> getCurrPlayingFreq() = 0;
     };
     
     CabinPeqGraph();
@@ -102,7 +101,6 @@ private:
     void updateBandFromDrag (const juce::MouseEvent& event);
     void removeBand (int id);
     void setVolume (float volume);
-    std::optional<float> getCurrPlayingFreq();
     
     // Interaction variables
     int draggingId = -1; // not currently dragging any point
