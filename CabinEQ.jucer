@@ -27,6 +27,9 @@
               file="Source/CabinEqProfileManager.cpp"/>
         <FILE id="LJWMjo" name="CabinEqProfileManager.h" compile="0" resource="0"
               file="Source/CabinEqProfileManager.h"/>
+        <FILE id="rLzB3c" name="GlyphManager.cpp" compile="1" resource="0"
+              file="Source/GlyphManager.cpp"/>
+        <FILE id="M6xNFQ" name="GlyphManager.h" compile="0" resource="0" file="Source/GlyphManager.h"/>
         <FILE id="P7D4Fv" name="QualityStepManager.cpp" compile="1" resource="0"
               file="Source/QualityStepManager.cpp"/>
         <FILE id="Jdl3qk" name="QualityStepManager.h" compile="0" resource="0"
