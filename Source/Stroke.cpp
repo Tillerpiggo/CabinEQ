@@ -39,3 +39,8 @@ std::pair<float, float> Stroke::positionAtTime (float time)
     // Linearly interpolate the point
     return { posX, posY };
 }
+
+std::pair<std::pair<float, float>, std::pair<float, float>> Stroke::endPoints()
+{
+    return { points[0], points[points.size() - 1] };
+}

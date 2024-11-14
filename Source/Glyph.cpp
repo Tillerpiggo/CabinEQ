@@ -28,3 +28,8 @@ std::pair<float, float> Glyph::positionAtTime (float time)
     int strokeIdx = floor (strokeTime);
     return strokes[strokeIdx].positionAtTime (strokeTime - strokeIdx);
 }
+
+const std::vector<Stroke>& Glyph::getStrokes()
+{
+    return strokes;
+}

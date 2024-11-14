@@ -18,6 +18,7 @@ class Stroke
 public:
     Stroke (std::vector<std::pair<float, float>> points);
     std::pair<float, float> positionAtTime (float time); // time from [0, 1]
+    std::pair<std::pair<float, float>, std::pair<float, float>> endPoints(); // returns the start and end points
     
 private:
     std::vector<std::pair<float, float>> points; // for now, assume it moves between all points evenly and continuously over time

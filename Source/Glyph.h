@@ -19,6 +19,7 @@ class Glyph
 public:
     Glyph (std::vector<Stroke> initialStrokes = {});
     std::pair<float, float> positionAtTime (float time); // from [0, 1)
+    const std::vector<Stroke>& getStrokes();
     
 private:
     std::vector<Stroke> strokes;
