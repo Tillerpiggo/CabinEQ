@@ -95,6 +95,17 @@ public:
     // Listener
     void addListener (Listener* listener);
     void removeListener();
+    
+    // Glyph methods
+    bool hasNextGlyph();
+    bool hasPrevGlyph();
+    void goToNextGlyph();
+    void goToPrevGlyph();
+    Glyph getCurrGlyph();
+    
+    
+    std::pair<float, float> getCurrPlayingPos();
+    
 
 private:
     std::optional<std::reference_wrapper<CabinEqProfile>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.

@@ -401,6 +401,31 @@ void CabinEqAudioProcessor::removeListener()
     // VERY BAD FIX THIS: eh whatever
 }
 
+bool CabinEqAudioProcessor::hasNextGlyph()
+{
+    return glyphManager.hasNext();
+}
+
+bool CabinEqAudioProcessor::hasPrevGlyph()
+{
+    return glyphManager.hasPrev();
+}
+
+void CabinEqAudioProcessor::goToNextGlyph()
+{
+    glyphManager.goToPrev();
+}
+
+void CabinEqAudioProcessor::goToPrevGlyph()
+{
+    glyphManager.goToPrev();
+}
+
+Glyph CabinEqAudioProcessor::getCurrGlyph()
+{
+    return glyphManager.getCurrGlyph();
+}
+
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const
 {
     return cabinEqProfileManager.getProfileNamed (profileName);

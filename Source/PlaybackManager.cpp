@@ -90,6 +90,16 @@ void PlaybackManager::setVolume (float volume)
     overallVolumeProcessor.setGainDecibels (volume);
 }
 
+void PlaybackManager::setGlyph (Glyph glyph)
+{
+    glyphGenerator.setGlyph (glyph);
+}
+
+std::pair<float, float> PlaybackManager::getCurrPlayingPos()
+{
+    return glyphGenerator.getCurrPlayingPos();
+}
+
 std::pair<float, float> PlaybackManager::getNextSample()
 {
     return glyphGenerator.getNextSample();

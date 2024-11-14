@@ -35,6 +35,7 @@ public:
     void setVolume (float volume);
     
     void setGlyph (Glyph glyph);
+    std::pair<float, float> getCurrPlayingPos(); // returns (x, y) pair of current playing position (x in [-1, 1], y in [-1, 1])
     
 private:
     std::pair<float, float> getNextSample();
