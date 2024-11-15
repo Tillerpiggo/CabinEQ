@@ -15,7 +15,7 @@ Glyph::Glyph (std::vector<Stroke> initialStrokes)
 {
 }
 
-std::pair<float, float> Glyph::positionAtTime (float time)
+juce::Point<float> Glyph::positionAtTime (float time)
 {
     if (time < 0 || time >= 1)
     {

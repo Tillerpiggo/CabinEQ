@@ -31,7 +31,7 @@ public:
     float freqFromYPos (float yPos);
     float panFromXPos (float xPos);
     
-    std::pair<float, float> getCurrPlayingPos();
+    float getCurrPlayingTime();
     
 private:
     juce::dsp::ProcessSpec spec;

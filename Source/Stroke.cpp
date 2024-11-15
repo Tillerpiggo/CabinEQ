@@ -15,7 +15,7 @@ Stroke::Stroke (std::vector<std::pair<float, float>> points)
 {
 }
 
-std::pair<float, float> Stroke::positionAtTime (float time)
+juce::Point<float> Stroke::positionAtTime (float time)
 {
     if (time < 0 || time > 1)
     {
@@ -40,7 +40,10 @@ std::pair<float, float> Stroke::positionAtTime (float time)
     return { posX, posY };
 }
 
-std::pair<std::pair<float, float>, std::pair<float, float>> Stroke::endPoints()
+std::pair<juce::Point<float>, juce::Point<float>> Stroke::getEndPoints() const
 {
-    return { points[0], points[points.size() - 1] };
+    juce::Point<float> startPoint { points[0].first, points[0].second };
+    juce::Point<float> endPoint { points[points.size() - 1].first, points[points.size() - 1].second };
+    
+    return { startPoint, endPoint };
 }

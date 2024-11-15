@@ -39,7 +39,7 @@ GlyphView::GlyphView()
         if (listener != nullptr && dataSource != nullptr)
         {
             listener->goToPrev();
-            glyph = dataSource->getCurrGlyph();
+            animatedGlyph.setGlyph (dataSource->getCurrGlyph());
             updatePrevNextButtons();
         }
     });
@@ -47,7 +47,7 @@ GlyphView::GlyphView()
         if (listener != nullptr && dataSource != nullptr)
         {
             listener->goToNext();
-            glyph = dataSource->getCurrGlyph();
+            animatedGlyph.setGlyph (dataSource->getCurrGlyph());
             updatePrevNextButtons();
         }
     });
@@ -86,6 +86,8 @@ void GlyphView::setListener (Listener* listener)
 void GlyphView::setDataSource (DataSource* dataSource)
 {
     this->dataSource = dataSource;
+    animatedGlyph.setGlyph (dataSource->getCurrGlyph());
+    updatePrevNextButtons();
 }
 
 void GlyphView::updatePrevNextButtons()

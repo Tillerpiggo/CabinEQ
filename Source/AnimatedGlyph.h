@@ -20,6 +20,7 @@ class AnimatedGlyph  : public juce::Component,
 public:
     class DataSource
     {
+    public:
         virtual ~DataSource() = default;
         virtual float getCurrTime() = 0;
     };
@@ -37,6 +38,10 @@ public:
     void timerCallback() override;
     
 private:
+    void drawStrokes (juce::Graphics& g);
+    void drawDot (juce::Graphics& g);
+    juce::Point<float> getPointInBounds (juce::Point<float> point);
+    
     DataSource* dataSource = nullptr;
     
     std::optional<Glyph> glyph;

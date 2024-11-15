@@ -20,7 +20,7 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     if (! glyph.has_value())
         return { 0.0f, 0.0f };
     
-    auto [xPos, yPos] = getCurrPlayingPos();
+    auto [xPos, yPos] = glyph->positionAtTime (currTime);
     currTime += timeInterval * speedFactor;
     if (currTime >= 1.0f)
         currTime -= 1.0f;
@@ -82,9 +82,7 @@ float GlyphGenerator::panFromXPos (float xPos)
     return xPos;
 }
 
-std::pair<float, float> GlyphGenerator::getCurrPlayingPos()
+float GlyphGenerator::getCurrPlayingTime()
 {
-    if (! glyph.has_value())
-        return { 0.0f, 0.0f };
-    return glyph->positionAtTime (currTime);
+    return currTime;
 }

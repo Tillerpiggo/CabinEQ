@@ -96,9 +96,9 @@ void PlaybackManager::setGlyph (Glyph glyph)
     glyphGenerator.setGlyph (glyph);
 }
 
-std::pair<float, float> PlaybackManager::getCurrPlayingPos()
+float PlaybackManager::getCurrPlayingTime()
 {
-    return glyphGenerator.getCurrPlayingPos();
+    return glyphGenerator.getCurrPlayingTime();
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()
