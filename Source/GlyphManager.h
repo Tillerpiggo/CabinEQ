@@ -24,6 +24,7 @@ public:
     bool hasNext();
     bool hasPrev();
     
+    void addGlyphs (std::vector<Glyph> newGlyphs);
     void addGlyph (Glyph glyph);
     
 private:

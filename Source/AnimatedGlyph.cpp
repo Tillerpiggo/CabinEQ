@@ -61,12 +61,16 @@ void AnimatedGlyph::drawStrokes (juce::Graphics& g)
     juce::Path path;
     for (const auto& stroke : strokes)
     {
-        auto [startPoint, endPoint] = stroke.getEndPoints();
-        
-        startPoint = getPointInBounds (startPoint);
-        endPoint = getPointInBounds (endPoint);
-        
-        path.addLineSegment(juce::Line<float> (startPoint, endPoint), strokeWidth * strokeWidthFactor);
+        for (int i = 0; i < stroke.getPoints().size() - 1; ++i)
+        {
+            auto startPoint = stroke.getPoints()[i];
+            auto endPoint = stroke.getPoints()[i + 1];
+            
+            startPoint = getPointInBounds (startPoint);
+            endPoint = getPointInBounds (endPoint);
+            
+            path.addLineSegment(juce::Line<float> (startPoint, endPoint), strokeWidth * strokeWidthFactor);
+        }
     }
     
     g.setColour (juce::Colours::lightblue);

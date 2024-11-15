@@ -16,10 +16,11 @@
 class Stroke
 {
 public:
-    Stroke (std::vector<std::pair<float, float>> points);
+    Stroke (std::vector<juce::Point<float>> points);
     juce::Point<float> positionAtTime (float time); // time from [0, 1]
+    const std::vector<juce::Point<float>>& getPoints() const;
     std::pair<juce::Point<float>, juce::Point<float>> getEndPoints() const; // returns the start and end points
     
 private:
-    std::vector<std::pair<float, float>> points; // for now, assume it moves between all points evenly and continuously over time
+    std::vector<juce::Point<float>> points; // for now, assume it moves between all points evenly and continuously over time
 };

@@ -188,8 +188,10 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
     
+    // Define glyphs
     Glyph xGlyph ({ Stroke ({{ -1, -1 }, { 1, 1 }}), Stroke ({{ 1, -1 }, { -1, 1 }})});
-    glyphManager.addGlyph (xGlyph);
+    Glyph diamondPlusGlyph ({ Stroke ({{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 }}), Stroke ({{ 0, -1 }, { 0, 1 }}), Stroke ({{ -1, 0 }, { 1, 0 }})});
+    glyphManager.addGlyphs ({ xGlyph, diamondPlusGlyph });
     playbackManager.setGlyph (getCurrGlyph());
 }
 

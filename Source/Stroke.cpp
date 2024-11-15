@@ -10,7 +10,7 @@
 
 #include "Stroke.h"
 
-Stroke::Stroke (std::vector<std::pair<float, float>> points)
+Stroke::Stroke (std::vector<juce::Point<float>> points)
     : points (points)
 {
 }
@@ -30,20 +30,22 @@ juce::Point<float> Stroke::positionAtTime (float time)
     float belowPercent = aboveIdx - timeIdx;
     float abovePercent = 1.0f - belowPercent;
     
-    std::pair<float, float> belowPt = points[belowIdx];
-    std::pair<float, float> abovePt = points[aboveIdx];
+    auto belowPt = points[belowIdx];
+    auto abovePt = points[aboveIdx];
     
-    float posX = belowPt.first * belowPercent + abovePt.first * abovePercent;
-    float posY = belowPt.second * belowPercent + abovePt.second * abovePercent;
+    float posX = belowPt.x * belowPercent + abovePt.x * abovePercent;
+    float posY = belowPt.y * belowPercent + abovePt.y * abovePercent;
     
     // Linearly interpolate the point
     return { posX, posY };
 }
 
+const std::vector<juce::Point<float>>& Stroke::getPoints() const
+{
+    return points;
+}
+
 std::pair<juce::Point<float>, juce::Point<float>> Stroke::getEndPoints() const
 {
-    juce::Point<float> startPoint { points[0].first, points[0].second };
-    juce::Point<float> endPoint { points[points.size() - 1].first, points[points.size() - 1].second };
-    
-    return { startPoint, endPoint };
+    return { points[0], points[points.size() - 1] };
 }

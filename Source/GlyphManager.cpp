@@ -42,6 +42,14 @@ bool GlyphManager::hasPrev()
     return glyphIdx > 0;
 }
 
+void GlyphManager::addGlyphs (std::vector<Glyph> newGlyphs)
+{
+    for (const auto& glyph : newGlyphs)
+    {
+        glyphs.push_back (glyph);
+    }
+}
+
 void GlyphManager::addGlyph (Glyph glyph)
 {
     glyphs.push_back (glyph);
