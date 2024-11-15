@@ -78,7 +78,7 @@ void AnimatedGlyph::drawDot (juce::Graphics& g)
     if (! glyph.has_value() || dataSource == nullptr)
         return;
     
-    auto point = glyph->positionAtTime (dataSource->getCurrTime());
+    auto [point, _] = glyph->positionAtTime (dataSource->getCurrTime());
     point = getPointInBounds (point);
     
     g.setColour (juce::Colours::darkblue);
@@ -91,7 +91,7 @@ juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
     float padding = 20.0f;
     
     float xScaled = (point.x + 1.0f) / 2.0f;
-    float yScaled = (point.y + 1.0f) / 2.0f;
+    float yScaled = (-point.y + 1.0f) / 2.0f;
     
     float xInBounds = padding + getX() + xScaled * (getWidth() - padding * 2.0f);
     float yInBounds = padding + getY() + yScaled * (getHeight() - padding * 2.0f);

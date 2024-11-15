@@ -20,14 +20,28 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     if (! glyph.has_value())
         return { 0.0f, 0.0f };
     
-    auto [xPos, yPos] = glyph->positionAtTime (currTime);
+    auto [pos, progress] = glyph->positionAtTime (currTime);
+    auto [xPos, yPos] = pos;
     currTime += timeInterval * speedFactor;
     if (currTime >= 1.0f)
         currTime -= 1.0f;
     noiseGenerator.setBandpass (freqFromYPos (yPos));
     noiseGenerator.setPan (panFromXPos (xPos));
     
-    return noiseGenerator.getNextSample();
+    auto nextSample = noiseGenerator.getNextSample();
+    
+    // Apply gain envelope based on progress
+    float envelope = 1.0f;
+    float len = 0.1;
+    if (progress < len)
+        envelope = progress / len;
+    if (progress > (1.0f - len))
+        envelope = (1.0f - progress) / len;
+    
+    nextSample.first *= envelope;
+    nextSample.second *= envelope;
+    
+    return nextSample;
 }
 
 void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)

@@ -37,6 +37,8 @@ GlyphView::GlyphView()
         isPlaying = ! isPlaying;
         if (listener != nullptr)
             listener->setIsPlaying (isPlaying);
+        
+        playButton.setButtonText (isPlaying ? "Pause" : "Play");
     });
     addButtonAction (&prevButton, [this](juce::Button*) {
         if (listener != nullptr && dataSource != nullptr)

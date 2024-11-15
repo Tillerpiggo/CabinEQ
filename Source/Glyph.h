@@ -18,7 +18,7 @@ class Glyph
 {
 public:
     Glyph (std::vector<Stroke> initialStrokes = {});
-    juce::Point<float> positionAtTime (float time); // time from [0, 1)
+    std::pair<juce::Point<float>, float> positionAtTime (float time); // time from [0, 1). Returns (pos, %) pair
     const std::vector<Stroke>& getStrokes();
     
 private:

@@ -15,18 +15,19 @@ Glyph::Glyph (std::vector<Stroke> initialStrokes)
 {
 }
 
-juce::Point<float> Glyph::positionAtTime (float time)
+std::pair<juce::Point<float>, float> Glyph::positionAtTime (float time)
 {
     if (time < 0 || time >= 1)
     {
         std::cerr << "Called positionAtTime in Glyph with invalid time outside of [0, 1). (time=" << time << ")" << std::endl;
-        return { 0.0f, 0.0f };
+        return {{ 0.0f, 0.0f }, 0.0f };
     }
     
     // Figure out which stroke we're on
     float strokeTime = time * static_cast<float> (strokes.size());
     int strokeIdx = floor (strokeTime);
-    return strokes[strokeIdx].positionAtTime (strokeTime - strokeIdx);
+    float strokeProgress = strokeTime - static_cast<float> (strokeIdx);
+    return { strokes[strokeIdx].positionAtTime (strokeProgress), strokeProgress };
 }
 
 const std::vector<Stroke>& Glyph::getStrokes()
