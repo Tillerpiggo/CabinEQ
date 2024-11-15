@@ -27,7 +27,7 @@ juce::Point<float> Stroke::positionAtTime (float time)
     float timeIdx = time * (points.size() - 1.0f);
     float belowIdx = floor (timeIdx);
     float aboveIdx = ceil (timeIdx);
-    float belowPercent = timeIdx - aboveIdx;
+    float belowPercent = aboveIdx - timeIdx;
     float abovePercent = 1.0f - belowPercent;
     
     std::pair<float, float> belowPt = points[belowIdx];

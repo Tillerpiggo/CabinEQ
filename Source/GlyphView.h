@@ -17,7 +17,8 @@
 #include "AnimatedGlyph.h"
 
 // This provides a UI to play a Glyph and see the visuals, which includes a speed slider, a bandwidth slider, a frequency range (TODO) and a panning range (TODO). Also includes next/prev buttons to navigate between Glyphs.
-class GlyphView  : public BuildableComponent
+class GlyphView  : public BuildableComponent,
+                   public AnimatedGlyph::DataSource
 {
 public:
     class Listener
@@ -28,8 +29,8 @@ public:
         virtual void setSpeed (float speedFactor) = 0;
         virtual void setBandwidth (float bandwidth) = 0;
         virtual void setIsPlaying (bool isPlaying) = 0;
-        virtual void goToNext() = 0;
-        virtual void goToPrev() = 0;
+        virtual void goToNextGlyph() = 0;
+        virtual void goToPrevGlyph() = 0;
     };
     
     class DataSource
@@ -38,8 +39,8 @@ public:
         virtual ~DataSource() = default;
         
         virtual Glyph getCurrGlyph() = 0;
-        virtual bool hasNext() = 0;
-        virtual bool hasPrev() = 0;
+        virtual bool hasNextGlyph() = 0;
+        virtual bool hasPrevGlyph() = 0;
         virtual float getCurrPlayingTime() = 0;
     };
     
@@ -51,6 +52,8 @@ public:
     
     void setListener (Listener* listener);
     void setDataSource (DataSource* dataSource);
+    
+    float getCurrTime() override;
     
 private:
     void updatePrevNextButtons();

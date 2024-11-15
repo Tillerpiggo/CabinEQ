@@ -11,7 +11,14 @@
 #include "AnimatedGlyph.h"
 
 AnimatedGlyph::AnimatedGlyph()
-{}
+{
+    startTimer (5);
+}
+
+AnimatedGlyph::~AnimatedGlyph()
+{
+    stopTimer();
+}
 
 void AnimatedGlyph::setGlyph (Glyph glyph)
 {
@@ -73,8 +80,9 @@ void AnimatedGlyph::drawDot (juce::Graphics& g)
     
     auto point = glyph->positionAtTime (dataSource->getCurrTime());
     point = getPointInBounds (point);
+    
     g.setColour (juce::Colours::darkblue);
-    g.fillEllipse (point.x, point.y, strokeWidth, strokeWidth);
+    g.fillEllipse (point.x, point.y, strokeWidth * 5.0f, strokeWidth * 5.0f);
 }
 
 juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)

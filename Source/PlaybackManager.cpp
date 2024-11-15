@@ -91,6 +91,16 @@ void PlaybackManager::setVolume (float volume)
     overallVolumeProcessor.setGainDecibels (volume);
 }
 
+void PlaybackManager::setSpeedFactor (float speedFactor)
+{
+    glyphGenerator.setSpeedFactor (speedFactor);
+}
+
+void PlaybackManager::setBandwidth (float bandwidth)
+{
+    glyphGenerator.setBandwidth (bandwidth);
+}
+
 void PlaybackManager::setGlyph (Glyph glyph)
 {
     glyphGenerator.setGlyph (glyph);

@@ -73,6 +73,8 @@ public:
     void setVolume (float volume);
     void setIsFilterOn (bool isFilterOn);
     void setIsPlaying (bool isPlaying);
+    void setSpeedFactor (float speedFactor);
+    void setBandwidth (float bandwidth);
     
     // Profiles
     void addProfile (juce::String profileName);
@@ -104,7 +106,7 @@ public:
     void goToPrevGlyph();
     Glyph getCurrGlyph();
     
-    std::pair<float, float> getCurrPlayingPos();
+    float getCurrPlayingTime();
     
 
 private:

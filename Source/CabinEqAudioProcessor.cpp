@@ -187,6 +187,10 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
+    
+    Glyph xGlyph ({ Stroke ({{ -1, -1 }, { 1, 1 }}), Stroke ({{ 1, -1 }, { -1, 1 }})});
+    glyphManager.addGlyph (xGlyph);
+    playbackManager.setGlyph (getCurrGlyph());
 }
 
 void CabinEqAudioProcessor::releaseResources()
@@ -311,6 +315,16 @@ void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
     playbackManager.setIsPlayingNoise (isPlaying);
 }
 
+void CabinEqAudioProcessor::setSpeedFactor (float speedFactor)
+{
+    playbackManager.setSpeedFactor (speedFactor);
+}
+
+void CabinEqAudioProcessor::setBandwidth (float bandwidth)
+{
+    playbackManager.setBandwidth (bandwidth);
+}
+
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
 {
     cabinEqProfileManager.addProfile (profileName);
@@ -418,17 +432,25 @@ bool CabinEqAudioProcessor::hasPrevGlyph()
 
 void CabinEqAudioProcessor::goToNextGlyph()
 {
-    glyphManager.goToPrev();
+    glyphManager.goToNext();
+    playbackManager.setGlyph (getCurrGlyph());
 }
 
 void CabinEqAudioProcessor::goToPrevGlyph()
 {
     glyphManager.goToPrev();
+    playbackManager.setGlyph (getCurrGlyph());
 }
 
 Glyph CabinEqAudioProcessor::getCurrGlyph()
 {
+    std::cout << "Getting curr glyph" << std::endl;
     return glyphManager.getCurrGlyph();
+}
+
+float CabinEqAudioProcessor::getCurrPlayingTime()
+{
+    return playbackManager.getCurrPlayingTime();
 }
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const

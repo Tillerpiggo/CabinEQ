@@ -21,7 +21,9 @@ class CabinEqPage   : public BuildableComponent,
                       public juce::TextEditor::Listener,
                       public CabinPeqGraph::Listener,
                       public CabinEqAudioProcessor::Listener,
-                      public CabinPeqGraph::DataSource
+                      public CabinPeqGraph::DataSource,
+                      public GlyphView::Listener,
+                      public GlyphView::DataSource
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -38,6 +40,19 @@ public:
     
     // CabinPeqGraph::DataSource methods
     BandProfile getBandProfile() override;
+    
+    // GlyphView::Listener
+    void setSpeed (float speedFactor) override;
+    void setBandwidth (float bandwidth) override;
+    void setIsPlaying (bool isPlaying) override;
+    void goToNextGlyph() override;
+    void goToPrevGlyph() override;
+    
+    // GlyphView::DataSource
+    Glyph getCurrGlyph() override;
+    bool hasNextGlyph() override;
+    bool hasPrevGlyph() override;
+    float getCurrPlayingTime() override;
     
     // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;

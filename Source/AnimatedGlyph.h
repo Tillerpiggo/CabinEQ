@@ -26,6 +26,7 @@ public:
     };
     
     AnimatedGlyph();
+    ~AnimatedGlyph() override;
     
     void setGlyph (Glyph glyph); // uses glyph + time to figure out details of what to display
     void setStrokeWidth (float strokeWidth);

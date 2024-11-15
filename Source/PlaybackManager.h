@@ -31,12 +31,12 @@ public:
     
     void setIsFilterOn (bool isFilterOn);
     void setIsPlayingNoise (bool isPlayingNoise);
-    void setBandwidth (float bandwidth);
     void setVolume (float volume);
+    void setSpeedFactor (float speedFactor);
+    void setBandwidth (float bandwidth);
     
     void setGlyph (Glyph glyph);
     float getCurrPlayingTime();
-    std::pair<float, float> getCurrPlayingPos(); // returns (x, y) pair of current playing position (x in [-1, 1], y in [-1, 1])
     
 private:
     std::pair<float, float> getNextSample();

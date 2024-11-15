@@ -44,6 +44,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (profileDropdown);
     
     didLoadData();
+    
+    glyphView.setListener (this);
+    glyphView.setDataSource (this);
 }
 
 CabinEqPage::~CabinEqPage()
@@ -116,6 +119,52 @@ void CabinEqPage::setVolume (float volume, CabinPeqGraph* sender)
 BandProfile CabinEqPage::getBandProfile()
 {
     return processor.getBandProfile (profileId);
+}
+
+void CabinEqPage::setSpeed (float speedFactor)
+{
+    processor.setSpeedFactor (speedFactor);
+}
+
+void CabinEqPage::setBandwidth (float bandwidth)
+{
+    processor.setBandwidth (bandwidth);
+}
+
+void CabinEqPage::setIsPlaying (bool isPlaying)
+{
+    processor.setIsPlaying (isPlaying);
+}
+
+void CabinEqPage::goToNextGlyph()
+{
+    processor.goToNextGlyph();
+}
+
+void CabinEqPage::goToPrevGlyph()
+{
+    processor.goToPrevGlyph();
+}
+
+// GlyphView::DataSource
+Glyph CabinEqPage::getCurrGlyph()
+{
+    return processor.getCurrGlyph();
+}
+
+bool CabinEqPage::hasNextGlyph()
+{
+    return processor.hasNextGlyph();
+}
+
+bool CabinEqPage::hasPrevGlyph()
+{
+    return processor.hasPrevGlyph();
+}
+
+float CabinEqPage::getCurrPlayingTime()
+{
+    return processor.getCurrPlayingTime();
 }
 
 

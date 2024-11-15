@@ -38,7 +38,7 @@ GlyphView::GlyphView()
     addButtonAction (&prevButton, [this](juce::Button*) {
         if (listener != nullptr && dataSource != nullptr)
         {
-            listener->goToPrev();
+            listener->goToPrevGlyph();
             animatedGlyph.setGlyph (dataSource->getCurrGlyph());
             updatePrevNextButtons();
         }
@@ -46,11 +46,14 @@ GlyphView::GlyphView()
     addButtonAction (&nextButton, [this](juce::Button*) {
         if (listener != nullptr && dataSource != nullptr)
         {
-            listener->goToNext();
+            listener->goToNextGlyph();
             animatedGlyph.setGlyph (dataSource->getCurrGlyph());
             updatePrevNextButtons();
         }
     });
+    
+    addAndMakeVisible (animatedGlyph);
+    animatedGlyph.setDataSource (this);
 }
 
 GlyphView::~GlyphView()
@@ -90,11 +93,18 @@ void GlyphView::setDataSource (DataSource* dataSource)
     updatePrevNextButtons();
 }
 
+float GlyphView::getCurrTime()
+{
+    if (dataSource == nullptr)
+        return 0.0f;
+    return dataSource->getCurrPlayingTime();
+}
+
 void GlyphView::updatePrevNextButtons()
 {
     if (dataSource != nullptr)
     {
-        prevButton.setEnabled (dataSource->hasPrev());
-        nextButton.setEnabled (dataSource->hasNext());
+        prevButton.setEnabled (dataSource->hasPrevGlyph());
+        nextButton.setEnabled (dataSource->hasNextGlyph());
     }
 }
