@@ -64,11 +64,18 @@ void GlyphView::paint (juce::Graphics& g)
 
 void GlyphView::resized()
 {
-    Layout layout (getBounds(), 8);
-//    layout.addRow ({ Space (80), Space (&animatedGlyph), Space (80) }, 120);
-    layout.addRow ({ Space (80), Space (&speedSlider), Space (80), Space (&bandwidthSlider) });
-    layout.addRow ({ Space (80), Space (&prevButton), Space (&playButton), Space (&nextButton), Space (80) });
-    layout.updateComponentBounds();
+    float glyphWidth = getBounds().getWidth() / 2.0f;
+    
+    // Glyph side
+    Layout glyphLayout (getBounds().withTrimmedRight (getBounds().getWidth() - glyphWidth), 8);
+    glyphLayout.addRow ({ Space (&animatedGlyph) });
+    glyphLayout.addRow ({ Space (&prevButton), Space (&nextButton) }, 30);
+    glyphLayout.updateComponentBounds();
+    
+    Layout settingsLayout (getBounds().withTrimmedLeft (glyphWidth), 8);
+    settingsLayout.addRow ({ Space (80), Space (&speedSlider), Space (80), Space (&bandwidthSlider) });
+    settingsLayout.addRow ({ Space (80), Space (&playButton), Space (80) });
+    settingsLayout.updateComponentBounds();
 }
 
 void GlyphView::setListener (Listener* listener)
