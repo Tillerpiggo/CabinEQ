@@ -14,7 +14,7 @@
 #include "BuildableComponent.h"
 #include "CabinEqAudioProcessor.h"
 #include "CabinPeqGraph.h"
-#include "StepView.h"
+#include "GlyphView.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
@@ -62,6 +62,7 @@ protected:
     bool isDuplicateProfileName (juce::String profileName);
     
     // JUCE Labels
+    GlyphView glyphView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;
     juce::String profileId;
