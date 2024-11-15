@@ -68,7 +68,7 @@ void CabinEqPage::paint (juce::Graphics& g)
 void CabinEqPage::resized()
 {
     Layout layout (getBounds(), 20.0f);
-    layout.addRow ({ Space (amplGraph.get()) }, 0.7);
+    layout.addRow ({ Space (amplGraph.get()) }, 0.6);
     layout.addRow ({ Space (&profileDropdown), Space (&bypassButton).withFixedSize (80) }, 40);
     layout.addRow ({ Space (80), Space (&masterVolumeSlider) }, 20);
     layout.addRow ({ Space (&glyphView) });

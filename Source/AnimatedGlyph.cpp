@@ -25,9 +25,9 @@ void AnimatedGlyph::setGlyph (Glyph glyph)
     this->glyph = glyph;
 }
 
-void AnimatedGlyph::setStrokeWidth (float strokeWidth)
+void AnimatedGlyph::setStrokeWidthFactor (float strokeWidthFactor)
 {
-    this->strokeWidth = strokeWidth;
+    this->strokeWidthFactor = strokeWidthFactor;
 }
 
 void AnimatedGlyph::paint (juce::Graphics& g)
@@ -66,7 +66,7 @@ void AnimatedGlyph::drawStrokes (juce::Graphics& g)
         startPoint = getPointInBounds (startPoint);
         endPoint = getPointInBounds (endPoint);
         
-        path.addLineSegment(juce::Line<float> (startPoint, endPoint), strokeWidth);
+        path.addLineSegment(juce::Line<float> (startPoint, endPoint), strokeWidth * strokeWidthFactor);
     }
     
     g.setColour (juce::Colours::lightblue);
@@ -82,16 +82,19 @@ void AnimatedGlyph::drawDot (juce::Graphics& g)
     point = getPointInBounds (point);
     
     g.setColour (juce::Colours::darkblue);
-    g.fillEllipse (point.x, point.y, strokeWidth * 5.0f, strokeWidth * 5.0f);
+    float dotRadius = strokeWidth * 2.0f * strokeWidthFactor;
+    g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2.0f, dotRadius * 2.0f);
 }
 
 juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
 {
+    float padding = 20.0f;
+    
     float xScaled = (point.x + 1.0f) / 2.0f;
     float yScaled = (point.y + 1.0f) / 2.0f;
     
-    float xInBounds = getX() + xScaled * getWidth();
-    float yInBounds = getY() + yScaled * getHeight();
+    float xInBounds = padding + getX() + xScaled * (getWidth() - padding * 2.0f);
+    float yInBounds = padding + getY() + yScaled * (getHeight() - padding * 2.0f);
     
     return { xInBounds, yInBounds };
 }

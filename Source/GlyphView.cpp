@@ -26,7 +26,10 @@ GlyphView::GlyphView()
     });
     addSliderAction (&bandwidthSlider, [this](juce::Slider*) {
         if (listener != nullptr)
+        {
             listener->setBandwidth (bandwidthSlider.getValue());
+            animatedGlyph.setStrokeWidthFactor (bandwidthSlider.getValue());
+        }
     });
     
     // Button actions

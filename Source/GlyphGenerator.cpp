@@ -35,7 +35,7 @@ void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
     this->spec = spec;
     noiseGenerator.prepare (spec);
     
-    timeInterval = 1.0f / spec.sampleRate; // make time interval 1 second
+    timeInterval = 1.0f / (spec.sampleRate * 3.0f); // make time interval 3 seconds
 }
 
 void GlyphGenerator::setGlyph (Glyph glyph)

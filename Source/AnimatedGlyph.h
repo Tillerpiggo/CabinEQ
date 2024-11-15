@@ -29,7 +29,7 @@ public:
     ~AnimatedGlyph() override;
     
     void setGlyph (Glyph glyph); // uses glyph + time to figure out details of what to display
-    void setStrokeWidth (float strokeWidth);
+    void setStrokeWidthFactor (float strokeWidthFactor);
     
     void paint (juce::Graphics& g) override;
     void resized() override;
@@ -46,5 +46,6 @@ private:
     DataSource* dataSource = nullptr;
     
     std::optional<Glyph> glyph;
-    float strokeWidth = 1.0f;
+    float strokeWidth = 3.0f;
+    float strokeWidthFactor = 1.0f;
 };
