@@ -18,6 +18,7 @@
 
 // This provides a UI to play a Glyph and see the visuals, which includes a speed slider, a bandwidth slider, a frequency range (TODO) and a panning range (TODO). Also includes next/prev buttons to navigate between Glyphs.
 class GlyphView  : public BuildableComponent,
+                   public AnimatedGlyph::Listener,
                    public AnimatedGlyph::DataSource
 {
 public:
@@ -60,6 +61,13 @@ public:
     void setListener (Listener* listener);
     void setDataSource (DataSource* dataSource);
     
+    // AnimatedGlyph::Listener
+    void setSizeFactor (float sizeFactor) override;
+    void setCenterPos (juce::Point<float> centerPos) override;
+    
+    // AnimatedGlyph::DataSource
+    float getSizeFactor() override;
+    juce::Point<float> getCenterPos() override;
     float getCurrTime() override;
     
 private:

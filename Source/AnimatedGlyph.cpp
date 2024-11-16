@@ -42,6 +42,11 @@ void AnimatedGlyph::resized()
     // Do nothing for now...
 }
 
+void AnimatedGlyph::setListener (Listener* listener)
+{
+    this->listener = listener;
+}
+
 void AnimatedGlyph::setDataSource (DataSource* dataSource)
 {
     this->dataSource = dataSource;

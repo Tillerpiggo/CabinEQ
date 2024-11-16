@@ -18,10 +18,20 @@ class AnimatedGlyph  : public juce::Component,
                        public juce::Timer
 {
 public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() = default;
+        virtual void setSizeFactor (float sizeFactor) = 0;
+        virtual void setCenterPos (juce::Point<float> centerPos) = 0;
+    };
+    
     class DataSource
     {
     public:
         virtual ~DataSource() = default;
+        virtual float getSizeFactor() = 0;
+        virtual juce::Point<float> getCenterPos() = 0;
         virtual float getCurrTime() = 0;
     };
     
@@ -34,6 +44,7 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     
+    void setListener (Listener* listener);
     void setDataSource (DataSource* dataSource);
     
     void timerCallback() override;
@@ -43,6 +54,7 @@ private:
     void drawDot (juce::Graphics& g);
     juce::Point<float> getPointInBounds (juce::Point<float> point);
     
+    Listener* listener = nullptr;
     DataSource* dataSource = nullptr;
     
     std::optional<Glyph> glyph;

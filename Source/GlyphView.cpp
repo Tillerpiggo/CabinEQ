@@ -89,6 +89,7 @@ void GlyphView::resized()
 void GlyphView::setListener (Listener* listener)
 {
     this->listener = listener;
+    animatedGlyph.setListener (this);
 }
 
 void GlyphView::setDataSource (DataSource* dataSource)
@@ -96,6 +97,34 @@ void GlyphView::setDataSource (DataSource* dataSource)
     this->dataSource = dataSource;
     animatedGlyph.setGlyph (dataSource->getCurrGlyph());
     updatePrevNextButtons();
+}
+
+void GlyphView::setSizeFactor (float sizeFactor)
+{
+    if (listener == nullptr)
+        return;
+    listener->setSizeFactor (sizeFactor);
+}
+
+void GlyphView::setCenterPos (juce::Point<float> centerPos)
+{
+    if (listener == nullptr)
+        return;
+    listener->setCenterPos (centerPos);
+}
+
+float GlyphView::getSizeFactor()
+{
+    if (dataSource == nullptr)
+        return 1.0f; // default
+    return dataSource->getSizeFactor();
+}
+
+juce::Point<float> GlyphView::getCenterPos()
+{
+    if (dataSource == nullptr)
+        return { 0.0f, 0.0f }; // default
+    return dataSource->getCenterPos();
 }
 
 float GlyphView::getCurrTime()
