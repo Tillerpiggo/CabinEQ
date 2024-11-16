@@ -38,6 +38,13 @@ public:
     AnimatedGlyph();
     ~AnimatedGlyph() override;
     
+    // Mouse events
+    void mouseMove (const juce::MouseEvent &event) override;
+    void mouseDown (const juce::MouseEvent &event) override;
+    void mouseDrag (const juce::MouseEvent &event) override;
+    void mouseUp (const juce::MouseEvent &event) override;
+    void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
+    
     void setGlyph (Glyph glyph); // uses glyph + time to figure out details of what to display
     void setStrokeWidthFactor (float strokeWidthFactor);
     
@@ -50,8 +57,12 @@ public:
     void timerCallback() override;
     
 private:
+    void updateHoveringStatus (const juce::MouseEvent& event);
+    juce::Point<float> normalizedPositionForMouseEvent (const juce::MouseEvent& event);
     void drawStrokes (juce::Graphics& g);
-    void drawDot (juce::Graphics& g);
+    void drawPlayingDot (juce::Graphics& g);
+    void drawCenterDot (juce::Graphics& g);
+    void drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected);
     juce::Point<float> getPointInBounds (juce::Point<float> point);
     
     Listener* listener = nullptr;
@@ -60,4 +71,13 @@ private:
     std::optional<Glyph> glyph;
     float strokeWidth = 3.0f;
     float strokeWidthFactor = 1.0f;
+    
+    juce::Point<float> centerPos;
+    float sizeFactor;
+    
+    // UI Constants
+    bool isHovering;
+    
+    // TODO: move these constants into a class or some sort of shared UI constants struct
+    static constexpr float DOT_PADDING = 3.0f;
 };

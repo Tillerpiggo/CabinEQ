@@ -34,12 +34,38 @@ void AnimatedGlyph::paint (juce::Graphics& g)
 {
     // TODO: draw the glyph
     drawStrokes (g);
-    drawDot (g);
+    drawPlayingDot (g);
+    drawCenterDot (g);
 }
 
 void AnimatedGlyph::resized()
 {
     // Do nothing for now...
+}
+
+void AnimatedGlyph::mouseMove (const juce::MouseEvent &event)
+{
+    
+}
+
+void AnimatedGlyph::mouseDown (const juce::MouseEvent &event)
+{
+    
+}
+
+void AnimatedGlyph::mouseDrag (const juce::MouseEvent &event)
+{
+    
+}
+
+void AnimatedGlyph::mouseUp (const juce::MouseEvent &event)
+{
+    
+}
+
+void AnimatedGlyph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
+{
+    
 }
 
 void AnimatedGlyph::setListener (Listener* listener)
@@ -50,11 +76,36 @@ void AnimatedGlyph::setListener (Listener* listener)
 void AnimatedGlyph::setDataSource (DataSource* dataSource)
 {
     this->dataSource = dataSource;
+    this->centerPos = dataSource->getCenterPos();
+    this->sizeFactor = dataSource->getSizeFactor();
 }
 
 void AnimatedGlyph::timerCallback()
 {
     repaint();
+}
+
+void AnimatedGlyph::updateHoveringStatus (const juce::MouseEvent& event)
+{
+    auto pos = normalizedPositionForMouseEvent (event);
+    
+    // Figure out if we're hovering over the center node
+    if (centerPos.getDistanceFrom (pos) < 0.2)
+    {
+        isHovering = true;
+    }
+}
+
+juce::Point<float> AnimatedGlyph::normalizedPositionForMouseEvent (const juce::MouseEvent& event)
+{
+    float x = event.getPosition().x - getX();
+    float y = event.getPosition().y - getY();
+    
+    float normalizedX = (2.0f * x / getWidth()) - 1.0f;
+    float normalizedY = (2.0f * y / getHeight()) - 1.0f;
+    normalizedY *= -1;
+    
+    return { normalizedX, normalizedY };
 }
 
 void AnimatedGlyph::drawStrokes (juce::Graphics& g)
@@ -82,7 +133,7 @@ void AnimatedGlyph::drawStrokes (juce::Graphics& g)
     g.fillPath (path);
 }
 
-void AnimatedGlyph::drawDot (juce::Graphics& g)
+void AnimatedGlyph::drawPlayingDot (juce::Graphics& g)
 {
     if (! glyph.has_value() || dataSource == nullptr)
         return;
@@ -90,9 +141,28 @@ void AnimatedGlyph::drawDot (juce::Graphics& g)
     auto [point, _] = glyph->positionAtTime (dataSource->getCurrTime());
     point = getPointInBounds (point);
     
-    g.setColour (juce::Colours::darkblue);
     float dotRadius = strokeWidth * 2.0f * strokeWidthFactor;
-    g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2.0f, dotRadius * 2.0f);
+    drawDot (g, point, dotRadius, juce::Colours::darkblue, false);
+    
+}
+
+void AnimatedGlyph::drawCenterDot (juce::Graphics& g)
+{
+    juce::Point<float> centerPoint = getPointInBounds (centerPos);
+    juce::Colour dotColour = juce::Colours::lightgreen;
+    float dotRadius = 5.0f;
+    drawDot (g, centerPoint, dotRadius, dotColour, isHovering);
+}
+
+void AnimatedGlyph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected)
+{
+    // Draw dot outside
+    g.setColour (dotColour.withAlpha (isSelected ? 1.0f : 0.5f));
+    g.fillEllipse (point.x - dotRadius - DOT_PADDING, point.y - dotRadius - DOT_PADDING, (dotRadius + DOT_PADDING) * 2, (dotRadius + DOT_PADDING) * 2);
+    
+    // Draw dot center
+    g.setColour (dotColour.withAlpha (1.0f));
+    g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
 }
 
 juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
@@ -104,6 +174,12 @@ juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
     
     float xInBounds = padding + getX() + xScaled * (getWidth() - padding * 2.0f);
     float yInBounds = padding + getY() + yScaled * (getHeight() - padding * 2.0f);
+    
+    // Scale according to sizeFactor and centerPos
+    xInBounds *= sizeFactor;
+    yInBounds *= sizeFactor;
+    xInBounds += centerPos.x;
+    yInBounds -= centerPos.y; // not sure if this needs to be inverted
     
     return { xInBounds, yInBounds };
 }
