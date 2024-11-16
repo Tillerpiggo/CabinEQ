@@ -521,6 +521,26 @@ Glyph CabinEqAudioProcessor::getCurrGlyph()
     return glyphManager.getCurrGlyph();
 }
 
+void CabinEqAudioProcessor::setSizeFactor (float sizeFactor)
+{
+    glyphManager.setSizeFactor (sizeFactor);
+}
+
+void CabinEqAudioProcessor::setCenterPos (juce::Point<float> centerPos)
+{
+    glyphManager.setCenterPos (centerPos);
+}
+
+float CabinEqAudioProcessor::getSizeFactor() const
+{
+    return glyphManager.getSizeFactor();
+}
+
+juce::Point<float> CabinEqAudioProcessor::getCenterPos() const
+{
+    return glyphManager.getCenterPos();
+}
+
 float CabinEqAudioProcessor::getCurrPlayingTime()
 {
     return playbackManager.getCurrPlayingTime();

@@ -29,8 +29,11 @@ public:
         virtual void setSpeed (float speedFactor) = 0;
         virtual void setBandwidth (float bandwidth) = 0;
         virtual void setIsPlaying (bool isPlaying) = 0;
+        
         virtual void goToNextGlyph() = 0;
         virtual void goToPrevGlyph() = 0;
+        virtual void setSizeFactor (float sizeFactor) = 0;
+        virtual void setCenterPos (juce::Point<float> centerPos) = 0;
     };
     
     class DataSource
@@ -41,6 +44,10 @@ public:
         virtual Glyph getCurrGlyph() = 0;
         virtual bool hasNextGlyph() = 0;
         virtual bool hasPrevGlyph() = 0;
+        
+        virtual float getSizeFactor() = 0;
+        virtual juce::Point<float> getCenterPos() = 0;
+        
         virtual float getCurrPlayingTime() = 0;
     };
     

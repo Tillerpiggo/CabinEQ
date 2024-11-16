@@ -162,6 +162,26 @@ bool CabinEqPage::hasPrevGlyph()
     return processor.hasPrevGlyph();
 }
 
+void CabinEqPage::setSizeFactor (float sizeFactor)
+{
+    processor.setSizeFactor (sizeFactor);
+}
+
+void CabinEqPage::setCenterPos (juce::Point<float> centerPos)
+{
+    processor.setCenterPos (centerPos);
+}
+
+float CabinEqPage::getSizeFactor()
+{
+    return processor.getSizeFactor();
+}
+
+juce::Point<float> CabinEqPage::getCenterPos()
+{
+    return processor.getCenterPos();
+}
+
 float CabinEqPage::getCurrPlayingTime()
 {
     return processor.getCurrPlayingTime();

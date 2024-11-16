@@ -47,11 +47,15 @@ public:
     void setIsPlaying (bool isPlaying) override;
     void goToNextGlyph() override;
     void goToPrevGlyph() override;
+    void setSizeFactor (float sizeFactor) override;
+    void setCenterPos (juce::Point<float> centerPos) override;
     
     // GlyphView::DataSource
     Glyph getCurrGlyph() override;
     bool hasNextGlyph() override;
     bool hasPrevGlyph() override;
+    float getSizeFactor() override;
+    juce::Point<float> getCenterPos() override;
     float getCurrPlayingTime() override;
     
     // Text editor stuff

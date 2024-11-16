@@ -106,6 +106,11 @@ public:
     void goToPrevGlyph();
     Glyph getCurrGlyph();
     
+    void setSizeFactor (float sizeFactor);
+    void setCenterPos (juce::Point<float> centerPos);
+    float getSizeFactor() const;
+    juce::Point<float> getCenterPos() const;
+    
     float getCurrPlayingTime();
     
 
