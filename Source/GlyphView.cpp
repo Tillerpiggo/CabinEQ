@@ -12,7 +12,7 @@
 
 GlyphView::GlyphView()
 {
-    addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.5f, 4.0f, 1.0f);
+    addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 4.0f, 1.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 1.0f);
     
     addButton (&playButton);

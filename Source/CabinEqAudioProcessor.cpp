@@ -191,7 +191,78 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     // Define glyphs
     Glyph xGlyph ({ Stroke ({{ -1, -1 }, { 1, 1 }}), Stroke ({{ 1, -1 }, { -1, 1 }})});
     Glyph diamondPlusGlyph ({ Stroke ({{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 }}), Stroke ({{ 0, -1 }, { 0, 1 }}), Stroke ({{ -1, 0 }, { 1, 0 }})});
-    glyphManager.addGlyphs ({ xGlyph, diamondPlusGlyph });
+    Glyph fourXGlyph ({ Stroke ({{ -1, -1 }, { 0, 0 }}), Stroke ({{ 0, -1 }, { -1, 0 }}),
+        Stroke ({{ 0, -1 }, { 1, 0 }}), Stroke ({{ 1, -1 }, { 0, 0 }}),
+        Stroke ({{ -1, 0 }, { 0, 1 }}), Stroke ({{ 0, 0 }, { -1, 1 }}),
+        Stroke ({{ 0, 0 }, { 1, 1 }}), Stroke ({{ 1, 0 }, { 0, 1 }})});
+    Glyph triangleStrokes ({ Stroke ({{ -1, -1 }, { -0.66, 1 }, { -0.33, -1 }, { 0, 1 }, { 0.33, -1 }, { 0.66, 1 }, { 1, -1 }})});
+    Glyph edgeStrokes ({ Stroke ({{ -1, 1 }, { -0.5, 0.5 }, { -1, 0 }, { -0.5, -0.5 }, { -1, -1 }}),
+        Stroke ({{ 1, 1 }, { 0.5, 0.5 }, { 1, 0 }, { 0.5, -0.5 }, { 1, -1 }})});
+    Glyph spiralGlyph ({
+        Stroke ({{ -1, -1 }, { -1, 0 }, { 0, 0 }, { 0, 1 }, { 1, 1 }}),
+        Stroke ({{ 1, 1 }, { 1, 0 }, { 0, 0 }, { 0, -1 }, { -1, -1 }})
+    });
+    Glyph complexFractalGlyph ({
+        Stroke ({{ -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 }, { -1, -1 }}),  // Outer square boundary
+        Stroke ({{ -0.5, -0.5 }, { -0.5, 0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }}),  // Inner square
+        Stroke ({{ -1, 0 }, { 1, 0 }}),  // Horizontal line through center
+        Stroke ({{ 0, -1 }, { 0, 1 }}),  // Vertical line through center
+        Stroke ({{ -1, -0.5 }, { 1, -0.5 }}),  // Additional horizontal lines
+        Stroke ({{ -1, 0.5 }, { 1, 0.5 }}),
+        Stroke ({{ -0.5, -1 }, { -0.5, 1 }}),  // Additional vertical lines
+        Stroke ({{ 0.5, -1 }, { 0.5, 1 }})
+    });
+    
+    Glyph floatingSquaresGlyph ({
+        Stroke ({{ -0.8, -0.8 }, { -0.6, -0.8 }, { -0.6, -0.6 }, { -0.8, -0.6 }, { -0.8, -0.8 }}),  // Bottom-left square
+        Stroke ({{ 0.6, -0.8 }, { 0.8, -0.8 }, { 0.8, -0.6 }, { 0.6, -0.6 }, { 0.6, -0.8 }}),    // Bottom-right square
+        Stroke ({{ -0.8, 0.6 }, { -0.6, 0.6 }, { -0.6, 0.8 }, { -0.8, 0.8 }, { -0.8, 0.6 }}),    // Top-left square
+        Stroke ({{ 0.6, 0.6 }, { 0.8, 0.6 }, { 0.8, 0.8 }, { 0.6, 0.8 }, { 0.6, 0.6 }}),        // Top-right square
+        Stroke ({{ -0.1, -0.1 }, { 0.1, -0.1 }, { 0.1, 0.1 }, { -0.1, 0.1 }, { -0.1, -0.1 }})   // Center square
+    });
+    
+    Glyph distributedSquaresGlyph ({
+        Stroke ({{ -0.9, -0.9 }, { -0.7, -0.9 }, { -0.7, -0.7 }, { -0.9, -0.7 }, { -0.9, -0.9 }}),  // Bottom-left
+        Stroke ({{ 0.7, -0.9 }, { 0.9, -0.9 }, { 0.9, -0.7 }, { 0.7, -0.7 }, { 0.7, -0.9 }}),    // Bottom-right
+        Stroke ({{ -0.9, 0.7 }, { -0.7, 0.7 }, { -0.7, 0.9 }, { -0.9, 0.9 }, { -0.9, 0.7 }}),    // Top-left
+        Stroke ({{ 0.7, 0.7 }, { 0.9, 0.7 }, { 0.9, 0.9 }, { 0.7, 0.9 }, { 0.7, 0.7 }}),        // Top-right
+        Stroke ({{ -0.2, -0.3 }, { 0.0, -0.3 }, { 0.0, -0.1 }, { -0.2, -0.1 }, { -0.2, -0.3 }}), // Center-left
+        Stroke ({{ 0.2, 0.2 }, { 0.4, 0.2 }, { 0.4, 0.4 }, { 0.2, 0.4 }, { 0.2, 0.2 }}),        // Center-right
+        Stroke ({{ -0.5, 0.0 }, { -0.3, 0.0 }, { -0.3, 0.2 }, { -0.5, 0.2 }, { -0.5, 0.0 }}),   // Middle-left
+        Stroke ({{ 0.3, -0.5 }, { 0.5, -0.5 }, { 0.5, -0.3 }, { 0.3, -0.3 }, { 0.3, -0.5 }})    // Middle-right
+    });
+    Glyph graphPaperSquaresGlyph ({
+        Stroke ({{ -0.8, -0.8 }, { -0.8, 0.0 }, { 0.0, 0.0 }, { 0.0, -0.8 }, { -0.8, -0.8 }}),  // Bottom-left square
+        Stroke ({{ -0.4, -0.4 }, { -0.4, 0.4 }, { 0.4, 0.4 }, { 0.4, -0.4 }, { -0.4, -0.4 }}),  // Center square
+        Stroke ({{ 0.0, 0.0 }, { 0.0, 0.8 }, { 0.8, 0.8 }, { 0.8, 0.0 }, { 0.0, 0.0 }}),       // Top-right square
+        Stroke ({{ -0.8, 0.2 }, { -0.8, 1.0 }, { 0.0, 1.0 }, { 0.0, 0.2 }, { -0.8, 0.2 }}),    // Top-left square
+        Stroke ({{ 0.2, -1.0 }, { 0.2, -0.2 }, { 1.0, -0.2 }, { 1.0, -1.0 }, { 0.2, -1.0 }})   // Bottom-right square
+    });
+    
+    Glyph triforceGlyph({
+        Stroke({{-0.5, 0}, {-1, -0.866}, {0, -0.866}, {-0.5, 0}}), // Bottom-left triangle
+        Stroke({{0.5, 0}, {0, -0.866}, {1, -0.866}, {0.5, 0}}),    // Bottom-right triangle
+        Stroke({{0, 0.866}, {-0.5, 0}, {0.5, 0}, {0, 0.866}})      // Top triangle
+    });
+    
+    Glyph gridGlyph({
+        // Row 1
+        Stroke({{-0.9, 0.9}, {-0.7, 0.9}, {-0.7, 0.7}, {-0.9, 0.7}, {-0.9, 0.9}}), // Top-left square
+        Stroke({{-0.4, 0.9}, {-0.2, 0.9}, {-0.2, 0.7}, {-0.4, 0.7}, {-0.4, 0.9}}), // Top-middle square
+        Stroke({{0.1, 0.9}, {0.3, 0.9}, {0.3, 0.7}, {0.1, 0.7}, {0.1, 0.9}}),     // Top-right square
+
+        // Row 2
+        Stroke({{-0.9, 0.4}, {-0.7, 0.4}, {-0.7, 0.2}, {-0.9, 0.2}, {-0.9, 0.4}}), // Middle-left square
+        Stroke({{-0.4, 0.4}, {-0.2, 0.4}, {-0.2, 0.2}, {-0.4, 0.2}, {-0.4, 0.4}}), // Center square
+        Stroke({{0.1, 0.4}, {0.3, 0.4}, {0.3, 0.2}, {0.1, 0.2}, {0.1, 0.4}}),     // Middle-right square
+
+        // Row 3
+        Stroke({{-0.9, -0.1}, {-0.7, -0.1}, {-0.7, -0.3}, {-0.9, -0.3}, {-0.9, -0.1}}), // Bottom-left square
+        Stroke({{-0.4, -0.1}, {-0.2, -0.1}, {-0.2, -0.3}, {-0.4, -0.3}, {-0.4, -0.1}}), // Bottom-middle square
+        Stroke({{0.1, -0.1}, {0.3, -0.1}, {0.3, -0.3}, {0.1, -0.3}, {0.1, -0.1}})      // Bottom-right square
+    });
+    
+    glyphManager.addGlyphs ({ xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
 }
 
