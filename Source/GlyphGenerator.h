@@ -27,6 +27,8 @@ public:
     void setBandwidth (float bandwidth);
     void setFrequencyRange (float minFreq, float maxFreq);
     void setPanRange (float leftmostPan, float rightmostPan); // absolute leftmost is -1 and absolute rightmost is 1
+    void setCenterPos (juce::Point<float> centerPos);
+    void setSizeFactor (float sizeFactor);
     
     float freqFromYPos (float yPos);
     float panFromXPos (float xPos);
@@ -50,4 +52,6 @@ private:
     float maxFreq = 15000.0f;
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
+    juce::Point<float> centerPos = { 0.0f, 0.0f };
+    float sizeFactor = 1.0f;
 };

@@ -80,9 +80,21 @@ void GlyphGenerator::setPanRange (float leftmostPan, float rightmostPan)
     this->rightmostPan = rightmostPan;
 }
 
+void GlyphGenerator::setCenterPos (juce::Point<float> centerPos)
+{
+    this->centerPos = centerPos;
+}
+
+void GlyphGenerator::setSizeFactor (float sizeFactor)
+{
+    this->sizeFactor = sizeFactor;
+}
+
 float GlyphGenerator::freqFromYPos (float yPos)
 {
-    float normalized = (yPos + 1) / 2.0f;
+    yPos *= sizeFactor;
+    yPos += centerPos.y;
+    float normalized = (yPos + 1.0f) / 2.0f;
     
     float logMinFreq = std::log(minFreq);
     float logMaxFreq = std::log(maxFreq);
@@ -93,6 +105,8 @@ float GlyphGenerator::freqFromYPos (float yPos)
 
 float GlyphGenerator::panFromXPos (float xPos)
 {
+    xPos *= sizeFactor;
+    xPos += centerPos.y;
     return xPos;
 }
 
