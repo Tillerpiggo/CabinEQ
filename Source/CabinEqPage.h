@@ -15,6 +15,7 @@
 #include "CabinEqAudioProcessor.h"
 #include "CabinPeqGraph.h"
 #include "GlyphView.h"
+#include "CabinEqLookAndFeel.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
@@ -109,4 +110,6 @@ protected:
     
     bool isUnlocked = false;
     bool addingFirstProfile = false;
+    
+    CabinEqLookAndFeel cabinEqLookAndFeel;
 };

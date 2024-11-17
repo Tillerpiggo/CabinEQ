@@ -139,7 +139,7 @@ void AnimatedGlyph::drawStrokes (juce::Graphics& g)
         }
     }
     
-    g.setColour (juce::Colours::lightblue);
+    g.setColour (STROKE_COLOR);
     g.fillPath (path);
 }
 
@@ -152,14 +152,14 @@ void AnimatedGlyph::drawPlayingDot (juce::Graphics& g)
     point = getPointInBounds (point);
     
     float dotRadius = strokeWidth * 2.0f * strokeWidthFactor;
-    drawDot (g, point, dotRadius, juce::Colours::darkblue, false);
+    drawDot (g, point, dotRadius, PLAYING_DOT_COLOR, false);
     
 }
 
 void AnimatedGlyph::drawCenterDot (juce::Graphics& g)
 {
     juce::Point<float> centerPoint = getPointInBounds ({ 0.0f, 0.0f });
-    juce::Colour dotColour = juce::Colours::lightgreen;
+    juce::Colour dotColour = DRAGGING_DOT_COLOR;
     float dotRadius = 8.0f;
     drawDot (g, centerPoint, dotRadius, dotColour, isHovering);
 }

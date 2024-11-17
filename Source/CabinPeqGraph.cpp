@@ -285,8 +285,8 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
     juce::Colour centerLineColour = juce::Colours::lightgrey;
-    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.2f);
-    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 4.0f);
+    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.3f);
+    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
     
     juce::Path centerPath;
     float centerY = yForAmpl (0);
@@ -343,8 +343,9 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
     {
         // Get the color for the band
         juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (0.3f);
+        float bandAlpha = 0.3f;
         if (band.id == draggingId || band.id == hoveringId)
-            bandColour = bandColour.withAlpha (0.8f);
+            bandAlpha = 0.8f;
         juce::Path path;
         
         // Draw curve with NUM_POINTS points
@@ -368,7 +369,7 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         // Complete the shape and fill in with band color
         path.lineTo (juce::Point<float> (getWidth(), yForAmpl (0)));
         path.lineTo (juce::Point<float> (0, yForAmpl (0)));
-        g.setGradientFill (juce::ColourGradient (bandColour.withAlpha (0.3f), 0, 0, bandColour.withAlpha (0.2f), 0, getHeight(), false));
+        g.setGradientFill (juce::ColourGradient (bandColour.withAlpha (bandAlpha), 0, 0, bandColour.withAlpha (bandAlpha), 0, getHeight(), false));
         g.fillPath (path);
     }
 }
@@ -402,7 +403,7 @@ void CabinPeqGraph::drawCurve (juce::Graphics& g)
     rectPath.lineTo (getWidth(), yForAmpl (bandProfile.getVolume()));
     rectPath.lineTo (getWidth(), yForAmpl (0));
     rectPath.lineTo (0, yForAmpl (0));
-    g.setColour (juce::Colours::lightgrey.withAlpha (0.1f));
+    g.setColour (juce::Colours::lightgrey.withAlpha (0.3f));
     g.fillPath (rectPath);
 }
 
@@ -575,7 +576,7 @@ void CabinPeqGraph::updateHoveringStatus (const juce::MouseEvent& event)
 juce::Colour CabinPeqGraph::getColourForFrequency (float frequency)
 {
     if (isGrayscale)
-        return juce::Colour::fromFloatRGBA (0.3f, 0.3, 0.3f, 1.0f);
+        return CURVE_GRAYSCALE_COLOR;
     
     juce::Colour startColor;
     juce::Colour endColor;
@@ -586,26 +587,26 @@ juce::Colour CabinPeqGraph::getColourForFrequency (float frequency)
     // Interpolate color from the start/end colors in each section
     if (t < 0.25f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.5f, 1.0f, 1.0f); // Deep blue
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
+        startColor = CURVE_GRADIENT_COLOR_1;
+        endColor = CURVE_GRADIENT_COLOR_2;
         segment_t = t / 0.25f;
     }
     else if (t < 0.5f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 0.75f, 1.0f, 1.0f); // Sky blue
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
+        startColor = CURVE_GRADIENT_COLOR_2;
+        endColor = CURVE_GRADIENT_COLOR_3;
         segment_t = (t - 0.25f) / 0.25f;
     }
     else if (t < 0.75f)
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.75f, 1.0f); // Light sea green
-        endColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
+        startColor = CURVE_GRADIENT_COLOR_3;
+        endColor = CURVE_GRADIENT_COLOR_4;
         segment_t = (t - 0.5f) / 0.25f;
     }
     else
     {
-        startColor = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.3f, 1.0f); // Spring green
-        endColor = juce::Colour::fromFloatRGBA(0.7f, 1.0f, 0.3f, 1.0f); // Pastel yellow-green
+        startColor = CURVE_GRADIENT_COLOR_4;
+        endColor = CURVE_GRADIENT_COLOR_5;
         segment_t = (t - 0.75f) / 0.25f;
     }
     

@@ -47,6 +47,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     glyphView.setListener (this);
     glyphView.setDataSource (this);
+    
+    setLookAndFeel (&cabinEqLookAndFeel);
 }
 
 CabinEqPage::~CabinEqPage()
@@ -65,9 +67,8 @@ void CabinEqPage::paint (juce::Graphics& g)
 //    g.fillAll (juce::Colours::lightgrey);
     
     
-    juce::ColourGradient fadeGradient(
-        juce::Colours::black.withAlpha (0.6f), 450, 250, // Bottom
-        juce::Colours::black.withAlpha (0.95f), 900, 300, // Top edge
+    juce::ColourGradient fadeGradient (BACKGROUND_GRADIENT_LIGHT, 0, 0, // Bottom
+        BACKGROUND_GRADIENT_DARK, 900, 300, // Top edge
         true);
     
     g.setGradientFill(fadeGradient);

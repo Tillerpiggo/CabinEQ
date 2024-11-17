@@ -81,6 +81,8 @@
               file="Source/AnimatedGlyph.cpp"/>
         <FILE id="rb92RX" name="AnimatedGlyph.h" compile="0" resource="0" file="Source/AnimatedGlyph.h"/>
         <FILE id="Oarkv3" name="UIConstants.h" compile="0" resource="0" file="Source/UIConstants.h"/>
+        <FILE id="uEJ18I" name="CabinEqLookAndFeel.h" compile="0" resource="0"
+              file="Source/CabinEqLookAndFeel.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Sequencers">
         <GROUP id="{26F692A9-D131-4C48-F7CC-A6231946AB74}" name="Sequencer Helpers">
