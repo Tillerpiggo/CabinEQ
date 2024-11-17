@@ -15,6 +15,7 @@
 #include "Layout.h"
 #include "BuildableComponent.h"
 #include "AnimatedGlyph.h"
+#include "UIConstants.h"
 
 // This provides a UI to play a Glyph and see the visuals, which includes a speed slider, a bandwidth slider, a frequency range (TODO) and a panning range (TODO). Also includes next/prev buttons to navigate between Glyphs.
 class GlyphView  : public BuildableComponent,

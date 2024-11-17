@@ -69,21 +69,24 @@ GlyphView::~GlyphView()
 void GlyphView::paint (juce::Graphics& g)
 {
     // Do nothing, for now... (TODO: add in symbol)
+    g.fillAll (CONTROL_BAR_BACKGROUND_COLOR);
 }
 
 void GlyphView::resized()
 {
-    float glyphWidth = getBounds().getWidth() / 2.0f;
+    float sidebarWidth = 300.0f;
+    auto paddedBounds = getBounds();
     
     // Glyph side
-    Layout glyphLayout (getBounds().withTrimmedRight (getBounds().getWidth() - glyphWidth), 8);
+    Layout glyphLayout (paddedBounds.withTrimmedRight (sidebarWidth), 8.0f);
     glyphLayout.addRow ({ Space (&animatedGlyph) });
-    glyphLayout.addRow ({ Space (&prevButton), Space (&nextButton) }, 30);
     glyphLayout.updateComponentBounds();
     
-    Layout settingsLayout (getBounds().withTrimmedLeft (glyphWidth), 8);
-    settingsLayout.addRow ({ Space (80), Space (&speedSlider), Space (80), Space (&bandwidthSlider) });
-    settingsLayout.addRow ({ Space (80), Space (&playButton), Space (80) });
+    Layout settingsLayout (paddedBounds.withTrimmedLeft (getBounds().getWidth() - sidebarWidth).withTrimmedRight (20.0f).withTrimmedTop (10.0f).withTrimmedBottom (10.0f), 0.0f);
+    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
+    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
+    settingsLayout.addRow ({ Space (&prevButton), Space (&nextButton) }, 30);
+    settingsLayout.addRow ({ Space (&playButton) });
     settingsLayout.updateComponentBounds();
 }
 

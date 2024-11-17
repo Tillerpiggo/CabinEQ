@@ -67,7 +67,7 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
-    float sidebarWidth = 160.0f;
+    float sidebarWidth = 120.0f;
     
     Layout layout (getBounds(), 8.0f);
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);

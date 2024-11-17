@@ -53,6 +53,7 @@ void BuildableComponent::addSlider (juce::Slider* slider, float lowerBound, floa
     slider->setRange (lowerBound, upperBound);
     slider->setValue (startVal);
     slider->setSliderStyle (juce::Slider::LinearHorizontal);
+    slider->setTextBoxStyle (juce::Slider::NoTextBox, true, 0, 0);
     slider->addListener (this);
     
     sliders.push_back (slider);
