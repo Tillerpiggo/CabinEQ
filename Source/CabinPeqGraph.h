@@ -14,6 +14,7 @@
 #include "CabinEqAudioProcessor.h"
 #include "BandProfile.h"
 #include "BandEqCurve.h"
+#include "UIConstants.h"
 
 class CabinPeqGraph  : public juce::Component,
                        public juce::Timer
@@ -132,12 +133,12 @@ private:
     
     // Visual constants
     static constexpr float NUM_POINTS = 1000; // num points used to render the curve
-    static constexpr float DOT_SIZE_SELECTED = 5.5f;
-    static constexpr float DOT_SIZE_DRAGGING = 8.0f;
-    static constexpr float DOT_SIZE_DEFAULT = 3.5f;
-    static constexpr float DOT_PADDING = 3.0f;
-    static constexpr float CURVE_THICKNESS = 2.5f;
-    const juce::Colour BACKGROUND_COLOR = juce::Colour::fromRGB (0.1, 0.1, 0.2);
+//    static constexpr float DOT_SIZE_SELECTED = 5.5f;
+//    static constexpr float DOT_SIZE_DRAGGING = 8.0f;
+//    static constexpr float DOT_SIZE_DEFAULT = 3.5f;
+//    static constexpr float DOT_PADDING = 3.0f;
+//    static constexpr float CURVE_THICKNESS = 2.5f;
+//    const juce::Colour BACKGROUND_COLOR = juce::Colour::fromRGB (0.1, 0.1, 0.2);
     
     // Visual flags
     bool isGrayscale = false;

@@ -58,6 +58,19 @@ void BuildableComponent::addSlider (juce::Slider* slider, float lowerBound, floa
     sliders.push_back (slider);
 }
 
+
+void BuildableComponent::addVerticalSlider (juce::Slider* slider, float lowerBound, float upperBound, float startVal)
+{
+    addAndMakeVisible (*slider);
+    slider->setRange (lowerBound, upperBound);
+    slider->setValue (startVal);
+    slider->setSliderStyle (juce::Slider::LinearVertical);
+    slider->setTextBoxStyle (juce::Slider::NoTextBox, true, 0, 0);
+    slider->addListener (this);
+    
+    sliders.push_back (slider);
+}
+
 void BuildableComponent::addSliderAndLabel (juce::Slider* slider, juce::Label* label, juce::String labelText, float lowerBound, float upperBound, float startVal)
 {
     addAndMakeVisible (*slider);
@@ -70,7 +83,6 @@ void BuildableComponent::addSliderAndLabel (juce::Slider* slider, juce::Label* l
     label->attachToComponent (slider, true);
     
     slider->addListener (this);
-    
 }
 
 void BuildableComponent::addButtonAction (juce::Button* buttonPtr, std::function<void(juce::Button*)> buttonAction)

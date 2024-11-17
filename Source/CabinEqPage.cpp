@@ -19,7 +19,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     // TODO: set glyph view listener
     
     // Sliders
-    addSliderAndLabel (&masterVolumeSlider, &masterVolumeSliderLabel, "Volume", -20.0f, 20.0f, 0.0f);
+    addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
     
     // Buttons
     addButton (&bypassButton);
@@ -67,10 +67,11 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
-    Layout layout (getBounds(), 0.0f);
-    layout.addRow ({ Space (amplGraph.get()) }, 0.6);
-    layout.addRow ({ Space (&profileDropdown), Space (&bypassButton).withFixedSize (80) }, 40);
-    layout.addRow ({ Space (80), Space (&masterVolumeSlider) }, 20);
+    float sidebarWidth = 160.0f;
+    
+    Layout layout (getBounds(), 8.0f);
+    layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
+    layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.6);
     layout.addRow ({ Space (&glyphView) });
     layout.updateComponentBounds();
 }

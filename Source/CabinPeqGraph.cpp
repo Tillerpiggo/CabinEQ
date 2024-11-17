@@ -27,20 +27,6 @@ void CabinPeqGraph::setBandProfile (BandProfile bandProfile)
     setVolume (bandProfile.getVolume());
 }
 
-//void CabinPeqGraph::paint (juce::Graphics& g)
-//{
-////    g.setColour (BACKGROUND_COLOR);
-////    g.fillAll();
-////    
-////    drawLines (g); // draw lines before so that they are drawn over
-////    drawBands (g);
-////    drawCurve (g);
-////    drawDots (g);
-//    
-//    
-//}
-
-
 void CabinPeqGraph::paint(juce::Graphics& g)
 {
     // Create a vertical gradient that goes from transparent in the center to opaque at the edges

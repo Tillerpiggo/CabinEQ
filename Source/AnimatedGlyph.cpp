@@ -9,6 +9,7 @@
 */
 
 #include "AnimatedGlyph.h"
+#include "UIConstants.h"
 
 AnimatedGlyph::AnimatedGlyph()
 {

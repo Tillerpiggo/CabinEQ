@@ -78,7 +78,4 @@ private:
     
     // UI Constants
     bool isHovering;
-    
-    // TODO: move these constants into a class or some sort of shared UI constants struct
-    static constexpr float DOT_PADDING = 3.0f;
 };
