@@ -80,6 +80,7 @@ void AnimatedGlyph::mouseWheelMove (const juce::MouseEvent &event, const juce::M
     {
         listener->setSizeFactor (newSizeFactor);
         sizeFactor = dataSource->getSizeFactor();
+        centerPos = dataSource->getCenterPos();
     }
         
 }

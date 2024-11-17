@@ -131,27 +131,6 @@ public:
         this->bands = bands;
         this->sampleRate = sampleRate;
         this->shouldUpdateFilters = true;
-        
-        bool didAddBands = false;
-        if (bands.size() > leftFilters.size())
-        {
-            for (int i = 0; i < bands.size(); ++i)
-            {
-                if (i >= leftFilters.size())
-                {
-                    Band band = bands[i];
-                    addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.ampl);
-                    addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.ampl);
-                    didAddBands = true;
-                }
-            }
-        }
-        
-        if (bands.size() < leftFilters.size())
-        {
-            leftFilters.erase (leftFilters.begin() + bands.size(), leftFilters.end());
-            rightFilters.erase (rightFilters.begin() + bands.size(), rightFilters.end());
-        }
     }
 
     void prepare (const juce::dsp::ProcessSpec& spec)
@@ -173,6 +152,27 @@ public:
     {
         if (shouldUpdateFilters)
         {
+            // Add necessary filters
+            if (bands.size() > leftFilters.size())
+            {
+                for (int i = 0; i < bands.size(); ++i)
+                {
+                    if (i >= leftFilters.size())
+                    {
+                        Band band = bands[i];
+                        addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.ampl);
+                        addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.ampl);
+                    }
+                }
+            }
+            
+            // Remove unnecessary filters
+            if (bands.size() < leftFilters.size())
+            {
+                leftFilters.erase (leftFilters.begin() + bands.size(), leftFilters.end());
+                rightFilters.erase (rightFilters.begin() + bands.size(), rightFilters.end());
+            }
+            
             // Update filters if needed before processing
             for (int i = 0; i < bands.size(); ++i)
             {
