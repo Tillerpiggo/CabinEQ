@@ -374,22 +374,22 @@ void CabinEqAudioProcessor::updateFilter (juce::String profileName)
         playbackManager.updateFilterWithBandProfile (profile->get().getBandProfile());
 }
 
-int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const float bandwidth, juce::String profileName)
+int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
     {
-        return profile->get().addBand (freq, ampl, bandwidth);
+        return profile->get().addBand (freq, ampl, bandwidth, type);
     }
         
     return -1;
 }
 
-void CabinEqAudioProcessor::updateBand (const int id, const float freq, const float ampl, const float bandwidth, juce::String profileName)
+void CabinEqAudioProcessor::updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type, juce::String profileName)
 {
     auto profile = profileNamed (profileName);
     if (profile.has_value())
-        profile->get().updateBand (id, freq, ampl, bandwidth);
+        profile->get().updateBand (id, freq, ampl, bandwidth, type);
 }
 
 void CabinEqAudioProcessor::removeBand (const int id, juce::String profileName)

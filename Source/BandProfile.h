@@ -13,8 +13,15 @@
 class Band
 {
 public:
-    Band (int id, float freq, float ampl, float bandwidth)
-        : id (id), freq (freq), ampl (ampl), bandwidth (bandwidth)
+    enum class Type  : int
+    {
+        both = 0,
+        left = 1,
+        right = 2
+    };
+    
+    Band (int id, float freq, float ampl, float bandwidth, Type type)
+        : id (id), freq (freq), ampl (ampl), bandwidth (bandwidth), type (type)
     {
         this->qFactor = bandwidthToQFactor (bandwidth);
     }
@@ -29,6 +36,7 @@ public:
     float ampl;
     float bandwidth;
     float qFactor;
+    Type type;
 };
 
 class BandProfile

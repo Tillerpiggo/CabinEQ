@@ -87,12 +87,12 @@ void CabinEqPage::resized()
 }
 
 // ====================================================
-int CabinEqPage::addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender)
+int CabinEqPage::addBand (float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender)
 {
     std::cout << "Listener got adding band" << std::endl;
     if (sender == amplGraph.get())
     {
-        int addedBandId = processor.addBand (freq, ampl, bandwidth, profileId);
+        int addedBandId = processor.addBand (freq, ampl, bandwidth, type, profileId);
         processor.updateFilter (profileId);
         return addedBandId;
     }
@@ -100,11 +100,11 @@ int CabinEqPage::addBand (float freq, float ampl, float bandwidth, CabinPeqGraph
     return -1;
 }
 
-void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender)
+void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender)
 {
     if (sender == amplGraph.get())
     {
-        processor.updateBand (id, freq, ampl, bandwidth, profileId);
+        processor.updateBand (id, freq, ampl, bandwidth, type, profileId);
         processor.updateFilter (profileId);
     }
 }

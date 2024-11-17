@@ -22,11 +22,11 @@ public:
     const BandProfile getBandProfile() const; // constructs a list of bands matching the ones in memory in the valueTree. For now, we're only doing amplitude bands, so it implicitly uses the amplTree. Uses whatever the current profileVolume is (assumed to be up to date)
     const std::optional<Band> getBandWithId (const int id) const;
     
-    int addBand (const float freq, const float ampl, const float bandwidth);
+    int addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type);
     void removeBand (const int id);
-    void updateBand (const int id, const float freq, const float ampl, const float bandwidth);
-    int addBands (std::vector<Band> bands);
-    void updateBands (const int firstId, std::vector<Band> bands);
+    void updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type);
+//    int addBands (std::vector<Band> bands);
+//    void updateBands (const int firstId, std::vector<Band> bands);
     
     void initValueTreeFromAPVTS(); // sets this value tree to match the one in the main apvts
     const juce::String getName() const;
@@ -41,8 +41,8 @@ public:
     void setNoiseVolume (float noiseVolume);
     
 private:
-    void addBandToTree (int id, float freq, float ampl, float bandwidth, juce::ValueTree bandTree);
-    void updateBandInTree (int id, float freq, float ampl, float bandwidth, juce::ValueTree bandTree);
+    void addBandToTree (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree bandTree);
+    void updateBandInTree (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree bandTree);
     int getNextIdForBandInTree (juce::ValueTree bandTree); // returns the next id, i.e. the id the next added band would have, for this band tree
     void printBandTree (juce::ValueTree bandTree) const; // prints a ValueTree, assuming the ValueTree's children are Bands
     std::vector<Band> getBandsForValueTree (juce::ValueTree valueTree) const;
@@ -59,6 +59,7 @@ private:
     juce::Identifier idFreq { "freq" };
     juce::Identifier idAmpl { "ampl" };
     juce::Identifier idBandwidth { "bandwidth" };
+    juce::Identifier idBandType { "bandtype" };
     juce::Identifier idAmplTree { "AmplTree" };
     juce::ValueTree valueTree;
     juce::String profileName;

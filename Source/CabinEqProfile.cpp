@@ -38,7 +38,8 @@ const std::optional<Band> CabinEqProfile::getBandWithId (const int id) const
         return Band (amplBand.getProperty (idId),
                      amplBand.getProperty (idFreq),
                      amplBand.getProperty (idAmpl),
-                     amplBand.getProperty (idBandwidth));
+                     amplBand.getProperty (idBandwidth),
+                     static_cast<Band::Type> ((int) amplBand.getProperty (idBandType)));
     }
     else
     {
@@ -46,14 +47,14 @@ const std::optional<Band> CabinEqProfile::getBandWithId (const int id) const
     }
 }
 
-int CabinEqProfile::addBand (const float freq, const float ampl, const float bandwidth)
+int CabinEqProfile::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
     auto amplBandTree = valueTree.getChildWithName (idAmplTree);
     int id = getNextIdForBandInTree (amplBandTree);
-    addBandToTree (id, freq, ampl, bandwidth, amplBandTree);
+    addBandToTree (id, freq, ampl, bandwidth, type, amplBandTree);
     
     return id;
 }
@@ -70,13 +71,13 @@ void CabinEqProfile::removeBand (const int id)
         amplBandTree.removeChild (nodeToRemove, nullptr);
 }
 
-void CabinEqProfile::updateBand (const int id, const float freq, const float ampl, const float bandwidth)
+void CabinEqProfile::updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
     auto amplBandTree = valueTree.getChildWithName (idAmplTree);
-    updateBandInTree (id, freq, ampl, bandwidth, amplBandTree);
+    updateBandInTree (id, freq, ampl, bandwidth, type, amplBandTree);
 }
 
 //int CabinEqProfile::addBands (std::vector<Band> bands, juce::String profileName)
@@ -187,17 +188,18 @@ void CabinEqProfile::setNoiseVolume (float noiseVolume)
     valueTree.setProperty (idNoiseVolume, noiseVolume, nullptr);
 }
 
-void CabinEqProfile::addBandToTree (int id, float freq, float ampl, float bandwidth, juce::ValueTree bandTree)
+void CabinEqProfile::addBandToTree (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree bandTree)
 {
     juce::ValueTree band (idBand);
     band.setProperty (idId, id, nullptr);
     band.setProperty (idFreq, freq, nullptr);
     band.setProperty (idAmpl, ampl, nullptr);
     band.setProperty (idBandwidth, bandwidth, nullptr);
+    band.setProperty (idBandType, static_cast<int> (type), nullptr);
     bandTree.appendChild (band, nullptr);
 }
 
-void CabinEqProfile::updateBandInTree (int id, float freq, float ampl, float bandwidth, juce::ValueTree bandTree)
+void CabinEqProfile::updateBandInTree (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree bandTree)
 {
     juce::ValueTree bandToModify = bandTree.getChildWithProperty (idId, id);
     if (bandToModify.isValid())
@@ -205,6 +207,7 @@ void CabinEqProfile::updateBandInTree (int id, float freq, float ampl, float ban
         bandToModify.setProperty (idFreq, freq, nullptr);
         bandToModify.setProperty (idAmpl, ampl, nullptr);
         bandToModify.setProperty (idBandwidth, bandwidth, nullptr);
+        bandToModify.setProperty (idBandType, static_cast<int> (type), nullptr);
     }
 }
 
@@ -233,8 +236,9 @@ void CabinEqProfile::printBandTree (juce::ValueTree bandTree) const
                 float freq = band.getProperty (idFreq);
                 float ampl = band.getProperty (idAmpl);
                 float bandwidth = band.getProperty (idBandwidth);
+                int type = static_cast<int> (band.getProperty (idBandType));
                 
-                std::cout << "Band (id: " << id << ", freq: " << freq << ", ampl: " << ampl << ", bandwidth: " << bandwidth << ")" << std::endl;
+                std::cout << "Band (id: " << id << ", freq: " << freq << ", ampl: " << ampl << ", bandwidth: " << bandwidth << ", type: " << type << ")" << std::endl;
             }
         }
     }
@@ -257,7 +261,8 @@ std::vector<Band> CabinEqProfile::getBandsForValueTree (juce::ValueTree bandTree
             float freq = band.getProperty (idFreq);
             float ampl = band.getProperty (idAmpl);
             float bandwidth = band.getProperty (idBandwidth);
-            bands.emplace_back (id, freq, ampl, bandwidth);
+            Band::Type type = static_cast<Band::Type> ((int) band.getProperty (idBandType));
+            bands.emplace_back (id, freq, ampl, bandwidth, type);
         }
     }
     return bands;
