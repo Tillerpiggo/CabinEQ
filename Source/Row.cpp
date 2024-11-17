@@ -11,8 +11,8 @@
 #include "Row.h"
 
 
-Row::Row (std::pair<float, float> widthRange, FlexibleLayoutDimension height)
-    : height (height), rectWidths ({ FlexibleLayoutDimension::fill() }), widthRange (widthRange), padding (0)
+Row::Row (std::pair<float, float> widthRange, FlexibleLayoutDimension height, float padding)
+    : height (height), rectWidths ({ FlexibleLayoutDimension::fill() }), widthRange (widthRange), padding (padding)
 {
 }
 

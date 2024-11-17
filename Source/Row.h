@@ -16,7 +16,7 @@
 class Row
 {
 public:
-    Row (std::pair<float, float> widthRange, FlexibleLayoutDimension height = FlexibleLayoutDimension::fill()); // implicitly starts as a single rect that takes up the entire row, with height that is evenly distributed
+    Row (std::pair<float, float> widthRange, FlexibleLayoutDimension height = FlexibleLayoutDimension::fill(), float padding = 0.0f); // implicitly starts as a single rect that takes up the entire row, with height that is evenly distributed
     
     Row (std::pair<float, float> widthRange, FlexibleLayoutDimension height, std::vector<FlexibleLayoutDimension> rectWidths, float padding);
     

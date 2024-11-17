@@ -30,7 +30,7 @@ void CabinPeqGraph::setBandProfile (BandProfile bandProfile)
 void CabinPeqGraph::paint (juce::Graphics& g)
 {
     g.setColour (BACKGROUND_COLOR);
-    g.fillRect (getBoundsInParent());
+    g.fillAll();
     
     drawLines (g); // draw lines before so that they are drawn over
     drawBands (g);
@@ -213,19 +213,19 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
     
     juce::Path centerPath;
     float centerY = yForAmpl (0);
-    centerPath.startNewSubPath (getX(), centerY);
-    centerPath.lineTo (getX() + getWidth(), centerY);
+    centerPath.startNewSubPath (0, centerY);
+    centerPath.lineTo (getWidth(), centerY);
     g.setColour (centerLineColour);
     g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS));
     
     // Draw the other horizontal lines
     g.setColour (lineColour);
     int numHorizontalLines = 12;
-    for (float y = getY(); y <= getY() + getHeight(); y += getHeight() / numHorizontalLines)
+    for (float y = 0; y <= getHeight(); y += getHeight() / numHorizontalLines)
     {
         juce::Path horizontalLinePath;
-        horizontalLinePath.startNewSubPath (getX(), y);
-        horizontalLinePath.lineTo (getX() + getWidth(), y);
+        horizontalLinePath.startNewSubPath (0, y);
+        horizontalLinePath.lineTo (getWidth(), y);
         g.strokePath (horizontalLinePath, lineStrokeType);
     }
     
@@ -253,8 +253,8 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
         {
             juce::Path logLinePath;
             float lineX = xForFreq (lineFreq);
-            logLinePath.startNewSubPath (lineX, getY());
-            logLinePath.lineTo (lineX, getY() + getHeight());
+            logLinePath.startNewSubPath (lineX, 0);
+            logLinePath.lineTo (lineX, getHeight());
             g.strokePath (logLinePath, lineStrokeType);
         }
     }
@@ -289,8 +289,8 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         }
         
         // Complete the shape and fill in with band color
-        path.lineTo (juce::Point<float> (getX() + getWidth(), yForAmpl (0)));
-        path.lineTo (juce::Point<float> (getX(), yForAmpl (0)));
+        path.lineTo (juce::Point<float> (getWidth(), yForAmpl (0)));
+        path.lineTo (juce::Point<float> (0, yForAmpl (0)));
         g.setColour (bandColour);
         g.fillPath (path);
     }
@@ -320,11 +320,11 @@ void CabinPeqGraph::drawCurve (juce::Graphics& g)
     g.strokePath (path, juce::PathStrokeType (CURVE_THICKNESS));
     
     juce::Path rectPath;
-    rectPath.startNewSubPath (getX(), yForAmpl (0));
-    rectPath.lineTo (getX(), yForAmpl (bandProfile.getVolume()));
-    rectPath.lineTo (getX() + getWidth(), yForAmpl (bandProfile.getVolume()));
-    rectPath.lineTo (getX() + getWidth(), yForAmpl (0));
-    rectPath.lineTo (getX(), yForAmpl (0));
+    rectPath.startNewSubPath (0, yForAmpl (0));
+    rectPath.lineTo (0, yForAmpl (bandProfile.getVolume()));
+    rectPath.lineTo (getWidth(), yForAmpl (bandProfile.getVolume()));
+    rectPath.lineTo (getWidth(), yForAmpl (0));
+    rectPath.lineTo (0, yForAmpl (0));
     g.setColour (juce::Colours::lightgrey.withAlpha (0.3f));
     g.fillPath (rectPath);
     
@@ -385,8 +385,8 @@ std::vector<float> CabinPeqGraph::getLogLines()
     float minFreq = minFreqShowing;
     float maxFreq = maxFreqShowing;
     const float minimalDistance = 50.0f; // Minimal distance in pixels between lines
-    const float visibleXStart = getX();
-    const float visibleXEnd = getX() + getWidth();
+    const float visibleXStart = 0;
+    const float visibleXEnd = getWidth();
 
     // Step 1: Generate base frequencies
     int minDecade = static_cast<int>(std::floor(std::log10(minFreq)));
@@ -570,7 +570,7 @@ juce::ColourGradient CabinPeqGraph::getCurveGradient()
 
 std::pair<float, float> CabinPeqGraph::getEventCoords (const juce::MouseEvent& event) const
 {
-    return { event.getPosition().getX() - getX(), event.getPosition().getY() - getY() };
+    return { event.getPosition().getX(), event.getPosition().getY() };
 }
 
 juce::Point<float> CabinPeqGraph::coordsForFrequencyAndAmplitude (float freq, float ampl)
@@ -584,12 +584,12 @@ juce::Point<float> CabinPeqGraph::coordsForFrequencyAndAmplitude (float freq, fl
 
 float CabinPeqGraph::xForFreq (float freq)
 {
-    return getWidth() * timeAtFrequency (freq) + getX();
+    return getWidth() * timeAtFrequency (freq);
 }
 
 float CabinPeqGraph::yForAmpl (float ampl)
 {
-    return getHeight() * (1.0f - (ampl - MIN_DB) / (MAX_DB - MIN_DB)) + getY();
+    return getHeight() * (1.0f - (ampl - MIN_DB) / (MAX_DB - MIN_DB));
 }
 
 std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForCoords (float x, float y) const
@@ -630,8 +630,8 @@ float CabinPeqGraph::timeAtFrequency (float freq) const
 std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const
 {
     // Get mouse coords
-    float x = event.getPosition().x - getX();
-    float y = event.getPosition().y - getY();
+    float x = event.getPosition().x;
+    float y = event.getPosition().y;
     
     return frequencyAndAmplitudeForCoords (x, y);
 }

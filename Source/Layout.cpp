@@ -47,14 +47,14 @@ void Layout::setPadding (float padding)
 
 void Layout::addRowWithEvenlySpacedRects (int numRects, FlexibleLayoutDimension height)
 {
-    rows.push_back (Row (getWidthRange(), height)
+    rows.push_back (Row (getWidthRange(), height, padding)
                         .withRectWidths(std::vector<FlexibleLayoutDimension> (numRects, FlexibleLayoutDimension::fill())));
     heightRangesAreUpdated = false;
 }
 
 void Layout::addRowWithRectWidths (std::vector<FlexibleLayoutDimension> rectWidths, FlexibleLayoutDimension height)
 {
-    rows.push_back (Row (getWidthRange(), height)
+    rows.push_back (Row (getWidthRange(), height, padding)
                         .withRectWidths (rectWidths));
     heightRangesAreUpdated = false;
 }

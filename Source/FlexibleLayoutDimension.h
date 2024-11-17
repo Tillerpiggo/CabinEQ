@@ -77,13 +77,18 @@ public:
     static const std::vector<std::pair<float, float>> lengthRangesForFlexibleLayoutDimensions (std::vector<FlexibleLayoutDimension> lengths, std::pair<float, float> absoluteRange, float padding)
     {
         // First, calculate out absolute widths
-        float availableLength = absoluteRange.second - absoluteRange.first - (lengths.size() + 1) * padding;
+        float totalLength = absoluteRange.second - absoluteRange.first;
+        float availableLength = totalLength - (lengths.size() + 1.0f) * padding;
         
         // Allocate out static widths first (proportional and fixed)
         float staticLength = 0;
         for (const auto& length : lengths)
+        {
             if (length.isStatic())
+            {
                 staticLength += length.getStaticValueIn (availableLength);
+            }
+        }
         
         if (staticLength > availableLength)
             std::cerr << "Trying to create lengthRanges with static widths exceeding total available space" << std::endl;
@@ -94,16 +99,18 @@ public:
             if (! length.isStatic())
                 numDynamicLengths++;
         
-        float dynamicLength = (availableLength - staticLength) / static_cast<float> (numDynamicLengths);
+        float dynamicLength = 0.0f;
+        if (numDynamicLengths > 0.0f)
+            dynamicLength = (availableLength - staticLength) / static_cast<float> (numDynamicLengths);
         
         // Now calculate out all of the width ranges from left to right
         std::vector<std::pair<float, float>> lengthRanges;
-        float currX = absoluteRange.first;
-        currX += padding;
+        float currX = absoluteRange.first + padding;
         for (const auto& length : lengths)
         {
             float startX = currX;
             float endX = currX;
+            
             if (length.isStatic())
             {
                 endX += length.getStaticValueIn (availableLength);
@@ -112,9 +119,10 @@ public:
             {
                 endX += dynamicLength;
             }
+            
             lengthRanges.push_back ({ startX, endX });
-            currX = endX;
-            currX += padding;
+            
+            currX = endX + padding;
         }
         
         return lengthRanges;
