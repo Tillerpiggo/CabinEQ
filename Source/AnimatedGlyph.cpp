@@ -176,7 +176,7 @@ void AnimatedGlyph::drawDot (juce::Graphics& g, juce::Point<float> point, float 
 
 juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
 {
-    float padding = 0.0f;
+    float padding = 10.0f;
     
     // Scale according to sizeFactor and centerPos
     point.x *= sizeFactor;

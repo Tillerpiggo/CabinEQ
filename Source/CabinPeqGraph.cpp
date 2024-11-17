@@ -594,17 +594,18 @@ float CabinPeqGraph::yForAmpl (float ampl)
 
 std::pair<float, float> CabinPeqGraph::frequencyAndAmplitudeForCoords (float x, float y) const
 {
+    float padding = DOT_SIZE_DEFAULT + DOT_PADDING;
+    
+    // First, bound x and y inside window
+    float boundedX = std::max (std::min (x, getWidth() - padding), padding) / getWidth();
+    float boundedY = std::max (std::min (y, getHeight() - padding), padding) / getHeight();
+    
     // Calculate frequency of x
-    float freq = frequencyAtTime (x / getWidth());
+    float freq = frequencyAtTime (boundedX);
     
     // Calculate amplitude of y
-    float normalizedY = y / getHeight();
-    float ampl = (1.0f - normalizedY) * (MAX_DB - MIN_DB) + MIN_DB;
-    
-    // Bound freq/ampl inside the visible window
-    freq = std::max (std::min (freq, maxFreqShowing), minFreqShowing);
-    ampl = std::min (std::max (ampl, MIN_DB), MAX_DB);
-    
+    float ampl = (1.0f - boundedY) * (MAX_DB - MIN_DB) + MIN_DB;
+
     return { freq, ampl };
 }
 
