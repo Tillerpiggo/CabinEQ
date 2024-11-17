@@ -524,11 +524,13 @@ Glyph CabinEqAudioProcessor::getCurrGlyph()
 void CabinEqAudioProcessor::setSizeFactor (float sizeFactor)
 {
     glyphManager.setSizeFactor (sizeFactor);
+    playbackManager.setSizeFactor (sizeFactor);
 }
 
 void CabinEqAudioProcessor::setCenterPos (juce::Point<float> centerPos)
 {
     glyphManager.setCenterPos (centerPos);
+    playbackManager.setCenterPos (centerPos);
 }
 
 float CabinEqAudioProcessor::getSizeFactor() const

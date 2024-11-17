@@ -34,6 +34,8 @@ public:
     void setVolume (float volume);
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
+    void setSizeFactor (float sizeFactor);
+    void setCenterPos (juce::Point<float> centerPos);
     
     void setGlyph (Glyph glyph);
     float getCurrPlayingTime();

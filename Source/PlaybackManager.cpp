@@ -101,6 +101,16 @@ void PlaybackManager::setBandwidth (float bandwidth)
     glyphGenerator.setBandwidth (bandwidth);
 }
 
+void PlaybackManager::setSizeFactor (float sizeFactor)
+{
+    glyphGenerator.setSizeFactor (sizeFactor);
+}
+
+void PlaybackManager::setCenterPos (juce::Point<float> centerPos)
+{
+    glyphGenerator.setCenterPos (centerPos);
+}
+
 void PlaybackManager::setGlyph (Glyph glyph)
 {
     glyphGenerator.setGlyph (glyph);
