@@ -19,6 +19,7 @@ const BandProfile CabinEqProfile::getBandProfile() const
     std::vector<Band> bands;
     if (valueTree.isValid())
         bands = getBandsForValueTree (valueTree.getChildWithName (idAmplTree));
+    
     return BandProfile (bands, profileVolume, melodyVolume, noiseVolume);
 }
 
@@ -156,6 +157,10 @@ void CabinEqProfile::copyFrom (CabinEqProfile other)
     juce::String newProfileName = valueTree.getProperty (idProfileName);
     valueTree.copyPropertiesAndChildrenFrom (other.valueTree, nullptr);
     valueTree.setProperty (idProfileName, newProfileName, nullptr);
+    
+    // Update local variables
+    profileVolume = valueTree.getProperty (idProfileVolume);
+    profileName = valueTree.getProperty (idProfileName);
 }
 
 void CabinEqProfile::renameTo (juce::String newName)

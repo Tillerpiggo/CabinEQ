@@ -24,6 +24,7 @@ void CabinPeqGraph::setBandProfile (BandProfile bandProfile)
 {
     this->bandProfile = bandProfile;
     this->curve.updateWithBands (bandProfile.getBands());
+    setVolume (bandProfile.getVolume());
 }
 
 void CabinPeqGraph::paint (juce::Graphics& g)
