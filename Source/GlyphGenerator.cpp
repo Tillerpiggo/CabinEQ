@@ -32,7 +32,7 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     
     // Apply gain envelope based on progress
     float envelope = 1.0f;
-    float len = 0.1;
+    float len = 0.02;
     if (progress < len)
         envelope = progress / len;
     if (progress > (1.0f - len))
@@ -106,7 +106,7 @@ float GlyphGenerator::freqFromYPos (float yPos)
 float GlyphGenerator::panFromXPos (float xPos)
 {
     xPos *= sizeFactor;
-    xPos += centerPos.y;
+    xPos += centerPos.x;
     return xPos;
 }
 

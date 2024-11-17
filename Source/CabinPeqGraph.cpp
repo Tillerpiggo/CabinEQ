@@ -27,17 +27,38 @@ void CabinPeqGraph::setBandProfile (BandProfile bandProfile)
     setVolume (bandProfile.getVolume());
 }
 
-void CabinPeqGraph::paint (juce::Graphics& g)
+//void CabinPeqGraph::paint (juce::Graphics& g)
+//{
+////    g.setColour (BACKGROUND_COLOR);
+////    g.fillAll();
+////    
+////    drawLines (g); // draw lines before so that they are drawn over
+////    drawBands (g);
+////    drawCurve (g);
+////    drawDots (g);
+//    
+//    
+//}
+
+
+void CabinPeqGraph::paint(juce::Graphics& g)
 {
-    g.setColour (BACKGROUND_COLOR);
-    g.fillAll();
+    // Create a vertical gradient that goes from transparent in the center to opaque at the edges
+    juce::ColourGradient fadeGradient(
+        juce::Colours::black.withAlpha (0.95f), 0.0f, static_cast<float> (getHeight()), // Bottom
+        juce::Colours::black.withAlpha (0.6f), 0.0f, 0.0f, // Top edge
+        false);
+
+    // Set the gradient as the fill and draw a rectangle over the entire component
+    g.setGradientFill(fadeGradient);
+    g.fillRect(getLocalBounds());
     
-    drawLines (g); // draw lines before so that they are drawn over
+    // Draw your curve and log lines as usual
+    drawLines(g);
+    drawCurve(g);
     drawBands (g);
-    drawCurve (g);
     drawDots (g);
 }
-
 void CabinPeqGraph::resized()
 {
     setBounds (getBoundsInParent());
@@ -208,8 +229,8 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
     juce::Colour centerLineColour = juce::Colours::lightgrey;
-    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.3f);
-    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
+    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.2f);
+    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 4.0f);
     
     juce::Path centerPath;
     float centerY = yForAmpl (0);
@@ -291,7 +312,7 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         // Complete the shape and fill in with band color
         path.lineTo (juce::Point<float> (getWidth(), yForAmpl (0)));
         path.lineTo (juce::Point<float> (0, yForAmpl (0)));
-        g.setColour (bandColour);
+        g.setGradientFill (juce::ColourGradient (bandColour.withAlpha (0.3f), 0, 0, bandColour.withAlpha (0.2f), 0, getHeight(), false));
         g.fillPath (path);
     }
 }
@@ -325,9 +346,8 @@ void CabinPeqGraph::drawCurve (juce::Graphics& g)
     rectPath.lineTo (getWidth(), yForAmpl (bandProfile.getVolume()));
     rectPath.lineTo (getWidth(), yForAmpl (0));
     rectPath.lineTo (0, yForAmpl (0));
-    g.setColour (juce::Colours::lightgrey.withAlpha (0.3f));
+    g.setColour (juce::Colours::lightgrey.withAlpha (0.1f));
     g.fillPath (rectPath);
-    
 }
 
 void CabinPeqGraph::drawDots (juce::Graphics& g)
@@ -539,9 +559,11 @@ juce::Colour CabinPeqGraph::getColourForFrequency (float frequency)
 
 juce::ColourGradient CabinPeqGraph::getCurveGradient()
 {
+    float alpha = 1.0f;
+    
     // Create initial gradient with start/end colors
-    juce::Colour startColor = getColourForFrequency (minFreqShowing);
-    juce::Colour endColor = getColourForFrequency (maxFreqShowing);
+    juce::Colour startColor = getColourForFrequency (minFreqShowing).withAlpha (alpha);
+    juce::Colour endColor = getColourForFrequency (maxFreqShowing).withAlpha (alpha);
     juce::ColourGradient gradient (startColor, 0, 0, endColor, getWidth(), 0, false);
     
     // Useful helper to get color at specific point on screen
@@ -561,9 +583,9 @@ juce::ColourGradient CabinPeqGraph::getCurveGradient()
     float threeQuarterFreqX = (threeQuarterFreqLog - minFreqLog) / (maxFreqLog - minFreqLog) * getWidth();
     
     // Add the colors
-    gradient.addColour (quarterFreqX / getWidth(), getColourForFrequency (std::pow (2, quarterFreqLog)));
-    gradient.addColour (halfFreqX / getWidth(), getColourForFrequency (std::pow (2, halfFreqLog)));
-    gradient.addColour (threeQuarterFreqX / getWidth(), getColourForFrequency (std::pow (2, threeQuarterFreqLog)));
+    gradient.addColour (quarterFreqX / getWidth(), getColourForFrequency (std::pow (2, quarterFreqLog)).withAlpha (alpha));
+    gradient.addColour (halfFreqX / getWidth(), getColourForFrequency (std::pow (2, halfFreqLog)).withAlpha (alpha));
+    gradient.addColour (threeQuarterFreqX / getWidth(), getColourForFrequency (std::pow (2, threeQuarterFreqLog)).withAlpha (alpha));
     
     return gradient;
 }
