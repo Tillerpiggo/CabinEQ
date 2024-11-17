@@ -58,6 +58,7 @@ GlyphView::GlyphView()
     });
     
     addAndMakeVisible (animatedGlyph);
+    animatedGlyph.setListener (this);
     animatedGlyph.setDataSource (this);
 }
 

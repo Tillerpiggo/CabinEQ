@@ -64,6 +64,7 @@ private:
     void drawCenterDot (juce::Graphics& g);
     void drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected);
     juce::Point<float> getPointInBounds (juce::Point<float> point);
+    juce::Point<float> getNormalizedPositionForPoint (juce::Point<float> point);
     
     Listener* listener = nullptr;
     DataSource* dataSource = nullptr;
