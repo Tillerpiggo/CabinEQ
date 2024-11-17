@@ -63,6 +63,15 @@ CabinEqPage::~CabinEqPage()
 void CabinEqPage::paint (juce::Graphics& g)
 {
 //    g.fillAll (juce::Colours::lightgrey);
+    
+    
+    juce::ColourGradient fadeGradient(
+        juce::Colours::black.withAlpha (0.6f), 450, 250, // Bottom
+        juce::Colours::black.withAlpha (0.95f), 900, 300, // Top edge
+        true);
+    
+    g.setGradientFill(fadeGradient);
+    g.fillRect(getLocalBounds());
 }
 
 void CabinEqPage::resized()

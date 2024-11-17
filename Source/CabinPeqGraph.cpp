@@ -29,15 +29,15 @@ void CabinPeqGraph::setBandProfile (BandProfile bandProfile)
 
 void CabinPeqGraph::paint(juce::Graphics& g)
 {
-    // Create a vertical gradient that goes from transparent in the center to opaque at the edges
-    juce::ColourGradient fadeGradient(
-        juce::Colours::black.withAlpha (0.95f), 0.0f, static_cast<float> (getHeight()), // Bottom
-        juce::Colours::black.withAlpha (0.6f), 0.0f, 0.0f, // Top edge
-        false);
-
-    // Set the gradient as the fill and draw a rectangle over the entire component
-    g.setGradientFill(fadeGradient);
-    g.fillRect(getLocalBounds());
+//    // Create a vertical gradient that goes from transparent in the center to opaque at the edges
+//    juce::ColourGradient fadeGradient(
+//        juce::Colours::black.withAlpha (0.95f), 0.0f, static_cast<float> (getHeight()), // Bottom
+//        juce::Colours::black.withAlpha (0.6f), 0.0f, 0.0f, // Top edge
+//        false);
+//
+//    // Set the gradient as the fill and draw a rectangle over the entire component
+//    g.setGradientFill(fadeGradient);
+//    g.fillRect(getLocalBounds());
     
     // Draw your curve and log lines as usual
     drawLines(g);
@@ -211,6 +211,76 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 }
 
 // =============================================
+//void CabinPeqGraph::drawLines (juce::Graphics& g)
+//{
+//    // Define the colors for the gradient
+//    juce::Colour transparentColour = juce::Colours::lightgrey.withAlpha (0.0f);
+//    juce::Colour centerLineColour = juce::Colours::lightgrey.withAlpha (0.5f);
+//    
+//    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 4.0f);
+//    
+//    // Draw the center line with gradient
+//    {
+//        juce::Path centerPath;
+//        float centerY = yForAmpl (0);
+//        centerPath.startNewSubPath (0, centerY);
+//        centerPath.lineTo (getWidth(), centerY);
+//
+//        juce::ColourGradient gradient(centerLineColour, getWidth() / 2, centerY,
+//                                      transparentColour, 0, centerY, true);
+//        gradient.addColour(1.0, transparentColour);
+//        g.setGradientFill(gradient);
+//        g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS));
+//    }
+//    
+//    // Draw the other horizontal lines with gradient
+//    int numHorizontalLines = 12;
+//    for (float y = 0; y <= getHeight(); y += getHeight() / numHorizontalLines)
+//    {
+//        juce::Path horizontalLinePath;
+//        horizontalLinePath.startNewSubPath (0, y);
+//        horizontalLinePath.lineTo (getWidth(), y);
+//
+//        juce::ColourGradient gradient(centerLineColour, getWidth() / 2, y,
+//                                      transparentColour, 0, y, true);
+//        gradient.addColour(1.0, transparentColour);
+//        g.setGradientFill(gradient);
+//        g.strokePath (horizontalLinePath, lineStrokeType);
+//    }
+//    
+//    // Draw the log lines with gradient
+//    std::vector<float> lineFreqs;
+//    float startLineFreq = 10;
+//    float currLineFreq = 10;
+//    float interval = 10;
+//    float numLines = 10;
+//    
+//    while (currLineFreq <= 20000)
+//    {
+//        lineFreqs.push_back (currLineFreq);
+//        currLineFreq += interval;
+//        if ((currLineFreq - startLineFreq) / interval >= numLines)
+//            interval *= 10;
+//    }
+//    
+//    for (const auto& lineFreq : lineFreqs)
+//    {
+//        if (lineFreq >= minFreqShowing / 1.1f && lineFreq <= maxFreqShowing * 1.1f)
+//        {
+//            juce::Path logLinePath;
+//            float lineX = xForFreq (lineFreq);
+//            logLinePath.startNewSubPath (lineX, 0);
+//            logLinePath.lineTo (lineX, getHeight());
+//
+//            juce::ColourGradient gradient(centerLineColour, lineX, getHeight() / 2,
+//                                          transparentColour, lineX, 0, true);
+//            gradient.addColour(1.0, transparentColour);
+//            g.setGradientFill(gradient);
+//            g.strokePath (logLinePath, lineStrokeType);
+//        }
+//    }
+//}
+
 void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
