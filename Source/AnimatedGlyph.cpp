@@ -176,7 +176,7 @@ void AnimatedGlyph::drawDot (juce::Graphics& g, juce::Point<float> point, float 
 
 juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
 {
-    float padding = 20.0f;
+    float padding = 0.0f;
     
     // Scale according to sizeFactor and centerPos
     point.x *= sizeFactor;
@@ -189,16 +189,16 @@ juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
     
     
     
-    float xInBounds = padding + getX() + xScaled * (getWidth() - padding * 2.0f);
-    float yInBounds = padding + getY() + yScaled * (getHeight() - padding * 2.0f);
+    float xInBounds = padding + xScaled * (getWidth() - padding * 2.0f);
+    float yInBounds = padding + yScaled * (getHeight() - padding * 2.0f);
     
     return { xInBounds, yInBounds };
 }
 
 juce::Point<float> AnimatedGlyph::getNormalizedPositionForPoint (juce::Point<float> point)
 {
-    float x = point.x - getX();
-    float y = point.y - getY();
+    float x = point.x;
+    float y = point.y;
     
     float normalizedX = (2.0f * x / getWidth()) - 1.0f;
     float normalizedY = (2.0f * y / getHeight()) - 1.0f;
