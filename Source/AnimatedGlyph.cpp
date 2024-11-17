@@ -45,7 +45,7 @@ void AnimatedGlyph::resized()
 
 void AnimatedGlyph::mouseMove (const juce::MouseEvent &event)
 {
-    
+    updateHoveringStatus (event);
 }
 
 void AnimatedGlyph::mouseDown (const juce::MouseEvent &event)
@@ -65,7 +65,9 @@ void AnimatedGlyph::mouseUp (const juce::MouseEvent &event)
 
 void AnimatedGlyph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
-    
+    // use deltaY to increase/decrease size factor, with bounds
+    sizeFactor += wheel.deltaY;
+    sizeFactor = std::min (std::max (sizeFactor, 0.1f), 1.0f);
 }
 
 void AnimatedGlyph::setListener (Listener* listener)
@@ -90,10 +92,7 @@ void AnimatedGlyph::updateHoveringStatus (const juce::MouseEvent& event)
     auto pos = normalizedPositionForMouseEvent (event);
     
     // Figure out if we're hovering over the center node
-    if (centerPos.getDistanceFrom (pos) < 0.2)
-    {
-        isHovering = true;
-    }
+    isHovering = centerPos.getDistanceFrom (pos) < 0.2;
 }
 
 juce::Point<float> AnimatedGlyph::normalizedPositionForMouseEvent (const juce::MouseEvent& event)
@@ -150,7 +149,7 @@ void AnimatedGlyph::drawCenterDot (juce::Graphics& g)
 {
     juce::Point<float> centerPoint = getPointInBounds (centerPos);
     juce::Colour dotColour = juce::Colours::lightgreen;
-    float dotRadius = 5.0f;
+    float dotRadius = 8.0f;
     drawDot (g, centerPoint, dotRadius, dotColour, isHovering);
 }
 
@@ -169,17 +168,19 @@ juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
 {
     float padding = 20.0f;
     
+    // Scale according to sizeFactor and centerPos
+    point.x *= sizeFactor;
+    point.y *= sizeFactor;
+    point.x += centerPos.x;
+    point.y += centerPos.y;
+    
     float xScaled = (point.x + 1.0f) / 2.0f;
     float yScaled = (-point.y + 1.0f) / 2.0f;
     
+    
+    
     float xInBounds = padding + getX() + xScaled * (getWidth() - padding * 2.0f);
     float yInBounds = padding + getY() + yScaled * (getHeight() - padding * 2.0f);
-    
-    // Scale according to sizeFactor and centerPos
-    xInBounds *= sizeFactor;
-    yInBounds *= sizeFactor;
-    xInBounds += centerPos.x;
-    yInBounds -= centerPos.y; // not sure if this needs to be inverted
     
     return { xInBounds, yInBounds };
 }
