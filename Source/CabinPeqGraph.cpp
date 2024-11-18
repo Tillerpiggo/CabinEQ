@@ -13,10 +13,32 @@
 CabinPeqGraph::CabinPeqGraph()
 {
     startTimer (5);
+    
+    addAndMakeVisible (leftRightButton);
+    
+    addButton (&leftRightButton);
+    addButtonAction (&leftRightButton, [this](juce::Button*) {
+        int bandTypeInt = static_cast<int> (bandType);
+        bandTypeInt = (bandTypeInt + 1) % 3;
+        bandType = static_cast<Band::Type> (bandTypeInt);
+        switch (bandType)
+        {
+            case Band::Type::both:
+                leftRightButton.setButtonText ("BOTH");
+                break;
+            case Band::Type::left:
+                leftRightButton.setButtonText ("LEFT");
+                break;
+            case Band::Type::right:
+                leftRightButton.setButtonText ("RIGHT");
+                break;
+        }
+    });
 }
 
 CabinPeqGraph::~CabinPeqGraph()
 {
+    leftRightButton.removeListener (this);
     removeListener();
 }
 
@@ -48,6 +70,9 @@ void CabinPeqGraph::paint(juce::Graphics& g)
 void CabinPeqGraph::resized()
 {
     setBounds (getBoundsInParent());
+    
+    // Add button in bottom right corner
+    leftRightButton.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 50.0f, 80.0f, 40.0f);
 }
 
 void CabinPeqGraph::mouseMove (const juce::MouseEvent &event)
@@ -79,7 +104,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     else if (addingFreq.has_value() && ! event.mods.isRightButtonDown() && ! isHoveringOverDotControl)
     {
         // Add the band where we click
-        draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH, Band::Type::both);
+        draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH, bandType);
         
         selectedDotSize = DOT_SIZE_DRAGGING;
         startDragPosition = coords;
@@ -97,7 +122,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     // If we are dragging a band, start playing an appropriate noise pattern
     if (draggingId != -1)
     {
-        updateBand (draggingId, freq, ampl, startDragBandwidth, Band::Type::both);
+        updateBand (draggingId, freq, ampl, startDragBandwidth, bandType);
     }
 }
 
@@ -347,6 +372,11 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         if (band.id == draggingId || band.id == hoveringId)
             bandAlpha = 0.8f;
         juce::Path path;
+        
+        if (band.type == Band::Type::left)
+            bandColour = juce::Colours::red;
+        if (band.type == Band::Type::right)
+            bandColour = juce::Colours::purple;
         
         // Draw curve with NUM_POINTS points
         for (int i = 0; i < NUM_POINTS; ++i)
@@ -794,7 +824,7 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
     auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
     float currBandwidth = startDragBandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
     
-    updateBand (draggingId, currFreq, currAmpl, currBandwidth, Band::Type::both);
+    updateBand (draggingId, currFreq, currAmpl, currBandwidth, bandType);
 }
 
 void CabinPeqGraph::removeBand(int id)

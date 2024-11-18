@@ -46,10 +46,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     juce::dsp::ProcessContextReplacing<float> ioContext(ioBlock);
     
     // TODO: combine this audio processing logic for compile-time optimization with processorChain
-    if (isPlayingNoise)
-    {
-        tiltFilter.process (ioContext);
-    }
+//    if (isPlayingNoise)
+//    {
+//        tiltFilter.process (ioContext);
+//    }
     
     if (isFilterOn)
     {

@@ -16,8 +16,9 @@
 #include "BandEqCurve.h"
 #include "UIConstants.h"
 #include "Listeners.h"
+#include "BuildableComponent.h"
 
-class CabinPeqGraph  : public juce::Component,
+class CabinPeqGraph  : public BuildableComponent,
                        public juce::Timer
 {
 public:
@@ -51,6 +52,8 @@ private:
     BandProfile bandProfile;
     CabinPeqGraphListener* listener;
     CabinPeqGraphDataSource* dataSource;
+    
+    juce::TextButton leftRightButton { "BOTH" };
     
     // Drawing/animation
     void drawLines (juce::Graphics& g);
@@ -128,4 +131,5 @@ private:
     
     // BandEqCurve
     BandEqCurve curve;
+    Band::Type bandType = Band::Type::both;
 };

@@ -160,8 +160,9 @@ public:
                     if (i >= leftFilters.size())
                     {
                         Band band = bands[i];
-                        addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.ampl);
-                        addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.ampl);
+                        std::cout << "band.type: " << static_cast<int> (band.type) << std::endl;
+                        addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
+                        addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
                     }
                 }
             }
@@ -182,8 +183,8 @@ public:
                     float shuffleFactor = 1.0f - shuffle * 0.1f;
                     if (i % 2 == 0)
                         shuffleFactor = 1.0f - shuffle * 0.7f;
-                    updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.ampl);
-                    updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.ampl);
+                    updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
+                    updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
                 }
             }
             shouldUpdateFilters = false;

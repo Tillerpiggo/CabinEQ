@@ -102,6 +102,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     playbackManager.prepare (spec);
     
     // Define glyphs
+    Glyph linesGlyph ({ Stroke ({{ -1, -1 }, { 1, -1 }}), Stroke ({{ -1, -0.5 }, { 1, -0.5 }}), Stroke ({{ -1, 0 }, { 1, 0 }}), Stroke ({{ -1, 0.5 }, { 1, 0.5 }}), Stroke ({{ -1, 1 }, { 1, 1 }})});
     Glyph squareGlyph ({ Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})});
     Glyph rectGlyph ({ Stroke ({{ -1, -0.3 }, { 1, -0.3 }, { 1, 0.3 }, { -1, 0.3 }, { -1, -0.3 }})});
     Glyph triangleGlyph ({ Stroke ({{ -1, -1 }, { 1, -1 }, { 0, 1 }, { -1, -1 }})});
@@ -178,7 +179,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         Stroke({{0.1, -0.1}, {0.3, -0.1}, {0.3, -0.3}, {0.1, -0.3}, {0.1, -0.1}})      // Bottom-right square
     });
     
-    glyphManager.addGlyphs ({ squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
+    glyphManager.addGlyphs ({ linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
 }
 
