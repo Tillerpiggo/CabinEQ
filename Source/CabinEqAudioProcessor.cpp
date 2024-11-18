@@ -293,6 +293,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout CabinEqAudioProcessor::creat
 void CabinEqAudioProcessor::setVolume (float volume)
 {
     playbackManager.setVolume (volume);
+    updateFilter();
 }
 
 void CabinEqAudioProcessor::setIsFilterOn (bool isFilterOn)
@@ -381,7 +382,9 @@ int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const fl
     auto profile = profileNamed (profileId);
     if (profile.has_value())
     {
-        return profile->get().addBand (freq, ampl, bandwidth, type);
+        int bandId = profile->get().addBand (freq, ampl, bandwidth, type);
+        updateFilter();
+        return bandId;
     }
         
     return -1;
@@ -391,14 +394,20 @@ void CabinEqAudioProcessor::updateBand (const int id, const float freq, const fl
 {
     auto profile = profileNamed (profileId);
     if (profile.has_value())
+    {
         profile->get().updateBand (id, freq, ampl, bandwidth, type);
+        updateFilter();
+    }
 }
 
 void CabinEqAudioProcessor::removeBand (const int id)
 {
     auto profile = profileNamed (profileId);
     if (profile.has_value())
+    {
         profile->get().removeBand (id);
+        updateFilter();
+    }
 }
 
 void CabinEqAudioProcessor::addListener (Listener* listener)
