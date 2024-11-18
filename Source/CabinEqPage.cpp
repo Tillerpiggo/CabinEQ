@@ -88,50 +88,46 @@ void CabinEqPage::resized()
 }
 
 // ====================================================
-int CabinEqPage::addBand (float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender)
-{
-    std::cout << "Listener got adding band" << std::endl;
-    if (sender == amplGraph.get())
-    {
-        int addedBandId = processor.addBand (freq, ampl, bandwidth, type, profileId);
-        processor.updateFilter (profileId);
-        return addedBandId;
-    }
-    
-    return -1;
-}
-
-void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender)
-{
-    if (sender == amplGraph.get())
-    {
-        processor.updateBand (id, freq, ampl, bandwidth, type, profileId);
-        processor.updateFilter (profileId);
-    }
-}
-
-void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
-{
-    if (sender == amplGraph.get())
-    {
-        processor.removeBand (id, profileId);
-        processor.updateFilter (profileId);
-    }
-}
-
-void CabinEqPage::setVolume (float volume, CabinPeqGraph* sender)
-{
-    if (sender == amplGraph.get())
-    {
-        processor.setProfileVolume (profileId, volume);
-        processor.updateFilter (profileId);
-    }
-}
-
-BandProfile CabinEqPage::getBandProfile()
-{
-    return processor.getBandProfile (profileId);
-}
+//int CabinEqPage::addBand (float freq, float ampl, float bandwidth, Band::Type type)
+//{
+//    int addedBandId = processor.addBand (freq, ampl, bandwidth, type);
+//    processor.updateFilter (profileId);
+//    return addedBandId;
+//    
+//    return -1;
+//}
+//
+//void CabinEqPage::updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender)
+//{
+//    if (sender == amplGraph.get())
+//    {
+//        processor.updateBand (id, freq, ampl, bandwidth, type, profileId);
+//        processor.updateFilter (profileId);
+//    }
+//}
+//
+//void CabinEqPage::removeBand (int id, CabinPeqGraph* sender)
+//{
+//    if (sender == amplGraph.get())
+//    {
+//        processor.removeBand (id, profileId);
+//        processor.updateFilter (profileId);
+//    }
+//}
+//
+//void CabinEqPage::setVolume (float volume, CabinPeqGraph* sender)
+//{
+//    if (sender == amplGraph.get())
+//    {
+//        processor.setProfileVolume (profileId, volume);
+//        processor.updateFilter (profileId);
+//    }
+//}
+//
+//BandProfile CabinEqPage::getBandProfile()
+//{
+//    return processor.getBandProfile (profileId);
+//}
 
 void CabinEqPage::setSpeed (float speedFactor)
 {
@@ -434,12 +430,12 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
 {
     profileId = profileIdToGoTo;
     
-    BandProfile bandProfile = processor.getBandProfile (profileId);
+    BandProfile bandProfile = processor.getBandProfile();
     amplGraph->setBandProfile (bandProfile);
     
     processor.setLastSelectedProfileName (profileId);
     profileDropdown.setText (profileIdToGoTo);
-    processor.updateFilter (profileId);
+    processor.updateFilter();
 }
 
 bool CabinEqPage::isDuplicateProfileName (juce::String profileName)

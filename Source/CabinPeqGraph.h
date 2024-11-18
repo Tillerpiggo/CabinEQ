@@ -15,26 +15,7 @@
 #include "BandProfile.h"
 #include "BandEqCurve.h"
 #include "UIConstants.h"
-
-class CabinPeqGraphListener
-{
-public:
-    virtual ~Listener() = default;
-    
-    virtual int addBand (float freq, float ampl, float bandwidth, Band::Type type) = 0;
-    virtual void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type) = 0;
-    virtual void removeBand (int id) = 0;
-    virtual void setVolume (float volume) = 0;
-};
-
-// Provides information like the BandProfile, the currently playing freq, and other useful information
-class CabinPeqGraphDataSource
-{
-public:
-    virtual ~DataSource() = default;
-    
-    virtual BandProfile getBandProfile() = 0;
-};
+#include "Listeners.h"
 
 class CabinPeqGraph  : public juce::Component,
                        public juce::Timer
@@ -58,18 +39,18 @@ public:
     
     void timerCallback() override;
     
-    void setListener (Listener* listener);
+    void setListener (CabinPeqGraphListener* listener);
     void removeListener();
     
-    void addDataSource (DataSource* dataSource);
+    void addDataSource (CabinPeqGraphDataSource* dataSource);
     void removeDataSource();
     
     void setGrayscale (bool grayscale);
     
 private:
     BandProfile bandProfile;
-    Listener* listener;
-    DataSource* dataSource;
+    CabinPeqGraphListener* listener;
+    CabinPeqGraphDataSource* dataSource;
     
     // Drawing/animation
     void drawLines (juce::Graphics& g);

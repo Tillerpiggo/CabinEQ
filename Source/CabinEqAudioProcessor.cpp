@@ -366,11 +366,12 @@ std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()
 void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName)
 {
     cabinEqProfileManager.setLastSelectedProfileName (profileName);
+    profileId = profileName;
 }
 
-void CabinEqAudioProcessor::updateFilter (juce::String profileName)
+void CabinEqAudioProcessor::updateFilter()
 {
-    auto profile = profileNamed (profileName);
+    auto profile = profileNamed (profileId);
     if (profile.has_value())
         playbackManager.updateFilterWithBandProfile (profile->get().getBandProfile());
 }

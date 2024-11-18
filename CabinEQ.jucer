@@ -12,6 +12,7 @@
             file="Source/CabinEqProcessorEditor.cpp"/>
       <FILE id="AQoyPD" name="CabinEqProcessorEditor.h" compile="0" resource="0"
             file="Source/CabinEqProcessorEditor.h"/>
+      <FILE id="hcTmZx" name="Listeners.h" compile="0" resource="0" file="Source/Listeners.h"/>
       <GROUP id="{B009D3F6-E155-F81B-7080-A41A86F6337A}" name="App Sound">
         <FILE id="Nta5k2" name="PlaybackManager.cpp" compile="1" resource="0"
               file="Source/PlaybackManager.cpp"/>

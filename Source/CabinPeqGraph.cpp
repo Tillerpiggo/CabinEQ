@@ -185,7 +185,7 @@ void CabinPeqGraph::timerCallback()
     repaint();
 }
 
-void CabinPeqGraph::setListener (Listener* listener)
+void CabinPeqGraph::setListener (CabinPeqGraphListener* listener)
 {
     this->listener = listener;
 }
@@ -195,7 +195,7 @@ void CabinPeqGraph::removeListener()
     this->listener = nullptr;
 }
 
-void CabinPeqGraph::addDataSource (DataSource* dataSource)
+void CabinPeqGraph::addDataSource (CabinPeqGraphDataSource* dataSource)
 {
     this->dataSource = dataSource;
 }

@@ -14,13 +14,14 @@
 #include "CabinEqProfileManager.h"
 #include "GlyphManager.h"
 #include "CabinPeqGraph.h"
+#include "Listeners.h"
 
 //==============================================================================
 /**
 */
 class CabinEqAudioProcessor  : public juce::AudioProcessor,
-                               public CabinPeqGraph::Listener,
-                               public CabinPeqGraph::DataSource
+                               public CabinPeqGraphListener,
+                               public CabinPeqGraphDataSource
 {
 public:
     class Listener
@@ -94,7 +95,7 @@ public:
     void setLastSelectedProfileName (juce::String profileName);
     
     // Setting bands
-    void updateFilter (juce::String profileName); // updates the filter to match whatever bands are associated with profileName
+    void updateFilter(); // updates the filter to match whatever bands are associated with profileName
     int addBand (float freq, float ampl, float bandwidth, Band::Type type) override;
     void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type) override;
     void removeBand (int id) override;
