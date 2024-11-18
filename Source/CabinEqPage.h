@@ -20,9 +20,7 @@
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
-                      public CabinPeqGraph::Listener,
                       public CabinEqAudioProcessor::Listener,
-                      public CabinPeqGraph::DataSource,
                       public GlyphView::Listener,
                       public GlyphView::DataSource
 {
@@ -34,13 +32,13 @@ public:
     void resized() override;
     
     // CabinPeqGraph::Listener methods
-    int addBand (float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender) override;
-    void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender) override;
-    void removeBand (int id, CabinPeqGraph* sender) override;
-    void setVolume (float volume, CabinPeqGraph* sender) override;
+//    int addBand (float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender) override;
+//    void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type, CabinPeqGraph* sender) override;
+//    void removeBand (int id, CabinPeqGraph* sender) override;
+//    void setVolume (float volume, CabinPeqGraph* sender) override;
     
     // CabinPeqGraph::DataSource methods
-    BandProfile getBandProfile() override;
+//    BandProfile getBandProfile() override;
     
     // GlyphView::Listener
     void setSpeed (float speedFactor) override;

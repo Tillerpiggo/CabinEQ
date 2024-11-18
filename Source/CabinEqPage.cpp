@@ -15,6 +15,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 {
     amplGraph = std::make_unique<CabinPeqGraph>();
     
+    
     addAndMakeVisible (glyphView);
     // TODO: set glyph view listener
     
@@ -34,8 +35,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
         processor.setIsFilterOn (! isBypassed);
     });
     
-    amplGraph->addListener (this);
-    amplGraph->addDataSource (this);
+    amplGraph->setListener (&processor);
+    amplGraph->addDataSource (&processor);
     profileDropdown.addListener (this);
     processor.addListener (this);
     

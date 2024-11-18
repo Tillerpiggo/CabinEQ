@@ -9,14 +9,18 @@
 #pragma once
 
 #include <JuceHeader.h>
+
 #include "PlaybackManager.h"
 #include "CabinEqProfileManager.h"
 #include "GlyphManager.h"
+#include "CabinPeqGraph.h"
 
 //==============================================================================
 /**
 */
-class CabinEqAudioProcessor  : public juce::AudioProcessor
+class CabinEqAudioProcessor  : public juce::AudioProcessor,
+                               public CabinPeqGraph::Listener,
+                               public CabinPeqGraph::DataSource
 {
 public:
     class Listener
@@ -70,7 +74,7 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
-    void setVolume (float volume);
+    void setVolume (float volume) override;
     void setIsFilterOn (bool isFilterOn);
     void setIsPlaying (bool isPlaying);
     void setSpeedFactor (float speedFactor);
@@ -84,16 +88,16 @@ public:
     void setProfileVolume (juce::String profileName, float masterVolume);
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
-    BandProfile getBandProfile (juce::String profileName);
+    BandProfile getBandProfile() override;
     
     std::optional<juce::String> getLastSelectedProfileName();
     void setLastSelectedProfileName (juce::String profileName);
     
     // Setting bands
     void updateFilter (juce::String profileName); // updates the filter to match whatever bands are associated with profileName
-    int addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, juce::String profileName);
-    void updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type, juce::String profileName);
-    void removeBand (const int id, juce::String profileName);
+    int addBand (float freq, float ampl, float bandwidth, Band::Type type) override;
+    void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type) override;
+    void removeBand (int id) override;
     
     // Listener
     void addListener (Listener* listener);
@@ -126,6 +130,7 @@ private:
     std::vector<Listener*> listeners;
     bool hasLoadedData = false;
     juce::String currProfileName { "" };
+    juce::String profileId { "NO_PROFILE" };
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEqAudioProcessor)

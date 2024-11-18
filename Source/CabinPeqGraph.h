@@ -16,29 +16,31 @@
 #include "BandEqCurve.h"
 #include "UIConstants.h"
 
+class CabinPeqGraphListener
+{
+public:
+    virtual ~Listener() = default;
+    
+    virtual int addBand (float freq, float ampl, float bandwidth, Band::Type type) = 0;
+    virtual void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type) = 0;
+    virtual void removeBand (int id) = 0;
+    virtual void setVolume (float volume) = 0;
+};
+
+// Provides information like the BandProfile, the currently playing freq, and other useful information
+class CabinPeqGraphDataSource
+{
+public:
+    virtual ~DataSource() = default;
+    
+    virtual BandProfile getBandProfile() = 0;
+};
+
 class CabinPeqGraph  : public juce::Component,
                        public juce::Timer
 {
 public:
-    class Listener
-    {
-    public:
-        virtual ~Listener() = default;
-        
-        virtual int addBand (float freq, float ampl, float bandwidth, CabinPeqGraph* sender) = 0;
-        virtual void updateBand (int id, float freq, float ampl, float bandwidth, CabinPeqGraph* sender) = 0;
-        virtual void removeBand (int id, CabinPeqGraph* sender) = 0;
-        virtual void setVolume (float volume, CabinPeqGraph* sender) = 0;
-    };
     
-    // Provides information like the BandProfile, the currently playing freq, and other useful information
-    class DataSource
-    {
-    public:
-        virtual ~DataSource() = default;
-        
-        virtual BandProfile getBandProfile() = 0;
-    };
     
     CabinPeqGraph();
     ~CabinPeqGraph() override;
@@ -56,7 +58,7 @@ public:
     
     void timerCallback() override;
     
-    void addListener (Listener* listener);
+    void setListener (Listener* listener);
     void removeListener();
     
     void addDataSource (DataSource* dataSource);
@@ -97,8 +99,8 @@ private:
     std::optional<Band> getClosestBandToMouseEvent (const juce::MouseEvent& event) const; // which band's node is the closest to the mouse
     
     // Utils to handle calls to the listener if listener is nullptr
-    int addBand (float freq, float ampl, float bandwidth);
-    void updateBand (int id, float freq, float ampl, float bandwidth);
+    int addBand (float freq, float ampl, float bandwidth, Band::Type type);
+    void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type);
     void updateBandFromDrag (const juce::MouseEvent& event);
     void removeBand (int id);
     void setVolume (float volume);

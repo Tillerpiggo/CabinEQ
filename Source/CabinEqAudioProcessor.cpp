@@ -266,6 +266,7 @@ void CabinEqAudioProcessor::setStateInformation (const void* data, int sizeInByt
                 for (auto listener : listeners)
                     if (listener != nullptr)
                         listener->didLoadData();
+                profileId = getLastSelectedProfileName().value_or ("NO_PROFILE");
                 hasLoadedData = true;
             }
         }
@@ -349,9 +350,9 @@ std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::get
     return cabinEqProfileManager.getProfileNamed (profileName);
 }
 
-BandProfile CabinEqAudioProcessor::getBandProfile (juce::String profileName)
+BandProfile CabinEqAudioProcessor::getBandProfile()
 {
-    auto profile = profileNamed (profileName);
+    auto profile = profileNamed (profileId);
     if (profile.has_value())
         return profile->get().getBandProfile();
     return BandProfile ({}, 0.0f, 0.0f, 0.0f);
@@ -374,9 +375,9 @@ void CabinEqAudioProcessor::updateFilter (juce::String profileName)
         playbackManager.updateFilterWithBandProfile (profile->get().getBandProfile());
 }
 
-int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, juce::String profileName)
+int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type)
 {
-    auto profile = profileNamed (profileName);
+    auto profile = profileNamed (profileId);
     if (profile.has_value())
     {
         return profile->get().addBand (freq, ampl, bandwidth, type);
@@ -385,16 +386,16 @@ int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const fl
     return -1;
 }
 
-void CabinEqAudioProcessor::updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type, juce::String profileName)
+void CabinEqAudioProcessor::updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type)
 {
-    auto profile = profileNamed (profileName);
+    auto profile = profileNamed (profileId);
     if (profile.has_value())
         profile->get().updateBand (id, freq, ampl, bandwidth, type);
 }
 
-void CabinEqAudioProcessor::removeBand (const int id, juce::String profileName)
+void CabinEqAudioProcessor::removeBand (const int id)
 {
-    auto profile = profileNamed (profileName);
+    auto profile = profileNamed (profileId);
     if (profile.has_value())
         profile->get().removeBand (id);
 }

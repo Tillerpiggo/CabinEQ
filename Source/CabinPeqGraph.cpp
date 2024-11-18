@@ -79,7 +79,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     else if (addingFreq.has_value() && ! event.mods.isRightButtonDown() && ! isHoveringOverDotControl)
     {
         // Add the band where we click
-        draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH);
+        draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH, Band::Type::both);
         
         selectedDotSize = DOT_SIZE_DRAGGING;
         startDragPosition = coords;
@@ -97,7 +97,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     // If we are dragging a band, start playing an appropriate noise pattern
     if (draggingId != -1)
     {
-        updateBand (draggingId, freq, ampl, startDragBandwidth);
+        updateBand (draggingId, freq, ampl, startDragBandwidth, Band::Type::both);
     }
 }
 
@@ -185,7 +185,7 @@ void CabinPeqGraph::timerCallback()
     repaint();
 }
 
-void CabinPeqGraph::addListener (Listener* listener)
+void CabinPeqGraph::setListener (Listener* listener)
 {
     this->listener = listener;
 }
@@ -752,23 +752,23 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
     return closestBand;
 }
 
-int CabinPeqGraph::addBand(float freq, float ampl, float bandwidth)
+int CabinPeqGraph::addBand (float freq, float ampl, float bandwidth, Band::Type type)
 {
     if (listener == nullptr || dataSource == nullptr) // don't add a band unless we can reflect that change
         return -1;
     
-    int newBandId = listener->addBand(freq, ampl, bandwidth, this);
+    int newBandId = listener->addBand (freq, ampl, bandwidth, type);
     bandProfile = dataSource->getBandProfile();
     curve.updateWithBands (bandProfile.getBands());
     return newBandId;
 }
 
-void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth)
+void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type)
 {
     if (listener == nullptr || dataSource == nullptr)
         return;
     
-    listener->updateBand(id, freq, ampl, bandwidth, this);
+    listener->updateBand (id, freq, ampl, bandwidth, type);
     bandProfile = dataSource->getBandProfile();
     curve.updateWithBands (bandProfile.getBands());
 }
@@ -794,7 +794,7 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
     auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
     float currBandwidth = startDragBandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
     
-    updateBand (draggingId, currFreq, currAmpl, currBandwidth);
+    updateBand (draggingId, currFreq, currAmpl, currBandwidth, Band::Type::both);
 }
 
 void CabinPeqGraph::removeBand(int id)
@@ -802,7 +802,7 @@ void CabinPeqGraph::removeBand(int id)
     if (listener == nullptr || dataSource == nullptr)
         return;
     
-    listener->removeBand (id, this);
+    listener->removeBand (id);
     bandProfile = dataSource->getBandProfile();
     curve.updateWithBands (bandProfile.getBands());
 }
@@ -812,6 +812,6 @@ void CabinPeqGraph::setVolume (float volume)
     if (listener == nullptr || dataSource == nullptr)
         return;
     
-    listener->setVolume (volume, this);
+    listener->setVolume (volume);
     bandProfile = dataSource->getBandProfile();
 }
