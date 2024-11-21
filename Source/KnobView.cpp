@@ -61,7 +61,7 @@ void KnobView::paint (juce::Graphics& g)
 
 void KnobView::resized()
 {
-    Layout layout (getBounds(), 8.0f);
+    Layout layout (getBounds().withX (0).withY (0), 8.0f);
     layout.addRow ({ Space (80), Space (&bandwidthSlider) });
     layout.addRow ({ Space (80), Space (&spacingSlider) });
     layout.addRow ({ Space (80), Space (&pitchSlider) });

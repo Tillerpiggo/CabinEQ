@@ -75,15 +75,15 @@ void GlyphView::paint (juce::Graphics& g)
 void GlyphView::resized()
 {
     float sidebarWidth = 300.0f;
-    auto paddedBounds = getBounds();
+    auto paddedBounds = getBounds().withX (0).withY (0);
     
     // Glyph side
     Layout glyphLayout (paddedBounds.withTrimmedRight (sidebarWidth), 8.0f);
-//    Layout glyphLayout (getBounds(), 8.0f);
     glyphLayout.addRow ({ Space (&animatedGlyph) });
     glyphLayout.updateComponentBounds();
     
-    Layout settingsLayout (paddedBounds.withTrimmedLeft (getBounds().getWidth() - sidebarWidth).withTrimmedRight (20.0f).withTrimmedTop (10.0f).withTrimmedBottom (10.0f), 0.0f);
+    auto settingsBounds = paddedBounds.withTrimmedLeft (paddedBounds.getWidth() - sidebarWidth);
+    Layout settingsLayout (settingsBounds, 8.0f);
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     settingsLayout.addRow ({ Space (&prevButton), Space (&nextButton) }, 30);

@@ -82,7 +82,7 @@ juce::Rectangle<int> Layout::getBoundsAt (int rowIdx, int rectIdx)
 {
     auto widthRange = rows[rowIdx].getWidthRanges()[rectIdx];
     auto heightRange = getHeightRanges()[rowIdx];
-    return juce::Rectangle<int> (widthRange.first, heightRange.first - bounds.getY(), widthRange.second - widthRange.first, heightRange.second - heightRange.first);
+    return juce::Rectangle<int> (widthRange.first, heightRange.first, widthRange.second - widthRange.first, heightRange.second - heightRange.first);
 }
 
 void Layout::updateComponentBounds()
