@@ -51,8 +51,8 @@ void NoiseGenerator::setPan (float pan)
 void NoiseGenerator::setBandpass (float centerFreq)
 {
     float freq = std::min (std::max (centerFreq, 20.0f), sampleRate * 0.49f);
-    float erbBandwidth = 24.7f * (4.37f * freq / 1000.0f + 1.0f);
-    erbBandwidth = std::log2 (1.0f + erbBandwidth / freq) * bandwidth;
-    
-    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (erbBandwidth));
+//    float erbBandwidth = 24.7f * (4.37f * freq / 1000.0f + 1.0f);
+//    erbBandwidth = std::log2 (1.0f + erbBandwidth / freq) * bandwidth;
+//    
+    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
 }

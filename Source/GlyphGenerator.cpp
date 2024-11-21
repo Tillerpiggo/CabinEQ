@@ -90,37 +90,37 @@ void GlyphGenerator::setSizeFactor (float sizeFactor)
     this->sizeFactor = sizeFactor;
 }
 
-//float GlyphGenerator::freqFromYPos (float yPos)
-//{
-//    yPos *= sizeFactor;
-//    yPos += centerPos.y;
-//    float normalized = (yPos + 1.0f) / 2.0f;
-//    
-//    float logMinFreq = std::log(minFreq);
-//    float logMaxFreq = std::log(maxFreq);
-//    float logFreq = logMinFreq + normalized * (logMaxFreq - logMinFreq);
-//    
-//    return std::exp(logFreq);
-//}
-
 float GlyphGenerator::freqFromYPos (float yPos)
 {
     yPos *= sizeFactor;
     yPos += centerPos.y;
     float normalized = (yPos + 1.0f) / 2.0f;
     
-    // Convert minFreq and maxFreq to Bark scale
-    float barkMinFreq = 13.0f * std::atan(0.00076f * minFreq) + 3.5f * std::atan(std::pow(minFreq / 7500.0f, 2));
-    float barkMaxFreq = 13.0f * std::atan(0.00076f * maxFreq) + 3.5f * std::atan(std::pow(maxFreq / 7500.0f, 2));
+    float logMinFreq = std::log(minFreq);
+    float logMaxFreq = std::log(maxFreq);
+    float logFreq = logMinFreq + normalized * (logMaxFreq - logMinFreq);
     
-    // Interpolate in the Bark scale
-    float barkFreq = barkMinFreq + normalized * (barkMaxFreq - barkMinFreq);
-    
-    // Convert back from Bark to frequency
-    float freq = 650.0f * std::sinh(barkFreq / 7.0f);
-    
-    return freq;
+    return std::exp(logFreq);
 }
+
+//float GlyphGenerator::freqFromYPos (float yPos)
+//{
+//    yPos *= sizeFactor;
+//    yPos += centerPos.y;
+//    float normalized = (yPos + 1.0f) / 2.0f;
+//    
+//    // Convert minFreq and maxFreq to Bark scale
+//    float barkMinFreq = 13.0f * std::atan(0.00076f * minFreq) + 3.5f * std::atan(std::pow(minFreq / 7500.0f, 2));
+//    float barkMaxFreq = 13.0f * std::atan(0.00076f * maxFreq) + 3.5f * std::atan(std::pow(maxFreq / 7500.0f, 2));
+//    
+//    // Interpolate in the Bark scale
+//    float barkFreq = barkMinFreq + normalized * (barkMaxFreq - barkMinFreq);
+//    
+//    // Convert back from Bark to frequency
+//    float freq = 650.0f * std::sinh(barkFreq / 7.0f);
+//    
+//    return freq;
+//}
 
 float GlyphGenerator::panFromXPos (float xPos)
 {

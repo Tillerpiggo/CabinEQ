@@ -102,6 +102,39 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     playbackManager.prepare (spec);
     
     // Define glyphs
+    Glyph circleGlyph ({
+        Stroke ({
+            { 0.5, 0 }, { 0.35, 0.35 }, { 0, 0.5 }, { -0.35, 0.35 },
+            { -0.5, 0 }, { -0.35, -0.35 }, { 0, -0.5 }, { 0.35, -0.35 },
+            { 0.5, 0 } // Closing the circle
+        }),
+        Stroke ({
+            { 0.05, 0 }, { 0, 0.05 }, { -0.05, 0 }, { 0, -0.05 },
+            { 0.05, 0 } // Closing the dot
+        })
+    });
+    Glyph mGlyph ({ Stroke ({{ -0.15, -0.5 }, { -0.15, 0 }, { -0.15, 0.5 }, { 0, -0.4 }, { 0.15, 0.5 }, { 0.15, 0 }, { 0.15, -0.5 }}) });
+    Glyph diagonalGlyph ({ Stroke ({{ -1, 0.5 }, { -0.5, 1 }}), Stroke ({{ -1, 0 }, { 0, 1 }}), Stroke ({{ -1, -0.5 }, { 0.5, 1 }})});
+    Glyph wiggleGlyph ({ Stroke ({{ -1, -0.3 }, { -1, 0.3 }, { -1, -0.3 }}), Stroke ({{ 1, -0.3 }, { 1, 0.3 }, { 1, -0.3 }})});
+    Glyph dotsGridGlyph ({
+        // First row
+        Stroke ({{ -0.5, 0.5 }, { -0.5, 0.5 }}),
+        Stroke ({{ 0, 0.5 }, { 0, 0.5 }}),
+        Stroke ({{ 0.5, 0.5 }, { 0.5, 0.5 }}),
+
+        // Second row
+        Stroke ({{ -0.5, 0 }, { -0.5, 0 }}),
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 0.5, 0 }, { 0.5, 0 }}),
+
+        // Third row
+        Stroke ({{ -0.5, -0.5 }, { -0.5, -0.5 }}),
+        Stroke ({{ 0, -0.5 }, { 0, -0.5 }}),
+        Stroke ({{ 0.5, -0.5 }, { 0.5, -0.5 }})
+    });
+    Glyph dotsGlyph ({ Stroke ({{ -1, 0 }, { -1, 0 }}), Stroke ({{ -0.5, 0 }, { -0.5, 0 }}), Stroke ({{ 0, 0 }, { 0, 0 }}), Stroke ({{ 0.5, 0 }, { 0.5, 0 }}), Stroke ({{ 1, 0 }, { 1, 0 }})});
+    Glyph dotsGlyph2 ({ Stroke ({{ -1, -0.8 }, { -1, -0.8 }}), Stroke ({{ 0, -0.8 }, { 0, -0.8 }}), Stroke ({{ 1, -0.8 }, { 1, -0.8 }})});
+    Glyph dotsGlyph3 ({ Stroke ({{ -1, 0.8 }, { -1, 0.8 }}), Stroke ({{ 0, 0.8 }, { 0, 0.8 }}), Stroke ({{ 1, 0.8 }, { 1, 0.8 }})});
     Glyph linesGlyph ({ Stroke ({{ -1, -1 }, { 1, -1 }}), Stroke ({{ -1, -0.5 }, { 1, -0.5 }}), Stroke ({{ -1, 0 }, { 1, 0 }}), Stroke ({{ -1, 0.5 }, { 1, 0.5 }}), Stroke ({{ -1, 1 }, { 1, 1 }})});
     Glyph squareGlyph ({ Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})});
     Glyph rectGlyph ({ Stroke ({{ -1, -0.3 }, { 1, -0.3 }, { 1, 0.3 }, { -1, 0.3 }, { -1, -0.3 }})});
@@ -179,7 +212,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         Stroke({{0.1, -0.1}, {0.3, -0.1}, {0.3, -0.3}, {0.1, -0.3}, {0.1, -0.1}})      // Bottom-right square
     });
     
-    glyphManager.addGlyphs ({ linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
+    glyphManager.addGlyphs ({ dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
 }
 
