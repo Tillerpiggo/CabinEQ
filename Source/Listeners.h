@@ -21,7 +21,7 @@ public:
     virtual int addBand (float freq, float ampl, float bandwidth, Band::Type type) = 0;
     virtual void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type) = 0;
     virtual void removeBand (int id) = 0;
-    virtual void setVolume (float volume) = 0;
+    virtual void setProfileVolume (float volume) = 0;
 };
 
 // Provides information like the BandProfile, the currently playing freq, and other useful information

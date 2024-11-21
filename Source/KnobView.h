@@ -41,15 +41,22 @@ public:
 private:
     void updateBands(); // update bands based on current factors
     void setIsOn (bool isOn);
+    void generatePermutations();
     
     std::vector<Band> bands;
+    std::vector<std::vector<Band>> permutations;
+    std::vector<std::vector<Band>> finePermutations;
     
     Listener* listener;
     
+    juce::Slider randomSlider;
+    juce::Slider fineSlider;
     juce::Slider bandwidthSlider;
     juce::Slider spacingSlider;
     juce::Slider pitchSlider;
     juce::Slider gainSlider;
+    juce::Label randomLabel;
+    juce::Label fineLabel;
     juce::Label bandwidthLabel;
     juce::Label spacingLabel;
     juce::Label pitchLabel;

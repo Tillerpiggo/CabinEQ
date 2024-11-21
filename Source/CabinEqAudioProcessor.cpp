@@ -102,6 +102,66 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     playbackManager.prepare (spec);
     
     // Define glyphs
+//    Glyph cabinGlyph({
+//        // Stroke for "C"
+//        Stroke({
+//            { 0.5, 0.5 }, { 0.25, 0.5 }, { 0, 0.5 }, { -0.25, 0.5 }, { -0.5, 0.25 },
+//            { -0.5, 0 }, { -0.5, -0.25 }, { -0.25, -0.5 }, { 0, -0.5 }, { 0.25, -0.5 }, { 0.5, -0.5 }
+//        }),
+//
+//        // Stroke for "A"
+//        Stroke({
+//            { 1, -0.5 }, { 0.75, 0.5 }, { 0.5, 0.5 }, { 0.25, 0.5 },
+//            { 0, -0.5 }, { 0.25, -0.15 }, { 0.75, -0.15 }
+//        }),
+//
+//        // Stroke for "B"
+//        Stroke({
+//            { 1.5, -0.5 }, { 1.5, 0.5 }, { 2, 0.5 }, { 2.25, 0.25 }, { 2, 0 },
+//            { 2.25, -0.25 }, { 2, -0.5 }, { 1.5, -0.5 }
+//        }),
+//
+//        // Stroke for "I"
+//        Stroke({
+//            { 2.75, -0.5 }, { 2.75, 0.5 }
+//        }),
+//
+//        // Stroke for "N"
+//        Stroke({
+//            { 3.25, -0.5 }, { 3.25, 0.5 }, { 3.75, -0.5 }, { 3.75, 0.5 }
+//        })
+//    });
+    
+    Glyph cabinGlyph({
+        // Stroke for "C"
+        Stroke({
+            { 0.9, 0.9 }, { 0.6, 0.9 }, { 0.3, 0.9 }, { -0.3, 0.9 }, { -0.6, 0.6 },
+            { -0.9, 0.3 }, { -0.9, -0.3 }, { -0.6, -0.6 }, { -0.3, -0.9 },
+            { 0.3, -0.9 }, { 0.6, -0.9 }, { 0.9, -0.9 }
+        }),
+
+        // Stroke for "A"
+        Stroke({
+            { -0.9, -0.9 }, { 0, 0.9 }, { 0.9, -0.9 }, { 0.3, 0 }, { -0.3, 0 }, { -0.9, -0.9 }
+        }),
+
+        // Stroke for "B"
+        Stroke({
+            { -0.9, -0.9 }, { -0.9, 0.9 }, { 0, 0.9 }, { 0.6, 0.6 }, { 0, 0.3 },
+            { -0.9, 0.3 }, { 0, 0.3 }, { 0.6, 0 }, { 0, -0.3 }, { -0.9, -0.3 }, { -0.9, -0.9 }
+        }),
+
+        // Stroke for "I"
+        Stroke({
+            { 0, -0.9 }, { 0, 0.9 }
+        }),
+
+        // Stroke for "N"
+        Stroke({
+            { -0.9, -0.9 }, { -0.9, 0.9 }, { 0.9, -0.9 }, { 0.9, 0.9 }
+        })
+    });
+    
     Glyph circleGlyph ({
         Stroke ({
             { 0.5, 0 }, { 0.35, 0.35 }, { 0, 0.5 }, { -0.35, 0.35 },
@@ -212,7 +272,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         Stroke({{0.1, -0.1}, {0.3, -0.1}, {0.3, -0.3}, {0.1, -0.3}, {0.1, -0.1}})      // Bottom-right square
     });
     
-    glyphManager.addGlyphs ({ dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
+    glyphManager.addGlyphs ({ cabinGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
 }
 
@@ -380,9 +440,10 @@ void CabinEqAudioProcessor::renameProfile (juce::String profileName, juce::Strin
     cabinEqProfileManager.renameProfile (profileName, newProfileName);
 }
 
-void CabinEqAudioProcessor::setProfileVolume (juce::String profileName, float masterVolume)
+void CabinEqAudioProcessor::setProfileVolume (float masterVolume)
 {
-    cabinEqProfileManager.setProfileVolume (profileName, masterVolume);
+    cabinEqProfileManager.setProfileVolume (profileId, masterVolume);
+    updateFilter();
 }
 
 const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const

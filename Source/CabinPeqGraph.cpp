@@ -218,7 +218,10 @@ void CabinPeqGraph::setProvisionalBandsVisible (bool provisionalBandsVisible)
 void CabinPeqGraph::updateBands()
 {
     if (dataSource != nullptr)
+    {
         bandProfile = dataSource->getBandProfile();
+        curve.updateWithBands (bandProfile.getBands());
+    }
 }
 
 void CabinPeqGraph::timerCallback()
@@ -849,7 +852,7 @@ int CabinPeqGraph::addBand (float freq, float ampl, float bandwidth, Band::Type 
     
     int newBandId = listener->addBand (freq, ampl, bandwidth, type);
     updateBands();
-    curve.updateWithBands (bandProfile.getBands());
+    
     return newBandId;
 }
 
@@ -860,7 +863,6 @@ void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth,
     
     listener->updateBand (id, freq, ampl, bandwidth, type);
     updateBands();
-    curve.updateWithBands (bandProfile.getBands());
 }
 
 void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
@@ -894,7 +896,6 @@ void CabinPeqGraph::removeBand(int id)
     
     listener->removeBand (id);
     updateBands();
-    curve.updateWithBands (bandProfile.getBands());
 }
 
 void CabinPeqGraph::setVolume (float volume)
@@ -902,6 +903,6 @@ void CabinPeqGraph::setVolume (float volume)
     if (listener == nullptr || dataSource == nullptr)
         return;
     
-    listener->setVolume (volume);
+    listener->setProfileVolume (volume);
     updateBands();
 }

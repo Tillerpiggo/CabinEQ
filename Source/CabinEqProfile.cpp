@@ -12,7 +12,9 @@
 
 CabinEqProfile::CabinEqProfile (juce::AudioProcessorValueTreeState& apvts, const juce::String identifier)
     : apvts (apvts), profileName (identifier)
-{}
+{
+    initValueTreeFromAPVTS();
+}
 
 const BandProfile CabinEqProfile::getBandProfile() const
 {

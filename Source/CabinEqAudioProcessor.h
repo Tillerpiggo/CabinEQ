@@ -75,7 +75,7 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
-    void setVolume (float volume) override;
+    void setVolume (float volume);
     void setIsFilterOn (bool isFilterOn);
     void setIsPlaying (bool isPlaying);
     void setSpeedFactor (float speedFactor);
@@ -90,7 +90,7 @@ public:
     void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
     void removeProfile (juce::String profileName);
     void renameProfile (juce::String profileName, juce::String newProfileName);
-    void setProfileVolume (juce::String profileName, float masterVolume);
+    void setProfileVolume (float masterVolume) override;
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
     BandProfile getBandProfile() override;
