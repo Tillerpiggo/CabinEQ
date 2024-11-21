@@ -55,7 +55,13 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     {
         filter.process (ioBlock);
         profileVolumeProcessor.process (ioContext);
+        
+        if (isProvisionalOn)
+        {
+            provisionalFilter.process (ioBlock);
+        }
     }
+    
     overallVolumeProcessor.process (ioContext);
 }
 
@@ -71,9 +77,11 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     
     glyphGenerator.prepare (spec);
     filter.prepare (spec);
+    provisionalFilter.prepare (spec);
     tiltFilter.prepare (spec);
     tiltFilter.updateWithCurve (tiltCurve);
 }
+
 
 void PlaybackManager::setIsFilterOn (bool isFilterOn)
 {
@@ -99,6 +107,16 @@ void PlaybackManager::setSpeedFactor (float speedFactor)
 void PlaybackManager::setBandwidth (float bandwidth)
 {
     glyphGenerator.setBandwidth (bandwidth);
+}
+
+void PlaybackManager::setProvisionalBands (std::vector<Band> provisionalBands)
+{
+    provisionalFilter.setBands (provisionalBands, spec.sampleRate);
+}
+
+void PlaybackManager::setProvisionalBandsOn (bool provisionalBandsOn)
+{
+    this->isProvisionalOn = provisionalBandsOn;
 }
 
 void PlaybackManager::setSizeFactor (float sizeFactor)

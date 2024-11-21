@@ -37,6 +37,10 @@ public:
     void setSizeFactor (float sizeFactor);
     void setCenterPos (juce::Point<float> centerPos);
     
+    // Provisional bands
+    void setProvisionalBands (std::vector<Band> provisionalBands);
+    void setProvisionalBandsOn (bool isProvisionalOn);
+    
     void setGlyph (Glyph glyph);
     float getCurrPlayingTime();
     
@@ -46,6 +50,7 @@ private:
     // Audio processing
     GlyphGenerator glyphGenerator;
     FilterChain filter;
+    FilterChain provisionalFilter;
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;
@@ -59,4 +64,5 @@ private:
     // State
     bool isFilterOn; // if the EQ curve is being applied
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
+    bool isProvisionalOn = false; // if provisional bands are being applied to audio output
 };

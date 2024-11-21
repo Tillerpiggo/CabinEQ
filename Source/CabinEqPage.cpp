@@ -17,7 +17,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     
     addAndMakeVisible (glyphView);
-    // TODO: set glyph view listener
+    addAndMakeVisible (knobView);
     
     // Sliders
     addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
@@ -48,6 +48,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     glyphView.setListener (this);
     glyphView.setDataSource (this);
+    knobView.setListener (this);
     
     setLookAndFeel (&cabinEqLookAndFeel);
 }
@@ -151,6 +152,26 @@ juce::Point<float> CabinEqPage::getCenterPos()
 float CabinEqPage::getCurrPlayingTime()
 {
     return processor.getCurrPlayingTime();
+}
+
+void CabinEqPage::setBands (std::vector<Band> provisionalBands)
+{
+    processor.setProvisionalBands (provisionalBands);
+    amplGraph->setProvisionalBands (provisionalBands);
+}
+
+void CabinEqPage::setIsOn (bool isOn)
+{
+    processor.setProvisionalBandsOn (isOn);
+    amplGraph->setProvisionalBandsVisible (isOn);
+}
+
+int CabinEqPage::addBands (std::vector<Band> bands)
+{
+    for (const auto& band : bands)
+    {
+        processor.addBand (band.freq, band.ampl, band.bandwidth, band.type);
+    }
 }
 
 

@@ -15,6 +15,7 @@
 #include "CabinEqAudioProcessor.h"
 #include "CabinPeqGraph.h"
 #include "GlyphView.h"
+#include "KnobView.h"
 #include "CabinEqLookAndFeel.h"
 
 class CabinEqPage   : public BuildableComponent,
@@ -22,7 +23,8 @@ class CabinEqPage   : public BuildableComponent,
                       public juce::TextEditor::Listener,
                       public CabinEqAudioProcessor::Listener,
                       public GlyphView::Listener,
-                      public GlyphView::DataSource
+                      public GlyphView::DataSource,
+                     public KnobView::Listener
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -48,6 +50,11 @@ public:
     juce::Point<float> getCenterPos() override;
     float getCurrPlayingTime() override;
     
+    // KnobView::Listener
+    void setBands (std::vector<Band> provisionalBands);
+    void setIsOn (bool isOn);
+    int addBands (std::vector<Band> bands);
+    
     // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;
     void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
@@ -72,6 +79,7 @@ protected:
     
     // JUCE Labels
     GlyphView glyphView;
+    KnobView knobView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;
     juce::String profileId;

@@ -81,6 +81,10 @@ public:
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
     
+    // Provisional bands
+    void setProvisionalBands (std::vector<Band> provisionalBands);
+    void setProvisionalBandsOn (bool provisionalBandsOn);
+    
     // Profiles
     void addProfile (juce::String profileName);
     void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);

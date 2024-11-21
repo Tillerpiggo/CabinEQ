@@ -350,6 +350,16 @@ void CabinEqAudioProcessor::setBandwidth (float bandwidth)
     playbackManager.setBandwidth (bandwidth);
 }
 
+void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
+{
+    playbackManager.setProvisionalBands (provisionalBands);
+}
+
+void CabinEqAudioProcessor::setProvisionalBandsOn (bool provisionalBandsOn)
+{
+    playbackManager.setProvisionalBandsOn (provisionalBandsOn);
+}
+
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
 {
     cabinEqProfileManager.addProfile (profileName);
