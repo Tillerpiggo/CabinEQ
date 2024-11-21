@@ -51,9 +51,9 @@ public:
     float getCurrPlayingTime() override;
     
     // KnobView::Listener
-    void setBands (std::vector<Band> provisionalBands);
-    void setIsOn (bool isOn);
-    int addBands (std::vector<Band> bands);
+    void setBands (std::vector<Band> provisionalBands) override;
+    void setIsOn (bool isOn) override;
+    void addBands (std::vector<Band> bands) override;
     
     // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;

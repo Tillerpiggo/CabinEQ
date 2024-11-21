@@ -44,6 +44,10 @@ KnobView::KnobView()
             setIsOn (false);
         }
     });
+    addButtonAction (&onButton, [this](juce::Button*) {
+        isOn = ! isOn;
+        setIsOn (isOn);
+    });
 }
 
 KnobView::~KnobView()
@@ -57,12 +61,13 @@ void KnobView::paint (juce::Graphics& g)
 
 void KnobView::resized()
 {
-    Layout layout (getBounds(), 0.0f);
+    Layout layout (getBounds(), 8.0f);
     layout.addRow ({ Space (80), Space (&bandwidthSlider) });
     layout.addRow ({ Space (80), Space (&spacingSlider) });
     layout.addRow ({ Space (80), Space (&pitchSlider) });
     layout.addRow ({ Space (80), Space (&gainSlider) });
     layout.addRow ({ Space (&addBandsButton), Space (&onButton, 80) });
+    layout.updateComponentBounds();
 }
 
 void KnobView::setListener (Listener* listener)
@@ -75,7 +80,7 @@ void KnobView::updateBands()
     // Calculate out the values for bands
     
     // Start with the default bands
-    float centerFreq = 800.0f;
+    float centerFreq = 800.0f * std::pow (2.0f, pitchSlider.getValue());
     float spacingFactor = 0.5f; // octaves
     float spacingRatio = std::pow (2.0f, spacingFactor * spacingSlider.getValue());
     
@@ -86,8 +91,8 @@ void KnobView::updateBands()
     // Calculate bands & update listener
     std::vector<Band> provisionalBands = { 
         Band (0, centerFreq / spacingRatio, ampl, bandwidth, type),
-        Band (0, centerFreq / spacingRatio, ampl, bandwidth, type),
-        Band (0, centerFreq / spacingRatio, ampl, bandwidth, type)
+        Band (0, centerFreq, -ampl, bandwidth, type),
+        Band (0, centerFreq * spacingRatio, ampl, bandwidth, type)
     };
     
     
@@ -95,5 +100,15 @@ void KnobView::updateBands()
     {
         listener->setBands (provisionalBands);
         bands = provisionalBands;
+    }
+}
+
+void KnobView::setIsOn (bool isOn)
+{
+    if (listener != nullptr)
+    {
+        isOn = isOn;
+        listener->setIsOn (isOn);
+        onButton.setButtonText (isOn ? "ON" : "OFF");
     }
 }

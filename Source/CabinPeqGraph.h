@@ -28,6 +28,9 @@ public:
     ~CabinPeqGraph() override;
     
     void setBandProfile (BandProfile bandProfile);
+    void setProvisionalBands (std::vector<Band> provisionalBands);
+    void setProvisionalBandsVisible (bool provisionalBandsVisible);
+    void updateBands();
     
     void paint (juce::Graphics& g) override;
     void resized() override;
@@ -49,9 +52,12 @@ public:
     void setGrayscale (bool grayscale);
     
 private:
-    BandProfile bandProfile;
     CabinPeqGraphListener* listener;
     CabinPeqGraphDataSource* dataSource;
+    
+    BandProfile bandProfile;
+    std::vector<Band> provisionalBands;
+    bool provisionalBandsVisible = false;
     
     juce::TextButton leftRightButton { "BOTH" };
     
@@ -60,6 +66,8 @@ private:
     void drawBands (juce::Graphics& g);
     void drawCurve (juce::Graphics& g);
     void drawDots (juce::Graphics& g);
+    
+    void drawBand (juce::Graphics& g, const Band& band, juce::Colour colour);
     
     std::vector<float> getLogLines();
     void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color, bool isSelected);

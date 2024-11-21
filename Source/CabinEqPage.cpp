@@ -84,7 +84,7 @@ void CabinEqPage::resized()
     Layout layout (getBounds(), 8.0f);
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.6);
-    layout.addRow ({ Space (&glyphView) });
+    layout.addRow ({ Space (&knobView, 300), Space (&glyphView) });
     layout.updateComponentBounds();
 }
 
@@ -166,12 +166,13 @@ void CabinEqPage::setIsOn (bool isOn)
     amplGraph->setProvisionalBandsVisible (isOn);
 }
 
-int CabinEqPage::addBands (std::vector<Band> bands)
+void CabinEqPage::addBands (std::vector<Band> bands)
 {
     for (const auto& band : bands)
     {
         processor.addBand (band.freq, band.ampl, band.bandwidth, band.type);
     }
+    amplGraph->updateBands();
 }
 
 

@@ -79,6 +79,7 @@ void GlyphView::resized()
     
     // Glyph side
     Layout glyphLayout (paddedBounds.withTrimmedRight (sidebarWidth), 8.0f);
+//    Layout glyphLayout (getBounds(), 8.0f);
     glyphLayout.addRow ({ Space (&animatedGlyph) });
     glyphLayout.updateComponentBounds();
     

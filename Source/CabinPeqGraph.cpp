@@ -205,6 +205,22 @@ void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::M
     updateHoveringStatus (event);
 }
 
+void CabinPeqGraph::setProvisionalBands (std::vector<Band> provisionalBands)
+{
+    this->provisionalBands = provisionalBands;
+}
+
+void CabinPeqGraph::setProvisionalBandsVisible (bool provisionalBandsVisible)
+{
+    this->provisionalBandsVisible = provisionalBandsVisible;
+}
+
+void CabinPeqGraph::updateBands()
+{
+    if (dataSource != nullptr)
+        bandProfile = dataSource->getBandProfile();
+}
+
 void CabinPeqGraph::timerCallback()
 {
     repaint();
@@ -366,42 +382,86 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
 {
     for (const auto& band : bandProfile.getBands())
     {
-        // Get the color for the band
-        juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (0.3f);
         float bandAlpha = 0.3f;
         if (band.id == draggingId || band.id == hoveringId)
             bandAlpha = 0.8f;
-        juce::Path path;
-        
+        juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (bandAlpha);
         if (band.type == Band::Type::left)
             bandColour = juce::Colours::red;
         if (band.type == Band::Type::right)
             bandColour = juce::Colours::purple;
+        drawBand (g, band, bandColour);
+//        // Get the color for the band
         
-        // Draw curve with NUM_POINTS points
-        for (int i = 0; i < NUM_POINTS; ++i)
-        {
-            float t = static_cast<float> (i) / static_cast<float> (NUM_POINTS);
-            
-            float freq = frequencyAtTime (t);
-            float ampl = curve.dbAtFrequencyForBand (band, freq);
-            juce::Point<float> coords = coordsForFrequencyAndAmplitude (freq, ampl);
-            if (i == 0)
-            {
-                path.startNewSubPath (coords);
-            }
-            else
-            {
-                path.lineTo (coords);
-            }
-        }
         
-        // Complete the shape and fill in with band color
-        path.lineTo (juce::Point<float> (getWidth(), yForAmpl (0)));
-        path.lineTo (juce::Point<float> (0, yForAmpl (0)));
-        g.setGradientFill (juce::ColourGradient (bandColour.withAlpha (bandAlpha), 0, 0, bandColour.withAlpha (bandAlpha), 0, getHeight(), false));
-        g.fillPath (path);
+//        juce::Path path;
+//        
+//        if (band.type == Band::Type::left)
+//            bandColour = juce::Colours::red;
+//        if (band.type == Band::Type::right)
+//            bandColour = juce::Colours::purple;
+//        
+//        // Draw curve with NUM_POINTS points
+//        for (int i = 0; i < NUM_POINTS; ++i)
+//        {
+//            float t = static_cast<float> (i) / static_cast<float> (NUM_POINTS);
+//            
+//            float freq = frequencyAtTime (t);
+//            float ampl = curve.dbAtFrequencyForBand (band, freq);
+//            juce::Point<float> coords = coordsForFrequencyAndAmplitude (freq, ampl);
+//            if (i == 0)
+//            {
+//                path.startNewSubPath (coords);
+//            }
+//            else
+//            {
+//                path.lineTo (coords);
+//            }
+//        }
+//        
+//        // Complete the shape and fill in with band color
+//        path.lineTo (juce::Point<float> (getWidth(), yForAmpl (0)));
+//        path.lineTo (juce::Point<float> (0, yForAmpl (0)));
+//        g.setGradientFill (juce::ColourGradient (bandColour.withAlpha (bandAlpha), 0, 0, bandColour.withAlpha (bandAlpha), 0, getHeight(), false));
+//        g.fillPath (path);
     }
+    
+    if (provisionalBandsVisible)
+    {
+        for (const auto& provisionalBand : provisionalBands)
+        {
+            drawBand (g, provisionalBand, juce::Colours::grey);
+        }
+    }
+}
+
+void CabinPeqGraph::drawBand (juce::Graphics& g, const Band& band, juce::Colour colour)
+{
+    juce::Path path;
+    
+    // Draw curve with NUM_POINTS points
+    for (int i = 0; i < NUM_POINTS; ++i)
+    {
+        float t = static_cast<float> (i) / static_cast<float> (NUM_POINTS);
+        
+        float freq = frequencyAtTime (t);
+        float ampl = curve.dbAtFrequencyForBand (band, freq);
+        juce::Point<float> coords = coordsForFrequencyAndAmplitude (freq, ampl);
+        if (i == 0)
+        {
+            path.startNewSubPath (coords);
+        }
+        else
+        {
+            path.lineTo (coords);
+        }
+    }
+    
+    // Complete the shape and fill in with band color
+    path.lineTo (juce::Point<float> (getWidth(), yForAmpl (0)));
+    path.lineTo (juce::Point<float> (0, yForAmpl (0)));
+    g.setColour (colour);
+    g.fillPath (path);
 }
 
 void CabinPeqGraph::drawCurve (juce::Graphics& g)
@@ -788,7 +848,7 @@ int CabinPeqGraph::addBand (float freq, float ampl, float bandwidth, Band::Type 
         return -1;
     
     int newBandId = listener->addBand (freq, ampl, bandwidth, type);
-    bandProfile = dataSource->getBandProfile();
+    updateBands();
     curve.updateWithBands (bandProfile.getBands());
     return newBandId;
 }
@@ -799,7 +859,7 @@ void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth,
         return;
     
     listener->updateBand (id, freq, ampl, bandwidth, type);
-    bandProfile = dataSource->getBandProfile();
+    updateBands();
     curve.updateWithBands (bandProfile.getBands());
 }
 
@@ -833,7 +893,7 @@ void CabinPeqGraph::removeBand(int id)
         return;
     
     listener->removeBand (id);
-    bandProfile = dataSource->getBandProfile();
+    updateBands();
     curve.updateWithBands (bandProfile.getBands());
 }
 
@@ -843,5 +903,5 @@ void CabinPeqGraph::setVolume (float volume)
         return;
     
     listener->setVolume (volume);
-    bandProfile = dataSource->getBandProfile();
+    updateBands();
 }

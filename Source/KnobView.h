@@ -27,7 +27,7 @@ public:
         
         virtual void setBands (std::vector<Band> provisionalBands) = 0;
         virtual void setIsOn (bool isOn) = 0;
-        virtual int addBands (std::vector<Band> bands) = 0;
+        virtual void addBands (std::vector<Band> bands) = 0;
     };
     
     KnobView();
@@ -56,7 +56,7 @@ private:
     juce::Label gainLabel;
     
     juce::TextButton addBandsButton { "Add Bands" };
-    juce::TextButton onButton { "ON" };
+    juce::TextButton onButton { "OFF" };
     
     bool isOn;
 };
