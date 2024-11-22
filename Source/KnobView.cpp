@@ -326,7 +326,7 @@ void KnobView::generatePermutations()
     finePermutations.clear();
 
     const int numPermutations = 7;
-    const int numBands = 6;
+    const int numBands = 20;
     juce::Random random;
 
     for (int p = 0; p < numPermutations; ++p)
@@ -334,37 +334,63 @@ void KnobView::generatePermutations()
         std::vector<Band> permBands;
         std::vector<Band> finePermBands;
 
+        // Prepare to mute 5 bands in fine permutations (except for the first one)
+        std::set<int> bandsToMute;
+        if (p != 0)
+        {
+            // Select 5 unique random indices to mute
+            while (bandsToMute.size() < 5)
+            {
+                int randomIndex = random.nextInt(numBands); // Random index between 0 and numBands - 1
+                bandsToMute.insert(randomIndex);
+            }
+        }
+
         for (int b = 0; b < numBands; ++b)
         {
-            // Main permutations (as before)
-            // Random normalized frequency offset (-2 to +2)
+            // Main permutations (gain in dB)
             float randomSpacing = random.nextFloat() * 4.0f - 2.0f;
 
-            // Random negative gain (dips)
-            float minGain = -12.0f; // in dB
-            float maxGain = 12.0f;  // in dB
-            float randomGain = random.nextFloat() * (maxGain - minGain) + minGain;
+            float minGainDB = -12.0f; // in dB
+            float maxGainDB = 12.0f;  // in dB
+            float randomGainDB = random.nextFloat() * (maxGainDB - minGainDB) + minGainDB;
 
-            // Random narrow bandwidth (sharp dips)
+            // Random narrow bandwidth
             float minBandwidth = 0.05f; // in octaves
             float maxBandwidth = 0.2f;  // in octaves
             float randomBandwidth = random.nextFloat() * (maxBandwidth - minBandwidth) + minBandwidth;
 
-            // Store main permutation bands
-            Band mainBand(0, randomSpacing, randomGain, randomBandwidth, Band::Type::both);
+            // Create the main permutation band (gain in dB)
+            Band mainBand(0, randomSpacing, randomGainDB, randomBandwidth, Band::Type::both);
             permBands.push_back(mainBand);
 
-            // Fine permutations (additional changes)
-            // For the first permutation (p == 0), no change
-            float fineFreqMultiplier = (p == 0) ? 1.0f : 1.0f;//random.nextFloat() * 0.2f + 0.9f; // Multiplier between 0.8 and 1.2
+            // Fine permutations (gain as a multiplier)
+            float fineFreqMultiplier = 1.0f; // No change in frequency
+            float fineGainMultiplier;
 
-            float fineGainChange = (p == 0) ? 1.0f : random.nextFloat() * 1.0f + 0.5f; // Gain change between -3 dB and +3 dB
+            if (p == 0)
+            {
+                fineGainMultiplier = 1.0f; // For the first fine permutation, no change
+            }
+            else
+            {
+                if (bandsToMute.count(b) > 0)
+                {
+                    // This band is muted in fine permutation
+                    fineGainMultiplier = 0.0f; // Mute the band
+                }
+                else
+                {
+                    fineGainMultiplier = 1.0f; // No change to this band
+                }
+            }
 
-            // Store fine permutation bands
-            Band fineBand(0, fineFreqMultiplier, fineGainChange, 0.0f, Band::Type::both); // Bandwidth change is zero
+            // Store fine permutation bands (gain as multiplier)
+            Band fineBand(0, fineFreqMultiplier, fineGainMultiplier, 0.0f, Band::Type::both); // Bandwidth change is zero
             finePermBands.push_back(fineBand);
         }
 
+        // Add the permutations to the lists
         permutations.push_back(permBands);
         finePermutations.push_back(finePermBands);
     }

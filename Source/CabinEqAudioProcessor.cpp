@@ -131,6 +131,65 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //            { 3.25, -0.5 }, { 3.25, 0.5 }, { 3.75, -0.5 }, { 3.75, 0.5 }
 //        })
 //    });
+    Glyph intricateSingleStrokeGlyph({
+        Stroke({
+            // Start in the bottom-middle
+            { 0, -1 },
+
+            // Bottom left corner
+            { -1, -1 },
+
+            // Top left corner
+            { -1, 1 },
+
+            // Top middle
+            { 0, 1 },
+
+            // Top right corner
+            { 1, 1 },
+
+            // Bottom right corner
+            { 1, -1 },
+
+            // Inner zigzag begins
+            { 0.5, -0.5 },
+            { -0.5, -0.5 },
+            { -0.5, 0.5 },
+            { 0.5, 0.5 },
+
+            // Cross diagonally to top-left corner
+            { -1, 1 },
+
+            // Cross diagonally to bottom-right corner
+            { 1, -1 },
+
+            // Cross diagonally to bottom-left corner
+            { -1, -1 },
+
+            // Cross diagonally to top-right corner
+            { 1, 1 },
+
+            // Move back to the center
+            { 0, 0 },
+
+            // Final zigzag
+            { -0.5, 0.5 },
+            { 0.5, -0.5 },
+            { -0.5, -0.5 },
+
+            // Return to the starting point
+            { 0, -1 }
+        })
+    });
+    Glyph fancyGlyph ({
+        Stroke ({
+            { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -0.8 },
+            { 0.8, -0.8 }, { 0.8, 0.8 }, { -0.8, 0.8 }, { -0.8, -0.6 }, { 0.6, -0.6 },
+            { 0.6, 0.6 }, { -0.6, 0.6 }, { -0.6, -0.4 }, { 0.4, -0.4 }, { 0.4, 0.4 },
+            { -0.4, 0.4 }, { -0.4, -0.2 }, { 0.2, -0.2 }, { 0.2, 0.2 }, { -0.2, 0.2 },
+            { -0.2, 0 }
+        })
+    });
     
     Glyph cabinGlyph({
         // Stroke for "C"
@@ -272,7 +331,41 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         Stroke({{0.1, -0.1}, {0.3, -0.1}, {0.3, -0.3}, {0.1, -0.3}, {0.1, -0.1}})      // Bottom-right square
     });
     
-    glyphManager.addGlyphs ({ cabinGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
+    Glyph bluetoothGlyph({
+        Stroke({
+            // Start at the bottom-middle
+            { 0, -1 },
+
+            // Move to the top-middle
+            { 0, 1 },
+
+            // Diagonal to the top-right
+            { 0.5, 0.5 },
+
+            // Back to the center
+            { 0, 0 },
+
+            // Diagonal to the bottom-right
+            { 0.5, -0.5 },
+
+            // Back to the center
+            { 0, 0 },
+
+            // Diagonal to the top-left
+            { -0.5, 0.5 },
+
+            // Back to the center
+            { 0, 0 },
+
+            // Diagonal to the bottom-left
+            { -0.5, -0.5 },
+
+            // Back to the bottom-middle
+            { 0, -1 }
+        })
+    });
+    
+    glyphManager.addGlyphs ({ bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
 }
 
