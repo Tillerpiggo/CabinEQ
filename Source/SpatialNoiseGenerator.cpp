@@ -125,7 +125,7 @@ std::pair<float, float> SpatialNoiseGenerator::getNextSample()
     leftSample *= 50.0f;
     rightSample *= 50.0f;
 
-    return { leftSample, rightSample };
+    return { leftSample * leftGain, rightSample * rightGain };
 }
 
 void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHeadFactor, float bwTailFactor)
@@ -190,6 +190,14 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
         leftAmps[i] = juce::dsp::SIMDRegister<float>::fromRawArray(leftAmpValues);
         rightAmps[i] = juce::dsp::SIMDRegister<float>::fromRawArray(rightAmpValues);
     }
+}
+
+void SpatialNoiseGenerator::setPan (float pan)
+{
+    this->pan = pan;
+    float angle = (pan + 1.0f) * M_PI / 4.0f;
+    leftGain = std::cos (angle);
+    rightGain = std::sin (angle);
 }
 
 void SpatialNoiseGenerator::setAmplCurve(Curve amplCurve)

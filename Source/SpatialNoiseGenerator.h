@@ -23,9 +23,13 @@ public:
     void setPanCurve(Curve panCurve);
     void setPhaseCurve(Curve phaseCurve);
     void setBandpass(float centralFreq, float bandwidth, float bwHeadFactor, float bwTailFactor);
+    void setPan (float pan);
 
 private:
     float sampleRate = 44100.0f;
+    float pan = 0.0f;
+    float leftGain = 0.0f;
+    float rightGain = 0.0f;
     static constexpr int numSinWaves = 20; // Adjust as needed
 
     // Number of SIMD registers based on SIMD size and the number of sine waves

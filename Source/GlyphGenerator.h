@@ -56,4 +56,6 @@ private:
     float rightmostPan = 1.0f;
     juce::Point<float> centerPos = { 0.0f, 0.0f };
     float sizeFactor = 1.0f;
+    
+    int updateBandpassCounter = 0;
 };
