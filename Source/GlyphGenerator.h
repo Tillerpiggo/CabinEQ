@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "NoiseGenerator.h"
 #include "Glyph.h"
+#include "SpatialNoiseGenerator.h"
 
 // Allows the playing of a glyph. It controls the speed, bandwidth, frequency range, panning range, and is initialized with sample rate/spec
 class GlyphGenerator
@@ -39,7 +40,8 @@ private:
     juce::dsp::ProcessSpec spec;
     std::optional<Glyph> glyph;
     
-    NoiseGenerator noiseGenerator;
+//    NoiseGenerator noiseGenerator;
+    SpatialNoiseGenerator spatialNoiseGenerator;
     float currTime = 0.0f;
     float timeInterval = 0.0f; // must be set in prepare
     

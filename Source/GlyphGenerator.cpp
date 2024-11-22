@@ -12,7 +12,8 @@
 
 GlyphGenerator::GlyphGenerator()
 {
-    noiseGenerator.setBandwidth (bandwidth);
+//    noiseGenerator.setBandwidth (bandwidth);
+    spatialNoiseGenerator.setBandpass (1000.0f, bandwidth, 1.0f, 1.0f);
 }
 
 std::pair<float, float> GlyphGenerator::getNextSample()
@@ -25,10 +26,14 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     currTime += timeInterval * speedFactor;
     if (currTime >= 1.0f)
         currTime -= 1.0f;
-    noiseGenerator.setBandpass (freqFromYPos (yPos));
-    noiseGenerator.setPan (panFromXPos (xPos));
     
-    auto nextSample = noiseGenerator.getNextSample();
+    spatialNoiseGenerator.setBandpass (freqFromYPos (yPos), panFromXPos (xPos), 1.0f, 1.0f);
+//    spatialNoiseGenerator.setPan (panFromXPos (xPos));
+//    noiseGenerator.setBandpass (freqFromYPos (yPos));
+//    noiseGenerator.setPan (panFromXPos (xPos));
+    
+//    auto nextSample = noiseGenerator.getNextSample();
+    auto nextSample = spatialNoiseGenerator.getNextSample();
     
     // Apply gain envelope based on progress
     float envelope = 1.0f;
@@ -47,7 +52,8 @@ std::pair<float, float> GlyphGenerator::getNextSample()
 void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
-    noiseGenerator.prepare (spec);
+    spatialNoiseGenerator.setSampleRate (spec.sampleRate);
+//    noiseGenerator.prepare (spec);
     
     timeInterval = 1.0f / (spec.sampleRate * 3.0f); // make time interval 3 seconds
 }
@@ -65,7 +71,7 @@ void GlyphGenerator::setSpeedFactor (float speedFactor)
 void GlyphGenerator::setBandwidth (float bandwidth)
 {
     this->bandwidth = bandwidth;
-    noiseGenerator.setBandwidth (bandwidth);
+//    noiseGenerator.setBandwidth (bandwidth);
 }
 
 void GlyphGenerator::setFrequencyRange (float minFreq, float maxFreq)

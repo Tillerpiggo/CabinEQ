@@ -14,9 +14,9 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : tiltFilter (12),
-      isPlayingNoise (false),
-      isFilterOn (true)
+    : firFilter (14),
+      isFilterOn (true),
+      isPlayingNoise (false)
 {
     profileVolumeProcessor.setRampDurationSeconds (0.05);
     profileVolumeProcessor.setGainDecibels (0.0f);
@@ -53,7 +53,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     
     if (isFilterOn)
     {
-        filter.process (ioBlock);
+        firFilter.process (ioBlock);
+//        filter.process (ioBlock);
         profileVolumeProcessor.process (ioContext);
         
         if (isProvisionalOn)
@@ -78,8 +79,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     glyphGenerator.prepare (spec);
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
-    tiltFilter.prepare (spec);
-    tiltFilter.updateWithCurve (tiltCurve);
+    firFilter.prepare (spec);
+//    tiltFilter.updateWithCurve (tiltCurve);
 }
 
 

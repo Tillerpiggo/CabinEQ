@@ -37,6 +37,7 @@
               file="Source/QualityStepManager.h"/>
       </GROUP>
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
+        <FILE id="AynBKb" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
         <FILE id="zz9fEW" name="Glyph.cpp" compile="1" resource="0" file="Source/Glyph.cpp"/>
         <FILE id="ucSEwm" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
         <FILE id="Nv37CZ" name="Stroke.cpp" compile="1" resource="0" file="Source/Stroke.cpp"/>
@@ -71,6 +72,9 @@
         </GROUP>
         <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
+        <FILE id="OUhR01" name="CabinEqGraph.cpp" compile="1" resource="0"
+              file="Source/CabinEqGraph.cpp"/>
+        <FILE id="gQElt6" name="CabinEqGraph.h" compile="0" resource="0" file="Source/CabinEqGraph.h"/>
         <FILE id="XTfbD5" name="CabinPeqGraph.cpp" compile="1" resource="0"
               file="Source/CabinPeqGraph.cpp"/>
         <FILE id="VOfEsn" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
@@ -108,6 +112,10 @@
                 file="Source/SweepPattern.cpp"/>
           <FILE id="TI4MYv" name="SweepPattern.h" compile="0" resource="0" file="Source/SweepPattern.h"/>
         </GROUP>
+        <FILE id="N1nSHM" name="SpatialNoiseGenerator.cpp" compile="1" resource="0"
+              file="Source/SpatialNoiseGenerator.cpp"/>
+        <FILE id="DI0mrk" name="SpatialNoiseGenerator.h" compile="0" resource="0"
+              file="Source/SpatialNoiseGenerator.h"/>
         <FILE id="TtWJFa" name="HiddenPatternGenerator.cpp" compile="1" resource="0"
               file="Source/HiddenPatternGenerator.cpp"/>
         <FILE id="BaBzuW" name="HiddenPatternGenerator.h" compile="0" resource="0"

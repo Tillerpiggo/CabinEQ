@@ -58,7 +58,7 @@ private:
     float calibrationVolume = 0.0f; // in dB
     
     // Sound generation
-    ArbitraryResponseFilter tiltFilter; // to make the pink noise into Cabin Noise
+    ArbitraryResponseFilter firFilter; // to make the pink noise into Cabin Noise
     Curve tiltCurve;
     
     // State
