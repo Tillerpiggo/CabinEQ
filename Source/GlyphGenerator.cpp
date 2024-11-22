@@ -27,7 +27,7 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     if (currTime >= 1.0f)
         currTime -= 1.0f;
     
-    spatialNoiseGenerator.setBandpass (freqFromYPos (yPos), 1.0f, 1.0f, 1.0f);
+    spatialNoiseGenerator.setBandpass (freqFromYPos (yPos), bandwidth, 1.0f, 1.0f);
     spatialNoiseGenerator.setPan (panFromXPos (xPos));
 //    spatialNoiseGenerator.setPan (panFromXPos (xPos));
 //    noiseGenerator.setBandpass (freqFromYPos (yPos));
