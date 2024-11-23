@@ -77,6 +77,8 @@ protected:
     void goToProfileWithId (juce::String profileIdToGoTo);
     bool isDuplicateProfileName (juce::String profileName);
     
+    CabinEqLookAndFeel cabinEqLookAndFeel;
+    
     // JUCE Labels
     GlyphView glyphView;
     KnobView knobView;
@@ -107,6 +109,4 @@ protected:
     
     bool isUnlocked = false;
     bool addingFirstProfile = false;
-    
-    CabinEqLookAndFeel cabinEqLookAndFeel;
 };
