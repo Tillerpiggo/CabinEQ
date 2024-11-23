@@ -15,6 +15,7 @@
 
 PlaybackManager::PlaybackManager()
     : firFilter (14),
+      tiltFilter (15),
       isFilterOn (true),
       isPlayingNoise (false)
 {
@@ -46,18 +47,13 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     juce::dsp::ProcessContextReplacing<float> ioContext(ioBlock);
     
     // TODO: combine this audio processing logic for compile-time optimization with processorChain
-    if (isPlayingNoise)
-    {
-        
-    }
+    
     
     if (isFilterOn)
     {
 //        firFilter.process (ioBlock);
         if (! isPlayingNoise || filterCycleCounter < 100)
         {
-//            if (isPlayingNoise)
-//                tiltFilter.process (ioContext);
             filter.process (ioBlock);
             profileVolumeProcessor.process (ioContext);
             
@@ -71,6 +67,11 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     if (filterCycleCounter > 200)
     {
         filterCycleCounter = 0;
+    }
+    
+    if (isPlayingNoise)
+    {
+        tiltFilter.process (ioContext);
     }
     
     overallVolumeProcessor.process (ioContext);
@@ -92,7 +93,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
     firFilter.prepare (spec);
-//    tiltFilter.updateWithCurve (tiltCurve);
+    tiltFilter.prepare (spec);
+    tiltFilter.updateWithCurve (tiltCurve);
     
     fractalPatternGenerator.setPattern (FractalPattern (4));
 }
@@ -157,7 +159,7 @@ float PlaybackManager::getCurrPlayingTime()
 std::pair<float, float> PlaybackManager::getNextSample()
 {
     
-    if (clickTrainCounter >= 5000)
+    if (clickTrainCounter >= 12000)
     {
         clickTrainCounter = 0;
         return { 1.0f, 1.0f };

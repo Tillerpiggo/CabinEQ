@@ -893,7 +893,7 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
             float newX = startPos.x + dragOffsetWhileAdjustingPosition.first;
             float newY = startPos.y + dragOffsetWhileAdjustingPosition.second;
             auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
-            float currBandwidth = startDragBandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
+            float currBandwidth = band.bandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
             
             updateBand (band.id, currFreq, currAmpl, currBandwidth, band.type);
         }

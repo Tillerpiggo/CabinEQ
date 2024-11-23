@@ -50,7 +50,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     glyphView.setDataSource (this);
     knobView.setListener (this);
     
-    setLookAndFeel (&cabinEqLookAndFeel);
+//    setLookAndFeel (&cabinEqLookAndFeel);
 }
 
 CabinEqPage::~CabinEqPage()
@@ -63,7 +63,7 @@ CabinEqPage::~CabinEqPage()
     
     processor.removeListener();
     
-    setLookAndFeel (nullptr);
+//    setLookAndFeel (nullptr);
 }
 
 void CabinEqPage::paint (juce::Graphics& g)

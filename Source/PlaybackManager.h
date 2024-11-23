@@ -63,6 +63,7 @@ private:
     
     // Sound generation
     ArbitraryResponseFilter firFilter; // to make the pink noise into Cabin Noise
+    ArbitraryResponseFilter tiltFilter;
     Curve tiltCurve;
     
     // State

@@ -162,11 +162,11 @@ void SpatialNoiseGenerator::setBandpass(float centralFreq, float bw, float bwHea
             float amplVal = 0.0f;
             float panVal = 0.0f;
             
-            if (amplCurve.has_value())
-                amplCurve->valueAtFrequency(freq);
-            
-            if (panCurve.has_value())
-                panCurve->valueAtFrequency(freq);
+//            if (amplCurve.has_value())
+//                amplCurve->valueAtFrequency(freq);
+//            
+//            if (panCurve.has_value())
+//                panCurve->valueAtFrequency(freq);
 
             float cabinNoiseDropoff = -3.0f * std::log2(freq / 1000.0f); // pink noise based
             float leftAmpl = juce::Decibels::decibelsToGain(amplVal - 0.5f * panVal + cabinNoiseDropoff);

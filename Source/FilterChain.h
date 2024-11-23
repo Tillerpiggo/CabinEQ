@@ -246,8 +246,9 @@ private:
     void updateParametricBand (std::vector<std::unique_ptr<Filter>>& filters, int idx,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
-        *filters[idx]->coefficients = *Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor,
-                                                              juce::Decibels::decibelsToGain (amplInDB));
+//        *filters[idx]->coefficients = *Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor,
+//                                                              juce::Decibels::decibelsToGain (amplInDB));
+        *filters[idx]->coefficients = *Coefficients::makeNotch (sampleRate, centerFreq, qFactor);
     }
     
     void addFilter (std::vector<std::unique_ptr<Filter>>& filters,
