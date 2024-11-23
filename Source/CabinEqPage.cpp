@@ -62,6 +62,8 @@ CabinEqPage::~CabinEqPage()
     amplGraph->removeListener();
     
     processor.removeListener();
+    
+    setLookAndFeel (nullptr);
 }
 
 void CabinEqPage::paint (juce::Graphics& g)
