@@ -54,7 +54,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     if (isFilterOn)
     {
 //        firFilter.process (ioBlock);
-        if (isPlayingNoise || filterCycleCounter < 100)
+        if (! isPlayingNoise || filterCycleCounter < 100)
         {
             filter.process (ioBlock);
             profileVolumeProcessor.process (ioContext);
