@@ -51,15 +51,18 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 //        tiltFilter.process (ioContext);
 //    }
     
-    if (isFilterOn && filterCycleCounter < 100)
+    if (isFilterOn)
     {
 //        firFilter.process (ioBlock);
-        filter.process (ioBlock);
-        profileVolumeProcessor.process (ioContext);
-        
-        if (isProvisionalOn)
+        if (isPlayingNoise || filterCycleCounter < 100)
         {
-            provisionalFilter.process (ioBlock);
+            filter.process (ioBlock);
+            profileVolumeProcessor.process (ioContext);
+            
+            if (isProvisionalOn)
+            {
+                provisionalFilter.process (ioBlock);
+            }
         }
     }
     filterCycleCounter++;
