@@ -90,15 +90,59 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     // Begin to track dragging
     lastDistanceFromDragStartX = 0;
     
+    // If we aren't dragging/hovering, start a drag selection
+    if (hoveringId == -1)
+    {
+        selectionStartFreq = freq;
+        selectionEndFreq = freq;
+    }
+    
     // If we were hovering over a band node, we should now drag it
     draggingId = hoveringId;
     if (draggingId != -1)
     {
+        // Let's set up selection, if applicable
+        startDraggingBands.clear();
+        // If we selected something, then set what we're dragging
+        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
+        {
+            for (const auto& band : bandProfile.getBands())
+            {
+                if (band.freq >= selectionStartFreq.value() && band.freq <= selectionEndFreq.value())
+                {
+                    startDraggingBands.push_back (band);
+                }
+            }
+        }
+        else
+        {
+            startDraggingBands.clear();
+        }
+            
+        updateBand (draggingId, freq, ampl, startDragBandwidth, bandType);
+        
         selectedDotSize = DOT_SIZE_DRAGGING;
         startDragPosition = coords;
         lastDragPosition = coords;
         dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
         dragOffsetWhileAdjustingBandwidth = { 0.0f, 0.0f };
+        
+        // If you drag something outside of the selection, reset the selection
+        bool didSelectSelectedBand = false;
+        for (const auto& band : startDraggingBands)
+        {
+            if (band.id == draggingId)
+            {
+                didSelectSelectedBand = true;
+            }
+        }
+        
+        if (! didSelectSelectedBand)
+        {
+            selectionStartFreq.reset();
+            selectionEndFreq.reset();
+            startDraggingBands.clear();
+        }
     }
     
     // If we were going to add a band, do so here
@@ -114,43 +158,15 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
         dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
         dragOffsetWhileAdjustingBandwidth = { 0.0f, 0.0f };
         addingFreq.reset();
+        
+        selectionStartFreq.reset();
+        selectionEndFreq.reset();
+        startDraggingBands.clear();
     }
     
     // If we right click and were hovering, delete the band
     if (hoveringId != -1 && event.mods.isRightButtonDown())
         removeBand (hoveringId);
-    
-    // If we are dragging a band, start playing an appropriate noise pattern
-    if (draggingId != -1)
-    {
-        // If we selected something, then set what we're dragging
-        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
-        {
-            startDraggingBands.clear();
-            
-            for (const auto& band : bandProfile.getBands())
-            {
-                if (band.freq >= selectionStartFreq.value() && band.freq <= selectionEndFreq.value())
-                {
-                    startDraggingBands.push_back (band);
-                }
-            }
-        }
-            
-        updateBand (draggingId, freq, ampl, startDragBandwidth, bandType);
-    }
-    
-    // If we aren't dragging/hovering, start a drag selection
-    if (hoveringId == -1)
-    {
-        selectionStartFreq = freq;
-        selectionEndFreq = freq;
-    }
-    else
-    {
-//        selectionStartFreq.reset();
-//        selectionEndFreq.reset();
-    }
 }
 
 void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)

@@ -221,6 +221,44 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         })
     });
     
+    Glyph audioGlyph({
+
+        // Stroke for "A"
+        Stroke({
+            { -0.9, -0.9 }, { 0, 0.9 }, { 0.9, -0.9 }, { 0.3, 0 }, { -0.3, 0 }, { -0.9, -0.9 }
+        }),
+
+        // Stroke for "U"
+        Stroke({
+            { -0.9, 0.9 }, { -0.9, -0.6 }, { -0.636, -0.636 }, { -0.3, -0.9 }, { 0.3, -0.9 },
+            { 0.636, -0.636 }, { 0.9, -0.6 }, { 0.9, 0.9 }
+        }),
+
+        // Stroke for "D"
+        Stroke({
+            { -0.9, -0.9 }, { -0.9, 0.9 }, { 0.0, 0.9 }, { 0.6, 0.6 }, { 0.6, -0.6 },
+            { 0.0, -0.9 }, { -0.9, -0.9 }
+        }),
+
+        // Stroke for "I"
+        Stroke({
+            { 0, -0.9 }, { 0, 0.9 }
+        }),
+
+        // Stroke for "O"
+        Stroke({
+            { 0.9, 0 },
+            { 0.636, 0.636 },
+            { 0, 0.9 },
+            { -0.636, 0.636 },
+            { -0.9, 0 },
+            { -0.636, -0.636 },
+            { 0, -0.9 },
+            { 0.636, -0.636 },
+            { 0.9, 0 }
+        })
+    });
+    
     Glyph circleGlyph ({
         Stroke ({
             { 0.5, 0 }, { 0.35, 0.35 }, { 0, 0.5 }, { -0.35, 0.35 },
@@ -365,7 +403,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         })
     });
     
-    glyphManager.addGlyphs ({ bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
+    glyphManager.addGlyphs ({ bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
 }
 

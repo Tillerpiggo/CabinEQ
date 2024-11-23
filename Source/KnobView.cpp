@@ -265,7 +265,7 @@ void KnobView::updateBands()
         float bandwidth = normBandwidth;
 
         // Create the interpolated band
-        Band interpolatedBand(0, freq, gain, bandwidth, Band::Type::both);
+        Band interpolatedBand(0, std::min (freq, 18000.0f), gain, bandwidth, Band::Type::both);
         interpolatedBands.push_back(interpolatedBand);
     }
 

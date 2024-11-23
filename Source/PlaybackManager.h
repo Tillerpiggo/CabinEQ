@@ -15,6 +15,8 @@
 #include "FilterChain.h"
 #include "ArbitraryResponseFilter.h"
 #include "GlyphGenerator.h"
+#include "FractalPatternGenerator.h"
+#include "PinkNoiseGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -49,8 +51,10 @@ private:
     
     // Audio processing
     GlyphGenerator glyphGenerator;
+    FractalPatternGenerator fractalPatternGenerator;
     FilterChain filter;
     FilterChain provisionalFilter;
+    PinkNoise pinkNoise;
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;
@@ -65,4 +69,7 @@ private:
     bool isFilterOn; // if the EQ curve is being applied
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
+    
+    int filterCycleCounter = 0;
+    int clickTrainCounter = 0;
 };
