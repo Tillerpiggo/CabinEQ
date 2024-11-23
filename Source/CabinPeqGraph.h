@@ -57,6 +57,7 @@ private:
     
     BandProfile bandProfile;
     std::vector<Band> provisionalBands;
+    std::vector<int> selectedBandIds;
     bool provisionalBandsVisible = false;
     
     juce::TextButton leftRightButton { "BOTH" };
@@ -98,6 +99,8 @@ private:
     void setVolume (float volume);
     
     // Interaction variables
+    std::optional<float> selectionStartFreq;
+    std::optional<float> selectionEndFreq;
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
     std::optional<float> addingFreq; // the frequency you are hovering over, if you're going to add a point. std::nullopt if you're not hovering in a place where you can add a node
@@ -115,6 +118,7 @@ private:
     std::pair<float, float> lastDragPosition { 0.0f, 0.0f };
     std::pair<float, float> startDragPosition { 0.0f, 0.0f };
     float startDragBandwidth = 0.0f;
+    std::vector<Band> startDraggingBands;
     
     // Constants
     static constexpr float MIN_FREQ = 20.0f;

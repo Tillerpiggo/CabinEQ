@@ -67,6 +67,7 @@ void CabinPeqGraph::paint(juce::Graphics& g)
     drawBands (g);
     drawDots (g);
 }
+
 void CabinPeqGraph::resized()
 {
     setBounds (getBoundsInParent());
@@ -122,7 +123,33 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     // If we are dragging a band, start playing an appropriate noise pattern
     if (draggingId != -1)
     {
+        // If we selected something, then set what we're dragging
+        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
+        {
+            startDraggingBands.clear();
+            
+            for (const auto& band : bandProfile.getBands())
+            {
+                if (band.freq >= selectionStartFreq.value() && band.freq <= selectionEndFreq.value())
+                {
+                    startDraggingBands.push_back (band);
+                }
+            }
+        }
+            
         updateBand (draggingId, freq, ampl, startDragBandwidth, bandType);
+    }
+    
+    // If we aren't dragging/hovering, start a drag selection
+    if (hoveringId == -1)
+    {
+        selectionStartFreq = freq;
+        selectionEndFreq = freq;
+    }
+    else
+    {
+//        selectionStartFreq.reset();
+//        selectionEndFreq.reset();
     }
 }
 
@@ -146,21 +173,34 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
         lastDragPosition = getEventCoords (event);
     }
     
-    // If we're not dragging a node, we're dragging in the blackspace and should drag the graph itself
-    else
+//    // If we're not dragging a node, we're dragging in the blackspace and should drag the graph itself
+//    else
+//    {
+//        float minFreqShowingTime = timeAtFrequency (minFreqShowing);
+//        float maxFreqShowingTime = timeAtFrequency (maxFreqShowing);
+//        float timeChange = (static_cast<float> (event.getDistanceFromDragStart()) / -lastDistanceFromDragStartX) / getWidth();
+//        
+//        float projectedMinFreqShowing = frequencyAtTime (minFreqShowingTime - timeChange);
+//        float projectedMaxFreqShowing = frequencyAtTime (maxFreqShowingTime - timeChange);
+//        
+//        // Apply changes if we are within the bounds of the graph
+//        if (projectedMinFreqShowing >= MIN_FREQ && projectedMaxFreqShowing <= MAX_FREQ)
+//        {
+//            minFreqShowing = projectedMinFreqShowing;
+//            maxFreqShowing = projectedMaxFreqShowing;
+//        }
+//    }
+    
+    // If we're not dragging anything, go select stuff
+    if (draggingId == -1)
     {
-        float minFreqShowingTime = timeAtFrequency (minFreqShowing);
-        float maxFreqShowingTime = timeAtFrequency (maxFreqShowing);
-        float timeChange = (static_cast<float> (event.getDistanceFromDragStart()) / -lastDistanceFromDragStartX) / getWidth();
+        selectionEndFreq = freq;
         
-        float projectedMinFreqShowing = frequencyAtTime (minFreqShowingTime - timeChange);
-        float projectedMaxFreqShowing = frequencyAtTime (maxFreqShowingTime - timeChange);
-        
-        // Apply changes if we are within the bounds of the graph
-        if (projectedMinFreqShowing >= MIN_FREQ && projectedMaxFreqShowing <= MAX_FREQ)
+        if (selectionEndFreq.value() < selectionStartFreq.value())
         {
-            minFreqShowing = projectedMinFreqShowing;
-            maxFreqShowing = projectedMaxFreqShowing;
+            float temp = selectionEndFreq.value();
+            selectionEndFreq = selectionStartFreq.value();
+            selectionStartFreq = temp;
         }
     }
 }
@@ -170,8 +210,11 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
     // Useful constants
     auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
     
-    updateBandFromDrag (event);
-    draggingId = -1;
+    if (draggingId != -1)
+    {
+        updateBandFromDrag (event);
+        draggingId = -1;
+    }
     
     dragOffsetWhileAdjustingPosition = { 0.0f, 0.0f };
     dragOffsetWhileAdjustingBandwidth = { 0.0f, 0.0f };
@@ -255,76 +298,6 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 }
 
 // =============================================
-//void CabinPeqGraph::drawLines (juce::Graphics& g)
-//{
-//    // Define the colors for the gradient
-//    juce::Colour transparentColour = juce::Colours::lightgrey.withAlpha (0.0f);
-//    juce::Colour centerLineColour = juce::Colours::lightgrey.withAlpha (0.5f);
-//    
-//    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 4.0f);
-//    
-//    // Draw the center line with gradient
-//    {
-//        juce::Path centerPath;
-//        float centerY = yForAmpl (0);
-//        centerPath.startNewSubPath (0, centerY);
-//        centerPath.lineTo (getWidth(), centerY);
-//
-//        juce::ColourGradient gradient(centerLineColour, getWidth() / 2, centerY,
-//                                      transparentColour, 0, centerY, true);
-//        gradient.addColour(1.0, transparentColour);
-//        g.setGradientFill(gradient);
-//        g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS));
-//    }
-//    
-//    // Draw the other horizontal lines with gradient
-//    int numHorizontalLines = 12;
-//    for (float y = 0; y <= getHeight(); y += getHeight() / numHorizontalLines)
-//    {
-//        juce::Path horizontalLinePath;
-//        horizontalLinePath.startNewSubPath (0, y);
-//        horizontalLinePath.lineTo (getWidth(), y);
-//
-//        juce::ColourGradient gradient(centerLineColour, getWidth() / 2, y,
-//                                      transparentColour, 0, y, true);
-//        gradient.addColour(1.0, transparentColour);
-//        g.setGradientFill(gradient);
-//        g.strokePath (horizontalLinePath, lineStrokeType);
-//    }
-//    
-//    // Draw the log lines with gradient
-//    std::vector<float> lineFreqs;
-//    float startLineFreq = 10;
-//    float currLineFreq = 10;
-//    float interval = 10;
-//    float numLines = 10;
-//    
-//    while (currLineFreq <= 20000)
-//    {
-//        lineFreqs.push_back (currLineFreq);
-//        currLineFreq += interval;
-//        if ((currLineFreq - startLineFreq) / interval >= numLines)
-//            interval *= 10;
-//    }
-//    
-//    for (const auto& lineFreq : lineFreqs)
-//    {
-//        if (lineFreq >= minFreqShowing / 1.1f && lineFreq <= maxFreqShowing * 1.1f)
-//        {
-//            juce::Path logLinePath;
-//            float lineX = xForFreq (lineFreq);
-//            logLinePath.startNewSubPath (lineX, 0);
-//            logLinePath.lineTo (lineX, getHeight());
-//
-//            juce::ColourGradient gradient(centerLineColour, lineX, getHeight() / 2,
-//                                          transparentColour, lineX, 0, true);
-//            gradient.addColour(1.0, transparentColour);
-//            g.setGradientFill(gradient);
-//            g.strokePath (logLinePath, lineStrokeType);
-//        }
-//    }
-//}
-
 void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
@@ -389,6 +362,14 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         if (band.id == draggingId || band.id == hoveringId)
             bandAlpha = 0.8f;
         juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (bandAlpha);
+        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
+        {
+            if (band.freq >= selectionStartFreq.value() && band.freq <= selectionEndFreq.value())
+            {
+                bandColour = juce::Colours::white.withAlpha (0.8f);
+            }
+        }
+        
         if (band.type == Band::Type::left)
             bandColour = juce::Colours::red;
         if (band.type == Band::Type::right)
@@ -508,6 +489,13 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
         // Draw a dot corresponding to the node
         juce::Point<float> point = coordsForFrequencyAndAmplitude (band.freq, band.ampl);
         juce::Colour dotColour = getColourForFrequency (band.freq);
+        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
+        {
+            if (band.freq >= selectionStartFreq.value() && band.freq <= selectionEndFreq.value())
+            {
+                dotColour = juce::Colours::white;
+            }
+        }
         
         // Figure out the radius - it's different if it's hovering vs. dragging
         float dotRadius = DOT_SIZE_DEFAULT;
@@ -880,13 +868,30 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
         dragOffsetWhileAdjustingPosition.second += currPos.second - lastDragPosition.second;
     }
     
-    // Update dragging node a final time
-    float newX = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
-    float newY = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
-    auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
-    float currBandwidth = startDragBandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
-    
-    updateBand (draggingId, currFreq, currAmpl, currBandwidth, bandType);
+    if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
+    {
+        for (const auto& band : startDraggingBands)
+        {
+            auto startPos = coordsForFrequencyAndAmplitude (band.freq, band.ampl);
+            
+            float newX = startPos.x + dragOffsetWhileAdjustingPosition.first;
+            float newY = startPos.y + dragOffsetWhileAdjustingPosition.second;
+            auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
+            float currBandwidth = startDragBandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
+            
+            updateBand (band.id, currFreq, currAmpl, currBandwidth, band.type);
+        }
+    }
+    else
+    {
+        // Update dragging node a final time
+        float newX = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
+        float newY = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
+        auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
+        float currBandwidth = startDragBandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
+        
+        updateBand (draggingId, currFreq, currAmpl, currBandwidth, bandType);
+    }
 }
 
 void CabinPeqGraph::removeBand(int id)

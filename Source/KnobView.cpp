@@ -326,7 +326,7 @@ void KnobView::generatePermutations()
     finePermutations.clear();
 
     const int numPermutations = 7;
-    const int numBands = 20;
+    const int numBands = 4;
     juce::Random random;
 
     for (int p = 0; p < numPermutations; ++p)
@@ -339,7 +339,7 @@ void KnobView::generatePermutations()
         if (p != 0)
         {
             // Select 5 unique random indices to mute
-            while (bandsToMute.size() < 5)
+            while (bandsToMute.size() < 3)
             {
                 int randomIndex = random.nextInt(numBands); // Random index between 0 and numBands - 1
                 bandsToMute.insert(randomIndex);
