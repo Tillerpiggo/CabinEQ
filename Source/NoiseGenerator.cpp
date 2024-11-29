@@ -48,6 +48,39 @@ void NoiseGenerator::setPan (float pan)
     rightGain = std::sin (angle);
 }
 
+//void NoiseGenerator::setPan (float pan)
+//{
+////    this->pan = pan;
+////    float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
+////    leftGain = std::cos (angle);
+////    rightGain = std::sin (angle);
+//    this->pan = pan;
+//    leftGain = fmin (1.0f, -pan + 1.0f);
+//    rightGain = fmin (1.0f, pan + 1.0f);
+//}
+
+
+// 3db pan law
+//void NoiseGenerator::setPan(float pan)
+//{
+//    this->pan = pan;
+//
+//    // Map pan [-1, 1] to angle θ [0, π/2]
+//    float theta = (pan) * M_PI / 4.0f;
+//
+//    // Calculate amplitudes for left (Aamp) and right (Bamp) channels
+//    leftGain = (std::sqrt(2.0f) / 2.0f) * (std::cos(theta) - std::sin(theta));
+//    rightGain = (std::sqrt(2.0f) / 2.0f) * (std::cos(theta) + std::sin(theta));
+//}
+
+//// 6db pan law
+//void NoiseGenerator::setPan(float pan)
+//{
+//    this->pan = pan;
+//    leftGain = 0.5f * (1.0f - pan);
+//    rightGain = 0.5f * (1.0f + pan);
+//}
+
 void NoiseGenerator::setBandpass (float centerFreq)
 {
     float freq = std::min (std::max (centerFreq, 20.0f), sampleRate * 0.49f);

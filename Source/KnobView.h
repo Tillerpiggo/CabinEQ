@@ -64,6 +64,7 @@ private:
     
     juce::TextButton addBandsButton { "Add Bands" };
     juce::TextButton onButton { "OFF" };
+    juce::TextButton randomizeButton { "Randomize" };
     
     bool isOn;
 };

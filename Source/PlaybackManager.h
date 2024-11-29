@@ -17,6 +17,7 @@
 #include "GlyphGenerator.h"
 #include "FractalPatternGenerator.h"
 #include "PinkNoiseGenerator.h"
+#include "CrossfeedFilter.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -64,6 +65,7 @@ private:
     // Sound generation
     ArbitraryResponseFilter firFilter; // to make the pink noise into Cabin Noise
     ArbitraryResponseFilter tiltFilter;
+    CrossfeedFilter crossfeedFilter;
     Curve tiltCurve;
     
     // State

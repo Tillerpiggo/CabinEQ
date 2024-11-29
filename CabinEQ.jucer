@@ -182,6 +182,10 @@
       </GROUP>
     </GROUP>
     <GROUP id="{41775B42-C5FA-EAED-2185-E529EED0849D}" name="Old/Unused">
+      <FILE id="a352vX" name="CrossfeedFilter.cpp" compile="1" resource="0"
+            file="Source/CrossfeedFilter.cpp"/>
+      <FILE id="c3tkD9" name="CrossfeedFilter.h" compile="0" resource="0"
+            file="Source/CrossfeedFilter.h"/>
       <FILE id="HEZUbQ" name="HiddenPattern.cpp" compile="1" resource="0"
             file="Source/HiddenPattern.cpp"/>
       <FILE id="LnZOLr" name="HiddenPattern.h" compile="0" resource="0" file="Source/HiddenPattern.h"/>

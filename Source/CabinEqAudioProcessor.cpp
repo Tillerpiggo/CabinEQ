@@ -131,6 +131,19 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 //            { 3.25, -0.5 }, { 3.25, 0.5 }, { 3.75, -0.5 }, { 3.75, 0.5 }
 //        })
 //    });
+    Glyph dotGlyph ({
+        Stroke ({{ 0, 0 }})
+    });
+    Glyph lineGlyph ({
+        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
+    });
+    
+    Glyph heightGlyph ({
+        Stroke ({{ 0, -1 }, { 0, -1 }}),
+        Stroke ({{ 0, -0.5 }, { 0, -0.5 }}),
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 0, 0.5 }, { 0, 0.5 }})
+    });
     Glyph intricateSingleStrokeGlyph({
         Stroke({
             // Start in the bottom-middle
@@ -403,7 +416,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         })
     });
     
-    glyphManager.addGlyphs ({ bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
+    glyphManager.addGlyphs ({ dotGlyph, lineGlyph, heightGlyph, bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, triangleGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
 }
 

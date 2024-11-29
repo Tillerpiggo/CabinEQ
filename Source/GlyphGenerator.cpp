@@ -110,6 +110,16 @@ float GlyphGenerator::freqFromYPos (float yPos)
     return std::exp(logFreq);
 }
 
+//float GlyphGenerator::freqFromYPos(float yPos)
+//{
+//    yPos *= sizeFactor;
+//    yPos += centerPos.y;
+//    float normalized = (yPos + 1.0f) / 2.0f;
+//
+//    // Linearly interpolate between minFreq and maxFreq
+//    return minFreq + normalized * (maxFreq - minFreq);
+//}
+
 //float GlyphGenerator::freqFromYPos (float yPos)
 //{
 //    yPos *= sizeFactor;

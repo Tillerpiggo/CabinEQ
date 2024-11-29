@@ -52,7 +52,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     if (isFilterOn)
     {
 //        firFilter.process (ioBlock);
-        if (! isPlayingNoise || filterCycleCounter < 100)
+        if (! isPlayingNoise || filterCycleCounter < 100 || true)
         {
             filter.process (ioBlock);
             profileVolumeProcessor.process (ioContext);
@@ -61,6 +61,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
             {
                 provisionalFilter.process (ioBlock);
             }
+            
+//            crossfeedFilter.processBlock (ioBuffer);
         }
     }
     filterCycleCounter++;
@@ -159,14 +161,17 @@ float PlaybackManager::getCurrPlayingTime()
 std::pair<float, float> PlaybackManager::getNextSample()
 {
     
-    if (clickTrainCounter >= 12000)
-    {
-        clickTrainCounter = 0;
-        return { 1.0f, 1.0f };
-    }
-    clickTrainCounter++;
-    return { 0.0f, 0.0f };
-//    return glyphGenerator.getNextSample();
+//    if (clickTrainCounter >= 12000)
+//    {
+//        clickTrainCounter = 0;
+//        return { 1.0f, 1.0f };
+//    }
+//    clickTrainCounter++;
+//    return { 0.0f, 0.0f };
+    float val = pinkNoise.generate();
+    auto sample = glyphGenerator.getNextSample();
+    return sample;
+//    return { sample.first + val, sample.second + val };
 //    float val = pinkNoise.generate();
 //    return { val, val };
 //    return fractalPatternGenerator.getNextSample();
