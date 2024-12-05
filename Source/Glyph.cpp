@@ -34,3 +34,17 @@ const std::vector<Stroke>& Glyph::getStrokes()
 {
     return strokes;
 }
+
+const std::vector<juce::Point<float>> Glyph::getVertices()
+{
+    // this will overlap the end points... whatever for now
+    std::vector<juce::Point<float>> vertices;
+    for (const auto& stroke : strokes)
+    {
+        for (const auto& point : stroke.getPoints())
+        {
+            vertices.push_back (point);
+        }
+    }
+    return vertices;
+}

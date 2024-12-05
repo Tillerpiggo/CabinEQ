@@ -16,6 +16,9 @@ NoiseGenerator::NoiseGenerator()
 
 std::pair<float, float> NoiseGenerator::getNextSample()
 {
+    if (isMuted)
+        return { 0.0f, 0.0f };
+    
     float pinkNoiseSample = pinkNoise.generate() * 010.0f;
     pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
     
@@ -46,6 +49,11 @@ void NoiseGenerator::setPan (float pan)
     float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
     leftGain = std::cos (angle);
     rightGain = std::sin (angle);
+}
+
+void NoiseGenerator::mute()
+{
+    isMuted = true;
 }
 
 //void NoiseGenerator::setPan (float pan)
@@ -88,4 +96,6 @@ void NoiseGenerator::setBandpass (float centerFreq)
 //    erbBandwidth = std::log2 (1.0f + erbBandwidth / freq) * bandwidth;
 //    
     *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
+    
+    isMuted = false;
 }

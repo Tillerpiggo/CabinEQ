@@ -180,7 +180,7 @@ juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
     float padding = 10.0f;
     
     // Scale according to sizeFactor and centerPos
-    point.x *= sizeFactor;
+//    point.x *= sizeFactor;
     point.y *= sizeFactor;
     point.x += centerPos.x;
     point.y += centerPos.y;

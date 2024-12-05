@@ -14,6 +14,7 @@
 #include "NoiseGenerator.h"
 #include "Glyph.h"
 #include "SpatialNoiseGenerator.h"
+#include "GainEnvelope.h"
 
 // Allows the playing of a glyph. It controls the speed, bandwidth, frequency range, panning range, and is initialized with sample rate/spec
 class GlyphGenerator
@@ -24,6 +25,7 @@ public:
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setGlyph (Glyph glyph);
+    void updateNoiseGenerators();
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
     void setFrequencyRange (float minFreq, float maxFreq);
@@ -40,7 +42,7 @@ private:
     juce::dsp::ProcessSpec spec;
     std::optional<Glyph> glyph;
     
-    NoiseGenerator noiseGenerator;
+    std::vector<NoiseGenerator> noiseGenerators;
 //    SpatialNoiseGenerator spatialNoiseGenerator;
     float currTime = 0.0f;
     float timeInterval = 0.0f; // must be set in prepare
@@ -50,7 +52,7 @@ private:
     float bandwidth = 1.0f;
     
     // Constants
-    float minFreq = 40.0f;
+    float minFreq = 50.0f;
     float maxFreq = 12000.0f;
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
@@ -58,4 +60,7 @@ private:
     float sizeFactor = 1.0f;
     
     int updateBandpassCounter = 0;
+    int sampleCount = 0;
+    int noteLenInSamples = 40000;
+    GainEnvelope gainEnvelope { 1000 };
 };

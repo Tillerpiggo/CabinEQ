@@ -463,86 +463,86 @@ void KnobView::setIsOn (bool isOn)
 //    }
 //}
 
-//void KnobView::generatePermutations()
-//{
-//    // Clear existing permutations
-//    permutations.clear();
-//    finePermutations.clear();
-//
-//    const int numPermutations = 50; // Number of permutations
-//    const int numBands = 20;        // Number of frequency bands
-//    const float minFreq = 40.0f;    // Minimum frequency (Hz)
-//    const float maxFreq = 15000.0f; // Maximum frequency (Hz)
-//
-//    juce::Random random;
-//
-//    // Calculate logarithmically spaced frequencies
-//    std::vector<float> frequencies;
-//    for (int i = 0; i < numBands; ++i)
-//    {
-//        float freq = minFreq * std::pow(maxFreq / minFreq, static_cast<float>(i) / (numBands - 1));
-//        frequencies.push_back(freq);
-//    }
-//
-//    for (int p = 0; p < numPermutations; ++p)
-//    {
-//        std::vector<Band> permBands;
-//        std::vector<Band> finePermBands;
-//
-//        for (int b = 0; b < numBands; ++b)
-//        {
-//            // Toggle band ON (+12 dB) or OFF (-12 dB) randomly
-//            float gainDB = (random.nextBool() ? 12.0f : -12.0f);
-//
-//            // Bandwidth for each band (in octaves)
-//            float minBandwidth = 0.1f; // Narrower bandwidth
-//            float maxBandwidth = 0.5f; // Wider bandwidth
-//            float randomBandwidth = random.nextFloat() * (maxBandwidth - minBandwidth) + minBandwidth;
-//
-//            // Create the main permutation band
-//            Band mainBand(0, frequencies[b], gainDB, randomBandwidth, Band::Type::both);
-//            permBands.push_back(mainBand);
-//
-//            // Fine permutation: Same as main permutation for now (can be modified if needed)
-//            Band fineBand(0, 1.0f, 1.0f, 0.0f, Band::Type::both);
-//            finePermBands.push_back(fineBand);
-//        }
-//
-//        // Add the permutations to the lists
-//        permutations.push_back(permBands);
-//        finePermutations.push_back(finePermBands);
-//    }
-//}
-
 void KnobView::generatePermutations()
 {
     // Clear existing permutations
     permutations.clear();
+    finePermutations.clear();
 
-    const int numPermutations = 10; // Generate 10 permutations
-    const int numBands = 3;         // Each permutation has 3 bands
+    const int numPermutations = 50; // Number of permutations
+    const int numBands = 25;        // Number of frequency bands
+    const float minFreq = 40.0f;    // Minimum frequency (Hz)
+    const float maxFreq = 15000.0f; // Maximum frequency (Hz)
+
     juce::Random random;
+
+    // Calculate logarithmically spaced frequencies
+    std::vector<float> frequencies;
+    for (int i = 0; i < numBands; ++i)
+    {
+        float freq = minFreq * std::pow(maxFreq / minFreq, static_cast<float>(i) / (numBands - 1));
+        frequencies.push_back(freq);
+    }
 
     for (int p = 0; p < numPermutations; ++p)
     {
         std::vector<Band> permBands;
+        std::vector<Band> finePermBands;
 
         for (int b = 0; b < numBands; ++b)
         {
-            // Random frequency offset in octaves (-1 to +1)
-            float randomFreqOffset = random.nextFloat() * 2.0f - 1.0f;
+            // Toggle band ON (+12 dB) or OFF (-12 dB) randomly
+            float gainDB = random.nextFloat() * 24.0f - 12.0f;//(random.nextBool() ? 12.0f : -12.0f);
 
-            // Random gain in dB (-12 dB to +12 dB)
-            float randomGain = random.nextFloat() * 24.0f - 12.0f;
+            // Bandwidth for each band (in octaves)
+            float minBandwidth = 0.1f; // Narrower bandwidth
+            float maxBandwidth = 0.5f; // Wider bandwidth
+            float randomBandwidth = 0.25f;//random.nextFloat() * (maxBandwidth - minBandwidth) + minBandwidth;
 
-            // Random bandwidth in octaves (0.1 to 2.0)
-            float randomBandwidth = random.nextFloat() * (2.0f - 0.1f) + 0.1f;
+            // Create the main permutation band
+            Band mainBand(0, frequencies[b], gainDB, randomBandwidth, Band::Type::both);
+            permBands.push_back(mainBand);
 
-            // Store normalized values
-            Band band(0, randomFreqOffset, randomGain, randomBandwidth, Band::Type::both);
-            permBands.push_back(band);
+            // Fine permutation: Same as main permutation for now (can be modified if needed)
+            Band fineBand(0, 1.0f, 1.0f, 0.0f, Band::Type::both);
+            finePermBands.push_back(fineBand);
         }
 
+        // Add the permutations to the lists
         permutations.push_back(permBands);
+        finePermutations.push_back(finePermBands);
     }
 }
+
+//void KnobView::generatePermutations()
+//{
+//    // Clear existing permutations
+//    permutations.clear();
+//
+//    const int numPermutations = 10; // Generate 10 permutations
+//    const int numBands = 8;         // Each permutation has 3 bands
+//    juce::Random random;
+//
+//    for (int p = 0; p < numPermutations; ++p)
+//    {
+//        std::vector<Band> permBands;
+//
+//        for (int b = 0; b < numBands; ++b)
+//        {
+//            // Random frequency offset in octaves (-1 to +1)
+//            float randomFreqOffset = random.nextFloat() * 2.0f - 1.0f;
+//
+//            // Random gain in dB (-12 dB to +12 dB)
+//            float randomGain = random.nextFloat() * 24.0f - 12.0f;
+//
+//            // Random bandwidth in octaves (0.1 to 2.0)
+//            float randomBandwidth = random.nextFloat() * (2.0f - 0.1f) + 0.1f;
+//
+//            // Store normalized values
+//            Band band(0, randomFreqOffset, randomGain, randomBandwidth, Band::Type::both);
+//            permBands.push_back(band);
+//        }
+//
+//        permutations.push_back(permBands);
+//    }
+//}

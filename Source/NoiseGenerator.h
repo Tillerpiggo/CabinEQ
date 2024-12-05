@@ -25,6 +25,7 @@ public:
     void setBandwidth (float bandwidth);
     void setBandpass (float centerFreq);
     void setPan (float pan);
+    void mute();
     
 private:
     float sampleRate;
@@ -39,4 +40,6 @@ private:
     float pan = 0.0f;
     float leftGain = 0.0f;
     float rightGain = 0.0f;
+    
+    bool isMuted = false;
 };

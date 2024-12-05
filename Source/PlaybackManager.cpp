@@ -71,10 +71,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         filterCycleCounter = 0;
     }
     
-    if (isPlayingNoise)
-    {
-        tiltFilter.process (ioContext);
-    }
+//    if (isPlayingNoise)
+//    {
+//        tiltFilter.process (ioContext);
+//    }
     
     overallVolumeProcessor.process (ioContext);
 }
@@ -151,6 +151,7 @@ void PlaybackManager::setCenterPos (juce::Point<float> centerPos)
 void PlaybackManager::setGlyph (Glyph glyph)
 {
     glyphGenerator.setGlyph (glyph);
+    std::cout << "set glyph" << std::endl;
 }
 
 float PlaybackManager::getCurrPlayingTime()
