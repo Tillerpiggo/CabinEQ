@@ -43,7 +43,7 @@ std::pair<float, float> GlyphGenerator::getNextSample()
         nextSample.second += noiseSample.second * gain;
     }
     
-    sampleCount += 1.0f / speedFactor;
+    sampleCount += speedFactor;
     if (sampleCount > noteLenInSamples)
     {
         sampleCount = 0;
@@ -159,7 +159,7 @@ float GlyphGenerator::freqFromYPos (float yPos)
 
 float GlyphGenerator::panFromXPos (float xPos)
 {
-//    xPos *= sizeFactor;
+    xPos *= sizeFactor;
     xPos += centerPos.x;
     return xPos;
 }

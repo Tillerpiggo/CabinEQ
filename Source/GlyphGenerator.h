@@ -60,7 +60,7 @@ private:
     float sizeFactor = 1.0f;
     
     int updateBandpassCounter = 0;
-    int sampleCount = 0;
-    int noteLenInSamples = 40000;
+    float sampleCount = 0;
+    int noteLenInSamples = 20000;
     GainEnvelope gainEnvelope { 1000 };
 };
