@@ -16,11 +16,13 @@ BuildableComponent::BuildableComponent()
 
 BuildableComponent::~BuildableComponent()
 {
-    for (const auto& button : buttons)
-        button->removeListener (this);
+    // Buttons and sliders should be destructed by parent component before the component is destructed, so there is nothing needed to destroy here. We don't own the buttons/sliders in the first place.
     
-    for (const auto& slider : sliders)
-        slider->removeListener (this);
+//    for (const auto& button : buttons)
+//        button->removeListener (this);
+//    
+//    for (const auto& slider : sliders)
+//        slider->removeListener (this);
 }
 
 void BuildableComponent::sliderValueChanged (juce::Slider *slider)

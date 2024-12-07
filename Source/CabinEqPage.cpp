@@ -19,8 +19,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 //    addAndMakeVisible (glyphView);
 //    addAndMakeVisible (knobView);
 //    
-//    // Sliders
-//    addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
+    // Sliders
+    addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
 //    
 //    // Buttons
 //    addButton (&bypassButton);
