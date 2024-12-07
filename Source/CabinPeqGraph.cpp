@@ -12,7 +12,7 @@
 
 CabinPeqGraph::CabinPeqGraph()
 {
-    startTimer (5);
+//    startTimer (5);
     
     addAndMakeVisible (leftRightButton);
     
@@ -68,6 +68,7 @@ void CabinPeqGraph::resized()
 void CabinPeqGraph::mouseMove (const juce::MouseEvent &event)
 {
     updateHoveringStatus (event);
+    repaint();
 }
 
 void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
@@ -156,6 +157,8 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     // If we right click and were hovering, delete the band
     if (hoveringId != -1 && event.mods.isRightButtonDown())
         removeBand (hoveringId);
+    
+    repaint();
 }
 
 void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
@@ -208,6 +211,8 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
             selectionStartFreq = temp;
         }
     }
+    
+    repaint();
 }
 
 void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
@@ -226,6 +231,8 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
     
     // Change the dot size back to normal
     selectedDotSize = DOT_SIZE_DEFAULT;
+    
+    repaint();
 }
 
 void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
@@ -251,6 +258,8 @@ void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::M
     maxFreqShowing = std::min (projectedMaxFreq, MAX_FREQ);
     
     updateHoveringStatus (event);
+    
+    repaint();
 }
 
 void CabinPeqGraph::setProvisionalBands (std::vector<Band> provisionalBands)
@@ -274,7 +283,7 @@ void CabinPeqGraph::updateBands()
 
 void CabinPeqGraph::timerCallback()
 {
-//    repaint();
+    repaint();
 }
 
 void CabinPeqGraph::setListener (CabinPeqGraphListener* listener)

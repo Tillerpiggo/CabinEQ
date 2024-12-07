@@ -13,7 +13,7 @@
 
 AnimatedGlyph::AnimatedGlyph()
 {
-    startTimer (5);
+//    startTimer (5);
 }
 
 AnimatedGlyph::~AnimatedGlyph()
@@ -33,10 +33,10 @@ void AnimatedGlyph::setStrokeWidthFactor (float strokeWidthFactor)
 
 void AnimatedGlyph::paint (juce::Graphics& g)
 {
-//    // TODO: draw the glyph
-//    drawStrokes (g);
-//    drawPlayingDot (g);
-//    drawCenterDot (g);
+    // TODO: draw the glyph
+    drawStrokes (g);
+    drawPlayingDot (g);
+    drawCenterDot (g);
 }
 
 void AnimatedGlyph::resized()
@@ -47,11 +47,12 @@ void AnimatedGlyph::resized()
 void AnimatedGlyph::mouseMove (const juce::MouseEvent &event)
 {
     updateHoveringStatus (event);
+    repaint();
 }
 
 void AnimatedGlyph::mouseDown (const juce::MouseEvent &event)
 {
-    
+    repaint();
 }
 
 void AnimatedGlyph::mouseDrag (const juce::MouseEvent &event)
@@ -64,11 +65,13 @@ void AnimatedGlyph::mouseDrag (const juce::MouseEvent &event)
         listener->setCenterPos (pos);
         centerPos = dataSource->getCenterPos();
     }
+    
+    repaint();
 }
 
 void AnimatedGlyph::mouseUp (const juce::MouseEvent &event)
 {
-    
+    repaint();
 }
 
 void AnimatedGlyph::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
@@ -83,7 +86,8 @@ void AnimatedGlyph::mouseWheelMove (const juce::MouseEvent &event, const juce::M
         sizeFactor = dataSource->getSizeFactor();
         centerPos = dataSource->getCenterPos();
     }
-        
+       
+    repaint();
 }
 
 void AnimatedGlyph::setListener (Listener* listener)
@@ -100,7 +104,7 @@ void AnimatedGlyph::setDataSource (DataSource* dataSource)
 
 void AnimatedGlyph::timerCallback()
 {
-//    repaint();
+    repaint();
 }
 
 void AnimatedGlyph::updateHoveringStatus (const juce::MouseEvent& event)
