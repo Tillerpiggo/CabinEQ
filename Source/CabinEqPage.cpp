@@ -44,7 +44,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
 //    
-//    didLoadData();
+    didLoadData();
 //    
 //    glyphView.setListener (this);
 //    glyphView.setDataSource (this);
