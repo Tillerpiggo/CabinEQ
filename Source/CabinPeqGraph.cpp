@@ -38,7 +38,6 @@ CabinPeqGraph::CabinPeqGraph()
 
 CabinPeqGraph::~CabinPeqGraph()
 {
-    leftRightButton.removeListener (this);
     removeListener();
 }
 
@@ -51,16 +50,6 @@ void CabinPeqGraph::setBandProfile (BandProfile bandProfile)
 
 void CabinPeqGraph::paint(juce::Graphics& g)
 {
-//    // Create a vertical gradient that goes from transparent in the center to opaque at the edges
-//    juce::ColourGradient fadeGradient(
-//        juce::Colours::black.withAlpha (0.95f), 0.0f, static_cast<float> (getHeight()), // Bottom
-//        juce::Colours::black.withAlpha (0.6f), 0.0f, 0.0f, // Top edge
-//        false);
-//
-//    // Set the gradient as the fill and draw a rectangle over the entire component
-//    g.setGradientFill(fadeGradient);
-//    g.fillRect(getLocalBounds());
-    
     // Draw your curve and log lines as usual
     drawLines(g);
     drawCurve(g);

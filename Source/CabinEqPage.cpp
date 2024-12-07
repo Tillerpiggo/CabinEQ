@@ -14,41 +14,41 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     : processor (p), profileId ("NO_PROFILE")
 {
     amplGraph = std::make_unique<CabinPeqGraph>();
-    
-    
-    addAndMakeVisible (glyphView);
-    addAndMakeVisible (knobView);
-    
-    // Sliders
-    addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
-    
-    // Buttons
-    addButton (&bypassButton);
-    
-    // Slider Actions
-    addSliderAction (&masterVolumeSlider, [this](juce::Slider* slider) {
-        processor.setVolume (slider->getValue());
-    });
-    // Button Actions
-    addButtonAction (&bypassButton, [this](juce::Button* button) {
-        toggleBypass();
-        processor.setIsFilterOn (! isBypassed);
-    });
-    
+//    
+//    
+//    addAndMakeVisible (glyphView);
+//    addAndMakeVisible (knobView);
+//    
+//    // Sliders
+//    addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
+//    
+//    // Buttons
+//    addButton (&bypassButton);
+//    
+//    // Slider Actions
+//    addSliderAction (&masterVolumeSlider, [this](juce::Slider* slider) {
+//        processor.setVolume (slider->getValue());
+//    });
+//    // Button Actions
+//    addButtonAction (&bypassButton, [this](juce::Button* button) {
+//        toggleBypass();
+//        processor.setIsFilterOn (! isBypassed);
+//    });
+//    
     amplGraph->setListener (&processor);
     amplGraph->addDataSource (&processor);
     profileDropdown.addListener (this);
-    processor.addListener (this);
-    
-    // Extra stuff, will clean up later
+//    processor.addListener (this);
+//    
+//    // Extra stuff, will clean up later
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
-    
-    didLoadData();
-    
-    glyphView.setListener (this);
-    glyphView.setDataSource (this);
-    knobView.setListener (this);
+//    
+//    didLoadData();
+//    
+//    glyphView.setListener (this);
+//    glyphView.setDataSource (this);
+//    knobView.setListener (this);
     
 //    setLookAndFeel (&cabinEqLookAndFeel);
 }
@@ -56,12 +56,12 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 CabinEqPage::~CabinEqPage()
 {
     profileDropdown.removeListener (this);
-    bypassButton.removeListener (this);
-    masterVolumeSlider.removeListener (this);
-    
+//    bypassButton.removeListener (this);
+//    masterVolumeSlider.removeListener (this);
+//    
     amplGraph->removeListener();
-    
-    processor.removeListener();
+//    
+//    processor.removeListener();
     
 //    setLookAndFeel (nullptr);
 }
