@@ -552,17 +552,17 @@ void CabinEqAudioProcessor::setStateInformation (const void* data, int sizeInByt
     {
         if (xmlState->hasTagName(parameters.state.getType()))
         {
-//            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-//            cabinEqProfileManager.initProfiles();
-//            
-//            if (! hasLoadedData)
-//            {
-//                for (auto listener : listeners)
-//                    if (listener != nullptr)
-//                        listener->didLoadData();
-//                profileId = getLastSelectedProfileName().value_or ("NO_PROFILE");
-//                hasLoadedData = true;
-//            }
+            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
+            cabinEqProfileManager.initProfiles();
+            
+            if (! hasLoadedData)
+            {
+                for (auto listener : listeners)
+                    if (listener != nullptr)
+                        listener->didLoadData();
+                profileId = getLastSelectedProfileName().value_or ("NO_PROFILE");
+                hasLoadedData = true;
+            }
         }
     }
 }

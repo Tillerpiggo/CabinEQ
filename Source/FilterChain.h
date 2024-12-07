@@ -58,7 +58,6 @@ public:
                     if (i >= leftFilters.size())
                     {
                         Band band = bands[i];
-                        std::cout << "band.type: " << static_cast<int> (band.type) << std::endl;
                         addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
                         addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
                     }
@@ -135,7 +134,6 @@ private:
     void addParametricBand (std::vector<std::unique_ptr<Filter>>& filters,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
-        std::cout << "adding parameteric band" << std::endl;
         auto filter = std::make_unique<Filter>();
         *filter->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
                                                               juce::Decibels::decibelsToGain (amplInDB));
@@ -148,7 +146,6 @@ private:
     void updateParametricBand (std::vector<std::unique_ptr<Filter>>& filters, int idx,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
-        std::cout << "updating parametric band" << std::endl;
         *filters[idx]->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
                                                                     juce::Decibels::decibelsToGain (amplInDB));
 //        filters[idx]->setCoefficients (sampleRate, centerFreq, qFactor, amplInDB);

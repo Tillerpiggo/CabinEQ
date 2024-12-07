@@ -51,6 +51,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     
     if (isFilterOn)
     {
+        filter.process (ioBlock);
         profileVolumeProcessor.process (ioContext);
         
         if (isProvisionalOn)
