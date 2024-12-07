@@ -274,7 +274,7 @@ void CabinPeqGraph::updateBands()
 
 void CabinPeqGraph::timerCallback()
 {
-    repaint();
+//    repaint();
 }
 
 void CabinPeqGraph::setListener (CabinPeqGraphListener* listener)

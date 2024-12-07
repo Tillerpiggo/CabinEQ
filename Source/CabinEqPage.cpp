@@ -34,16 +34,15 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
         toggleBypass();
         processor.setIsFilterOn (! isBypassed);
     });
-//    
     amplGraph->setListener (&processor);
     amplGraph->addDataSource (&processor);
     profileDropdown.addListener (this);
     processor.addListener (this);
-//    
-//    // Extra stuff, will clean up later
+    
+    // Extra stuff, will clean up later
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
-//    
+    
     didLoadData();
     
     glyphView.setListener (this);
@@ -85,7 +84,7 @@ void CabinEqPage::resized()
     
     Layout layout (getBounds(), 8.0f);
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
-    layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.6);
+//    layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.6);
     layout.addRow ({ Space (&knobView, 300), Space (&glyphView) });
     layout.updateComponentBounds();
 }

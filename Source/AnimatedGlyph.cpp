@@ -33,10 +33,10 @@ void AnimatedGlyph::setStrokeWidthFactor (float strokeWidthFactor)
 
 void AnimatedGlyph::paint (juce::Graphics& g)
 {
-    // TODO: draw the glyph
-    drawStrokes (g);
-    drawPlayingDot (g);
-    drawCenterDot (g);
+//    // TODO: draw the glyph
+//    drawStrokes (g);
+//    drawPlayingDot (g);
+//    drawCenterDot (g);
 }
 
 void AnimatedGlyph::resized()
@@ -100,7 +100,7 @@ void AnimatedGlyph::setDataSource (DataSource* dataSource)
 
 void AnimatedGlyph::timerCallback()
 {
-    repaint();
+//    repaint();
 }
 
 void AnimatedGlyph::updateHoveringStatus (const juce::MouseEvent& event)
