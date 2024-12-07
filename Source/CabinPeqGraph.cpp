@@ -36,25 +36,6 @@ CabinPeqGraph::CabinPeqGraph()
     });
     
     // Initialize variables for faster painting
-    
-    
-    // centerPath
-    float centerY = yForAmpl (0);
-    centerPath.startNewSubPath (0, centerY);
-    centerPath.lineTo (getWidth(), centerY);
-    
-    // lineFreqs
-    float startLineFreq = 10;
-    float currLineFreq = 10;
-    float interval = 10;
-    float numLines = 10;//std::pow (10.0f, std::round (2.0f - std::log10 (maxFreqShowing / minFreqShowing)));
-    while (currLineFreq <= 20000)
-    {
-        lineFreqs.push_back (currLineFreq);
-        currLineFreq += interval;
-        if ((currLineFreq - startLineFreq) / interval >= numLines)
-            interval *= 10;
-    }
 }
 
 CabinPeqGraph::~CabinPeqGraph()
@@ -96,6 +77,24 @@ void CabinPeqGraph::resized()
         horizontalLinePath.startNewSubPath (0, y);
         horizontalLinePath.lineTo (getWidth(), y);
         horizontalLinePaths.push_back (horizontalLinePath);
+    }
+    
+    // centerPath
+    float centerY = yForAmpl (0);
+    centerPath.startNewSubPath (0, centerY);
+    centerPath.lineTo (getWidth(), centerY);
+    
+    // lineFreqs
+    float startLineFreq = 10;
+    float currLineFreq = 10;
+    float interval = 10;
+    float numLines = 10;//std::pow (10.0f, std::round (2.0f - std::log10 (maxFreqShowing / minFreqShowing)));
+    while (currLineFreq <= 20000)
+    {
+        lineFreqs.push_back (currLineFreq);
+        currLineFreq += interval;
+        if ((currLineFreq - startLineFreq) / interval >= numLines)
+            interval *= 10;
     }
 }
 
