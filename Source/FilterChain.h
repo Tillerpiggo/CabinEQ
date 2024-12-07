@@ -15,8 +15,10 @@
 #include <iostream>
 #include <cmath>
 
+#include "SIMDIIRFilter.h"
+
 using Filter = juce::dsp::IIR::Filter<float>;
-using Coefficients = juce::dsp::IIR::ArrayCoefficients<float>;
+using Coefficients = juce::dsp::IIR::Coefficients<float>;
 
 /// This manages a list of filters for stereo processing, with separate filters for left and right channels.
 class FilterChain
@@ -119,6 +121,8 @@ public:
 private:
     std::vector<std::unique_ptr<Filter>> leftFilters;
     std::vector<std::unique_ptr<Filter>> rightFilters;
+//    std::vector<std::unique_ptr<SIMDIIRFilter>> leftFilters;
+//    std::vector<std::unique_ptr<SIMDIIRFilter>> rightFilters;
     std::vector<Band> bands;
     float sampleRate = 44100;
     bool shouldUpdateFilters = false;
@@ -131,9 +135,11 @@ private:
     void addParametricBand (std::vector<std::unique_ptr<Filter>>& filters,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
+        std::cout << "adding parameteric band" << std::endl;
         auto filter = std::make_unique<Filter>();
-        *filter->coefficients = Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
+        *filter->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
                                                               juce::Decibels::decibelsToGain (amplInDB));
+//        filter->setCoefficients (sampleRate, centerFreq, qFactor, amplInDB);
         filter->prepare (spec);
         filters.push_back (std::move(filter));
     }
@@ -142,8 +148,10 @@ private:
     void updateParametricBand (std::vector<std::unique_ptr<Filter>>& filters, int idx,
                             double sampleRate, double centerFreq, double qFactor, float amplInDB)
     {
-        *filters[idx]->coefficients = Coefficients::makePeakFilter (sampleRate, centerFreq, qFactor,
-                                                              juce::Decibels::decibelsToGain (amplInDB));
+        std::cout << "updating parametric band" << std::endl;
+        *filters[idx]->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
+                                                                    juce::Decibels::decibelsToGain (amplInDB));
+//        filters[idx]->setCoefficients (sampleRate, centerFreq, qFactor, amplInDB);
 //        *filters[idx]->coefficients = *Coefficients::makeNotch (sampleRate, centerFreq, qFactor);
     }
     

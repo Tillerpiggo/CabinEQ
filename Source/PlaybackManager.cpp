@@ -51,24 +51,12 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     
     if (isFilterOn)
     {
-//        firFilter.process (ioBlock);
-        if (! isPlayingNoise || filterCycleCounter < 100 || true)
+        profileVolumeProcessor.process (ioContext);
+        
+        if (isProvisionalOn)
         {
-            filter.process (ioBlock);
-            profileVolumeProcessor.process (ioContext);
-            
-            if (isProvisionalOn)
-            {
-                provisionalFilter.process (ioBlock);
-            }
-            
-//            crossfeedFilter.processBlock (ioBuffer);
+            provisionalFilter.process (ioBlock);
         }
-    }
-    filterCycleCounter++;
-    if (filterCycleCounter > 200)
-    {
-        filterCycleCounter = 0;
     }
     
 //    if (isPlayingNoise)
@@ -91,7 +79,6 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     
     glyphGenerator.prepare (spec);
     fractalPatternGenerator.prepare (spec);
-//    pinkNoiseGenerator.setSampleRate (spec.sampleRate);
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
     firFilter.prepare (spec);
@@ -151,7 +138,6 @@ void PlaybackManager::setCenterPos (juce::Point<float> centerPos)
 void PlaybackManager::setGlyph (Glyph glyph)
 {
     glyphGenerator.setGlyph (glyph);
-    std::cout << "set glyph" << std::endl;
 }
 
 float PlaybackManager::getCurrPlayingTime()
@@ -161,19 +147,5 @@ float PlaybackManager::getCurrPlayingTime()
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    
-//    if (clickTrainCounter >= 12000)
-//    {
-//        clickTrainCounter = 0;
-//        return { 1.0f, 1.0f };
-//    }
-//    clickTrainCounter++;
-//    return { 0.0f, 0.0f };
-    float val = pinkNoise.generate();
-    auto sample = glyphGenerator.getNextSample();
-    return sample;
-//    return { sample.first + val, sample.second + val };
-//    float val = pinkNoise.generate();
-//    return { val, val };
-//    return fractalPatternGenerator.getNextSample();
+    return glyphGenerator.getNextSample();
 }

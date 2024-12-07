@@ -72,7 +72,4 @@ private:
     bool isFilterOn; // if the EQ curve is being applied
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
-    
-    int filterCycleCounter = 0;
-    int clickTrainCounter = 0;
 };

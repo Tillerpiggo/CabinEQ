@@ -179,6 +179,7 @@
         <FILE id="ItRFbf" name="ArbitraryResponseFilter.h" compile="0" resource="0"
               file="Source/ArbitraryResponseFilter.h"/>
         <FILE id="Ix4Abh" name="FilterChain.h" compile="0" resource="0" file="Source/FilterChain.h"/>
+        <FILE id="Uo9gHR" name="SIMDIIRFilter.h" compile="0" resource="0" file="Source/SIMDIIRFilter.h"/>
       </GROUP>
     </GROUP>
     <GROUP id="{41775B42-C5FA-EAED-2185-E529EED0849D}" name="Old/Unused">
