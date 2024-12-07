@@ -13,6 +13,7 @@ CabinEqProcessorEditor::CabinEqProcessorEditor(CabinEqAudioProcessor& p)
 {
     setSize (1080, 720);
     addAndMakeVisible (cabinEqPage);
+    setResizable (true, false);
 }
 
 CabinEqProcessorEditor::~CabinEqProcessorEditor()
