@@ -144,4 +144,13 @@ private:
     // BandEqCurve
     BandEqCurve curve;
     Band::Type bandType = Band::Type::both;
+    
+    // Variables for faster painting
+    juce::Colour centerLineColour = juce::Colours::lightgrey;
+    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.3f);
+    juce::PathStrokeType lineStrokeType { CURVE_THICKNESS / 2.0f};
+    
+    juce::Path centerPath;
+    std::vector<juce::Path> horizontalLinePaths;
+    std::vector<float> lineFreqs;
 };

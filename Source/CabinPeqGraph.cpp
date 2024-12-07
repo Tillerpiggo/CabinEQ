@@ -34,6 +34,27 @@ CabinPeqGraph::CabinPeqGraph()
                 break;
         }
     });
+    
+    // Initialize variables for faster painting
+    
+    
+    // centerPath
+    float centerY = yForAmpl (0);
+    centerPath.startNewSubPath (0, centerY);
+    centerPath.lineTo (getWidth(), centerY);
+    
+    // lineFreqs
+    float startLineFreq = 10;
+    float currLineFreq = 10;
+    float interval = 10;
+    float numLines = 10;//std::pow (10.0f, std::round (2.0f - std::log10 (maxFreqShowing / minFreqShowing)));
+    while (currLineFreq <= 20000)
+    {
+        lineFreqs.push_back (currLineFreq);
+        currLineFreq += interval;
+        if ((currLineFreq - startLineFreq) / interval >= numLines)
+            interval *= 10;
+    }
 }
 
 CabinPeqGraph::~CabinPeqGraph()
@@ -63,6 +84,19 @@ void CabinPeqGraph::resized()
     
     // Add button in bottom right corner
     leftRightButton.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 50.0f, 80.0f, 40.0f);
+    
+    // Recalculate needed vars
+    
+    // horizontalLinePaths
+    horizontalLinePaths.clear();
+    int numHorizontalLines = 12;
+    for (float y = 0; y <= getHeight(); y += getHeight() / numHorizontalLines)
+    {
+        juce::Path horizontalLinePath;
+        horizontalLinePath.startNewSubPath (0, y);
+        horizontalLinePath.lineTo (getWidth(), y);
+        horizontalLinePaths.push_back (horizontalLinePath);
+    }
 }
 
 void CabinPeqGraph::mouseMove (const juce::MouseEvent &event)
@@ -315,25 +349,17 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
-    juce::Colour centerLineColour = juce::Colours::lightgrey;
-    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.3f);
-    juce::PathStrokeType lineStrokeType (CURVE_THICKNESS / 2.0f);
     
-    juce::Path centerPath;
-    float centerY = yForAmpl (0);
-    centerPath.startNewSubPath (0, centerY);
-    centerPath.lineTo (getWidth(), centerY);
+    
+    
+    
     g.setColour (centerLineColour);
     g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS));
     
     // Draw the other horizontal lines
     g.setColour (lineColour);
-    int numHorizontalLines = 12;
-    for (float y = 0; y <= getHeight(); y += getHeight() / numHorizontalLines)
+    for (const auto& horizontalLinePath : horizontalLinePaths)
     {
-        juce::Path horizontalLinePath;
-        horizontalLinePath.startNewSubPath (0, y);
-        horizontalLinePath.lineTo (getWidth(), y);
         g.strokePath (horizontalLinePath, lineStrokeType);
     }
     
@@ -341,20 +367,6 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
     // draw lines starting at intervals of 10
     // every 10 it goes to intervals of 100
     // etc.
-    
-    std::vector<float> lineFreqs;
-    float startLineFreq = 10;
-    float currLineFreq = 10;
-    float interval = 10;
-    float numLines = 10;//std::pow (10.0f, std::round (2.0f - std::log10 (maxFreqShowing / minFreqShowing)));
-    while (currLineFreq <= 20000)
-    {
-        lineFreqs.push_back (currLineFreq);
-        currLineFreq += interval;
-        if ((currLineFreq - startLineFreq) / interval >= numLines)
-            interval *= 10;
-    }
-    
     for (const auto& lineFreq : lineFreqs)
     {
         if (lineFreq >= minFreqShowing / 1.1f && lineFreq <= maxFreqShowing * 1.1f)
