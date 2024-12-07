@@ -472,6 +472,8 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     glyphManager.addGlyphs ({ diamondCornersGlyph, threeGridVertical, threeGrid, horizontalLineGlyph, diagGlyph, diag2Glyph, diagGlyphCenter, diag2GlyphCenter, diagCloseGlyph, diag2CloseGlyph, lineGlyph, squareGlyph, triangleGlyph, dotGlyph, heightGlyph, bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
+    
+//    std::cout << "init glyphs" << std::endl;
 }
 
 void CabinEqAudioProcessor::releaseResources()
@@ -550,17 +552,17 @@ void CabinEqAudioProcessor::setStateInformation (const void* data, int sizeInByt
     {
         if (xmlState->hasTagName(parameters.state.getType()))
         {
-            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-            cabinEqProfileManager.initProfiles();
-            
-            if (! hasLoadedData)
-            {
-                for (auto listener : listeners)
-                    if (listener != nullptr)
-                        listener->didLoadData();
-                profileId = getLastSelectedProfileName().value_or ("NO_PROFILE");
-                hasLoadedData = true;
-            }
+//            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
+//            cabinEqProfileManager.initProfiles();
+//            
+//            if (! hasLoadedData)
+//            {
+//                for (auto listener : listeners)
+//                    if (listener != nullptr)
+//                        listener->didLoadData();
+//                profileId = getLastSelectedProfileName().value_or ("NO_PROFILE");
+//                hasLoadedData = true;
+//            }
         }
     }
 }

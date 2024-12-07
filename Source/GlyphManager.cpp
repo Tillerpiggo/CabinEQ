@@ -17,7 +17,8 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 
 Glyph GlyphManager::getCurrGlyph()
 {
-    return glyphs[glyphIdx];
+    auto currGlyph = glyphs[glyphIdx];
+    return currGlyph;
 }
 
 void GlyphManager::goToNext()
