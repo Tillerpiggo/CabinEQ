@@ -147,6 +147,12 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
             { 1, -1 }, { 1, 0 }, { 1, 1 }})
     });
     
+    Glyph roundabout ({
+        Stroke ({{ 0, 0 }, { -1, -1 }, { 0, 0 }, { -1, 0 }, { 0, 0 }, { -1, 1 },
+            { 0, 0 }, { 0, -1 }, { 0, 0 }, { 0, 1 },
+            { 0, 0 }, { 1, -1 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 1, 1 }})
+    });
+    
     Glyph threeGrid ({
         Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 },
                  { -1, 0 }, { 0, 0 }, { 1, 0 },
@@ -470,7 +476,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         })
     });
     
-    glyphManager.addGlyphs ({ diamondCornersGlyph, threeGridVertical, threeGrid, horizontalLineGlyph, diagGlyph, diag2Glyph, diagGlyphCenter, diag2GlyphCenter, diagCloseGlyph, diag2CloseGlyph, lineGlyph, squareGlyph, triangleGlyph, dotGlyph, heightGlyph, bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
+    glyphManager.addGlyphs ({ diamondCornersGlyph, threeGridVertical, roundabout, threeGrid, horizontalLineGlyph, diagGlyph, diag2Glyph, diagGlyphCenter, diag2GlyphCenter, diagCloseGlyph, diag2CloseGlyph, lineGlyph, squareGlyph, triangleGlyph, dotGlyph, heightGlyph, bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
     
 //    std::cout << "init glyphs" << std::endl;

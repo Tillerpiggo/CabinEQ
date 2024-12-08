@@ -43,6 +43,7 @@ private:
     std::optional<Glyph> glyph;
     
     std::vector<NoiseGenerator> noiseGenerators;
+    NoiseGenerator noiseGenerator;
 //    SpatialNoiseGenerator spatialNoiseGenerator;
     float currTime = 0.0f;
     float timeInterval = 0.0f; // must be set in prepare
@@ -62,5 +63,6 @@ private:
     int updateBandpassCounter = 0;
     float sampleCount = 0;
     int noteLenInSamples = 20000;
+    int numVertices = 0;
     GainEnvelope gainEnvelope { 1000 };
 };

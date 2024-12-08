@@ -203,6 +203,7 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
     if (isHoveringOverDotControl)
     {
         setVolume (ampl);
+        repaint();
         return;
     }
     

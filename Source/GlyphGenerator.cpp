@@ -37,14 +37,14 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     for (int i = 0; i < noiseGenerators.size(); ++i)
     {
         auto noiseSample = noiseGenerators[i].getNextSample();
-        float sampleOffset = noteLenInSamples * (static_cast<float> (i) / static_cast<float> (noiseGenerators.size()));
-        float gain = gainEnvelope.gainAtSample ((static_cast<int> (sampleCount) + static_cast<int> (sampleOffset)) % noteLenInSamples, noteLenInSamples);
+        float sampleOffset = noteLenInSamples * i;
+        float gain = gainEnvelope.gainAtSample ((static_cast<int> (sampleCount) + static_cast<int> (sampleOffset)) % (noteLenInSamples * numVertices), noteLenInSamples * numVertices);
         nextSample.first += noiseSample.first * gain;
         nextSample.second += noiseSample.second * gain;
     }
     
     sampleCount += speedFactor;
-    if (sampleCount > noteLenInSamples)
+    if (sampleCount > noteLenInSamples * numVertices)
     {
         sampleCount = 0;
     }
@@ -75,6 +75,8 @@ void GlyphGenerator::setGlyph (Glyph glyph)
 {
     this->glyph = glyph;
     auto vertices = glyph.getVertices();
+    numVertices = (int) vertices.size();
+    gainEnvelope.setEndEarlyInSamples (noteLenInSamples * numVertices - 2000 * numVertices);
     
     // Add needed genertors
     int numToAdd = static_cast<int> (vertices.size()) - static_cast<int> (noiseGenerators.size());
