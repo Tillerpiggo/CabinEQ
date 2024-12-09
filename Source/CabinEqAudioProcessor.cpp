@@ -695,6 +695,7 @@ int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const fl
     {
         int bandId = profile->get().addBand (freq, ampl, bandwidth, type);
         updateFilter();
+        playbackManager.setCenterFreq (freq);
         return bandId;
     }
         
@@ -709,6 +710,8 @@ void CabinEqAudioProcessor::updateBand (const int id, const float freq, const fl
         profile->get().updateBand (id, freq, ampl, bandwidth, type);
         updateFilter();
     }
+    
+    playbackManager.setCenterFreq (freq);
 }
 
 void CabinEqAudioProcessor::removeBand (const int id)

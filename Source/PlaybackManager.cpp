@@ -49,7 +49,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     // TODO: combine this audio processing logic for compile-time optimization with processorChain
     
     
-    if (isFilterOn)
+    if (isFilterOn && (sampleCount <= cycleTimeInSamples / 2.0f || ! isPlayingNoise))
     {
         filter.process (ioBlock);
         profileVolumeProcessor.process (ioContext);
@@ -80,11 +80,17 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     
     glyphGenerator.prepare (spec);
     fractalPatternGenerator.prepare (spec);
+    sineWaveGenerator.setSampleRate (spec.sampleRate);
+    sineWaveGenerator.setNote (Note (1000.0f, 0.0f, 0.0f, 0.0f));
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
     firFilter.prepare (spec);
     tiltFilter.prepare (spec);
     tiltFilter.updateWithCurve (tiltCurve);
+    noiseGenerator.prepare (spec);
+    noiseGenerator.setBandpass (centerFreq);
+    noiseGenerator.setBandwidth (0.5f);
+    noiseGenerator.setPan (0.0f);
     
     fractalPatternGenerator.setPattern (FractalPattern (4));
 }
@@ -146,7 +152,33 @@ float PlaybackManager::getCurrPlayingTime()
     return glyphGenerator.getCurrPlayingTime();
 }
 
+void PlaybackManager::setCenterFreq (float centerFreq)
+{
+    this->centerFreq = centerFreq;
+    sineWaveGenerator.setFrequency (centerFreq);
+    noiseGenerator.setBandpass (centerFreq);
+}
+
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return glyphGenerator.getNextSample();
+    
+    sampleCount++;
+    if (sampleCount > cycleTimeInSamples / 2.0f)
+    {
+        sineWaveGenerator.setPan (-1.0f);
+        
+    }
+    
+    if (sampleCount > cycleTimeInSamples)
+    {
+        sineWaveGenerator.setPan (1.0f);
+        sampleCount = 0;
+    }
+    
+    return noiseGenerator.getNextSample();
+//
+//    auto nextSample = sineWaveGenerator.getNextSample();
+//    
+//    return nextSample;
+//    return glyphGenerator.getNextSample();
 }

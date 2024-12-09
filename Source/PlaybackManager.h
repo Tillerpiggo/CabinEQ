@@ -18,6 +18,8 @@
 #include "FractalPatternGenerator.h"
 #include "PinkNoiseGenerator.h"
 #include "CrossfeedFilter.h"
+#include "NoiseGenerator.h"
+#include "SineWaveGenerator.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -40,6 +42,8 @@ public:
     void setSizeFactor (float sizeFactor);
     void setCenterPos (juce::Point<float> centerPos);
     
+    void setCenterFreq (float centerFreq);
+    
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
     void setProvisionalBandsOn (bool isProvisionalOn);
@@ -56,6 +60,8 @@ private:
     FilterChain filter;
     FilterChain provisionalFilter;
     PinkNoise pinkNoise;
+    NoiseGenerator noiseGenerator;
+    SineWaveGenerator sineWaveGenerator;
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;
@@ -72,4 +78,9 @@ private:
     bool isFilterOn; // if the EQ curve is being applied
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
+    
+    int sampleCount = 0;
+    int cycleTimeInSamples = 40000;
+    float centerFreq = 1000.0f;
+    float referenceFreq = 500.0f;
 };

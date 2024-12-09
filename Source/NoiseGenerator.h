@@ -33,6 +33,9 @@ private:
     // Pink noise generation
     PinkNoise pinkNoise;
     juce::dsp::IIR::Filter<float> bandpass;
+    juce::dsp::IIR::Filter<float> bandpass2;
+    juce::dsp::IIR::Filter<float> bandpass3;
+    juce::dsp::IIR::Filter<float> bandpass4;
     int snapToZeroCounter = 0;
     
     // Constants
