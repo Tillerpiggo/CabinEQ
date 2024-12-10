@@ -329,7 +329,7 @@ void KnobView::updateBands()
         // Calculate actual frequency
         float bandPosition = (static_cast<float>(b) - (numBands - 1) / 2.0f); // Center bands around zero
         float freqInOctaves = bandPosition * spacingValue + freqOffset;
-        float freq = centerFreq * std::pow(2.0f, freqInOctaves);
+        float freq = fmin (centerFreq * std::pow(2.0f, freqInOctaves), 20000);
 
         // Create the interpolated band
         Band interpolatedBand(0, freq, gain, bandwidth, Band::Type::both);

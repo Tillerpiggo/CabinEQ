@@ -49,7 +49,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     // TODO: combine this audio processing logic for compile-time optimization with processorChain
     
     
-    if (isFilterOn && (sampleCount <= cycleTimeInSamples / 2.0f || ! isPlayingNoise))
+    if (isFilterOn)
     {
         filter.process (ioBlock);
         profileVolumeProcessor.process (ioContext);
@@ -162,19 +162,19 @@ void PlaybackManager::setCenterFreq (float centerFreq)
 std::pair<float, float> PlaybackManager::getNextSample()
 {
     
-    sampleCount++;
-    if (sampleCount > cycleTimeInSamples / 2.0f)
-    {
-        sineWaveGenerator.setPan (-1.0f);
-        
-    }
-    
-    if (sampleCount > cycleTimeInSamples)
-    {
-        sineWaveGenerator.setPan (1.0f);
-        sampleCount = 0;
-    }
-    
+//    sampleCount++;
+//    if (sampleCount > cycleTimeInSamples / 2.0f)
+//    {
+//        sineWaveGenerator.setPan (-1.0f);
+//        
+//    }
+//    
+//    if (sampleCount > cycleTimeInSamples)
+//    {
+//        sineWaveGenerator.setPan (1.0f);
+//        sampleCount = 0;
+//    }
+//    
     return noiseGenerator.getNextSample();
 //
 //    auto nextSample = sineWaveGenerator.getNextSample();
