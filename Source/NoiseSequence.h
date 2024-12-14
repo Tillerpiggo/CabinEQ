@@ -20,6 +20,8 @@ public:
     
     std::vector<std::pair<int, int>> getAbsoluteCoords(); // returns all coords, including the origin, in absolute terms, with (0, 0) as the bottom left corner
     std::vector<bool> getHits();
+    std::pair<int, int> getOrigin();
+    bool hasOriginAt (std::pair<int, int> point);
     
     void setOrigin (std::pair<int, int> newOrigin);
     void addCoords (std::pair<int, int> newCoords); // given in absolute terms, translated to be relative
