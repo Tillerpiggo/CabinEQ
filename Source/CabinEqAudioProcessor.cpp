@@ -159,16 +159,61 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
                  { -1, 1 }, { 0, 1 }, { 1, 1 }})
     });
     
+    Glyph fiveGrid({
+        Stroke ({
+            { -1.0, -1.0 }, { -0.5, -1.0 }, {  0.0, -1.0 }, {  0.5, -1.0 }, {  1.0, -1.0 },
+            { -1.0, -0.5 }, { -0.5, -0.5 }, {  0.0, -0.5 }, {  0.5, -0.5 }, {  1.0, -0.5 },
+            { -1.0,  0.0 }, { -0.5,  0.0 }, {  0.0,  0.0 }, {  0.5,  0.0 }, {  1.0,  0.0 },
+            { -1.0,  0.5 }, { -0.5,  0.5 }, {  0.0,  0.5 }, {  0.5,  0.5 }, {  1.0,  0.5 },
+            { -1.0,  1.0 }, { -0.5,  1.0 }, {  0.0,  1.0 }, {  0.5,  1.0 }, {  1.0,  1.0 }
+        })
+    });
+    
+    Glyph sevenGrid({
+        Stroke ({
+            // Row 1
+            { -1.0, -1.0 }, { -2.0/3.0, -1.0 }, { -1.0/3.0, -1.0 }, { 0.0, -1.0 }, { 1.0/3.0, -1.0 }, { 2.0/3.0, -1.0 }, { 1.0, -1.0 },
+            // Row 2
+            { -1.0, -2.0/3.0 }, { -2.0/3.0, -2.0/3.0 }, { -1.0/3.0, -2.0/3.0 }, { 0.0, -2.0/3.0 }, { 1.0/3.0, -2.0/3.0 }, { 2.0/3.0, -2.0/3.0 }, { 1.0, -2.0/3.0 },
+            // Row 3
+            { -1.0, -1.0/3.0 }, { -2.0/3.0, -1.0/3.0 }, { -1.0/3.0, -1.0/3.0 }, { 0.0, -1.0/3.0 }, { 1.0/3.0, -1.0/3.0 }, { 2.0/3.0, -1.0/3.0 }, { 1.0, -1.0/3.0 },
+            // Row 4
+            { -1.0, 0.0 }, { -2.0/3.0, 0.0 }, { -1.0/3.0, 0.0 }, { 0.0, 0.0 }, { 1.0/3.0, 0.0 }, { 2.0/3.0, 0.0 }, { 1.0, 0.0 },
+            // Row 5
+            { -1.0, 1.0/3.0 }, { -2.0/3.0, 1.0/3.0 }, { -1.0/3.0, 1.0/3.0 }, { 0.0, 1.0/3.0 }, { 1.0/3.0, 1.0/3.0 }, { 2.0/3.0, 1.0/3.0 }, { 1.0, 1.0/3.0 },
+            // Row 6
+            { -1.0, 2.0/3.0 }, { -2.0/3.0, 2.0/3.0 }, { -1.0/3.0, 2.0/3.0 }, { 0.0, 2.0/3.0 }, { 1.0/3.0, 2.0/3.0 }, { 2.0/3.0, 2.0/3.0 }, { 1.0, 2.0/3.0 },
+            // Row 7
+            { -1.0, 1.0 }, { -2.0/3.0, 1.0 }, { -1.0/3.0, 1.0 }, { 0.0, 1.0 }, { 1.0/3.0, 1.0 }, { 2.0/3.0, 1.0 }, { 1.0, 1.0 }
+        })
+    });
+    
+    Glyph sevenGrid2({
+            Stroke ({
+                // Column 1
+                { -1.0, -1.0 }, { -1.0, -2.0/3.0 }, { -1.0, -1.0/3.0 }, { -1.0, 0.0 }, { -1.0, 1.0/3.0 }, { -1.0, 2.0/3.0 }, { -1.0, 1.0 },
+                // Column 2
+                { -2.0/3.0, -1.0 }, { -2.0/3.0, -2.0/3.0 }, { -2.0/3.0, -1.0/3.0 }, { -2.0/3.0, 0.0 }, { -2.0/3.0, 1.0/3.0 }, { -2.0/3.0, 2.0/3.0 }, { -2.0/3.0, 1.0 },
+                // Column 3
+                { -1.0/3.0, -1.0 }, { -1.0/3.0, -2.0/3.0 }, { -1.0/3.0, -1.0/3.0 }, { -1.0/3.0, 0.0 }, { -1.0/3.0, 1.0/3.0 }, { -1.0/3.0, 2.0/3.0 }, { -1.0/3.0, 1.0 },
+                // Column 4
+                { 0.0, -1.0 }, { 0.0, -2.0/3.0 }, { 0.0, -1.0/3.0 }, { 0.0, 0.0 }, { 0.0, 1.0/3.0 }, { 0.0, 2.0/3.0 }, { 0.0, 1.0 },
+                // Column 5
+                { 1.0/3.0, -1.0 }, { 1.0/3.0, -2.0/3.0 }, { 1.0/3.0, -1.0/3.0 }, { 1.0/3.0, 0.0 }, { 1.0/3.0, 1.0/3.0 }, { 1.0/3.0, 2.0/3.0 }, { 1.0/3.0, 1.0 },
+                // Column 6
+                { 2.0/3.0, -1.0 }, { 2.0/3.0, -2.0/3.0 }, { 2.0/3.0, -1.0/3.0 }, { 2.0/3.0, 0.0 }, { 2.0/3.0, 1.0/3.0 }, { 2.0/3.0, 2.0/3.0 }, { 2.0/3.0, 1.0 },
+                // Column 7
+                { 1.0, -1.0 }, { 1.0, -2.0/3.0 }, { 1.0, -1.0/3.0 }, { 1.0, 0.0 }, { 1.0, 1.0/3.0 }, { 1.0, 2.0/3.0 }, { 1.0, 1.0 }
+            })
+        });
+    
     Glyph heightGlyph ({
         Stroke ({
-            { -0.2, -1 },   // Start at bottom-center, slightly to the left
-            { -0.2, -0.5 }, // Go up
-            { 0.2, -0.5 },  // Go right
-            { 0.2, 0 },     // Go up
-            { -0.2, 0 },    // Go left
-            { -0.2, 0.5 },  // Go up
-            { 0.2, 0.5 },   // Go right
-            { 0.2, 1 }      // Go up to the top
+            { 0, -1 },   // Start at bottom-center, slightly to the left
+            { 0, -0.5 }, // Go up
+            { 0, 0 },  // Go right
+            { 0, 0.5 },     // Go up
+            { 0, 1 }
         })
     });
     
@@ -476,7 +521,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         })
     });
     
-    glyphManager.addGlyphs ({ diamondCornersGlyph, threeGridVertical, roundabout, threeGrid, horizontalLineGlyph, diagGlyph, diag2Glyph, diagGlyphCenter, diag2GlyphCenter, diagCloseGlyph, diag2CloseGlyph, lineGlyph, squareGlyph, triangleGlyph, dotGlyph, heightGlyph, bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
+    glyphManager.addGlyphs ({ diamondCornersGlyph, threeGridVertical, roundabout, threeGrid, fiveGrid, sevenGrid, sevenGrid2, heightGlyph, horizontalLineGlyph, diagGlyph, diag2Glyph, diagGlyphCenter, diag2GlyphCenter, diagCloseGlyph, diag2CloseGlyph, lineGlyph, squareGlyph, triangleGlyph, dotGlyph, heightGlyph, bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
     playbackManager.setGlyph (getCurrGlyph());
     
 //    std::cout << "init glyphs" << std::endl;

@@ -175,10 +175,10 @@ std::pair<float, float> PlaybackManager::getNextSample()
 //        sampleCount = 0;
 //    }
 //    
-    return noiseGenerator.getNextSample();
+//    return noiseGenerator.getNextSample();
 //
 //    auto nextSample = sineWaveGenerator.getNextSample();
 //    
 //    return nextSample;
-//    return glyphGenerator.getNextSample();
+    return glyphGenerator.getNextSample();
 }
