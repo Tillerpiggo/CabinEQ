@@ -57,6 +57,10 @@
         <FILE id="gEYC7N" name="NoiseSequence.cpp" compile="1" resource="0"
               file="Source/NoiseSequence.cpp"/>
         <FILE id="No04yh" name="NoiseSequence.h" compile="0" resource="0" file="Source/NoiseSequence.h"/>
+        <FILE id="JVfYLC" name="NoiseSequenceGrid.cpp" compile="1" resource="0"
+              file="Source/NoiseSequenceGrid.cpp"/>
+        <FILE id="boBgMW" name="NoiseSequenceGrid.h" compile="0" resource="0"
+              file="Source/NoiseSequenceGrid.h"/>
       </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
         <GROUP id="{3B5A2BE2-E6B6-3B7A-F6E4-7F90726FB230}" name="Layout">
