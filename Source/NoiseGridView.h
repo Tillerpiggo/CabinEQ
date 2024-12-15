@@ -41,7 +41,10 @@ public:
 private:
     void drawSquares (juce::Graphics& g);
     void drawSequences (juce::Graphics& g);
-    std::pair<float, float> squareCoordsFromRowAndCol (int row, int col);
+    void drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour);
+    juce::Point<float> squareCoordsFromRowAndCol (int row, int col);
+    juce::Point<float> centerSquarePointFromCoords (std::pair<int, int> coords);
+    std::optional<std::pair<int, int>> rowAndColFromMouseEvent (const juce::MouseEvent& event);
     void updateVisualConstants();
     
     juce::Rectangle<float> squareBoundsAtCoords (std::pair<int, int> coords);
