@@ -17,6 +17,7 @@ class NoiseSequence
 {
 public:
     NoiseSequence (std::pair<int, int> origin);
+    NoiseSequence (std::vector<std::pair<int, int>> coords);
     
     std::vector<std::pair<int, int>> getAbsoluteCoords(); // returns all coords, including the origin, in absolute terms, with (0, 0) as the top left corner
     std::vector<bool> getHits();

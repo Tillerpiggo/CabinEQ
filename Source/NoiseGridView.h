@@ -41,6 +41,7 @@ public:
 private:
     void drawSquares (juce::Graphics& g);
     void drawSequences (juce::Graphics& g);
+    void drawSequence (juce::Graphics& g, std::vector<std::pair<int, int>> sequenceCoords, juce::Colour colour);
     void drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour);
     juce::Point<float> squareCoordsFromRowAndCol (int row, int col);
     juce::Point<float> centerSquarePointFromCoords (std::pair<int, int> coords);

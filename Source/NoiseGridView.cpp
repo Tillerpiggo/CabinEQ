@@ -89,7 +89,13 @@ void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
 
 void NoiseGridView::mouseUp (const juce::MouseEvent &event)
 {
+    if (listener != nullptr)
+    {
+        listener->addSequence (NoiseSequence (addingCoords));
+    }
+    
     addingCoords.clear();
+    
 }
 
 void NoiseGridView::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
@@ -160,21 +166,37 @@ void NoiseGridView::drawSequences (juce::Graphics& g)
 {
     // TODO
     
+    std::vector<juce::Colour> colours { juce::Colours::blue, juce::Colours::orange, juce::Colours::green, juce::Colours::purple, juce::Colours::red };
+    
     // Draw the adding sequence...
-    if (addingCoords.size() > 0)
+    if (dataSource != nullptr)
+    {
+        auto noiseGrid = dataSource->getNoiseGrid();
+        auto noiseSequences = noiseGrid.getNoiseSequences();
+        drawSequence (g, addingCoords, colours[noiseSequences.size() % colours.size()]);
+        for (int i = 0; i < noiseSequences.size(); ++i)
+        {
+            drawSequence (g, noiseSequences[i].getAbsoluteCoords(), colours[i % colours.size()]);
+        }
+    }
+}
+
+void NoiseGridView::drawSequence (juce::Graphics& g, std::vector<std::pair<int, int>> sequenceCoords, juce::Colour colour)
+{
+    if (sequenceCoords.size() > 0)
     {
         juce::Path path;
-        path.startNewSubPath (centerSquarePointFromCoords (addingCoords[0]));
-        for (int i = 1; i < addingCoords.size(); ++i)
+        path.startNewSubPath (centerSquarePointFromCoords (sequenceCoords[0]));
+        for (int i = 1; i < sequenceCoords.size(); ++i)
         {
-            drawSquareAt (g, addingCoords[i].first, addingCoords[i].second, juce::Colours::lightblue);
-            path.lineTo (centerSquarePointFromCoords (addingCoords[i]));
+            auto currCoords = sequenceCoords[i];
+            drawSquareAt (g, currCoords.first, currCoords.second, colour.withSaturation (0.3f));
+            path.lineTo (centerSquarePointFromCoords (sequenceCoords[i]));
         }
         
-//        g.setColour (juce::Colours::lightblue);
-//        g.strokePath (path, juce::PathStrokeType (squareSize / 1.6f));
-//        
-        drawSquareAt (g, addingCoords[0].first, addingCoords[0].second, juce::Colours::blue);
+        // Draw in the origin square on top of everything
+        auto firstCoords = sequenceCoords[0];
+        drawSquareAt (g, firstCoords.first, firstCoords.second, colour);
     }
 }
 

@@ -16,6 +16,15 @@ NoiseSequence::NoiseSequence (std::pair<int, int> origin)
     
 }
 
+NoiseSequence::NoiseSequence (std::vector<std::pair<int, int>> coords)
+{
+    origin = coords[0];
+    for (int i = 1; i < coords.size(); ++i)
+    {
+        relativeCoords.push_back ({ coords[i].first - origin.first, coords[i].second - origin.second });
+    }
+}
+
 std::vector<std::pair<int, int>> NoiseSequence::getAbsoluteCoords()
 {
     std::vector<std::pair<int, int>> absoluteCoords;

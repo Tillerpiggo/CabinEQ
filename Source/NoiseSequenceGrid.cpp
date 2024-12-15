@@ -18,7 +18,7 @@ NoiseSequenceGrid::NoiseSequenceGrid (int numRows, int numCols)
 
 void NoiseSequenceGrid::addSequence (NoiseSequence noiseSequence)
 {
-    
+    noiseSequences.push_back (noiseSequence);
 }
 
 void NoiseSequenceGrid::removeSequence (std::pair<int, int> origin)
