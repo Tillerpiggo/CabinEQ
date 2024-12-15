@@ -12,6 +12,8 @@
 
 #include <JuceHeader.h>
 #include "BandProfile.h"
+#include "NoiseSequence.h"
+#include "NoiseSequenceGrid.h"
 
 class CabinPeqGraphListener
 {
@@ -31,4 +33,24 @@ public:
     virtual ~CabinPeqGraphDataSource() = default;
     
     virtual BandProfile getBandProfile() = 0;
+};
+
+class NoiseGridViewListener
+{
+public:
+    virtual ~NoiseGridViewListener() = default;
+    
+    virtual void addSequence (NoiseSequence noiseSequence) = 0;
+    virtual void removeSequence (std::pair<int, int> origin) = 0;
+    virtual void moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin) = 0;
+    virtual void toggleCoords (std::pair<int, int> point) = 0;
+};
+
+class NoiseGridViewDataSource
+{
+public:
+    virtual ~NoiseGridViewDataSource() = default;
+    
+    virtual NoiseSequenceGrid getNoiseGrid() = 0;
+    virtual std::pair<int, int> getNumRowsAndNumCols() = 0;
 };

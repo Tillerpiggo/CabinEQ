@@ -54,9 +54,42 @@ void NoiseSequenceGrid::toggleCoords (std::pair<int, int> coords)
             return;
 }
 
+std::vector<NoiseSequence> NoiseSequenceGrid::getNoiseSequences()
+{
+    return noiseSequences;
+}
+
+std::pair<int, int> NoiseSequenceGrid::getNumRowsAndNumCols()
+{
+    return { numRows, numCols };
+}
+
 // Increase/reduce horizontal/vertical dimensions by adding rows/cols in between existing rows
 // so 3 -> 5 -> 9 when scaling up twice
-void NoiseSequenceGrid::scaleUpHorizontal();
-void NoiseSequenceGrid::scaleDownHorizontal();
-void NoiseSequenceGrid::scaleUpVertical();
-void NoiseSequenceGrid::scaleDownVertical();
+void NoiseSequenceGrid::scaleUpHorizontal()
+{
+    numCols += (numCols - 1);
+    for (auto& noiseSequence : noiseSequences)
+        noiseSequence.scaleUpHorizontal();
+}
+
+void NoiseSequenceGrid::scaleDownHorizontal()
+{
+    numCols = (numCols / 2) + 1;
+    for (auto& noiseSequence : noiseSequences)
+        noiseSequence.scaleDownHorizontal();
+}
+
+void NoiseSequenceGrid::scaleUpVertical()
+{
+    numRows += (numRows - 1);
+    for (auto& noiseSequence : noiseSequences)
+        noiseSequence.scaleUpVertical();
+}
+
+void NoiseSequenceGrid::scaleDownVertical()
+{
+    numRows = (numRows / 2) + 1;
+    for (auto& noiseSequence : noiseSequences)
+        noiseSequence.scaleDownVertical();
+}

@@ -15,10 +15,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 {
     amplGraph = std::make_unique<CabinPeqGraph>();
     
-    
-    addAndMakeVisible (glyphView);
-    addAndMakeVisible (knobView);
-    
     // Sliders
     addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
     
@@ -42,12 +38,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     // Extra stuff, will clean up later
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
+    addAndMakeVisible (noiseGridView);
     
     didLoadData();
-    
-    glyphView.setListener (this);
-    glyphView.setDataSource (this);
-    knobView.setListener (this);
     
 //    setLookAndFeel (&cabinEqLookAndFeel);
 }
@@ -85,97 +78,9 @@ void CabinEqPage::resized()
     Layout layout (getBounds(), 8.0f);
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.6);
-    layout.addRow ({ Space (&knobView, 300), Space (&glyphView) });
+    layout.addRow ({ Space (&noiseGridView) });
     layout.updateComponentBounds();
 }
-
-void CabinEqPage::setSpeed (float speedFactor)
-{
-    processor.setSpeedFactor (speedFactor);
-}
-
-void CabinEqPage::setBandwidth (float bandwidth)
-{
-    processor.setBandwidth (bandwidth);
-}
-
-void CabinEqPage::setIsPlaying (bool isPlaying)
-{
-    processor.setIsPlaying (isPlaying);
-}
-
-void CabinEqPage::goToNextGlyph()
-{
-    processor.goToNextGlyph();
-}
-
-void CabinEqPage::goToPrevGlyph()
-{
-    processor.goToPrevGlyph();
-}
-
-// GlyphView::DataSource
-Glyph CabinEqPage::getCurrGlyph()
-{
-    return processor.getCurrGlyph();
-}
-
-bool CabinEqPage::hasNextGlyph()
-{
-    return processor.hasNextGlyph();
-}
-
-bool CabinEqPage::hasPrevGlyph()
-{
-    return processor.hasPrevGlyph();
-}
-
-void CabinEqPage::setSizeFactor (float sizeFactor)
-{
-    processor.setSizeFactor (sizeFactor);
-}
-
-void CabinEqPage::setCenterPos (juce::Point<float> centerPos)
-{
-    processor.setCenterPos (centerPos);
-}
-
-float CabinEqPage::getSizeFactor()
-{
-    return processor.getSizeFactor();
-}
-
-juce::Point<float> CabinEqPage::getCenterPos()
-{
-    return processor.getCenterPos();
-}
-
-float CabinEqPage::getCurrPlayingTime()
-{
-    return processor.getCurrPlayingTime();
-}
-
-void CabinEqPage::setBands (std::vector<Band> provisionalBands)
-{
-    processor.setProvisionalBands (provisionalBands);
-    amplGraph->setProvisionalBands (provisionalBands);
-}
-
-void CabinEqPage::setIsOn (bool isOn)
-{
-    processor.setProvisionalBandsOn (isOn);
-    amplGraph->setProvisionalBandsVisible (isOn);
-}
-
-void CabinEqPage::addBands (std::vector<Band> bands)
-{
-    for (const auto& band : bands)
-    {
-        processor.addBand (band.freq, band.ampl, band.bandwidth, band.type);
-    }
-    amplGraph->updateBands();
-}
-
 
 // ====================================================
 void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)

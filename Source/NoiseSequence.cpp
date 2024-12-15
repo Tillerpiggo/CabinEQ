@@ -93,3 +93,74 @@ void NoiseSequence::clearCoords()
     relativeCoords.clear();
     hits.clear();
 }
+
+void NoiseSequence::scaleUpHorizontal()
+{
+    // First, convert the coordinates to the scaled coordinates
+    origin.first *= 2;
+    for (auto& coords : relativeCoords)
+        coords.first *= 2;
+    
+    // Then, add in extra coordinates to fill in any gaps
+    std::vector<std::pair<int, int>> newRelativeCoords;
+    std::vector<bool> newHits;
+    for (int i = 0; i < relativeCoords.size() - 1; ++i)
+    {
+        newRelativeCoords.push_back (relativeCoords[i]);
+        newHits.push_back (hits[i]);
+        if (relativeCoords[i].first != relativeCoords[i + 1].first)
+        {
+            int avgCol = (relativeCoords[i].first + relativeCoords[i + 1].first) / 2;
+            newRelativeCoords.push_back ({ avgCol, relativeCoords[i].second });
+            newHits.push_back (false);
+        }
+    }
+    newRelativeCoords.push_back (relativeCoords[relativeCoords.size() - 1]);
+    
+    // Set the new values
+    relativeCoords = newRelativeCoords;
+    hits = newHits;
+}
+
+void NoiseSequence::scaleDownHorizontal()
+{
+    // Let's just not worry about this case for now
+    
+//    // First, remove all odd # col indices and corresponding hits
+//    std::vector<std::pair<int, int>> newRelativeCoords;
+//
+//    // Then, scale down current coordinates/columns
+}
+
+void NoiseSequence::scaleUpVertical()
+{
+    // First, convert the coordinates to the scaled coordinates
+    origin.second *= 2;
+    for (auto& coords : relativeCoords)
+        coords.second *= 2;
+    
+    // Then, add in extra coordinates to fill in any vertical gaps
+    std::vector<std::pair<int, int>> newRelativeCoords;
+    std::vector<bool> newHits;
+    for (int i = 0; i < relativeCoords.size() - 1; ++i)
+    {
+        newRelativeCoords.push_back (relativeCoords[i]);
+        newHits.push_back (hits[i]);
+        if (relativeCoords[i].second != relativeCoords[i + 1].second)
+        {
+            int avgRow = (relativeCoords[i].second + relativeCoords[i + 1].second) / 2;
+            newRelativeCoords.push_back ({ avgRow, relativeCoords[i].second });
+            newHits.push_back (false);
+        }
+    }
+    newRelativeCoords.push_back (relativeCoords[relativeCoords.size() - 1]);
+    
+    // Set the new values
+    relativeCoords = newRelativeCoords;
+    hits = newHits;
+}
+
+void NoiseSequence::scaleDownVertical()
+{
+    // Let's just not worry about this case for now
+}

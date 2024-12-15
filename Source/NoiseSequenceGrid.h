@@ -24,6 +24,9 @@ public:
     void moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin);
     void toggleCoords (std::pair<int, int> coords); // If the coords are within a sequence, toggles them to be on/off
     
+    std::vector<NoiseSequence> getNoiseSequences();
+    std::pair<int, int> getNumRowsAndNumCols();
+    
     // Increase/reduce horizontal/vertical dimensions by adding rows/cols in between existing rows
     // so 3 -> 5 -> 9 when scaling up twice
     void scaleUpHorizontal();

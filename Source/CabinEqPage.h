@@ -17,14 +17,12 @@
 #include "GlyphView.h"
 #include "KnobView.h"
 #include "CabinEqLookAndFeel.h"
+#include "NoiseGridView.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
-                      public CabinEqAudioProcessor::Listener,
-                      public GlyphView::Listener,
-                      public GlyphView::DataSource,
-                     public KnobView::Listener
+                      public CabinEqAudioProcessor::Listener
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -32,28 +30,6 @@ public:
     
     void paint (juce::Graphics&) override;
     void resized() override;
-    
-    // GlyphView::Listener
-    void setSpeed (float speedFactor) override;
-    void setBandwidth (float bandwidth) override;
-    void setIsPlaying (bool isPlaying) override;
-    void goToNextGlyph() override;
-    void goToPrevGlyph() override;
-    void setSizeFactor (float sizeFactor) override;
-    void setCenterPos (juce::Point<float> centerPos) override;
-    
-    // GlyphView::DataSource
-    Glyph getCurrGlyph() override;
-    bool hasNextGlyph() override;
-    bool hasPrevGlyph() override;
-    float getSizeFactor() override;
-    juce::Point<float> getCenterPos() override;
-    float getCurrPlayingTime() override;
-    
-    // KnobView::Listener
-    void setBands (std::vector<Band> provisionalBands) override;
-    void setIsOn (bool isOn) override;
-    void addBands (std::vector<Band> bands) override;
     
     // Text editor stuff
     void textEditorTextChanged (juce::TextEditor& textEditor) override;
@@ -80,8 +56,7 @@ protected:
     CabinEqLookAndFeel cabinEqLookAndFeel;
     
     // JUCE Labels
-    GlyphView glyphView;
-    KnobView knobView;
+    NoiseGridView noiseGridView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;
     juce::String profileId;
