@@ -13,8 +13,6 @@
 NoiseGridView::NoiseGridView()
 {
     startTimer (12);
-    
-    
 }
 
 NoiseGridView::~NoiseGridView()
@@ -67,11 +65,13 @@ void NoiseGridView::timerCallback()
 void NoiseGridView::setListener (NoiseGridViewListener* listener)
 {
     this->listener = listener;
+    updateVisualConstants();
 }
 
 void NoiseGridView::setDataSource (NoiseGridViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
+    updateVisualConstants();
 }
 
 void NoiseGridView::removeListener()
@@ -86,10 +86,6 @@ void NoiseGridView::removeDataSource()
 
 void NoiseGridView::drawSquares (juce::Graphics& g)
 {
-    float width = getWidth();
-    float height = getHeight();
-    float padding = 10.0f;
-    
     if (listener != nullptr && dataSource != nullptr)
     {
         auto [numRows, numCols] = dataSource->getNumRowsAndNumCols();
@@ -98,22 +94,14 @@ void NoiseGridView::drawSquares (juce::Graphics& g)
         float totalHorizontalPadding = (numCols + 1) * padding;
         float totalVerticalPadding = (numRows + 1) * padding;
         
-        // Calculate square size
-        float squareWidth = (width - totalHorizontalPadding) / numCols;
-        float squareHeight = (height - totalVerticalPadding) / numRows;
-        float squareSize = std::min (squareWidth, squareHeight); // so that they're still squares
-        
-        // Calculate offsets to center the grid
-        float xOffset = (width - (numCols * squareSize + totalHorizontalPadding)) / 2.0f;
-        float yOffset = (height - (numRows * squareSize + totalVerticalPadding)) / 2.0f;
+        updateVisualConstants();
         
         for (int row = 0; row < numRows; row++)
         {
             for (int col = 0; col < numCols; col++)
             {
                 // draw a square centered at the right position
-                float x = xOffset + padding + col * (squareSize + padding);
-                float y = yOffset + padding + row * (squareSize + padding);
+                auto [x, y] = squareCoordsFromRowAndCol (row, col);
                 
                 // actually draw the square
                 juce::Rectangle<float> square (x, y, squareSize, squareSize);
@@ -127,4 +115,38 @@ void NoiseGridView::drawSquares (juce::Graphics& g)
 void NoiseGridView::drawSequences (juce::Graphics& g)
 {
     // TODO
+    
+    // Draw the adding sequence...
+    
+}
+
+std::pair<float, float> NoiseGridView::squareCoordsFromRowAndCol (int row, int col)
+{
+    float x = xOffset + padding + col * (squareSize + padding);
+    float y = yOffset + padding + row * (squareSize + padding);
+    return { x, y };
+}
+
+void NoiseGridView::updateVisualConstants()
+{
+    float width = getWidth();
+    float height = getHeight();
+    
+    if (listener != nullptr && dataSource != nullptr)
+    {
+        auto [numRows, numCols] = dataSource->getNumRowsAndNumCols();
+        
+        // Calculate visual constants
+        float totalHorizontalPadding = (numCols + 1) * padding;
+        float totalVerticalPadding = (numRows + 1) * padding;
+        
+        // Calculate square size
+        float squareWidth = (width - totalHorizontalPadding) / numCols;
+        float squareHeight = (height - totalVerticalPadding) / numRows;
+        squareSize = std::min (squareWidth, squareHeight); // so that they're still squares
+        
+        // Calculate offsets to center the grid
+        xOffset = (width - (numCols * squareSize + totalHorizontalPadding)) / 2.0f;
+        yOffset = (height - (numRows * squareSize + totalVerticalPadding)) / 2.0f;
+    }
 }
