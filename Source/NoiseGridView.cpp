@@ -165,16 +165,16 @@ void NoiseGridView::drawSequences (juce::Graphics& g)
     {
         juce::Path path;
         path.startNewSubPath (centerSquarePointFromCoords (addingCoords[0]));
-        
-        drawSquareAt (g, addingCoords[0].first, addingCoords[0].second, juce::Colours::blue);
         for (int i = 1; i < addingCoords.size(); ++i)
         {
             drawSquareAt (g, addingCoords[i].first, addingCoords[i].second, juce::Colours::lightblue);
             path.lineTo (centerSquarePointFromCoords (addingCoords[i]));
         }
         
-        g.setColour (juce::Colours::blueviolet);
-        g.strokePath (path, juce::PathStrokeType (10.0f, juce::PathStrokeType::JointStyle::beveled, juce::PathStrokeType::EndCapStyle::rounded));
+//        g.setColour (juce::Colours::lightblue);
+//        g.strokePath (path, juce::PathStrokeType (squareSize / 1.6f));
+//        
+        drawSquareAt (g, addingCoords[0].first, addingCoords[0].second, juce::Colours::blue);
     }
 }
 
