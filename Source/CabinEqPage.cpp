@@ -32,6 +32,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     });
     amplGraph->setListener (&processor);
     amplGraph->addDataSource (&processor);
+    noiseGridView.setListener (&processor);
+    noiseGridView.setDataSource (&processor);
     profileDropdown.addListener (this);
     processor.addListener (this);
     

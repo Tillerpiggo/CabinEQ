@@ -769,6 +769,36 @@ void CabinEqAudioProcessor::removeBand (const int id)
     }
 }
 
+void CabinEqAudioProcessor::addSequence (NoiseSequence noiseSequence)
+{
+    noiseSequenceGrid.addSequence (noiseSequence);
+}
+
+void CabinEqAudioProcessor::removeSequence (std::pair<int, int> origin)
+{
+    noiseSequenceGrid.removeSequence (origin);
+}
+
+void CabinEqAudioProcessor::moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin)
+{
+    noiseSequenceGrid.moveSequence (origin, newOrigin);
+}
+
+void CabinEqAudioProcessor::toggleCoords (std::pair<int, int> point)
+{
+    noiseSequenceGrid.toggleCoords (point);
+}
+
+NoiseSequenceGrid CabinEqAudioProcessor::getNoiseGrid()
+{
+    return noiseSequenceGrid;
+}
+
+std::pair<int, int> CabinEqAudioProcessor::getNumRowsAndNumCols()
+{
+    return noiseSequenceGrid.getNumRowsAndNumCols();
+}
+
 void CabinEqAudioProcessor::addListener (Listener* listener)
 {
     this->listeners.push_back (listener);

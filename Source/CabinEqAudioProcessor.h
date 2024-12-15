@@ -21,7 +21,9 @@
 */
 class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public CabinPeqGraphListener,
-                               public CabinPeqGraphDataSource
+                               public CabinPeqGraphDataSource,
+                               public NoiseGridViewListener,
+                               public NoiseGridViewDataSource
 {
 public:
     class Listener
@@ -104,6 +106,15 @@ public:
     void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type) override;
     void removeBand (int id) override;
     
+    // NoiseGridViewListener + NoiseGridViewDataSource
+    void addSequence (NoiseSequence noiseSequence) override;
+    void removeSequence (std::pair<int, int> origin) override;
+    void moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin) override;
+    void toggleCoords (std::pair<int, int> point) override;
+    
+    NoiseSequenceGrid getNoiseGrid() override;
+    std::pair<int, int> getNumRowsAndNumCols() override;
+    
     // Listener
     void addListener (Listener* listener);
     void removeListener();
@@ -129,6 +140,7 @@ private:
     PlaybackManager playbackManager;
     CabinEqProfileManager cabinEqProfileManager;
     GlyphManager glyphManager;
+    NoiseSequenceGrid noiseSequenceGrid { 3, 3 };
     
     juce::dsp::ProcessSpec spec;
     

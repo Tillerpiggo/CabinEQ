@@ -90,11 +90,9 @@ void NoiseGridView::drawSquares (juce::Graphics& g)
     float height = getHeight();
     float padding = 10.0f;
     
-    if (true || listener != nullptr && dataSource != nullptr)
+    if (listener != nullptr && dataSource != nullptr)
     {
-//        auto [numRows, numCols] = dataSource->getNumRowsAndNumCols();
-        int numRows = 3;
-        int numCols = 3;
+        auto [numRows, numCols] = dataSource->getNumRowsAndNumCols();
         
         // Calculate visual constants
         float totalHorizontalPadding = (numCols + 1) * padding;
