@@ -33,7 +33,34 @@ void NoiseGridView::resized()
 
 void NoiseGridView::mouseMove (const juce::MouseEvent &event)
 {
+    if (! event.mods.isShiftDown() || dataSource == nullptr)
+    {
+        hoveringId = -1;
+        return;
+    }
     
+    auto hoveringRowAndCol = rowAndColFromMouseEvent (event);
+    if (! hoveringRowAndCol.has_value())
+    {
+        hoveringId = -1;
+        return;
+    }
+    
+    // Figure out which sequence, if any, we're hovering over
+    bool isHovering = false;
+    NoiseSequenceGrid noiseGrid = dataSource->getNoiseGrid();
+    
+    for (const auto& sequence : noiseGrid.getNoiseSequences())
+    {
+        if (sequence.hasOriginAt (hoveringRowAndCol.value()))
+        {
+            isHovering = true;
+            hoveringId = sequence.getId();
+        }
+    }
+        
+    if (! isHovering)
+        hoveringId = -1;
 }
 
 void NoiseGridView::mouseDown (const juce::MouseEvent &event)
@@ -98,12 +125,13 @@ void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
 
 void NoiseGridView::mouseUp (const juce::MouseEvent &event)
 {
-    if (listener == nullptr)
+    if (listener == nullptr || dataSource == nullptr)
         return;
     
     if (addingCoords.size() > 0)
     {
-        listener->addSequence (NoiseSequence (addingCoords));
+        int numSequences = (int) dataSource->getNoiseGrid().getNoiseSequences().size();
+        listener->addSequenceWithCoords (addingCoords);
     }
     else
     {
@@ -162,42 +190,40 @@ void NoiseGridView::drawSquares (juce::Graphics& g)
             for (int col = 0; col < numCols; col++)
             {
                 // draw a square centered at the row and col
-                drawSquareAt (g, row, col, juce::Colours::white);
+                if (isSquareAvailable ({ row, col }))
+                    drawSquareAt (g, row, col, juce::Colours::white);
             }
         }
     }
 }
 
-void NoiseGridView::drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour)
+void NoiseGridView::drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour, float sizePercent)
 {
     auto [x, y] = squareCoordsFromRowAndCol (row, col);
-    juce::Rectangle<float> square (x, y, squareSize, squareSize);
+    juce::Rectangle<float> square (x + 0.5f * squareSize * (1.0f - sizePercent), y + 0.5f * squareSize * (1.0f - sizePercent), squareSize * sizePercent, squareSize * sizePercent);
     g.setColour (colour);
     g.fillRect (square);
 }
 
 void NoiseGridView::drawSequences (juce::Graphics& g)
 {
-    // TODO
-    
-    std::vector<juce::Colour> colours { juce::Colours::blue, juce::Colours::orange, juce::Colours::green, juce::Colours::purple, juce::Colours::red };
-    
     // Draw the adding sequence...
     if (dataSource != nullptr)
     {
         auto noiseGrid = dataSource->getNoiseGrid();
         auto noiseSequences = noiseGrid.getNoiseSequences();
-        drawSequence (g, addingCoords, colours[noiseSequences.size() % colours.size()]);
+        int nextId = noiseGrid.getNextAvailableId();
+        drawSequence (g, addingCoords, sequenceColours[nextId % sequenceColours.size()]);
         for (int i = 0; i < noiseSequences.size(); ++i)
         {
-            auto colour = colours[i % colours.size()];
+            auto colour = sequenceColours[noiseSequences[i].getId() % sequenceColours.size()];
             if (! noiseSequences[i].isEnabled()) colour = juce::Colours::grey;
-            drawSequence (g, noiseSequences[i].getAbsoluteCoords(), colour);
+            drawSequence (g, noiseSequences[i].getAbsoluteCoords(), colour, hoveringId == noiseSequences[i].getId() ? 0.9f : 1.0f);
         }
     }
 }
 
-void NoiseGridView::drawSequence (juce::Graphics& g, std::vector<std::pair<int, int>> sequenceCoords, juce::Colour colour)
+void NoiseGridView::drawSequence (juce::Graphics& g, std::vector<std::pair<int, int>> sequenceCoords, juce::Colour colour, float sizePercent)
 {
     if (sequenceCoords.size() > 0)
     {
@@ -206,13 +232,13 @@ void NoiseGridView::drawSequence (juce::Graphics& g, std::vector<std::pair<int, 
         for (int i = 1; i < sequenceCoords.size(); ++i)
         {
             auto currCoords = sequenceCoords[i];
-            drawSquareAt (g, currCoords.first, currCoords.second, colour.withLightness (0.8f));
+            drawSquareAt (g, currCoords.first, currCoords.second, colour.withLightness (0.8f), sizePercent);
             path.lineTo (centerSquarePointFromCoords (sequenceCoords[i]));
         }
         
         // Draw in the origin square on top of everything
         auto firstCoords = sequenceCoords[0];
-        drawSquareAt (g, firstCoords.first, firstCoords.second, colour);
+        drawSquareAt (g, firstCoords.first, firstCoords.second, colour, sizePercent);
     }
 }
 

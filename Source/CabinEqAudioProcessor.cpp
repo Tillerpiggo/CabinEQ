@@ -769,9 +769,10 @@ void CabinEqAudioProcessor::removeBand (const int id)
     }
 }
 
-void CabinEqAudioProcessor::addSequence (NoiseSequence noiseSequence)
+void CabinEqAudioProcessor::addSequenceWithCoords (std::vector<std::pair<int, int>> coords)
 {
-    noiseSequenceGrid.addSequence (noiseSequence);
+    int id = noiseSequenceGrid.getNextAvailableId();
+    noiseSequenceGrid.addSequence (NoiseSequence (coords, id));
 }
 
 void CabinEqAudioProcessor::removeSequence (std::pair<int, int> origin)

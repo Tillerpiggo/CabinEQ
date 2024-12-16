@@ -10,13 +10,14 @@
 
 #include "NoiseSequence.h"
 
-NoiseSequence::NoiseSequence (std::pair<int, int> origin)
-    : origin (origin)
+NoiseSequence::NoiseSequence (std::pair<int, int> origin, int id)
+    : origin (origin), id (id)
 {
     
 }
 
-NoiseSequence::NoiseSequence (std::vector<std::pair<int, int>> coords)
+NoiseSequence::NoiseSequence (std::vector<std::pair<int, int>> coords, int id)
+    : id (id)
 {
     origin = coords[0];
     hits.push_back (true);
@@ -27,7 +28,7 @@ NoiseSequence::NoiseSequence (std::vector<std::pair<int, int>> coords)
     }
 }
 
-std::vector<std::pair<int, int>> NoiseSequence::getAbsoluteCoords()
+std::vector<std::pair<int, int>> NoiseSequence::getAbsoluteCoords() const
 {
     std::vector<std::pair<int, int>> absoluteCoords;
     absoluteCoords.push_back (origin);
@@ -40,22 +41,27 @@ std::vector<std::pair<int, int>> NoiseSequence::getAbsoluteCoords()
     return absoluteCoords;
 }
 
-std::vector<bool> NoiseSequence::getHits()
+std::vector<bool> NoiseSequence::getHits() const
 {
     return hits;
 }
 
-std::pair<int, int> NoiseSequence::getOrigin()
+std::pair<int, int> NoiseSequence::getOrigin() const
 {
     return origin;
 }
 
-bool NoiseSequence::hasOriginAt (std::pair<int, int> point)
+int NoiseSequence::getId() const
+{
+    return id;
+}
+
+bool NoiseSequence::hasOriginAt (std::pair<int, int> point) const
 {
     return origin.first == point.first && origin.second == point.second;
 }
 
-bool NoiseSequence::isEnabled()
+bool NoiseSequence::isEnabled() const
 {
     if (hits.size() == 0)
         return false;

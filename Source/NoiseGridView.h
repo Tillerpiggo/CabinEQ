@@ -41,8 +41,8 @@ public:
 private:
     void drawSquares (juce::Graphics& g);
     void drawSequences (juce::Graphics& g);
-    void drawSequence (juce::Graphics& g, std::vector<std::pair<int, int>> sequenceCoords, juce::Colour colour);
-    void drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour);
+    void drawSequence (juce::Graphics& g, std::vector<std::pair<int, int>> sequenceCoords, juce::Colour colour, float sizePercent = 1.0f);
+    void drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour, float sizePercent = 1.0f);
     juce::Point<float> squareCoordsFromRowAndCol (int row, int col);
     juce::Point<float> centerSquarePointFromCoords (std::pair<int, int> coords);
     bool isSquareAvailable (std::pair<int, int> squareCoords);
@@ -56,10 +56,13 @@ private:
     
     // Interaction variables
     std::vector<std::pair<int, int>> addingCoords;
+    int hoveringId = -1;
+    int draggingId = -1;
     
     // Visual constants
     float xOffset;
     float yOffset;
     float squareSize;
     float padding = 10.0f;
+    std::vector<juce::Colour> sequenceColours { juce::Colours::blue, juce::Colours::orange, juce::Colours::green, juce::Colours::purple, juce::Colours::red };
 };

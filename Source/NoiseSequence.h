@@ -16,14 +16,15 @@
 class NoiseSequence
 {
 public:
-    NoiseSequence (std::pair<int, int> origin);
-    NoiseSequence (std::vector<std::pair<int, int>> coords);
+    NoiseSequence (std::pair<int, int> origin, int id);
+    NoiseSequence (std::vector<std::pair<int, int>> coords, int id);
     
-    std::vector<std::pair<int, int>> getAbsoluteCoords(); // returns all coords, including the origin, in absolute terms, with (0, 0) as the top left corner
-    std::vector<bool> getHits();
-    std::pair<int, int> getOrigin();
-    bool hasOriginAt (std::pair<int, int> point);
-    bool isEnabled();
+    std::vector<std::pair<int, int>> getAbsoluteCoords() const; // returns all coords, including the origin, in absolute terms, with (0, 0) as the top left corner
+    std::vector<bool> getHits() const;
+    std::pair<int, int> getOrigin() const;
+    int getId() const;
+    bool hasOriginAt (std::pair<int, int> point) const;
+    bool isEnabled() const;
     
     void setOrigin (std::pair<int, int> newOrigin);
     void addCoords (std::pair<int, int> newCoords); // given in absolute terms, translated to be relative
@@ -41,4 +42,5 @@ private:
     std::vector<std::pair<int, int>> relativeCoords; // all the next coordinates, relative to the origin - [colIdx, rowIdx] pair
     std::vector<bool> hits; // in the order of coords, which ones are "hits". The first hit - whether the origin is on - determines whether the sequence as whole is on. If off, the entire sequence is muted/disabled.
     float tempo; // 1 = normal speed, 1/2 = half speed, etc.
+    int id;
 };

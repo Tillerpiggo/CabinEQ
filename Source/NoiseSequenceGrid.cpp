@@ -64,6 +64,24 @@ std::pair<int, int> NoiseSequenceGrid::getNumRowsAndNumCols()
     return { numRows, numCols };
 }
 
+int NoiseSequenceGrid::getNextAvailableId()
+{
+    // Get a sorted list of ids
+    std::vector<int> ids;
+    for (const auto& noiseSequence : noiseSequences)
+        ids.push_back (noiseSequence.getId());
+    std::sort (ids.begin(), ids.end());
+    
+    // Find the next available id
+    int nextId = 0;
+    for (const int id : ids)
+    {
+        if (nextId == id)
+            nextId++;
+    }
+    return nextId;
+}
+
 // Increase/reduce horizontal/vertical dimensions by adding rows/cols in between existing rows
 // so 3 -> 5 -> 9 when scaling up twice
 void NoiseSequenceGrid::scaleUpHorizontal()
