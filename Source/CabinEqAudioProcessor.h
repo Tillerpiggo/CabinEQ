@@ -107,6 +107,7 @@ public:
     void removeBand (int id) override;
     
     // NoiseGridViewListener + NoiseGridViewDataSource
+    void addSequence (NoiseSequence sequence) override;
     void addSequenceWithCoords (std::vector<std::pair<int, int>> coords) override;
     void removeSequence (std::pair<int, int> origin) override;
     void moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin) override;

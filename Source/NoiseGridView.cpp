@@ -76,24 +76,20 @@ void NoiseGridView::mouseDown (const juce::MouseEvent &event)
         
         if (isSquareAvailable (mouseDownCoords.value()))
         {
-            addingCoords.push_back (mouseDownCoords.value());
+            addingSequence = NoiseSequence (mouseDownCoords.value(), dataSource->getNoiseGrid().getNextAvailableId());
+//            addingCoords.push_back (mouseDownCoords.value());
         }
     }
 }
 
 void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
 {
-    std::cout << "adding coords: " << std::endl;
-    for (const auto& coords : addingCoords)
-    {
-        std::cout << "(row: " << coords.first << ", col: " << coords.second << ")" << std::endl;
-    }
-    
     // Make sure we're dragging in a legit spot
     auto mouseDragCoords = rowAndColFromMouseEvent (event);
-    if (! mouseDragCoords.has_value() || addingCoords.empty())
+    if (! mouseDragCoords.has_value() || ! addingSequence.has_value())
         return;
     
+    auto addingCoords = addingSequence->getAbsoluteCoords();
     auto mouseRowAndCol = mouseDragCoords.value();
     auto prevRowAndCol = addingCoords[addingCoords.size() - 1];
     
@@ -103,7 +99,7 @@ void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
         auto prevPrevRowAndCol = addingCoords[addingCoords.size() - 2];
         if (mouseRowAndCol.first == prevPrevRowAndCol.first && mouseRowAndCol.second == prevPrevRowAndCol.second)
         {
-            addingCoords.pop_back();
+            addingSequence->removeLastCoords();
         }
     }
 
@@ -119,7 +115,7 @@ void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
     
     if (isPositionNew && abs (mouseRowAndCol.first - prevRowAndCol.first) + abs (mouseRowAndCol.second - prevRowAndCol.second) == 1 && isSquareAvailable (mouseRowAndCol))
     {
-        addingCoords.push_back (mouseRowAndCol);
+        addingSequence->addCoords (mouseRowAndCol);
     }
 }
 
@@ -128,10 +124,9 @@ void NoiseGridView::mouseUp (const juce::MouseEvent &event)
     if (listener == nullptr || dataSource == nullptr)
         return;
     
-    if (addingCoords.size() > 0)
+    if (addingSequence.has_value())
     {
-        int numSequences = (int) dataSource->getNoiseGrid().getNoiseSequences().size();
-        listener->addSequenceWithCoords (addingCoords);
+        listener->addSequence (addingSequence.value());
     }
     else
     {
@@ -140,7 +135,7 @@ void NoiseGridView::mouseUp (const juce::MouseEvent &event)
             listener->toggleCoords (selectedRowAndCol.value());
     }
     
-    addingCoords.clear();
+    addingSequence.reset();
     
 }
 
@@ -213,18 +208,20 @@ void NoiseGridView::drawSequences (juce::Graphics& g)
         auto noiseGrid = dataSource->getNoiseGrid();
         auto noiseSequences = noiseGrid.getNoiseSequences();
         int nextId = noiseGrid.getNextAvailableId();
-        drawSequence (g, addingCoords, sequenceColours[nextId % sequenceColours.size()]);
+        if (addingSequence.has_value())
+            drawSequence (g, addingSequence.value(), sequenceColours[nextId % sequenceColours.size()]);
         for (int i = 0; i < noiseSequences.size(); ++i)
         {
             auto colour = sequenceColours[noiseSequences[i].getId() % sequenceColours.size()];
-            if (! noiseSequences[i].isEnabled()) colour = juce::Colours::grey;
-            drawSequence (g, noiseSequences[i].getAbsoluteCoords(), colour, hoveringId == noiseSequences[i].getId() ? 0.9f : 1.0f);
+            if (! noiseSequences[i].getIsEnabled()) colour = juce::Colours::grey;
+            drawSequence (g, noiseSequences[i], colour, hoveringId == noiseSequences[i].getId() ? 0.9f : 1.0f);
         }
     }
 }
 
-void NoiseGridView::drawSequence (juce::Graphics& g, std::vector<std::pair<int, int>> sequenceCoords, juce::Colour colour, float sizePercent)
+void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juce::Colour colour, float sizePercent)
 {
+    auto sequenceCoords = sequence.getAbsoluteCoords();
     if (sequenceCoords.size() > 0)
     {
         juce::Path path;
@@ -232,13 +229,14 @@ void NoiseGridView::drawSequence (juce::Graphics& g, std::vector<std::pair<int, 
         for (int i = 1; i < sequenceCoords.size(); ++i)
         {
             auto currCoords = sequenceCoords[i];
-            drawSquareAt (g, currCoords.first, currCoords.second, colour.withLightness (0.8f), sizePercent);
+            drawSquareAt (g, currCoords.first, currCoords.second, colour.withLightness (0.8f).withAlpha (sequence.getHits()[i] ? 1.0f : 0.3f), sizePercent);
+            drawSquareAt (g, currCoords.first, currCoords.second, juce::Colours::black, sizePercent * 0.9f);
             path.lineTo (centerSquarePointFromCoords (sequenceCoords[i]));
         }
         
         // Draw in the origin square on top of everything
         auto firstCoords = sequenceCoords[0];
-        drawSquareAt (g, firstCoords.first, firstCoords.second, colour, sizePercent);
+        drawSquareAt (g, firstCoords.first, firstCoords.second, colour.withAlpha (sequence.getHits()[0] ? 1.0f : 0.3f), sizePercent);
     }
 }
 

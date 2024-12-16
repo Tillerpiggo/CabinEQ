@@ -41,7 +41,7 @@ public:
 private:
     void drawSquares (juce::Graphics& g);
     void drawSequences (juce::Graphics& g);
-    void drawSequence (juce::Graphics& g, std::vector<std::pair<int, int>> sequenceCoords, juce::Colour colour, float sizePercent = 1.0f);
+    void drawSequence (juce::Graphics& g, NoiseSequence sequence, juce::Colour colour, float sizePercent = 1.0f);
     void drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour, float sizePercent = 1.0f);
     juce::Point<float> squareCoordsFromRowAndCol (int row, int col);
     juce::Point<float> centerSquarePointFromCoords (std::pair<int, int> coords);
@@ -55,7 +55,8 @@ private:
     NoiseGridViewDataSource* dataSource = nullptr;
     
     // Interaction variables
-    std::vector<std::pair<int, int>> addingCoords;
+//    std::vector<std::pair<int, int>> addingCoords;
+    std::optional<NoiseSequence> addingSequence;
     int hoveringId = -1;
     int draggingId = -1;
     
