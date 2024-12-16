@@ -39,9 +39,18 @@ void NoiseGridView::mouseMove (const juce::MouseEvent &event)
 void NoiseGridView::mouseDown (const juce::MouseEvent &event)
 {
     auto mouseDownCoords = rowAndColFromMouseEvent (event);
-    if (mouseDownCoords.has_value())
+    if (mouseDownCoords.has_value() && listener != nullptr && dataSource != nullptr)
     {
-        addingCoords.push_back (mouseDownCoords.value());
+        if (event.mods.isRightButtonDown())
+        {
+            listener->removeSequence (mouseDownCoords.value());
+            return;
+        }
+        
+        if (isSquareAvailable (mouseDownCoords.value()))
+        {
+            addingCoords.push_back (mouseDownCoords.value());
+        }
     }
 }
 
@@ -81,7 +90,7 @@ void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
         }
     }
     
-    if (isPositionNew && abs (mouseRowAndCol.first - prevRowAndCol.first) + abs (mouseRowAndCol.second - prevRowAndCol.second) == 1)
+    if (isPositionNew && abs (mouseRowAndCol.first - prevRowAndCol.first) + abs (mouseRowAndCol.second - prevRowAndCol.second) == 1 && isSquareAvailable (mouseRowAndCol))
     {
         addingCoords.push_back (mouseRowAndCol);
     }
@@ -89,9 +98,18 @@ void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
 
 void NoiseGridView::mouseUp (const juce::MouseEvent &event)
 {
-    if (listener != nullptr)
+    if (listener == nullptr)
+        return;
+    
+    if (addingCoords.size() > 0)
     {
         listener->addSequence (NoiseSequence (addingCoords));
+    }
+    else
+    {
+        auto selectedRowAndCol = rowAndColFromMouseEvent (event);
+        if (selectedRowAndCol.has_value())
+            listener->toggleCoords (selectedRowAndCol.value());
     }
     
     addingCoords.clear();
@@ -137,10 +155,6 @@ void NoiseGridView::drawSquares (juce::Graphics& g)
     {
         auto [numRows, numCols] = dataSource->getNumRowsAndNumCols();
         
-        // Calculate visual constants
-        float totalHorizontalPadding = (numCols + 1) * padding;
-        float totalVerticalPadding = (numRows + 1) * padding;
-        
         updateVisualConstants();
         
         for (int row = 0; row < numRows; row++)
@@ -176,7 +190,9 @@ void NoiseGridView::drawSequences (juce::Graphics& g)
         drawSequence (g, addingCoords, colours[noiseSequences.size() % colours.size()]);
         for (int i = 0; i < noiseSequences.size(); ++i)
         {
-            drawSequence (g, noiseSequences[i].getAbsoluteCoords(), colours[i % colours.size()]);
+            auto colour = colours[i % colours.size()];
+            if (! noiseSequences[i].isEnabled()) colour = juce::Colours::grey;
+            drawSequence (g, noiseSequences[i].getAbsoluteCoords(), colour);
         }
     }
 }
@@ -190,7 +206,7 @@ void NoiseGridView::drawSequence (juce::Graphics& g, std::vector<std::pair<int, 
         for (int i = 1; i < sequenceCoords.size(); ++i)
         {
             auto currCoords = sequenceCoords[i];
-            drawSquareAt (g, currCoords.first, currCoords.second, colour.withSaturation (0.3f));
+            drawSquareAt (g, currCoords.first, currCoords.second, colour.withLightness (0.8f));
             path.lineTo (centerSquarePointFromCoords (sequenceCoords[i]));
         }
         
@@ -211,6 +227,25 @@ juce::Point<float> NoiseGridView::centerSquarePointFromCoords (std::pair<int, in
 {
     juce::Point<float> squareTopLeft = squareCoordsFromRowAndCol (coords.first, coords.second);
     return { squareTopLeft.x + squareSize / 2.0f, squareTopLeft.y + squareSize / 2.0f };
+}
+
+bool NoiseGridView::isSquareAvailable (std::pair<int, int> squareCoords)
+{
+    // First, make sure that the square isn't already taken by something else
+    bool isSquareAvailable = true;
+    auto noiseSequences = dataSource->getNoiseGrid().getNoiseSequences();
+    for (int i = 0; i < noiseSequences.size(); ++i)
+    {
+        for (const auto& coords : noiseSequences[i].getAbsoluteCoords())
+        {
+            if (squareCoords.first == coords.first && squareCoords.second == coords.second)
+            {
+                isSquareAvailable = false;
+            }
+        }
+    }
+    
+    return isSquareAvailable;
 }
 
 std::optional<std::pair<int, int>> NoiseGridView::rowAndColFromMouseEvent (const juce::MouseEvent& event)

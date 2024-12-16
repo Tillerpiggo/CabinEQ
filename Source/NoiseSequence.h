@@ -23,6 +23,7 @@ public:
     std::vector<bool> getHits();
     std::pair<int, int> getOrigin();
     bool hasOriginAt (std::pair<int, int> point);
+    bool isEnabled();
     
     void setOrigin (std::pair<int, int> newOrigin);
     void addCoords (std::pair<int, int> newCoords); // given in absolute terms, translated to be relative

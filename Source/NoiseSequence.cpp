@@ -19,9 +19,11 @@ NoiseSequence::NoiseSequence (std::pair<int, int> origin)
 NoiseSequence::NoiseSequence (std::vector<std::pair<int, int>> coords)
 {
     origin = coords[0];
+    hits.push_back (true);
     for (int i = 1; i < coords.size(); ++i)
     {
         relativeCoords.push_back ({ coords[i].first - origin.first, coords[i].second - origin.second });
+        hits.push_back (true);
     }
 }
 
@@ -53,6 +55,13 @@ bool NoiseSequence::hasOriginAt (std::pair<int, int> point)
     return origin.first == point.first && origin.second == point.second;
 }
 
+bool NoiseSequence::isEnabled()
+{
+    if (hits.size() == 0)
+        return false;
+    return hits[0];
+}
+
 void NoiseSequence::setOrigin (std::pair<int, int> newOrigin)
 {
     this->origin = newOrigin;
@@ -78,6 +87,7 @@ void NoiseSequence::addCoordSequence (std::vector<std::pair<int, int>> coordSequ
 
 bool NoiseSequence::toggleCoords (std::pair<int, int> coords)
 {
+    std::cout << "toggling coords" << std::endl;
     if (hasOriginAt (coords))
     {
         hits[0] = ! hits[0];

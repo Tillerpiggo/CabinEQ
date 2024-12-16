@@ -45,6 +45,7 @@ private:
     void drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour);
     juce::Point<float> squareCoordsFromRowAndCol (int row, int col);
     juce::Point<float> centerSquarePointFromCoords (std::pair<int, int> coords);
+    bool isSquareAvailable (std::pair<int, int> squareCoords);
     std::optional<std::pair<int, int>> rowAndColFromMouseEvent (const juce::MouseEvent& event);
     void updateVisualConstants();
     
