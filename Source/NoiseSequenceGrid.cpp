@@ -136,9 +136,9 @@ void NoiseSequenceGrid::updateNextAvailableId()
 
 std::pair<float, float> NoiseSequenceGrid::getNormalizedCoordsFor (std::pair<int, int> coords)
 {
-    // First normalize x and y to [0, 1]
-    float normalizedX = (((float) coords.first)) / ((float) numCols - 1.0f);
-    float normalizedY = (((float) coords.second)) / ((float) numRows - 1.0f);
+    // First normalize x and y to [0, 1] (flip x and y because .first refers to rows and .second refers to columns
+    float normalizedY = (((float) coords.first)) / ((float) numCols - 1.0f);
+    float normalizedX = (((float) coords.second)) / ((float) numRows - 1.0f);
     
     // Then convert to [-1, 1]
     normalizedX = normalizedX * 2.0f - 1.0f;

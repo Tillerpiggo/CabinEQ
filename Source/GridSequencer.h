@@ -24,10 +24,13 @@ public:
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setNoiseGrid (NoiseSequenceGrid noiseSequenceGrid);
-    void updateNoiseGenerators();
     
 private:
+    void updateNoiseGenerators();
+    std::pair<float, float> getFreqAndPanForNormalizedCoords (std::pair<float, float> normalizedCoords);
+    
     std::optional<NoiseSequenceGrid> grid;
+    juce::dsp::ProcessSpec spec;
     
     std::vector<NoiseGenerator> noiseGenerators;
     std::vector<TimeGainEnvelope> gainEnvelopes;
@@ -40,4 +43,5 @@ private:
     float maxFreq = 12000.0f;
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
+    float bandwidth = 0.7f;
 };
