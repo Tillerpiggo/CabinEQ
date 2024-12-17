@@ -13,7 +13,7 @@
 #include <JuceHeader.h>
 #include "NoiseSequenceGrid.h"
 #include "NoiseGenerator.h"
-#include "GainEnvelope.h"
+#include "TimeGainEnvelope.h"
 
 // Allows the playing of a noise sequence grid. Keeps track of the current playing indices for each sequence, and handles iterating forward with time
 class GridSequencer
@@ -30,7 +30,7 @@ private:
     std::optional<NoiseSequenceGrid> grid;
     
     std::vector<NoiseGenerator> noiseGenerators;
-    std::vector<GainEnvelope> gainEnvelopes;
+    std::vector<TimeGainEnvelope> gainEnvelopes;
     
     float currTime = 0.0f; // time from 0 to 1
     float timeInterval = 0.0f; // must be set in prepare

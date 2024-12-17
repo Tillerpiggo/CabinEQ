@@ -61,6 +61,23 @@ std::vector<NoiseSequence> NoiseSequenceGrid::getNoiseSequences()
     return noiseSequences;
 }
 
+std::vector<std::pair<float, float>> NoiseSequenceGrid::getNormalizedPlayingCoordsAtTime (float time)
+{
+    std::vector<std::pair<int, int>> playingCoords;
+    for (const auto& sequence : noiseSequences)
+    {
+        playingCoords.push_back (sequence.getPlayingCoordsAtTime (time));
+    }
+    
+    std::vector<std::pair<float, float>> normalizedPlayingCoords;
+    for (const auto& coords : playingCoords)
+    {
+        normalizedPlayingCoords.push_back (getNormalizedCoordsFor (coords));
+    }
+    
+    return normalizedPlayingCoords;
+}
+
 std::pair<int, int> NoiseSequenceGrid::getNumRowsAndNumCols()
 {
     return { numRows, numCols };
@@ -115,4 +132,18 @@ void NoiseSequenceGrid::updateNextAvailableId()
     }
     
     nextAvailableId = nextId;
+}
+
+std::pair<float, float> NoiseSequenceGrid::getNormalizedCoordsFor (std::pair<int, int> coords)
+{
+    // First normalize x and y to [0, 1]
+    float normalizedX = (((float) coords.first)) / ((float) numCols - 1.0f);
+    float normalizedY = (((float) coords.second)) / ((float) numRows - 1.0f);
+    
+    // Then convert to [-1, 1]
+    normalizedX = normalizedX * 2.0f - 1.0f;
+    normalizedY = normalizedY * 2.0f - 1.0f;
+    
+    std::pair<float, float> normalizedCoords = { normalizedX, normalizedY };
+    return normalizedCoords;
 }

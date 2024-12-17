@@ -25,6 +25,7 @@ public:
     void toggleCoords (std::pair<int, int> coords); // If the coords are within a sequence, toggles them to be on/off
     
     std::vector<NoiseSequence> getNoiseSequences();
+    std::vector<std::pair<float, float>> getNormalizedPlayingCoordsAtTime (float time); // returns the normalized coordinates - if they were evenly spaced from x in [-1, 1] to y in [-1, 1], where time is from 0 to 1
     std::pair<int, int> getNumRowsAndNumCols();
     int getNextAvailableId(); // returns the next available id, if starting at 0, and basing it on the existing noise sequences
     int getSequenceIdAtCoords (std::pair<int, int> coords);
@@ -36,6 +37,7 @@ public:
     
 private:
     void updateNextAvailableId();
+    std::pair<float, float> getNormalizedCoordsFor (std::pair<int, int> coords); // returns the coords normalized to the current dimensions of noiseSequence grid, from [-1, 1] to [-1, 1] for both the x and y axes
     
     int numRows;
     int numCols;

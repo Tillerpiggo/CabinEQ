@@ -39,6 +39,13 @@ std::pair<int, int> NoiseSequence::getOrigin() const
     return coords[0];
 }
 
+std::pair<int, int> NoiseSequence::getPlayingCoordsAtTime (float time) const
+{
+    float spedUpTime = fmod (time * tempo, 1.0f);
+    int playingIdx = floor (time * (coords.size() - 1));
+    return coords[playingIdx];
+}
+
 int NoiseSequence::getId() const
 {
     return id;

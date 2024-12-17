@@ -22,6 +22,7 @@ public:
     std::vector<std::pair<int, int>> getCoords() const; // returns all coords, including the origin, in absolute terms, with (0, 0) as the top left corner
     std::vector<bool> getHits() const;
     std::pair<int, int> getOrigin() const;
+    std::pair<int, int> getPlayingCoordsAtTime (float time) const; // returns the coords that should be playing at that time, given time is from [0, 1] and everything in the sequence is evenly spread over the time (with it being sped up if tempo is sped up)
     int getId() const;
     bool hasOriginAt (std::pair<int, int> point) const;
     bool getIsEnabled() const;
@@ -40,6 +41,6 @@ private:
     std::vector<std::pair<int, int>> coords; // the starting point - [colIdx, rowIdx] pair
     std::vector<bool> hits; // in the order of coords, which ones are "hits".
     bool isEnabled = true;
-    float tempo; // 1 = normal speed, 1/2 = half speed, etc.
+    float tempo = 1.0f; // 1 = normal speed, 2 = double speed, etc.
     int id;
 };
