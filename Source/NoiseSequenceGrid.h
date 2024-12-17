@@ -30,10 +30,8 @@ public:
     
     // Increase/reduce horizontal/vertical dimensions by adding rows/cols in between existing rows
     // so 3 -> 5 -> 9 when scaling up twice
-    void scaleUpHorizontal();
-    void scaleDownHorizontal();
-    void scaleUpVertical();
-    void scaleDownVertical();
+    void scaleUpGrid();
+    void scaleDownGrid();
     
 private:
     int numRows;

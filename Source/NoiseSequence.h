@@ -26,21 +26,18 @@ public:
     bool hasOriginAt (std::pair<int, int> point) const;
     bool getIsEnabled() const;
     
-    void setOrigin (std::pair<int, int> newOrigin);
+    void moveOriginTo (std::pair<int, int> newOrigin);
     void addCoords (std::pair<int, int> newCoords); // given in absolute terms, translated to be relative
     void addCoordSequence (std::vector<std::pair<int, int>> coordSequence); // appends the (absolute) coordinate sequence, translated into relative coords
     void removeLastCoords(); // removes the last coords in relative coords
     bool toggleCoords (std::pair<int, int> coords); // toggles whether these coords are hit/not hit. Returns true if the coords are actually in this sequence, and false if the coords are not in this sequence.
     void clearCoords(); // clears relative coords but keeps origin
     
-    void scaleUpHorizontal();
-    void scaleDownHorizontal();
-    void scaleUpVertical();
-    void scaleDownVertical();
+    void scaleUp();
+    void scaleDown();
     
 private:
-    std::pair<int, int> origin; // the starting point - [colIdx, rowIdx] pair
-    std::vector<std::pair<int, int>> relativeCoords; // all the next coordinates, relative to the origin - [colIdx, rowIdx] pair
+    std::vector<std::pair<int, int>> coords; // the starting point - [colIdx, rowIdx] pair
     std::vector<bool> hits; // in the order of coords, which ones are "hits".
     bool isEnabled = true;
     float tempo; // 1 = normal speed, 1/2 = half speed, etc.

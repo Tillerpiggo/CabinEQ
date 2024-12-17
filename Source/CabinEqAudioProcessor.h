@@ -112,6 +112,8 @@ public:
     void removeSequence (std::pair<int, int> origin) override;
     void moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin) override;
     void toggleCoords (std::pair<int, int> point) override;
+    void scaleUpGrid() override;
+    void scaleDownGrid() override;
     
     NoiseSequenceGrid getNoiseGrid() override;
     std::pair<int, int> getNumRowsAndNumCols() override;

@@ -25,6 +25,7 @@ void Layout::setBoundsOfComponents (std::vector<juce::Component*> components)
         
         auto [rowIdx, rectIdx] = getRowAndRectIdx (componentIdx);
         auto bounds = getBoundsAt (rowIdx, rectIdx);
+        std::cout << "bounds: (x: " << bounds.getX() << ", y: " << bounds.getY() << ", width: " << bounds.getWidth() << ", height: " << bounds.getHeight() << ")" << std::endl;
         components[componentIdx]->setBounds (bounds);
     }
 }

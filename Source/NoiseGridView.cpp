@@ -13,6 +13,29 @@
 NoiseGridView::NoiseGridView()
 {
     startTimer (12);
+    
+    sizeLabel.setText ("Resolution", juce::NotificationType::dontSendNotification);
+    sizeLabel.setFont (juce::Font (juce::FontOptions (30.0f, juce::Font::bold)));
+    sizeLabel.setJustificationType (juce::Justification::horizontallyCentred);
+    
+    addButton (&increaseSizeButton);
+    addButton (&decreaseSizeButton);
+    addAndMakeVisible (sizeLabel);
+    
+    addButtonAction (&increaseSizeButton, [this](juce::Button*) {
+        if (listener != nullptr && dataSource != nullptr)
+        {
+            listener->scaleUpGrid();
+            updateVisualConstants();
+        }
+    });
+    addButtonAction (&decreaseSizeButton, [this](juce::Button*) {
+        if (listener != nullptr && dataSource != nullptr)
+        {
+            listener->scaleDownGrid();
+            updateVisualConstants();
+        }
+    });
 }
 
 NoiseGridView::~NoiseGridView()
@@ -28,7 +51,9 @@ void NoiseGridView::paint (juce::Graphics& g)
 
 void NoiseGridView::resized()
 {
-    // we'll just draw everything for now, maybe add a wrapper class later
+    Layout layout (getBounds().withX (0).withY (0).withTrimmedLeft (getWidth() * 2.0f / 3.0f), 4);
+    layout.addRow ({ Space (&increaseSizeButton), Space (&sizeLabel, 200), Space (&decreaseSizeButton) });
+    layout.updateComponentBounds();
 }
 
 void NoiseGridView::mouseMove (const juce::MouseEvent &event)
@@ -308,7 +333,6 @@ std::optional<std::pair<int, int>> NoiseGridView::rowAndColFromMouseEvent (const
         if (mouseX >= squareX && mouseX <= squareX + squareSize &&
             mouseY >= squareY && mouseY <= squareY + squareSize)
         {
-            std::cout << "calculated row and col (row: " << row << ", col: " << col << std::endl;
             return std::pair<int, int> { row, col };
         }
     }

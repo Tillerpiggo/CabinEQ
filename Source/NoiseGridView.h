@@ -14,6 +14,7 @@
 #include "BuildableComponent.h"
 #include "NoiseSequenceGrid.h"
 #include "Listeners.h"
+#include "Layout.h"
 
 class NoiseGridView  : public BuildableComponent,
                        public juce::Timer
@@ -54,8 +55,12 @@ private:
     NoiseGridViewListener* listener = nullptr;
     NoiseGridViewDataSource* dataSource = nullptr;
     
+    // Buttons
+    juce::TextButton increaseSizeButton { "+" };
+    juce::TextButton decreaseSizeButton { "-" };
+    juce::Label sizeLabel;
+    
     // Interaction variables
-//    std::vector<std::pair<int, int>> addingCoords;
     std::optional<NoiseSequence> addingSequence;
     int hoveringId = -1;
     int draggingId = -1;

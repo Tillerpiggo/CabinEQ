@@ -795,6 +795,16 @@ void CabinEqAudioProcessor::toggleCoords (std::pair<int, int> point)
     noiseSequenceGrid.toggleCoords (point);
 }
 
+void CabinEqAudioProcessor::scaleUpGrid()
+{
+    noiseSequenceGrid.scaleUpGrid();
+}
+
+void CabinEqAudioProcessor::scaleDownGrid()
+{
+    noiseSequenceGrid.scaleDownGrid();
+}
+
 NoiseSequenceGrid CabinEqAudioProcessor::getNoiseGrid()
 {
     return noiseSequenceGrid;
