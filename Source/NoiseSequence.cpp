@@ -24,7 +24,7 @@ NoiseSequence::NoiseSequence (std::vector<std::pair<int, int>> coords, int id)
     hits = std::vector<bool> (coords.size(), true);
 }
 
-std::vector<std::pair<int, int>> NoiseSequence::getAbsoluteCoords() const
+std::vector<std::pair<int, int>> NoiseSequence::getCoords() const
 {
     return coords;
 }

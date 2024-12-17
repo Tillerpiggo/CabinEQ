@@ -19,7 +19,7 @@ public:
     NoiseSequence (std::pair<int, int> origin, int id);
     NoiseSequence (std::vector<std::pair<int, int>> coords, int id);
     
-    std::vector<std::pair<int, int>> getAbsoluteCoords() const; // returns all coords, including the origin, in absolute terms, with (0, 0) as the top left corner
+    std::vector<std::pair<int, int>> getCoords() const; // returns all coords, including the origin, in absolute terms, with (0, 0) as the top left corner
     std::vector<bool> getHits() const;
     std::pair<int, int> getOrigin() const;
     int getId() const;

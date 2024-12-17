@@ -114,7 +114,7 @@ void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
     if (! mouseDragCoords.has_value() || ! addingSequence.has_value())
         return;
     
-    auto addingCoords = addingSequence->getAbsoluteCoords();
+    auto addingCoords = addingSequence->getCoords();
     auto mouseRowAndCol = mouseDragCoords.value();
     auto prevRowAndCol = addingCoords[addingCoords.size() - 1];
     
@@ -246,7 +246,7 @@ void NoiseGridView::drawSequences (juce::Graphics& g)
 
 void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juce::Colour colour, float sizePercent)
 {
-    auto sequenceCoords = sequence.getAbsoluteCoords();
+    auto sequenceCoords = sequence.getCoords();
     if (sequenceCoords.size() > 0)
     {
         juce::Path path;
@@ -285,7 +285,7 @@ bool NoiseGridView::isSquareAvailable (std::pair<int, int> squareCoords)
     auto noiseSequences = dataSource->getNoiseGrid().getNoiseSequences();
     for (int i = 0; i < noiseSequences.size(); ++i)
     {
-        for (const auto& coords : noiseSequences[i].getAbsoluteCoords())
+        for (const auto& coords : noiseSequences[i].getCoords())
         {
             if (squareCoords.first == coords.first && squareCoords.second == coords.second)
             {
