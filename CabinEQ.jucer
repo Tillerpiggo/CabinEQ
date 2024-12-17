@@ -102,11 +102,14 @@
         <FILE id="XfCJZ2" name="NoiseGridView.h" compile="0" resource="0" file="Source/NoiseGridView.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Sequencers">
-        <FILE id="j5OPGn" name="NoiseGridSequencer.cpp" compile="1" resource="0"
-              file="Source/NoiseGridSequencer.cpp"/>
-        <FILE id="wwzPzs" name="NoiseGridSequencer.h" compile="0" resource="0"
-              file="Source/NoiseGridSequencer.h"/>
+        <FILE id="RhwdzZ" name="GridSequencer.cpp" compile="1" resource="0"
+              file="Source/GridSequencer.cpp"/>
+        <FILE id="TPQGCb" name="GridSequencer.h" compile="0" resource="0" file="Source/GridSequencer.h"/>
         <GROUP id="{26F692A9-D131-4C48-F7CC-A6231946AB74}" name="Sequencer Helpers">
+          <FILE id="ggV13i" name="TimeGainEnvelope.cpp" compile="1" resource="0"
+                file="Source/TimeGainEnvelope.cpp"/>
+          <FILE id="yJhP4w" name="TimeGainEnvelope.h" compile="0" resource="0"
+                file="Source/TimeGainEnvelope.h"/>
           <FILE id="AnuU42" name="SequencerListener.h" compile="0" resource="0"
                 file="Source/SequencerListener.h"/>
           <FILE id="VLnqpz" name="StereoGainEnvelope.cpp" compile="1" resource="0"

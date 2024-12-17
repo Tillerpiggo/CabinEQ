@@ -39,3 +39,5 @@ private:
     int startDelayInSamples; // how much to delay the note's start
     int endEarlyInSamples; // how early to end the note by
 };
+
+

@@ -1,11 +1,11 @@
 /*
   ==============================================================================
 
-    NoiseGridSequencer.h
-    Created: 13 Dec 2024 9:01:22pm
+    GridSequencer.cpp
+    Created: 16 Dec 2024 7:40:08pm
     Author:  Tyler Gee
 
   ==============================================================================
 */
 
-#pragma once
+#include "GridSequencer.h"

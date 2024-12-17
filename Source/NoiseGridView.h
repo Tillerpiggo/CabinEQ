@@ -44,6 +44,7 @@ private:
     void drawSequences (juce::Graphics& g);
     void drawSequence (juce::Graphics& g, NoiseSequence sequence, juce::Colour colour, float alpha = 1.0f, float sizePercent = 1.0f);
     void drawSquareAt (juce::Graphics& g, int row, int col, juce::Colour colour, float sizePercent = 1.0f);
+    void updateHovering (const juce::MouseEvent& event);
     juce::Point<float> squareCoordsFromRowAndCol (int row, int col);
     juce::Point<float> centerSquarePointFromCoords (std::pair<int, int> coords);
     bool canDragToPosition (std::pair<int, int> pos);

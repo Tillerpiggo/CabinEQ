@@ -58,34 +58,7 @@ void NoiseGridView::resized()
 
 void NoiseGridView::mouseMove (const juce::MouseEvent &event)
 {
-    if (! event.mods.isShiftDown() || dataSource == nullptr)
-    {
-        hoveringId = -1;
-        return;
-    }
-    
-    auto hoveringRowAndCol = rowAndColFromMouseEvent (event);
-    if (! hoveringRowAndCol.has_value())
-    {
-        hoveringId = -1;
-        return;
-    }
-    
-    // Figure out which sequence, if any, we're hovering over
-    bool isHovering = false;
-    NoiseSequenceGrid noiseGrid = dataSource->getNoiseGrid();
-    
-    for (const auto& sequence : noiseGrid.getNoiseSequences())
-    {
-        if (sequence.hasOriginAt (hoveringRowAndCol.value()))
-        {
-            isHovering = true;
-            hoveringId = sequence.getId();
-        }
-    }
-        
-    if (! isHovering)
-        hoveringId = -1;
+    updateHovering (event);
 }
 
 void NoiseGridView::mouseDown (const juce::MouseEvent &event)
@@ -116,6 +89,8 @@ void NoiseGridView::mouseDown (const juce::MouseEvent &event)
 
 void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
 {
+    updateHovering (event);
+    
     auto mouseDragCoords = rowAndColFromMouseEvent (event);
     
     // If we're dragging, handle it and return
@@ -179,7 +154,7 @@ void NoiseGridView::mouseUp (const juce::MouseEvent &event)
     {
         listener->addSequence (addingSequence.value());
     }
-    else if (mouseUpRowAndCol.has_value())
+    else if (mouseUpRowAndCol.has_value() && draggingId == -1)
     {
         listener->toggleCoords (mouseUpRowAndCol.value());
     }
@@ -301,6 +276,39 @@ void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juc
         drawSquareAt (g, firstCoords.first, firstCoords.second, juce::Colours::black, 1.0f); // to block out the white square
         drawSquareAt (g, firstCoords.first, firstCoords.second, colour.withAlpha ((sequence.getHits()[0] ? 1.0f : 0.3f) * alpha), sizePercent);
     }
+}
+
+void NoiseGridView::updateHovering (const juce::MouseEvent& event)
+{
+    if (! event.mods.isShiftDown() || dataSource == nullptr || draggingId != -1)
+    {
+        hoveringId = -1;
+        return;
+    }
+    
+    auto hoveringRowAndCol = rowAndColFromMouseEvent (event);
+    if (! hoveringRowAndCol.has_value())
+    {
+        hoveringId = -1;
+        return;
+    }
+    
+    // Figure out which sequence, if any, we're hovering over
+    bool isHovering = false;
+    NoiseSequenceGrid noiseGrid = dataSource->getNoiseGrid();
+    
+    for (const auto& sequence : noiseGrid.getNoiseSequences())
+    {
+        if (sequence.hasOriginAt (hoveringRowAndCol.value()))
+        {
+            isHovering = true;
+            hoveringId = sequence.getId();
+        }
+    }
+    
+        
+    if (! isHovering)
+        hoveringId = -1;
 }
 
 juce::Point<float> NoiseGridView::squareCoordsFromRowAndCol (int row, int col)
