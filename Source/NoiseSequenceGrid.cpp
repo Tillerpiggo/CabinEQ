@@ -19,6 +19,7 @@ NoiseSequenceGrid::NoiseSequenceGrid (int numRows, int numCols)
 void NoiseSequenceGrid::addSequence (NoiseSequence noiseSequence)
 {
     noiseSequences.push_back (noiseSequence);
+    updateNextAvailableId();
 }
 
 void NoiseSequenceGrid::removeSequence (std::pair<int, int> origin)
@@ -31,6 +32,7 @@ void NoiseSequenceGrid::removeSequence (std::pair<int, int> origin)
             break;
         }
     }
+    updateNextAvailableId();
 }
 
 void NoiseSequenceGrid::moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin)
@@ -66,20 +68,7 @@ std::pair<int, int> NoiseSequenceGrid::getNumRowsAndNumCols()
 
 int NoiseSequenceGrid::getNextAvailableId()
 {
-    // Get a sorted list of ids
-    std::vector<int> ids;
-    for (const auto& noiseSequence : noiseSequences)
-        ids.push_back (noiseSequence.getId());
-    std::sort (ids.begin(), ids.end());
-    
-    // Find the next available id
-    int nextId = 0;
-    for (const int id : ids)
-    {
-        if (nextId == id)
-            nextId++;
-    }
-    return nextId;
+    return nextAvailableId;
 }
 
 // Increase/reduce horizontal/vertical dimensions by adding rows/cols in between existing rows
@@ -98,4 +87,23 @@ void NoiseSequenceGrid::scaleDownGrid()
     numCols = (numCols / 2) + 1;
     for (auto& noiseSequence : noiseSequences)
         noiseSequence.scaleDown();
+}
+
+void NoiseSequenceGrid::updateNextAvailableId()
+{
+    // Get a sorted list of ids
+    std::vector<int> ids;
+    for (const auto& noiseSequence : noiseSequences)
+        ids.push_back (noiseSequence.getId());
+    std::sort (ids.begin(), ids.end());
+    
+    // Find the next available id
+    int nextId = 0;
+    for (const int id : ids)
+    {
+        if (nextId == id)
+            nextId++;
+    }
+    
+    nextAvailableId = nextId;
 }

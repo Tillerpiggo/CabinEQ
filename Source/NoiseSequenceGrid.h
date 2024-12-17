@@ -34,7 +34,10 @@ public:
     void scaleDownGrid();
     
 private:
+    void updateNextAvailableId();
+    
     int numRows;
     int numCols;
+    int nextAvailableId = 0;
     std::vector<NoiseSequence> noiseSequences;
 };
