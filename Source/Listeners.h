@@ -43,7 +43,7 @@ public:
     virtual void addSequence (NoiseSequence sequence) = 0;
     virtual void addSequenceWithCoords (std::vector<std::pair<int, int>> coords) = 0;
     virtual void removeSequence (std::pair<int, int> origin) = 0;
-    virtual void moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin) = 0;
+    virtual void moveSequence (int id, std::pair<int, int> newOrigin) = 0;
     virtual void toggleCoords (std::pair<int, int> point) = 0;
     
     virtual void scaleUpGrid() = 0;

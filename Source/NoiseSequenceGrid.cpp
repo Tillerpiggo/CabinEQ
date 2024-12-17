@@ -35,16 +35,16 @@ void NoiseSequenceGrid::removeSequence (std::pair<int, int> origin)
     updateNextAvailableId();
 }
 
-void NoiseSequenceGrid::moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin)
+void NoiseSequenceGrid::moveSequence (int id, std::pair<int, int> newOrigin)
 {
     // Assume there is a sequence at origin, and that the sequence can be moved to newOrigin
     
     // Find the sequence
     for (int i = 0; i < noiseSequences.size(); ++i)
     {
-        if (noiseSequences[i].hasOriginAt (origin))
+        if (noiseSequences[i].getId() == id)
         {
-            noiseSequences[i].moveOriginTo (origin);
+            noiseSequences[i].moveOriginTo (newOrigin);
         }
     }
 }

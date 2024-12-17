@@ -174,15 +174,20 @@ void NoiseGridView::mouseUp (const juce::MouseEvent &event)
     if (listener == nullptr || dataSource == nullptr)
         return;
     
+    auto mouseUpRowAndCol = rowAndColFromMouseEvent (event);
     if (addingSequence.has_value())
     {
         listener->addSequence (addingSequence.value());
     }
-    else
+    else if (mouseUpRowAndCol.has_value())
     {
-        auto selectedRowAndCol = rowAndColFromMouseEvent (event);
-        if (selectedRowAndCol.has_value())
-            listener->toggleCoords (selectedRowAndCol.value());
+        listener->toggleCoords (mouseUpRowAndCol.value());
+    }
+    
+    // Move the sequence if draggable
+    if (isPotentialDragLocationAvailable && mouseUpRowAndCol.has_value())
+    {
+        listener->moveSequence (draggingId, mouseUpRowAndCol.value());
     }
     
     addingSequence.reset();

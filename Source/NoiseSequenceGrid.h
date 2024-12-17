@@ -21,7 +21,7 @@ public:
     
     void addSequence (NoiseSequence noiseSequence);
     void removeSequence (std::pair<int, int> origin); // removes the sequence with the matching origin, if there is one in this noise sequence grid
-    void moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin);
+    void moveSequence (int id, std::pair<int, int> newOrigin);
     void toggleCoords (std::pair<int, int> coords); // If the coords are within a sequence, toggles them to be on/off
     
     std::vector<NoiseSequence> getNoiseSequences();

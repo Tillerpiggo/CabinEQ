@@ -785,9 +785,9 @@ void CabinEqAudioProcessor::removeSequence (std::pair<int, int> origin)
     noiseSequenceGrid.removeSequence (origin);
 }
 
-void CabinEqAudioProcessor::moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin)
+void CabinEqAudioProcessor::moveSequence (int id, std::pair<int, int> newOrigin)
 {
-    noiseSequenceGrid.moveSequence (origin, newOrigin);
+    noiseSequenceGrid.moveSequence (id, newOrigin);
 }
 
 void CabinEqAudioProcessor::toggleCoords (std::pair<int, int> point)

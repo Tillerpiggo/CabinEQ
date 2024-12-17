@@ -110,7 +110,7 @@ public:
     void addSequence (NoiseSequence sequence) override;
     void addSequenceWithCoords (std::vector<std::pair<int, int>> coords) override;
     void removeSequence (std::pair<int, int> origin) override;
-    void moveSequence (std::pair<int, int> origin, std::pair<int, int> newOrigin) override;
+    void moveSequence (int id, std::pair<int, int> newOrigin) override;
     void toggleCoords (std::pair<int, int> point) override;
     void scaleUpGrid() override;
     void scaleDownGrid() override;
