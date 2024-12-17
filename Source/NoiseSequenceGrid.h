@@ -27,6 +27,7 @@ public:
     std::vector<NoiseSequence> getNoiseSequences();
     std::pair<int, int> getNumRowsAndNumCols();
     int getNextAvailableId(); // returns the next available id, if starting at 0, and basing it on the existing noise sequences
+    int getSequenceIdAtCoords (std::pair<int, int> coords);
     
     // Increase/reduce horizontal/vertical dimensions by adding rows/cols in between existing rows
     // so 3 -> 5 -> 9 when scaling up twice

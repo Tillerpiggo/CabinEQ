@@ -63,6 +63,8 @@ void NoiseSequence::moveOriginTo (std::pair<int, int> newOrigin)
     
     std::cout << "rowsToMove: " << rowsToMove << std::endl;
     std::cout << "colsToMove: " << colsToMove << std::endl;
+    std::cout << "origin: (" << origin.first << ", " << origin.second << std::endl;
+    std::cout << "newOrigin: (" << newOrigin.first << ", " << newOrigin.second << std::endl;
     
     // Assume this is being done properly - this method doesn't check if the origin is "out of bounds" in any sense
     for (int i = 0; i < coords.size(); ++i)

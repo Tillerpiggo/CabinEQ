@@ -71,6 +71,15 @@ int NoiseSequenceGrid::getNextAvailableId()
     return nextAvailableId;
 }
 
+int NoiseSequenceGrid::getSequenceIdAtCoords (std::pair<int, int> coords)
+{
+    for (const auto& sequence : noiseSequences)
+        if (sequence.hasOriginAt (coords))
+            return sequence.getId();
+    
+    return -1;
+}
+
 // Increase/reduce horizontal/vertical dimensions by adding rows/cols in between existing rows
 // so 3 -> 5 -> 9 when scaling up twice
 void NoiseSequenceGrid::scaleUpGrid()

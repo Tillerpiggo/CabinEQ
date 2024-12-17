@@ -815,6 +815,11 @@ std::pair<int, int> CabinEqAudioProcessor::getNumRowsAndNumCols()
     return noiseSequenceGrid.getNumRowsAndNumCols();
 }
 
+int CabinEqAudioProcessor::getSequenceIdAtCoords (std::pair<int, int> coords)
+{
+    return noiseSequenceGrid.getSequenceIdAtCoords (coords);
+}
+
 void CabinEqAudioProcessor::addListener (Listener* listener)
 {
     this->listeners.push_back (listener);

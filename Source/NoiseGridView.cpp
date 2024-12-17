@@ -104,13 +104,38 @@ void NoiseGridView::mouseDown (const juce::MouseEvent &event)
             addingSequence = NoiseSequence (mouseDownCoords.value(), dataSource->getNoiseGrid().getNextAvailableId());
 //            addingCoords.push_back (mouseDownCoords.value());
         }
+        else
+        {
+            // Get the id, if any, of the selected sequence
+            draggingId = dataSource->getSequenceIdAtCoords (mouseDownCoords.value());
+            if (draggingId != -1)
+                draggingSequence = dataSource->getNoiseGrid().getNoiseSequences()[draggingId];
+        }
     }
 }
 
 void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
 {
-    // Make sure we're dragging in a legit spot
     auto mouseDragCoords = rowAndColFromMouseEvent (event);
+    
+    // If we're dragging, handle it and return
+    if (draggingId != -1)
+    {
+        std::cout << "dragging with non-0 draggingId" << std::endl;
+        // Update the destination location
+        if (! mouseDragCoords.has_value())
+        {
+            isPotentialDragLocationAvailable = false;
+        }
+        else
+        {
+            draggingSequence->moveOriginTo (mouseDragCoords.value());
+            isPotentialDragLocationAvailable = canDragToPosition (mouseDragCoords.value());
+        }
+        return;
+    }
+    
+    // Make sure we're dragging in a legit spot
     if (! mouseDragCoords.has_value() || ! addingSequence.has_value())
         return;
     
@@ -161,7 +186,8 @@ void NoiseGridView::mouseUp (const juce::MouseEvent &event)
     }
     
     addingSequence.reset();
-    
+    draggingId = -1;
+    isPotentialDragLocationAvailable = false;
 }
 
 void NoiseGridView::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
@@ -234,17 +260,22 @@ void NoiseGridView::drawSequences (juce::Graphics& g)
         auto noiseSequences = noiseGrid.getNoiseSequences();
         int nextId = noiseGrid.getNextAvailableId();
         if (addingSequence.has_value())
-            drawSequence (g, addingSequence.value(), sequenceColours[nextId % sequenceColours.size()]);
+            drawSequence (g, addingSequence.value(), colourForId (nextId));
         for (int i = 0; i < noiseSequences.size(); ++i)
         {
-            auto colour = sequenceColours[noiseSequences[i].getId() % sequenceColours.size()];
+            auto colour = colourForId (noiseSequences[i].getId());
             if (! noiseSequences[i].getIsEnabled()) colour = juce::Colours::grey;
-            drawSequence (g, noiseSequences[i], colour, hoveringId == noiseSequences[i].getId() ? 0.9f : 1.0f);
+            drawSequence (g, noiseSequences[i], colour, 1.0f, hoveringId == noiseSequences[i].getId() ? 0.9f : 1.0f);
+        }
+        
+        if (draggingId != -1 && isPotentialDragLocationAvailable)
+        {
+            drawSequence (g, draggingSequence.value(), colourForId (draggingId), 0.5f, 0.9f);
         }
     }
 }
 
-void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juce::Colour colour, float sizePercent)
+void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juce::Colour colour, float alpha, float sizePercent)
 {
     auto sequenceCoords = sequence.getCoords();
     if (sequenceCoords.size() > 0)
@@ -254,14 +285,16 @@ void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juc
         for (int i = 1; i < sequenceCoords.size(); ++i)
         {
             auto currCoords = sequenceCoords[i];
-            drawSquareAt (g, currCoords.first, currCoords.second, colour.withLightness (0.8f).withAlpha (sequence.getHits()[i] ? 1.0f : 0.3f), sizePercent);
+            drawSquareAt (g, currCoords.first, currCoords.second, juce::Colours::black, 1.0f); // to block out the white square
+            drawSquareAt (g, currCoords.first, currCoords.second, colour.withLightness (0.8f).withAlpha ((sequence.getHits()[i] ? 1.0f : 0.3f) * alpha), sizePercent);
             drawSquareAt (g, currCoords.first, currCoords.second, juce::Colours::black, sizePercent * 0.9f);
             path.lineTo (centerSquarePointFromCoords (sequenceCoords[i]));
         }
         
         // Draw in the origin square on top of everything
         auto firstCoords = sequenceCoords[0];
-        drawSquareAt (g, firstCoords.first, firstCoords.second, colour.withAlpha (sequence.getHits()[0] ? 1.0f : 0.3f), sizePercent);
+        drawSquareAt (g, firstCoords.first, firstCoords.second, juce::Colours::black, 1.0f); // to block out the white square
+        drawSquareAt (g, firstCoords.first, firstCoords.second, colour.withAlpha ((sequence.getHits()[0] ? 1.0f : 0.3f) * alpha), sizePercent);
     }
 }
 
@@ -276,6 +309,24 @@ juce::Point<float> NoiseGridView::centerSquarePointFromCoords (std::pair<int, in
 {
     juce::Point<float> squareTopLeft = squareCoordsFromRowAndCol (coords.first, coords.second);
     return { squareTopLeft.x + squareSize / 2.0f, squareTopLeft.y + squareSize / 2.0f };
+}
+
+bool NoiseGridView::canDragToPosition (std::pair<int, int> pos)
+{
+    if (draggingId == -1 || dataSource == nullptr)
+        return false;
+    
+    // Check if any square in the dragging sequence is unavailable
+    auto draggingSequenceCoords = draggingSequence->getCoords();
+    for (const auto& draggingCoords : draggingSequenceCoords)
+    {
+        if (! isSquareAvailable (draggingCoords))
+        {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 bool NoiseGridView::isSquareAvailable (std::pair<int, int> squareCoords)
@@ -336,8 +387,6 @@ std::optional<std::pair<int, int>> NoiseGridView::rowAndColFromMouseEvent (const
             return std::pair<int, int> { row, col };
         }
     }
-    
-    std::cout << "No proper row and col for mouse event :(" << std::endl;
 
     // If not within any square, return invalid indices
     return std::nullopt;
@@ -365,4 +414,10 @@ void NoiseGridView::updateVisualConstants()
         xOffset = (width - (numCols * squareSize + totalHorizontalPadding)) / 2.0f;
         yOffset = (height - (numRows * squareSize + totalVerticalPadding)) / 2.0f;
     }
+}
+
+
+juce::Colour NoiseGridView::colourForId (int id)
+{
+    return sequenceColours[id % sequenceColours.size()];
 }

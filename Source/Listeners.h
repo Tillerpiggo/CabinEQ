@@ -57,4 +57,5 @@ public:
     
     virtual NoiseSequenceGrid getNoiseGrid() = 0;
     virtual std::pair<int, int> getNumRowsAndNumCols() = 0;
+    virtual int getSequenceIdAtCoords (std::pair<int, int> coords) = 0;
 };

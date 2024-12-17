@@ -117,6 +117,7 @@ public:
     
     NoiseSequenceGrid getNoiseGrid() override;
     std::pair<int, int> getNumRowsAndNumCols() override;
+    int getSequenceIdAtCoords (std::pair<int, int> coords) override;
     
     // Listener
     void addListener (Listener* listener);
