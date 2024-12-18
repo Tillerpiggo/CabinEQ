@@ -84,7 +84,6 @@ void GlyphGenerator::setGlyph (Glyph glyph)
     {
         noiseGenerators.push_back (NoiseGenerator());
         noiseGenerators[noiseGenerators.size() - 1].prepare (spec);
-        std::cout << "added noise generator" << std::endl;
     }
     
     updateNoiseGenerators();

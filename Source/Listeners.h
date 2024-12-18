@@ -48,6 +48,8 @@ public:
     
     virtual void scaleUpGrid() = 0;
     virtual void scaleDownGrid() = 0;
+    
+    virtual void setIsPlaying (bool isPlaying) = 0;
 };
 
 class NoiseGridViewDataSource

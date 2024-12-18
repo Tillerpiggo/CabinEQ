@@ -14,9 +14,7 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : firFilter (14),
-      tiltFilter (15),
-      isFilterOn (true),
+    : isFilterOn (true),
       isPlayingNoise (false)
 {
     profileVolumeProcessor.setRampDurationSeconds (0.05);
@@ -78,21 +76,9 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
     
-    glyphGenerator.prepare (spec);
-    fractalPatternGenerator.prepare (spec);
-    sineWaveGenerator.setSampleRate (spec.sampleRate);
-    sineWaveGenerator.setNote (Note (1000.0f, 0.0f, 0.0f, 0.0f));
+    gridSequencer.prepare (spec);
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
-    firFilter.prepare (spec);
-    tiltFilter.prepare (spec);
-    tiltFilter.updateWithCurve (tiltCurve);
-    noiseGenerator.prepare (spec);
-    noiseGenerator.setBandpass (centerFreq);
-    noiseGenerator.setBandwidth (0.5f);
-    noiseGenerator.setPan (0.0f);
-    
-    fractalPatternGenerator.setPattern (FractalPattern (4));
 }
 
 
@@ -114,12 +100,12 @@ void PlaybackManager::setVolume (float volume)
 
 void PlaybackManager::setSpeedFactor (float speedFactor)
 {
-    glyphGenerator.setSpeedFactor (speedFactor);
+    // TODO: implement
 }
 
 void PlaybackManager::setBandwidth (float bandwidth)
 {
-    glyphGenerator.setBandwidth (bandwidth);
+    // TODO: implement
 }
 
 void PlaybackManager::setProvisionalBands (std::vector<Band> provisionalBands)
@@ -132,53 +118,17 @@ void PlaybackManager::setProvisionalBandsOn (bool provisionalBandsOn)
     this->isProvisionalOn = provisionalBandsOn;
 }
 
-void PlaybackManager::setSizeFactor (float sizeFactor)
+void PlaybackManager::setGrid (NoiseSequenceGrid grid)
 {
-    glyphGenerator.setSizeFactor (sizeFactor);
-}
-
-void PlaybackManager::setCenterPos (juce::Point<float> centerPos)
-{
-    glyphGenerator.setCenterPos (centerPos);
-}
-
-void PlaybackManager::setGlyph (Glyph glyph)
-{
-    glyphGenerator.setGlyph (glyph);
+    gridSequencer.setNoiseGrid (grid);
 }
 
 float PlaybackManager::getCurrPlayingTime()
 {
-    return glyphGenerator.getCurrPlayingTime();
-}
-
-void PlaybackManager::setCenterFreq (float centerFreq)
-{
-    this->centerFreq = centerFreq;
-    sineWaveGenerator.setFrequency (centerFreq);
-    noiseGenerator.setBandpass (centerFreq);
+    // TODO: implement, or decide to implement this a different way
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    
-//    sampleCount++;
-//    if (sampleCount > cycleTimeInSamples / 2.0f)
-//    {
-//        sineWaveGenerator.setPan (-1.0f);
-//        
-//    }
-//    
-//    if (sampleCount > cycleTimeInSamples)
-//    {
-//        sineWaveGenerator.setPan (1.0f);
-//        sampleCount = 0;
-//    }
-//    
-//    return noiseGenerator.getNextSample();
-//
-//    auto nextSample = sineWaveGenerator.getNextSample();
-//    
-//    return nextSample;
-    return glyphGenerator.getNextSample();
+    return gridSequencer.getNextSample();
 }

@@ -63,6 +63,7 @@ private:
     juce::TextButton increaseSizeButton { "+" };
     juce::TextButton decreaseSizeButton { "-" };
     juce::Label sizeLabel;
+    juce::TextButton playButton { "PLAY" };
     
     // Interaction variables
     std::optional<NoiseSequence> addingSequence;
@@ -77,4 +78,6 @@ private:
     float squareSize;
     float padding = 10.0f;
     std::vector<juce::Colour> sequenceColours { juce::Colours::blue, juce::Colours::orange, juce::Colours::green, juce::Colours::purple, juce::Colours::red };
+    
+    bool isPlaying = false;
 };

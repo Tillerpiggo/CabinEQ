@@ -46,6 +46,11 @@ std::pair<int, int> NoiseSequence::getPlayingCoordsAtTime (float time) const
     return coords[playingIdx];
 }
 
+float NoiseSequence::getNoteDurationInTime() const
+{
+    return (float) coords.size() / (float) tempo;
+}
+
 int NoiseSequence::getId() const
 {
     return id;

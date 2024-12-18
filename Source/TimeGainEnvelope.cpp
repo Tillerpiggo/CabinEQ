@@ -18,6 +18,8 @@ TimeGainEnvelope::TimeGainEnvelope (float startDurationInSeconds, float endDurat
 
 const float TimeGainEnvelope::gainAtTime (float timeInSeconds, float noteDurationInSeconds) const
 {
+    timeInSeconds = fmod (timeInSeconds, noteDurationInSeconds); // loop if timeInSeconds > noteDurationInSeconds
+    
     float startRampEnd = startDurationInSeconds;
     float endRampStart = noteDurationInSeconds - endDurationInSeconds;
     

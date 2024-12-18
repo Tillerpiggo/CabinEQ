@@ -100,431 +100,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
-    
-    // Define glyphs
-//    Glyph cabinGlyph({
-//        // Stroke for "C"
-//        Stroke({
-//            { 0.5, 0.5 }, { 0.25, 0.5 }, { 0, 0.5 }, { -0.25, 0.5 }, { -0.5, 0.25 },
-//            { -0.5, 0 }, { -0.5, -0.25 }, { -0.25, -0.5 }, { 0, -0.5 }, { 0.25, -0.5 }, { 0.5, -0.5 }
-//        }),
-//
-//        // Stroke for "A"
-//        Stroke({
-//            { 1, -0.5 }, { 0.75, 0.5 }, { 0.5, 0.5 }, { 0.25, 0.5 },
-//            { 0, -0.5 }, { 0.25, -0.15 }, { 0.75, -0.15 }
-//        }),
-//
-//        // Stroke for "B"
-//        Stroke({
-//            { 1.5, -0.5 }, { 1.5, 0.5 }, { 2, 0.5 }, { 2.25, 0.25 }, { 2, 0 },
-//            { 2.25, -0.25 }, { 2, -0.5 }, { 1.5, -0.5 }
-//        }),
-//
-//        // Stroke for "I"
-//        Stroke({
-//            { 2.75, -0.5 }, { 2.75, 0.5 }
-//        }),
-//
-//        // Stroke for "N"
-//        Stroke({
-//            { 3.25, -0.5 }, { 3.25, 0.5 }, { 3.75, -0.5 }, { 3.75, 0.5 }
-//        })
-//    });
-    
-    Glyph diamondCornersGlyph ({
-        Stroke ({{ -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 }})
-    });
-    
-    Glyph horizontalLineGlyph ({
-        Stroke ({{ -1, -1 }, { -0.5, -1 }, { 0, -1 }, { 0.5, -1 }, { 1, -1 },
-                 { -1, 1 }, { -0.5, 1 }, { 0, 1 }, { 0.5, 1 }, { 1, 1 }})
-    });
-    
-    Glyph threeGridVertical ({
-        Stroke ({{ -1, -1 }, { -1, 0 }, { -1, 1 },
-            { 0, -1 }, { 0, 0 }, { 0, 1 },
-            { 1, -1 }, { 1, 0 }, { 1, 1 }})
-    });
-    
-    Glyph roundabout ({
-        Stroke ({{ 0, 0 }, { -1, -1 }, { 0, 0 }, { -1, 0 }, { 0, 0 }, { -1, 1 },
-            { 0, 0 }, { 0, -1 }, { 0, 0 }, { 0, 1 },
-            { 0, 0 }, { 1, -1 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 1, 1 }})
-    });
-    
-    Glyph threeGrid ({
-        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 },
-                 { -1, 0 }, { 0, 0 }, { 1, 0 },
-                 { -1, 1 }, { 0, 1 }, { 1, 1 }})
-    });
-    
-    Glyph fiveGrid({
-        Stroke ({
-            { -1.0, -1.0 }, { -0.5, -1.0 }, {  0.0, -1.0 }, {  0.5, -1.0 }, {  1.0, -1.0 },
-            { -1.0, -0.5 }, { -0.5, -0.5 }, {  0.0, -0.5 }, {  0.5, -0.5 }, {  1.0, -0.5 },
-            { -1.0,  0.0 }, { -0.5,  0.0 }, {  0.0,  0.0 }, {  0.5,  0.0 }, {  1.0,  0.0 },
-            { -1.0,  0.5 }, { -0.5,  0.5 }, {  0.0,  0.5 }, {  0.5,  0.5 }, {  1.0,  0.5 },
-            { -1.0,  1.0 }, { -0.5,  1.0 }, {  0.0,  1.0 }, {  0.5,  1.0 }, {  1.0,  1.0 }
-        })
-    });
-    
-    Glyph sevenGrid({
-        Stroke ({
-            // Row 1
-            { -1.0, -1.0 }, { -2.0/3.0, -1.0 }, { -1.0/3.0, -1.0 }, { 0.0, -1.0 }, { 1.0/3.0, -1.0 }, { 2.0/3.0, -1.0 }, { 1.0, -1.0 },
-            // Row 2
-            { -1.0, -2.0/3.0 }, { -2.0/3.0, -2.0/3.0 }, { -1.0/3.0, -2.0/3.0 }, { 0.0, -2.0/3.0 }, { 1.0/3.0, -2.0/3.0 }, { 2.0/3.0, -2.0/3.0 }, { 1.0, -2.0/3.0 },
-            // Row 3
-            { -1.0, -1.0/3.0 }, { -2.0/3.0, -1.0/3.0 }, { -1.0/3.0, -1.0/3.0 }, { 0.0, -1.0/3.0 }, { 1.0/3.0, -1.0/3.0 }, { 2.0/3.0, -1.0/3.0 }, { 1.0, -1.0/3.0 },
-            // Row 4
-            { -1.0, 0.0 }, { -2.0/3.0, 0.0 }, { -1.0/3.0, 0.0 }, { 0.0, 0.0 }, { 1.0/3.0, 0.0 }, { 2.0/3.0, 0.0 }, { 1.0, 0.0 },
-            // Row 5
-            { -1.0, 1.0/3.0 }, { -2.0/3.0, 1.0/3.0 }, { -1.0/3.0, 1.0/3.0 }, { 0.0, 1.0/3.0 }, { 1.0/3.0, 1.0/3.0 }, { 2.0/3.0, 1.0/3.0 }, { 1.0, 1.0/3.0 },
-            // Row 6
-            { -1.0, 2.0/3.0 }, { -2.0/3.0, 2.0/3.0 }, { -1.0/3.0, 2.0/3.0 }, { 0.0, 2.0/3.0 }, { 1.0/3.0, 2.0/3.0 }, { 2.0/3.0, 2.0/3.0 }, { 1.0, 2.0/3.0 },
-            // Row 7
-            { -1.0, 1.0 }, { -2.0/3.0, 1.0 }, { -1.0/3.0, 1.0 }, { 0.0, 1.0 }, { 1.0/3.0, 1.0 }, { 2.0/3.0, 1.0 }, { 1.0, 1.0 }
-        })
-    });
-    
-    Glyph sevenGrid2({
-            Stroke ({
-                // Column 1
-                { -1.0, -1.0 }, { -1.0, -2.0/3.0 }, { -1.0, -1.0/3.0 }, { -1.0, 0.0 }, { -1.0, 1.0/3.0 }, { -1.0, 2.0/3.0 }, { -1.0, 1.0 },
-                // Column 2
-                { -2.0/3.0, -1.0 }, { -2.0/3.0, -2.0/3.0 }, { -2.0/3.0, -1.0/3.0 }, { -2.0/3.0, 0.0 }, { -2.0/3.0, 1.0/3.0 }, { -2.0/3.0, 2.0/3.0 }, { -2.0/3.0, 1.0 },
-                // Column 3
-                { -1.0/3.0, -1.0 }, { -1.0/3.0, -2.0/3.0 }, { -1.0/3.0, -1.0/3.0 }, { -1.0/3.0, 0.0 }, { -1.0/3.0, 1.0/3.0 }, { -1.0/3.0, 2.0/3.0 }, { -1.0/3.0, 1.0 },
-                // Column 4
-                { 0.0, -1.0 }, { 0.0, -2.0/3.0 }, { 0.0, -1.0/3.0 }, { 0.0, 0.0 }, { 0.0, 1.0/3.0 }, { 0.0, 2.0/3.0 }, { 0.0, 1.0 },
-                // Column 5
-                { 1.0/3.0, -1.0 }, { 1.0/3.0, -2.0/3.0 }, { 1.0/3.0, -1.0/3.0 }, { 1.0/3.0, 0.0 }, { 1.0/3.0, 1.0/3.0 }, { 1.0/3.0, 2.0/3.0 }, { 1.0/3.0, 1.0 },
-                // Column 6
-                { 2.0/3.0, -1.0 }, { 2.0/3.0, -2.0/3.0 }, { 2.0/3.0, -1.0/3.0 }, { 2.0/3.0, 0.0 }, { 2.0/3.0, 1.0/3.0 }, { 2.0/3.0, 2.0/3.0 }, { 2.0/3.0, 1.0 },
-                // Column 7
-                { 1.0, -1.0 }, { 1.0, -2.0/3.0 }, { 1.0, -1.0/3.0 }, { 1.0, 0.0 }, { 1.0, 1.0/3.0 }, { 1.0, 2.0/3.0 }, { 1.0, 1.0 }
-            })
-        });
-    
-    Glyph heightGlyph ({
-        Stroke ({
-            { 0, -1 },   // Start at bottom-center, slightly to the left
-            { 0, -0.5 }, // Go up
-            { 0, 0 },  // Go right
-            { 0, 0.5 },     // Go up
-            { 0, 1 }
-        })
-    });
-    
-    Glyph diagGlyph ({
-        Stroke ({{ -1, -1 }, { 1, 1 }})
-    });
-    Glyph diag2Glyph ({
-        Stroke ({{ 1, -1 }, { -1, 1 }})
-    });
-    Glyph diagGlyphCenter ({
-        Stroke ({{ 1, 1 }, { 0, 0 }, { -1, -1 }})
-    });
-    Glyph diag2GlyphCenter ({
-        Stroke ({{ -1, 1 }, { 0, 0 }, { 1, -1 }})
-    });
-    Glyph diagCloseGlyph ({
-        Stroke ({{ -0.25, -1 }, { 0.25, 1 }})
-    });
-    Glyph diag2CloseGlyph ({
-        Stroke ({{ 0.25, -1 }, { -0.25, 1 }})
-    });
-    
-    Glyph dotGlyph ({
-        Stroke ({{ 0, 0 }})
-    });
-    Glyph lineGlyph ({
-        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
-    });
-    
-//    Glyph heightGlyph ({
-//        Stroke ({{ 0, -1 }, { 0, -1 }}),
-//        Stroke ({{ 0, -0.5 }, { 0, -0.5 }}),
-//        Stroke ({{ 0, 0 }, { 0, 0 }}),
-//        Stroke ({{ 0, 0.5 }, { 0, 0.5 }})
-//    });
-    Glyph intricateSingleStrokeGlyph({
-        Stroke({
-            // Start in the bottom-middle
-            { 0, -1 },
-
-            // Bottom left corner
-            { -1, -1 },
-
-            // Top left corner
-            { -1, 1 },
-
-            // Top middle
-            { 0, 1 },
-
-            // Top right corner
-            { 1, 1 },
-
-            // Bottom right corner
-            { 1, -1 },
-
-            // Inner zigzag begins
-            { 0.5, -0.5 },
-            { -0.5, -0.5 },
-            { -0.5, 0.5 },
-            { 0.5, 0.5 },
-
-            // Cross diagonally to top-left corner
-            { -1, 1 },
-
-            // Cross diagonally to bottom-right corner
-            { 1, -1 },
-
-            // Cross diagonally to bottom-left corner
-            { -1, -1 },
-
-            // Cross diagonally to top-right corner
-            { 1, 1 },
-
-            // Move back to the center
-            { 0, 0 },
-
-            // Final zigzag
-            { -0.5, 0.5 },
-            { 0.5, -0.5 },
-            { -0.5, -0.5 },
-
-            // Return to the starting point
-            { 0, -1 }
-        })
-    });
-    Glyph fancyGlyph ({
-        Stroke ({
-            { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -0.8 },
-            { 0.8, -0.8 }, { 0.8, 0.8 }, { -0.8, 0.8 }, { -0.8, -0.6 }, { 0.6, -0.6 },
-            { 0.6, 0.6 }, { -0.6, 0.6 }, { -0.6, -0.4 }, { 0.4, -0.4 }, { 0.4, 0.4 },
-            { -0.4, 0.4 }, { -0.4, -0.2 }, { 0.2, -0.2 }, { 0.2, 0.2 }, { -0.2, 0.2 },
-            { -0.2, 0 }
-        })
-    });
-    
-    Glyph cabinGlyph({
-        // Stroke for "C"
-        Stroke({
-            { 0.9, 0.9 }, { 0.6, 0.9 }, { 0.3, 0.9 }, { -0.3, 0.9 }, { -0.6, 0.6 },
-            { -0.9, 0.3 }, { -0.9, -0.3 }, { -0.6, -0.6 }, { -0.3, -0.9 },
-            { 0.3, -0.9 }, { 0.6, -0.9 }, { 0.9, -0.9 }
-        }),
-
-        // Stroke for "A"
-        Stroke({
-            { -0.9, -0.9 }, { 0, 0.9 }, { 0.9, -0.9 }, { 0.3, 0 }, { -0.3, 0 }, { -0.9, -0.9 }
-        }),
-
-        // Stroke for "B"
-        Stroke({
-            { -0.9, -0.9 }, { -0.9, 0.9 }, { 0, 0.9 }, { 0.6, 0.6 }, { 0, 0.3 },
-            { -0.9, 0.3 }, { 0, 0.3 }, { 0.6, 0 }, { 0, -0.3 }, { -0.9, -0.3 }, { -0.9, -0.9 }
-        }),
-
-        // Stroke for "I"
-        Stroke({
-            { 0, -0.9 }, { 0, 0.9 }
-        }),
-
-        // Stroke for "N"
-        Stroke({
-            { -0.9, -0.9 }, { -0.9, 0.9 }, { 0.9, -0.9 }, { 0.9, 0.9 }
-        })
-    });
-    
-    Glyph audioGlyph({
-
-        // Stroke for "A"
-        Stroke({
-            { -0.9, -0.9 }, { 0, 0.9 }, { 0.9, -0.9 }, { 0.3, 0 }, { -0.3, 0 }, { -0.9, -0.9 }
-        }),
-
-        // Stroke for "U"
-        Stroke({
-            { -0.9, 0.9 }, { -0.9, -0.6 }, { -0.636, -0.636 }, { -0.3, -0.9 }, { 0.3, -0.9 },
-            { 0.636, -0.636 }, { 0.9, -0.6 }, { 0.9, 0.9 }
-        }),
-
-        // Stroke for "D"
-        Stroke({
-            { -0.9, -0.9 }, { -0.9, 0.9 }, { 0.0, 0.9 }, { 0.6, 0.6 }, { 0.6, -0.6 },
-            { 0.0, -0.9 }, { -0.9, -0.9 }
-        }),
-
-        // Stroke for "I"
-        Stroke({
-            { 0, -0.9 }, { 0, 0.9 }
-        }),
-
-        // Stroke for "O"
-        Stroke({
-            { 0.9, 0 },
-            { 0.636, 0.636 },
-            { 0, 0.9 },
-            { -0.636, 0.636 },
-            { -0.9, 0 },
-            { -0.636, -0.636 },
-            { 0, -0.9 },
-            { 0.636, -0.636 },
-            { 0.9, 0 }
-        })
-    });
-    
-    Glyph circleGlyph ({
-        Stroke ({
-            { 0.5, 0 }, { 0.35, 0.35 }, { 0, 0.5 }, { -0.35, 0.35 },
-            { -0.5, 0 }, { -0.35, -0.35 }, { 0, -0.5 }, { 0.35, -0.35 },
-            { 0.5, 0 } // Closing the circle
-        }),
-        Stroke ({
-            { 0.05, 0 }, { 0, 0.05 }, { -0.05, 0 }, { 0, -0.05 },
-            { 0.05, 0 } // Closing the dot
-        })
-    });
-    Glyph mGlyph ({ Stroke ({{ -0.15, -0.5 }, { -0.15, 0 }, { -0.15, 0.5 }, { 0, -0.4 }, { 0.15, 0.5 }, { 0.15, 0 }, { 0.15, -0.5 }}) });
-    Glyph diagonalGlyph ({ Stroke ({{ -1, 0.5 }, { -0.5, 1 }}), Stroke ({{ -1, 0 }, { 0, 1 }}), Stroke ({{ -1, -0.5 }, { 0.5, 1 }})});
-    Glyph wiggleGlyph ({ Stroke ({{ -1, -0.3 }, { -1, 0.3 }, { -1, -0.3 }}), Stroke ({{ 1, -0.3 }, { 1, 0.3 }, { 1, -0.3 }})});
-    Glyph dotsGridGlyph ({
-        // First row
-        Stroke ({{ -0.5, 0.5 }, { -0.5, 0.5 }}),
-        Stroke ({{ 0, 0.5 }, { 0, 0.5 }}),
-        Stroke ({{ 0.5, 0.5 }, { 0.5, 0.5 }}),
-
-        // Second row
-        Stroke ({{ -0.5, 0 }, { -0.5, 0 }}),
-        Stroke ({{ 0, 0 }, { 0, 0 }}),
-        Stroke ({{ 0.5, 0 }, { 0.5, 0 }}),
-
-        // Third row
-        Stroke ({{ -0.5, -0.5 }, { -0.5, -0.5 }}),
-        Stroke ({{ 0, -0.5 }, { 0, -0.5 }}),
-        Stroke ({{ 0.5, -0.5 }, { 0.5, -0.5 }})
-    });
-    Glyph dotsGlyph ({ Stroke ({{ -1, 0 }, { -1, 0 }}), Stroke ({{ -0.5, 0 }, { -0.5, 0 }}), Stroke ({{ 0, 0 }, { 0, 0 }}), Stroke ({{ 0.5, 0 }, { 0.5, 0 }}), Stroke ({{ 1, 0 }, { 1, 0 }})});
-    Glyph dotsGlyph2 ({ Stroke ({{ -1, -0.8 }, { -1, -0.8 }}), Stroke ({{ 0, -0.8 }, { 0, -0.8 }}), Stroke ({{ 1, -0.8 }, { 1, -0.8 }})});
-    Glyph dotsGlyph3 ({ Stroke ({{ -1, 0.8 }, { -1, 0.8 }}), Stroke ({{ 0, 0.8 }, { 0, 0.8 }}), Stroke ({{ 1, 0.8 }, { 1, 0.8 }})});
-    Glyph linesGlyph ({ Stroke ({{ -1, -1 }, { 1, -1 }}), Stroke ({{ -1, -0.5 }, { 1, -0.5 }}), Stroke ({{ -1, 0 }, { 1, 0 }}), Stroke ({{ -1, 0.5 }, { 1, 0.5 }}), Stroke ({{ -1, 1 }, { 1, 1 }})});
-    Glyph squareGlyph ({ Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})});
-    Glyph rectGlyph ({ Stroke ({{ -1, -0.3 }, { 1, -0.3 }, { 1, 0.3 }, { -1, 0.3 }, { -1, -0.3 }})});
-    Glyph triangleGlyph ({ Stroke ({{ -1, -1 }, { 1, -1 }, { 0, 1 }, { -1, -1 }})});
-    Glyph xGlyph ({ Stroke ({{ -1, -1 }, { 1, 1 }}), Stroke ({{ 1, -1 }, { -1, 1 }})});
-    Glyph diamondPlusGlyph ({ Stroke ({{ 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 }}), Stroke ({{ 0, -1 }, { 0, 1 }}), Stroke ({{ -1, 0 }, { 1, 0 }})});
-    Glyph fourXGlyph ({ Stroke ({{ -1, -1 }, { 0, 0 }}), Stroke ({{ 0, -1 }, { -1, 0 }}),
-        Stroke ({{ 0, -1 }, { 1, 0 }}), Stroke ({{ 1, -1 }, { 0, 0 }}),
-        Stroke ({{ -1, 0 }, { 0, 1 }}), Stroke ({{ 0, 0 }, { -1, 1 }}),
-        Stroke ({{ 0, 0 }, { 1, 1 }}), Stroke ({{ 1, 0 }, { 0, 1 }})});
-    Glyph triangleStrokes ({ Stroke ({{ -1, -1 }, { -0.66, 1 }, { -0.33, -1 }, { 0, 1 }, { 0.33, -1 }, { 0.66, 1 }, { 1, -1 }})});
-    Glyph edgeStrokes ({ Stroke ({{ -1, 1 }, { -0.5, 0.5 }, { -1, 0 }, { -0.5, -0.5 }, { -1, -1 }}),
-        Stroke ({{ 1, 1 }, { 0.5, 0.5 }, { 1, 0 }, { 0.5, -0.5 }, { 1, -1 }})});
-    Glyph spiralGlyph ({
-        Stroke ({{ -1, -1 }, { -1, 0 }, { 0, 0 }, { 0, 1 }, { 1, 1 }}),
-        Stroke ({{ 1, 1 }, { 1, 0 }, { 0, 0 }, { 0, -1 }, { -1, -1 }})
-    });
-    Glyph complexFractalGlyph ({
-        Stroke ({{ -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 }, { -1, -1 }}),  // Outer square boundary
-        Stroke ({{ -0.5, -0.5 }, { -0.5, 0.5 }, { 0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 }}),  // Inner square
-        Stroke ({{ -1, 0 }, { 1, 0 }}),  // Horizontal line through center
-        Stroke ({{ 0, -1 }, { 0, 1 }}),  // Vertical line through center
-        Stroke ({{ -1, -0.5 }, { 1, -0.5 }}),  // Additional horizontal lines
-        Stroke ({{ -1, 0.5 }, { 1, 0.5 }}),
-        Stroke ({{ -0.5, -1 }, { -0.5, 1 }}),  // Additional vertical lines
-        Stroke ({{ 0.5, -1 }, { 0.5, 1 }})
-    });
-    
-    Glyph floatingSquaresGlyph ({
-        Stroke ({{ -0.8, -0.8 }, { -0.6, -0.8 }, { -0.6, -0.6 }, { -0.8, -0.6 }, { -0.8, -0.8 }}),  // Bottom-left square
-        Stroke ({{ 0.6, -0.8 }, { 0.8, -0.8 }, { 0.8, -0.6 }, { 0.6, -0.6 }, { 0.6, -0.8 }}),    // Bottom-right square
-        Stroke ({{ -0.8, 0.6 }, { -0.6, 0.6 }, { -0.6, 0.8 }, { -0.8, 0.8 }, { -0.8, 0.6 }}),    // Top-left square
-        Stroke ({{ 0.6, 0.6 }, { 0.8, 0.6 }, { 0.8, 0.8 }, { 0.6, 0.8 }, { 0.6, 0.6 }}),        // Top-right square
-        Stroke ({{ -0.1, -0.1 }, { 0.1, -0.1 }, { 0.1, 0.1 }, { -0.1, 0.1 }, { -0.1, -0.1 }})   // Center square
-    });
-    
-    Glyph distributedSquaresGlyph ({
-        Stroke ({{ -0.9, -0.9 }, { -0.7, -0.9 }, { -0.7, -0.7 }, { -0.9, -0.7 }, { -0.9, -0.9 }}),  // Bottom-left
-        Stroke ({{ 0.7, -0.9 }, { 0.9, -0.9 }, { 0.9, -0.7 }, { 0.7, -0.7 }, { 0.7, -0.9 }}),    // Bottom-right
-        Stroke ({{ -0.9, 0.7 }, { -0.7, 0.7 }, { -0.7, 0.9 }, { -0.9, 0.9 }, { -0.9, 0.7 }}),    // Top-left
-        Stroke ({{ 0.7, 0.7 }, { 0.9, 0.7 }, { 0.9, 0.9 }, { 0.7, 0.9 }, { 0.7, 0.7 }}),        // Top-right
-        Stroke ({{ -0.2, -0.3 }, { 0.0, -0.3 }, { 0.0, -0.1 }, { -0.2, -0.1 }, { -0.2, -0.3 }}), // Center-left
-        Stroke ({{ 0.2, 0.2 }, { 0.4, 0.2 }, { 0.4, 0.4 }, { 0.2, 0.4 }, { 0.2, 0.2 }}),        // Center-right
-        Stroke ({{ -0.5, 0.0 }, { -0.3, 0.0 }, { -0.3, 0.2 }, { -0.5, 0.2 }, { -0.5, 0.0 }}),   // Middle-left
-        Stroke ({{ 0.3, -0.5 }, { 0.5, -0.5 }, { 0.5, -0.3 }, { 0.3, -0.3 }, { 0.3, -0.5 }})    // Middle-right
-    });
-    Glyph graphPaperSquaresGlyph ({
-        Stroke ({{ -0.8, -0.8 }, { -0.8, 0.0 }, { 0.0, 0.0 }, { 0.0, -0.8 }, { -0.8, -0.8 }}),  // Bottom-left square
-        Stroke ({{ -0.4, -0.4 }, { -0.4, 0.4 }, { 0.4, 0.4 }, { 0.4, -0.4 }, { -0.4, -0.4 }}),  // Center square
-        Stroke ({{ 0.0, 0.0 }, { 0.0, 0.8 }, { 0.8, 0.8 }, { 0.8, 0.0 }, { 0.0, 0.0 }}),       // Top-right square
-        Stroke ({{ -0.8, 0.2 }, { -0.8, 1.0 }, { 0.0, 1.0 }, { 0.0, 0.2 }, { -0.8, 0.2 }}),    // Top-left square
-        Stroke ({{ 0.2, -1.0 }, { 0.2, -0.2 }, { 1.0, -0.2 }, { 1.0, -1.0 }, { 0.2, -1.0 }})   // Bottom-right square
-    });
-    
-    Glyph triforceGlyph({
-        Stroke({{-0.5, 0}, {-1, -0.866}, {0, -0.866}, {-0.5, 0}}), // Bottom-left triangle
-        Stroke({{0.5, 0}, {0, -0.866}, {1, -0.866}, {0.5, 0}}),    // Bottom-right triangle
-        Stroke({{0, 0.866}, {-0.5, 0}, {0.5, 0}, {0, 0.866}})      // Top triangle
-    });
-    
-    Glyph gridGlyph({
-        // Row 1
-        Stroke({{-0.9, 0.9}, {-0.7, 0.9}, {-0.7, 0.7}, {-0.9, 0.7}, {-0.9, 0.9}}), // Top-left square
-        Stroke({{-0.4, 0.9}, {-0.2, 0.9}, {-0.2, 0.7}, {-0.4, 0.7}, {-0.4, 0.9}}), // Top-middle square
-        Stroke({{0.1, 0.9}, {0.3, 0.9}, {0.3, 0.7}, {0.1, 0.7}, {0.1, 0.9}}),     // Top-right square
-
-        // Row 2
-        Stroke({{-0.9, 0.4}, {-0.7, 0.4}, {-0.7, 0.2}, {-0.9, 0.2}, {-0.9, 0.4}}), // Middle-left square
-        Stroke({{-0.4, 0.4}, {-0.2, 0.4}, {-0.2, 0.2}, {-0.4, 0.2}, {-0.4, 0.4}}), // Center square
-        Stroke({{0.1, 0.4}, {0.3, 0.4}, {0.3, 0.2}, {0.1, 0.2}, {0.1, 0.4}}),     // Middle-right square
-
-        // Row 3
-        Stroke({{-0.9, -0.1}, {-0.7, -0.1}, {-0.7, -0.3}, {-0.9, -0.3}, {-0.9, -0.1}}), // Bottom-left square
-        Stroke({{-0.4, -0.1}, {-0.2, -0.1}, {-0.2, -0.3}, {-0.4, -0.3}, {-0.4, -0.1}}), // Bottom-middle square
-        Stroke({{0.1, -0.1}, {0.3, -0.1}, {0.3, -0.3}, {0.1, -0.3}, {0.1, -0.1}})      // Bottom-right square
-    });
-    
-    Glyph bluetoothGlyph({
-        Stroke({
-            // Start at the bottom-middle
-            { 0, -1 },
-
-            // Move to the top-middle
-            { 0, 1 },
-
-            // Diagonal to the top-right
-            { 0.5, 0.5 },
-
-            // Back to the center
-            { 0, 0 },
-
-            // Diagonal to the bottom-right
-            { 0.5, -0.5 },
-
-            // Back to the center
-            { 0, 0 },
-
-            // Diagonal to the top-left
-            { -0.5, 0.5 },
-
-            // Back to the center
-            { 0, 0 },
-
-            // Diagonal to the bottom-left
-            { -0.5, -0.5 },
-
-            // Back to the bottom-middle
-            { 0, -1 }
-        })
-    });
-    
-    glyphManager.addGlyphs ({ diamondCornersGlyph, threeGridVertical, roundabout, threeGrid, fiveGrid, sevenGrid, sevenGrid2, heightGlyph, horizontalLineGlyph, diagGlyph, diag2Glyph, diagGlyphCenter, diag2GlyphCenter, diagCloseGlyph, diag2CloseGlyph, lineGlyph, squareGlyph, triangleGlyph, dotGlyph, heightGlyph, bluetoothGlyph, intricateSingleStrokeGlyph, fancyGlyph, cabinGlyph, audioGlyph, dotsGridGlyph, circleGlyph, mGlyph, diagonalGlyph, wiggleGlyph, dotsGlyph, dotsGlyph2, dotsGlyph3, linesGlyph, squareGlyph, rectGlyph, xGlyph, diamondPlusGlyph, fourXGlyph, triangleStrokes, edgeStrokes, spiralGlyph, complexFractalGlyph, floatingSquaresGlyph, distributedSquaresGlyph, graphPaperSquaresGlyph, triforceGlyph, gridGlyph });
-    playbackManager.setGlyph (getCurrGlyph());
-    
-//    std::cout << "init glyphs" << std::endl;
+    playbackManager.setGrid (noiseSequenceGrid);
 }
 
 void CabinEqAudioProcessor::releaseResources()
@@ -740,7 +316,6 @@ int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const fl
     {
         int bandId = profile->get().addBand (freq, ampl, bandwidth, type);
         updateFilter();
-        playbackManager.setCenterFreq (freq);
         return bandId;
     }
         
@@ -755,8 +330,6 @@ void CabinEqAudioProcessor::updateBand (const int id, const float freq, const fl
         profile->get().updateBand (id, freq, ampl, bandwidth, type);
         updateFilter();
     }
-    
-    playbackManager.setCenterFreq (freq);
 }
 
 void CabinEqAudioProcessor::removeBand (const int id)
@@ -772,37 +345,44 @@ void CabinEqAudioProcessor::removeBand (const int id)
 void CabinEqAudioProcessor::addSequence (NoiseSequence sequence)
 {
     noiseSequenceGrid.addSequence (sequence);
+    playbackManager.setGrid (noiseSequenceGrid);
 }
 
 void CabinEqAudioProcessor::addSequenceWithCoords (std::vector<std::pair<int, int>> coords)
 {
     int id = noiseSequenceGrid.getNextAvailableId();
     noiseSequenceGrid.addSequence (NoiseSequence (coords, id));
+    playbackManager.setGrid (noiseSequenceGrid);
 }
 
 void CabinEqAudioProcessor::removeSequence (std::pair<int, int> origin)
 {
     noiseSequenceGrid.removeSequence (origin);
+    playbackManager.setGrid (noiseSequenceGrid);
 }
 
 void CabinEqAudioProcessor::moveSequence (int id, std::pair<int, int> newOrigin)
 {
     noiseSequenceGrid.moveSequence (id, newOrigin);
+    playbackManager.setGrid (noiseSequenceGrid);
 }
 
 void CabinEqAudioProcessor::toggleCoords (std::pair<int, int> point)
 {
     noiseSequenceGrid.toggleCoords (point);
+    playbackManager.setGrid (noiseSequenceGrid);
 }
 
 void CabinEqAudioProcessor::scaleUpGrid()
 {
     noiseSequenceGrid.scaleUpGrid();
+    playbackManager.setGrid (noiseSequenceGrid);
 }
 
 void CabinEqAudioProcessor::scaleDownGrid()
 {
     noiseSequenceGrid.scaleDownGrid();
+    playbackManager.setGrid (noiseSequenceGrid);
 }
 
 NoiseSequenceGrid CabinEqAudioProcessor::getNoiseGrid()
@@ -828,61 +408,6 @@ void CabinEqAudioProcessor::addListener (Listener* listener)
 void CabinEqAudioProcessor::removeListener()
 {
     // VERY BAD FIX THIS: eh whatever
-}
-
-bool CabinEqAudioProcessor::hasNextGlyph()
-{
-    return glyphManager.hasNext();
-}
-
-bool CabinEqAudioProcessor::hasPrevGlyph()
-{
-    return glyphManager.hasPrev();
-}
-
-void CabinEqAudioProcessor::goToNextGlyph()
-{
-    glyphManager.goToNext();
-    playbackManager.setGlyph (getCurrGlyph());
-}
-
-void CabinEqAudioProcessor::goToPrevGlyph()
-{
-    glyphManager.goToPrev();
-    playbackManager.setGlyph (getCurrGlyph());
-}
-
-Glyph CabinEqAudioProcessor::getCurrGlyph()
-{
-    std::cout << "Getting curr glyph" << std::endl;
-    return glyphManager.getCurrGlyph();
-}
-
-void CabinEqAudioProcessor::setSizeFactor (float sizeFactor)
-{
-    glyphManager.setSizeFactor (sizeFactor);
-    playbackManager.setSizeFactor (sizeFactor);
-}
-
-void CabinEqAudioProcessor::setCenterPos (juce::Point<float> centerPos)
-{
-    glyphManager.setCenterPos (centerPos);
-    playbackManager.setCenterPos (centerPos);
-}
-
-float CabinEqAudioProcessor::getSizeFactor() const
-{
-    return glyphManager.getSizeFactor();
-}
-
-juce::Point<float> CabinEqAudioProcessor::getCenterPos() const
-{
-    return glyphManager.getCenterPos();
-}
-
-float CabinEqAudioProcessor::getCurrPlayingTime()
-{
-    return playbackManager.getCurrPlayingTime();
 }
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const

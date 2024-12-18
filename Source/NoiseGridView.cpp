@@ -20,6 +20,7 @@ NoiseGridView::NoiseGridView()
     
     addButton (&increaseSizeButton);
     addButton (&decreaseSizeButton);
+    addButton (&playButton);
     addAndMakeVisible (sizeLabel);
     
     addButtonAction (&increaseSizeButton, [this](juce::Button*) {
@@ -34,6 +35,14 @@ NoiseGridView::NoiseGridView()
         {
             listener->scaleDownGrid();
             updateVisualConstants();
+        }
+    });
+    addButtonAction (&playButton, [this](juce::Button*) {
+        if (listener != nullptr && dataSource != nullptr)
+        {
+            isPlaying = ! isPlaying;
+            listener->setIsPlaying (isPlaying);
+            playButton.setButtonText (isPlaying ? "PAUSE" : "PLAY");
         }
     });
 }
@@ -53,6 +62,7 @@ void NoiseGridView::resized()
 {
     Layout layout (getBounds().withX (0).withY (0).withTrimmedLeft (getWidth() * 2.0f / 3.0f), 4);
     layout.addRow ({ Space (&increaseSizeButton), Space (&sizeLabel, 200), Space (&decreaseSizeButton) });
+    layout.addRow ({ Space (&playButton) });
     layout.updateComponentBounds();
 }
 

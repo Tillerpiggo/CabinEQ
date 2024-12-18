@@ -56,7 +56,7 @@ void NoiseSequenceGrid::toggleCoords (std::pair<int, int> coords)
             return;
 }
 
-std::vector<NoiseSequence> NoiseSequenceGrid::getNoiseSequences()
+const std::vector<NoiseSequence>& NoiseSequenceGrid::getNoiseSequences()
 {
     return noiseSequences;
 }

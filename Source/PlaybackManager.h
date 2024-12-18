@@ -13,13 +13,7 @@
 #include <JuceHeader.h>
 #include "BandProfile.h"
 #include "FilterChain.h"
-#include "ArbitraryResponseFilter.h"
-#include "GlyphGenerator.h"
-#include "FractalPatternGenerator.h"
-#include "PinkNoiseGenerator.h"
-#include "CrossfeedFilter.h"
-#include "NoiseGenerator.h"
-#include "SineWaveGenerator.h"
+#include "GridSequencer.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -39,40 +33,28 @@ public:
     void setVolume (float volume);
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
-    void setSizeFactor (float sizeFactor);
-    void setCenterPos (juce::Point<float> centerPos);
-    
-    void setCenterFreq (float centerFreq);
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
     void setProvisionalBandsOn (bool isProvisionalOn);
     
-    void setGlyph (Glyph glyph);
+    void setGrid (NoiseSequenceGrid grid);
     float getCurrPlayingTime();
     
 private:
     std::pair<float, float> getNextSample();
     
-    // Audio processing
-    GlyphGenerator glyphGenerator;
-    FractalPatternGenerator fractalPatternGenerator;
+    // Sound generation
+    GridSequencer gridSequencer;
+    
+    // Audio Processing
     FilterChain filter;
     FilterChain provisionalFilter;
-    PinkNoise pinkNoise;
-    NoiseGenerator noiseGenerator;
-    SineWaveGenerator sineWaveGenerator;
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;
     float volume = 0.0f; // in dB
     float calibrationVolume = 0.0f; // in dB
-    
-    // Sound generation
-    ArbitraryResponseFilter firFilter; // to make the pink noise into Cabin Noise
-    ArbitraryResponseFilter tiltFilter;
-    CrossfeedFilter crossfeedFilter;
-    Curve tiltCurve;
     
     // State
     bool isFilterOn; // if the EQ curve is being applied

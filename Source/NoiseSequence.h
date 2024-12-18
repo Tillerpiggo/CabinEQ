@@ -23,6 +23,7 @@ public:
     std::vector<bool> getHits() const;
     std::pair<int, int> getOrigin() const;
     std::pair<int, int> getPlayingCoordsAtTime (float time) const; // returns the coords that should be playing at that time, given time is from [0, 1] and everything in the sequence is evenly spread over the time (with it being sped up if tempo is sped up)
+    float getNoteDurationInTime() const; // returns note duration as a fraction of cycle time
     int getId() const;
     bool hasOriginAt (std::pair<int, int> point) const;
     bool getIsEnabled() const;

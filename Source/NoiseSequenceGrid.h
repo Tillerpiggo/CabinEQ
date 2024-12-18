@@ -24,7 +24,7 @@ public:
     void moveSequence (int id, std::pair<int, int> newOrigin);
     void toggleCoords (std::pair<int, int> coords); // If the coords are within a sequence, toggles them to be on/off
     
-    std::vector<NoiseSequence> getNoiseSequences();
+    const std::vector<NoiseSequence>& getNoiseSequences();
     std::vector<std::pair<float, float>> getNormalizedPlayingCoordsAtTime (float time); // returns the normalized coordinates - if they were evenly spaced from x in [-1, 1] to y in [-1, 1], where time is from 0 to 1
     std::pair<int, int> getNumRowsAndNumCols();
     int getNextAvailableId(); // returns the next available id, if starting at 0, and basing it on the existing noise sequences

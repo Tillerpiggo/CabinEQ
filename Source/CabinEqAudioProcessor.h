@@ -123,27 +123,12 @@ public:
     void addListener (Listener* listener);
     void removeListener();
     
-    // Glyph methods
-    bool hasNextGlyph();
-    bool hasPrevGlyph();
-    void goToNextGlyph();
-    void goToPrevGlyph();
-    Glyph getCurrGlyph();
-    
-    void setSizeFactor (float sizeFactor);
-    void setCenterPos (juce::Point<float> centerPos);
-    float getSizeFactor() const;
-    juce::Point<float> getCenterPos() const;
-    
-    float getCurrPlayingTime();
-    
 
 private:
     std::optional<std::reference_wrapper<CabinEqProfile>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
 
     PlaybackManager playbackManager;
     CabinEqProfileManager cabinEqProfileManager;
-    GlyphManager glyphManager;
     NoiseSequenceGrid noiseSequenceGrid { 3, 3 };
     
     juce::dsp::ProcessSpec spec;

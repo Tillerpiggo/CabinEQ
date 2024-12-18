@@ -20,7 +20,20 @@ std::pair<float, float> GridSequencer::getNextSample()
     if (! grid.has_value())
         return { 0.0f, 0.0f };
     
-    // TODO
+    std::pair<float, float> nextSample { 0.0f, 0.0f };
+    for (int i = 0; i < noiseGenerators.size(); ++i)
+    {
+        auto noiseSample = noiseGenerators[i].getNextSample();
+        float gain = gainEnvelopes[i].gainAtTime (currTime, grid->getNoiseSequences()[i].getNoteDurationInTime());
+        nextSample.first += noiseSample.first * gain;
+        nextSample.second += noiseSample.second * gain;
+    }
+    
+    currTime += timeInterval;
+    if (currTime > 1.0f)
+        currTime -= 1.0f;
+    
+    return nextSample;
 }
 
 void GridSequencer::prepare (const juce::dsp::ProcessSpec& spec)
