@@ -35,6 +35,7 @@ public:
     void timerCallback() override;
     
     void setListener (NoiseGridViewListener* listener);
+    void setCalibrationListener (CalibrationListener* calibrationListener);
     void setDataSource (NoiseGridViewDataSource* dataSource);
     void removeListener();
     void removeDataSource();
@@ -57,6 +58,7 @@ private:
     juce::Rectangle<float> squareBoundsAtCoords (std::pair<int, int> coords);
     
     NoiseGridViewListener* listener = nullptr;
+    CalibrationListener* calibrationListener = nullptr;
     NoiseGridViewDataSource* dataSource = nullptr;
     
     // Buttons
@@ -64,6 +66,11 @@ private:
     juce::TextButton decreaseSizeButton { "-" };
     juce::Label sizeLabel;
     juce::TextButton playButton { "PLAY" };
+    
+    juce::Slider minFreqSlider;
+    juce::Slider maxFreqSlider;
+    juce::Label minFreqLabel;
+    juce::Label maxFreqLabel;
     
     // Interaction variables
     std::optional<NoiseSequence> addingSequence;

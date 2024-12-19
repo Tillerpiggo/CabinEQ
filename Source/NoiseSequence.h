@@ -39,7 +39,10 @@ public:
     void scaleDown();
     
 private:
+    void updatePlayingCoords();
+    
     std::vector<std::pair<int, int>> coords; // the starting point - [colIdx, rowIdx] pair
+    std::vector<std::pair<int, int>> playingCoords;
     std::vector<bool> hits; // in the order of coords, which ones are "hits".
     bool isEnabled = true;
     float tempo = 1.0f; // 1 = normal speed, 2 = double speed, etc.

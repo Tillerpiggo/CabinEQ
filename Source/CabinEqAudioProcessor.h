@@ -23,7 +23,8 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public CabinPeqGraphListener,
                                public CabinPeqGraphDataSource,
                                public NoiseGridViewListener,
-                               public NoiseGridViewDataSource
+                               public NoiseGridViewDataSource,
+                               public CalibrationListener
 {
 public:
     class Listener
@@ -77,11 +78,14 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
     
-    void setVolume (float volume);
-    void setIsFilterOn (bool isFilterOn);
-    void setIsPlaying (bool isPlaying);
-    void setSpeedFactor (float speedFactor);
-    void setBandwidth (float bandwidth);
+    // Calibration listener methods
+    void setVolume (float volume) override;
+    void setIsFilterOn (bool isFilterOn) override;
+    void setIsPlaying (bool isPlaying) override;
+    void setMinFreq (float newMinFreq) override;
+    void setMaxFreq (float newMaxFreq) override;
+    void setSpeedFactor (float speedFactor) override;
+    void setBandwidth (float bandwidth) override;
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
@@ -118,6 +122,7 @@ public:
     NoiseSequenceGrid getNoiseGrid() override;
     std::pair<int, int> getNumRowsAndNumCols() override;
     int getSequenceIdAtCoords (std::pair<int, int> coords) override;
+    float getCurrTime() override;
     
     // Listener
     void addListener (Listener* listener);

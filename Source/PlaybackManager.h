@@ -31,6 +31,8 @@ public:
     void setIsFilterOn (bool isFilterOn);
     void setIsPlayingNoise (bool isPlayingNoise);
     void setVolume (float volume);
+    void setMinFreq (float newMinFreq);
+    void setMaxFreq (float newMaxFreq);
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
     

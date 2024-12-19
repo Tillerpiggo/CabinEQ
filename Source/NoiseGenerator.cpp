@@ -12,6 +12,11 @@
 
 NoiseGenerator::NoiseGenerator()
 {
+    for (int i = 0; i < order; ++i)
+    {
+        lowPassFilters.push_back (juce::dsp::IIR::Filter<float>());
+        highPassFilters.push_back (juce::dsp::IIR::Filter<float>());
+    }
 }
 
 std::pair<float, float> NoiseGenerator::getNextSample()
@@ -19,11 +24,37 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     if (isMuted)
         return { 0.0f, 0.0f };
     
+    if (shouldUpdateGenerators)
+    {
+        float lowFreq = std::min (std::max (centerFreq * std::pow (2.0f, -bandwidth), 20.0f), sampleRate * 0.49f);
+        float highFreq = std::min (std::max (centerFreq * std::pow (2.0f, bandwidth), 20.0f), sampleRate * 0.49f);
+        
+        for (int i = 0; i < order; ++i)
+        {
+            *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
+            *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
+        }
+        shouldUpdateGenerators = false;
+    }
+    
+    if (shouldUpdatePan)
+    {
+        float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
+        leftGain = std::cos (angle);
+        rightGain = std::sin (angle);
+    }
+    
     float pinkNoiseSample = pinkNoise.generate() * 10.0f;
-    pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
+//    pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass2.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass3.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass4.processSample (pinkNoiseSample);
+    for (int i = 0; i < order; ++i)
+    {
+        pinkNoiseSample = lowPassFilters[i].processSample (pinkNoiseSample);
+        pinkNoiseSample = highPassFilters[i].processSample (pinkNoiseSample);
+    }
+    
     
     if (snapToZeroCounter >= 1000)
     {
@@ -31,6 +62,11 @@ std::pair<float, float> NoiseGenerator::getNextSample()
         bandpass2.snapToZero();
         bandpass3.snapToZero();
         bandpass4.snapToZero();
+        for (int i = 0; i < order; ++i)
+        {
+            lowPassFilters[i].snapToZero();
+            highPassFilters[i].snapToZero();
+        }
         snapToZeroCounter = 0;
     }
     snapToZeroCounter++;
@@ -45,19 +81,27 @@ void NoiseGenerator::prepare (const juce::dsp::ProcessSpec& spec)
     bandpass2.prepare (spec);
     bandpass3.prepare (spec);
     bandpass4.prepare (spec);
+    
+    for (int i = 0; i < order; ++i)
+    {
+        lowPassFilters[i].prepare (spec);
+        highPassFilters[i].prepare (spec);
+    }
 }
 
 void NoiseGenerator::setBandwidth (float bandwidth)
 {
     this->bandwidth = bandwidth;
+    // for practicality, only update when bandpass/centerFreq is changed
 }
 
 void NoiseGenerator::setPan (float pan)
 {
-    this->pan = pan;
-    float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
-    leftGain = std::cos (angle);
-    rightGain = std::sin (angle);
+    if (this->pan != pan)
+    {
+        this->pan = pan;
+        shouldUpdatePan = true;
+    }
 }
 
 void NoiseGenerator::mute()
@@ -100,16 +144,33 @@ void NoiseGenerator::mute()
 
 void NoiseGenerator::setBandpass (float centerFreq)
 {
-    float freq = std::min (std::max (centerFreq, 20.0f), sampleRate * 0.49f);
+    if (this->centerFreq != centerFreq)
+    {
+        this->centerFreq = centerFreq;
+        shouldUpdateGenerators = true;
+        isMuted = false;
+    }
+    
+//    float freq = std::min (std::max (centerFreq, 20.0f), sampleRate * 0.49f);
+//    float lowFreq = std::min (std::max (centerFreq * std::pow (2.0f, -bandwidth), 20.0f), sampleRate * 0.49f);
+//    float highFreq = std::min (std::max (centerFreq * std::pow (2.0f, bandwidth), 20.0f), sampleRate * 0.49f);
 //    float erbBandwidth = 24.7f * (4.37f * freq / 1000.0f + 1.0f);
 //    erbBandwidth = std::log2 (1.0f + erbBandwidth / freq) * bandwidth;
 //    
-    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
+//    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
     
 //    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, freq);
 //    *bandpass2.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, freq);
 //    *bandpass3.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, freq);
 //    *bandpass4.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, freq);
     
-    isMuted = false;
+//    auto lowPassCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod (highFreq, sampleRate, order);
+//    auto highPassCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod (lowFreq, sampleRate, order);
+//    
+//    for (int i = 0; i < order; ++i)
+//    {
+//        *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
+//        *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
+//    }
+//
 }

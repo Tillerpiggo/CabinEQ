@@ -98,6 +98,16 @@ void PlaybackManager::setVolume (float volume)
     overallVolumeProcessor.setGainDecibels (volume);
 }
 
+void PlaybackManager::setMinFreq (float newMinFreq)
+{
+    gridSequencer.setMinFreq (newMinFreq);
+}
+
+void PlaybackManager::setMaxFreq (float newMaxFreq)
+{
+    gridSequencer.setMaxFreq (newMaxFreq);
+}
+
 void PlaybackManager::setSpeedFactor (float speedFactor)
 {
     // TODO: implement
@@ -125,7 +135,7 @@ void PlaybackManager::setGrid (NoiseSequenceGrid grid)
 
 float PlaybackManager::getCurrPlayingTime()
 {
-    // TODO: implement, or decide to implement this a different way
+    return gridSequencer.getCurrTime();
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

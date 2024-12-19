@@ -26,7 +26,8 @@ const float TimeGainEnvelope::gainAtTime (float timeInSeconds, float noteDuratio
     // Alert if start and end ramp overlap
     if (startRampEnd > endRampStart)
     {
-        std::cerr << "Start ramp overlaps with end ramp in TimeGainEnvelope" << std::endl; // in case this causes any problems, it's helpful to know
+//        std::cerr << "Start ramp overlaps with end ramp in TimeGainEnvelope" << std::endl; // in case this causes any problems, it's helpful to know
+        endRampStart = endDurationInSeconds;
     }
     
     float targetDb = 0.0f;

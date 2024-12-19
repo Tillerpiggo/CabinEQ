@@ -227,6 +227,16 @@ void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
     playbackManager.setIsPlayingNoise (isPlaying);
 }
 
+void CabinEqAudioProcessor::setMinFreq (float newMinFreq)
+{
+    playbackManager.setMinFreq (newMinFreq);
+}
+
+void CabinEqAudioProcessor::setMaxFreq (float newMaxFreq)
+{
+    playbackManager.setMaxFreq (newMaxFreq);
+}
+
 void CabinEqAudioProcessor::setSpeedFactor (float speedFactor)
 {
     playbackManager.setSpeedFactor (speedFactor);
@@ -398,6 +408,11 @@ std::pair<int, int> CabinEqAudioProcessor::getNumRowsAndNumCols()
 int CabinEqAudioProcessor::getSequenceIdAtCoords (std::pair<int, int> coords)
 {
     return noiseSequenceGrid.getSequenceIdAtCoords (coords);
+}
+
+float CabinEqAudioProcessor::getCurrTime()
+{
+    return playbackManager.getCurrPlayingTime();
 }
 
 void CabinEqAudioProcessor::addListener (Listener* listener)

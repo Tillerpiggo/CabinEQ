@@ -36,13 +36,19 @@ private:
     juce::dsp::IIR::Filter<float> bandpass2;
     juce::dsp::IIR::Filter<float> bandpass3;
     juce::dsp::IIR::Filter<float> bandpass4;
+    std::vector<juce::dsp::IIR::Filter<float>> lowPassFilters;
+    std::vector<juce::dsp::IIR::Filter<float>> highPassFilters;
+    int order = 4;
     int snapToZeroCounter = 0;
     
     // Constants
     float bandwidth = 0.5f;
     float pan = 0.0f;
+    float centerFreq = 1000.0f;
     float leftGain = 0.0f;
     float rightGain = 0.0f;
     
     bool isMuted = false;
+    bool shouldUpdateGenerators = true;
+    bool shouldUpdatePan = true;
 };

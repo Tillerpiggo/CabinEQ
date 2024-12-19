@@ -48,8 +48,6 @@ public:
     
     virtual void scaleUpGrid() = 0;
     virtual void scaleDownGrid() = 0;
-    
-    virtual void setIsPlaying (bool isPlaying) = 0;
 };
 
 class NoiseGridViewDataSource
@@ -60,4 +58,19 @@ public:
     virtual NoiseSequenceGrid getNoiseGrid() = 0;
     virtual std::pair<int, int> getNumRowsAndNumCols() = 0;
     virtual int getSequenceIdAtCoords (std::pair<int, int> coords) = 0;
+    virtual float getCurrTime() = 0;
+};
+
+class CalibrationListener
+{
+public:
+    virtual ~CalibrationListener() = default;
+    
+    virtual void setVolume (float volume) = 0;
+    virtual void setIsFilterOn (bool isFilterOn) = 0;
+    virtual void setIsPlaying (bool isPlaying) = 0;
+    virtual void setMinFreq (float newMinFreq) = 0;
+    virtual void setMaxFreq (float newMaxFreq) = 0;
+    virtual void setSpeedFactor (float speedFactor) = 0;
+    virtual void setBandwidth (float bandwidth) = 0;
 };

@@ -23,7 +23,12 @@ public:
     
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
+    
     void setNoiseGrid (NoiseSequenceGrid noiseSequenceGrid);
+    void setMinFreq (float newMinFreq);
+    void setMaxFreq (float newMaxFreq);
+    
+    float getCurrTime();
     
 private:
     void updateNoiseGenerators();
@@ -43,5 +48,8 @@ private:
     float maxFreq = 12000.0f;
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
-    float bandwidth = 0.7f;
+    float bandwidth = 0.4f;
+    
+    bool shouldAddRemoveNoiseGenerators;
+    bool shouldUpdateNoiseGenerators;
 };

@@ -20,6 +20,31 @@ std::pair<float, float> GridSequencer::getNextSample()
     if (! grid.has_value())
         return { 0.0f, 0.0f };
     
+    if (shouldAddRemoveNoiseGenerators)
+    {
+        int numSequences = (int) grid->getNoiseSequences().size();
+        int numGenerators = (int) noiseGenerators.size();
+        int numToAdd = numSequences - numGenerators;
+        
+        // Add needed generators
+        for (int i = 0; i < numToAdd; ++i)
+        {
+            noiseGenerators.push_back (NoiseGenerator());
+            noiseGenerators[i + numGenerators].prepare (spec); // prepare the generator we just added
+            gainEnvelopes.push_back (TimeGainEnvelope (0.05f, 0.05f));
+        }
+        
+        // Remove unneeded generators
+        if (numToAdd < 0)
+        {
+            noiseGenerators.erase (noiseGenerators.end() + numToAdd, noiseGenerators.end());
+            gainEnvelopes.erase (gainEnvelopes.end() + numToAdd, gainEnvelopes.end());
+        }
+    }
+    
+    if (shouldUpdateNoiseGenerators)
+        updateNoiseGenerators();
+    
     std::pair<float, float> nextSample { 0.0f, 0.0f };
     for (int i = 0; i < noiseGenerators.size(); ++i)
     {
@@ -46,27 +71,36 @@ void GridSequencer::setNoiseGrid (NoiseSequenceGrid noiseSequenceGrid)
 {
     this->grid = noiseSequenceGrid;
     
+    
     // Make sure there are the right # of noise generators
     int numSequences = (int) grid->getNoiseSequences().size();
     int numGenerators = (int) noiseGenerators.size();
     int numToAdd = numSequences - numGenerators;
     
-    // Add needed generators
-    for (int i = 0; i < numToAdd; ++i)
+    if (numToAdd != 0)
     {
-        noiseGenerators.push_back (NoiseGenerator());
-        noiseGenerators[i + numGenerators].prepare (spec); // prepare the generator we just added
-        gainEnvelopes.push_back (TimeGainEnvelope (0.05f, 0.05f));
+        shouldAddRemoveNoiseGenerators = true;
     }
-    
-    // Remove unneeded generators
-    if (numToAdd < 0)
-    {
-        noiseGenerators.erase (noiseGenerators.end() + numToAdd, noiseGenerators.end());
-        gainEnvelopes.erase (gainEnvelopes.end() + numToAdd, gainEnvelopes.end());
-    }
-    
-    updateNoiseGenerators();
+    shouldUpdateNoiseGenerators = true;
+}
+
+void GridSequencer::setMinFreq (float newMinFreq)
+{
+    this->minFreq = newMinFreq;
+    shouldUpdateNoiseGenerators = true;
+//    updateNoiseGenerators();
+}
+
+void GridSequencer::setMaxFreq (float newMaxFreq)
+{
+    this->maxFreq = newMaxFreq;
+    shouldUpdateNoiseGenerators = true;
+//    updateNoiseGenerators();
+}
+
+float GridSequencer::getCurrTime()
+{
+    return currTime;
 }
 
 void GridSequencer::updateNoiseGenerators()
@@ -91,7 +125,7 @@ std::pair<float, float> GridSequencer::getFreqAndPanForNormalizedCoords (std::pa
     float pan = normalizedX;
     
     // Calculate freq
-    float freq = normalizedY;
+    float freq = -normalizedY; // flip upside down because this seems to work
     float normalizedFreq = (freq + 1.0f) / 2.0f; // move into range [0, 1]
     
     float logMinFreq = std::log (minFreq);

@@ -15,6 +15,7 @@ NoiseSequence::NoiseSequence (std::pair<int, int> origin, int id)
 {
     coords.push_back (origin);
     hits.push_back (true);
+    updatePlayingCoords();
 }
 
 NoiseSequence::NoiseSequence (std::vector<std::pair<int, int>> coords, int id)
@@ -22,6 +23,7 @@ NoiseSequence::NoiseSequence (std::vector<std::pair<int, int>> coords, int id)
 {
     this->coords = coords;
     hits = std::vector<bool> (coords.size(), true);
+    updatePlayingCoords();
 }
 
 std::vector<std::pair<int, int>> NoiseSequence::getCoords() const
@@ -41,14 +43,14 @@ std::pair<int, int> NoiseSequence::getOrigin() const
 
 std::pair<int, int> NoiseSequence::getPlayingCoordsAtTime (float time) const
 {
-    float spedUpTime = fmod (time * tempo, 1.0f);
-    int playingIdx = floor (time * (coords.size() - 1));
-    return coords[playingIdx];
+    float spedUpTime = fmin (fmod (time * tempo, 1.0f), 0.99);
+    int playingIdx = floor (spedUpTime * (playingCoords.size()));
+    return playingCoords[playingIdx];
 }
 
 float NoiseSequence::getNoteDurationInTime() const
 {
-    return (float) coords.size() / (float) tempo;
+    return 1.0f / ((float) tempo * (float) playingCoords.size());
 }
 
 int NoiseSequence::getId() const
@@ -73,23 +75,20 @@ void NoiseSequence::moveOriginTo (std::pair<int, int> newOrigin)
     int rowsToMove = newOrigin.first - origin.first;
     int colsToMove = newOrigin.second - origin.second;
     
-    std::cout << "rowsToMove: " << rowsToMove << std::endl;
-    std::cout << "colsToMove: " << colsToMove << std::endl;
-    std::cout << "origin: (" << origin.first << ", " << origin.second << std::endl;
-    std::cout << "newOrigin: (" << newOrigin.first << ", " << newOrigin.second << std::endl;
-    
     // Assume this is being done properly - this method doesn't check if the origin is "out of bounds" in any sense
     for (int i = 0; i < coords.size(); ++i)
     {
         coords[i].first += rowsToMove;
         coords[i].second += colsToMove;
     }
+    updatePlayingCoords();
 }
 
 void NoiseSequence::addCoords (std::pair<int, int> newCoords)
 {
     coords.push_back (newCoords);
     hits.push_back (true);
+    updatePlayingCoords();
 }
 
 void NoiseSequence::addCoordSequence (std::vector<std::pair<int, int>> coordSequence)
@@ -99,6 +98,7 @@ void NoiseSequence::addCoordSequence (std::vector<std::pair<int, int>> coordSequ
         coords.push_back (newCoords);
         hits.push_back (true);
     }
+    updatePlayingCoords();
 }
 
 void NoiseSequence::removeLastCoords()
@@ -108,6 +108,8 @@ void NoiseSequence::removeLastCoords()
         return;
     
     coords.pop_back();
+    hits.pop_back();
+    updatePlayingCoords();
 }
 
 bool NoiseSequence::toggleCoords (std::pair<int, int> point)
@@ -117,10 +119,12 @@ bool NoiseSequence::toggleCoords (std::pair<int, int> point)
         if (coords[i].first == point.first && coords[i].second == point.second)
         {
             hits[i] = ! hits[i];
+            updatePlayingCoords();
             return true;
         }
     }
     
+    updatePlayingCoords();
     return false;
 }
 
@@ -129,6 +133,7 @@ void NoiseSequence::clearCoords()
     // TBH i don't think this method should be called
     coords.clear();
     hits.clear();
+    updatePlayingCoords();
 }
 
 void NoiseSequence::scaleUp()
@@ -171,6 +176,7 @@ void NoiseSequence::scaleUp()
     
     coords = newCoords;
     hits = newHits;
+    updatePlayingCoords();
 }
 
 void NoiseSequence::scaleDown()
@@ -195,75 +201,16 @@ void NoiseSequence::scaleDown()
     
     coords = newCoords;
     hits = newHits;
+    updatePlayingCoords();
 }
 
-//void NoiseSequence::scaleUpHorizontal()
-//{
-//    // First, convert the coordinates to the scaled coordinates
-//    origin.first *= 2;
-//    for (auto& coords : relativeCoords)
-//        coords.first *= 2;
-//    
-//    // Then, add in extra coordinates to fill in any gaps
-//    std::vector<std::pair<int, int>> newRelativeCoords;
-//    std::vector<bool> newHits;
-//    for (int i = 0; i < relativeCoords.size() - 1; ++i)
-//    {
-//        newRelativeCoords.push_back (relativeCoords[i]);
-//        newHits.push_back (hits[i]);
-//        if (relativeCoords[i].first != relativeCoords[i + 1].first)
-//        {
-//            int avgCol = (relativeCoords[i].first + relativeCoords[i + 1].first) / 2;
-//            newRelativeCoords.push_back ({ avgCol, relativeCoords[i].second });
-//            newHits.push_back (false);
-//        }
-//    }
-//    newRelativeCoords.push_back (relativeCoords[relativeCoords.size() - 1]);
-//    
-//    // Set the new values
-//    relativeCoords = newRelativeCoords;
-//    hits = newHits;
-//}
-
-//void NoiseSequence::scaleDownHorizontal()
-//{
-//    // Let's just not worry about this case for now
-//    
-////    // First, remove all odd # col indices and corresponding hits
-////    std::vector<std::pair<int, int>> newRelativeCoords;
-////
-////    // Then, scale down current coordinates/columns
-//}
-//
-//void NoiseSequence::scaleUpVertical()
-//{
-//    // First, convert the coordinates to the scaled coordinates
-//    origin.second *= 2;
-//    for (auto& coords : relativeCoords)
-//        coords.second *= 2;
-//    
-//    // Then, add in extra coordinates to fill in any vertical gaps
-//    std::vector<std::pair<int, int>> newRelativeCoords;
-//    std::vector<bool> newHits;
-//    for (int i = 0; i < relativeCoords.size() - 1; ++i)
-//    {
-//        newRelativeCoords.push_back (relativeCoords[i]);
-//        newHits.push_back (hits[i]);
-//        if (relativeCoords[i].second != relativeCoords[i + 1].second)
-//        {
-//            int avgRow = (relativeCoords[i].second + relativeCoords[i + 1].second) / 2;
-//            newRelativeCoords.push_back ({ avgRow, relativeCoords[i].second });
-//            newHits.push_back (false);
-//        }
-//    }
-//    newRelativeCoords.push_back (relativeCoords[relativeCoords.size() - 1]);
-//    
-//    // Set the new values
-//    relativeCoords = newRelativeCoords;
-//    hits = newHits;
-//}
-
-//void NoiseSequence::scaleDownVertical()
-//{
-//    // Let's just not worry about this case for now
-//}
+void NoiseSequence::updatePlayingCoords()
+{
+    std::vector<std::pair<int, int>> updatedPlayingCoords;
+    for (int i = 0; i < coords.size(); ++i)
+    {
+        if (hits[i])
+            updatedPlayingCoords.push_back (coords[i]);
+    }
+    this->playingCoords = updatedPlayingCoords;
+}

@@ -21,6 +21,8 @@ NoiseGridView::NoiseGridView()
     addButton (&increaseSizeButton);
     addButton (&decreaseSizeButton);
     addButton (&playButton);
+    addSliderAndLabel (&minFreqSlider, &minFreqLabel, "Lo Freq", 20.0f, 300.0f, 0.5f);
+    addSliderAndLabel (&maxFreqSlider, &maxFreqLabel, "Hi Freq", 10000.0f, 20000.0f, 14000.0f);
     addAndMakeVisible (sizeLabel);
     
     addButtonAction (&increaseSizeButton, [this](juce::Button*) {
@@ -38,12 +40,20 @@ NoiseGridView::NoiseGridView()
         }
     });
     addButtonAction (&playButton, [this](juce::Button*) {
-        if (listener != nullptr && dataSource != nullptr)
+        if (calibrationListener != nullptr && dataSource != nullptr)
         {
             isPlaying = ! isPlaying;
-            listener->setIsPlaying (isPlaying);
+            calibrationListener->setIsPlaying (isPlaying);
             playButton.setButtonText (isPlaying ? "PAUSE" : "PLAY");
         }
+    });
+    addSliderAction (&minFreqSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+            calibrationListener->setMinFreq (minFreqSlider.getValue());
+    });
+    addSliderAction (&maxFreqSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+            calibrationListener->setMaxFreq (maxFreqSlider.getValue());
     });
 }
 
@@ -62,6 +72,8 @@ void NoiseGridView::resized()
 {
     Layout layout (getBounds().withX (0).withY (0).withTrimmedLeft (getWidth() * 2.0f / 3.0f), 4);
     layout.addRow ({ Space (&increaseSizeButton), Space (&sizeLabel, 200), Space (&decreaseSizeButton) });
+    layout.addRow ({ Space (&maxFreqSlider) });
+    layout.addRow ({ Space (&minFreqSlider) });
     layout.addRow ({ Space (&playButton) });
     layout.updateComponentBounds();
 }
@@ -106,7 +118,6 @@ void NoiseGridView::mouseDrag (const juce::MouseEvent &event)
     // If we're dragging, handle it and return
     if (draggingId != -1)
     {
-        std::cout << "dragging with non-0 draggingId" << std::endl;
         // Update the destination location
         if (! mouseDragCoords.has_value())
         {
@@ -197,6 +208,11 @@ void NoiseGridView::setListener (NoiseGridViewListener* listener)
     updateVisualConstants();
 }
 
+void NoiseGridView::setCalibrationListener (CalibrationListener* listener)
+{
+    this->calibrationListener = listener;
+}
+
 void NoiseGridView::setDataSource (NoiseGridViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
@@ -267,7 +283,10 @@ void NoiseGridView::drawSequences (juce::Graphics& g)
 
 void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juce::Colour colour, float alpha, float sizePercent)
 {
+    float currTime = dataSource->getCurrTime();
+    
     auto sequenceCoords = sequence.getCoords();
+    auto playingCoords = sequence.getPlayingCoordsAtTime (currTime);
     if (sequenceCoords.size() > 0)
     {
         juce::Path path;
@@ -277,7 +296,8 @@ void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juc
             auto currCoords = sequenceCoords[i];
             drawSquareAt (g, currCoords.first, currCoords.second, juce::Colours::black, 1.0f); // to block out the white square
             drawSquareAt (g, currCoords.first, currCoords.second, colour.withLightness (0.8f).withAlpha ((sequence.getHits()[i] ? 1.0f : 0.3f) * alpha), sizePercent);
-            drawSquareAt (g, currCoords.first, currCoords.second, juce::Colours::black, sizePercent * 0.9f);
+            if (! (currCoords.first == playingCoords.first && currCoords.second == playingCoords.second))
+                drawSquareAt (g, currCoords.first, currCoords.second, juce::Colours::black, sizePercent * 0.9f);
             path.lineTo (centerSquarePointFromCoords (sequenceCoords[i]));
         }
         
@@ -285,6 +305,8 @@ void NoiseGridView::drawSequence (juce::Graphics& g, NoiseSequence sequence, juc
         auto firstCoords = sequenceCoords[0];
         drawSquareAt (g, firstCoords.first, firstCoords.second, juce::Colours::black, 1.0f); // to block out the white square
         drawSquareAt (g, firstCoords.first, firstCoords.second, colour.withAlpha ((sequence.getHits()[0] ? 1.0f : 0.3f) * alpha), sizePercent);
+        if (! (firstCoords.first == playingCoords.first && firstCoords.second == playingCoords.second))
+            drawSquareAt (g, firstCoords.first, firstCoords.second, juce::Colours::black, sizePercent * 0.9f);
     }
 }
 
