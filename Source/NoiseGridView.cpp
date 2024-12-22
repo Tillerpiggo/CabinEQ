@@ -21,6 +21,7 @@ NoiseGridView::NoiseGridView()
     addButton (&increaseSizeButton);
     addButton (&decreaseSizeButton);
     addButton (&playButton);
+    addButton (&noiseButton);
     addSliderAndLabel (&minFreqSlider, &minFreqLabel, "Lo Freq", 20.0f, 300.0f, 50.0f);
     addSliderAndLabel (&maxFreqSlider, &maxFreqLabel, "Hi Freq", 10000.0f, 20000.0f, 12000.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 5.0f, 1.0f);
@@ -47,6 +48,14 @@ NoiseGridView::NoiseGridView()
             isPlaying = ! isPlaying;
             calibrationListener->setIsPlaying (isPlaying);
             playButton.setButtonText (isPlaying ? "PAUSE" : "PLAY");
+        }
+    });
+    addButtonAction (&noiseButton, [this](juce::Button*) {
+        if (calibrationListener != nullptr)
+        {
+            isCabinNoise = ! isCabinNoise;
+            calibrationListener->setIsCabinNoise (isCabinNoise);
+            noiseButton.setButtonText (isCabinNoise ? "CABIN NOISE" : "PINK NOISE");
         }
     });
     addSliderAction (&minFreqSlider, [this](juce::Slider*) {
@@ -87,7 +96,7 @@ void NoiseGridView::resized()
     layout.addRow ({ Space (&minFreqSlider) });
     layout.addRow ({ Space (&bandwidthSlider) });
     layout.addRow ({ Space (&tempoSlider) });
-    layout.addRow ({ Space (&playButton) });
+    layout.addRow ({ Space (&playButton), Space (&noiseButton) });
     layout.updateComponentBounds();
 }
 

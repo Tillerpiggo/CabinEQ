@@ -66,6 +66,7 @@ private:
     juce::TextButton decreaseSizeButton { "-" };
     juce::Label sizeLabel;
     juce::TextButton playButton { "PLAY" };
+    juce::TextButton noiseButton { "CABIN NOISE" };
     
     juce::Slider minFreqSlider;
     juce::Label minFreqLabel;
@@ -91,4 +92,5 @@ private:
     std::vector<juce::Colour> sequenceColours { juce::Colours::blue, juce::Colours::orange, juce::Colours::green, juce::Colours::purple, juce::Colours::red };
     
     bool isPlaying = false;
+    bool isCabinNoise = true;
 };

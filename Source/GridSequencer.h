@@ -59,4 +59,6 @@ private:
     bool shouldUpdateNoiseGenerators;
     int bandwidthCounter = 1;
     int timeCounter = 1;
+    
+    bool isPerpendicular = false;
 };

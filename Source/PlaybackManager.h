@@ -31,6 +31,7 @@ public:
     
     void setIsFilterOn (bool isFilterOn);
     void setIsPlayingNoise (bool isPlayingNoise);
+    void setIsCabinNoise (bool isCabinNoise);
     void setVolume (float volume);
     void setMinFreq (float newMinFreq);
     void setMaxFreq (float newMaxFreq);
@@ -65,6 +66,7 @@ private:
     // State
     bool isFilterOn; // if the EQ curve is being applied
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
+    bool isCabinNoise; // if it is, turn on the tilt filter
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
     
     int sampleCount = 0;

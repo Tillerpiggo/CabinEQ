@@ -56,7 +56,10 @@ std::pair<float, float> GridSequencer::getNextSample()
     
     currTime += timeInterval * speedFactor;
     if (currTime > 1.0f)
+    {
         currTime -= 1.0f;
+        isPerpendicular = ! isPerpendicular;
+    }
     
 //    // Repeat with 4 different bandwidths
 //    currTime += timeInterval * speedFactor;
@@ -172,6 +175,9 @@ void GridSequencer::updateNoiseGenerators()
 std::pair<float, float> GridSequencer::getFreqAndPanForNormalizedCoords (std::pair<float, float> normalizedCoords)
 {
     auto [normalizedX, normalizedY] = normalizedCoords;
+    
+//    if (isPerpendicular)
+//        std::swap (normalizedX, normalizedY);
     
     // Calculate pan
     float pan = normalizedX;

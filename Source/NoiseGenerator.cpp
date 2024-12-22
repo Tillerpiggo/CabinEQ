@@ -94,8 +94,11 @@ void NoiseGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 
 void NoiseGenerator::setBandwidth (float bandwidth)
 {
-    this->bandwidth = bandwidth;
-    shouldUpdateGenerators = true;
+    if (this->bandwidth != bandwidth)
+    {
+        this->bandwidth = bandwidth;
+        shouldUpdateGenerators = true;
+    }
 }
 
 void NoiseGenerator::setPan (float pan)

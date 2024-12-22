@@ -58,11 +58,11 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
             provisionalFilter.process (ioBlock);
         }
     }
-//    
-//    if (isPlayingNoise)
-//    {
-//        tiltFilter.process (ioContext);
-//    }
+    
+    if (isPlayingNoise && isCabinNoise)
+    {
+        tiltFilter.process (ioContext);
+    }
     
     overallVolumeProcessor.process (ioContext);
 }
@@ -93,6 +93,11 @@ void PlaybackManager::setIsFilterOn (bool isFilterOn)
 void PlaybackManager::setIsPlayingNoise (bool isPlayingNoise)
 {
     this->isPlayingNoise = isPlayingNoise;
+}
+
+void PlaybackManager::setIsCabinNoise (bool isCabinNoise)
+{
+    this->isCabinNoise = isCabinNoise;
 }
 
 void PlaybackManager::setVolume (float volume)

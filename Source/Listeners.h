@@ -70,6 +70,7 @@ public:
     virtual void setVolume (float volume) = 0;
     virtual void setIsFilterOn (bool isFilterOn) = 0;
     virtual void setIsPlaying (bool isPlaying) = 0;
+    virtual void setIsCabinNoise (bool isCabinNoise) = 0;
     virtual void setMinFreq (float newMinFreq) = 0;
     virtual void setMaxFreq (float newMaxFreq) = 0;
     virtual void setSpeedFactor (float speedFactor) = 0;

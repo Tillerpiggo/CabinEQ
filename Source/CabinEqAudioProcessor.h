@@ -82,6 +82,7 @@ public:
     void setVolume (float volume) override;
     void setIsFilterOn (bool isFilterOn) override;
     void setIsPlaying (bool isPlaying) override;
+    void setIsCabinNoise (bool isCabinNoise) override;
     void setMinFreq (float newMinFreq) override;
     void setMaxFreq (float newMaxFreq) override;
     void setSpeedFactor (float speedFactor) override;

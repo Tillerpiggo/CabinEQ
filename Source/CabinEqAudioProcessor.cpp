@@ -227,6 +227,11 @@ void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
     playbackManager.setIsPlayingNoise (isPlaying);
 }
 
+void CabinEqAudioProcessor::setIsCabinNoise (bool isCabinNoise)
+{
+    playbackManager.setIsCabinNoise (isCabinNoise);
+}
+
 void CabinEqAudioProcessor::setMinFreq (float newMinFreq)
 {
     playbackManager.setMinFreq (newMinFreq);
