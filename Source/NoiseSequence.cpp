@@ -244,7 +244,31 @@ void NoiseSequence::updatePlayingCoords()
     for (int i = 0; i < coords.size(); ++i)
     {
         if (hits[i])
-            updatedPlayingCoords.push_back (coords[i]);
+            updatedPlayingCoords.push_back(coords[i]);
     }
+    
+    // Order from left to right like reading
+    std::sort(updatedPlayingCoords.begin(), updatedPlayingCoords.end(),
+              [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
+                  if (a.first == b.first) // Compare x-coordinates first
+                      return a.second < b.second; // If x-coordinates are equal, compare y-coordinates
+                  return a.first < b.first; // Otherwise, sort by x-coordinate
+              });
+
     this->playingCoords = updatedPlayingCoords;
 }
+
+//void NoiseSequence::updatePlayingCoords()
+//{
+//    std::vector<std::pair<int, int>> updatedPlayingCoords;
+//    for (int i = 0; i < coords.size(); ++i)
+//    {
+//        if (hits[i])
+//            updatedPlayingCoords.push_back (coords[i]);
+//    }
+//    
+//    // Order from left to right like reading
+//    
+//    
+//    this->playingCoords = updatedPlayingCoords;
+//}

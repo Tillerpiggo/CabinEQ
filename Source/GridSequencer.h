@@ -53,7 +53,7 @@ private:
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
     float bandwidth = 1.0f;
-    float envelopeDuration = 0.08f;
+    float envelopeDuration = 0.01f;
     
     bool shouldAddRemoveNoiseGenerators;
     bool shouldUpdateNoiseGenerators;

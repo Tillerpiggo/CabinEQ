@@ -21,8 +21,8 @@ NoiseGridView::NoiseGridView()
     addButton (&increaseSizeButton);
     addButton (&decreaseSizeButton);
     addButton (&playButton);
-    addSliderAndLabel (&minFreqSlider, &minFreqLabel, "Lo Freq", 20.0f, 300.0f, 0.5f);
-    addSliderAndLabel (&maxFreqSlider, &maxFreqLabel, "Hi Freq", 10000.0f, 20000.0f, 14000.0f);
+    addSliderAndLabel (&minFreqSlider, &minFreqLabel, "Lo Freq", 20.0f, 300.0f, 50.0f);
+    addSliderAndLabel (&maxFreqSlider, &maxFreqLabel, "Hi Freq", 10000.0f, 20000.0f, 12000.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 5.0f, 1.0f);
     addSliderAndLabel (&tempoSlider, &tempoLabel, "Tempo", 0.1f, 5.0f, 1.0f);
     addAndMakeVisible (sizeLabel);
