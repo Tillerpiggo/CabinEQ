@@ -58,11 +58,11 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
             provisionalFilter.process (ioBlock);
         }
     }
-    
-    if (isPlayingNoise)
-    {
-        tiltFilter.process (ioContext);
-    }
+//    
+//    if (isPlayingNoise)
+//    {
+//        tiltFilter.process (ioContext);
+//    }
     
     overallVolumeProcessor.process (ioContext);
 }

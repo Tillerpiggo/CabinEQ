@@ -427,7 +427,7 @@ void CabinEqAudioProcessor::addListener (Listener* listener)
 
 void CabinEqAudioProcessor::removeListener()
 {
-    // VERY BAD FIX THIS: eh whatever
+    // VERY BAD FIX THIS: eh whatever 
 }
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const
