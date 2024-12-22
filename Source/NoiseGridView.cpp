@@ -23,6 +23,8 @@ NoiseGridView::NoiseGridView()
     addButton (&playButton);
     addSliderAndLabel (&minFreqSlider, &minFreqLabel, "Lo Freq", 20.0f, 300.0f, 0.5f);
     addSliderAndLabel (&maxFreqSlider, &maxFreqLabel, "Hi Freq", 10000.0f, 20000.0f, 14000.0f);
+    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 5.0f, 1.0f);
+    addSliderAndLabel (&tempoSlider, &tempoLabel, "Tempo", 0.1f, 5.0f, 1.0f);
     addAndMakeVisible (sizeLabel);
     
     addButtonAction (&increaseSizeButton, [this](juce::Button*) {
@@ -55,6 +57,15 @@ NoiseGridView::NoiseGridView()
         if (calibrationListener != nullptr)
             calibrationListener->setMaxFreq (maxFreqSlider.getValue());
     });
+    addSliderAction (&bandwidthSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+            calibrationListener->setBandwidth (bandwidthSlider.getValue());
+    });
+    addSliderAction (&tempoSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+            calibrationListener->setSpeedFactor (tempoSlider.getValue());
+    });
+    
 }
 
 NoiseGridView::~NoiseGridView()
@@ -74,6 +85,8 @@ void NoiseGridView::resized()
     layout.addRow ({ Space (&increaseSizeButton), Space (&sizeLabel, 200), Space (&decreaseSizeButton) });
     layout.addRow ({ Space (&maxFreqSlider) });
     layout.addRow ({ Space (&minFreqSlider) });
+    layout.addRow ({ Space (&bandwidthSlider) });
+    layout.addRow ({ Space (&tempoSlider) });
     layout.addRow ({ Space (&playButton) });
     layout.updateComponentBounds();
 }

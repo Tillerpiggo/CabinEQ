@@ -15,7 +15,8 @@
 
 PlaybackManager::PlaybackManager()
     : isFilterOn (true),
-      isPlayingNoise (false)
+      isPlayingNoise (false),
+      tiltFilter (14)
 {
     profileVolumeProcessor.setRampDurationSeconds (0.05);
     profileVolumeProcessor.setGainDecibels (0.0f);
@@ -58,10 +59,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
-//    if (isPlayingNoise)
-//    {
-//        tiltFilter.process (ioContext);
-//    }
+    if (isPlayingNoise)
+    {
+        tiltFilter.process (ioContext);
+    }
     
     overallVolumeProcessor.process (ioContext);
 }
@@ -79,6 +80,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     gridSequencer.prepare (spec);
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
+    tiltFilter.prepare (spec);
+    tiltFilter.updateWithCurve (tiltCurve);
 }
 
 
@@ -110,12 +113,12 @@ void PlaybackManager::setMaxFreq (float newMaxFreq)
 
 void PlaybackManager::setSpeedFactor (float speedFactor)
 {
-    // TODO: implement
+    gridSequencer.setSpeedFactor (speedFactor);
 }
 
 void PlaybackManager::setBandwidth (float bandwidth)
 {
-    // TODO: implement
+    gridSequencer.setBandwidth (bandwidth);
 }
 
 void PlaybackManager::setProvisionalBands (std::vector<Band> provisionalBands)
@@ -136,6 +139,11 @@ void PlaybackManager::setGrid (NoiseSequenceGrid grid)
 float PlaybackManager::getCurrPlayingTime()
 {
     return gridSequencer.getCurrTime();
+}
+
+std::vector<float> PlaybackManager::getCurrPlayingFreqs()
+{
+    return gridSequencer.getCurrPlayingFreqs();
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

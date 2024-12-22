@@ -31,7 +31,7 @@ std::pair<float, float> GridSequencer::getNextSample()
         {
             noiseGenerators.push_back (NoiseGenerator());
             noiseGenerators[i + numGenerators].prepare (spec); // prepare the generator we just added
-            gainEnvelopes.push_back (TimeGainEnvelope (0.05f, 0.05f));
+            gainEnvelopes.push_back (TimeGainEnvelope (envelopeDuration * speedFactor, envelopeDuration * speedFactor));
         }
         
         // Remove unneeded generators
@@ -54,9 +54,31 @@ std::pair<float, float> GridSequencer::getNextSample()
         nextSample.second += noiseSample.second * gain;
     }
     
-    currTime += timeInterval;
+    currTime += timeInterval * speedFactor;
     if (currTime > 1.0f)
         currTime -= 1.0f;
+    
+//    // Repeat with 4 different bandwidths
+//    currTime += timeInterval * speedFactor;
+//    if (currTime >= (float) timeCounter * grid->getNoiseSequences()[0].getNoteDurationInTime() / speedFactor)
+//    {
+//        currTime -= 1.0f * grid->getNoiseSequences()[0].getNoteDurationInTime() / speedFactor;
+//        setBandwidth (bandwidth * 1.5f);
+//        bandwidthCounter++;
+//    }
+//    if (bandwidthCounter >= 4)
+//    {
+//        bandwidthCounter = 1;
+//        timeCounter++;
+//        setBandwidth (bandwidth / std::pow (1.5f, 3.0f));
+//        currTime += 1.0f * grid->getNoiseSequences()[0].getNoteDurationInTime() / speedFactor;
+//    }
+//    if (currTime > 1.0f)
+//    {
+//        timeCounter = 1;
+//        bandwidthCounter = 1;
+//        currTime -= 1.0f;
+//    }
     
     return nextSample;
 }
@@ -98,13 +120,41 @@ void GridSequencer::setMaxFreq (float newMaxFreq)
 //    updateNoiseGenerators();
 }
 
+void GridSequencer::setBandwidth (float bandwidth)
+{
+    this->bandwidth = bandwidth;
+    shouldUpdateNoiseGenerators = true;
+}
+
+void GridSequencer::setSpeedFactor (float speedFactor)
+{
+    this->speedFactor = speedFactor;
+    shouldUpdateNoiseGenerators = true;
+}
+
 float GridSequencer::getCurrTime()
 {
     return currTime;
 }
 
+std::vector<float> GridSequencer::getCurrPlayingFreqs()
+{
+    if (! grid.has_value())
+        return {};
+    
+    
+    auto playingCoords = grid->getNormalizedPlayingCoordsAtTime (currTime);
+    std::vector<float> playingFreqs;
+    for (int i = 0; i < playingCoords.size(); ++i)
+        playingFreqs.push_back (getFreqAndPanForNormalizedCoords (playingCoords[i]).first);
+    
+    return playingFreqs;
+}
+
 void GridSequencer::updateNoiseGenerators()
 {
+//    bandwidth = 7.0f / grid->getNumRowsAndNumCols().first;
+    
     // Update the frequency/bandwidth of all noise generators (assumes # generators = # sequences in grid)
     auto playingCoords = grid->getNormalizedPlayingCoordsAtTime (currTime);
     for (int i = 0; i < playingCoords.size(); ++i)
@@ -114,6 +164,8 @@ void GridSequencer::updateNoiseGenerators()
         noiseGenerators[i].setBandwidth (bandwidth);
         noiseGenerators[i].setBandpass (freq);
         noiseGenerators[i].setPan (pan);
+        gainEnvelopes[i].setStartDurationInSeconds (envelopeDuration * speedFactor);
+        gainEnvelopes[i].setEndDurationInSeconds (envelopeDuration * speedFactor);
     }
 }
 

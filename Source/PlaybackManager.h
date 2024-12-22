@@ -14,6 +14,7 @@
 #include "BandProfile.h"
 #include "FilterChain.h"
 #include "GridSequencer.h"
+#include "ArbitraryResponseFilter.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -42,6 +43,7 @@ public:
     
     void setGrid (NoiseSequenceGrid grid);
     float getCurrPlayingTime();
+    std::vector<float> getCurrPlayingFreqs();
     
 private:
     std::pair<float, float> getNextSample();
@@ -52,6 +54,8 @@ private:
     // Audio Processing
     FilterChain filter;
     FilterChain provisionalFilter;
+    ArbitraryResponseFilter tiltFilter;
+    Curve tiltCurve;
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;

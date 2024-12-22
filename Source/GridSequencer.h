@@ -27,8 +27,11 @@ public:
     void setNoiseGrid (NoiseSequenceGrid noiseSequenceGrid);
     void setMinFreq (float newMinFreq);
     void setMaxFreq (float newMaxFreq);
+    void setBandwidth (float bandwidth);
+    void setSpeedFactor (float speedFactor);
     
     float getCurrTime();
+    std::vector<float> getCurrPlayingFreqs();
     
 private:
     void updateNoiseGenerators();
@@ -42,14 +45,18 @@ private:
     
     float currTime = 0.0f; // time from 0 to 1
     float timeInterval = 0.0f; // must be set in prepare
+    float speedFactor = 1.0f;
     
     // Constants
     float minFreq = 50.0f;
     float maxFreq = 12000.0f;
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
-    float bandwidth = 0.4f;
+    float bandwidth = 1.0f;
+    float envelopeDuration = 0.08f;
     
     bool shouldAddRemoveNoiseGenerators;
     bool shouldUpdateNoiseGenerators;
+    int bandwidthCounter = 1;
+    int timeCounter = 1;
 };

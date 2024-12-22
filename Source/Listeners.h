@@ -33,6 +33,7 @@ public:
     virtual ~CabinPeqGraphDataSource() = default;
     
     virtual BandProfile getBandProfile() = 0;
+    virtual std::vector<float> getCurrPlayingFreqs() = 0;
 };
 
 class NoiseGridViewListener

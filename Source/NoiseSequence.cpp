@@ -48,9 +48,43 @@ std::pair<int, int> NoiseSequence::getPlayingCoordsAtTime (float time) const
     return playingCoords[playingIdx];
 }
 
+//std::pair<float, float> NoiseSequence::getPlayingCoordsAtTime (float time) const
+//{
+//    // Scale and wrap the time based on tempo
+//    float spedUpTime = fmin(fmod(time * tempo, 1.0f), 0.99f);
+//
+//    // Calculate the scaled index
+//    float scaledIndex = spedUpTime * (playingCoords.size() - 1);
+//
+//    // Get the indices for interpolation
+//    int indexA = static_cast<int>(scaledIndex); // Integer part
+//    int indexB = indexA + 1; // Next index
+//
+//    // Ensure indexB wraps around if it exceeds the size
+//    if (indexB >= playingCoords.size()) {
+//        indexB = 0;
+//    }
+//
+//    // Get the fractional part of the scaled index
+//    float t = scaledIndex - indexA;
+//
+//    // Retrieve the coordinates for both indices
+//    auto coordA = playingCoords[indexA];
+//    auto coordB = playingCoords[indexB];
+//
+//    // Linearly interpolate between the two coordinates
+//    float interpolatedX = coordA.first + t * (coordB.first - coordA.first);
+//    float interpolatedY = coordA.second + t * (coordB.second - coordA.second);
+//
+//    return {interpolatedX, interpolatedY};
+//}
+
 float NoiseSequence::getNoteDurationInTime() const
 {
-    return 1.0f / ((float) tempo * (float) playingCoords.size());
+    int numPlayingCoords = (int) playingCoords.size();
+    if (numPlayingCoords == 1)
+        numPlayingCoords = id + 1;
+    return 1.0f / ((float) tempo * (float) numPlayingCoords);
 }
 
 int NoiseSequence::getId() const

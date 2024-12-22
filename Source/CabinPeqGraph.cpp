@@ -550,6 +550,19 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     float ampl = bandProfile.getVolume();
     juce::Point<float> point = coordsForFrequencyAndAmplitude (freq, ampl);
     drawDot (g, point, DOT_SIZE_DEFAULT, dotColour, isHoveringOverDotControl);
+    
+    // Draw a dot over every currently playing freq
+    if (dataSource != nullptr)
+    {
+        auto playingFreqs = dataSource->getCurrPlayingFreqs();
+        for (const auto& playingFreq : playingFreqs)
+        {
+            juce::Colour playingDotColour = getColourForFrequency (playingFreq);
+            juce::Point<float> playingPoint = coordsForFrequencyAndAmplitude (playingFreq, 0);
+            float dotRadius = DOT_SIZE_DEFAULT;
+            drawDot (g, playingPoint, dotRadius, playingDotColour, false);
+        }
+    }
 }
 
 void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected)

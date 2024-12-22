@@ -57,6 +57,7 @@ protected:
     
     // JUCE Labels
     NoiseGridView noiseGridView;
+    GlyphView glyphView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;
     juce::String profileId;

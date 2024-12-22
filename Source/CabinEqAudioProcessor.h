@@ -123,6 +123,7 @@ public:
     std::pair<int, int> getNumRowsAndNumCols() override;
     int getSequenceIdAtCoords (std::pair<int, int> coords) override;
     float getCurrTime() override;
+    std::vector<float> getCurrPlayingFreqs() override;
     
     // Listener
     void addListener (Listener* listener);

@@ -37,7 +37,7 @@ public:
     
 private:
     void updateNextAvailableId();
-    std::pair<float, float> getNormalizedCoordsFor (std::pair<int, int> coords); // returns the coords normalized to the current dimensions of noiseSequence grid, from [-1, 1] to [-1, 1] for both the x and y axes
+    std::pair<float, float> getNormalizedCoordsFor (std::pair<float, float> coords); // returns the coords normalized to the current dimensions of noiseSequence grid, from [-1, 1] to [-1, 1] for both the x and y axes
     
     int numRows;
     int numCols;

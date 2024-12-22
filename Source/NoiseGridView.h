@@ -68,9 +68,13 @@ private:
     juce::TextButton playButton { "PLAY" };
     
     juce::Slider minFreqSlider;
-    juce::Slider maxFreqSlider;
     juce::Label minFreqLabel;
+    juce::Slider maxFreqSlider;
     juce::Label maxFreqLabel;
+    juce::Slider bandwidthSlider;
+    juce::Label bandwidthLabel;
+    juce::Slider tempoSlider;
+    juce::Label tempoLabel;
     
     // Interaction variables
     std::optional<NoiseSequence> addingSequence;
