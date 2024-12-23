@@ -16,7 +16,8 @@
 
 // This view displays multiple glyphs, that are attached to a grid, as they animate (in sync with the sounds they correspond with/produce)
 class GlyphGridView  : public juce::Component,
-                       public juce::DragAndDropTarget
+                       public juce::DragAndDropTarget,
+                       public juce::Timer
 {
 public:
     GlyphGridView();
@@ -27,6 +28,15 @@ public:
     
     void setListener (GlyphViewListener* listener);
     void setDataSource (GlyphViewDataSource* dataSource);
+    
+    void timerCallback() override;
+    
+    // Mouse events
+    void mouseMove (const juce::MouseEvent &event) override;
+    void mouseDown (const juce::MouseEvent &event) override;
+    void mouseDrag (const juce::MouseEvent &event) override;
+    void mouseUp (const juce::MouseEvent &event) override;
+    void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
     
     // Drag and drop methods
     bool isInterestedInDragSource (const SourceDetails& dragSourceDetails) override;
@@ -45,6 +55,12 @@ private:
     juce::Point<float> getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor);
     juce::Point<float> getNormalizedPointFromLocalPoint (juce::Point<float> point);
     juce::Point<float> getLocalizedCenterPointForGlyph (const Glyph& glyph); // gets the local coords for the glyph's center point
+    juce::Point<float> getNormalizedPointFromMouseEvent (const juce::MouseEvent& event);
+    
+    void updateHoveringStatus (const juce::MouseEvent& event);
+    
+    void moveGlyph (int glyphId, juce::Point<float> centerPos);
+    void removeGlyph (int glyphId);
     
     GlyphViewListener* listener = nullptr;
     GlyphViewDataSource* dataSource = nullptr;
@@ -55,7 +71,8 @@ private:
     juce::Colour STROKE_COLOUR = juce::Colours::pink;
     juce::Colour DOT_COLOUR = juce::Colours::turquoise;
     float DOT_RADIUS_DEFAULT = 6.0f;
-    float DOT_RADIUS_DRAGGING = 6.0f;
+    float DOT_RADIUS_DRAGGING = 8.0f;
+    float HOVER_MIN_DIST = 30.0f;
     
     // Drag and drop
     std::optional<ArchetypalGlyph> draggingGlyph;
@@ -63,4 +80,5 @@ private:
     
     // Dragging glyphs
     int draggingId = -1;
+    int hoveringId = -1;
 };

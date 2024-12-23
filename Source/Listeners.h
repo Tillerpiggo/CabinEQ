@@ -70,6 +70,7 @@ public:
         
     virtual void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) = 0;
     virtual void moveGlyph (int glyphId, juce::Point<float> centerPos) = 0; // tries to move the glyph, although bounds will be applied
+    virtual void removeGlyph (int glyphId) = 0; // removes the glyph if the glyph is in the list of glyphs. If there are multiple with this id, only removes the first one, although this should never happen
 };
 
 class GlyphViewDataSource

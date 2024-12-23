@@ -436,6 +436,11 @@ void CabinEqAudioProcessor::moveGlyph (int glyphId, juce::Point<float> centerPos
     glyphManager.moveGlyph (glyphId, centerPos);
 }
 
+void CabinEqAudioProcessor::removeGlyph (int glyphId)
+{
+    glyphManager.removeGlyph (glyphId);
+}
+
 const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
 {
     return glyphManager.getArchetypalGlyphs();

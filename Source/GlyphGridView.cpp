@@ -12,6 +12,7 @@
 
 GlyphGridView::GlyphGridView()
 {
+    startTimer (5);
 }
 
 GlyphGridView::~GlyphGridView()
@@ -40,6 +41,46 @@ void GlyphGridView::setDataSource (GlyphViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
     glyphs = dataSource->getGlyphs();
+}
+
+void GlyphGridView::timerCallback()
+{
+    repaint();
+}
+
+void GlyphGridView::mouseMove (const juce::MouseEvent &event)
+{
+    updateHoveringStatus (event);
+}
+
+void GlyphGridView::mouseDown (const juce::MouseEvent &event)
+{
+    draggingId = hoveringId;
+    if (draggingId != -1)
+    {
+        
+    }
+    
+    moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
+    
+    // If we right click and were hovering, delete the glyph
+    if (hoveringId != -1 && event.mods.isRightButtonDown())
+        removeGlyph (hoveringId);
+}
+
+void GlyphGridView::mouseDrag (const juce::MouseEvent &event)
+{
+    
+}
+
+void GlyphGridView::mouseUp (const juce::MouseEvent &event)
+{
+    
+}
+
+void GlyphGridView::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
+{
+    
 }
 
 bool GlyphGridView::isInterestedInDragSource (const SourceDetails& dragSourceDetails)
@@ -102,7 +143,7 @@ void GlyphGridView::drawCenterDots (juce::Graphics &g)
     for (const auto& glyph : glyphs)
     {
         auto centerPoint = getLocalizedCenterPointForGlyph (glyph);
-        float dotRadius = glyph.getId() == draggingId ? DOT_RADIUS_DEFAULT : DOT_RADIUS_DRAGGING;
+        float dotRadius = (glyph.getId() == draggingId || glyph.getId() == hoveringId) ? DOT_RADIUS_DEFAULT : DOT_RADIUS_DRAGGING;
         drawDot (g, centerPoint, dotRadius, DOT_COLOUR);
     }
 }
@@ -179,4 +220,47 @@ juce::Point<float> GlyphGridView::getNormalizedPointFromLocalPoint (juce::Point<
 juce::Point<float> GlyphGridView::getLocalizedCenterPointForGlyph (const Glyph& glyph)
 {
     return getLocalPointFromNormalizedPoint ({ 0.0f, 0.0f }, glyph.getCenterPos(), glyph.getSizeFactor());
+}
+
+juce::Point<float> GlyphGridView::getNormalizedPointFromMouseEvent (const juce::MouseEvent& event)
+{
+    return getNormalizedPointFromLocalPoint (event.getPosition().toFloat());
+}
+
+void GlyphGridView::updateHoveringStatus (const juce::MouseEvent &event)
+{
+    // Figure out which node, if any, we're hovering over
+    int newHoveringId = -1;
+    float minDist = HOVER_MIN_DIST;
+    auto hoverPos = event.getPosition().toFloat();
+    for (const auto& glyph : glyphs)
+    {
+        auto glyphPos = getLocalizedCenterPointForGlyph (glyph);
+        float dist = glyphPos.getDistanceFrom (hoverPos);
+        if (dist < minDist)
+        {
+            minDist = dist;
+            newHoveringId = glyph.getId();
+        }
+    }
+    
+    hoveringId = newHoveringId;
+}
+
+void GlyphGridView::moveGlyph (int glyphId, juce::Point<float> centerPos)
+{
+    if (listener != nullptr && dataSource != nullptr)
+    {
+        listener->moveGlyph (glyphId, centerPos);
+        glyphs = dataSource->getGlyphs();
+    }
+}
+
+void GlyphGridView::removeGlyph (int glyphId)
+{
+    if (listener != nullptr && dataSource != nullptr)
+    {
+        listener->removeGlyph (glyphId);
+        glyphs = dataSource->getGlyphs();
+    }
 }

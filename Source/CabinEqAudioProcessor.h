@@ -132,6 +132,7 @@ public:
 //    float getCurrPlayingTime() override;
     void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) override;
     void moveGlyph (int glyphId, juce::Point<float> centerPos) override;
+    void removeGlyph (int glyphId) override;
     
     const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
     const std::vector<Glyph>& getGlyphs() override;
