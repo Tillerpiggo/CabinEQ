@@ -24,8 +24,8 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public CabinPeqGraphDataSource,
                                public NoiseGridViewListener,
                                public NoiseGridViewDataSource,
-                               public GlyphViewListener,
-                               public GlyphViewDataSource,
+//                               public GlyphViewListener,
+//                               public GlyphViewDataSource,
                                public CalibrationListener
 {
 public:
@@ -129,17 +129,7 @@ public:
     std::vector<float> getCurrPlayingFreqs() override;
     
     // GlyphViewListener + GlyphViewDataSource
-    void goToNextGlyph() override;
-    void goToPrevGlyph() override;
-    void setSizeFactor (float sizeFactor) override;
-    void setCenterPos (juce::Point<float> centerPos) override;
-    
-    Glyph getCurrGlyph() override;
-    bool hasNextGlyph() override;
-    bool hasPrevGlyph() override;
-    float getSizeFactor() override;
-    juce::Point<float> getCenterPos() override;
-    float getCurrPlayingTime() override;
+//    float getCurrPlayingTime() override;
     
     // Listener
     void addListener (Listener* listener);

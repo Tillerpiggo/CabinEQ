@@ -17,7 +17,7 @@ class Stroke
 {
 public:
     Stroke (std::vector<juce::Point<float>> points);
-    juce::Point<float> positionAtTime (float time); // time from [0, 1]
+    juce::Point<float> positionAtTime (float time) const; // time from [0, 1]
     const std::vector<juce::Point<float>>& getPoints() const;
     std::pair<juce::Point<float>, juce::Point<float>> getEndPoints() const; // returns the start and end points
     

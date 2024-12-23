@@ -35,9 +35,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     noiseGridView.setListener (&processor);
     noiseGridView.setCalibrationListener (&processor);
     noiseGridView.setDataSource (&processor);
-    glyphView.setListener (&processor);
-    glyphView.setCalibrationListener (&processor);
-    glyphView.setDataSource (&processor);
+//    glyphView.setListener (&processor);
+//    glyphView.setCalibrationListener (&processor);
+//    glyphView.setDataSource (&processor);
     profileDropdown.addListener (this);
     processor.addListener (this);
     

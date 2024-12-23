@@ -15,110 +15,74 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 {
 }
 
-Glyph GlyphManager::getCurrGlyph()
+void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)
 {
-    auto currGlyph = glyphs[glyphIdx];
-    return currGlyph;
+    // Try to find archetypeId in the list of archetypalGlyphs (TODO: ensure the list is ordered by id so that we can just do simple array access here)
+    std::optional<ArchetypalGlyph> archetypeWithId;
+    for (const auto& archetype : archetypalGlyphs)
+    {
+        if (archetype.getId() == archetypeId)
+        {
+            archetypeWithId = archetype;
+            break;
+        }
+    }
+    if (! archetypeWithId.has_value())
+        return;
+    
+    // Add glyph with next available id
+    glyphs.push_back (Glyph (nextAvailableId, archetypeWithId.value()));
+    
+    updateNextAvailableId();
 }
 
-void GlyphManager::goToNext()
+void GlyphManager::removeGlyph (int glyphId)
 {
-    if (hasNext())
-        glyphIdx++;
+    // Find the glyph with that id, and if it exists, remove it
+    for (int i = 0; i < glyphs.size(); ++i)
+    {
+        if (glyphs[i].getId() == glyphId)
+        {
+            glyphs.erase (glyphs.begin() + i);
+            break;
+        }
+    }
+    
+    updateNextAvailableId();
 }
 
-void GlyphManager::goToPrev()
-{
-    if (hasPrev())
-        glyphIdx--;
-}
-
-bool GlyphManager::hasNext()
-{
-    return glyphIdx < glyphs.size() - 1;
-}
-
-bool GlyphManager::hasPrev()
-{
-    return glyphIdx > 0;
-}
-
-void GlyphManager::addGlyphs (std::vector<Glyph> newGlyphs)
+void GlyphManager::addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs)
 {
     for (const auto& glyph : newGlyphs)
-    {
-        glyphs.push_back (glyph);
-    }
+        archetypalGlyphs.push_back (glyph);
+}
+void GlyphManager::addArchetypalGlyph (ArchetypalGlyph glyph)
+{
+    archetypalGlyphs.push_back (glyph);
 }
 
-void GlyphManager::addGlyph (Glyph glyph)
+const std::vector<Glyph>& GlyphManager::getGlyphs()
 {
-    glyphs.push_back (glyph);
+    return glyphs;
 }
 
-void GlyphManager::setSizeFactor (float sizeFactor)
+const std::vector<ArchetypalGlyph>& GlyphManager::getArchetypalGlyphs()
 {
-    if (sizeFactor <= 0)
-    {
-        std::cerr << "tried to set illegal size factor with value <= 0 (sizeFactor=" << sizeFactor << ")" << std::endl;
-        return;
-    }
+    return archetypalGlyphs;
+}
+
+void GlyphManager::updateNextAvailableId()
+{
+    // Get a sorted list of ids
+    std::vector<int> ids;
+    for (const auto& glyph : glyphs)
+        ids.push_back (glyph.getId());
+    std::sort (ids.begin(), ids.end());
     
-    this->sizeFactor = std::min (sizeFactor, 1.0f);
-    
-    // Make sure we're still in bounds
-    if (! isInBounds())
-        moveGlyphWithinBounds();
-    // If not, move the center position so that we are in bounds ^
-}
-
-void GlyphManager::setCenterPos (juce::Point<float> centerPos)
-{
-    this->centerPos = centerPos;
-    moveGlyphWithinBounds();
-}
-
-float GlyphManager::getSizeFactor() const
-{
-    return sizeFactor;
-}
-
-juce::Point<float> GlyphManager::getCenterPos() const
-{
-    return centerPos;
-}
-
-bool GlyphManager::isInBounds() const
-{
-    auto [minX, maxX] = getXBounds();
-    auto [minY, maxY] = getYBounds();
-    
-    juce::Point<float> centerPos = getCenterPos();
-    
-    bool isInXBounds = centerPos.x >= minX && centerPos.x <= maxX;
-    bool isInYBounds = centerPos.y >= minY && centerPos.y <= maxY;
-    return isInXBounds && isInYBounds;
-}
-
-void GlyphManager::moveGlyphWithinBounds()
-{
-    auto [minX, maxX] = getXBounds();
-    auto [minY, maxY] = getYBounds();
-    
-    centerPos.x = std::min (std::max (centerPos.x, minX), maxX);
-    centerPos.y = std::min (std::max (centerPos.y, minY), maxY);
-}
-
-std::pair<float, float> GlyphManager::getXBounds() const
-{
-    float minX = -1.0f + sizeFactor;
-    float maxX = 1.0f - sizeFactor;
-    return { minX, maxX };
-}
-
-std::pair<float, float> GlyphManager::getYBounds() const
-{
-    float minY = -1.0f + sizeFactor;
-    float maxY = 1.0f - sizeFactor;
-    return { minY, maxY };
+    // Find the next available id
+    int nextId = 0;
+    for (const int id : ids)
+        if (nextId == id)
+            nextId++;
+    nextAvailableId = nextId;
 }

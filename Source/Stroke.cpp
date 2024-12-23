@@ -15,7 +15,7 @@ Stroke::Stroke (std::vector<juce::Point<float>> points)
 {
 }
 
-juce::Point<float> Stroke::positionAtTime (float time)
+juce::Point<float> Stroke::positionAtTime (float time) const
 {
     if (time < 0 || time > 1)
     {

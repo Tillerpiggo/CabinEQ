@@ -18,29 +18,19 @@ class GlyphManager
 {
 public:
     GlyphManager (std::vector<Glyph> glyphs = {});
-    Glyph getCurrGlyph();
-    void goToNext();
-    void goToPrev();
-    bool hasNext();
-    bool hasPrev();
     
+    void addGlyph (int archetypeId, juce::Point<float> centerPos);
+    void removeGlyph (int glyphId);
     void addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs);
     void addArchetypalGlyph (ArchetypalGlyph glyph);
     
-    void setSizeFactor (float sizeFactor);
-    void setCenterPos (juce::Point<float> centerPos); // if this would render it out of bounds, it just clips it.
-    float getSizeFactor() const;
-    juce::Point<float> getCenterPos() const;
+    const std::vector<Glyph>& getGlyphs();
+    const std::vector<ArchetypalGlyph>& getArchetypalGlyphs();
     
 private:
-    bool isInBounds() const;
-    void moveGlyphWithinBounds(); // changes centerPos so that glyph is still in bounds
-    std::pair<float, float> getXBounds() const; // returns min x and max x for the current size
-    std::pair<float, float> getYBounds() const; // returns min y and max y for the current size
+    void updateNextAvailableId();
     
     std::vector<Glyph> glyphs; // active glyphs that can be used to play sound
     std::vector<ArchetypalGlyph> archetypalGlyphs; // glyphs that can be copied and made active
-    
-    float sizeFactor = 1.0f; // can be in (0, 1], with 1 being full-sized
-    juce::Point<float> centerPos = { 0.0f, 0.0f }; // can be x in [-1, 1], y in [-1, 1]
+    int nextAvailableId = 0;
 };
