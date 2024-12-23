@@ -23,11 +23,8 @@ ArchetypeView::~ArchetypeView()
 
 void ArchetypeView::paint (juce::Graphics& g)
 {
-    if (! archetype.has_value())
-        return;
-    
     juce::Path path;
-    std::vector<Stroke> strokes = archetype->getStrokes();
+    std::vector<Stroke> strokes = archetype.getStrokes();
     for (const auto& stroke : strokes)
     {
         auto points = stroke.getPoints();
@@ -50,6 +47,11 @@ void ArchetypeView::paint (juce::Graphics& g)
 void ArchetypeView::resized()
 {
     
+}
+
+ArchetypalGlyph ArchetypeView::getArchetype()
+{
+    return archetype;
 }
 
 void ArchetypeView::setArchetype (ArchetypalGlyph archetype)

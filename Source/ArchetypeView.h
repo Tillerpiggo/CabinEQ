@@ -23,6 +23,7 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     
+    ArchetypalGlyph getArchetype();
     void setArchetype (ArchetypalGlyph archetype);
     
     void mouseDrag (const juce::MouseEvent &event) override;
@@ -30,7 +31,7 @@ public:
 private:
     juce::Point<float> normalizePointInBounds (juce::Point<float> point);
     
-    std::optional<ArchetypalGlyph> archetype;
+    ArchetypalGlyph archetype;
     
     float STROKE_WIDTH = 3.0f;
     juce::Colour STROKE_COLOUR = juce::Colours::lightblue;

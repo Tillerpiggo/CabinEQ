@@ -22,6 +22,7 @@ GlyphGridView::~GlyphGridView()
 void GlyphGridView::paint (juce::Graphics& g)
 {
     drawGlyphs (g);
+    drawDraggingGlyph (g);
 }
 
 void GlyphGridView::resized()
@@ -47,22 +48,28 @@ bool GlyphGridView::isInterestedInDragSource (const SourceDetails& dragSourceDet
 
 void GlyphGridView::itemDragEnter (const SourceDetails& dragSourceDetails)
 {
-    std::cout << "item drag enter" << std::endl;
+    if (ArchetypeView* archetypeView = dynamic_cast<ArchetypeView*> (dragSourceDetails.sourceComponent.get()))
+    {
+        draggingGlyph = archetypeView->getArchetype();
+        draggingPos = { (float) dragSourceDetails.localPosition.x, (float) dragSourceDetails.localPosition.y };
+    }
 }
 
 void GlyphGridView::itemDragMove (const SourceDetails& dragSourceDetails)
 {
-    std::cout << "item drag move" << std::endl;
+    draggingPos = { (float) dragSourceDetails.localPosition.x, (float) dragSourceDetails.localPosition.y };
 }
 
 void GlyphGridView::itemDragExit (const SourceDetails& dragSourceDetails)
 {
-    std::cout << "item drag exit" << std::endl;
+    draggingGlyph.reset();
+    draggingPos.reset();
 }
 
 void GlyphGridView::itemDropped (const SourceDetails& dragSourceDetails)
 {
-    std::cout << "item dropped" << std::endl;
+    draggingGlyph.reset();
+    draggingPos.reset();
 }
 
 bool GlyphGridView::shouldDrawDragImageWhenOver()
@@ -74,14 +81,13 @@ void GlyphGridView::drawGlyphs (juce::Graphics& g)
 {
     for (const auto& glyph : glyphs)
     {
-        drawGlyph (g, glyph);
+        drawGlyph (g, glyph.getStrokes(), glyph.getCenterPos(), glyph.getSizeFactor(), STROKE_COLOUR);
     }
 }
 
-void GlyphGridView::drawGlyph (juce::Graphics& g, const Glyph& glyph)
+void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour)
 {
     juce::Path path;
-    std::vector<Stroke> strokes = glyph.getStrokes();
     for (const auto& stroke : strokes)
     {
         auto points = stroke.getPoints();
@@ -90,18 +96,26 @@ void GlyphGridView::drawGlyph (juce::Graphics& g, const Glyph& glyph)
             auto startPoint = points[i];
             auto endPoint = points[i + 1];
             
-            startPoint = getNormalizedPointInBounds (startPoint, glyph.getCenterPos(), glyph.getSizeFactor());
-            endPoint = getNormalizedPointInBounds (endPoint, glyph.getCenterPos(), glyph.getSizeFactor());
+            startPoint = getLocalPointFromNormalizedPoint (startPoint, centerPos, sizeFactor);
+            endPoint = getLocalPointFromNormalizedPoint (endPoint, centerPos, sizeFactor);
             
             path.addLineSegment (juce::Line<float> (startPoint, endPoint), STROKE_WIDTH);
         }
     }
     
-    g.setColour (STROKE_COLOUR);
+    g.setColour (strokeColour);
     g.fillPath (path);
 }
 
-juce::Point<float> GlyphGridView::getNormalizedPointInBounds (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor)
+void GlyphGridView::drawDraggingGlyph (juce::Graphics& g)
+{
+    if (draggingGlyph.has_value())
+    {
+        drawGlyph (g, draggingGlyph->getStrokes(), getNormalizedPointFromLocalPoint (draggingPos.value()), 0.5f, STROKE_COLOUR.withAlpha (0.5f));
+    }
+}
+
+juce::Point<float> GlyphGridView::getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor)
 {
     float padding = 10.0f;
     
@@ -118,4 +132,17 @@ juce::Point<float> GlyphGridView::getNormalizedPointInBounds (juce::Point<float>
     float yInBounds = padding + yScaled * (getHeight() - padding * 2.0f);
     
     return { xInBounds, yInBounds };
+}
+
+juce::Point<float> GlyphGridView::getNormalizedPointFromLocalPoint (juce::Point<float> point)
+{
+    // First, convert to be within [0, 1]
+    float positiveX = point.x / getWidth();
+    float positiveY = point.y / getHeight();
+    
+    // Now, move to be between [-1, 1]
+    float normalizedX = 2.0f * positiveX - 1.0f;
+    float normalizedY = 1.0f - 2.0f * positiveY; // flip y because y axis is upside down in graphics libraries
+    
+    return { normalizedX, normalizedY };
 }
