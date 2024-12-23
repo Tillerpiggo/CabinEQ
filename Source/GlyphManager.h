@@ -23,6 +23,7 @@ public:
     void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor);
     void moveGlyph (int glyphId, juce::Point<float> centerPos);
     void removeGlyph (int glyphId);
+    void incrementSizeFactor (int glyphId, float increment);
     void addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs);
     void addArchetypalGlyph (ArchetypalGlyph glyph);
     

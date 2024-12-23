@@ -44,10 +44,12 @@ public:
     int getId() const;
     
     void setSizeFactor (float sizeFactor);
+    void incrementSizeFactor (float increment); // increments size factor, with bounds, and then updates surroundings.
     void setCenterPos (juce::Point<float> centerPos);
     
     bool isInBounds() const;
     void moveGlyphWithinBounds(); // changes centerPos so that glyph is still in bounds
+    void moveSizeFactorWithinBounds(); // changes sizeFactor so that glyph is still in bounds
     std::pair<float, float> getXBounds() const; // returns min x and max x for the current size
     std::pair<float, float> getYBounds() const; // returns min y and max y for the current size
     

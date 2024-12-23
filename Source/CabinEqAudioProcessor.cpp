@@ -441,6 +441,11 @@ void CabinEqAudioProcessor::removeGlyph (int glyphId)
     glyphManager.removeGlyph (glyphId);
 }
 
+void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float increment)
+{
+    glyphManager.incrementSizeFactor (glyphId, increment);
+}
+
 const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
 {
     return glyphManager.getArchetypalGlyphs();

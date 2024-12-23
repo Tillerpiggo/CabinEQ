@@ -111,6 +111,14 @@ void Glyph::setSizeFactor (float sizeFactor)
         moveGlyphWithinBounds(); // if not, move the center so that we are in bounds
 }
 
+void Glyph::incrementSizeFactor (float increment)
+{
+    this->sizeFactor = std::min (std::max (sizeFactor + increment, 0.1f), 1.0f);
+    
+    if (! isInBounds())
+        moveSizeFactorWithinBounds();
+}
+
 void Glyph::setCenterPos (juce::Point<float> centerPos)
 {
     this->centerPos = centerPos;
@@ -136,6 +144,13 @@ void Glyph::moveGlyphWithinBounds()
     
     centerPos.x = std::min (std::max (centerPos.x, minX), maxX);
     centerPos.y = std::min (std::max (centerPos.y, minY), maxY);
+}
+
+void Glyph::moveSizeFactorWithinBounds()
+{
+    float maxXSizeFactor = std::min (std::abs (-1.0f - centerPos.x), std::abs (1.0f - centerPos.x));
+    float maxYSizeFactor = std::min (std::abs (-1.0f - centerPos.y), std::abs (1.0f - centerPos.y));
+    sizeFactor = std::min (sizeFactor, std::min (maxXSizeFactor, maxYSizeFactor));
 }
 
 std::pair<float, float> Glyph::getXBounds() const

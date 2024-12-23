@@ -56,11 +56,6 @@ void GlyphGridView::mouseMove (const juce::MouseEvent &event)
 void GlyphGridView::mouseDown (const juce::MouseEvent &event)
 {
     draggingId = hoveringId;
-    if (draggingId != -1)
-    {
-        
-    }
-    
     moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
     
     // If we right click and were hovering, delete the glyph
@@ -70,17 +65,27 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
 
 void GlyphGridView::mouseDrag (const juce::MouseEvent &event)
 {
-    
+    if (draggingId != -1)
+    {
+        moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
+    }
 }
 
 void GlyphGridView::mouseUp (const juce::MouseEvent &event)
 {
-    
+    if (draggingId != -1)
+    {
+        moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
+        draggingId = -1;
+    }
 }
 
 void GlyphGridView::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
+    if (hoveringId == -1)
+        return;
     
+    incrementSizeFactor (hoveringId, wheel.deltaY);
 }
 
 bool GlyphGridView::isInterestedInDragSource (const SourceDetails& dragSourceDetails)
@@ -143,7 +148,7 @@ void GlyphGridView::drawCenterDots (juce::Graphics &g)
     for (const auto& glyph : glyphs)
     {
         auto centerPoint = getLocalizedCenterPointForGlyph (glyph);
-        float dotRadius = (glyph.getId() == draggingId || glyph.getId() == hoveringId) ? DOT_RADIUS_DEFAULT : DOT_RADIUS_DRAGGING;
+        float dotRadius = (glyph.getId() == draggingId || glyph.getId() == hoveringId) ? DOT_RADIUS_DRAGGING : DOT_RADIUS_DEFAULT;
         drawDot (g, centerPoint, dotRadius, DOT_COLOUR);
     }
 }
@@ -261,6 +266,15 @@ void GlyphGridView::removeGlyph (int glyphId)
     if (listener != nullptr && dataSource != nullptr)
     {
         listener->removeGlyph (glyphId);
+        glyphs = dataSource->getGlyphs();
+    }
+}
+
+void GlyphGridView::incrementSizeFactor (int glyphId, float increment)
+{
+    if (listener != nullptr && dataSource != nullptr)
+    {
+        listener->incrementSizeFactor (glyphId, increment);
         glyphs = dataSource->getGlyphs();
     }
 }

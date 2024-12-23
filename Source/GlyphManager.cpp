@@ -85,6 +85,19 @@ void GlyphManager::removeGlyph (int glyphId)
     updateNextAvailableId();
 }
 
+void GlyphManager::incrementSizeFactor (int glyphId, float increment)
+{
+    // Find the glyph with that id, and if it exists, increment the size factor
+    for (int i = 0; i < glyphs.size(); ++i)
+    {
+        if (glyphs[i].getId() == glyphId)
+        {
+            glyphs[i].incrementSizeFactor (increment);
+            break;
+        }
+    }
+}
+
 void GlyphManager::addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs)
 {
     for (const auto& glyph : newGlyphs)

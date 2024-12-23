@@ -61,6 +61,7 @@ private:
     
     void moveGlyph (int glyphId, juce::Point<float> centerPos);
     void removeGlyph (int glyphId);
+    void incrementSizeFactor (int glyphId, float increment);
     
     GlyphViewListener* listener = nullptr;
     GlyphViewDataSource* dataSource = nullptr;
@@ -72,7 +73,7 @@ private:
     juce::Colour DOT_COLOUR = juce::Colours::turquoise;
     float DOT_RADIUS_DEFAULT = 6.0f;
     float DOT_RADIUS_DRAGGING = 8.0f;
-    float HOVER_MIN_DIST = 30.0f;
+    float HOVER_MIN_DIST = 20.0f;
     
     // Drag and drop
     std::optional<ArchetypalGlyph> draggingGlyph;
