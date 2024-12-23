@@ -25,7 +25,7 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public NoiseGridViewListener,
                                public NoiseGridViewDataSource,
 //                               public GlyphViewListener,
-//                               public GlyphViewDataSource,
+                               public GlyphViewDataSource,
                                public CalibrationListener
 {
 public:
@@ -130,6 +130,10 @@ public:
     
     // GlyphViewListener + GlyphViewDataSource
 //    float getCurrPlayingTime() override;
+    
+    const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
+    const std::vector<Glyph>& getGlyphs() override;
+    float getCurrPlayingTime() override;
     
     // Listener
     void addListener (Listener* listener);

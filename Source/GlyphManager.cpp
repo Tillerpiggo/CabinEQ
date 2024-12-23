@@ -13,6 +13,22 @@
 GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     : glyphs (glyphs)
 {
+    // Initialize some starting archetypes
+    ArchetypalGlyph diamonds (0, {
+        Stroke ({{ -1, 0 }, { -0.5, -1 }, { 0, 0 }, { 0.5, 1 }, { 1, 0 }, { 0.5, -1 }, { 0, 0 }, { -0.5, 1 }, { -1, 0 }})
+    });
+    ArchetypalGlyph xGlyph (1, {
+        Stroke ({{ -1, -1 }, { 1, 1 }}),
+        Stroke ({{ 1, -1 }, { 1, 1 }})
+    });
+    ArchetypalGlyph squareGlyph (2, {
+        Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { 1, -1 }})
+    });
+    
+    
+    archetypalGlyphs.push_back (diamonds);
+    archetypalGlyphs.push_back (xGlyph);
+    archetypalGlyphs.push_back (squareGlyph);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

@@ -87,6 +87,10 @@
         <FILE id="VOfEsn" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
         <FILE id="pvhksR" name="StepView.cpp" compile="1" resource="0" file="Source/StepView.cpp"/>
         <FILE id="B3mQPN" name="StepView.h" compile="0" resource="0" file="Source/StepView.h"/>
+        <FILE id="auxb98" name="CalibrationView.cpp" compile="1" resource="0"
+              file="Source/CalibrationView.cpp"/>
+        <FILE id="HZSDMv" name="CalibrationView.h" compile="0" resource="0"
+              file="Source/CalibrationView.h"/>
         <FILE id="Ct5deW" name="GlyphView.cpp" compile="1" resource="0" file="Source/GlyphView.cpp"/>
         <FILE id="HXWses" name="GlyphView.h" compile="0" resource="0" file="Source/GlyphView.h"/>
         <FILE id="di7qhr" name="KnobView.cpp" compile="1" resource="0" file="Source/KnobView.cpp"/>

@@ -25,21 +25,6 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 
 #endif
 {
-//    Glyph horizontalLineGlyph ({
-//        Stroke ({{ -1, -1 }, { -0.5, -1 }, { 0, -1 }, { 0.5, -1 }, { 1, -1 },
-//                 { -1, 1 }, { -0.5, 1 }, { 0, 1 }, { 0.5, 1 }, { 1, 1 }})
-//    });
-//    
-//    Glyph threeGrid ({
-//        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 },
-//                 { -1, 0 }, { 0, 0 }, { 1, 0 },
-//                 { -1, 1 }, { 0, 1 }, { 1, 1 }})
-//    });
-//    Glyph diamonds ({
-//        Stroke ({{ -1, 0 }, { -0.5, -1 }, { 0, 0 }, { 0.5, 1 }, { 1, 0 }, { 0.5, -1 }, { 0, 0 }, { -0.5, 1 }, { -1, 0 }})
-//    });
-//    
-//    glyphManager.addGlyphs ({ diamonds, threeGrid, horizontalLineGlyph });
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()
@@ -441,10 +426,20 @@ std::vector<float> CabinEqAudioProcessor::getCurrPlayingFreqs()
     return playbackManager.getCurrPlayingFreqs();
 }
 
-//float CabinEqAudioProcessor::getCurrPlayingTime()
-//{
-//    return playbackManager.getCurrPlayingTime();
-//}
+const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
+{
+    return glyphManager.getArchetypalGlyphs();
+}
+
+const std::vector<Glyph>& CabinEqAudioProcessor::getGlyphs()
+{
+    return glyphManager.getGlyphs();
+}
+
+float CabinEqAudioProcessor::getCurrPlayingTime()
+{
+    return playbackManager.getCurrPlayingTime();
+}
 
 void CabinEqAudioProcessor::addListener (Listener* listener)
 {

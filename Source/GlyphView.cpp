@@ -44,7 +44,7 @@ GlyphView::GlyphView()
         if (listener != nullptr && dataSource != nullptr)
         {
             listener->goToPrevGlyph();
-            animatedGlyph.setGlyph (dataSource->getCurrGlyph());
+//            animatedGlyph.setGlyph (dataSource->getCurrGlyph());
             updatePrevNextButtons();
         }
     });
@@ -52,7 +52,7 @@ GlyphView::GlyphView()
         if (listener != nullptr && dataSource != nullptr)
         {
             listener->goToNextGlyph();
-            animatedGlyph.setGlyph (dataSource->getCurrGlyph());
+//            animatedGlyph.setGlyph (dataSource->getCurrGlyph());
             updatePrevNextButtons();
         }
     });
@@ -75,13 +75,18 @@ void GlyphView::paint (juce::Graphics& g)
 void GlyphView::resized()
 {
     float sidebarWidth = 300.0f;
+    float archetypeBarWidth = 100.0f;
     auto paddedBounds = getBounds().withX (0).withY (0);
     
     // Glyph side
-    Layout glyphLayout (paddedBounds.withTrimmedRight (sidebarWidth), 8.0f);
+    Layout glyphLayout (paddedBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth), 8.0f);
     glyphLayout.addRow ({ Space (&animatedGlyph) });
     glyphLayout.updateComponentBounds();
     
+    // Archetype Bar
+    
+    
+    // Settings side
     auto settingsBounds = paddedBounds.withTrimmedLeft (paddedBounds.getWidth() - sidebarWidth);
     Layout settingsLayout (settingsBounds, 8.0f);
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
@@ -105,7 +110,7 @@ void GlyphView::setCalibrationListener (CalibrationListener* calibrationListener
 void GlyphView::setDataSource (GlyphViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
-    animatedGlyph.setGlyph (dataSource->getCurrGlyph());
+//    animatedGlyph.setGlyph (dataSource->getCurrGlyph());
     updatePrevNextButtons();
 }
 
@@ -127,14 +132,14 @@ float GlyphView::getSizeFactor()
 {
     if (dataSource == nullptr)
         return 1.0f; // default
-    return dataSource->getSizeFactor();
+//    return dataSource->getSizeFactor();
 }
 
 juce::Point<float> GlyphView::getCenterPos()
 {
     if (dataSource == nullptr)
         return { 0.0f, 0.0f }; // default
-    return dataSource->getCenterPos();
+//    return dataSource->getCenterPos();
 }
 
 float GlyphView::getCurrTime()
@@ -146,9 +151,9 @@ float GlyphView::getCurrTime()
 
 void GlyphView::updatePrevNextButtons()
 {
-    if (dataSource != nullptr)
-    {
-        prevButton.setEnabled (dataSource->hasPrevGlyph());
-        nextButton.setEnabled (dataSource->hasNextGlyph());
-    }
+//    if (dataSource != nullptr)
+//    {
+//        prevButton.setEnabled (dataSource->hasPrevGlyph());
+//        nextButton.setEnabled (dataSource->hasNextGlyph());
+//    }
 }

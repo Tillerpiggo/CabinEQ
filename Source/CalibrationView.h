@@ -1,0 +1,43 @@
+/*
+  ==============================================================================
+
+    CalibrationView.h
+    Created: 22 Dec 2024 8:38:53pm
+    Author:  Tyler Gee
+
+  ==============================================================================
+*/
+
+#pragma once
+
+#include <JuceHeader.h>
+#include "BuildableComponent.h"
+#include "Layout.h"
+#include "Listeners.h"
+
+// This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
+class CalibrationView  : public BuildableComponent
+{
+public:
+    CalibrationView();
+    ~CalibrationView() override;
+    
+    void paint (juce::Graphics& g) override;
+    void resized() override;
+    
+    void setListener (GlyphViewListener* listener);
+    void setCalibrationListener (CalibrationListener* calibrationListener);
+    void setDataSource (GlyphViewDataSource* dataSource);
+    
+private:
+    CalibrationListener* calibrationListener = nullptr;
+    
+    // Calibration settings
+    juce::Slider speedSlider;
+    juce::Label speedLabel;
+    juce::Slider bandwidthSlider;
+    juce::Label bandwidthLabel;
+    juce::TextButton playButton { "Play" };
+    bool isPlaying = false;
+};
+

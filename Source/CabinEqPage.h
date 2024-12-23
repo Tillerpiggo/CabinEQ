@@ -18,6 +18,7 @@
 #include "KnobView.h"
 #include "CabinEqLookAndFeel.h"
 #include "NoiseGridView.h"
+#include "CalibrationView.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
@@ -57,7 +58,8 @@ protected:
     
     // JUCE Labels
     NoiseGridView noiseGridView;
-    GlyphView glyphView;
+//    GlyphView glyphView;
+    CalibrationView calibrationView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;
     juce::String profileId;

@@ -79,15 +79,25 @@ class GlyphViewDataSource
 public:
     virtual ~GlyphViewDataSource() = default;
     
-    virtual Glyph getCurrGlyph() = 0;
-    virtual bool hasNextGlyph() = 0;
-    virtual bool hasPrevGlyph() = 0;
-    
-    virtual float getSizeFactor() = 0;
-    virtual juce::Point<float> getCenterPos() = 0;
-    
+    virtual const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() = 0;
+    virtual const std::vector<Glyph>& getGlyphs() = 0;
     virtual float getCurrPlayingTime() = 0;
 };
+
+//class GlyphViewDataSource
+//{
+//public:
+//    virtual ~GlyphViewDataSource() = default;
+//    
+//    virtual Glyph getCurrGlyph() = 0;
+//    virtual bool hasNextGlyph() = 0;
+//    virtual bool hasPrevGlyph() = 0;
+//    
+//    virtual float getSizeFactor() = 0;
+//    virtual juce::Point<float> getCenterPos() = 0;
+//    
+//    virtual float getCurrPlayingTime() = 0;
+//};
 
 class CalibrationListener
 {
