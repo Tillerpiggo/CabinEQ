@@ -73,10 +73,23 @@ const std::vector<ArchetypalGlyph>& GlyphManager::getArchetypalGlyphs()
 
 void GlyphManager::updateNextAvailableId()
 {
+    if (glyphs.size() == 0)
+    {
+        nextAvailableId = 0;
+        return;
+    }
+    
     // Get a sorted list of ids
     std::vector<int> ids;
     for (const auto& glyph : glyphs)
         ids.push_back (glyph.getId());
+    
+    if (ids.size() == 0)
+    {
+        nextAvailableId = 0;
+        return;
+    }
+    
     std::sort (ids.begin(), ids.end());
     
     // Find the next available id

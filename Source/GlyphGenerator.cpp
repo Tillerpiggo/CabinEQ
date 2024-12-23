@@ -96,6 +96,12 @@ void GlyphGenerator::setGlyph (Glyph glyph)
 
 void GlyphGenerator::updateNoiseGenerators()
 {
+    if (! glyph.has_value())
+    {
+        std::cerr << "Trying to update noise generators with nil glyph" << std::endl;
+        return;
+    }
+    
     auto vertices = glyph->getVertices();
     // Set all noise generator positions
     for (int i = 0; i < noiseGenerators.size(); ++i)
