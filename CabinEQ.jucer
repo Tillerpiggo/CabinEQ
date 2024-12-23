@@ -91,6 +91,12 @@
               file="Source/CalibrationView.cpp"/>
         <FILE id="HZSDMv" name="CalibrationView.h" compile="0" resource="0"
               file="Source/CalibrationView.h"/>
+        <FILE id="WjKVnP" name="ArchetypeView.cpp" compile="1" resource="0"
+              file="Source/ArchetypeView.cpp"/>
+        <FILE id="jNjLOi" name="ArchetypeView.h" compile="0" resource="0" file="Source/ArchetypeView.h"/>
+        <FILE id="EXsvdg" name="ArchetypeBar.cpp" compile="1" resource="0"
+              file="Source/ArchetypeBar.cpp"/>
+        <FILE id="FJv9bT" name="ArchetypeBar.h" compile="0" resource="0" file="Source/ArchetypeBar.h"/>
         <FILE id="Ct5deW" name="GlyphView.cpp" compile="1" resource="0" file="Source/GlyphView.cpp"/>
         <FILE id="HXWses" name="GlyphView.h" compile="0" resource="0" file="Source/GlyphView.h"/>
         <FILE id="di7qhr" name="KnobView.cpp" compile="1" resource="0" file="Source/KnobView.cpp"/>
