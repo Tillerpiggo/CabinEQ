@@ -25,7 +25,6 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})
     });
     
-    
     archetypalGlyphs.push_back (diamonds);
     archetypalGlyphs.push_back (xGlyph);
     archetypalGlyphs.push_back (squareGlyph);

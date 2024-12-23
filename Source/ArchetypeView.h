@@ -25,6 +25,8 @@ public:
     
     void setArchetype (ArchetypalGlyph archetype);
     
+    void mouseDrag (const juce::MouseEvent &event) override;
+    
 private:
     juce::Point<float> normalizePointInBounds (juce::Point<float> point);
     

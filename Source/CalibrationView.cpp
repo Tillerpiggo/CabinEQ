@@ -38,15 +38,14 @@ CalibrationView::CalibrationView()
         playButton.setButtonText (isPlaying ? "Pause" : "Play");
     });
     
+    // Glyph Grid View
+    addAndMakeVisible (glyphGridView);
+    
     // Archetype Bar
     addAndMakeVisible (archetypeViewport);
     addAndMakeVisible (archetypeBar);
 //    archetypeViewport.setViewedComponent (&archetypeBar);
     archetypeViewport.setScrollBarsShown (true, false);
-    
-    
-    // Other views
-    // TODO...
 }
 
 CalibrationView::~CalibrationView()
@@ -66,8 +65,8 @@ void CalibrationView::resized()
     
     // Glyph View
     Layout glyphLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth), 8.0f);
-//    glyphLayout.addRow ({ Space (&glyphView) });
-//    glyphLayout.updateComponentBounds();
+    glyphLayout.addRow ({ Space (&glyphGridView) });
+    glyphLayout.updateComponentBounds();
     
     // Archetype sidebar
     Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);

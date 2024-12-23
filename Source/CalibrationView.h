@@ -15,6 +15,7 @@
 #include "Layout.h"
 #include "Listeners.h"
 #include "ArchetypeBar.h"
+#include "GlyphGridView.h"
 
 // This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
 class CalibrationView  : public BuildableComponent
@@ -34,6 +35,7 @@ private:
     CalibrationListener* calibrationListener = nullptr;
     
     // Glyph View
+    GlyphGridView glyphGridView;
     
     // Archetype Bar
     juce::Viewport archetypeViewport;

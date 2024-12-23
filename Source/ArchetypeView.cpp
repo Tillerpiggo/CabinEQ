@@ -58,6 +58,16 @@ void ArchetypeView::setArchetype (ArchetypalGlyph archetype)
     repaint();
 }
 
+void ArchetypeView::mouseDrag (const juce::MouseEvent &event)
+{
+    juce::DragAndDropContainer* dragC =
+            juce::DragAndDropContainer::findParentDragContainerFor (this);
+    if (! dragC->isDragAndDropActive())
+    {
+        dragC->startDragging("TargetSouce", this);
+    }
+}
+
 juce::Point<float> ArchetypeView::normalizePointInBounds (juce::Point<float> point)
 {
     float padding = 10.0f;

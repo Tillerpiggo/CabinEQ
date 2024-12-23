@@ -99,6 +99,9 @@
         <FILE id="FJv9bT" name="ArchetypeBar.h" compile="0" resource="0" file="Source/ArchetypeBar.h"/>
         <FILE id="Ct5deW" name="GlyphView.cpp" compile="1" resource="0" file="Source/GlyphView.cpp"/>
         <FILE id="HXWses" name="GlyphView.h" compile="0" resource="0" file="Source/GlyphView.h"/>
+        <FILE id="B4HVZD" name="GlyphGridView.cpp" compile="1" resource="0"
+              file="Source/GlyphGridView.cpp"/>
+        <FILE id="wKYiBO" name="GlyphGridView.h" compile="0" resource="0" file="Source/GlyphGridView.h"/>
         <FILE id="di7qhr" name="KnobView.cpp" compile="1" resource="0" file="Source/KnobView.cpp"/>
         <FILE id="E6LaB7" name="KnobView.h" compile="0" resource="0" file="Source/KnobView.h"/>
         <FILE id="tRV2cb" name="AnimatedGlyph.cpp" compile="1" resource="0"

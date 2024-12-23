@@ -15,7 +15,8 @@
 //==============================================================================
 /**
 */
-class CabinEqProcessorEditor   : public juce::AudioProcessorEditor
+class CabinEqProcessorEditor   : public juce::AudioProcessorEditor,
+                                 public juce::DragAndDropContainer
 {
 public:
     CabinEqProcessorEditor (CabinEqAudioProcessor&);
