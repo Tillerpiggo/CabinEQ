@@ -19,10 +19,10 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     });
     ArchetypalGlyph xGlyph (1, {
         Stroke ({{ -1, -1 }, { 1, 1 }}),
-        Stroke ({{ 1, -1 }, { 1, 1 }})
+        Stroke ({{ 1, -1 }, { -1, 1 }})
     });
     ArchetypalGlyph squareGlyph (2, {
-        Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { 1, -1 }})
+        Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})
     });
     
     

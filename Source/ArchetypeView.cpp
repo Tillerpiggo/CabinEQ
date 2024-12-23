@@ -61,8 +61,11 @@ void ArchetypeView::setArchetype (ArchetypalGlyph archetype)
 juce::Point<float> ArchetypeView::normalizePointInBounds (juce::Point<float> point)
 {
     float padding = 10.0f;
-    float xInBounds = padding + point.x * (getWidth() - padding * 2.0f);
-    float yInBounds = padding + point.y * (getHeight() - padding * 2.0f);
+    float xScaled = (point.x + 1.0f) / 2.0f;
+    float yScaled = (-point.y + 1.0f) / 2.0f;
+    
+    float xInBounds = padding + xScaled * (getWidth() - padding * 2.0f);
+    float yInBounds = padding + yScaled * (getHeight() - padding * 2.0f);
     
     return { xInBounds, yInBounds };
 }

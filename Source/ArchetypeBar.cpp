@@ -23,6 +23,7 @@ ArchetypeBar::~ArchetypeBar()
 void ArchetypeBar::paint (juce::Graphics& g)
 {
     // Don't need to paint anything
+    g.fillAll (juce::Colours::blue);
 }
 
 void ArchetypeBar::resized()
@@ -45,5 +46,9 @@ void ArchetypeBar::setDataSource (GlyphViewDataSource* dataSource)
     {
         archetypeViews.push_back (std::make_unique<ArchetypeView> (archetype));
     }
-    resized();
+    
+    for (int i = 0; i < archetypeViews.size(); ++i)
+        addAndMakeVisible (archetypeViews[i].get());
+    
+//    setSize (getWidth(), getWidth() * (int) archetypeViews.size());
 }

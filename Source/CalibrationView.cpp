@@ -38,6 +38,12 @@ CalibrationView::CalibrationView()
         playButton.setButtonText (isPlaying ? "Pause" : "Play");
     });
     
+    // Archetype Bar
+    addAndMakeVisible (archetypeViewport);
+    addAndMakeVisible (archetypeBar);
+//    archetypeViewport.setViewedComponent (&archetypeBar);
+    archetypeViewport.setScrollBarsShown (true, false);
+    
     
     // Other views
     // TODO...
@@ -65,6 +71,8 @@ void CalibrationView::resized()
     
     // Archetype sidebar
     Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+    archetypeBarLayout.addRow ({ Space (&archetypeBar) });
+    archetypeBarLayout.updateComponentBounds();
     
     // Settings section
     Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
@@ -86,5 +94,6 @@ void CalibrationView::setCalibrationListener (CalibrationListener* calibrationLi
 
 void CalibrationView::setDataSource (GlyphViewDataSource* dataSource)
 {
+    archetypeBar.setDataSource (dataSource);
     // TODO: forward to relevant views (glyph + archetype bar)
 }
