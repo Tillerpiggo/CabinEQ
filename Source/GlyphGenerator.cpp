@@ -22,32 +22,37 @@ std::pair<float, float> GlyphGenerator::getNextSample()
         return { 0.0f, 0.0f };
     
     // to do animated glyphs
-//    auto [pos, progress] = glyph->positionAtTime (currTime);
-//    auto [xPos, yPos] = pos;
-//    currTime += timeInterval * speedFactor;
-//    if (currTime >= 1.0f)
-//        currTime -= 1.0f;
-//    
-//    noiseGenerator.setBandpass (freqFromYPos (yPos));
-//    noiseGenerator.setPan (panFromXPos (xPos));
-    //noiseGenerator.getNextSample();
+    currTime += timeInterval * speedFactor;
+    if (currTime >= 1.0f)
+        currTime -= 1.0f;
+    
+    if (updateBandpassCounter > 1000)
+    {
+        auto [pos, progress] = glyph->positionAtTime (currTime);
+        auto [xPos, yPos] = pos;
+        noiseGenerator.setBandpass (freqFromYPos (yPos));
+        noiseGenerator.setPan (panFromXPos (xPos));
+        updateBandpassCounter = 0;
+    }
+    updateBandpassCounter++;
+    return noiseGenerator.getNextSample();
     
     // to just play the vertices
-    std::pair<float, float> nextSample { 0.0f, 0.0f };
-    for (int i = 0; i < noiseGenerators.size(); ++i)
-    {
-        auto noiseSample = noiseGenerators[i].getNextSample();
-        float sampleOffset = noteLenInSamples * i;
-        float gain = gainEnvelope.gainAtSample ((static_cast<int> (sampleCount) + static_cast<int> (sampleOffset)) % (noteLenInSamples * numVertices), noteLenInSamples * numVertices);
-        nextSample.first += noiseSample.first * gain;
-        nextSample.second += noiseSample.second * gain;
-    }
-    
-    sampleCount += speedFactor;
-    if (sampleCount > noteLenInSamples * numVertices)
-    {
-        sampleCount = 0;
-    }
+//    std::pair<float, float> nextSample { 0.0f, 0.0f };
+//    for (int i = 0; i < noiseGenerators.size(); ++i)
+//    {
+//        auto noiseSample = noiseGenerators[i].getNextSample();
+//        float sampleOffset = noteLenInSamples * i;
+//        float gain = gainEnvelope.gainAtSample ((static_cast<int> (sampleCount) + static_cast<int> (sampleOffset)) % (noteLenInSamples * numVertices), noteLenInSamples * numVertices);
+//        nextSample.first += noiseSample.first * gain;
+//        nextSample.second += noiseSample.second * gain;
+//    }
+//    
+//    sampleCount += speedFactor;
+//    if (sampleCount > noteLenInSamples * numVertices)
+//    {
+//        sampleCount = 0;
+//    }
     
 //    // Apply gain envelope based on progress
 //    float envelope = 1.0f;
@@ -60,13 +65,13 @@ std::pair<float, float> GlyphGenerator::getNextSample()
 //    nextSample.first *= envelope;
 //    nextSample.second *= envelope;
     
-    return nextSample;
+//    return nextSample;
 }
 
 void GlyphGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
-//    noiseGenerator.prepare (spec);
+    noiseGenerator.prepare (spec);
     
     timeInterval = 1.0f / (spec.sampleRate * 3.0f); // make time interval 3 seconds
 }

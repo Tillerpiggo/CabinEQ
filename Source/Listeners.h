@@ -14,6 +14,7 @@
 #include "BandProfile.h"
 #include "NoiseSequence.h"
 #include "NoiseSequenceGrid.h"
+#include "Glyph.h"
 
 class CabinPeqGraphListener
 {
@@ -60,6 +61,32 @@ public:
     virtual std::pair<int, int> getNumRowsAndNumCols() = 0;
     virtual int getSequenceIdAtCoords (std::pair<int, int> coords) = 0;
     virtual float getCurrTime() = 0;
+};
+
+class GlyphViewListener
+{
+public:
+    virtual ~GlyphViewListener() = default;
+        
+    virtual void goToNextGlyph() = 0;
+    virtual void goToPrevGlyph() = 0;
+    virtual void setSizeFactor (float sizeFactor) = 0;
+    virtual void setCenterPos (juce::Point<float> centerPos) = 0;
+};
+
+class GlyphViewDataSource
+{
+public:
+    virtual ~GlyphViewDataSource() = default;
+    
+    virtual Glyph getCurrGlyph() = 0;
+    virtual bool hasNextGlyph() = 0;
+    virtual bool hasPrevGlyph() = 0;
+    
+    virtual float getSizeFactor() = 0;
+    virtual juce::Point<float> getCenterPos() = 0;
+    
+    virtual float getCurrPlayingTime() = 0;
 };
 
 class CalibrationListener

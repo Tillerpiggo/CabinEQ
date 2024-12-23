@@ -14,6 +14,7 @@
 #include "BandProfile.h"
 #include "FilterChain.h"
 #include "GridSequencer.h"
+#include "GlyphGenerator.h"
 #include "ArbitraryResponseFilter.h"
 #include <random>
 
@@ -37,11 +38,14 @@ public:
     void setMaxFreq (float newMaxFreq);
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
+    void setSizeFactor (float sizeFactor);
+    void setCenterPos (juce::Point<float> centerPos);
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
     void setProvisionalBandsOn (bool isProvisionalOn);
     
+    void setGlyph (Glyph glyph);
     void setGrid (NoiseSequenceGrid grid);
     float getCurrPlayingTime();
     std::vector<float> getCurrPlayingFreqs();
@@ -51,6 +55,7 @@ private:
     
     // Sound generation
     GridSequencer gridSequencer;
+    GlyphGenerator glyphGenerator;
     
     // Audio Processing
     FilterChain filter;

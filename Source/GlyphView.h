@@ -16,6 +16,7 @@
 #include "BuildableComponent.h"
 #include "AnimatedGlyph.h"
 #include "UIConstants.h"
+#include "Listeners.h"
 
 // This provides a UI to play a Glyph and see the visuals, which includes a speed slider, a bandwidth slider, a frequency range (TODO) and a panning range (TODO). Also includes next/prev buttons to navigate between Glyphs.
 class GlyphView  : public BuildableComponent,
@@ -23,44 +24,15 @@ class GlyphView  : public BuildableComponent,
                    public AnimatedGlyph::DataSource
 {
 public:
-    class Listener
-    {
-    public:
-        virtual ~Listener() = default;
-        
-        virtual void setSpeed (float speedFactor) = 0;
-        virtual void setBandwidth (float bandwidth) = 0;
-        virtual void setIsPlaying (bool isPlaying) = 0;
-        
-        virtual void goToNextGlyph() = 0;
-        virtual void goToPrevGlyph() = 0;
-        virtual void setSizeFactor (float sizeFactor) = 0;
-        virtual void setCenterPos (juce::Point<float> centerPos) = 0;
-    };
-    
-    class DataSource
-    {
-    public:
-        virtual ~DataSource() = default;
-        
-        virtual Glyph getCurrGlyph() = 0;
-        virtual bool hasNextGlyph() = 0;
-        virtual bool hasPrevGlyph() = 0;
-        
-        virtual float getSizeFactor() = 0;
-        virtual juce::Point<float> getCenterPos() = 0;
-        
-        virtual float getCurrPlayingTime() = 0;
-    };
-    
     GlyphView();
     ~GlyphView() override;
     
     void paint (juce::Graphics& g) override;
     void resized() override;
     
-    void setListener (Listener* listener);
-    void setDataSource (DataSource* dataSource);
+    void setListener (GlyphViewListener* listener);
+    void setCalibrationListener (CalibrationListener* calibrationListener);
+    void setDataSource (GlyphViewDataSource* dataSource);
     
     // AnimatedGlyph::Listener
     void setSizeFactor (float sizeFactor) override;
@@ -74,8 +46,9 @@ public:
 private:
     void updatePrevNextButtons();
     
-    Listener* listener = nullptr;
-    DataSource* dataSource = nullptr;
+    GlyphViewListener* listener = nullptr;
+    CalibrationListener* calibrationListener = nullptr;
+    GlyphViewDataSource* dataSource = nullptr;
     
     std::optional<Glyph> glyph;
     

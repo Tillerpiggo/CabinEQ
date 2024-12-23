@@ -25,6 +25,21 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 
 #endif
 {
+    Glyph horizontalLineGlyph ({
+        Stroke ({{ -1, -1 }, { -0.5, -1 }, { 0, -1 }, { 0.5, -1 }, { 1, -1 },
+                 { -1, 1 }, { -0.5, 1 }, { 0, 1 }, { 0.5, 1 }, { 1, 1 }})
+    });
+    
+    Glyph threeGrid ({
+        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 },
+                 { -1, 0 }, { 0, 0 }, { 1, 0 },
+                 { -1, 1 }, { 0, 1 }, { 1, 1 }})
+    });
+    Glyph diamonds ({
+        Stroke ({{ -1, 0 }, { -0.5, -1 }, { 0, 0 }, { 0.5, 1 }, { 1, 0 }, { 0.5, -1 }, { 0, 0 }, { -0.5, 1 }, { -1, 0 }})
+    });
+    
+    glyphManager.addGlyphs ({ diamonds, threeGrid, horizontalLineGlyph });
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()
@@ -101,6 +116,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
     playbackManager.setGrid (noiseSequenceGrid);
+    playbackManager.setGlyph (getCurrGlyph());
 }
 
 void CabinEqAudioProcessor::releaseResources()
@@ -423,6 +439,59 @@ float CabinEqAudioProcessor::getCurrTime()
 std::vector<float> CabinEqAudioProcessor::getCurrPlayingFreqs()
 {
     return playbackManager.getCurrPlayingFreqs();
+}
+
+void CabinEqAudioProcessor::goToNextGlyph()
+{
+    glyphManager.goToNext();
+    playbackManager.setGlyph (getCurrGlyph());
+}
+void CabinEqAudioProcessor::goToPrevGlyph()
+{
+    glyphManager.goToPrev();
+    playbackManager.setGlyph (getCurrGlyph());
+}
+
+void CabinEqAudioProcessor::setSizeFactor (float sizeFactor)
+{
+    glyphManager.setSizeFactor (sizeFactor);
+    playbackManager.setSizeFactor (sizeFactor);
+}
+
+void CabinEqAudioProcessor::setCenterPos (juce::Point<float> centerPos)
+{
+    glyphManager.setCenterPos (centerPos);
+    playbackManager.setCenterPos (centerPos);
+}
+
+Glyph CabinEqAudioProcessor::getCurrGlyph()
+{
+    return glyphManager.getCurrGlyph();
+}
+
+bool CabinEqAudioProcessor::hasNextGlyph()
+{
+    return glyphManager.hasNext();
+}
+
+bool CabinEqAudioProcessor::hasPrevGlyph()
+{
+    return glyphManager.hasPrev();
+}
+
+float CabinEqAudioProcessor::getSizeFactor()
+{
+    return glyphManager.getSizeFactor();
+}
+
+juce::Point<float> CabinEqAudioProcessor::getCenterPos()
+{
+    return glyphManager.getCenterPos();
+}
+
+float CabinEqAudioProcessor::getCurrPlayingTime()
+{
+    return playbackManager.getCurrPlayingTime();
 }
 
 void CabinEqAudioProcessor::addListener (Listener* listener)

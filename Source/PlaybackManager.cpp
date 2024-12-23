@@ -14,9 +14,9 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : isFilterOn (true),
-      isPlayingNoise (false),
-      tiltFilter (14)
+    : tiltFilter (14),
+      isFilterOn (true),
+      isPlayingNoise (false)
 {
     profileVolumeProcessor.setRampDurationSeconds (0.05);
     profileVolumeProcessor.setGainDecibels (0.0f);
@@ -59,10 +59,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
-    if (isPlayingNoise && isCabinNoise)
-    {
-        tiltFilter.process (ioContext);
-    }
+//    if (isPlayingNoise && isCabinNoise)
+//    {
+//        tiltFilter.process (ioContext);
+//    }
     
     overallVolumeProcessor.process (ioContext);
 }
@@ -77,6 +77,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
     
+    glyphGenerator.prepare (spec);
     gridSequencer.prepare (spec);
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
@@ -119,11 +120,23 @@ void PlaybackManager::setMaxFreq (float newMaxFreq)
 void PlaybackManager::setSpeedFactor (float speedFactor)
 {
     gridSequencer.setSpeedFactor (speedFactor);
+    glyphGenerator.setSpeedFactor (speedFactor);
 }
 
 void PlaybackManager::setBandwidth (float bandwidth)
 {
     gridSequencer.setBandwidth (bandwidth);
+    glyphGenerator.setBandwidth (bandwidth);
+}
+
+void PlaybackManager::setSizeFactor (float sizeFactor)
+{
+    glyphGenerator.setSizeFactor (sizeFactor);
+}
+
+void PlaybackManager::setCenterPos (juce::Point<float> centerPos)
+{
+    glyphGenerator.setCenterPos (centerPos);
 }
 
 void PlaybackManager::setProvisionalBands (std::vector<Band> provisionalBands)
@@ -136,6 +149,11 @@ void PlaybackManager::setProvisionalBandsOn (bool provisionalBandsOn)
     this->isProvisionalOn = provisionalBandsOn;
 }
 
+void PlaybackManager::setGlyph (Glyph glyph)
+{
+    glyphGenerator.setGlyph (glyph);
+}
+
 void PlaybackManager::setGrid (NoiseSequenceGrid grid)
 {
     gridSequencer.setNoiseGrid (grid);
@@ -143,7 +161,8 @@ void PlaybackManager::setGrid (NoiseSequenceGrid grid)
 
 float PlaybackManager::getCurrPlayingTime()
 {
-    return gridSequencer.getCurrTime();
+//    return gridSequencer.getCurrTime();
+    return glyphGenerator.getCurrPlayingTime();
 }
 
 std::vector<float> PlaybackManager::getCurrPlayingFreqs()
@@ -153,5 +172,6 @@ std::vector<float> PlaybackManager::getCurrPlayingFreqs()
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return gridSequencer.getNextSample();
+    return glyphGenerator.getNextSample();
+//    return gridSequencer.getNextSample();
 }

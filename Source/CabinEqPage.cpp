@@ -35,8 +35,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     noiseGridView.setListener (&processor);
     noiseGridView.setCalibrationListener (&processor);
     noiseGridView.setDataSource (&processor);
-//    glyphView.setListener (&processor);
-//    glyphView.setDataSource (&processor);
+    glyphView.setListener (&processor);
+    glyphView.setCalibrationListener (&processor);
+    glyphView.setDataSource (&processor);
     profileDropdown.addListener (this);
     processor.addListener (this);
     
@@ -44,6 +45,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (noiseGridView);
+    addAndMakeVisible (glyphView);
     
     didLoadData();
     
@@ -83,7 +85,7 @@ void CabinEqPage::resized()
     Layout layout (getBounds(), 8.0f);
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.6);
-    layout.addRow ({ Space (&noiseGridView) });
+    layout.addRow ({ Space (&glyphView) });
     layout.updateComponentBounds();
 }
 

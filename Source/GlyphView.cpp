@@ -21,13 +21,13 @@ GlyphView::GlyphView()
     
     // Slider actions
     addSliderAction (&speedSlider, [this](juce::Slider*) {
-        if (listener != nullptr)
-            listener->setSpeed (speedSlider.getValue());
+        if (calibrationListener != nullptr)
+            calibrationListener->setSpeedFactor (speedSlider.getValue());
     });
     addSliderAction (&bandwidthSlider, [this](juce::Slider*) {
-        if (listener != nullptr)
+        if (calibrationListener != nullptr)
         {
-            listener->setBandwidth (bandwidthSlider.getValue());
+            calibrationListener->setBandwidth (bandwidthSlider.getValue());
             animatedGlyph.setStrokeWidthFactor (bandwidthSlider.getValue());
         }
     });
@@ -35,8 +35,8 @@ GlyphView::GlyphView()
     // Button actions
     addButtonAction (&playButton, [this](juce::Button*) {
         isPlaying = ! isPlaying;
-        if (listener != nullptr)
-            listener->setIsPlaying (isPlaying);
+        if (calibrationListener != nullptr)
+            calibrationListener->setIsPlaying (isPlaying);
         
         playButton.setButtonText (isPlaying ? "Pause" : "Play");
     });
@@ -91,13 +91,18 @@ void GlyphView::resized()
     settingsLayout.updateComponentBounds();
 }
 
-void GlyphView::setListener (Listener* listener)
+void GlyphView::setListener (GlyphViewListener* listener)
 {
     this->listener = listener;
     animatedGlyph.setListener (this);
 }
 
-void GlyphView::setDataSource (DataSource* dataSource)
+void GlyphView::setCalibrationListener (CalibrationListener* calibrationListener)
+{
+    this->calibrationListener = calibrationListener;
+}
+
+void GlyphView::setDataSource (GlyphViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
     animatedGlyph.setGlyph (dataSource->getCurrGlyph());
