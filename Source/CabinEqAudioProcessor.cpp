@@ -431,6 +431,11 @@ void CabinEqAudioProcessor::addGlyph (ArchetypalGlyph archetype, juce::Point<flo
     glyphManager.addGlyph (archetype, centerPos, sizeFactor);
 }
 
+void CabinEqAudioProcessor::moveGlyph (int glyphId, juce::Point<float> centerPos)
+{
+    glyphManager.moveGlyph (glyphId, centerPos);
+}
+
 const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
 {
     return glyphManager.getArchetypalGlyphs();

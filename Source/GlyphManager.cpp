@@ -58,6 +58,18 @@ void GlyphManager::addGlyph (ArchetypalGlyph archetype, juce::Point<float> cente
     updateNextAvailableId();
 }
 
+void GlyphManager::moveGlyph (int glyphId, juce::Point<float> centerPos)
+{
+    for (int i = 0; i < glyphs.size(); ++i)
+    {
+        if (glyphs[i].getId() == glyphId)
+        {
+            glyphs[i].setCenterPos (centerPos);
+            break;
+        }
+    }
+}
+
 void GlyphManager::removeGlyph (int glyphId)
 {
     // Find the glyph with that id, and if it exists, remove it

@@ -22,6 +22,7 @@ GlyphGridView::~GlyphGridView()
 void GlyphGridView::paint (juce::Graphics& g)
 {
     drawGlyphs (g);
+    drawCenterDots (g);
     drawDraggingGlyph (g);
 }
 
@@ -53,17 +54,20 @@ void GlyphGridView::itemDragEnter (const SourceDetails& dragSourceDetails)
         draggingGlyph = archetypeView->getArchetype();
         draggingPos = { (float) dragSourceDetails.localPosition.x, (float) dragSourceDetails.localPosition.y };
     }
+    repaint();
 }
 
 void GlyphGridView::itemDragMove (const SourceDetails& dragSourceDetails)
 {
     draggingPos = { (float) dragSourceDetails.localPosition.x, (float) dragSourceDetails.localPosition.y };
+    repaint();
 }
 
 void GlyphGridView::itemDragExit (const SourceDetails& dragSourceDetails)
 {
     draggingGlyph.reset();
     draggingPos.reset();
+    repaint();
 }
 
 void GlyphGridView::itemDropped (const SourceDetails& dragSourceDetails)
@@ -77,11 +81,12 @@ void GlyphGridView::itemDropped (const SourceDetails& dragSourceDetails)
     
     draggingGlyph.reset();
     draggingPos.reset();
+    repaint();
 }
 
 bool GlyphGridView::shouldDrawDragImageWhenOver()
 {
-    return true;
+    return false;
 }
 
 void GlyphGridView::drawGlyphs (juce::Graphics& g)
@@ -89,6 +94,16 @@ void GlyphGridView::drawGlyphs (juce::Graphics& g)
     for (const auto& glyph : glyphs)
     {
         drawGlyph (g, glyph.getStrokes(), glyph.getCenterPos(), glyph.getSizeFactor(), STROKE_COLOUR);
+    }
+}
+
+void GlyphGridView::drawCenterDots (juce::Graphics &g)
+{
+    for (const auto& glyph : glyphs)
+    {
+        auto centerPoint = getLocalizedCenterPointForGlyph (glyph);
+        float dotRadius = glyph.getId() == draggingId ? DOT_RADIUS_DEFAULT : DOT_RADIUS_DRAGGING;
+        drawDot (g, centerPoint, dotRadius, DOT_COLOUR);
     }
 }
 
@@ -112,6 +127,13 @@ void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& str
     
     g.setColour (strokeColour);
     g.fillPath (path);
+}
+
+void GlyphGridView::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour)
+{
+    // Just draw the dot
+    g.setColour (dotColour);
+    g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
 }
 
 void GlyphGridView::drawDraggingGlyph (juce::Graphics& g)
@@ -152,4 +174,9 @@ juce::Point<float> GlyphGridView::getNormalizedPointFromLocalPoint (juce::Point<
     float normalizedY = 1.0f - 2.0f * positiveY; // flip y because y axis is upside down in graphics libraries
     
     return { normalizedX, normalizedY };
+}
+
+juce::Point<float> GlyphGridView::getLocalizedCenterPointForGlyph (const Glyph& glyph)
+{
+    return getLocalPointFromNormalizedPoint ({ 0.0f, 0.0f }, glyph.getCenterPos(), glyph.getSizeFactor());
 }

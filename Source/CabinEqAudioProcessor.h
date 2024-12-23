@@ -131,6 +131,7 @@ public:
     // GlyphViewListener + GlyphViewDataSource
 //    float getCurrPlayingTime() override;
     void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) override;
+    void moveGlyph (int glyphId, juce::Point<float> centerPos) override;
     
     const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
     const std::vector<Glyph>& getGlyphs() override;

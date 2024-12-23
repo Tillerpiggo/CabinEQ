@@ -69,6 +69,7 @@ public:
     virtual ~GlyphViewListener() = default;
         
     virtual void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) = 0;
+    virtual void moveGlyph (int glyphId, juce::Point<float> centerPos) = 0; // tries to move the glyph, although bounds will be applied
 };
 
 class GlyphViewDataSource

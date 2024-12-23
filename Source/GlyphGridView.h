@@ -38,10 +38,13 @@ public:
     
 private:
     void drawGlyphs (juce::Graphics& g);
+    void drawCenterDots (juce::Graphics& g); // draws the center dots for the glyphs
     void drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour);
+    void drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour);
     void drawDraggingGlyph (juce::Graphics& g);
     juce::Point<float> getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor);
     juce::Point<float> getNormalizedPointFromLocalPoint (juce::Point<float> point);
+    juce::Point<float> getLocalizedCenterPointForGlyph (const Glyph& glyph); // gets the local coords for the glyph's center point
     
     GlyphViewListener* listener = nullptr;
     GlyphViewDataSource* dataSource = nullptr;
@@ -50,8 +53,14 @@ private:
     
     float STROKE_WIDTH = 3.0f;
     juce::Colour STROKE_COLOUR = juce::Colours::pink;
+    juce::Colour DOT_COLOUR = juce::Colours::turquoise;
+    float DOT_RADIUS_DEFAULT = 6.0f;
+    float DOT_RADIUS_DRAGGING = 6.0f;
     
     // Drag and drop
     std::optional<ArchetypalGlyph> draggingGlyph;
     std::optional<juce::Point<float>> draggingPos;
+    
+    // Dragging glyphs
+    int draggingId = -1;
 };
