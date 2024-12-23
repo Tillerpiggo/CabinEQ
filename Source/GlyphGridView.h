@@ -43,8 +43,8 @@ private:
     juce::Point<float> getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor);
     juce::Point<float> getNormalizedPointFromLocalPoint (juce::Point<float> point);
     
-    GlyphViewListener* listener;
-    GlyphViewDataSource* dataSource;
+    GlyphViewListener* listener = nullptr;
+    GlyphViewDataSource* dataSource = nullptr;
     
     std::vector<Glyph> glyphs;
     

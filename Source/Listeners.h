@@ -68,10 +68,7 @@ class GlyphViewListener
 public:
     virtual ~GlyphViewListener() = default;
         
-    virtual void goToNextGlyph() = 0;
-    virtual void goToPrevGlyph() = 0;
-    virtual void setSizeFactor (float sizeFactor) = 0;
-    virtual void setCenterPos (juce::Point<float> centerPos) = 0;
+    virtual void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) = 0;
 };
 
 class GlyphViewDataSource

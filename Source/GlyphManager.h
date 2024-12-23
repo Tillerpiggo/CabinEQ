@@ -20,6 +20,7 @@ public:
     GlyphManager (std::vector<Glyph> glyphs = {});
     
     void addGlyph (int archetypeId, juce::Point<float> centerPos);
+    void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor);
     void removeGlyph (int glyphId);
     void addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs);
     void addArchetypalGlyph (ArchetypalGlyph glyph);

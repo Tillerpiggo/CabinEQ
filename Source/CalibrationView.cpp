@@ -83,7 +83,7 @@ void CalibrationView::resized()
 
 void CalibrationView::setListener (GlyphViewListener* listener)
 {
-    // TODO: forward to glyph view
+    glyphGridView.setListener (listener);
 }
 
 void CalibrationView::setCalibrationListener (CalibrationListener* calibrationListener)
@@ -93,6 +93,6 @@ void CalibrationView::setCalibrationListener (CalibrationListener* calibrationLi
 
 void CalibrationView::setDataSource (GlyphViewDataSource* dataSource)
 {
+    glyphGridView.setDataSource (dataSource);
     archetypeBar.setDataSource (dataSource);
-    // TODO: forward to relevant views (glyph + archetype bar)
 }

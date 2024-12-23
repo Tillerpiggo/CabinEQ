@@ -47,7 +47,14 @@ void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)
     
     // Add glyph with next available id
     glyphs.push_back (Glyph (nextAvailableId, archetypeWithId.value()));
+    glyphs[glyphs.size() - 1].setCenterPos (centerPos);
     
+    updateNextAvailableId();
+}
+
+void GlyphManager::addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
+{
+    glyphs.push_back (Glyph (nextAvailableId, archetype, centerPos, sizeFactor));
     updateNextAvailableId();
 }
 

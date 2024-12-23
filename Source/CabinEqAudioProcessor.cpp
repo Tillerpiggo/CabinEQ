@@ -426,6 +426,11 @@ std::vector<float> CabinEqAudioProcessor::getCurrPlayingFreqs()
     return playbackManager.getCurrPlayingFreqs();
 }
 
+void CabinEqAudioProcessor::addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
+{
+    glyphManager.addGlyph (archetype, centerPos, sizeFactor);
+}
+
 const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
 {
     return glyphManager.getArchetypalGlyphs();

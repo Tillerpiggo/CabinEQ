@@ -68,6 +68,13 @@ void GlyphGridView::itemDragExit (const SourceDetails& dragSourceDetails)
 
 void GlyphGridView::itemDropped (const SourceDetails& dragSourceDetails)
 {
+    if (listener != nullptr)
+    {
+        listener->addGlyph (draggingGlyph.value(), getNormalizedPointFromLocalPoint (draggingPos.value()), 0.5f);
+        glyphs = dataSource->getGlyphs();
+        repaint();
+    }
+    
     draggingGlyph.reset();
     draggingPos.reset();
 }

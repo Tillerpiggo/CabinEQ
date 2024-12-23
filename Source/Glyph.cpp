@@ -59,6 +59,13 @@ Glyph::Glyph (int id, ArchetypalGlyph archetype)
 {
 }
 
+Glyph::Glyph (int id, ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
+    : id (id), archetype (archetype), sizeFactor (sizeFactor), centerPos (centerPos)
+{
+    std::cout << "centerPos: (x: " << centerPos.x << ", y: " << centerPos.y << ")" << std::endl;
+    moveGlyphWithinBounds();
+}
+
 std::pair<juce::Point<float>, float> Glyph::positionAtTime (float time) const
 {
     return archetype.positionAtTime (time);

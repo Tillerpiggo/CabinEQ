@@ -43,7 +43,7 @@ GlyphView::GlyphView()
     addButtonAction (&prevButton, [this](juce::Button*) {
         if (listener != nullptr && dataSource != nullptr)
         {
-            listener->goToPrevGlyph();
+//            listener->goToPrevGlyph();
 //            animatedGlyph.setGlyph (dataSource->getCurrGlyph());
             updatePrevNextButtons();
         }
@@ -51,7 +51,7 @@ GlyphView::GlyphView()
     addButtonAction (&nextButton, [this](juce::Button*) {
         if (listener != nullptr && dataSource != nullptr)
         {
-            listener->goToNextGlyph();
+//            listener->goToNextGlyph();
 //            animatedGlyph.setGlyph (dataSource->getCurrGlyph());
             updatePrevNextButtons();
         }
@@ -118,14 +118,14 @@ void GlyphView::setSizeFactor (float sizeFactor)
 {
     if (listener == nullptr)
         return;
-    listener->setSizeFactor (sizeFactor);
+//    listener->setSizeFactor (sizeFactor);
 }
 
 void GlyphView::setCenterPos (juce::Point<float> centerPos)
 {
     if (listener == nullptr)
         return;
-    listener->setCenterPos (centerPos);
+//    listener->setCenterPos (centerPos);
 }
 
 float GlyphView::getSizeFactor()

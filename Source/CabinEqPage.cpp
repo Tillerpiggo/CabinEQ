@@ -38,7 +38,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 //    glyphView.setListener (&processor);
 //    glyphView.setCalibrationListener (&processor);
 //    glyphView.setDataSource (&processor);
-//    calibrationView.setListener (&processor);
+    calibrationView.setListener (&processor);
     calibrationView.setCalibrationListener (&processor);
     calibrationView.setDataSource (&processor);
     profileDropdown.addListener (this);

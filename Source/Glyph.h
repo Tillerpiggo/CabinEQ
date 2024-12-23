@@ -33,6 +33,7 @@ class Glyph
 {
 public:
     Glyph (int id, ArchetypalGlyph archetype);
+    Glyph (int id, ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor);
     
     std::pair<juce::Point<float>, float> positionAtTime (float time) const;
     const std::vector<Stroke>& getStrokes() const;
