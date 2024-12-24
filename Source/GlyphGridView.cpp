@@ -24,6 +24,7 @@ void GlyphGridView::paint (juce::Graphics& g)
 {
     drawGlyphs (g);
     drawCenterDots (g);
+    drawPlayingDots (g);
     drawDraggingGlyph (g);
 }
 
@@ -150,6 +151,17 @@ void GlyphGridView::drawCenterDots (juce::Graphics &g)
         auto centerPoint = getLocalizedCenterPointForGlyph (glyph);
         float dotRadius = (glyph.getId() == draggingId || glyph.getId() == hoveringId) ? DOT_RADIUS_DRAGGING : DOT_RADIUS_DEFAULT;
         drawDot (g, centerPoint, dotRadius, DOT_COLOUR);
+    }
+}
+
+void GlyphGridView::drawPlayingDots (juce::Graphics& g)
+{
+    for (const auto& glyph : glyphs)
+    {
+        auto [point, _] = glyph.positionAtTime (dataSource->getCurrPlayingTime());
+        point = getLocalPointFromNormalizedPoint (point, glyph.getCenterPos(), glyph.getSizeFactor());
+        
+        drawDot (g, point, DOT_RADIUS_PLAYING, PLAYING_DOT_COLOUR);
     }
 }
 

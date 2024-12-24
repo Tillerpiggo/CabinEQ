@@ -13,8 +13,8 @@
 #include <JuceHeader.h>
 #include "BandProfile.h"
 #include "FilterChain.h"
+#include "GlyphGridPlayer.h"
 #include "GridSequencer.h"
-#include "GlyphGenerator.h"
 #include "ArbitraryResponseFilter.h"
 #include <random>
 
@@ -34,18 +34,16 @@ public:
     void setIsPlayingNoise (bool isPlayingNoise);
     void setIsCabinNoise (bool isCabinNoise);
     void setVolume (float volume);
-    void setMinFreq (float newMinFreq);
-    void setMaxFreq (float newMaxFreq);
+    void setMinFreq (float minFreq);
+    void setMaxFreq (float maxFreq);
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
-    void setSizeFactor (float sizeFactor);
-    void setCenterPos (juce::Point<float> centerPos);
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
     void setProvisionalBandsOn (bool isProvisionalOn);
     
-    void setGlyph (Glyph glyph);
+    void setGlyphs (std::vector<Glyph> glyphs);
     void setGrid (NoiseSequenceGrid grid);
     float getCurrPlayingTime();
     std::vector<float> getCurrPlayingFreqs();
@@ -55,7 +53,7 @@ private:
     
     // Sound generation
     GridSequencer gridSequencer;
-    GlyphGenerator glyphGenerator;
+    GlyphGridPlayer glyphGridPlayer;
     
     // Audio Processing
     FilterChain filter;

@@ -49,6 +49,7 @@ public:
 private:
     void drawGlyphs (juce::Graphics& g);
     void drawCenterDots (juce::Graphics& g); // draws the center dots for the glyphs
+    void drawPlayingDots (juce::Graphics& g);
     void drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour);
     void drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour);
     void drawDraggingGlyph (juce::Graphics& g);
@@ -71,8 +72,10 @@ private:
     float STROKE_WIDTH = 3.0f;
     juce::Colour STROKE_COLOUR = juce::Colours::pink;
     juce::Colour DOT_COLOUR = juce::Colours::turquoise;
+    juce::Colour PLAYING_DOT_COLOUR = juce::Colours::green;
     float DOT_RADIUS_DEFAULT = 6.0f;
     float DOT_RADIUS_DRAGGING = 8.0f;
+    float DOT_RADIUS_PLAYING = 6.0f;
     float HOVER_MIN_DIST = 20.0f;
     
     // Drag and drop
