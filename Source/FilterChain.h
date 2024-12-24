@@ -50,40 +50,7 @@ public:
     {
         if (shouldUpdateFilters)
         {
-            // Add necessary filters
-            if (bands.size() > leftFilters.size())
-            {
-                for (int i = 0; i < bands.size(); ++i)
-                {
-                    if (i >= leftFilters.size())
-                    {
-                        Band band = bands[i];
-                        addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
-                        addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
-                    }
-                }
-            }
-            
-            // Remove unnecessary filters
-            if (bands.size() < leftFilters.size())
-            {
-                leftFilters.erase (leftFilters.begin() + bands.size(), leftFilters.end());
-                rightFilters.erase (rightFilters.begin() + bands.size(), rightFilters.end());
-            }
-            
-            // Update filters if needed before processing
-            for (int i = 0; i < bands.size(); ++i)
-            {
-                Band band = bands[i];
-                if (i < leftFilters.size())
-                {
-                    float shuffleFactor = 1.0f - shuffle * 0.1f;
-                    if (i % 2 == 0)
-                        shuffleFactor = 1.0f - shuffle * 0.7f;
-                    updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
-                    updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
-                }
-            }
+            updateFilters();
             shouldUpdateFilters = false;
         }
 
@@ -103,8 +70,6 @@ public:
         {
             filter->process (rightContext);
         }
-        
-        
     }
     
     void setPitch (float pitch)
@@ -120,6 +85,44 @@ public:
     }
 
 private:
+    void updateFilters()
+    {
+        // Add necessary filters
+        if (bands.size() > leftFilters.size())
+        {
+            for (int i = 0; i < bands.size(); ++i)
+            {
+                if (i >= leftFilters.size())
+                {
+                    Band band = bands[i];
+                    addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
+                    addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
+                }
+            }
+        }
+        
+        // Remove unnecessary filters
+        if (bands.size() < leftFilters.size())
+        {
+            leftFilters.erase (leftFilters.begin() + bands.size(), leftFilters.end());
+            rightFilters.erase (rightFilters.begin() + bands.size(), rightFilters.end());
+        }
+        
+        // Update filters if needed before processing
+        for (int i = 0; i < bands.size(); ++i)
+        {
+            Band band = bands[i];
+            if (i < leftFilters.size())
+            {
+                float shuffleFactor = 1.0f - shuffle * 0.1f;
+                if (i % 2 == 0)
+                    shuffleFactor = 1.0f - shuffle * 0.7f;
+                updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
+                updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
+            }
+        }
+    }
+    
     std::vector<std::unique_ptr<Filter>> leftFilters;
     std::vector<std::unique_ptr<Filter>> rightFilters;
 //    std::vector<std::unique_ptr<SIMDIIRFilter>> leftFilters;
@@ -150,13 +153,5 @@ private:
     {
         *filters[idx]->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
                                                                     juce::Decibels::decibelsToGain (amplInDB));
-//        filters[idx]->setCoefficients (sampleRate, centerFreq, qFactor, amplInDB);
-//        *filters[idx]->coefficients = *Coefficients::makeNotch (sampleRate, centerFreq, qFactor);
     }
-    
-//    void addFilter (std::vector<std::unique_ptr<Filter>>& filters,
-//                    const Coefficients::Ptr& coefficients)
-//    {
-//        
-//    }
 };
