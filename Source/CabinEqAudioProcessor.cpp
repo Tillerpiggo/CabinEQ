@@ -429,16 +429,19 @@ std::vector<float> CabinEqAudioProcessor::getCurrPlayingFreqs()
 void CabinEqAudioProcessor::addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
 {
     glyphManager.addGlyph (archetype, centerPos, sizeFactor);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 
 void CabinEqAudioProcessor::moveGlyph (int glyphId, juce::Point<float> centerPos)
 {
     glyphManager.moveGlyph (glyphId, centerPos);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 
 void CabinEqAudioProcessor::removeGlyph (int glyphId)
 {
     glyphManager.removeGlyph (glyphId);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 
 void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float increment)

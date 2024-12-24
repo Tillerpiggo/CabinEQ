@@ -37,7 +37,7 @@ private:
     void addRemoveNoiseGeneratorsIfNeeded();
     void updateNoiseGeneratorsIfNeeded();
     
-    std::pair<float, float> getFreqAndPanFromNormalizedCoords (juce::Point<float> coords);
+    std::pair<float, float> getFreqAndPanFromGlyphAtTime (Glyph& glyph, float currTime);
     
     juce::dsp::ProcessSpec spec;
     std::vector<Glyph> glyphs;

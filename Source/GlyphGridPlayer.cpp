@@ -130,20 +130,25 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
     for (int i = 0; i < glyphs.size(); ++i)
     {
         // Set the appropriate bandpass filter for each noise generator, and implement helper function
-        auto [freq, pan] = getFreqAndPanFromNormalizedCoords (glyphs[i].positionAtTime (currTime).first);
+        auto [freq, pan] = getFreqAndPanFromGlyphAtTime (glyphs[i], currTime);
         noiseGenerators[i].setBandwidth (bandwidth);
         noiseGenerators[i].setBandpass (freq);
         noiseGenerators[i].setPan (pan);
     }
 }
 
-std::pair<float, float> GlyphGridPlayer::getFreqAndPanFromNormalizedCoords (juce::Point<float> coords)
+std::pair<float, float> GlyphGridPlayer::getFreqAndPanFromGlyphAtTime (Glyph& glyph, float time)
 {
+    // Calculate coords
+    auto normalizedCoords = glyph.positionAtTime (time).first;
+    float x = normalizedCoords.x * glyph.getSizeFactor() + glyph.getCenterPos().x;
+    float y = normalizedCoords.y * glyph.getSizeFactor() + glyph.getCenterPos().y;
+    
     // Calculate pan
-    float pan = coords.x;
+    float pan = x;
     
     // Calculate freq
-    float freq = -coords.y; // flip upside down because y is weird
+    float freq = y;
     float normalizedFreq = (freq + 1.0f) / 2.0f;
     
     float logMinFreq = std::log (minFreq);
@@ -153,3 +158,20 @@ std::pair<float, float> GlyphGridPlayer::getFreqAndPanFromNormalizedCoords (juce
     
     return { freq, pan };
 }
+//
+//std::pair<float, float> GlyphGridPlayer::getFreqAndPanFromNormalizedCoords (juce::Point<float> coords)
+//{
+//    // Calculate pan
+//    float pan = coords.x;
+//    
+//    // Calculate freq
+//    float freq = coords.y; // flip upside down because y is weird
+//    float normalizedFreq = (freq + 1.0f) / 2.0f;
+//    
+//    float logMinFreq = std::log (minFreq);
+//    float logMaxFreq = std::log (maxFreq);
+//    float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
+//    freq = std::exp (logFreq);
+//    
+//    return { freq, pan };
+//}
