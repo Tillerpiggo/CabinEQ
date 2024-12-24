@@ -20,6 +20,32 @@ const float BandEqCurve::dbAtFrequency (float frequency) const
     return dbAtFreq;
 }
 
+const float BandEqCurve::leftDbAtFrequency (float frequency) const
+{
+    float dbAtFreq = 0;
+    for (const auto& band : bands)
+    {
+        if (band.type == Band::Type::both || band.type == Band::Type::left)
+        {
+            dbAtFreq += dbAtFrequencyForBand (band, frequency);
+        }
+    }
+    return dbAtFreq;
+}
+
+const float BandEqCurve::rightDbAtFrequency (float frequency) const
+{
+    float dbAtFreq = 0;
+    for (const auto& band : bands)
+    {
+        if (band.type == Band::Type::both || band.type == Band::Type::right)
+        {
+            dbAtFreq += dbAtFrequencyForBand (band, frequency);
+        }
+    }
+    return dbAtFreq;
+}
+
 void BandEqCurve::updateWithBands (std::vector<Band> bands)
 {
     this->bands = bands;

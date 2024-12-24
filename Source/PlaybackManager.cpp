@@ -140,18 +140,21 @@ void PlaybackManager::setBandwidth (float bandwidth)
 void PlaybackManager::updateFIRFilter()
 {
     // Calculate curve pts
-    std::vector<CurvePt> curvePts;
+    std::vector<CurvePt> leftCurvePts;
+    std::vector<CurvePt> rightCurvePts;
     const float startFreq = 20.0f;
     const float endFreq = 20000.0f;
     const int numPoints = 4000;
     for (int i = 0; i < numPoints; ++i)
     {
         float freq = startFreq * std::pow (endFreq / startFreq, i / (numPoints - 1.0f));
-        float ampl = bandEqCurve.dbAtFrequency (freq);
-        curvePts.push_back (CurvePt (i, freq, ampl));
+        float leftAmpl = bandEqCurve.leftDbAtFrequency (freq);
+        float rightAmpl = bandEqCurve.rightDbAtFrequency (freq);
+        leftCurvePts.push_back (CurvePt (i, freq, leftAmpl));
+        rightCurvePts.push_back (CurvePt (i, freq, rightAmpl));
     }
     
-    firCurve.updateWithCurvePts (curvePts);
+    firCurve.updateWithCurvePts (leftCurvePts, rightCurvePts);
     firFilter.updateWithCurve (firCurve, 14);
 }
 
