@@ -24,6 +24,7 @@ CalibrationView::CalibrationView()
     qualityComboBox.addItem ("Good", 14);
     qualityComboBox.addItem ("Ultra", 18);
     qualityComboBox.addListener (this);
+    qualityComboBox.setSelectedId (14);
     
     // Slider actions
     addSliderAction (&speedSlider, [this](juce::Slider*) {
