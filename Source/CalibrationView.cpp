@@ -16,6 +16,8 @@ CalibrationView::CalibrationView()
     addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 1.0f);
     addButton (&playButton);
+    addButton (&iirButton);
+    addButton (&updateFilterButton);
     
     // Slider actions
     addSliderAction (&speedSlider, [this](juce::Slider*) {
@@ -37,6 +39,18 @@ CalibrationView::CalibrationView()
             calibrationListener->setIsPlaying (isPlaying);
         playButton.setButtonText (isPlaying ? "Pause" : "Play");
     });
+    addButtonAction (&iirButton, [this](juce::Button*) {
+        isIIR = ! isIIR;
+        if (calibrationListener != nullptr)
+            calibrationListener->setIIR (isIIR);
+        iirButton.setButtonText (isIIR ? "IIR" : "FIR");
+    });
+
+    addButtonAction (&updateFilterButton, [this](juce::Button*) {
+        if (calibrationListener != nullptr)
+            calibrationListener->updateFIRFilter();
+    });
+
     
     // Glyph Grid View
     addAndMakeVisible (glyphGridView);
@@ -77,7 +91,7 @@ void CalibrationView::resized()
     Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
-    settingsLayout.addRow ({ Space (&playButton) });
+    settingsLayout.addRow ({ Space (&playButton), Space (&iirButton), Space (&updateFilterButton) });
     settingsLayout.updateComponentBounds();
 }
 

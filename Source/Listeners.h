@@ -112,4 +112,7 @@ public:
     virtual void setMaxFreq (float newMaxFreq) = 0;
     virtual void setSpeedFactor (float speedFactor) = 0;
     virtual void setBandwidth (float bandwidth) = 0;
+    
+    virtual void setIIR (bool isIIR) = 0;
+    virtual void updateFIRFilter() = 0;
 };

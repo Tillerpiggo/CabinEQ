@@ -16,6 +16,7 @@
 #include "GlyphGridPlayer.h"
 #include "GridSequencer.h"
 #include "ArbitraryResponseFilter.h"
+#include "BandEqCurve.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -39,6 +40,9 @@ public:
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
     
+    void updateFIRFilter();
+    void setIIR (bool isIIR);
+    
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
     void setProvisionalBandsOn (bool isProvisionalOn);
@@ -51,6 +55,8 @@ public:
 private:
     std::pair<float, float> getNextSample();
     
+    BandEqCurve bandEqCurve;
+    
     // Sound generation
     GridSequencer gridSequencer;
     GlyphGridPlayer glyphGridPlayer;
@@ -58,8 +64,8 @@ private:
     // Audio Processing
     FilterChain filter;
     FilterChain provisionalFilter;
-    ArbitraryResponseFilter tiltFilter;
-    Curve tiltCurve;
+    ArbitraryResponseFilter firFilter;
+    Curve firCurve;
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;
@@ -71,6 +77,7 @@ private:
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
     bool isCabinNoise; // if it is, turn on the tilt filter
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
+    bool isIIR = true; // if it is, use filterChain. Otherwise, use firFilter.
     
     int sampleCount = 0;
     int cycleTimeInSamples = 40000;

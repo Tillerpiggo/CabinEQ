@@ -89,6 +89,8 @@ public:
     void setMaxFreq (float newMaxFreq) override;
     void setSpeedFactor (float speedFactor) override;
     void setBandwidth (float bandwidth) override;
+    void setIIR (bool isIIR) override;
+    void updateFIRFilter() override;
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);

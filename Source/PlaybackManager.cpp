@@ -14,7 +14,7 @@
 #include <random>
 
 PlaybackManager::PlaybackManager()
-    : tiltFilter (14),
+    : firFilter (14),
       isFilterOn (true),
       isPlayingNoise (false)
 {
@@ -47,7 +47,15 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     
     if (isFilterOn)
     {
-        filter.process (ioBlock);
+        if (isIIR)
+        {
+            filter.process (ioBlock);
+        }
+        else
+        {
+            firFilter.process (ioContext);
+        }
+        
         profileVolumeProcessor.process (ioContext);
         
         if (isProvisionalOn)
@@ -66,6 +74,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 
 void PlaybackManager::updateFilterWithBandProfile (BandProfile bandProfile)
 {
+    this->bandEqCurve.updateWithBands (bandProfile.getBands());
     filter.setBands (bandProfile.getBands(), spec.sampleRate);
     profileVolumeProcessor.setGainDecibels (bandProfile.getVolume());
 }
@@ -78,8 +87,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     gridSequencer.prepare (spec);
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
-    tiltFilter.prepare (spec);
-    tiltFilter.updateWithCurve (tiltCurve);
+    firFilter.prepare (spec);
+//    firFilter.updateWithCurve (firCurve);
 }
 
 
@@ -126,6 +135,29 @@ void PlaybackManager::setBandwidth (float bandwidth)
 {
     glyphGridPlayer.setBandwidth (bandwidth);
     gridSequencer.setBandwidth (bandwidth);
+}
+
+void PlaybackManager::updateFIRFilter()
+{
+    // Calculate curve pts
+    std::vector<CurvePt> curvePts;
+    const float startFreq = 20.0f;
+    const float endFreq = 20000.0f;
+    const int numPoints = 4000;
+    for (int i = 0; i < numPoints; ++i)
+    {
+        float freq = startFreq * std::pow (endFreq / startFreq, i / (numPoints - 1.0f));
+        float ampl = bandEqCurve.dbAtFrequency (freq);
+        curvePts.push_back (CurvePt (i, freq, ampl));
+    }
+    
+    firCurve.updateWithCurvePts (curvePts);
+    firFilter.updateWithCurve (firCurve, 14);
+}
+
+void PlaybackManager::setIIR (bool isIIR)
+{
+    this->isIIR = isIIR;
 }
 
 void PlaybackManager::setProvisionalBands (std::vector<Band> provisionalBands)

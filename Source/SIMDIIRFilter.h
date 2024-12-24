@@ -1,100 +1,81 @@
-/*
-  ==============================================================================
-
-    SIMDFilter.h
-    Created: 7 Dec 2024 12:07:19am
-    Author:  Tyler Gee
-
-  ==============================================================================
-*/
-
 #pragma once
 
-#if JUCE_USE_SIMD
-template <typename T>
-static T* toBasePointer (juce::dsp::SIMDRegister<T>* r) noexcept
-{
-    return reinterpret_cast<T*> (r);
-}
+#include <juce_dsp/juce_dsp.h>
 
-constexpr auto registerSize = juce::dsp::SIMDRegister<float>::size();
+// Alias for SIMD data type (typically holds 4 floats on SSE)
+using SIMDType = juce::dsp::SIMDRegister<float>;
 
-struct SIMDIIRFilter
+class SIMDIIRFilter
 {
-    void prepare (const juce::dsp::ProcessSpec& spec)
+public:
+    SIMDIIRFilter() {}
+
+    void prepare(const juce::dsp::ProcessSpec& spec)
     {
         sampleRate = spec.sampleRate;
-        
-        iirCoefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, 440.0f); // placeholder
-        iir.reset (new juce::dsp::IIR::Filter<juce::dsp::SIMDRegister<float>> (iirCoefficients));
-        
-        interleaved = juce::dsp::AudioBlock<juce::dsp::SIMDRegister<float>> (interleavedBlockData, 1, spec.maximumBlockSize);
-        zero = juce::dsp::AudioBlock<float> (zeroData, juce::dsp::SIMDRegister<float>::size(), spec.maximumBlockSize);
-        
-        zero.clear();
-        
-        auto monoSpec = spec;
-        monoSpec.numChannels = 1;
-        iir->prepare (monoSpec);
+        reset();
     }
-    
-    template <typename SampleType>
-    auto prepareChannelPointers (const juce::dsp::AudioBlock<SampleType>& block)
-    {
-        std::array<SampleType*, registerSize> result {};
-        
-        for (size_t ch = 0; ch < result.size(); ++ch)
-            result[ch] = (ch < block.getNumChannels() ? block.getChannelPointer (ch) : zero.getChannelPointer (ch));
-        
-        return result;
-    }
-    
-    void process (const juce::dsp::ProcessContextReplacing<float>& context)
-    {
-        jassert (context.getInputBlock().getNumSamples() == context.getOutputBlock().getNumSamples());
-        jassert (context.getInputBlock().getNumChannels() == context.getOutputBlock().getNumChannels());
-        
-        const auto& input = context.getInputBlock();
-        const auto numSamples = (int) input.getNumSamples();
-        
-        auto inChannels = prepareChannelPointers (input);
-        
-        using Format = juce::AudioData::Format<juce::AudioData::Float32, juce::AudioData::NativeEndian>;
-        
-        juce::AudioData::interleaveSamples (juce::AudioData::NonInterleavedSource<Format> { inChannels.data(),                                 registerSize, },
-                                            juce::AudioData::InterleavedDest<Format>      { toBasePointer (interleaved.getChannelPointer (0)), registerSize },
-                                            numSamples);
-        
-        iir->process (juce::dsp::ProcessContextReplacing<juce::dsp::SIMDRegister<float>> (interleaved));
-        
-        auto outChannels = prepareChannelPointers (context.getOutputBlock());
-        
-        juce::AudioData::deinterleaveSamples (juce::AudioData::InterleavedSource<Format>  { toBasePointer (interleaved.getChannelPointer (0)), registerSize },
-                                              juce::AudioData::NonInterleavedDest<Format> { outChannels.data(),                                registerSize },
-                                              numSamples);
-    }
-    
+
     void reset()
     {
-        iir.reset();
+        // Reset state variables
+        z1 = SIMDType(0.0f);
+        z2 = SIMDType(0.0f);
+        y1 = SIMDType(0.0f);
+        y2 = SIMDType(0.0f);
     }
-    
-    void setCoefficients (double sampleRate, double centerFreq, double qFactor, float amplInDB)
+
+    void setCoefficients(const juce::dsp::IIR::Coefficients<float>::Ptr& coefficients)
     {
-        *iirCoefficients = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, centerFreq, qFactor,
-                                                          juce::Decibels::decibelsToGain (amplInDB));
+        // Load coefficients into SIMD registers (broadcast)
+        b0 = SIMDType(coefficients->coefficients[0]);
+        b1 = SIMDType(coefficients->coefficients[1]);
+        b2 = SIMDType(coefficients->coefficients[2]);
+        a1 = SIMDType(coefficients->coefficients[3]);
+        a2 = SIMDType(coefficients->coefficients[4]);
     }
-    
-    //==============================================================================
-    juce::dsp::IIR::Coefficients<float>::Ptr iirCoefficients;
-    std::unique_ptr<juce::dsp::IIR::Filter<juce::dsp::SIMDRegister<float>>> iir;
 
-    juce::dsp::AudioBlock<juce::dsp::SIMDRegister<float>> interleaved;
-    juce::dsp::AudioBlock<float> zero;
+    void process(juce::dsp::ProcessContextReplacing<float>& context)
+    {
+        auto& inputBlock = context.getInputBlock();
+        auto& outputBlock = context.getOutputBlock();
 
-    juce::HeapBlock<char> interleavedBlockData, zeroData;
+        auto numSamples = inputBlock.getNumSamples();
+        auto numChannels = inputBlock.getNumChannels();
 
-    double sampleRate = 0.0;
+        // Ensure we're processing a single channel
+        jassert(numChannels == 1);
+
+        auto* channelData = outputBlock.getChannelPointer(0);
+
+        // Process samples
+        for (size_t i = 0; i < numSamples; ++i)
+        {
+            // Load sample into SIMD register (broadcast to all lanes)
+            SIMDType input(channelData[i]);
+
+            // Apply the IIR filter equation
+            SIMDType output = b0 * input + b1 * z1 + b2 * z2 - a1 * y1 - a2 * y2;
+
+            // Store the output sample (accessing the first lane)
+            channelData[i] = output[0];
+
+            // Update the state variables (delay lines)
+            z2 = z1;
+            z1 = input;
+            y2 = y1;
+            y1 = output;
+        }
+    }
+
+private:
+    double sampleRate = 44100.0;
+
+    // Filter coefficients (broadcasted to all SIMD lanes)
+    SIMDType b0, b1, b2;
+    SIMDType a1, a2;
+
+    // State variables (delay lines)
+    SIMDType z1, z2;
+    SIMDType y1, y2;
 };
-
-#endif

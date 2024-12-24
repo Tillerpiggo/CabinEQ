@@ -47,6 +47,9 @@ private:
     juce::Slider bandwidthSlider;
     juce::Label bandwidthLabel;
     juce::TextButton playButton { "Play" };
+    juce::TextButton iirButton { "IIR" };
+    juce::TextButton updateFilterButton { "Update" };
     bool isPlaying = false;
+    bool isIIR = true;
 };
 

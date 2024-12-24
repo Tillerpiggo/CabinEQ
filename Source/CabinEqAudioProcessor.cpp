@@ -253,6 +253,16 @@ void CabinEqAudioProcessor::setBandwidth (float bandwidth)
     playbackManager.setBandwidth (bandwidth);
 }
 
+void CabinEqAudioProcessor::setIIR (bool isIIR)
+{
+    playbackManager.setIIR (isIIR);
+}
+
+void CabinEqAudioProcessor::updateFIRFilter()
+{
+    playbackManager.updateFIRFilter();
+}
+
 void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
 {
     playbackManager.setProvisionalBands (provisionalBands);

@@ -14,7 +14,7 @@
 void ArbitraryResponseFilter::updateWithCurve (Curve& amplCurve, int fft_size)
 {
     juce::Thread::launch([this, &amplCurve, fft_size]() {
-        generateAndLoadImpulseResponse(amplCurve, fft_size);
+        generateAndLoadImpulseResponse (amplCurve, fft_size);
     });
 }
 
