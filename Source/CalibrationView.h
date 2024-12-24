@@ -18,7 +18,8 @@
 #include "GlyphGridView.h"
 
 // This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
-class CalibrationView  : public BuildableComponent
+class CalibrationView  : public BuildableComponent,
+                         public juce::ComboBox::Listener
 {
 public:
     CalibrationView();
@@ -30,6 +31,8 @@ public:
     void setListener (GlyphViewListener* listener);
     void setCalibrationListener (CalibrationListener* calibrationListener);
     void setDataSource (GlyphViewDataSource* dataSource);
+    
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     
 private:
     CalibrationListener* calibrationListener = nullptr;
@@ -49,6 +52,7 @@ private:
     juce::TextButton playButton { "Play" };
     juce::TextButton iirButton { "IIR" };
     juce::TextButton updateFilterButton { "Update" };
+    juce::ComboBox qualityComboBox;
     bool isPlaying = false;
     bool isIIR = true;
 };

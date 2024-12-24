@@ -19,6 +19,12 @@ CalibrationView::CalibrationView()
     addButton (&iirButton);
     addButton (&updateFilterButton);
     
+    addAndMakeVisible (qualityComboBox);
+    qualityComboBox.addItem ("Economy", 10);
+    qualityComboBox.addItem ("Good", 14);
+    qualityComboBox.addItem ("Ultra", 18);
+    qualityComboBox.addListener (this);
+    
     // Slider actions
     addSliderAction (&speedSlider, [this](juce::Slider*) {
         if (calibrationListener != nullptr)
@@ -91,7 +97,8 @@ void CalibrationView::resized()
     Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
-    settingsLayout.addRow ({ Space (&playButton), Space (&iirButton), Space (&updateFilterButton) });
+    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
+    settingsLayout.addRow ({ Space (&playButton) });
     settingsLayout.updateComponentBounds();
 }
 
@@ -109,4 +116,12 @@ void CalibrationView::setDataSource (GlyphViewDataSource* dataSource)
 {
     glyphGridView.setDataSource (dataSource);
     archetypeBar.setDataSource (dataSource);
+}
+
+void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
+{
+    if (calibrationListener != nullptr)
+    {
+        calibrationListener->setFIRQuality (qualityComboBox.getSelectedId());
+    }
 }

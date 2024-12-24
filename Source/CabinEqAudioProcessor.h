@@ -91,6 +91,7 @@ public:
     void setBandwidth (float bandwidth) override;
     void setIIR (bool isIIR) override;
     void updateFIRFilter() override;
+    void setFIRQuality (int fftSize) override;
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);

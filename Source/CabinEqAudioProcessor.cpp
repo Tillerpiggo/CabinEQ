@@ -263,6 +263,12 @@ void CabinEqAudioProcessor::updateFIRFilter()
     playbackManager.updateFIRFilter();
 }
 
+void CabinEqAudioProcessor::setFIRQuality (int fftSize)
+{
+    playbackManager.setFIRQuality (fftSize);
+    playbackManager.updateFIRFilter();
+}
+
 void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
 {
     playbackManager.setProvisionalBands (provisionalBands);

@@ -42,6 +42,7 @@ public:
     
     void updateFIRFilter();
     void setIIR (bool isIIR);
+    void setFIRQuality (int fftSize); // sets fftSize. DOESN'T UPDATE FIR FILTER AUTOMATICALLY!
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
@@ -83,4 +84,6 @@ private:
     int cycleTimeInSamples = 40000;
     float centerFreq = 1000.0f;
     float referenceFreq = 500.0f;
+    
+    int fftSize = 14;
 };

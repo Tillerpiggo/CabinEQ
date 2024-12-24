@@ -115,4 +115,5 @@ public:
     
     virtual void setIIR (bool isIIR) = 0;
     virtual void updateFIRFilter() = 0;
+    virtual void setFIRQuality (int fftSize) = 0;
 };

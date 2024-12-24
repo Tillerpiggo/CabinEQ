@@ -155,7 +155,12 @@ void PlaybackManager::updateFIRFilter()
     }
     
     firCurve.updateWithCurvePts (leftCurvePts, rightCurvePts);
-    firFilter.updateWithCurve (firCurve, 14);
+    firFilter.updateWithCurve (firCurve, fftSize);
+}
+
+void PlaybackManager::setFIRQuality (int fftSize)
+{
+    this->fftSize = fftSize;
 }
 
 void PlaybackManager::setIIR (bool isIIR)
