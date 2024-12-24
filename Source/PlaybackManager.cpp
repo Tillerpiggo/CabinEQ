@@ -152,7 +152,7 @@ void PlaybackManager::updateFIRFilter()
     }
     
     firCurve.updateWithCurvePts (curvePts);
-    firFilter.updateWithCurve (firCurve, 14);
+    firFilter.updateWithCurve (firCurve, 17);
 }
 
 void PlaybackManager::setIIR (bool isIIR)
