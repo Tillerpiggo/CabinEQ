@@ -155,4 +155,6 @@ private:
     juce::Path centerPath;
     std::vector<juce::Path> horizontalLinePaths;
     std::vector<float> lineFreqs;
+    
+    int currStepId = 0; // for multi band steps
 };

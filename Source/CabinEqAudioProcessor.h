@@ -112,9 +112,11 @@ public:
     
     // Setting bands
     void updateFilter(); // updates the filter to match whatever bands are associated with profileName
-    int addBand (float freq, float ampl, float bandwidth, Band::Type type) override;
-    void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type) override;
-    void removeBand (int id) override;
+    int addMultiBandStep() override;
+    void removeMultiBandStep (int id) override;
+    int addBand (float freq, float ampl, float bandwidth, Band::Type type, int stepId) override;
+    void updateBand (int bandId, float freq, float ampl, float bandwidth, Band::Type type, int stepId) override;
+    void removeBand (int bandId, int stepId) override;
     
     // NoiseGridViewListener + NoiseGridViewDataSource
     void addSequence (NoiseSequence sequence) override;

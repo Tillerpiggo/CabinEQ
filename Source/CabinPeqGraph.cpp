@@ -251,9 +251,6 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 
 void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
 {
-    // Useful constants
-    auto [freq, ampl] = frequencyAndAmplitudeForMouseEvent (event);
-    
     if (draggingId != -1)
     {
         updateBandFromDrag (event);
@@ -877,7 +874,7 @@ int CabinPeqGraph::addBand (float freq, float ampl, float bandwidth, Band::Type 
     if (listener == nullptr || dataSource == nullptr) // don't add a band unless we can reflect that change
         return -1;
     
-    int newBandId = listener->addBand (freq, ampl, bandwidth, type);
+    int newBandId = listener->addBand (freq, ampl, bandwidth, type, currStepId);
     updateBands();
     
     return newBandId;
@@ -888,7 +885,7 @@ void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth,
     if (listener == nullptr || dataSource == nullptr)
         return;
     
-    listener->updateBand (id, freq, ampl, bandwidth, type);
+    listener->updateBand (id, freq, ampl, bandwidth, type, currStepId);
     updateBands();
 }
 
@@ -933,12 +930,12 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
     }
 }
 
-void CabinPeqGraph::removeBand(int id)
+void CabinPeqGraph::removeBand (int id)
 {
     if (listener == nullptr || dataSource == nullptr)
         return;
     
-    listener->removeBand (id);
+    listener->removeBand (id, currStepId);
     updateBands();
 }
 

@@ -340,12 +340,30 @@ void CabinEqAudioProcessor::updateFilter()
         playbackManager.updateFilterWithBandProfile (profile->get().getBandProfile());
 }
 
-int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type)
+int CabinEqAudioProcessor::addMultiBandStep()
 {
     auto profile = profileNamed (profileId);
     if (profile.has_value())
     {
-        int bandId = profile->get().addBand (freq, ampl, bandwidth, type);
+        int stepId = profile->get().addMultiBandStep();
+        return stepId;
+    }
+    return -1;
+}
+
+void CabinEqAudioProcessor::removeMultiBandStep (int id)
+{
+    auto profile = profileNamed (profileId);
+    if (profile.has_value())
+        profile->get().removeMultiBandStep (id);
+}
+
+int CabinEqAudioProcessor::addBand (float freq, float ampl, float bandwidth, Band::Type type, int stepId)
+{
+    auto profile = profileNamed (profileId);
+    if (profile.has_value())
+    {
+        int bandId = profile->get().addBand (freq, ampl, bandwidth, type, stepId);
         updateFilter();
         return bandId;
     }
@@ -353,22 +371,22 @@ int CabinEqAudioProcessor::addBand (const float freq, const float ampl, const fl
     return -1;
 }
 
-void CabinEqAudioProcessor::updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type)
+void CabinEqAudioProcessor::updateBand (int bandId, float freq, float ampl, float bandwidth, Band::Type type, int stepId)
 {
     auto profile = profileNamed (profileId);
     if (profile.has_value())
     {
-        profile->get().updateBand (id, freq, ampl, bandwidth, type);
+        profile->get().updateBand (bandId, freq, ampl, bandwidth, type, stepId);
         updateFilter();
     }
 }
 
-void CabinEqAudioProcessor::removeBand (const int id)
+void CabinEqAudioProcessor::removeBand (int bandId, int stepId)
 {
     auto profile = profileNamed (profileId);
     if (profile.has_value())
     {
-        profile->get().removeBand (id);
+        profile->get().removeBand (bandId, stepId);
         updateFilter();
     }
 }

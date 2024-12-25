@@ -26,7 +26,7 @@ const BandProfile CabinEqProfile::getBandProfile() const
         auto amplTree = valueTree.getChildWithName (idAmplTree);
         for (const auto& multiBandStep : amplTree)
         {
-            auto newBands = getBandsForMultiBandStep (valueTree.getChildWithName (idAmplTree));
+            auto newBands = getBandsForMultiBandStep (multiBandStep);
             bands.insert (bands.begin(), newBands.begin(), newBands.end()); // append all of newBands to bands
         }
     }
@@ -71,6 +71,8 @@ int CabinEqProfile::addMultiBandStep (const bool isEnabled)
     step.setProperty (idId, id, nullptr);
     step.setProperty (idEnabled, isEnabled, nullptr);
     amplBandTree.appendChild (step, nullptr);
+    
+    return id;
 }
 
 void CabinEqProfile::removeMultiBandStep (const int id)
@@ -155,6 +157,11 @@ void CabinEqProfile::initValueTreeFromAPVTS()
         
         auto amplBandTree = juce::ValueTree (idAmplTree);
         valueTree.addChild (amplBandTree, 0, nullptr);
+        
+        auto multiBandStep = juce::ValueTree (idMultiBandStep);
+        multiBandStep.setProperty (idId, 0, nullptr);
+        multiBandStep.setProperty (idEnabled, true, nullptr);
+        amplBandTree.addChild (multiBandStep, 0, nullptr);
         
         apvts.state.addChild (valueTree, -1, nullptr);
     }
