@@ -31,8 +31,8 @@ std::pair<float, float> GlyphGridPlayer::getNextSample()
     for (int i = 0; i < noiseGenerators.size(); ++i)
     {
         auto noiseSample = noiseGenerators[i].getNextSample();
-        nextSample.first += noiseSample.first;
-        nextSample.second += noiseSample.second;
+        nextSample.first += noiseSample.first;// / static_cast<float> (i + 1);
+        nextSample.second += noiseSample.second;// / static_cast<float> (i + 1);
     }
     
     // Increment time
