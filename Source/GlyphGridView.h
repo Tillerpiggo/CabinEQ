@@ -60,6 +60,7 @@ private:
     
     void updateHoveringStatus (const juce::MouseEvent& event);
     
+    void dropDraggingGlyph(); // drops and adds the current dragging glyph, updates the glyphs, and resets the dragging variables
     void moveGlyph (int glyphId, juce::Point<float> centerPos);
     void removeGlyph (int glyphId);
     void incrementSizeFactor (int glyphId, float increment);
@@ -81,6 +82,8 @@ private:
     // Drag and drop
     std::optional<ArchetypalGlyph> draggingGlyph;
     std::optional<juce::Point<float>> draggingPos;
+    std::optional<float> draggingSize;
+    bool isDraggingDuplicate = false;
     
     // Dragging glyphs
     int draggingId = -1;

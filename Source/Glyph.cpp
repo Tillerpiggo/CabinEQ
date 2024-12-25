@@ -81,6 +81,11 @@ const std::vector<juce::Point<float>> Glyph::getVertices() const
     return archetype.getVertices();
 }
 
+ArchetypalGlyph Glyph::getArchetype() const
+{
+    return archetype;
+}
+
 float Glyph::getSizeFactor() const
 {
     return sizeFactor;

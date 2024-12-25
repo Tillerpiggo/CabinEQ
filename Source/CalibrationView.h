@@ -55,5 +55,6 @@ private:
     juce::ComboBox qualityComboBox;
     bool isPlaying = false;
     bool isIIR = true;
+    bool isFIRFilterUpdated = false;
 };
 

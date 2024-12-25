@@ -55,7 +55,9 @@ CalibrationView::CalibrationView()
 
     addButtonAction (&updateFilterButton, [this](juce::Button*) {
         if (calibrationListener != nullptr)
+        {
             calibrationListener->updateFIRFilter();
+        }
     });
 
     

@@ -27,7 +27,7 @@ public:
     virtual ~ArbitraryResponseFilter() = default;
     
     void process (const juce::dsp::ProcessContextReplacing<float>& context) noexcept { convolution->process (context); }
-    void updateWithCurve (Curve& amplCurve, int fft_size = 14);
+    void updateWithCurve (Curve& amplCurve, int fft_size);
     void generateAndLoadImpulseResponse(Curve& amplCurve, int fft_size);
     
     void prepare (const juce::dsp::ProcessSpec& spec)

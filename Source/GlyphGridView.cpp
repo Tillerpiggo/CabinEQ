@@ -56,6 +56,23 @@ void GlyphGridView::mouseMove (const juce::MouseEvent &event)
 
 void GlyphGridView::mouseDown (const juce::MouseEvent &event)
 {
+    // If holding ctrl, start dragging it as a duplicate
+    if ((event.mods.isCtrlDown() || event.mods.isAltDown()) && hoveringId != -1)
+    {
+        for (const auto& glyph : glyphs)
+        {
+            if (glyph.getId() == hoveringId)
+            {
+                draggingGlyph = glyph.getArchetype();
+                draggingPos = event.getPosition().toFloat();
+                draggingSize = glyph.getSizeFactor();
+                isDraggingDuplicate = true;
+                return;
+            }
+        }
+        // If we weren't hovering over anything, we can probably proceed as usual (?)
+    }
+    
     draggingId = hoveringId;
     moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
     
@@ -66,7 +83,11 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
 
 void GlyphGridView::mouseDrag (const juce::MouseEvent &event)
 {
-    if (draggingId != -1)
+    if (isDraggingDuplicate)
+    {
+        draggingPos = event.getPosition().toFloat();
+    }
+    else if (draggingId != -1)
     {
         moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
     }
@@ -74,7 +95,12 @@ void GlyphGridView::mouseDrag (const juce::MouseEvent &event)
 
 void GlyphGridView::mouseUp (const juce::MouseEvent &event)
 {
-    if (draggingId != -1)
+    if (isDraggingDuplicate)
+    {
+        dropDraggingGlyph();
+        isDraggingDuplicate = false;
+    }
+    else if (draggingId != -1)
     {
         moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
         draggingId = -1;
@@ -100,6 +126,7 @@ void GlyphGridView::itemDragEnter (const SourceDetails& dragSourceDetails)
     {
         draggingGlyph = archetypeView->getArchetype();
         draggingPos = { (float) dragSourceDetails.localPosition.x, (float) dragSourceDetails.localPosition.y };
+        draggingSize = 0.5f;
     }
     repaint();
 }
@@ -114,21 +141,13 @@ void GlyphGridView::itemDragExit (const SourceDetails& dragSourceDetails)
 {
     draggingGlyph.reset();
     draggingPos.reset();
+    draggingSize.reset();
     repaint();
 }
 
 void GlyphGridView::itemDropped (const SourceDetails& dragSourceDetails)
 {
-    if (listener != nullptr)
-    {
-        listener->addGlyph (draggingGlyph.value(), getNormalizedPointFromLocalPoint (draggingPos.value()), 0.5f);
-        glyphs = dataSource->getGlyphs();
-        repaint();
-    }
-    
-    draggingGlyph.reset();
-    draggingPos.reset();
-    repaint();
+    dropDraggingGlyph();
 }
 
 bool GlyphGridView::shouldDrawDragImageWhenOver()
@@ -198,7 +217,7 @@ void GlyphGridView::drawDraggingGlyph (juce::Graphics& g)
 {
     if (draggingGlyph.has_value())
     {
-        drawGlyph (g, draggingGlyph->getStrokes(), getNormalizedPointFromLocalPoint (draggingPos.value()), 0.5f, STROKE_COLOUR.withAlpha (0.5f));
+        drawGlyph (g, draggingGlyph->getStrokes(), getNormalizedPointFromLocalPoint (draggingPos.value()), draggingSize.value(), STROKE_COLOUR.withAlpha (0.5f));
     }
 }
 
@@ -262,6 +281,20 @@ void GlyphGridView::updateHoveringStatus (const juce::MouseEvent &event)
     }
     
     hoveringId = newHoveringId;
+}
+
+void GlyphGridView::dropDraggingGlyph()
+{
+    if (listener != nullptr)
+    {
+        listener->addGlyph (draggingGlyph.value(), getNormalizedPointFromLocalPoint (draggingPos.value()), draggingSize.value());
+        glyphs = dataSource->getGlyphs();
+    }
+    
+    draggingGlyph.reset();
+    draggingPos.reset();
+    draggingSize.reset();
+    repaint();
 }
 
 void GlyphGridView::moveGlyph (int glyphId, juce::Point<float> centerPos)

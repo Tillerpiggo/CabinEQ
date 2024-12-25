@@ -38,6 +38,7 @@ public:
     std::pair<juce::Point<float>, float> positionAtTime (float time) const;
     const std::vector<Stroke>& getStrokes() const;
     const std::vector<juce::Point<float>> getVertices() const;
+    ArchetypalGlyph getArchetype() const; // returns an archetype of this glyph
     
     float getSizeFactor() const;
     juce::Point<float> getCenterPos() const;
@@ -46,6 +47,8 @@ public:
     void setSizeFactor (float sizeFactor);
     void incrementSizeFactor (float increment); // increments size factor, with bounds, and then updates surroundings.
     void setCenterPos (juce::Point<float> centerPos);
+    
+    void setStaticPos (juce::Point<float> staticPos);
     
     bool isInBounds() const;
     void moveGlyphWithinBounds(); // changes centerPos so that glyph is still in bounds
