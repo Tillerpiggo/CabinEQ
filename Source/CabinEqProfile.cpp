@@ -75,15 +75,28 @@ int CabinEqProfile::addMultiBandStep (const bool isEnabled)
     return id;
 }
 
-void CabinEqProfile::removeMultiBandStep (const int id)
+void CabinEqProfile::removeMultiBandStep (const int stepId)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
     auto amplBandTree = valueTree.getChildWithName (idAmplTree);
-    juce::ValueTree nodeToRemove = amplBandTree.getChildWithProperty (idId, id);
+    juce::ValueTree nodeToRemove = amplBandTree.getChildWithProperty (idId, stepId);
     if (nodeToRemove.isValid())
         amplBandTree.removeChild (nodeToRemove, nullptr);
+}
+
+void CabinEqProfile::setStepEnabled (const int stepId, const bool isEnabled)
+{
+    if (! hasBeenInitialized)
+        initValueTreeFromAPVTS();
+    
+    auto amplBandTree = valueTree.getChildWithName (idAmplTree);
+    auto step = amplBandTree.getChildWithProperty (idId, stepId);
+    if (step.isValid())
+    {
+        step.setProperty (idEnabled, isEnabled, nullptr);
+    }
 }
 
 int CabinEqProfile::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId)

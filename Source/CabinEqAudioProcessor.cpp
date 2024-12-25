@@ -351,11 +351,18 @@ int CabinEqAudioProcessor::addMultiBandStep()
     return -1;
 }
 
-void CabinEqAudioProcessor::removeMultiBandStep (int id)
+void CabinEqAudioProcessor::removeMultiBandStep (int stepId)
 {
     auto profile = profileNamed (profileId);
     if (profile.has_value())
-        profile->get().removeMultiBandStep (id);
+        profile->get().removeMultiBandStep (stepId);
+}
+
+void CabinEqAudioProcessor::setStepEnabled (int stepId, bool isEnabled)
+{
+    auto profile = profileNamed (profileId);
+    if (profile.has_value())
+        profile->get().setStepEnabled (stepId, isEnabled);
 }
 
 int CabinEqAudioProcessor::addBand (float freq, float ampl, float bandwidth, Band::Type type, int stepId)

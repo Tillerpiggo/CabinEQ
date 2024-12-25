@@ -23,7 +23,8 @@ public:
     const std::optional<Band> getBandWithId (const int id) const;
     
     int addMultiBandStep (const bool isEnabled = true);
-    void removeMultiBandStep (const int id);
+    void removeMultiBandStep (const int stepId);
+    void setStepEnabled (const int stepId, const bool isEnabled);
     int addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId); // returns the id of the added band
     void removeBand (const int id, const int stepId);
     void updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId);

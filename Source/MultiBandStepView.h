@@ -19,25 +19,33 @@ class MultiBandStepView  : public juce::Component
 public:
     class Listener
     {
+    public:
         virtual ~Listener() = default;
         
-        virtual void setMultiBandStepEnabledTo (bool isEnabled, int id) = 0;
-        virtual void onMultiBandStepSelected (int id) = 0;
+        virtual void onStepEnabled (int stepId, bool isEnabled) = 0;
+        virtual void onStepSelected (int id) = 0;
     };
     
-    MultiBandStepView (MultiBandStep multiBandStep);
+    MultiBandStepView();
+    MultiBandStepView (MultiBandStep step);
     ~MultiBandStepView() override;
     
     void paint (juce::Graphics& g) override;
     void resized() override;
     
+    void setListener (Listener* listener);
     void setMultiBandStep (MultiBandStep step);
     
     void mouseEnter (const juce::MouseEvent& event) override;
     void mouseExit (const juce::MouseEvent& event) override;
     
 private:
-    MultiBandStep multiBandStep;
+    Listener* listener = listener;
+    std::optional<MultiBandStep> step;
+    
+    
+    // Visual variables
+    bool isHovering = false;
     
     // Visual constants
 };
