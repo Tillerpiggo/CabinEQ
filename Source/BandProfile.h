@@ -39,19 +39,40 @@ public:
     Type type;
 };
 
+class MultiBandStep
+{
+public:
+    MultiBandStep (std::vector<Band> bands, bool isEnabled)
+        : bands (bands), isEnabled (isEnabled)
+    {}
+    
+    std::vector<Band> bands;
+    bool isEnabled;
+};
+
 class BandProfile
 {
 public:
     BandProfile()
-        : bands ({}), volume (0.0f), melodyVolume (0.0f), noiseVolume (0.0f)
+        : multiBandSteps ({}), volume (0.0f), melodyVolume (0.0f), noiseVolume (0.0f)
     {}
     
-    BandProfile (std::vector<Band> bands, float volume, float melodyVolume, float noiseVolume)
-        : bands (bands), volume (volume), melodyVolume (melodyVolume), noiseVolume (noiseVolume)
+    BandProfile (std::vector<MultiBandStep> multiBandSteps, float volume, float melodyVolume, float noiseVolume)
+        : multiBandSteps (multiBandSteps), volume (volume), melodyVolume (melodyVolume), noiseVolume (noiseVolume)
     {}
     
-    const std::vector<Band>& getBands() const
+    const std::vector<MultiBandStep>& getMultiBandSteps() const
     {
+        return multiBandSteps;
+    }
+    
+    std::vector<Band> getBands()
+    {
+        std::vector<Band> bands;
+        for (const auto& step : multiBandSteps)
+        {
+            bands.insert (bands.begin(), step.bands.begin(), step.bands.end()); // append all bands in each step
+        }
         return bands;
     }
     
@@ -70,7 +91,7 @@ public:
         return noiseVolume;
     }
 private:
-    std::vector<Band> bands;
+    std::vector<MultiBandStep> multiBandSteps;
     float volume;
     float melodyVolume;
     float noiseVolume;

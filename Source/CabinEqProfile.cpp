@@ -18,7 +18,7 @@ CabinEqProfile::CabinEqProfile (juce::AudioProcessorValueTreeState& apvts, const
 
 const BandProfile CabinEqProfile::getBandProfile() const
 {
-    std::vector<Band> bands;
+    std::vector<MultiBandStep> steps;
     
     // Compile the bands from all multi band steps
     if (valueTree.isValid())
@@ -27,11 +27,11 @@ const BandProfile CabinEqProfile::getBandProfile() const
         for (const auto& multiBandStep : amplTree)
         {
             auto newBands = getBandsForMultiBandStep (multiBandStep);
-            bands.insert (bands.begin(), newBands.begin(), newBands.end()); // append all of newBands to bands
+            steps.push_back (MultiBandStep (newBands, true));
         }
     }
     
-    return BandProfile (bands, profileVolume, melodyVolume, noiseVolume);
+    return BandProfile (steps, profileVolume, melodyVolume, noiseVolume);
 }
 
 const std::optional<Band> CabinEqProfile::getBandWithId (const int id) const
