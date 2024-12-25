@@ -46,6 +46,17 @@ public:
         : bands (bands), isEnabled (isEnabled)
     {}
     
+    const std::vector<Band>& getBands() const
+    {
+        return bands;
+    }
+    
+    bool getIsEnabled() const
+    {
+        return isEnabled;
+    }
+    
+private:
     std::vector<Band> bands;
     bool isEnabled;
 };
@@ -71,7 +82,7 @@ public:
         std::vector<Band> bands;
         for (const auto& step : multiBandSteps)
         {
-            bands.insert (bands.begin(), step.bands.begin(), step.bands.end()); // append all bands in each step
+            bands.insert (bands.begin(), step.getBands().begin(), step.getBands().end()); // append all bands in each step
         }
         return bands;
     }

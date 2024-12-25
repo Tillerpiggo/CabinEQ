@@ -856,7 +856,7 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
 {
     float minDist = HOVER_MIN_DIST;
     std::optional<Band> closestBand;
-    for (const auto& band : bandProfile.getMultiBandSteps()[currStepId].bands)
+    for (const auto& band : bandProfile.getMultiBandSteps()[currStepId].getBands())
     {
         float dist = mouseEventDistanceFromBand (event, band);
         if (dist < minDist)
