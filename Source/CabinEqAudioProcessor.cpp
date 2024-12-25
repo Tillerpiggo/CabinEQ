@@ -469,7 +469,7 @@ void CabinEqAudioProcessor::moveGlyphs (std::unordered_map<int, juce::Point<floa
     glyphManager.moveGlyphs (idsToPositions);
 }
 
-void CabinEqAudioProcessor::scaleGlyphs (std::vector<int> glyphIds, float increment)
+void CabinEqAudioProcessor::scaleGlyphs (std::unordered_set<int> glyphIds, float increment)
 {
     glyphManager.scaleGlyphs (glyphIds, increment);
 }

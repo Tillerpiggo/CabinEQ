@@ -53,7 +53,9 @@ public:
     bool isInBounds (juce::Point<float> centerPos) const; // returns if this glyph would still be in bounds if it had the given center position
     void moveGlyphWithinBounds(); // changes centerPos so that glyph is still in bounds
     juce::Point<float> getCenterPosWithinBounds (juce::Point<float> hypotheticalCenterPos) const; // gets a center position within bounds, given the hypothetical center position
+    float getSizeFactorWithinBounds (float hypotheticalIncrement) const;
     std::pair<float, float> getProjectedMoveDistance (juce::Point<float> hypotheticalCenterPos) const; // returns the projected [moveX, moveY] if you were to try to move the glyph to this location
+    float getProjectedSizeFactorIncrement (float increment) const;
     void moveSizeFactorWithinBounds(); // changes sizeFactor so that glyph is still in bounds
     std::pair<float, float> getXBounds() const; // returns min x and max x for the current size
     std::pair<float, float> getYBounds() const; // returns min y and max y for the current size

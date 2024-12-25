@@ -47,6 +47,7 @@ public:
     bool shouldDrawDragImageWhenOver() override;
     
 private:
+    void drawGridLines (juce::Graphics& g);
     void drawGlyphs (juce::Graphics& g);
     void drawCenterDots (juce::Graphics& g); // draws the center dots for the glyphs
     void drawPlayingDots (juce::Graphics& g);
@@ -66,6 +67,7 @@ private:
     void moveSelectedGlyphsToMouseEvent (const juce::MouseEvent& event); // tries to move the selected glyphs to the given mouse event, assuming the event is a drag from the original starting position.
     void removeGlyph (int glyphId);
     void incrementSizeFactor (int glyphId, float increment);
+    void scaleSelectedGlyphs (float increment);
     
     GlyphViewListener* listener = nullptr;
     GlyphViewDataSource* dataSource = nullptr;

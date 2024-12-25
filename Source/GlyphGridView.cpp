@@ -22,6 +22,7 @@ GlyphGridView::~GlyphGridView()
 
 void GlyphGridView::paint (juce::Graphics& g)
 {
+    drawGridLines (g);
     drawGlyphs (g);
     drawCenterDots (g);
     drawPlayingDots (g);
@@ -195,6 +196,11 @@ void GlyphGridView::mouseUp (const juce::MouseEvent &event)
 
 void GlyphGridView::mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel)
 {
+    if (selectedIds.size() > 0)
+    {
+        scaleSelectedGlyphs (wheel.deltaY);
+    }
+    
     if (hoveringId == -1)
         return;
     
@@ -239,6 +245,13 @@ void GlyphGridView::itemDropped (const SourceDetails& dragSourceDetails)
 bool GlyphGridView::shouldDrawDragImageWhenOver()
 {
     return false;
+}
+
+void GlyphGridView::drawGridLines (juce::Graphics& g)
+{
+    // For now, just draw a border
+    g.setColour (juce::Colours::blue);
+    g.drawRect (0, 0, getWidth(), getHeight());
 }
 
 void GlyphGridView::drawGlyphs (juce::Graphics& g)
@@ -445,6 +458,15 @@ void GlyphGridView::incrementSizeFactor (int glyphId, float increment)
     if (listener != nullptr && dataSource != nullptr)
     {
         listener->incrementSizeFactor (glyphId, increment);
+        glyphs = dataSource->getGlyphs();
+    }
+}
+
+void GlyphGridView::scaleSelectedGlyphs (float increment)
+{
+    if (listener != nullptr && dataSource != nullptr)
+    {
+        listener->scaleGlyphs (selectedIds, increment);
         glyphs = dataSource->getGlyphs();
     }
 }

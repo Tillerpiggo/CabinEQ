@@ -118,10 +118,11 @@ void Glyph::setSizeFactor (float sizeFactor)
 
 void Glyph::incrementSizeFactor (float increment)
 {
-    this->sizeFactor = std::min (std::max (sizeFactor + increment, 0.1f), 1.0f);
-    
-    if (! isInBounds (centerPos))
-        moveSizeFactorWithinBounds();
+    this->sizeFactor = getSizeFactorWithinBounds (increment);
+//    this->sizeFactor = std::min (std::max (sizeFactor + increment, 0.1f), 1.0f);
+//    
+//    if (! isInBounds (centerPos))
+//        moveSizeFactorWithinBounds();
 }
 
 void Glyph::setCenterPos (juce::Point<float> centerPos)
@@ -162,11 +163,26 @@ juce::Point<float> Glyph::getCenterPosWithinBounds (juce::Point<float> hypotheti
     return centerPosWithinBounds;
 }
 
+float Glyph::getSizeFactorWithinBounds (float hypotheticalIncrement) const
+{
+    float projectedSizeFactor = sizeFactor + hypotheticalIncrement;
+    float maxXSizeFactor = std::min (std::abs (-1.0f - centerPos.x), std::abs (1.0f - centerPos.x));
+    float maxYSizeFactor = std::min (std::abs (-1.0f - centerPos.y), std::abs (1.0f - centerPos.y));
+    projectedSizeFactor = std::min (projectedSizeFactor, std::min (maxXSizeFactor, maxYSizeFactor));
+    
+    return std::min (std::max (projectedSizeFactor, 0.02f), 1.0f);
+}
+
 std::pair<float, float> Glyph::getProjectedMoveDistance (juce::Point<float> hypotheticalCenterPos) const
 {
     auto projectedEndPos = getCenterPosWithinBounds (hypotheticalCenterPos);
     
     return { projectedEndPos.x - centerPos.x, projectedEndPos.y - centerPos.y };
+}
+
+float Glyph::getProjectedSizeFactorIncrement (float increment) const
+{
+    return getSizeFactorWithinBounds (increment) - sizeFactor;
 }
 
 void Glyph::moveSizeFactorWithinBounds()

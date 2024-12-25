@@ -25,7 +25,7 @@ public:
     void removeGlyph (int glyphId);
     void incrementSizeFactor (int glyphId, float increment);
     void moveGlyphs (std::unordered_map<int, juce::Point<float>>& idsToPositions);
-    void scaleGlyphs (std::vector<int> glyphIds, float increment);
+    void scaleGlyphs (std::unordered_set<int> glyphIds, float increment);
     void addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs);
     void addArchetypalGlyph (ArchetypalGlyph glyph);
     
