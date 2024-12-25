@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <JuceHeader.h>
+
 class Band
 {
 public:
@@ -20,16 +22,8 @@ public:
         right = 2
     };
     
-    Band (int id, float freq, float ampl, float bandwidth, Type type)
-        : id (id), freq (freq), ampl (ampl), bandwidth (bandwidth), type (type)
-    {
-        this->qFactor = bandwidthToQFactor (bandwidth);
-    }
-    
-    static float bandwidthToQFactor (float bandwidth)
-    {
-        return std::sqrt (std::pow (2.0, bandwidth)) / (std::pow (2.0, bandwidth) - 1);
-    }
+    Band (int id, float freq, float ampl, float bandwidth, Type type);
+    static float bandwidthToQFactor (float bandwidth);
     
     int id;
     float freq;
@@ -42,19 +36,16 @@ public:
 class MultiBandStep
 {
 public:
-    MultiBandStep (std::vector<Band> bands, bool isEnabled)
-        : bands (bands), isEnabled (isEnabled)
-    {}
+    MultiBandStep (std::vector<Band> bands, bool isEnabled);
     
-    const std::vector<Band>& getBands() const
-    {
-        return bands;
-    }
+    const std::vector<Band>& getBands() const;
+    bool getIsEnabled() const;
     
-    bool getIsEnabled() const
-    {
-        return isEnabled;
-    }
+    // BandEqCurve methods
+    const float dbAtFrequency (float frequency) const;
+    const float leftDbAtFrequency (float frequency) const;
+    const float rightDbAtFrequency (float frequency) const;
+    const float dbAtFrequencyForBand (Band band, float frequency) const;
     
 private:
     std::vector<Band> bands;
@@ -64,43 +55,14 @@ private:
 class BandProfile
 {
 public:
-    BandProfile()
-        : multiBandSteps ({}), volume (0.0f), melodyVolume (0.0f), noiseVolume (0.0f)
-    {}
+    BandProfile();
+    BandProfile (std::vector<MultiBandStep> multiBandSteps, float volume, float melodyVolume, float noiseVolume);
     
-    BandProfile (std::vector<MultiBandStep> multiBandSteps, float volume, float melodyVolume, float noiseVolume)
-        : multiBandSteps (multiBandSteps), volume (volume), melodyVolume (melodyVolume), noiseVolume (noiseVolume)
-    {}
-    
-    const std::vector<MultiBandStep>& getMultiBandSteps() const
-    {
-        return multiBandSteps;
-    }
-    
-    std::vector<Band> getBands()
-    {
-        std::vector<Band> bands;
-        for (const auto& step : multiBandSteps)
-        {
-            bands.insert (bands.begin(), step.getBands().begin(), step.getBands().end()); // append all bands in each step
-        }
-        return bands;
-    }
-    
-    const float getVolume() const
-    {
-        return volume;
-    }
-    
-    const float getMelodyVolume() const
-    {
-        return melodyVolume;
-    }
-    
-    const float getNoiseVolume() const
-    {
-        return noiseVolume;
-    }
+    const std::vector<MultiBandStep>& getMultiBandSteps() const;
+    std::vector<Band> getBands();
+    const float getVolume() const;
+    const float getMelodyVolume() const;
+    const float getNoiseVolume() const;
 private:
     std::vector<MultiBandStep> multiBandSteps;
     float volume;

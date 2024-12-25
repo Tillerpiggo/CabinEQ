@@ -40,7 +40,10 @@ public:
     void mouseExit (const juce::MouseEvent& event) override;
     
 private:
-    Listener* listener = listener;
+    void drawBounds (juce::Graphics& g);
+    void drawCurve (juce::Graphics& g);
+    
+    Listener* listener = nullptr;
     std::optional<MultiBandStep> step;
     
     
@@ -48,4 +51,8 @@ private:
     bool isHovering = false;
     
     // Visual constants
+    juce::Colour BACKGROUND_COLOUR = juce::Colours::teal;
+    juce::Colour BORDER_COLOUR = juce::Colours::cyan;
+    juce::Colour CURVE_COLOUR = juce::Colours::green;
+    int NUM_POINTS = 50; // we shouldn't need as many for the little preview
 };
