@@ -22,11 +22,11 @@ public:
     const BandProfile getBandProfile() const; // constructs a list of bands matching the ones in memory in the valueTree. For now, we're only doing amplitude bands, so it implicitly uses the amplTree. Uses whatever the current profileVolume is (assumed to be up to date)
     const std::optional<Band> getBandWithId (const int id) const;
     
-    int addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type);
-    void removeBand (const int id);
-    void updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type);
-//    int addBands (std::vector<Band> bands);
-//    void updateBands (const int firstId, std::vector<Band> bands);
+    int addMultiBandStep (const bool isEnabled = true);
+    void removeMultiBandStep (const int id);
+    int addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId); // returns the id of the added band
+    void removeBand (const int id, const int stepId);
+    void updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId);
     
     void initValueTreeFromAPVTS(); // sets this value tree to match the one in the main apvts
     const juce::String getName() const;
@@ -41,11 +41,11 @@ public:
     void setNoiseVolume (float noiseVolume);
     
 private:
-    void addBandToTree (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree bandTree);
-    void updateBandInTree (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree bandTree);
-    int getNextIdForBandInTree (juce::ValueTree bandTree); // returns the next id, i.e. the id the next added band would have, for this band tree
-    void printBandTree (juce::ValueTree bandTree) const; // prints a ValueTree, assuming the ValueTree's children are Bands
-    std::vector<Band> getBandsForValueTree (juce::ValueTree valueTree) const;
+    void addBandToMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree multiBandStep);
+    void updateBandInMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree multiBandStep);
+    int getNextIdInValueTree (juce::ValueTree valueTree); // returns the next id, i.e. the id the next added band would have, assuming the children of this node have sequential ids (deletions may cause id gaps, but this is fine)
+    void printMultiBandStep (juce::ValueTree multiBandStep) const; // prints a ValueTree, assuming the ValueTree's children are Bands
+    std::vector<Band> getBandsForMultiBandStep (juce::ValueTree multiBandStep) const;
     
     juce::AudioProcessorValueTreeState& apvts;
     
@@ -54,6 +54,8 @@ private:
     juce::Identifier idProfileVolume { "ProfileVolume" };
     juce::Identifier idMelodyVolume { "MelodyVolume" };
     juce::Identifier idNoiseVolume { "NoiseVolume" };
+    juce::Identifier idMultiBandStep { "MultiBandStep" }; // a step consisting of a list of bands and some other properties (enabled, etc.)
+    juce::Identifier idEnabled { "Enabled" };
     juce::Identifier idBand { "Band" };
     juce::Identifier idId { "id" };
     juce::Identifier idFreq { "freq" };

@@ -19,8 +19,17 @@ CabinEqProfile::CabinEqProfile (juce::AudioProcessorValueTreeState& apvts, const
 const BandProfile CabinEqProfile::getBandProfile() const
 {
     std::vector<Band> bands;
+    
+    // Compile the bands from all multi band steps
     if (valueTree.isValid())
-        bands = getBandsForValueTree (valueTree.getChildWithName (idAmplTree));
+    {
+        auto amplTree = valueTree.getChildWithName (idAmplTree);
+        for (const auto& multiBandStep : amplTree)
+        {
+            auto newBands = getBandsForMultiBandStep (valueTree.getChildWithName (idAmplTree));
+            bands.insert (bands.begin(), newBands.begin(), newBands.end()); // append all of newBands to bands
+        }
+    }
     
     return BandProfile (bands, profileVolume, melodyVolume, noiseVolume);
 }
@@ -49,61 +58,87 @@ const std::optional<Band> CabinEqProfile::getBandWithId (const int id) const
     }
 }
 
-int CabinEqProfile::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type)
+int CabinEqProfile::addMultiBandStep (const bool isEnabled)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
     auto amplBandTree = valueTree.getChildWithName (idAmplTree);
-    int id = getNextIdForBandInTree (amplBandTree);
-    addBandToTree (id, freq, ampl, bandwidth, type, amplBandTree);
+    int id = getNextIdInValueTree (amplBandTree);
+    
+    // Create the multiband step
+    juce::ValueTree step (idMultiBandStep);
+    step.setProperty (idId, id, nullptr);
+    step.setProperty (idEnabled, isEnabled, nullptr);
+    amplBandTree.appendChild (step, nullptr);
+}
+
+void CabinEqProfile::removeMultiBandStep (const int id)
+{
+    if (! hasBeenInitialized)
+        initValueTreeFromAPVTS();
+    
+    auto amplBandTree = valueTree.getChildWithName (idAmplTree);
+    juce::ValueTree nodeToRemove = amplBandTree.getChildWithProperty (idId, id);
+    if (nodeToRemove.isValid())
+        amplBandTree.removeChild (nodeToRemove, nullptr);
+}
+
+int CabinEqProfile::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId)
+{
+    if (! hasBeenInitialized)
+        initValueTreeFromAPVTS();
+    
+    auto amplBandTree = valueTree.getChildWithName (idAmplTree);
+    auto multiBandStep = amplBandTree.getChildWithProperty (idId, stepId);
+    
+    if (! multiBandStep.isValid())
+    {
+        std::cerr << "Couldn't find multiband step with id " << stepId << " in addBand" << std::endl;
+        return -1;
+    }
+    
+    int id = getNextIdInValueTree (multiBandStep);
+    addBandToMultiBandStep (id, freq, ampl, bandwidth, type, multiBandStep);
     
     return id;
 }
 
-void CabinEqProfile::removeBand (const int id)
+void CabinEqProfile::removeBand (const int id, const int stepId)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
     auto amplBandTree = valueTree.getChildWithName (idAmplTree);
+    auto multiBandStep = amplBandTree.getChildWithProperty (idId, stepId);
+    
+    if (! multiBandStep.isValid())
+    {
+        std::cerr << "Couldn't find multiband step with id " << stepId << " in removeBand" << std::endl;
+        return;
+    }
     
     juce::ValueTree nodeToRemove = amplBandTree.getChildWithProperty (idId, id);
     if (nodeToRemove.isValid())
         amplBandTree.removeChild (nodeToRemove, nullptr);
 }
 
-void CabinEqProfile::updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type)
+void CabinEqProfile::updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
     
     auto amplBandTree = valueTree.getChildWithName (idAmplTree);
-    updateBandInTree (id, freq, ampl, bandwidth, type, amplBandTree);
+    auto multiBandStep = amplBandTree.getChildWithProperty (idId, stepId);
+    
+    if (! multiBandStep.isValid())
+    {
+        std::cerr << "Couldn't find multi-band step with id in updateBand" << std::endl;
+        return;
+    }
+    
+    updateBandInMultiBandStep (id, freq, ampl, bandwidth, type, multiBandStep);
 }
-
-//int CabinEqProfile::addBands (std::vector<Band> bands, juce::String profileName)
-//{
-//    if (! hasBeenInitialized)
-//        initValueTreeFromAPVTS();
-//    
-//    auto amplBandTree = valueTree.getChildWithName (idAmplTree);
-//    int firstId = getNextIdForBandInTree (amplBandTree);
-//    for (int i = 0; i < bands.size(); ++i)
-//        addBandToTree (firstId + i, bands[i].freq, bands[i].ampl, bands[i].bandwidth, amplBandTree);
-//    
-//    return firstId;
-//}
-//
-//void CabinEqProfile::updateBands (const int firstId, std::vector<Band> bands, juce::String profileName)
-//{
-//    if (! hasBeenInitialized)
-//        initValueTreeFromAPVTS();
-//    
-//    auto amplBandTree = valueTree.getChildWithName (idAmplTree);
-//    for (int i = 0; i < bands.size(); ++i)
-//        updateBandInTree (firstId + i, bands[i].freq, bands[i].ampl, bands[i].bandwidth, amplBandTree);
-//}
 
 void CabinEqProfile::initValueTreeFromAPVTS()
 {
@@ -190,7 +225,7 @@ void CabinEqProfile::setNoiseVolume (float noiseVolume)
     valueTree.setProperty (idNoiseVolume, noiseVolume, nullptr);
 }
 
-void CabinEqProfile::addBandToTree (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree bandTree)
+void CabinEqProfile::addBandToMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree multiBandStep)
 {
     juce::ValueTree band (idBand);
     band.setProperty (idId, id, nullptr);
@@ -198,12 +233,12 @@ void CabinEqProfile::addBandToTree (int id, float freq, float ampl, float bandwi
     band.setProperty (idAmpl, ampl, nullptr);
     band.setProperty (idBandwidth, bandwidth, nullptr);
     band.setProperty (idBandType, static_cast<int> (type), nullptr);
-    bandTree.appendChild (band, nullptr);
+    multiBandStep.appendChild (band, nullptr);
 }
 
-void CabinEqProfile::updateBandInTree (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree bandTree)
+void CabinEqProfile::updateBandInMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree multiBandStep)
 {
-    juce::ValueTree bandToModify = bandTree.getChildWithProperty (idId, id);
+    juce::ValueTree bandToModify = multiBandStep.getChildWithProperty (idId, id);
     if (bandToModify.isValid())
     {
         bandToModify.setProperty (idFreq, freq, nullptr);
@@ -213,26 +248,26 @@ void CabinEqProfile::updateBandInTree (int id, float freq, float ampl, float ban
     }
 }
 
-int CabinEqProfile::getNextIdForBandInTree (juce::ValueTree bandTree)
+int CabinEqProfile::getNextIdInValueTree (juce::ValueTree valueTree)
 {
     // Assume tree is valid; otherwise this should crash
     int id = -1;
-    for (const auto& band : bandTree)
+    for (const auto& identifiableNode : valueTree)
     {
-        id = std::max ((int) band.getProperty (idId), id);
+        id = std::max ((int) identifiableNode.getProperty (idId), id);
     }
     id++;
     return id;
 }
 
-void CabinEqProfile::printBandTree (juce::ValueTree bandTree) const
+void CabinEqProfile::printMultiBandStep (juce::ValueTree multiBandStep) const
 {
-    if (bandTree.isValid())
+    if (multiBandStep.isValid())
     {
-        std::cout << "BandTree (numNodes: " << bandTree.getNumChildren() << ")" << std::endl;
-        if (bandTree.getNumChildren() > 0)
+        std::cout << "MultiBandStep (numNodes: " << multiBandStep.getNumChildren() << ")" << std::endl;
+        if (multiBandStep.getNumChildren() > 0)
         {
-            for (const auto& band : bandTree)
+            for (const auto& band : multiBandStep)
             {
                 float id = band.getProperty (idId);
                 float freq = band.getProperty (idFreq);
@@ -252,12 +287,12 @@ void CabinEqProfile::printBandTree (juce::ValueTree bandTree) const
     std::cout << std::endl;
 }
 
-std::vector<Band> CabinEqProfile::getBandsForValueTree (juce::ValueTree bandTree) const
+std::vector<Band> CabinEqProfile::getBandsForMultiBandStep (juce::ValueTree multiBandStep) const
 {
     std::vector<Band> bands;
-    if (bandTree.isValid())
+    if (multiBandStep.isValid())
     {
-        for (const auto& band : bandTree)
+        for (const auto& band : multiBandStep)
         {
             int id = band.getProperty (idId);
             float freq = band.getProperty (idFreq);
