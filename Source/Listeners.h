@@ -72,6 +72,8 @@ public:
     virtual void moveGlyph (int glyphId, juce::Point<float> centerPos) = 0; // tries to move the glyph, although bounds will be applied
     virtual void removeGlyph (int glyphId) = 0; // removes the glyph if the glyph is in the list of glyphs. If there are multiple with this id, only removes the first one, although this should never happen
     virtual void incrementSizeFactor (int glyphId, float increment) = 0; // changes the size factor of the glyph by this increment, with upper and lower bounds on size factor
+    virtual void moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions) = 0;
+    virtual void scaleGlyphs (std::vector<int> glyphIds, float increment) = 0;
 };
 
 class GlyphViewDataSource

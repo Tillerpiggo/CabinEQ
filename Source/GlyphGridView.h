@@ -53,15 +53,17 @@ private:
     void drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour);
     void drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour);
     void drawDraggingGlyph (juce::Graphics& g);
+    void drawSelection (juce::Graphics& g);
     juce::Point<float> getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor);
     juce::Point<float> getNormalizedPointFromLocalPoint (juce::Point<float> point);
-    juce::Point<float> getLocalizedCenterPointForGlyph (const Glyph& glyph); // gets the local coords for the glyph's center point
+    juce::Point<float> getLocalCenterPosForGlyph (const Glyph& glyph); // gets the local coords for the glyph's center point
     juce::Point<float> getNormalizedPointFromMouseEvent (const juce::MouseEvent& event);
     
     void updateHoveringStatus (const juce::MouseEvent& event);
     
     void dropDraggingGlyph(); // drops and adds the current dragging glyph, updates the glyphs, and resets the dragging variables
     void moveGlyph (int glyphId, juce::Point<float> centerPos);
+    void moveSelectedGlyphsToMouseEvent (const juce::MouseEvent& event); // tries to move the selected glyphs to the given mouse event, assuming the event is a drag from the original starting position.
     void removeGlyph (int glyphId);
     void incrementSizeFactor (int glyphId, float increment);
     
@@ -88,4 +90,16 @@ private:
     // Dragging glyphs
     int draggingId = -1;
     int hoveringId = -1;
+    
+    // Selection
+    std::optional<juce::Point<float>> selectionStart;
+    std::optional<juce::Point<float>> selectionEnd;
+    std::optional<juce::Rectangle<float>> selectionRect;
+    std::unordered_set<int> selectedIds;
+    
+    // Selection drag
+    juce::Point<float> selectionStartPos; // the initial position you select
+    std::unordered_map<int, juce::Point<float>> selectedIdToStartingPosition; // the starting position for each selected glyph, in local coordinates
+    
+    // Mouse event
 };

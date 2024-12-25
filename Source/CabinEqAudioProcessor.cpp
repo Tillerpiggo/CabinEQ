@@ -464,6 +464,16 @@ void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float increment)
     glyphManager.incrementSizeFactor (glyphId, increment);
 }
 
+void CabinEqAudioProcessor::moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions)
+{
+    glyphManager.moveGlyphs (idsToPositions);
+}
+
+void CabinEqAudioProcessor::scaleGlyphs (std::vector<int> glyphIds, float increment)
+{
+    glyphManager.scaleGlyphs (glyphIds, increment);
+}
+
 const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
 {
     return glyphManager.getArchetypalGlyphs();

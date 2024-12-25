@@ -98,6 +98,43 @@ void GlyphManager::incrementSizeFactor (int glyphId, float increment)
     }
 }
 
+void GlyphManager::moveGlyphs (std::unordered_map<int, juce::Point<float>>& idsToPositions)
+{
+    // Find max distance we can move the glyphs
+    bool canMoveAllGlyphs = true;
+    float maxX = std::numeric_limits<float>::max();
+    float maxY = std::numeric_limits<float>::max();
+    for (const auto& glyph : glyphs)
+    {
+        // If the glyph is in the given position map
+        if (idsToPositions.find (glyph.getId()) != idsToPositions.end())
+        {
+            auto [moveX, moveY] = glyph.getProjectedMoveDistance (idsToPositions[glyph.getId()]);
+            
+            if (abs (moveX) < abs (maxX))
+                maxX = moveX;
+            if (abs (moveY) < abs (maxY))
+                maxY = moveY;
+        }
+    }
+    
+    if (canMoveAllGlyphs)
+    {
+        for (auto& glyph : glyphs)
+        {
+            if (idsToPositions.find (glyph.getId()) != idsToPositions.end())
+            {
+                glyph.moveBy ({ maxX, maxY });
+            }
+        }
+    }
+}
+
+void GlyphManager::scaleGlyphs (std::vector<int> glyphIds, float increment)
+{
+    // TODO: implement...
+}
+
 void GlyphManager::addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs)
 {
     for (const auto& glyph : newGlyphs)

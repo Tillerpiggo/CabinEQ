@@ -112,7 +112,7 @@ void Glyph::setSizeFactor (float sizeFactor)
     this->sizeFactor = std::min (sizeFactor, 1.0f);
     
     // Make sure we're still in bounds
-    if (! isInBounds())
+    if (! isInBounds (centerPos))
         moveGlyphWithinBounds(); // if not, move the center so that we are in bounds
 }
 
@@ -120,7 +120,7 @@ void Glyph::incrementSizeFactor (float increment)
 {
     this->sizeFactor = std::min (std::max (sizeFactor + increment, 0.1f), 1.0f);
     
-    if (! isInBounds())
+    if (! isInBounds (centerPos))
         moveSizeFactorWithinBounds();
 }
 
@@ -130,12 +130,15 @@ void Glyph::setCenterPos (juce::Point<float> centerPos)
     moveGlyphWithinBounds();
 }
 
-bool Glyph::isInBounds() const
+void Glyph::moveBy (std::pair<float, float> amountToMove)
+{
+    setCenterPos ({ centerPos.x + amountToMove.first, centerPos.y + amountToMove.second });
+}
+
+bool Glyph::isInBounds (juce::Point<float> centerPos) const
 {
     auto [minX, maxX] = getXBounds();
     auto [minY, maxY] = getYBounds();
-    
-    juce::Point<float> centerPos = getCenterPos();
     
     bool isInXBounds = centerPos.x >= minX && centerPos.x <= maxX;
     bool isInYBounds = centerPos.y >= minY && centerPos.y <= maxY;
@@ -144,11 +147,26 @@ bool Glyph::isInBounds() const
 
 void Glyph::moveGlyphWithinBounds()
 {
+    centerPos = getCenterPosWithinBounds (centerPos);
+}
+
+juce::Point<float> Glyph::getCenterPosWithinBounds (juce::Point<float> hypotheticalCenterPos) const
+{
     auto [minX, maxX] = getXBounds();
     auto [minY, maxY] = getYBounds();
     
-    centerPos.x = std::min (std::max (centerPos.x, minX), maxX);
-    centerPos.y = std::min (std::max (centerPos.y, minY), maxY);
+    juce::Point<float> centerPosWithinBounds = hypotheticalCenterPos;
+    centerPosWithinBounds.x = std::min (std::max (centerPosWithinBounds.x, minX), maxX);
+    centerPosWithinBounds.y = std::min (std::max (centerPosWithinBounds.y, minY), maxY);
+    
+    return centerPosWithinBounds;
+}
+
+std::pair<float, float> Glyph::getProjectedMoveDistance (juce::Point<float> hypotheticalCenterPos) const
+{
+    auto projectedEndPos = getCenterPosWithinBounds (hypotheticalCenterPos);
+    
+    return { projectedEndPos.x - centerPos.x, projectedEndPos.y - centerPos.y };
 }
 
 void Glyph::moveSizeFactorWithinBounds()

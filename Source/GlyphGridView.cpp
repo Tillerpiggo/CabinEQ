@@ -26,6 +26,7 @@ void GlyphGridView::paint (juce::Graphics& g)
     drawCenterDots (g);
     drawPlayingDots (g);
     drawDraggingGlyph (g);
+    drawSelection (g);
 }
 
 void GlyphGridView::resized()
@@ -56,9 +57,27 @@ void GlyphGridView::mouseMove (const juce::MouseEvent &event)
 
 void GlyphGridView::mouseDown (const juce::MouseEvent &event)
 {
+    // If not hovering, begin a selection
+    if (hoveringId == -1)
+    {
+        auto eventPos = event.getPosition().toFloat();
+        selectionStart = eventPos;
+        selectionEnd = eventPos;
+        selectionRect = { eventPos, eventPos };
+        selectedIds.clear();
+        return;
+    }
+    
+    selectionStart.reset();
+    selectionEnd.reset();
+    selectionRect.reset();
+    
     // If holding ctrl, start dragging it as a duplicate
     if ((event.mods.isCtrlDown() || event.mods.isAltDown()) && hoveringId != -1)
     {
+        // TODO: copy entire selection - doesn't seem necessary for now
+        selectedIds.clear();
+        
         for (const auto& glyph : glyphs)
         {
             if (glyph.getId() == hoveringId)
@@ -73,17 +92,73 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
         // If we weren't hovering over anything, we can probably proceed as usual (?)
     }
     
+    // Drag whatever we're hovering over
     draggingId = hoveringId;
-    moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
+    if (draggingId == -1)
+        return;
     
-    // If we right click and were hovering, delete the glyph
-    if (hoveringId != -1 && event.mods.isRightButtonDown())
+    // If we right click, delete anything selected
+    if (event.mods.isRightButtonDown())
+    {
         removeGlyph (hoveringId);
+        if (selectedIds.find (hoveringId) != selectedIds.end())
+            for (const auto& selectedId : selectedIds)
+                removeGlyph (selectedId);
+    }
+    
+    // If we selected multiple, register their starting positions
+    else if (selectedIds.size() > 0)
+    {
+        // Save the starting position of every selected glyph
+        for (const auto& glyph : glyphs)
+        {
+            if (selectedIds.find (glyph.getId()) != selectedIds.end())
+            {
+                auto startingPos = getLocalCenterPosForGlyph (glyph);
+                selectedIdToStartingPosition[glyph.getId()] = startingPos;
+                if (glyph.getId() == hoveringId)
+                selectionStartPos = event.getPosition().toFloat();
+            }
+        }
+        
+        moveSelectedGlyphsToMouseEvent (event);
+    }
+    
+    // If we're just dragging one, try to move it
+    else
+    {
+        moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
+    }
 }
 
 void GlyphGridView::mouseDrag (const juce::MouseEvent &event)
 {
-    if (isDraggingDuplicate)
+    if (selectionStart.has_value() && selectionEnd.has_value())
+    {
+        selectionEnd = event.getPosition().toFloat();
+        
+        // Get constants for selection
+        float xMin = fmin (selectionStart->x, selectionEnd->x);
+        float xMax = fmax (selectionStart->x, selectionEnd->x);
+        float yMin = fmin (selectionStart->y, selectionEnd->y);
+        float yMax = fmax (selectionStart->y, selectionEnd->y);
+        selectionRect = { xMin, yMin, xMax - xMin, yMax - yMin };
+        
+        selectedIds.clear();
+        for (const auto& glyph : glyphs)
+        {
+            auto pos = getLocalCenterPosForGlyph (glyph);
+            if (selectionRect->contains (pos))
+            {
+                selectedIds.insert (glyph.getId());
+            }
+        }
+    }
+    else if (selectedIds.size() > 0)
+    {
+        moveSelectedGlyphsToMouseEvent (event);
+    }
+    else if (isDraggingDuplicate)
     {
         draggingPos = event.getPosition().toFloat();
     }
@@ -95,7 +170,18 @@ void GlyphGridView::mouseDrag (const juce::MouseEvent &event)
 
 void GlyphGridView::mouseUp (const juce::MouseEvent &event)
 {
-    if (isDraggingDuplicate)
+    if (selectionStart.has_value() || selectionEnd.has_value())
+    {
+        selectionStart.reset();
+        selectionEnd.reset();
+        selectionRect.reset();
+        // selection rect should stay intact until an unrelated mouse event occurs
+    }
+    else if (selectedIds.size() > 0)
+    {
+        moveSelectedGlyphsToMouseEvent (event);
+    }
+    else if (isDraggingDuplicate)
     {
         dropDraggingGlyph();
         isDraggingDuplicate = false;
@@ -159,7 +245,11 @@ void GlyphGridView::drawGlyphs (juce::Graphics& g)
 {
     for (const auto& glyph : glyphs)
     {
-        drawGlyph (g, glyph.getStrokes(), glyph.getCenterPos(), glyph.getSizeFactor(), STROKE_COLOUR);
+        bool isSelected = false;
+        for (const int id : selectedIds)
+            if (glyph.getId() == id)
+                isSelected = true;
+        drawGlyph (g, glyph.getStrokes(), glyph.getCenterPos(), glyph.getSizeFactor(), isSelected ? juce::Colours::white : STROKE_COLOUR);
     }
 }
 
@@ -167,7 +257,7 @@ void GlyphGridView::drawCenterDots (juce::Graphics &g)
 {
     for (const auto& glyph : glyphs)
     {
-        auto centerPoint = getLocalizedCenterPointForGlyph (glyph);
+        auto centerPoint = getLocalCenterPosForGlyph (glyph);
         float dotRadius = (glyph.getId() == draggingId || glyph.getId() == hoveringId) ? DOT_RADIUS_DRAGGING : DOT_RADIUS_DEFAULT;
         drawDot (g, centerPoint, dotRadius, DOT_COLOUR);
     }
@@ -181,6 +271,17 @@ void GlyphGridView::drawPlayingDots (juce::Graphics& g)
         point = getLocalPointFromNormalizedPoint (point, glyph.getCenterPos(), glyph.getSizeFactor());
         
         drawDot (g, point, DOT_RADIUS_PLAYING, PLAYING_DOT_COLOUR);
+    }
+}
+
+void GlyphGridView::drawSelection (juce::Graphics& g)
+{
+    if (selectionRect.has_value())
+    {
+        g.setColour (juce::Colours::white.withAlpha (0.3f));
+        g.fillRect (selectionRect.value());
+        g.setColour (juce::Colours::white);
+        g.drawRect (selectionRect.value());
     }
 }
 
@@ -253,7 +354,7 @@ juce::Point<float> GlyphGridView::getNormalizedPointFromLocalPoint (juce::Point<
     return { normalizedX, normalizedY };
 }
 
-juce::Point<float> GlyphGridView::getLocalizedCenterPointForGlyph (const Glyph& glyph)
+juce::Point<float> GlyphGridView::getLocalCenterPosForGlyph (const Glyph& glyph)
 {
     return getLocalPointFromNormalizedPoint ({ 0.0f, 0.0f }, glyph.getCenterPos(), glyph.getSizeFactor());
 }
@@ -271,7 +372,7 @@ void GlyphGridView::updateHoveringStatus (const juce::MouseEvent &event)
     auto hoverPos = event.getPosition().toFloat();
     for (const auto& glyph : glyphs)
     {
-        auto glyphPos = getLocalizedCenterPointForGlyph (glyph);
+        auto glyphPos = getLocalCenterPosForGlyph (glyph);
         float dist = glyphPos.getDistanceFrom (hoverPos);
         if (dist < minDist)
         {
@@ -304,6 +405,30 @@ void GlyphGridView::moveGlyph (int glyphId, juce::Point<float> centerPos)
         listener->moveGlyph (glyphId, centerPos);
         glyphs = dataSource->getGlyphs();
     }
+}
+
+void GlyphGridView::moveSelectedGlyphsToMouseEvent (const juce::MouseEvent& event)
+{
+    if (listener == nullptr || dataSource == nullptr)
+        return;
+    
+    // Assume selectionStartPos and selectedIdToStartingPosition are valid
+    std::unordered_map<int, juce::Point<float>> idsToPositions;
+    auto eventPos = event.getPosition().toFloat();
+    float xMoved = eventPos.x - selectionStartPos.x;
+    float yMoved = eventPos.y - selectionStartPos.y;
+    
+    for (const auto& pair : selectedIdToStartingPosition)
+    {
+        auto id = pair.first;
+        auto startingPos = pair.second;
+        juce::Point<float> currPos = { startingPos.x + xMoved, startingPos.y + yMoved };
+        currPos = getNormalizedPointFromLocalPoint (currPos); // make sure to normalize
+        idsToPositions[id] = currPos;
+    }
+    
+    listener->moveGlyphs (idsToPositions);
+    glyphs = dataSource->getGlyphs();
 }
 
 void GlyphGridView::removeGlyph (int glyphId)

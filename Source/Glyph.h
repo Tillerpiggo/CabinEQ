@@ -47,11 +47,13 @@ public:
     void setSizeFactor (float sizeFactor);
     void incrementSizeFactor (float increment); // increments size factor, with bounds, and then updates surroundings.
     void setCenterPos (juce::Point<float> centerPos);
-    
+    void moveBy (std::pair<float, float> amountToMove); // moves by [moveX, moveY]
     void setStaticPos (juce::Point<float> staticPos);
     
-    bool isInBounds() const;
+    bool isInBounds (juce::Point<float> centerPos) const; // returns if this glyph would still be in bounds if it had the given center position
     void moveGlyphWithinBounds(); // changes centerPos so that glyph is still in bounds
+    juce::Point<float> getCenterPosWithinBounds (juce::Point<float> hypotheticalCenterPos) const; // gets a center position within bounds, given the hypothetical center position
+    std::pair<float, float> getProjectedMoveDistance (juce::Point<float> hypotheticalCenterPos) const; // returns the projected [moveX, moveY] if you were to try to move the glyph to this location
     void moveSizeFactorWithinBounds(); // changes sizeFactor so that glyph is still in bounds
     std::pair<float, float> getXBounds() const; // returns min x and max x for the current size
     std::pair<float, float> getYBounds() const; // returns min y and max y for the current size
