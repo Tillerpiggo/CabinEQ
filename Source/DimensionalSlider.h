@@ -12,14 +12,14 @@
 
 #include <JuceHeader.h>
 
-class DimensionalSlider  : juce::Component
+class DimensionalSlider  : public juce::Component
 {
 public:
     class Listener
     {
     public:
         virtual ~Listener() = default;
-        virtual void positionChanged (juce::Point<float> pos);
+        virtual void positionChanged (juce::Point<float> pos) = 0;
     };
     
     DimensionalSlider();
@@ -49,7 +49,7 @@ private:
     juce::Point<float> pos { 0.0f, 0.0f };
     
     // Visual constants
-    juce::Colour BACKGROUND_COLOUR = juce::Colours::black;
+    juce::Colour BACKGROUND_COLOUR = juce::Colours::blue;
     juce::Colour BORDER_COLOUR = juce::Colours::white;
     juce::Colour DOT_COLOUR = juce::Colours::yellow;
     float DOT_RADIUS = 4.0f;
