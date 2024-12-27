@@ -37,7 +37,8 @@ private:
     void addRemoveNoiseGeneratorsIfNeeded();
     void updateNoiseGeneratorsIfNeeded();
     
-    std::pair<float, float> getFreqAndPanFromGlyphAtTime (Glyph& glyph, float currTime);
+    std::pair<std::pair<float, float>, float> getFreqPanVolFromGlyphAtTime (Glyph& glyph, float currTime);
+    float volToDB (float vol); // converts volume (from 0 to 1) to db using some arbitrary formula
     
     juce::dsp::ProcessSpec spec;
     std::vector<Glyph> glyphs;

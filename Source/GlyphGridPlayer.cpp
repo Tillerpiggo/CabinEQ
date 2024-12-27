@@ -130,15 +130,16 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
     for (int i = 0; i < glyphs.size(); ++i)
     {
         // Set the appropriate bandpass filter for each noise generator, and implement helper function
-        auto [freq, pan] = getFreqAndPanFromGlyphAtTime (glyphs[i], currTime);
+        auto [freqPan, vol] = getFreqPanVolFromGlyphAtTime (glyphs[i], currTime);
+        auto [freq, pan] = freqPan;
         noiseGenerators[i].setBandwidth (bandwidth);
         noiseGenerators[i].setBandpass (freq);
         noiseGenerators[i].setPan (pan);
-        noiseGenerators[i].setVolumeDB ((1.0f - glyphs[i].getVolume()) * -20.0f);
+        noiseGenerators[i].setVolumeDB (volToDB (glyphs[i].getVolume()) + volToDB (vol));
     }
 }
 
-std::pair<float, float> GlyphGridPlayer::getFreqAndPanFromGlyphAtTime (Glyph& glyph, float time)
+std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (Glyph& glyph, float time)
 {
     // Calculate coords
     auto normalizedCoords = glyph.positionAtTime (time).first;
@@ -157,7 +158,15 @@ std::pair<float, float> GlyphGridPlayer::getFreqAndPanFromGlyphAtTime (Glyph& gl
     float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
     freq = std::exp (logFreq);
     
-    return { freq, pan };
+    // Calculate vol
+    float vol = normalizedCoords.vol;
+    
+    return {{ freq, pan }, vol };
+}
+
+float GlyphGridPlayer::volToDB (float vol)
+{
+    return (1.0f - vol) * -20.0f;
 }
 //
 //std::pair<float, float> GlyphGridPlayer::getFreqAndPanFromNormalizedCoords (juce::Point<float> coords)

@@ -288,9 +288,9 @@ void GlyphGridView::drawPlayingDots (juce::Graphics& g)
     for (const auto& glyph : glyphs)
     {
         auto [point, _] = glyph.positionAtTime (dataSource->getCurrPlayingTime());
-        point = getLocalPointFromNormalizedPoint (point, glyph.getCenterPos(), glyph.getSizeFactor());
+        auto pos = getLocalPointFromNormalizedPoint (point.point(), glyph.getCenterPos(), glyph.getSizeFactor());
         
-        drawDot (g, point, DOT_RADIUS_PLAYING, PLAYING_DOT_COLOUR);
+        drawDot (g, pos, DOT_RADIUS_PLAYING, PLAYING_DOT_COLOUR);
     }
 }
 
@@ -316,10 +316,10 @@ void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& str
             auto startPoint = points[i];
             auto endPoint = points[i + 1];
             
-            startPoint = getLocalPointFromNormalizedPoint (startPoint, centerPos, sizeFactor);
-            endPoint = getLocalPointFromNormalizedPoint (endPoint, centerPos, sizeFactor);
+            auto startPos = getLocalPointFromNormalizedPoint (startPoint.point(), centerPos, sizeFactor);
+            auto endPos = getLocalPointFromNormalizedPoint (endPoint.point(), centerPos, sizeFactor);
             
-            path.addLineSegment (juce::Line<float> (startPoint, endPoint), STROKE_WIDTH);
+            path.addLineSegment (juce::Line<float> (startPos, endPos), STROKE_WIDTH);
         }
     }
     

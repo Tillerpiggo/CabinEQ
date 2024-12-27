@@ -118,7 +118,8 @@ juce::Point<float> AnimatedGlyph::normalizedPositionForMouseEvent (const juce::M
 {
     float x = event.getPosition().x;
     float y = event.getPosition().y;
-    return getNormalizedPositionForPoint ({ x, y });
+    auto point = getNormalizedPositionForPoint ({ x, y, 1.0f });
+    return { point.x, point.y };
 }
 
 void AnimatedGlyph::drawStrokes (juce::Graphics& g)
@@ -138,7 +139,7 @@ void AnimatedGlyph::drawStrokes (juce::Graphics& g)
             startPoint = getPointInBounds (startPoint);
             endPoint = getPointInBounds (endPoint);
             
-            path.addLineSegment(juce::Line<float> (startPoint, endPoint), strokeWidth * strokeWidthFactor);
+            path.addLineSegment(juce::Line<float> (startPoint.point(), endPoint.point()), strokeWidth * strokeWidthFactor);
         }
     }
     
@@ -155,16 +156,16 @@ void AnimatedGlyph::drawPlayingDot (juce::Graphics& g)
     point = getPointInBounds (point);
     
     float dotRadius = strokeWidth * 2.0f * strokeWidthFactor;
-    drawDot (g, point, dotRadius, PLAYING_DOT_COLOR, false);
+    drawDot (g, point.point(), dotRadius, PLAYING_DOT_COLOR, false);
     
 }
 
 void AnimatedGlyph::drawCenterDot (juce::Graphics& g)
 {
-    juce::Point<float> centerPoint = getPointInBounds ({ 0.0f, 0.0f });
+    NoisePoint centerPoint = getPointInBounds ({ 0.0f, 0.0f, 1.0f });
     juce::Colour dotColour = DRAGGING_DOT_COLOR;
     float dotRadius = 8.0f;
-    drawDot (g, centerPoint, dotRadius, dotColour, isHovering);
+    drawDot (g, centerPoint.point(), dotRadius, dotColour, isHovering);
 }
 
 void AnimatedGlyph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected)
@@ -178,7 +179,7 @@ void AnimatedGlyph::drawDot (juce::Graphics& g, juce::Point<float> point, float 
     g.fillEllipse (point.x - dotRadius, point.y - dotRadius, dotRadius * 2, dotRadius * 2);
 }
 
-juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
+NoisePoint AnimatedGlyph::getPointInBounds (NoisePoint point)
 {
     float padding = 10.0f;
     
@@ -196,10 +197,10 @@ juce::Point<float> AnimatedGlyph::getPointInBounds (juce::Point<float> point)
     float xInBounds = padding + xScaled * (getWidth() - padding * 2.0f);
     float yInBounds = padding + yScaled * (getHeight() - padding * 2.0f);
     
-    return { xInBounds, yInBounds };
+    return { xInBounds, yInBounds, point.vol };
 }
 
-juce::Point<float> AnimatedGlyph::getNormalizedPositionForPoint (juce::Point<float> point)
+NoisePoint AnimatedGlyph::getNormalizedPositionForPoint (NoisePoint point)
 {
     float x = point.x;
     float y = point.y;
@@ -208,5 +209,5 @@ juce::Point<float> AnimatedGlyph::getNormalizedPositionForPoint (juce::Point<flo
     float normalizedY = (2.0f * y / getHeight()) - 1.0f;
     normalizedY *= -1;
     
-    return { normalizedX, normalizedY };
+    return { normalizedX, normalizedY, point.vol };
 }

@@ -10,12 +10,12 @@
 
 #include "Stroke.h"
 
-Stroke::Stroke (std::vector<juce::Point<float>> points)
+Stroke::Stroke (std::vector<NoisePoint> points)
     : points (points)
 {
 }
 
-juce::Point<float> Stroke::positionAtTime (float time) const
+NoisePoint Stroke::positionAtTime (float time) const
 {
     if (time < 0 || time > 1)
     {
@@ -35,17 +35,18 @@ juce::Point<float> Stroke::positionAtTime (float time) const
     
     float posX = belowPt.x * belowPercent + abovePt.x * abovePercent;
     float posY = belowPt.y * belowPercent + abovePt.y * abovePercent;
+    float posV = belowPt.vol * belowPercent + abovePt.vol * abovePercent;
     
     // Linearly interpolate the point
-    return { posX, posY };
+    return { posX, posY, posV };
 }
 
-const std::vector<juce::Point<float>>& Stroke::getPoints() const
+const std::vector<NoisePoint>& Stroke::getPoints() const
 {
     return points;
 }
 
-std::pair<juce::Point<float>, juce::Point<float>> Stroke::getEndPoints() const
+std::pair<NoisePoint, NoisePoint> Stroke::getEndPoints() const
 {
     return { points[0], points[points.size() - 1] };
 }

@@ -63,8 +63,8 @@ private:
     void drawPlayingDot (juce::Graphics& g);
     void drawCenterDot (juce::Graphics& g);
     void drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected);
-    juce::Point<float> getPointInBounds (juce::Point<float> point);
-    juce::Point<float> getNormalizedPositionForPoint (juce::Point<float> point);
+    NoisePoint getPointInBounds (NoisePoint point);
+    NoisePoint getNormalizedPositionForPoint (NoisePoint point);
     
     Listener* listener = nullptr;
     DataSource* dataSource = nullptr;

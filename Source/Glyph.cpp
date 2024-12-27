@@ -15,7 +15,7 @@ ArchetypalGlyph::ArchetypalGlyph (int id, std::vector<Stroke> initialStrokes)
 {
 }
 
-std::pair<juce::Point<float>, float> ArchetypalGlyph::positionAtTime (float time) const
+std::pair<NoisePoint, float> ArchetypalGlyph::positionAtTime (float time) const
 {
     if (time < 0 || time >= 1)
     {
@@ -35,10 +35,10 @@ const std::vector<Stroke>& ArchetypalGlyph::getStrokes() const
     return strokes;
 }
 
-const std::vector<juce::Point<float>> ArchetypalGlyph::getVertices() const
+const std::vector<NoisePoint> ArchetypalGlyph::getVertices() const
 {
     // this will overlap the end points... whatever for now
-    std::vector<juce::Point<float>> vertices;
+    std::vector<NoisePoint> vertices;
     for (const auto& stroke : strokes)
     {
         for (const auto& point : stroke.getPoints())
@@ -83,7 +83,7 @@ Glyph::Glyph (int id, ArchetypalGlyph archetype, juce::Point<float> centerPos, f
     moveGlyphWithinBounds();
 }
 
-std::pair<juce::Point<float>, float> Glyph::positionAtTime (float time) const
+std::pair<NoisePoint, float> Glyph::positionAtTime (float time) const
 {
     return archetype.positionAtTime (time);
 }
@@ -93,7 +93,7 @@ const std::vector<Stroke>& Glyph::getStrokes() const
     return archetype.getStrokes();
 }
 
-const std::vector<juce::Point<float>> Glyph::getVertices() const
+const std::vector<NoisePoint> Glyph::getVertices() const
 {
     return archetype.getVertices();
 }

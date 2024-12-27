@@ -33,10 +33,10 @@ void ArchetypeView::paint (juce::Graphics& g)
             auto startPoint = points[i];
             auto endPoint = points[i + 1];
             
-            startPoint = normalizePointInBounds (startPoint);
-            endPoint = normalizePointInBounds (endPoint);
+            auto startPos = normalizePointInBounds (startPoint.point());
+            auto endPos = normalizePointInBounds (endPoint.point());
             
-            path.addLineSegment (juce::Line<float> (startPoint, endPoint), STROKE_WIDTH);
+            path.addLineSegment (juce::Line<float> (startPos, endPos), STROKE_WIDTH);
         }
     }
     
