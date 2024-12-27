@@ -19,6 +19,7 @@
 #include "CabinEqLookAndFeel.h"
 #include "NoiseGridView.h"
 #include "CalibrationView.h"
+#include "MultiBandStepBar.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
@@ -58,7 +59,7 @@ protected:
     
     // JUCE Labels
     NoiseGridView noiseGridView;
-//    GlyphView glyphView;
+    MultiBandStepBar multiBandStepBar;
     CalibrationView calibrationView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;

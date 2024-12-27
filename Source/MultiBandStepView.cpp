@@ -46,6 +46,7 @@ void MultiBandStepView::setListener (Listener* listener)
 void MultiBandStepView::setMultiBandStep (MultiBandStep step)
 {
     this->step = step;
+    repaint();
 }
 
 void MultiBandStepView::mouseEnter (const juce::MouseEvent& event)

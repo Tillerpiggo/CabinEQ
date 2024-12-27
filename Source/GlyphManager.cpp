@@ -25,9 +25,26 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})
     });
     
-    archetypalGlyphs.push_back (diamonds);
-    archetypalGlyphs.push_back (xGlyph);
-    archetypalGlyphs.push_back (squareGlyph);
+    ArchetypalGlyph lineGlyph (0, {
+        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
+    });
+    ArchetypalGlyph line2Glyph (1, {
+        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }})
+    });
+    ArchetypalGlyph line3Glyph (2, {
+        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
+    });
+    ArchetypalGlyph dotGlyph (3, {
+        Stroke ({{ 0, 0 }, { 0, 0 }})
+    });
+    
+//    archetypalGlyphs.push_back (diamonds);
+//    archetypalGlyphs.push_back (xGlyph);
+//    archetypalGlyphs.push_back (squareGlyph);
+    archetypalGlyphs.push_back (lineGlyph);
+    archetypalGlyphs.push_back (line2Glyph);
+    archetypalGlyphs.push_back (line3Glyph);
+    archetypalGlyphs.push_back (dotGlyph);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)
@@ -83,6 +100,19 @@ void GlyphManager::removeGlyph (int glyphId)
     }
     
     updateNextAvailableId();
+}
+
+void GlyphManager::incrementGlyphVolume (int glyphId, float increment)
+{
+    // Find the glyph with that id, and if it exists, increment the size factor
+    for (int i = 0; i < glyphs.size(); ++i)
+    {
+        if (glyphs[i].getId() == glyphId)
+        {
+            glyphs[i].incrementVolume (increment);
+            break;
+        }
+    }
 }
 
 void GlyphManager::incrementSizeFactor (int glyphId, float increment)

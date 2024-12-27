@@ -62,7 +62,24 @@ Glyph::Glyph (int id, ArchetypalGlyph archetype)
 Glyph::Glyph (int id, ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
     : id (id), archetype (archetype), sizeFactor (sizeFactor), centerPos (centerPos)
 {
-    std::cout << "centerPos: (x: " << centerPos.x << ", y: " << centerPos.y << ")" << std::endl;
+    float minX = 1.0f;
+    float maxX = -1.0f;
+    float minY = 1.0f;
+    float maxY = -1.0f;
+    for (const auto& stroke : archetype.getStrokes())
+    {
+        for (const auto& point : stroke.getPoints())
+        {
+            minX = std::min (minX, point.x);
+            maxX = std::max (maxX, point.x);
+            minY = std::min (minY, point.y);
+            maxY = std::max (maxY, point.y);
+        }
+    }
+    
+    width = std::max (0.01f, maxX - minX) / 2.0f;
+    height = std::max (0.01f, maxY - minY) / 2.0f;
+    
     moveGlyphWithinBounds();
 }
 
@@ -91,6 +108,11 @@ float Glyph::getSizeFactor() const
     return sizeFactor;
 }
 
+float Glyph::getVolume() const
+{
+    return volume;
+}
+
 juce::Point<float> Glyph::getCenterPos() const
 {
     return centerPos;
@@ -114,6 +136,11 @@ void Glyph::setSizeFactor (float sizeFactor)
     // Make sure we're still in bounds
     if (! isInBounds (centerPos))
         moveGlyphWithinBounds(); // if not, move the center so that we are in bounds
+}
+
+void Glyph::incrementVolume (float increment)
+{
+    this->volume = std::max (std::min (volume + increment, 1.0f), 0.0f);
 }
 
 void Glyph::incrementSizeFactor (float increment)
@@ -168,7 +195,7 @@ float Glyph::getSizeFactorWithinBounds (float hypotheticalIncrement) const
     float projectedSizeFactor = sizeFactor + hypotheticalIncrement;
     float maxXSizeFactor = std::min (std::abs (-1.0f - centerPos.x), std::abs (1.0f - centerPos.x));
     float maxYSizeFactor = std::min (std::abs (-1.0f - centerPos.y), std::abs (1.0f - centerPos.y));
-    projectedSizeFactor = std::min (projectedSizeFactor, std::min (maxXSizeFactor, maxYSizeFactor));
+    projectedSizeFactor = std::min (projectedSizeFactor, std::min (maxXSizeFactor / width, maxYSizeFactor / height));
     
     return std::min (std::max (projectedSizeFactor, 0.02f), 1.0f);
 }
@@ -189,20 +216,20 @@ void Glyph::moveSizeFactorWithinBounds()
 {
     float maxXSizeFactor = std::min (std::abs (-1.0f - centerPos.x), std::abs (1.0f - centerPos.x));
     float maxYSizeFactor = std::min (std::abs (-1.0f - centerPos.y), std::abs (1.0f - centerPos.y));
-    sizeFactor = std::min (sizeFactor, std::min (maxXSizeFactor, maxYSizeFactor));
+    sizeFactor = std::min (sizeFactor, std::min (maxXSizeFactor / width, maxYSizeFactor / height));
 }
 
 std::pair<float, float> Glyph::getXBounds() const
 {
-    float minX = -1.0f + sizeFactor;
-    float maxX = 1.0f - sizeFactor;
+    float minX = -1.0f + sizeFactor * width;
+    float maxX = 1.0f - sizeFactor * width;
     return { minX, maxX };
 }
 
 std::pair<float, float> Glyph::getYBounds() const
 {
-    float minY = -1.0f + sizeFactor;
-    float maxY = 1.0f - sizeFactor;
+    float minY = -1.0f + sizeFactor * height;
+    float maxY = 1.0f - sizeFactor * height;
     return { minY, maxY };
 }
 

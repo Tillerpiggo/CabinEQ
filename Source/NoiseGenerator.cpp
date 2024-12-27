@@ -47,7 +47,7 @@ std::pair<float, float> NoiseGenerator::getNextSample()
 //        rightGain *= slopeGain;
     }
     
-    float pinkNoiseSample = pinkNoise.generate() * 10.0f;
+    float pinkNoiseSample = pinkNoise.generate() * 10.0f * totalGain;
     pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass2.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass3.processSample (pinkNoiseSample);
@@ -108,6 +108,11 @@ void NoiseGenerator::setPan (float pan)
         this->pan = pan;
         shouldUpdatePan = true;
     }
+}
+
+void NoiseGenerator::setVolumeDB (float volumeDB)
+{
+    this->totalGain = juce::Decibels::decibelsToGain (volumeDB);
 }
 
 void NoiseGenerator::mute()

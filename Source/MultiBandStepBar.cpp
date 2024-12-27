@@ -28,7 +28,7 @@ void MultiBandStepBar::paint (juce::Graphics& g)
 void MultiBandStepBar::resized()
 {
     // Calculate bounds such that each step has a 3:2 width:height ratio
-    juce::Rectangle<int> bounds (0, 0, getWidth() * 3.0f / 2.0f, getHeight());
+    juce::Rectangle<int> bounds (0, 0, stepViews.size() * getHeight() * 1.5f, getHeight());
     
     Layout layout (getBounds().withX (0).withY (0), 8.0f);
     for (int i = 0; i < stepViews.size(); ++i)
@@ -62,7 +62,6 @@ void MultiBandStepBar::updateBandProfile (BandProfile bandProfile)
         stepViews.push_back (std::make_unique<MultiBandStepView>());
         stepViews[i + numStepViews]->setListener (this);
         addAndMakeVisible (stepViews[i + numStepViews].get());
-        
     }
     if (numToAdd < 0)
     {
@@ -73,7 +72,12 @@ void MultiBandStepBar::updateBandProfile (BandProfile bandProfile)
     for (int i = 0; i < multiBandSteps.size(); ++i)
     {
         stepViews[i]->setMultiBandStep (multiBandSteps[i]);
+        std::cout << "multibandstep: (id: " << multiBandSteps[i].getId() << std::endl;
     }
+    
+    std::cout << "num step views: " << stepViews.size() << std::endl;
+    
+    resized();
 }
 
 void MultiBandStepBar::onStepEnabled (int stepId, bool isEnabled)

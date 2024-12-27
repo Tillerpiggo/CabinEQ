@@ -484,6 +484,12 @@ void CabinEqAudioProcessor::removeGlyph (int glyphId)
     playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 
+void CabinEqAudioProcessor::incrementGlyphVolume (int glyphId, float increment)
+{
+    glyphManager.incrementGlyphVolume (glyphId, increment);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
+}
+
 void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float increment)
 {
     glyphManager.incrementSizeFactor (glyphId, increment);
@@ -492,11 +498,13 @@ void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float increment)
 void CabinEqAudioProcessor::moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions)
 {
     glyphManager.moveGlyphs (idsToPositions);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 
 void CabinEqAudioProcessor::scaleGlyphs (std::unordered_set<int> glyphIds, float increment)
 {
     glyphManager.scaleGlyphs (glyphIds, increment);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 
 const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()

@@ -66,6 +66,7 @@ private:
     void moveGlyph (int glyphId, juce::Point<float> centerPos);
     void moveSelectedGlyphsToMouseEvent (const juce::MouseEvent& event); // tries to move the selected glyphs to the given mouse event, assuming the event is a drag from the original starting position.
     void removeGlyph (int glyphId);
+    void incrementVolume (int glyphId, float increment);
     void incrementSizeFactor (int glyphId, float increment);
     void scaleSelectedGlyphs (float increment);
     
@@ -75,7 +76,7 @@ private:
     std::vector<Glyph> glyphs;
     
     float STROKE_WIDTH = 3.0f;
-    juce::Colour STROKE_COLOUR = juce::Colours::pink;
+    juce::Colour STROKE_COLOUR = juce::Colours::red;
     juce::Colour DOT_COLOUR = juce::Colours::turquoise;
     juce::Colour PLAYING_DOT_COLOUR = juce::Colours::green;
     float DOT_RADIUS_DEFAULT = 6.0f;

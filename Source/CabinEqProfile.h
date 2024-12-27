@@ -26,8 +26,8 @@ public:
     void removeMultiBandStep (const int stepId);
     void setStepEnabled (const int stepId, const bool isEnabled);
     int addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId); // returns the id of the added band
-    void removeBand (const int id, const int stepId);
-    void updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId);
+    void removeBand (const int bandId, const int stepId);
+    void updateBand (const int bandId, const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId);
     
     void initValueTreeFromAPVTS(); // sets this value tree to match the one in the main apvts
     const juce::String getName() const;

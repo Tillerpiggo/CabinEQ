@@ -15,6 +15,7 @@
 
 PlaybackManager::PlaybackManager()
     : firFilter (14),
+      tiltFilter (12),
       isFilterOn (true),
       isPlayingNoise (false)
 {
@@ -35,10 +36,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
         {
             std::pair<float, float> value = getNextSample();
-            leftChannel[sample] = value.first * 0.15 * 0.5 * volumeOffset;
+            leftChannel[sample] += value.first * 0.15 * 0.5 * volumeOffset;
             
             if (rightChannel)
-                rightChannel[sample] = value.second * 0.15 * 0.5 * volumeOffset;
+                rightChannel[sample] += value.second * 0.15 * 0.5 * volumeOffset;
         }
     }
     
@@ -64,10 +65,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
-//    if (isPlayingNoise && isCabinNoise)
-//    {
-//        tiltFilter.process (ioContext);
-//    }
+    if (isPlayingNoise)
+    {
+        tiltFilter.process (ioContext);
+    }
     
     overallVolumeProcessor.process (ioContext);
 }
@@ -88,6 +89,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
     firFilter.prepare (spec);
+    tiltFilter.prepare (spec);
+    tiltFilter.updateWithCurve (tiltCurve, 12);
 //    firFilter.updateWithCurve (firCurve);
 }
 

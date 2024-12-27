@@ -81,3 +81,14 @@ protected:
     std::vector<CurvePt> leftCurvePts;
     std::vector<CurvePt> rightCurvePts;
 };
+
+class TiltCurve  : public Curve
+{
+public:
+    const std::pair<float, float> valueAtTime (float time) override
+    {
+        float freq = std::max (20.0f, time * 22050);
+        float val = -1.5 * std::log2 (freq / 1000.0f);
+        return { val, val };
+    }
+};

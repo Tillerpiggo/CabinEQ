@@ -36,9 +36,10 @@ public:
 class MultiBandStep
 {
 public:
-    MultiBandStep (std::vector<Band> bands, bool isEnabled);
+    MultiBandStep (std::vector<Band> bands, int id, bool isEnabled);
     
     const std::vector<Band>& getBands() const;
+    int getId() const;
     bool getIsEnabled() const;
     
     // BandEqCurve methods
@@ -49,6 +50,7 @@ public:
     
 private:
     std::vector<Band> bands;
+    int id;
     bool isEnabled;
 };
 

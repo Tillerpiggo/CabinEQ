@@ -27,7 +27,8 @@ const BandProfile CabinEqProfile::getBandProfile() const
         for (const auto& multiBandStep : amplTree)
         {
             auto newBands = getBandsForMultiBandStep (multiBandStep);
-            steps.push_back (MultiBandStep (newBands, true));
+            auto id = multiBandStep.getProperty (idId);
+            steps.push_back (MultiBandStep (newBands, id, true));
         }
     }
     
@@ -119,7 +120,7 @@ int CabinEqProfile::addBand (const float freq, const float ampl, const float ban
     return id;
 }
 
-void CabinEqProfile::removeBand (const int id, const int stepId)
+void CabinEqProfile::removeBand (const int bandId, const int stepId)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -133,12 +134,12 @@ void CabinEqProfile::removeBand (const int id, const int stepId)
         return;
     }
     
-    juce::ValueTree nodeToRemove = amplBandTree.getChildWithProperty (idId, id);
+    juce::ValueTree nodeToRemove = multiBandStep.getChildWithProperty (idId, bandId);
     if (nodeToRemove.isValid())
-        amplBandTree.removeChild (nodeToRemove, nullptr);
+        multiBandStep.removeChild (nodeToRemove, nullptr);
 }
 
-void CabinEqProfile::updateBand (const int id, const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId)
+void CabinEqProfile::updateBand (const int bandId, const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -152,7 +153,7 @@ void CabinEqProfile::updateBand (const int id, const float freq, const float amp
         return;
     }
     
-    updateBandInMultiBandStep (id, freq, ampl, bandwidth, type, multiBandStep);
+    updateBandInMultiBandStep (bandId, freq, ampl, bandwidth, type, multiBandStep);
 }
 
 void CabinEqProfile::initValueTreeFromAPVTS()

@@ -139,6 +139,7 @@ public:
     void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) override;
     void moveGlyph (int glyphId, juce::Point<float> centerPos) override;
     void removeGlyph (int glyphId) override;
+    void incrementGlyphVolume (int glyphId, float increment) override;
     void incrementSizeFactor (int glyphId, float increment) override;
     void moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions) override;
     void scaleGlyphs (std::unordered_set<int> glyphIds, float increment) override;

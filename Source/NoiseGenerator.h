@@ -25,6 +25,7 @@ public:
     void setBandwidth (float bandwidth);
     void setBandpass (float centerFreq);
     void setPan (float pan);
+    void setVolumeDB (float volumeDB);
     void mute();
     
 private:
@@ -47,6 +48,7 @@ private:
     float centerFreq = 1000.0f;
     float leftGain = 0.0f;
     float rightGain = 0.0f;
+    float totalGain = 1.0f;
     
     bool isMuted = false;
     bool shouldUpdateGenerators = true;

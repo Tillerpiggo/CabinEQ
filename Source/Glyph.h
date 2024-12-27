@@ -41,10 +41,12 @@ public:
     ArchetypalGlyph getArchetype() const; // returns an archetype of this glyph
     
     float getSizeFactor() const;
+    float getVolume() const;
     juce::Point<float> getCenterPos() const;
     int getId() const;
     
     void setSizeFactor (float sizeFactor);
+    void incrementVolume (float increment); // increments volume, with bounds 0 and 1
     void incrementSizeFactor (float increment); // increments size factor, with bounds, and then updates surroundings.
     void setCenterPos (juce::Point<float> centerPos);
     void moveBy (std::pair<float, float> amountToMove); // moves by [moveX, moveY]
@@ -64,5 +66,8 @@ private:
     int id;
     ArchetypalGlyph archetype;
     float sizeFactor = 1.0f; // can be in (0, 1], with 1 being full-sized
+    float volume = 1.0f; // can be from (0, 1], with 0 being probably around -20db or something
+    float width = 1.0f;
+    float height = 1.0f;
     juce::Point<float> centerPos = { 0.0f, 0.0f }; // can be x in [-1, 1], y in [-1, 1]
 };

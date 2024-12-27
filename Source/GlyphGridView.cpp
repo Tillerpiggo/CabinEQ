@@ -204,7 +204,14 @@ void GlyphGridView::mouseWheelMove (const juce::MouseEvent &event, const juce::M
     if (hoveringId == -1)
         return;
     
-    incrementSizeFactor (hoveringId, wheel.deltaY);
+    if (event.mods.isShiftDown())
+    {
+        incrementVolume (hoveringId, wheel.deltaY);
+    }
+    else
+    {
+        incrementSizeFactor (hoveringId, wheel.deltaY);
+    }
 }
 
 bool GlyphGridView::isInterestedInDragSource (const SourceDetails& dragSourceDetails)
@@ -262,7 +269,7 @@ void GlyphGridView::drawGlyphs (juce::Graphics& g)
         for (const int id : selectedIds)
             if (glyph.getId() == id)
                 isSelected = true;
-        drawGlyph (g, glyph.getStrokes(), glyph.getCenterPos(), glyph.getSizeFactor(), isSelected ? juce::Colours::white : STROKE_COLOUR);
+        drawGlyph (g, glyph.getStrokes(), glyph.getCenterPos(), glyph.getSizeFactor(), isSelected ? juce::Colours::white : STROKE_COLOUR.withAlpha (glyph.getVolume()));
     }
 }
 
@@ -449,6 +456,15 @@ void GlyphGridView::removeGlyph (int glyphId)
     if (listener != nullptr && dataSource != nullptr)
     {
         listener->removeGlyph (glyphId);
+        glyphs = dataSource->getGlyphs();
+    }
+}
+
+void GlyphGridView::incrementVolume (int glyphId, float increment)
+{
+    if (listener != nullptr && dataSource != nullptr)
+    {
+        listener->incrementGlyphVolume (glyphId, increment);
         glyphs = dataSource->getGlyphs();
     }
 }

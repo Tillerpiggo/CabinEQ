@@ -134,6 +134,7 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
         noiseGenerators[i].setBandwidth (bandwidth);
         noiseGenerators[i].setBandpass (freq);
         noiseGenerators[i].setPan (pan);
+        noiseGenerators[i].setVolumeDB ((1.0f - glyphs[i].getVolume()) * -20.0f);
     }
 }
 

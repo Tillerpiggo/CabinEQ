@@ -23,13 +23,18 @@ float Band::bandwidthToQFactor (float bandwidth)
 }
 
 //==============================================
-MultiBandStep::MultiBandStep (std::vector<Band> bands, bool isEnabled)
-    : bands (bands), isEnabled (isEnabled)
+MultiBandStep::MultiBandStep (std::vector<Band> bands, int id, bool isEnabled)
+    : bands (bands), id (id), isEnabled (isEnabled)
 {}
 
 const std::vector<Band>& MultiBandStep::getBands() const
 {
     return bands;
+}
+
+int MultiBandStep::getId() const
+{
+    return id;
 }
 
 bool MultiBandStep::getIsEnabled() const

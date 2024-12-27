@@ -35,9 +35,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     noiseGridView.setListener (&processor);
     noiseGridView.setCalibrationListener (&processor);
     noiseGridView.setDataSource (&processor);
-//    glyphView.setListener (&processor);
-//    glyphView.setCalibrationListener (&processor);
-//    glyphView.setDataSource (&processor);
+//    multiBandStepBar.setListener (&processor);
+    multiBandStepBar.setBackendListener (&processor);
     calibrationView.setListener (&processor);
     calibrationView.setCalibrationListener (&processor);
     calibrationView.setDataSource (&processor);
@@ -49,7 +48,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
-//    addAndMakeVisible (glyphView);
+    addAndMakeVisible (multiBandStepBar);
     
     didLoadData();
     
@@ -88,7 +87,8 @@ void CabinEqPage::resized()
     
     Layout layout (getBounds(), 8.0f);
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
-    layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.6);
+    layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
+    layout.addRow ({ Space (&multiBandStepBar) }, 60);
     layout.addRow ({ Space (&calibrationView) });
     layout.updateComponentBounds();
 }
@@ -264,6 +264,8 @@ void CabinEqPage::didLoadData()
         processor.addProfile (firstProfileId);
         goToProfileWithId (firstProfileId);
     }
+    
+    multiBandStepBar.updateBandProfile (processor.getBandProfile());
 }
 
 //=========================================
