@@ -86,6 +86,10 @@
         <FILE id="XTfbD5" name="CabinPeqGraph.cpp" compile="1" resource="0"
               file="Source/CabinPeqGraph.cpp"/>
         <FILE id="VOfEsn" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
+        <FILE id="Q0zFcX" name="DimensionalSlider.cpp" compile="1" resource="0"
+              file="Source/DimensionalSlider.cpp"/>
+        <FILE id="XrqO91" name="DimensionalSlider.h" compile="0" resource="0"
+              file="Source/DimensionalSlider.h"/>
         <FILE id="pvhksR" name="StepView.cpp" compile="1" resource="0" file="Source/StepView.cpp"/>
         <FILE id="B3mQPN" name="StepView.h" compile="0" resource="0" file="Source/StepView.h"/>
         <FILE id="auxb98" name="CalibrationView.cpp" compile="1" resource="0"

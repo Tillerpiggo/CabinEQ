@@ -305,9 +305,30 @@ void GlyphGridView::drawSelection (juce::Graphics& g)
     }
 }
 
+//void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour)
+//{
+//    juce::Path path;
+//    for (const auto& stroke : strokes)
+//    {
+//        auto points = stroke.getPoints();
+//        for (int i = 0; i < points.size() - 1; ++i)
+//        {
+//            auto startPoint = points[i];
+//            auto endPoint = points[i + 1];
+//            
+//            auto startPos = getLocalPointFromNormalizedPoint (startPoint.point(), centerPos, sizeFactor);
+//            auto endPos = getLocalPointFromNormalizedPoint (endPoint.point(), centerPos, sizeFactor);
+//            
+//            path.addLineSegment (juce::Line<float> (startPos, endPos), STROKE_WIDTH);
+//        }
+//    }
+//    
+//    g.setColour (strokeColour);
+//    g.fillPath (path);
+//}
+
 void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour)
 {
-    juce::Path path;
     for (const auto& stroke : strokes)
     {
         auto points = stroke.getPoints();
@@ -318,13 +339,28 @@ void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& str
             
             auto startPos = getLocalPointFromNormalizedPoint (startPoint.point(), centerPos, sizeFactor);
             auto endPos = getLocalPointFromNormalizedPoint (endPoint.point(), centerPos, sizeFactor);
-            
-            path.addLineSegment (juce::Line<float> (startPos, endPos), STROKE_WIDTH);
+
+            // Create a gradient for the line segment
+            juce::ColourGradient gradient (
+                strokeColour.withAlpha(static_cast<float> (startPoint.vol + 1.0f) / 2.0f), // Start point opacity
+                startPos,
+                strokeColour.withAlpha(static_cast<float> (endPoint.vol + 1.0f) / 2.0f),   // End point opacity
+                endPos,
+                false // Not radial
+            );
+
+            gradient.addColour(0.0, strokeColour.withAlpha(static_cast<float>(startPoint.vol))); // Start color
+            gradient.addColour(1.0, strokeColour.withAlpha(static_cast<float>(endPoint.vol)));   // End color
+
+            // Set the gradient as the fill
+            g.setGradientFill(gradient);
+
+            // Draw the line segment with the gradient
+            juce::Path path;
+            path.addLineSegment(juce::Line<float>(startPos, endPos), STROKE_WIDTH);
+            g.fillPath(path);
         }
     }
-    
-    g.setColour (strokeColour);
-    g.fillPath (path);
 }
 
 void GlyphGridView::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour)

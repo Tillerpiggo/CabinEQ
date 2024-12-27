@@ -29,7 +29,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
     });
     ArchetypalGlyph line2Glyph (1, {
-        Stroke ({{ -1, -1, 0 }, { 1, 1, 1 }, { -1, -1, 0 }})
+        Stroke ({{ -1, -1, 1 }, { 1, 1, 1 }, { -1, -1, 1 }})
     });
     ArchetypalGlyph line3Glyph (2, {
         Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
@@ -37,6 +37,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     ArchetypalGlyph cubeGlyph (3, {
         Stroke ({{ -1, -1, 1 }, { -1, 1, 1 }, { -0.5, 0.5, 0 }, { 0.5, 0.5, 0 }, { 1, 1, 0 }, { 1, 1, 1 }, { 1, -1, 1 }, { 0.5, -0.5, 0 }, { -0.5, -0.5, 0 }, { -1, -1, 1 }})
     });
+    ArchetypalGlyph dotGlyph (4, { Stroke ({{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 0, 0 }}) });
     
 //    archetypalGlyphs.push_back (diamonds);
 //    archetypalGlyphs.push_back (xGlyph);
@@ -45,6 +46,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (line2Glyph);
     archetypalGlyphs.push_back (line3Glyph);
     archetypalGlyphs.push_back (cubeGlyph);
+    archetypalGlyphs.push_back (dotGlyph);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)
