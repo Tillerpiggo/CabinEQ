@@ -19,11 +19,12 @@
 // This provides a UI to adjust knobs, and to have those knobs recommend changes to the currently selected bands
 class MagicKnob  : public BuildableComponent
 {
+public:
     class Listener
     {
     public:
         virtual ~Listener() = default;
-        virtual void setBands (std::vector<Band> bands);
+        virtual void setBands (std::vector<Band> bands) = 0;
     };
     
     MagicKnob();

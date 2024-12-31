@@ -20,11 +20,13 @@
 #include "NoiseGridView.h"
 #include "CalibrationView.h"
 #include "MultiBandStepBar.h"
+#include "MagicKnob.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
-                      public CabinEqAudioProcessor::Listener
+                      public CabinEqAudioProcessor::Listener,
+                      public MagicKnob::Listener
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
@@ -40,6 +42,8 @@ public:
     void textEditorFocusLost (juce::TextEditor& textEditor) override;
     void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
     void inputAttemptWhenModal() override;
+    
+    void setBands (std::vector<Band> bands) override;
     
     void didLoadData() override;
     
@@ -60,6 +64,7 @@ protected:
     // JUCE Labels
     NoiseGridView noiseGridView;
     MultiBandStepBar multiBandStepBar;
+    MagicKnob magicKnob;
     CalibrationView calibrationView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;

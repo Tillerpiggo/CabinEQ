@@ -317,7 +317,6 @@ void CabinPeqGraph::positionChanged (juce::Point<float> pos)
     }
     
     updateBands();
-    repaint();
 }
 
 void CabinPeqGraph::setProvisionalBands (std::vector<Band> provisionalBands)
@@ -336,6 +335,7 @@ void CabinPeqGraph::updateBands()
     {
         bandProfile = dataSource->getBandProfile();
         curve.updateWithBands (bandProfile.getBands());
+        repaint();
     }
 }
 
