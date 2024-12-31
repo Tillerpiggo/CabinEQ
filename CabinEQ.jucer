@@ -35,6 +35,9 @@
               file="Source/QualityStepManager.cpp"/>
         <FILE id="Jdl3qk" name="QualityStepManager.h" compile="0" resource="0"
               file="Source/QualityStepManager.h"/>
+        <FILE id="QQV5E6" name="MagicDecoder.cpp" compile="1" resource="0"
+              file="Source/MagicDecoder.cpp"/>
+        <FILE id="n9YrCr" name="MagicDecoder.h" compile="0" resource="0" file="Source/MagicDecoder.h"/>
       </GROUP>
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
         <FILE id="AynBKb" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
@@ -64,6 +67,8 @@
               file="Source/NoiseSequenceGrid.h"/>
       </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
+        <FILE id="xw52aN" name="MagicKnob.cpp" compile="1" resource="0" file="Source/MagicKnob.cpp"/>
+        <FILE id="JgcoC3" name="MagicKnob.h" compile="0" resource="0" file="Source/MagicKnob.h"/>
         <GROUP id="{3B5A2BE2-E6B6-3B7A-F6E4-7F90726FB230}" name="Layout">
           <FILE id="AatRfE" name="Layout.cpp" compile="1" resource="0" file="Source/Layout.cpp"/>
           <FILE id="IvB2LP" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
