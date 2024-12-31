@@ -14,6 +14,7 @@
 #include "Layout.h"
 #include "BuildableComponent.h"
 #include "BandProfile.h"
+#include "MagicDecoder.h"
 
 // This provides a UI to adjust knobs, and to have those knobs recommend changes to the currently selected bands
 class MagicKnob  : public BuildableComponent

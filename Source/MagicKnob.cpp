@@ -11,7 +11,7 @@
 #include "MagicKnob.h"
 
 MagicKnob::MagicKnob()
-    : magicDecoder (make_unique<SimpleDecoder>())
+    : magicDecoder (std::make_unique<SimpleDecoder>())
 {
     // Add sliders
     addSliderAndLabel (&slider1, &label1, "Roll", 0.0f, 1.0f, 0.5f);
@@ -58,6 +58,6 @@ void MagicKnob::updateListener()
         return;
     
     // Compute the bands
-    auto bands = magicDecoder->decode (slider1.getValue(), slider2.getValue(), slider3.getValue());
+    auto bands = magicDecoder->decode ({ (float) slider1.getValue(), (float) slider2.getValue(), (float) slider3.getValue() });
     listener->setBands (bands);
 }
