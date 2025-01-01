@@ -48,15 +48,15 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     }
     
     float pinkNoiseSample = pinkNoise.generate() * 10.0f * totalGain;
-    pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
+//    pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass2.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass3.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass4.processSample (pinkNoiseSample);
-//    for (int i = 0; i < order; ++i)
-//    {
-//        pinkNoiseSample = lowPassFilters[i].processSample (pinkNoiseSample);
-//        pinkNoiseSample = highPassFilters[i].processSample (pinkNoiseSample);
-//    }
+    for (int i = 0; i < order; ++i)
+    {
+        pinkNoiseSample = lowPassFilters[i].processSample (pinkNoiseSample);
+        pinkNoiseSample = highPassFilters[i].processSample (pinkNoiseSample);
+    }
     
     
     if (snapToZeroCounter >= 1000)
@@ -164,12 +164,12 @@ void NoiseGenerator::setBandpass (float centerFreq)
     }
     
     float freq = std::min (std::max (centerFreq, 20.0f), sampleRate * 0.49f);
-//    float lowFreq = std::min (std::max (centerFreq * std::pow (2.0f, -bandwidth), 20.0f), sampleRate * 0.49f);
-//    float highFreq = std::min (std::max (centerFreq * std::pow (2.0f, bandwidth), 20.0f), sampleRate * 0.49f);
+    float lowFreq = std::min (std::max (centerFreq * std::pow (2.0f, -bandwidth), 20.0f), sampleRate * 0.49f);
+    float highFreq = std::min (std::max (centerFreq * std::pow (2.0f, bandwidth), 20.0f), sampleRate * 0.49f);
 //    float erbBandwidth = 24.7f * (4.37f * freq / 1000.0f + 1.0f);
 //    erbBandwidth = std::log2 (1.0f + erbBandwidth / freq) * bandwidth;
 //    
-    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
+//    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass (sampleRate, freq, Band::bandwidthToQFactor (bandwidth));
     
 //    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, freq);
 //    *bandpass2.coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, freq);
@@ -179,10 +179,10 @@ void NoiseGenerator::setBandpass (float centerFreq)
 //    auto lowPassCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod (highFreq, sampleRate, order);
 //    auto highPassCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod (lowFreq, sampleRate, order);
 //    
-//    for (int i = 0; i < order; ++i)
-//    {
-//        *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
-//        *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
-//    }
+    for (int i = 0; i < order; ++i)
+    {
+        *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
+        *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
+    }
 //
 }

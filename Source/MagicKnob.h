@@ -16,6 +16,11 @@
 #include "BandProfile.h"
 #include "MagicDecoder.h"
 
+//#include <tensorflow/cc/client/client_session.h>
+//#include <tensorflow/cc/ops/standard_ops.h>
+//#include <tensorflow/core/framework/tensor.h>
+//#include <iostream>
+
 // This provides a UI to adjust knobs, and to have those knobs recommend changes to the currently selected bands
 class MagicKnob  : public BuildableComponent
 {
