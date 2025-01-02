@@ -52,11 +52,11 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
     
     std::vector<Band> decodedBands;
     
-    auto input = cppflow::tensor (vals);
+    cppflow::tensor input = cppflow::tensor ({1.0, 2.0});
     std::cout << input << std::endl;
-    cppflow::model model ("decoder_model_test");
-    auto output = model(input);
-    std::cout << output << std::endl;
+//    cppflow::model model ("decoder_model_test");
+//    auto output = model(input);
+//    std::cout << output << std::endl;
     
     // Parse into 
     
