@@ -11,7 +11,7 @@
 #include "MagicKnob.h"
 
 MagicKnob::MagicKnob()
-    : magicDecoder (std::make_unique<SimpleDecoder>())
+    : magicDecoder (std::make_unique<TensorflowDecoder>())
 {
     // Add sliders
     addSliderAndLabel (&slider1, &label1, "Roll", 0.0f, 1.0f, 0.5f);

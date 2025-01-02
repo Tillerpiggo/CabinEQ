@@ -39,6 +39,9 @@ std::vector<Band> SimpleDecoder::decode (std::vector<float> vals)
     return decodedBands;
 }
 
+TensorflowDecoder::TensorflowDecoder()
+{}
+
 std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
 {
     if (vals.size() != 3)
@@ -50,11 +53,10 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
     std::vector<Band> decodedBands;
     
     auto input = cppflow::tensor (vals);
-//    std::cout << input << std::endl;
+    std::cout << input << std::endl;
     cppflow::model model ("decoder_model_test");
-//    auto output = model(input);
-//    
-//    std::cout << output << std::endl;
+    auto output = model(input);
+    std::cout << output << std::endl;
     
     // Parse into 
     

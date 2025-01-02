@@ -38,3 +38,4 @@ public:
     
     std::vector<Band> decode (std::vector<float> vals);
 };
+
