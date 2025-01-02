@@ -9,7 +9,6 @@
 #include "CabinEqAudioProcessor.h"
 #include "CabinEqProcessorEditor.h"
 #include <chrono>
-#include <tensorflow/c/c_api.h>
 
 
 //==============================================================================

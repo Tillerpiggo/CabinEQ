@@ -12,6 +12,8 @@
 
 #include <JuceHeader.h>
 #include "BandProfile.h"
+#include <tensorflow/c/tf_tensor.h>
+#include "cppflow/cppflow.h"
 
 class MagicDecoder
 {
@@ -26,5 +28,13 @@ class SimpleDecoder  : public MagicDecoder
 public:
     SimpleDecoder();
 
+    std::vector<Band> decode (std::vector<float> vals);
+};
+
+class TensorflowDecoder  : public MagicDecoder
+{
+public:
+    TensorflowDecoder();
+    
     std::vector<Band> decode (std::vector<float> vals);
 };

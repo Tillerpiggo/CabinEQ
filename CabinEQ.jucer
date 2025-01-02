@@ -4,6 +4,16 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="tB8nJa" name="CabinEQ">
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
+      <GROUP id="{E12FACF9-626B-B601-A01A-5449597D0221}" name="decoder_model_test">
+        <GROUP id="{C14FA21C-58E8-397C-A1FF-BB47367D226A}" name="assets"/>
+        <GROUP id="{72751938-D19A-CB67-5B15-4CBF81648F04}" name="variables">
+          <FILE id="ZsOXKO" name="variables.data-00000-of-00001" compile="0"
+                resource="1" file="../CabinAI/decoder_model_test/variables/variables.data-00000-of-00001"/>
+          <FILE id="dtQpdk" name="variables.index" compile="0" resource="1" file="../CabinAI/decoder_model_test/variables/variables.index"/>
+        </GROUP>
+        <FILE id="B20pge" name="fingerprint.pb" compile="0" resource="1" file="../CabinAI/decoder_model_test/fingerprint.pb"/>
+        <FILE id="HL0HWT" name="saved_model.pb" compile="0" resource="1" file="../CabinAI/decoder_model_test/saved_model.pb"/>
+      </GROUP>
       <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
             file="Source/CabinEqAudioProcessor.cpp"/>
       <FILE id="ZcW2ES" name="CabinEqAudioProcessor.h" compile="0" resource="0"
@@ -299,10 +309,12 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" microphonePermissionNeeded="1" microphonePermissionsText="This app requires microphone input to route system audio."
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
-               customPList="&lt;key&gt;com.apple.security.get-task-allow&lt;/key&gt;&#10;&lt;false/&gt;">
+               customPList="&lt;key&gt;com.apple.security.get-task-allow&lt;/key&gt;&#10;&lt;false/&gt;"
+               externalLibraries="tensorflow&#10;" customXcodeResourceFolders="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib"
+               extraLinkerFlags="&#10;" frameworkSearchPaths="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ" libraryPath="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib"
-                       headerPath="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/include&#10;"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ" headerPath="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/include&#10;/Users/tylergee/Desktop/Coding/CabinEQ/External/cppflow/include&#10;"
+                       libraryPath="/Users/tylergee/Downloads/libtensorflow/lib&#10;/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="CabinEQ" codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"
                        fastMath="1"/>
       </CONFIGURATIONS>
