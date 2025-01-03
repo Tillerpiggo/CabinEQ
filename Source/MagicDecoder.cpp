@@ -52,12 +52,23 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
     
     std::vector<Band> decodedBands;
     
-    cppflow::tensor input = cppflow::tensor ({0.5, 0.1, 0.7});
-    std::cout << input << std::endl;
-    cppflow::model model ("/Users/tylergee/Downloads/decoder_model_test3");
+    std::vector<float> data = {1.0, 2.0, 3.0};
+    std::vector<int64_t> shape = {1, 3};
+//    cppflow::tensor input = cppflow::tensor (data, shape);
+//    std::cout << input << std::endl;
+    auto input = cppflow::fill({10, 5}, 1.0f);
+    cppflow::model model ("/Users/tylergee/Downloads/testtest");
     std::cout << "got model" << std::endl;
-    auto output = model(input);
-    std::cout << output << std::endl;
+    auto operations = model.get_operations();
+    std::cout << "operations:" << std::endl;
+    for (const auto& operation : operations)
+        std::cout << operation << std::endl;
+    
+//    auto output = model(input);
+    std::vector<std::tuple<std::string, cppflow::tensor>> inputs = {{"serve_input_1:0", input}, {"serving_default_input_1:0", input}};
+    std::vector<std::string> outputs = {"StatefulPartitionedCall:0"};
+    std::vector<cppflow::tensor> output = model(inputs, outputs);
+    std::cout << output[0] << std::endl;
     
     // Parse into 
     

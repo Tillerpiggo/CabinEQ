@@ -59,5 +59,6 @@ void MagicKnob::updateListener()
     
     // Compute the bands
     auto bands = magicDecoder->decode ({ (float) slider1.getValue(), (float) slider2.getValue(), (float) slider3.getValue() });
-    listener->setBands (bands);
+    if (bands.size() > 0)
+        listener->setBands (bands);
 }
