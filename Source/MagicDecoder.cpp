@@ -52,25 +52,36 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
     
     std::vector<Band> decodedBands;
     
-    std::vector<float> data = {1.0, 2.0, 3.0};
+    std::vector<float> data = {1.0, 0.5, 0.8};
     std::vector<int64_t> shape = {1, 3};
     cppflow::tensor input = cppflow::tensor (data, shape);
-    std::cout << input << std::endl;
-//    auto input = cppflow::fill({10, 5}, 1.0f);
     cppflow::model model ("/Users/tylergee/Downloads/decoder_model_endpoint2");
-    std::cout << "got model" << std::endl;
     auto operations = model.get_operations();
-    std::cout << "operations:" << std::endl;
-    for (const auto& operation : operations)
-        std::cout << operation << std::endl;
     
-//    auto output = model(input);
+//    std::cout << "operations:" << std::endl;
+//    for (const auto& operation : operations)
+//        std::cout << operation << std::endl;
+    
     std::vector<std::tuple<std::string, cppflow::tensor>> inputs = {{"serving_default_inputs:0", input}};
     std::vector<std::string> outputs = {"StatefulPartitionedCall:0"};
     std::vector<cppflow::tensor> output = model(inputs, outputs);
-    std::cout << output[0] << std::endl;
+//    std::cout << output[0] << std::endl;
     
-    // Parse into 
+    cppflow::tensor firstOutput = output[0];
+    std::vector<float> bandData = firstOutput.get_data<float>();
     
-    return {};
+    // Parse into bands
+    std::vector<Band> bands;
+    for (int i = 0; i < 12; ++i)
+    {
+        float freq, ampl, q;
+        freq = bandData[3 * i];
+        q = bandData[3 * i + 1];
+        ampl = bandData[3 * i + 2];
+        bands.push_back (Band::withQ (i, freq, ampl, q, Band::Type::both));
+        
+        std::cout << "adding band (freq: " << freq << ", " << ampl << ", q: " << q << std::endl;
+    }
+    
+    return bands;
 }

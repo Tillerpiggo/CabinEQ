@@ -17,9 +17,21 @@ Band::Band (int id, float freq, float ampl, float bandwidth, Type type)
     this->qFactor = bandwidthToQFactor (bandwidth);
 }
 
+Band Band::withQ (int id, float freq, float ampl, float qFactor, Band::Type type)
+{
+    return Band (id, freq, ampl, Band::qFactorToBandwidth (qFactor), type);
+}
+
 float Band::bandwidthToQFactor (float bandwidth)
 {
     return std::sqrt (std::pow (2.0, bandwidth)) / (std::pow (2.0, bandwidth) - 1);
+}
+
+float Band::qFactorToBandwidth(float qFactor)
+{
+    // Formula: Bandwidth (octaves) = log2((sqrt(4 * Q^2 + 1) + 1) / (sqrt(4 * Q^2 + 1) - 1))
+    float sqrtTerm = std::sqrt(4 * qFactor * qFactor + 1);
+    return std::log2((sqrtTerm + 1) / (sqrtTerm - 1));
 }
 
 //==============================================
