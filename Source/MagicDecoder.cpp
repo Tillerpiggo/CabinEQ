@@ -52,7 +52,7 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
     
     std::vector<Band> decodedBands;
     
-    std::vector<float> data = {1.0, 0.5, 0.8};
+    std::vector<float> data = vals;
     std::vector<int64_t> shape = {1, 3};
     cppflow::tensor input = cppflow::tensor (data, shape);
     cppflow::model model ("/Users/tylergee/Downloads/decoder_model_endpoint2");
@@ -72,12 +72,12 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
     
     // Parse into bands
     std::vector<Band> bands;
-    for (int i = 0; i < 12; ++i)
+    for (int i = 0; i < 24; ++i)
     {
         float freq, ampl, q;
         freq = bandData[3 * i];
         q = bandData[3 * i + 1];
-        ampl = bandData[3 * i + 2];
+        ampl = bandData[3 * i + 2] * 10;
         bands.push_back (Band::withQ (i, freq, ampl, q, Band::Type::both));
         
         std::cout << "adding band (freq: " << freq << ", " << ampl << ", q: " << q << std::endl;
