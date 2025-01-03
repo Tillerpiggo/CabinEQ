@@ -54,7 +54,8 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
     
     cppflow::tensor input = cppflow::tensor ({0.5, 0.1, 0.7});
     std::cout << input << std::endl;
-    cppflow::model model ("/Users/tylergee/Downloads/decoder_model_test");
+    cppflow::model model ("/Users/tylergee/Downloads/decoder_model_test3");
+    std::cout << "got model" << std::endl;
     auto output = model(input);
     std::cout << output << std::endl;
     
