@@ -54,10 +54,10 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
     
     std::vector<float> data = {1.0, 2.0, 3.0};
     std::vector<int64_t> shape = {1, 3};
-//    cppflow::tensor input = cppflow::tensor (data, shape);
-//    std::cout << input << std::endl;
-    auto input = cppflow::fill({10, 5}, 1.0f);
-    cppflow::model model ("/Users/tylergee/Downloads/testtest");
+    cppflow::tensor input = cppflow::tensor (data, shape);
+    std::cout << input << std::endl;
+//    auto input = cppflow::fill({10, 5}, 1.0f);
+    cppflow::model model ("/Users/tylergee/Downloads/decoder_model_endpoint2");
     std::cout << "got model" << std::endl;
     auto operations = model.get_operations();
     std::cout << "operations:" << std::endl;
@@ -65,7 +65,7 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
         std::cout << operation << std::endl;
     
 //    auto output = model(input);
-    std::vector<std::tuple<std::string, cppflow::tensor>> inputs = {{"serve_input_1:0", input}, {"serving_default_input_1:0", input}};
+    std::vector<std::tuple<std::string, cppflow::tensor>> inputs = {{"serving_default_inputs:0", input}};
     std::vector<std::string> outputs = {"StatefulPartitionedCall:0"};
     std::vector<cppflow::tensor> output = model(inputs, outputs);
     std::cout << output[0] << std::endl;
