@@ -254,7 +254,7 @@ void CabinEqPage::setBands (std::vector<Band> bands)
 //    return; // stop for now, for practical reasons
     
     // Set the bands. If they're not all there, this will crash...
-    for (int i = 0; i < 12; ++i)
+    for (int i = 0; i < 24; ++i)
     {
         auto band = bands[i];
         processor.updateBand (i, band.freq, band.ampl, band.bandwidth, band.type, 0);
