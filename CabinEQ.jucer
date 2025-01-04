@@ -312,10 +312,12 @@
                customPList="&lt;key&gt;com.apple.security.get-task-allow&lt;/key&gt;&#10;&lt;false/&gt;"
                customXcodeResourceFolders="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib"
                frameworkSearchPaths="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib"
-               externalLibraries="tensorflow" extraLinkerFlags="-rpath @loader_path/../Resources/lib">
+               externalLibraries="tensorflow" extraLinkerFlags="-rpath @loader_path/../Resources/lib"
+               iosDevelopmentTeamID="E88BK26E9L" postbuildCommand="# Use the CODE_SIGN_IDENTITY environment variable provided by Xcode&#10;&#10;if [ -z &quot;$CODE_SIGN_IDENTITY&quot; ]; then&#10;    echo &quot;CODE_SIGN_IDENTITY is not set. Please set the code signing identity in your project's build settings.&quot;&#10;    exit 1&#10;fi&#10;&#10;echo &quot;Using code signing identity: $CODE_SIGN_IDENTITY&quot;&#10;&#10;# Path to the app bundle (reliable using Xcode variables)&#10;APP_BUNDLE_PATH=&quot;${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}&quot;&#10;&#10;# Path to the Contents/Resources/lib folder within the app bundle&#10;LIB_FOLDER=&quot;${APP_BUNDLE_PATH}/Contents/Resources/lib&quot;&#10;&#10;# Check if the lib folder exists&#10;if [ -d &quot;$LIB_FOLDER&quot; ]; then&#10;    echo &quot;Found lib folder at $LIB_FOLDER&quot;&#10;    &#10;    # Find and code sign all .dylib files in the lib folder&#10;    find &quot;$LIB_FOLDER&quot; -type f -name &quot;*.dylib&quot; -print0 | while IFS= read -r -d '' DYLIB_FILE; do&#10;        echo &quot;Code signing $DYLIB_FILE&quot;&#10;        codesign --force --sign &quot;$CODE_SIGN_IDENTITY&quot; --timestamp &quot;$DYLIB_FILE&quot;&#10;    done&#10;else&#10;    echo &quot;lib folder not found at $LIB_FOLDER&quot;&#10;    exit 0&#10;fi">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ" libraryPath="../../External/libtensorflow/lib"
-                       headerPath="../../External/libtensorflow/include&#10;../../External/cppflow/include"/>
+                       headerPath="../../External/libtensorflow/include&#10;../../External/cppflow/include"
+                       customXcodeFlags="OTHER_CODE_SIGN_FLAGS=--deep" codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="CabinEQ" codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"
                        fastMath="1"/>
       </CONFIGURATIONS>
