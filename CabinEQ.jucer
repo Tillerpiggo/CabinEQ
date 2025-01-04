@@ -312,7 +312,7 @@
                customPList="&lt;key&gt;com.apple.security.get-task-allow&lt;/key&gt;&#10;&lt;false/&gt;"
                customXcodeResourceFolders="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib"
                frameworkSearchPaths="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib"
-               externalLibraries="tensorflow" extraLinkerFlags="-rpath /Users/tylergee/Desktop/Coding/CabinEQClone2/External/libtensorflow/lib">
+               externalLibraries="tensorflow" extraLinkerFlags="-rpath @loader_path/../Resources/lib">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ" libraryPath="../../External/libtensorflow/lib"
                        headerPath="../../External/libtensorflow/include&#10;../../External/cppflow/include"/>
