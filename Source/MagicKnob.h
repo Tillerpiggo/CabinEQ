@@ -54,6 +54,7 @@ private:
     juce::Slider slider6;
     juce::Slider slider7;
     juce::Slider slider8;
+    juce::Slider slider9;
     
     juce::Label label1;
     juce::Label label2;
@@ -63,4 +64,5 @@ private:
     juce::Label label6;
     juce::Label label7;
     juce::Label label8;
+    juce::Label label9;
 };

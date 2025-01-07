@@ -46,16 +46,18 @@ std::vector<Band> TensorflowDecoder::decode (std::vector<float> vals)
 {
     if (vals.size() != 8)
     {
-        std::cerr << "Tensorflow decoder expected 8 vals but got " << vals.size() << " instead :(" << std::endl;
+        std::cerr << "Tensorflow decoder expected 9 vals but got " << vals.size() << " instead :(" << std::endl;
         return {};
     }
+    
+    vals.erase(vals.end());
     
     std::vector<Band> decodedBands;
     
     std::vector<float> data = vals;
     std::vector<int64_t> shape = {1, 8};
     cppflow::tensor input = cppflow::tensor (data, shape);
-    cppflow::model model ("/Users/tylergee/Downloads/try_again_model");
+    cppflow::model model ("/Users/tylergee/Downloads/decoder_julian6");
     auto operations = model.get_operations();
     
     for (const auto& operation : operations)

@@ -22,6 +22,7 @@ MagicKnob::MagicKnob()
     addSliderAndLabel (&slider6, &label6, "6", 0.0f, 1.0f, 0.5f);
     addSliderAndLabel (&slider7, &label7, "7", 0.0f, 1.0f, 0.5f);
     addSliderAndLabel (&slider8, &label8, "8", 0.0f, 1.0f, 0.5f);
+    addSliderAndLabel (&slider9, &label9, "9", 0.0f, 1.0f, 0.5f);
     
     // Add slider actions
     addSliderAction (&slider1, [this](juce::Slider*) {
@@ -46,6 +47,9 @@ MagicKnob::MagicKnob()
         updateListener();
     });
     addSliderAction (&slider8, [this](juce::Slider*) {
+        updateListener();
+    });
+    addSliderAction (&slider9, [this](juce::Slider*) {
         updateListener();
     });
 }
