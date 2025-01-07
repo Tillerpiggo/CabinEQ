@@ -91,7 +91,7 @@ void CabinEqPage::resized()
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
 //    layout.addRow ({ Space (&multiBandStepBar) }, 60);
-    layout.addRow ({ Space (&magicKnob) }, 60);
+    layout.addRow ({ Space (&magicKnob) }, 120);
     layout.addRow ({ Space (&calibrationView) });
     layout.updateComponentBounds();
 }

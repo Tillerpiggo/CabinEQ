@@ -67,7 +67,7 @@ void CabinPeqGraph::resized()
     
     // Add button in bottom right corner
 //    leftRightButton.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 50.0f, 80.0f, 40.0f);
-    dimensionalSlider.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 100.0f, 100.0f, 100.0f);
+//    dimensionalSlider.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 100.0f, 100.0f, 100.0f);
     
     // Recalculate needed vars
     

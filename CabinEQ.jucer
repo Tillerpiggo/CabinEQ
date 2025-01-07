@@ -319,7 +319,8 @@
                        headerPath="../../External/libtensorflow/include&#10;../../External/cppflow/include"
                        customXcodeFlags="OTHER_CODE_SIGN_FLAGS=--deep" codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="CabinEQ" codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"
-                       fastMath="1"/>
+                       fastMath="1" headerPath="../../External/libtensorflow/include&#10;../../External/cppflow/include"
+                       libraryPath="../../External/libtensorflow/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
