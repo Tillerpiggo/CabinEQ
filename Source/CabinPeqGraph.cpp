@@ -12,7 +12,7 @@
 
 CabinPeqGraph::CabinPeqGraph()
 {
-//    startTimer (5);
+    startTimer (5);
     
     addAndMakeVisible (leftRightButton);
     addAndMakeVisible (dimensionalSlider);

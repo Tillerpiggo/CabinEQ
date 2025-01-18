@@ -31,12 +31,14 @@ public:
     
     void initValueTreeFromAPVTS(); // sets this value tree to match the one in the main apvts
     const juce::String getName() const;
+    const bool getIsLocked() const;
     const float getVolume() const;
     const float getMelodyVolume() const;
     const float getNoiseVolume() const;
     
     void copyFrom (CabinEqProfile other);
     void renameTo (juce::String newName);
+    void setLocked (bool isLocked);
     void setVolume (float profileVolume);
     void setMelodyVolume (float melodyVolume);
     void setNoiseVolume (float noiseVolume);
@@ -52,6 +54,7 @@ private:
     
     juce::Identifier idProfile { "Profile" }; // the id/type name of the entire CabinEqProfile value tree
     juce::Identifier idProfileName { "ProfileName" }; // a property on value tree that stores the string name the user gave it
+    juce::Identifier idLocked { "Locked" }; // represents whether this has been locked by free trial mode or not
     juce::Identifier idProfileVolume { "ProfileVolume" };
     juce::Identifier idMelodyVolume { "MelodyVolume" };
     juce::Identifier idNoiseVolume { "NoiseVolume" };
@@ -66,6 +69,7 @@ private:
     juce::Identifier idAmplTree { "AmplTree" };
     juce::ValueTree valueTree;
     juce::String profileName;
+    bool isLocked;
     float profileVolume = 0;
     float melodyVolume = 0;
     float noiseVolume = 0;

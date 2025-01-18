@@ -53,8 +53,8 @@ private:
     // Settings
     float speedFactor = 1.0f;
     float bandwidth = 1.0f;
-    float minFreq = 50.0f;
-    float maxFreq = 18000.0f;
+    float minFreq = 20.0f;
+    float maxFreq = 20000.0f;
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
     

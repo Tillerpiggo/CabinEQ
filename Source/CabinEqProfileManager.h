@@ -27,6 +27,7 @@ public:
     void setProfileMelodyVolume (juce::String profileName, float melodyVolume);
     void setProfileNoiseVolume (juce::String profileName, float noiseVolume);
     void initProfiles();
+    void lockAllProfiles();
     
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;

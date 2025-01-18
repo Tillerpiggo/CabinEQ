@@ -36,6 +36,9 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     ArchetypalGlyph squareGlyph (2, {
         Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})
     });
+    ArchetypalGlyph verticalGlyph (14, {
+        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
+    });
     ArchetypalGlyph horizontalLines (7, {
         Stroke ({{ -1, 1 }, { 1, 1 }}),
         Stroke ({{ -1, 0.5 }, { 1, 0.5 }}),
@@ -105,7 +108,10 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     ArchetypalGlyph hourglassGlyph (8, {
         Stroke ({{ -1, -1 }, { 1, 0 }, { -1, 1 }, { 1, -1 }, { -1, 0 }, { 1, 1 }, { -1, -1 }})
     });
-    
+    ArchetypalGlyph comparisonGlyph (15, {
+        Stroke ({{ -1, -1 }, { -1, -1 }}),
+        Stroke ({{ 1, 1 }, { 1, 1 }})
+    });
     ArchetypalGlyph lineGlyph (0, {
         Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
     });
@@ -147,6 +153,8 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (line6Glyph);
     archetypalGlyphs.push_back (line2Glyph);
     archetypalGlyphs.push_back (line3Glyph);
+    archetypalGlyphs.push_back (verticalGlyph);
+    archetypalGlyphs.push_back (comparisonGlyph);
 //    archetypalGlyphs.push_back (diamonds);
 //    archetypalGlyphs.push_back (xGlyph);
 //    archetypalGlyphs.push_back (squareGlyph);

@@ -73,6 +73,12 @@ void CabinEqProfileManager::initProfiles()
         profile->initValueTreeFromAPVTS();
 }
 
+void CabinEqProfileManager::lockAllProfiles()
+{
+    for (auto& profile : profiles)
+        profile->setLocked (true);
+}
+
 const std::vector<juce::String> CabinEqProfileManager::getProfileNames() const
 {
     std::vector<juce::String> profileNames;

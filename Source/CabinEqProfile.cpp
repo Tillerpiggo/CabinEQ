@@ -165,6 +165,7 @@ void CabinEqProfile::initValueTreeFromAPVTS()
     {
         valueTree = juce::ValueTree (idProfile);
         valueTree.setProperty (idProfileName, profileName, nullptr);
+        valueTree.setProperty (idLocked, false, nullptr);
         valueTree.setProperty (idProfileVolume, 0.0f, nullptr);
         valueTree.setProperty (idMelodyVolume, 0.0f, nullptr);
         valueTree.setProperty (idNoiseVolume, 0.0f, nullptr);
@@ -182,6 +183,7 @@ void CabinEqProfile::initValueTreeFromAPVTS()
     else
     {
         profileName = valueTree.getProperty (idProfileName);
+        isLocked = valueTree.getProperty (idLocked);
         profileVolume = valueTree.getProperty (idProfileVolume);
         melodyVolume = valueTree.getProperty (idMelodyVolume);
         noiseVolume = valueTree.getProperty (idNoiseVolume);
@@ -226,6 +228,12 @@ void CabinEqProfile::renameTo (juce::String newName)
 {
     profileName = newName;
     valueTree.setProperty (idProfileName, newName, nullptr);
+}
+
+void CabinEqProfile::setLocked (bool isLocked)
+{
+    this->isLocked = isLocked;
+    valueTree.setProperty (idLocked, isLocked, nullptr);
 }
 
 void CabinEqProfile::setVolume (float profileVolume)

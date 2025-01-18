@@ -48,8 +48,8 @@ private:
     float speedFactor = 1.0f;
     
     // Constants
-    float minFreq = 50.0f;
-    float maxFreq = 12000.0f;
+    float minFreq = 20.0f;
+    float maxFreq = 20000.0f;
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
     float bandwidth = 1.0f;
