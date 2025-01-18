@@ -33,11 +33,13 @@ public:
     
     float getCurrPlayingTime();
     
+    std::vector<float> getCurrPlayingFreqs();
+    
 private:
     void addRemoveNoiseGeneratorsIfNeeded();
     void updateNoiseGeneratorsIfNeeded();
     
-    std::pair<std::pair<float, float>, float> getFreqPanVolFromGlyphAtTime (Glyph& glyph, float currTime);
+    std::pair<std::pair<float, float>, float> getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float currTime);
     float volToDB (float vol); // converts volume (from 0 to 1) to db using some arbitrary formula
     
     juce::dsp::ProcessSpec spec;

@@ -21,32 +21,140 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, -1 }, { 1, 1 }}),
         Stroke ({{ 1, -1 }, { -1, 1 }})
     });
+    ArchetypalGlyph zigzagLines (3, {
+        Stroke ({{ -1, 1 }, { 1, 1 }, { 0.5, 0.5 }, { -0.5, 0.5 }, { -1, 0 }, { 1, 0 }, { 0.5, -0.5 }, { -0.5, -0.5 }, { -1, -1 }})
+    });
+    ArchetypalGlyph grid (4, {
+        Stroke ({{ -1, -1 }, { -1, 1 }, { 0, 1 }, { 0, -1 }, { 1, -1 }, { 1, 1 }})
+    });
+    ArchetypalGlyph grid2 (5, {
+        Stroke ({{ -1, 1 }, { 1, 1 }, { 1, 0 }, { -1, 0 }, { -1, -1 }, { 1, -1 }})
+    });
+    ArchetypalGlyph starGlyph (2, {
+        Stroke ({{ 0, 1 }, { -0.588, -0.809 }, { 0.951, 0.309 }, { -0.951, 0.309 }, { 0.588, -0.809 }, { 0, 1 }})
+    });
     ArchetypalGlyph squareGlyph (2, {
         Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})
+    });
+    ArchetypalGlyph horizontalLines (7, {
+        Stroke ({{ -1, 1 }, { 1, 1 }}),
+        Stroke ({{ -1, 0.5 }, { 1, 0.5 }}),
+        Stroke ({{ -1, 0 }, { 1, 0 }}),
+        Stroke ({{ -1, -0.5 }, { 1, -0.5 }}),
+        Stroke ({{ -1, -1 }, { 1, -1 }})
+    });
+    ArchetypalGlyph newGlyph (25, {
+        Stroke ({{ -1, 1 }, { -1, 1 }}), // Row 1
+        Stroke ({{ -0.5, 1 }, { -0.5, 1 }}),
+        Stroke ({{ 0, 1 }, { 0, 1 }}),
+        Stroke ({{ 0.5, 1 }, { 0.5, 1 }}),
+        Stroke ({{ 1, 1 }, { 1, 1 }}),
+        
+        Stroke ({{ -1,    0.5 }, { -1,    0.5 }}), // Row 2
+        Stroke ({{ -0.5,  0.5 }, { -0.5,  0.5 }}),
+        Stroke ({{  0,    0.5 }, {  0,    0.5 }}),
+        Stroke ({{  0.5,  0.5 }, {  0.5,  0.5 }}),
+        Stroke ({{  1,    0.5 }, {  1,    0.5 }}),
+        
+        Stroke ({{ -1,    0 }, { -1,    0 }}),   // Row 3
+        Stroke ({{ -0.5,  0 }, { -0.5,  0 }}),
+        Stroke ({{  0,    0 }, {  0,    0 }}),
+        Stroke ({{  0.5,  0 }, {  0.5,  0 }}),
+        Stroke ({{  1,    0 }, {  1,    0 }}),
+
+        Stroke ({{ -1,   -0.5 }, { -1,   -0.5 }}), // Row 4
+        Stroke ({{ -0.5, -0.5 }, { -0.5, -0.5 }}),
+        Stroke ({{  0,   -0.5 }, {  0,   -0.5 }}),
+        Stroke ({{  0.5, -0.5 }, {  0.5, -0.5 }}),
+        Stroke ({{  1,   -0.5 }, {  1,   -0.5 }}),
+
+        Stroke ({{ -1,   -1 }, { -1,   -1 }}),   // Row 5
+        Stroke ({{ -0.5, -1 }, { -0.5, -1 }}),
+        Stroke ({{  0,   -1 }, {  0,   -1 }}),
+        Stroke ({{  0.5, -1 }, {  0.5, -1 }}),
+        Stroke ({{  1,   -1 }, {  1,   -1 }})
+    });
+    
+    std::vector<Stroke> strokes;
+    const std::array<float, 5> positions = {-1.0, -0.5, 0.0, 0.5, 1.0};
+
+    for (int i = 0; i < positions.size(); i++) {
+        for (int j = 0; j < positions.size(); j++) {
+            // Main dot position
+            strokes.push_back(Stroke({{ positions[i], positions[j] }, { positions[i], positions[j] }}));
+            strokes.push_back(Stroke({{ -1, 1 }, { -1, 1 }}));
+            strokes.push_back(Stroke({{ 1, 1 }, { 1, 1 }}));
+            strokes.push_back(Stroke({{ -1, -1 }, { -1, -1 }}));
+            strokes.push_back(Stroke({{ 1, -1 }, { 1, -1 }}));
+        }
+    }
+    
+    ArchetypalGlyph cornersGlyph(25, strokes);
+    
+    ArchetypalGlyph spaceFillingCurve (6, {
+        Stroke ({{ -1, -1 }, { -1, -0.5 }, { -0.5, -0.5 }, { -0.5, -1 }, { 0, -1 }, { 0, -0.5 }, { 0.5, -0.5 }, { 0.5, -1 },
+                 { 1, -1 }, { 1, -0.5 }, { 0.5, -0.5 }, { 0.5, 0 }, { 1, 0 }, { 1, 0.5 }, { 0.5, 0.5 }, { 0.5, 1 },
+                 { 0, 1 }, { 0, 0.5 }, { -0.5, 0.5 }, { -0.5, 1 }, { -1, 1 }, { -1, 0.5 }, { -0.5, 0.5 }, { -0.5, 0 },
+                 { 0, 0 }, { 0, -0.5 }, { -0.5, -0.5 }, { -0.5, 0 }, { -1, 0 }, { -1, -0.5 }, { -1, -1 }})
+    });
+    
+    ArchetypalGlyph zigzags (10, {
+        Stroke ({{ -1, -1 }, { 1, -0.5 }, { -1, 0 }, { 1, 0.5 }, { -1, 1 }, { 1, 0.5 }, { -1, 0 }, { 1, -0.5 }, { -1, -1 }})
+    });
+    
+    ArchetypalGlyph hourglassGlyph (8, {
+        Stroke ({{ -1, -1 }, { 1, 0 }, { -1, 1 }, { 1, -1 }, { -1, 0 }, { 1, 1 }, { -1, -1 }})
     });
     
     ArchetypalGlyph lineGlyph (0, {
         Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
     });
-    ArchetypalGlyph line2Glyph (1, {
-        Stroke ({{ -1, -1, 1 }, { 1, 1, 1 }, { -1, -1, 1 }})
+    ArchetypalGlyph line2Glyph (9, {
+        Stroke ({{ -1, -1, 1 }, { 1, 1, 1 }})
     });
-    ArchetypalGlyph line3Glyph (2, {
+    ArchetypalGlyph lineJulianGlyph (13, {
+        Stroke ({{ -1, -1, 1 }, { 1, 1, 1 },  { -1, -1, 1 }})
+    });
+    ArchetypalGlyph line3Glyph (11, {
+        Stroke ({{ 1, -1, 1 }, { -1, 1, 1 }})
+    });
+    ArchetypalGlyph line5Glyph (12, {
+        Stroke ({{ 1, 1, 1 }, { -1, -1, 1 }})
+    });
+    ArchetypalGlyph line6Glyph (13, {
+        Stroke ({{ -1, 1, 1 }, { 1, -1, 1 }})
+    });
+    ArchetypalGlyph line4Glyph (2, {
         Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
     });
     ArchetypalGlyph cubeGlyph (3, {
         Stroke ({{ -1, -1, 1 }, { -1, 1, 1 }, { -0.5, 0.5, 0 }, { 0.5, 0.5, 0 }, { 1, 1, 0 }, { 1, 1, 1 }, { 1, -1, 1 }, { 0.5, -0.5, 0 }, { -0.5, -0.5, 0 }, { -1, -1, 1 }})
     });
     ArchetypalGlyph dotGlyph (4, { Stroke ({{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 0, 0 }}) });
+    ArchetypalGlyph left (8, { Stroke ({{ -1, 0 }, { 1, 0 }})});
+    ArchetypalGlyph right (8, { Stroke ({{ 1, 0 }, { -1, 0 }})});
     
+    archetypalGlyphs.push_back (starGlyph);
+    archetypalGlyphs.push_back (newGlyph);
+    archetypalGlyphs.push_back (zigzagLines);
+    archetypalGlyphs.push_back (grid);
+    archetypalGlyphs.push_back (lineJulianGlyph);
+    archetypalGlyphs.push_back (horizontalLines);
+    archetypalGlyphs.push_back (newGlyph);
+    archetypalGlyphs.push_back (left);
+    archetypalGlyphs.push_back (cornersGlyph);
+    archetypalGlyphs.push_back (line5Glyph);
+    archetypalGlyphs.push_back (line6Glyph);
+    archetypalGlyphs.push_back (line2Glyph);
+    archetypalGlyphs.push_back (line3Glyph);
 //    archetypalGlyphs.push_back (diamonds);
 //    archetypalGlyphs.push_back (xGlyph);
 //    archetypalGlyphs.push_back (squareGlyph);
-    archetypalGlyphs.push_back (lineGlyph);
-    archetypalGlyphs.push_back (line2Glyph);
-    archetypalGlyphs.push_back (line3Glyph);
-    archetypalGlyphs.push_back (cubeGlyph);
-    archetypalGlyphs.push_back (dotGlyph);
+//    archetypalGlyphs.push_back (lineGlyph);
+//    archetypalGlyphs.push_back (line2Glyph);
+//    archetypalGlyphs.push_back (line3Glyph);
+//    archetypalGlyphs.push_back (cubeGlyph);
+//    archetypalGlyphs.push_back (dotGlyph);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

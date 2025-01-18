@@ -31,8 +31,8 @@ std::pair<float, float> GlyphGridPlayer::getNextSample()
     for (int i = 0; i < noiseGenerators.size(); ++i)
     {
         auto noiseSample = noiseGenerators[i].getNextSample();
-        nextSample.first += noiseSample.first;// / static_cast<float> (i + 1);
-        nextSample.second += noiseSample.second;// / static_cast<float> (i + 1);
+        nextSample.first += noiseSample.first * 5.0f;// / static_cast<float> (i + 1);
+        nextSample.second += noiseSample.second * 5.0f;// / static_cast<float> (i + 1);
     }
     
     // Increment time
@@ -139,7 +139,7 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
     }
 }
 
-std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (Glyph& glyph, float time)
+std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
 {
     // Calculate coords
     auto normalizedCoords = glyph.positionAtTime (time).first;
@@ -162,6 +162,16 @@ std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyp
     float vol = normalizedCoords.vol;
     
     return {{ freq, pan }, vol };
+}
+
+std::vector<float> GlyphGridPlayer::getCurrPlayingFreqs()
+{
+    std::vector<float> playingFreqs;
+    for (const auto& glyph : glyphs)
+    {
+        playingFreqs.push_back (getFreqPanVolFromGlyphAtTime (glyph, currTime).first.first);
+    }
+    return playingFreqs;
 }
 
 float GlyphGridPlayer::volToDB (float vol)

@@ -199,7 +199,9 @@ float PlaybackManager::getCurrPlayingTime()
 
 std::vector<float> PlaybackManager::getCurrPlayingFreqs()
 {
-    return gridSequencer.getCurrPlayingFreqs();
+    return glyphGridPlayer.getCurrPlayingFreqs();
+//    return
+//    return gridSequencer.getCurrPlayingFreqs();
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()
