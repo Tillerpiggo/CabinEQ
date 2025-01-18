@@ -37,7 +37,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     noiseGridView.setDataSource (&processor);
 //    multiBandStepBar.setListener (&processor);
     multiBandStepBar.setBackendListener (&processor);
-    magicKnob.setListener (this);
+//    magicKnob.setListener (this);
     calibrationView.setListener (&processor);
     calibrationView.setCalibrationListener (&processor);
     calibrationView.setDataSource (&processor);
@@ -50,7 +50,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
     addAndMakeVisible (multiBandStepBar);
-    addAndMakeVisible (magicKnob);
+//    addAndMakeVisible (magicKnob);
     
     didLoadData();
     
@@ -91,7 +91,7 @@ void CabinEqPage::resized()
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
 //    layout.addRow ({ Space (&multiBandStepBar) }, 60);
-    layout.addRow ({ Space (&magicKnob) }, 120);
+//    layout.addRow ({ Space (&magicKnob) }, 120);
     layout.addRow ({ Space (&calibrationView) });
     layout.updateComponentBounds();
 }
@@ -249,19 +249,19 @@ void CabinEqPage::inputAttemptWhenModal()
     dismissAlertWindow();
 }
 
-void CabinEqPage::setBands (std::vector<Band> bands)
-{
-//    return; // stop for now, for practical reasons
-    
-    // Set the bands. If they're not all there, this will crash...
-    for (int i = 0; i < 24; ++i)
-    {
-        auto band = bands[i];
-        processor.updateBand (i, band.freq, band.ampl, band.bandwidth, band.type, 0);
-    }
-    
-    amplGraph->updateBands();
-}
+//void CabinEqPage::setBands (std::vector<Band> bands)
+//{
+////    return; // stop for now, for practical reasons
+//    
+//    // Set the bands. If they're not all there, this will crash...
+//    for (int i = 0; i < 24; ++i)
+//    {
+//        auto band = bands[i];
+//        processor.updateBand (i, band.freq, band.ampl, band.bandwidth, band.type, 0);
+//    }
+//    
+//    amplGraph->updateBands();
+//}
 
 void CabinEqPage::didLoadData()
 {
