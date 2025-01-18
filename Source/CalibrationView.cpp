@@ -16,15 +16,15 @@ CalibrationView::CalibrationView()
     addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 1.0f);
     addButton (&playButton);
-    addButton (&iirButton);
-    addButton (&updateFilterButton);
-    
-    addAndMakeVisible (qualityComboBox);
-    qualityComboBox.addItem ("Economy", 10);
-    qualityComboBox.addItem ("Good", 14);
-    qualityComboBox.addItem ("Ultra", 18);
-    qualityComboBox.addListener (this);
-    qualityComboBox.setSelectedId (14);
+//    addButton (&iirButton);
+//    addButton (&updateFilterButton);
+//    
+//    addAndMakeVisible (qualityComboBox);
+//    qualityComboBox.addItem ("Economy", 10);
+//    qualityComboBox.addItem ("Good", 14);
+//    qualityComboBox.addItem ("Ultra", 18);
+//    qualityComboBox.addListener (this);
+//    qualityComboBox.setSelectedId (14);
     
     // Slider actions
     addSliderAction (&speedSlider, [this](juce::Slider*) {
@@ -100,7 +100,7 @@ void CalibrationView::resized()
     Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
-    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
+//    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
     settingsLayout.addRow ({ Space (&playButton) });
     settingsLayout.updateComponentBounds();
 }
