@@ -214,6 +214,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout CabinEqAudioProcessor::creat
 }
 
 //==============================================================================
+void CabinEqAudioProcessor::freeTrialDidReset()
+{
+    cabinEqProfileManager.lockAllProfiles();
+}
+
 void CabinEqAudioProcessor::setVolume (float volume)
 {
     playbackManager.setVolume (volume);

@@ -50,6 +50,9 @@ private:
     float rightGain = 0.0f;
     float totalGain = 1.0f;
     
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> leftDelayLine { 40 };
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> rightDelayLine { 40 };
+    
     bool isMuted = false;
     bool shouldUpdateGenerators = true;
     bool shouldUpdatePan = true;

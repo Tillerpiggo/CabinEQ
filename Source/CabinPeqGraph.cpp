@@ -84,10 +84,12 @@ void CabinPeqGraph::resized()
     
     // centerPath
     float centerY = yForAmpl (0);
+    centerPath.clear();
     centerPath.startNewSubPath (0, centerY);
     centerPath.lineTo (getWidth(), centerY);
     
     // lineFreqs
+    lineFreqs.clear();
     float startLineFreq = 10;
     float currLineFreq = 10;
     float interval = 10;
@@ -373,10 +375,6 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
-    
-    
-    
-    
     g.setColour (centerLineColour);
     g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS));
     

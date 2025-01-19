@@ -42,6 +42,9 @@ std::pair<float, float> NoiseGenerator::getNextSample()
         float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
         leftGain = std::cos (angle);
         rightGain = std::sin (angle);
+        
+        leftDelayLine.setDelay (abs (fmin (pan, 0)) * 12);
+        rightDelayLine.setDelay (abs (fmax (pan, 0)) * 12);
 //        float slopeGain = juce::Decibels::decibelsToGain (-1.5 * std::log2 (centerFreq / 1000.0f));
 //        leftGain *= slopeGain;
 //        rightGain *= slopeGain;
@@ -58,7 +61,6 @@ std::pair<float, float> NoiseGenerator::getNextSample()
         pinkNoiseSample = highPassFilters[i].processSample (pinkNoiseSample);
     }
     
-    
     if (snapToZeroCounter >= 1000)
     {
         bandpass.snapToZero();
@@ -74,7 +76,14 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     }
     snapToZeroCounter++;
     
-    return { pinkNoiseSample * leftGain, pinkNoiseSample * rightGain };
+    // Delay appropriately
+    leftDelayLine.pushSample (0, pinkNoiseSample * leftGain);
+    rightDelayLine.pushSample (0, pinkNoiseSample * rightGain);
+    float leftSample = leftDelayLine.popSample (0);
+    float rightSample = rightDelayLine.popSample (0);
+    
+    return { leftSample, rightSample };
+//    return { pinkNoiseSample * leftGain, pinkNoiseSample * rightGain };
 }
 
 void NoiseGenerator::prepare (const juce::dsp::ProcessSpec& spec)
@@ -90,6 +99,11 @@ void NoiseGenerator::prepare (const juce::dsp::ProcessSpec& spec)
         lowPassFilters[i].prepare (spec);
         highPassFilters[i].prepare (spec);
     }
+    
+    leftDelayLine.reset();
+    rightDelayLine.reset();
+    leftDelayLine.prepare (spec);
+    rightDelayLine.prepare (spec);
 }
 
 void NoiseGenerator::setBandwidth (float bandwidth)

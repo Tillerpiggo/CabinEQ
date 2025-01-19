@@ -58,16 +58,9 @@
         </GROUP>
         <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
-        <FILE id="OUhR01" name="CabinEqGraph.cpp" compile="1" resource="0"
-              file="Source/CabinEqGraph.cpp"/>
-        <FILE id="gQElt6" name="CabinEqGraph.h" compile="0" resource="0" file="Source/CabinEqGraph.h"/>
         <FILE id="XTfbD5" name="CabinPeqGraph.cpp" compile="1" resource="0"
               file="Source/CabinPeqGraph.cpp"/>
         <FILE id="VOfEsn" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
-        <FILE id="Q0zFcX" name="DimensionalSlider.cpp" compile="1" resource="0"
-              file="Source/DimensionalSlider.cpp"/>
-        <FILE id="XrqO91" name="DimensionalSlider.h" compile="0" resource="0"
-              file="Source/DimensionalSlider.h"/>
         <FILE id="auxb98" name="CalibrationView.cpp" compile="1" resource="0"
               file="Source/CalibrationView.cpp"/>
         <FILE id="HZSDMv" name="CalibrationView.h" compile="0" resource="0"
@@ -89,6 +82,14 @@
         <FILE id="Oarkv3" name="UIConstants.h" compile="0" resource="0" file="Source/UIConstants.h"/>
         <FILE id="uEJ18I" name="CabinEqLookAndFeel.h" compile="0" resource="0"
               file="Source/CabinEqLookAndFeel.h"/>
+        <FILE id="MYp5ig" name="FreeTrialBanner.cpp" compile="1" resource="0"
+              file="Source/FreeTrialBanner.cpp"/>
+        <FILE id="GKrweQ" name="FreeTrialBanner.h" compile="0" resource="0"
+              file="Source/FreeTrialBanner.h"/>
+        <FILE id="t1BovB" name="FreeTrialLockScreen.cpp" compile="1" resource="0"
+              file="Source/FreeTrialLockScreen.cpp"/>
+        <FILE id="aktXXy" name="FreeTrialLockScreen.h" compile="0" resource="0"
+              file="Source/FreeTrialLockScreen.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Sequencers">
         <FILE id="EbblTP" name="GlyphGridPlayer.cpp" compile="1" resource="0"
@@ -165,6 +166,13 @@
       </GROUP>
     </GROUP>
     <GROUP id="{41775B42-C5FA-EAED-2185-E529EED0849D}" name="Old/Unused">
+      <FILE id="OUhR01" name="CabinEqGraph.cpp" compile="1" resource="0"
+            file="Source/CabinEqGraph.cpp"/>
+      <FILE id="gQElt6" name="CabinEqGraph.h" compile="0" resource="0" file="Source/CabinEqGraph.h"/>
+      <FILE id="Q0zFcX" name="DimensionalSlider.cpp" compile="1" resource="0"
+            file="Source/DimensionalSlider.cpp"/>
+      <FILE id="XrqO91" name="DimensionalSlider.h" compile="0" resource="0"
+            file="Source/DimensionalSlider.h"/>
       <FILE id="vTw5w7" name="PinkNoiseGenerator.cpp" compile="1" resource="0"
             file="Source/PinkNoiseGenerator.cpp"/>
       <FILE id="P9K6rT" name="PinkNoiseGenerator.h" compile="0" resource="0"

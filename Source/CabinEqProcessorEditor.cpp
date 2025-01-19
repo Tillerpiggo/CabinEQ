@@ -15,6 +15,7 @@ CabinEqProcessorEditor::CabinEqProcessorEditor(CabinEqAudioProcessor& p)
     addAndMakeVisible (cabinEqPage);
     addAndMakeVisible (visibilityButton);
     setResizable (true, false);
+    setResizeLimits (300, 200, 10000, 10000);
     
     visibilityButton.addListener (this);
 }

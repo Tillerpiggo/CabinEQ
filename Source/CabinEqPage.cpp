@@ -32,11 +32,11 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     });
     amplGraph->setListener (&processor);
     amplGraph->addDataSource (&processor);
+    freeTrialBanner.setListener (&processor);
     noiseGridView.setListener (&processor);
     noiseGridView.setCalibrationListener (&processor);
     noiseGridView.setDataSource (&processor);
 //    multiBandStepBar.setListener (&processor);
-    multiBandStepBar.setBackendListener (&processor);
 //    magicKnob.setListener (this);
     calibrationView.setListener (&processor);
     calibrationView.setCalibrationListener (&processor);
@@ -45,12 +45,12 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     processor.addListener (this);
     
     // Extra stuff, will clean up later
+    
+    addAndMakeVisible (freeTrialBanner);
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
-    addAndMakeVisible (multiBandStepBar);
-//    addAndMakeVisible (magicKnob);
     
     didLoadData();
     
@@ -87,11 +87,10 @@ void CabinEqPage::resized()
 {
     float sidebarWidth = 120.0f;
     
-    Layout layout (getBounds(), 8.0f);
+    Layout layout (getBounds(), 0.0f);
+    layout.addRow ({ Space (&freeTrialBanner) }, 40);
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
-//    layout.addRow ({ Space (&multiBandStepBar) }, 60);
-//    layout.addRow ({ Space (&magicKnob) }, 120);
     layout.addRow ({ Space (&calibrationView) });
     layout.updateComponentBounds();
 }
@@ -282,7 +281,7 @@ void CabinEqPage::didLoadData()
         goToProfileWithId (firstProfileId);
     }
     
-    multiBandStepBar.updateBandProfile (processor.getBandProfile());
+//    multiBandStepBar.updateBandProfile (processor.getBandProfile());
 }
 
 //=========================================

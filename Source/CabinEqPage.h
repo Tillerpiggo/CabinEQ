@@ -20,6 +20,7 @@
 #include "NoiseGridView.h"
 #include "CalibrationView.h"
 #include "MultiBandStepBar.h"
+#include "FreeTrialBanner.h"
 //#include "MagicKnob.h"
 
 class CabinEqPage   : public BuildableComponent,
@@ -62,9 +63,8 @@ protected:
     CabinEqLookAndFeel cabinEqLookAndFeel;
     
     // JUCE Labels
+    FreeTrialBanner freeTrialBanner;
     NoiseGridView noiseGridView;
-    MultiBandStepBar multiBandStepBar;
-//    MagicKnob magicKnob;
     CalibrationView calibrationView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;

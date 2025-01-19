@@ -15,6 +15,7 @@
 #include "GlyphManager.h"
 #include "CabinPeqGraph.h"
 #include "Listeners.h"
+#include "FreeTrialBanner.h"
 
 //==============================================================================
 /**
@@ -26,6 +27,7 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public NoiseGridViewDataSource,
                                public GlyphViewListener,
                                public GlyphViewDataSource,
+                               public FreeTrialBannerListener,
                                public CalibrationListener
 {
 public:
@@ -79,6 +81,8 @@ public:
     //==============================================================================
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
+    
+    void freeTrialDidReset() override;
     
     // Calibration listener methods
     void setVolume (float volume) override;
