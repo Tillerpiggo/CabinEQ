@@ -43,8 +43,9 @@ std::pair<float, float> NoiseGenerator::getNextSample()
         leftGain = std::cos (angle);
         rightGain = std::sin (angle);
         
-        leftDelayLine.setDelay (abs (fmax (pan, 0)) * 29);
-        rightDelayLine.setDelay (abs (fmin (pan, 0)) * 29);
+        // This is reversed... but it works really well??
+        leftDelayLine.setDelay (abs (fmin (pan, 0)) * 29);
+        rightDelayLine.setDelay (abs (fmax (pan, 0)) * 29);
 //        float slopeGain = juce::Decibels::decibelsToGain (-1.5 * std::log2 (centerFreq / 1000.0f));
 //        leftGain *= slopeGain;
 //        rightGain *= slopeGain;
