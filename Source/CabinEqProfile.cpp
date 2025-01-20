@@ -32,7 +32,7 @@ const BandProfile CabinEqProfile::getBandProfile() const
         }
     }
     
-    return BandProfile (steps, profileVolume, melodyVolume, noiseVolume);
+    return BandProfile (steps, profileVolume, melodyVolume, noiseVolume, isLocked);
 }
 
 const std::optional<Band> CabinEqProfile::getBandWithId (const int id) const

@@ -60,17 +60,19 @@ class BandProfile
 {
 public:
     BandProfile();
-    BandProfile (std::vector<MultiBandStep> multiBandSteps, float volume, float melodyVolume, float noiseVolume);
+    BandProfile (std::vector<MultiBandStep> multiBandSteps, float volume, float melodyVolume, float noiseVolume, bool isLocked);
     
     const std::vector<MultiBandStep>& getMultiBandSteps() const;
     std::vector<Band> getBands();
     const float getVolume() const;
     const float getMelodyVolume() const;
     const float getNoiseVolume() const;
+    const bool getIsLocked() const;
 private:
     std::vector<MultiBandStep> multiBandSteps;
     float volume;
     float melodyVolume;
     float noiseVolume;
+    bool isLocked;
 };
 

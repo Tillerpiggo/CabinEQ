@@ -16,7 +16,7 @@ Layout::Layout (juce::Rectangle<int> bounds, float padding)
     
 }
 
-void Layout::setBoundsOfComponents (std::vector<juce::Component*> components)
+void Layout::setBoundsOfComponents (std::vector<juce::Component*> components, std::vector<juce::Component*> overlays)
 {
     for (int componentIdx = 0; componentIdx < components.size(); ++componentIdx)
     {
@@ -26,6 +26,8 @@ void Layout::setBoundsOfComponents (std::vector<juce::Component*> components)
         auto [rowIdx, rectIdx] = getRowAndRectIdx (componentIdx);
         auto bounds = getBoundsAt (rowIdx, rectIdx);
         components[componentIdx]->setBounds (bounds);
+        if (overlays[componentIdx] != nullptr)
+            overlays[componentIdx]->setBounds (bounds);
     }
 }
 
@@ -67,6 +69,7 @@ void Layout::addRow (std::vector<Space> spaces, float height)
     {
         widths.push_back (space.getFlexibleLayoutDimension());
         components.push_back (space.getComponentPtr());
+        overlays.push_back (space.getOverlayPtr());
     }
     
     FlexibleLayoutDimension heightDimension = FlexibleLayoutDimension::fill();
@@ -87,7 +90,7 @@ juce::Rectangle<int> Layout::getBoundsAt (int rowIdx, int rectIdx)
 
 void Layout::updateComponentBounds()
 {
-    setBoundsOfComponents (components);
+    setBoundsOfComponents (components, overlays);
 }
 
 std::pair<float, float> Layout::getWidthRange()

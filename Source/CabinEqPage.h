@@ -21,12 +21,15 @@
 #include "CalibrationView.h"
 #include "MultiBandStepBar.h"
 #include "FreeTrialBanner.h"
+#include "FreeTrialLockScreen.h"
+#include "Listeners.h"
 //#include "MagicKnob.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
-                      public CabinEqAudioProcessor::Listener
+                      public CabinEqAudioProcessor::Listener,
+                      public FreeTrialBannerListener
 //                      public MagicKnob::Listener
 {
 public:
@@ -43,6 +46,8 @@ public:
     void textEditorFocusLost (juce::TextEditor& textEditor) override;
     void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
     void inputAttemptWhenModal() override;
+    
+    void freeTrialDidReset() override;
     
 //    void setBands (std::vector<Band> bands) override;
     
@@ -64,6 +69,7 @@ protected:
     
     // JUCE Labels
     FreeTrialBanner freeTrialBanner;
+    FreeTrialLockScreen freeTrialLockScreen;
     NoiseGridView noiseGridView;
     CalibrationView calibrationView;
     juce::Label cabinEQLabel;

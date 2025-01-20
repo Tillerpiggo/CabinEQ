@@ -32,7 +32,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     });
     amplGraph->setListener (&processor);
     amplGraph->addDataSource (&processor);
-    freeTrialBanner.setListener (&processor);
+    freeTrialBanner.setListener (this);
     noiseGridView.setListener (&processor);
     noiseGridView.setCalibrationListener (&processor);
     noiseGridView.setDataSource (&processor);
@@ -47,10 +47,13 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     // Extra stuff, will clean up later
     
     addAndMakeVisible (freeTrialBanner);
+    addAndMakeVisible (freeTrialLockScreen);
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
+    
+    amplGraph->toBack();
     
     didLoadData();
     
@@ -90,7 +93,7 @@ void CabinEqPage::resized()
     Layout layout (getBounds(), 0.0f);
     layout.addRow ({ Space (&freeTrialBanner) }, 40);
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
-    layout.addRow ({ Space (amplGraph.get()), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
+    layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.updateComponentBounds();
 }
@@ -248,6 +251,12 @@ void CabinEqPage::inputAttemptWhenModal()
     dismissAlertWindow();
 }
 
+void CabinEqPage::freeTrialDidReset()
+{
+    processor.freeTrialDidReset();
+    freeTrialLockScreen.setVisible (processor.getBandProfile().getIsLocked());
+}
+
 //void CabinEqPage::setBands (std::vector<Band> bands)
 //{
 ////    return; // stop for now, for practical reasons
@@ -350,6 +359,8 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     amplGraph->setBandProfile (bandProfile);
     profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter();
+    
+    freeTrialLockScreen.setVisible (bandProfile.getIsLocked());
 }
 
 bool CabinEqPage::isDuplicateProfileName (juce::String profileName)

@@ -147,8 +147,8 @@ BandProfile::BandProfile()
     : multiBandSteps ({}), volume (0.0f), melodyVolume (0.0f), noiseVolume (0.0f)
 {}
 
-BandProfile::BandProfile (std::vector<MultiBandStep> multiBandSteps, float volume, float melodyVolume, float noiseVolume)
-    : multiBandSteps (multiBandSteps), volume (volume), melodyVolume (melodyVolume), noiseVolume (noiseVolume)
+BandProfile::BandProfile (std::vector<MultiBandStep> multiBandSteps, float volume, float melodyVolume, float noiseVolume, bool isLocked)
+    : multiBandSteps (multiBandSteps), volume (volume), melodyVolume (melodyVolume), noiseVolume (noiseVolume), isLocked (isLocked)
 {}
 
 const std::vector<MultiBandStep>& BandProfile::getMultiBandSteps() const
@@ -179,4 +179,9 @@ const float BandProfile::getMelodyVolume() const
 const float BandProfile::getNoiseVolume() const
 {
     return noiseVolume;
+}
+
+const bool BandProfile::getIsLocked() const
+{
+    return isLocked;
 }

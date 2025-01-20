@@ -326,7 +326,7 @@ BandProfile CabinEqAudioProcessor::getBandProfile()
     auto profile = profileNamed (profileId);
     if (profile.has_value())
         return profile->get().getBandProfile();
-    return BandProfile ({}, 0.0f, 0.0f, 0.0f);
+    return BandProfile ({}, 0.0f, 0.0f, 0.0f, false);
 }
 
 std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()

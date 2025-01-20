@@ -21,8 +21,8 @@ public:
         : componentPtr (nullptr), layoutDimension (FlexibleLayoutDimension::fill())
     {}
     
-    Space (juce::Component* componentPtr)
-        : componentPtr (componentPtr), layoutDimension (FlexibleLayoutDimension::fill())
+    Space (juce::Component* componentPtr, juce::Component* overlayPtr = nullptr)
+        : componentPtr (componentPtr), overlayPtr (overlayPtr), layoutDimension (FlexibleLayoutDimension::fill())
     {}
     
     Space (juce::Component* componentPtr, float fixedSize)
@@ -52,6 +52,11 @@ public:
         return componentPtr;
     }
     
+    juce::Component* getOverlayPtr() const
+    {
+        return overlayPtr;
+    }
+    
     FlexibleLayoutDimension getFlexibleLayoutDimension() const
     {
         return layoutDimension;
@@ -59,6 +64,7 @@ public:
     
 private:
     juce::Component* componentPtr;
+    juce::Component* overlayPtr = nullptr;
     FlexibleLayoutDimension layoutDimension;
 };
 
@@ -68,7 +74,7 @@ class Layout
 public:
     Layout (juce::Rectangle<int> bounds, float padding = 0.0f); // implicitly starts as a rectangle that takes up the full area
     
-    void setBoundsOfComponents (std::vector<juce::Component*> components);
+    void setBoundsOfComponents (std::vector<juce::Component*> components, std::vector<juce::Component*> overlays);
     void layoutComponentsInGrid (std::vector<std::vector<juce::Component*>> components); // creates an evenly spaced grid to layout the components matching the 2D vector input, and sets the bounds of the components
     void setPadding (float padding);
     
@@ -89,6 +95,7 @@ private:
     std::vector<FlexibleLayoutDimension> getRowHeights();
     std::pair<int, int> getRowAndRectIdx (int componentIdx);
     std::vector<juce::Component*> components;
+    std::vector<juce::Component*> overlays;
     
     juce::Rectangle<int> bounds; // the total bounds of this layout
     std::vector<Row> rows;

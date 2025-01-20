@@ -84,13 +84,13 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     snapToZeroCounter++;
     
     // Delay appropriately
-    leftDelayLine.pushSample (0, pinkNoiseSample * leftGain);
-    rightDelayLine.pushSample (0, pinkNoiseSample * rightGain);
-    float leftSample = leftDelayLine.popSample (0);
-    float rightSample = rightDelayLine.popSample (0);
+//    leftDelayLine.pushSample (0, pinkNoiseSample * leftGain);
+//    rightDelayLine.pushSample (0, pinkNoiseSample * rightGain);
+//    float leftSample = leftDelayLine.popSample (0);
+//    float rightSample = rightDelayLine.popSample (0);
     
-    return { leftSample, rightSample };
-//    return { pinkNoiseSample * leftGain, pinkNoiseSample * rightGain };
+//    return { leftSample, rightSample };
+    return { pinkNoiseSample * leftGain, pinkNoiseSample * rightGain };
 }
 
 void NoiseGenerator::prepare (const juce::dsp::ProcessSpec& spec)
@@ -107,10 +107,10 @@ void NoiseGenerator::prepare (const juce::dsp::ProcessSpec& spec)
         highPassFilters[i].prepare (spec);
     }
     
-    leftDelayLine.reset();
-    rightDelayLine.reset();
-    leftDelayLine.prepare (spec);
-    rightDelayLine.prepare (spec);
+//    leftDelayLine.reset();
+//    rightDelayLine.reset();
+//    leftDelayLine.prepare (spec);
+//    rightDelayLine.prepare (spec);
 }
 
 void NoiseGenerator::setBandwidth (float bandwidth)

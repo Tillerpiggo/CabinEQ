@@ -24,7 +24,7 @@ public:
     void resized() override;
     
 private:
-    juce::Label titleLabel;
-    juce::Label explanationLabel;
+    juce::Label titleLabel { "Profile Locked" };
+    juce::Label explanationLabel { "You're using the free trial of CabinEQ. Buy a license to unlock your profiles." };
     juce::TextButton buyButton { "Buy ($120)" };
 };
