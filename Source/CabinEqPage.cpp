@@ -254,6 +254,10 @@ void CabinEqPage::inputAttemptWhenModal()
 void CabinEqPage::freeTrialDidReset()
 {
     processor.freeTrialDidReset();
+    isBypassed = true;
+    amplGraph->setGrayscale (true);
+    updateButtonText();
+    processor.setIsFilterOn (! isBypassed);
     freeTrialLockScreen.setVisible (processor.getBandProfile().getIsLocked());
 }
 
@@ -274,7 +278,7 @@ void CabinEqPage::freeTrialDidReset()
 void CabinEqPage::didLoadData()
 {
     addingFirstProfile = true;
-    processor.setIsFilterOn (! isBypassed);
+    processor.setIsFilterOn (! isBypassed && ! processor.getBandProfile().getIsLocked());
     auto lastSelectedProfileName = processor.getLastSelectedProfileName();
     if (lastSelectedProfileName.has_value())
     {
@@ -297,6 +301,9 @@ void CabinEqPage::didLoadData()
 void CabinEqPage::toggleBypass()
 {
     isBypassed = ! isBypassed;
+    if (processor.getBandProfile().getIsLocked())
+        isBypassed = true;
+    
     amplGraph->setGrayscale (isBypassed);
 //    panGraph->setGrayscale (isBypassed);
 //    phaseGraph->setGrayscale (isBypassed);
@@ -359,7 +366,13 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     amplGraph->setBandProfile (bandProfile);
     profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter();
-    
+    if (bandProfile.getIsLocked())
+    {
+        isBypassed = true;
+        amplGraph->setGrayscale (true);
+        updateButtonText();
+    }
+    processor.setIsFilterOn (! isBypassed);
     freeTrialLockScreen.setVisible (bandProfile.getIsLocked());
 }
 

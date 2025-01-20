@@ -16,6 +16,7 @@ FreeTrialLockScreen::FreeTrialLockScreen()
     addAndMakeVisible (titleLabel);
     addAndMakeVisible (explanationLabel);
     addButton (&buyButton);
+    addButton (&activateLicenseButton);
     
     titleLabel.setText ("Profile Locked", juce::dontSendNotification);
     titleLabel.setFont (juce::Font (juce::FontOptions(36, juce::Font::bold)));
