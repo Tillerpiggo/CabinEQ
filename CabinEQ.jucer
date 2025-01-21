@@ -42,6 +42,8 @@
         <FILE id="AynBKb" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
       </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
+        <FILE id="kzvoaZ" name="PlainTextButtonLookAndFeel.h" compile="0" resource="0"
+              file="Source/PlainTextButtonLookAndFeel.h"/>
         <GROUP id="{3B5A2BE2-E6B6-3B7A-F6E4-7F90726FB230}" name="Layout">
           <FILE id="AatRfE" name="Layout.cpp" compile="1" resource="0" file="Source/Layout.cpp"/>
           <FILE id="IvB2LP" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
@@ -320,7 +322,6 @@
     <XCODE_MAC targetFolder="Builds/MacOSX" microphonePermissionNeeded="1" microphonePermissionsText="This app requires microphone input to route system audio."
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
                customPList="&lt;key&gt;com.apple.security.get-task-allow&lt;/key&gt;&#10;&lt;false/&gt;"
-               frameworkSearchPaths="/Users/tylergee/Desktop/Coding/CabinEQ/External/libtensorflow/lib"
                iosDevelopmentTeamID="E88BK26E9L">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ" customXcodeFlags="OTHER_CODE_SIGN_FLAGS=--deep"

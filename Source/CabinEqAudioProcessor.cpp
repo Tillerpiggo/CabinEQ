@@ -311,6 +311,14 @@ void CabinEqAudioProcessor::setProfileVolume (float masterVolume)
     updateFilter();
 }
 
+bool CabinEqAudioProcessor::isProfileLocked()
+{
+    auto profile = profileNamed (profileId);
+    if (profile.has_value())
+        return profile->get().getIsLocked();
+    return true;
+}
+
 const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const
 {
     return cabinEqProfileManager.getProfileNames();

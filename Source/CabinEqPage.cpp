@@ -254,11 +254,20 @@ void CabinEqPage::inputAttemptWhenModal()
 void CabinEqPage::freeTrialDidReset()
 {
     processor.freeTrialDidReset();
-    isBypassed = true;
-    amplGraph->setGrayscale (true);
+    if (processor.isProfileLocked())
+    {
+        isBypassed = true;
+        amplGraph->setGrayscale (true);
+    }
     updateButtonText();
     processor.setIsFilterOn (! isBypassed);
-    freeTrialLockScreen.setVisible (processor.getBandProfile().getIsLocked());
+    loadDropdownOptions();
+    freeTrialLockScreen.setVisible (processor.isProfileLocked());
+}
+
+void CabinEqPage::showActivateLicenseForm()
+{
+    
 }
 
 //void CabinEqPage::setBands (std::vector<Band> bands)
@@ -278,7 +287,7 @@ void CabinEqPage::freeTrialDidReset()
 void CabinEqPage::didLoadData()
 {
     addingFirstProfile = true;
-    processor.setIsFilterOn (! isBypassed && ! processor.getBandProfile().getIsLocked());
+    processor.setIsFilterOn (! isBypassed && ! processor.isProfileLocked());
     auto lastSelectedProfileName = processor.getLastSelectedProfileName();
     if (lastSelectedProfileName.has_value())
     {
@@ -301,7 +310,7 @@ void CabinEqPage::didLoadData()
 void CabinEqPage::toggleBypass()
 {
     isBypassed = ! isBypassed;
-    if (processor.getBandProfile().getIsLocked())
+    if (processor.isProfileLocked())
         isBypassed = true;
     
     amplGraph->setGrayscale (isBypassed);
@@ -331,6 +340,8 @@ void CabinEqPage::loadDropdownOptions()
     profileDropdown.addItem ("+ Add Profile", i);
     profileDropdown.addItem ("[] Duplicate \"" + profileId + "\"", i + 1);
     profileDropdown.addItem ("* Rename \"" + profileId + "\"", i + 2);
+    
+    profileDropdown.setItemEnabled (i + 1, ! processor.isProfileLocked());
 }
 
 void CabinEqPage::dismissAlertWindow()
@@ -366,14 +377,14 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     amplGraph->setBandProfile (bandProfile);
     profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter();
-    if (bandProfile.getIsLocked())
+    if (processor.isProfileLocked())
     {
         isBypassed = true;
         amplGraph->setGrayscale (true);
         updateButtonText();
     }
     processor.setIsFilterOn (! isBypassed);
-    freeTrialLockScreen.setVisible (bandProfile.getIsLocked());
+    freeTrialLockScreen.setVisible (processor.isProfileLocked());
 }
 
 bool CabinEqPage::isDuplicateProfileName (juce::String profileName)

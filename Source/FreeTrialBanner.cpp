@@ -17,9 +17,14 @@ FreeTrialBanner::FreeTrialBanner()
     
     addAndMakeVisible (freeTrialLabel);
     addAndMakeVisible (timeLabel);
+    addButton (&activateLicenseButton);
     freeTrialLabel.setText ("Free Trial - profiles will lock every 20 minutes", juce::dontSendNotification);
     timeLabel.setText (convertSecondsToTimeFormat (resetCycleInSeconds), juce::dontSendNotification);
     timeLabel.setJustificationType (juce::Justification::right);
+    
+    addButtonAction (&activateLicenseButton, [this](juce::Button* button) {
+        listener->showActivateLicenseForm();
+    });
     
     startTimer (1000);
 }
@@ -40,7 +45,7 @@ void FreeTrialBanner::resized()
     layout.updateComponentBounds();
 }
 
-void FreeTrialBanner::setListener (FreeTrialBannerListener* listener)
+void FreeTrialBanner::setListener (FreeTrialListener* listener)
 {
     this->listener = listener;
 }

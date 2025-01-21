@@ -29,7 +29,7 @@ class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
                       public CabinEqAudioProcessor::Listener,
-                      public FreeTrialBannerListener
+                      public FreeTrialListener
 //                      public MagicKnob::Listener
 {
 public:
@@ -48,6 +48,7 @@ public:
     void inputAttemptWhenModal() override;
     
     void freeTrialDidReset() override;
+    void showActivateLicenseForm() override;
     
 //    void setBands (std::vector<Band> bands) override;
     

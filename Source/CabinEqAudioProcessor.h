@@ -106,6 +106,7 @@ public:
     void removeProfile (juce::String profileName);
     void renameProfile (juce::String profileName, juce::String newProfileName);
     void setProfileVolume (float masterVolume) override;
+    bool isProfileLocked();
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
     BandProfile getBandProfile() override;

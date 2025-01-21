@@ -136,10 +136,15 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     ArchetypalGlyph cubeGlyph (3, {
         Stroke ({{ -1, -1, 1 }, { -1, 1, 1 }, { -0.5, 0.5, 0 }, { 0.5, 0.5, 0 }, { 1, 1, 0 }, { 1, 1, 1 }, { 1, -1, 1 }, { 0.5, -0.5, 0 }, { -0.5, -0.5, 0 }, { -1, -1, 1 }})
     });
+    ArchetypalGlyph twoGlyph (14, {
+        Stroke ({{ -1, 0.5 }, { -0.5, 0.8 }, { 0, 1 }, { 0.5, 0.8 }, { 1, 0.5 }}),
+        Stroke ({{ 1, 0.5 }, { 0, -0.25 }, { -1, -1 }, { 1, -1 }})
+    });
     ArchetypalGlyph dotGlyph (4, { Stroke ({{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 0, 0 }}) });
     ArchetypalGlyph left (8, { Stroke ({{ -1, 0 }, { 1, 0 }})});
     ArchetypalGlyph right (8, { Stroke ({{ 1, 0 }, { -1, 0 }})});
     
+    archetypalGlyphs.push_back (twoGlyph);
     archetypalGlyphs.push_back (starGlyph);
     archetypalGlyphs.push_back (newGlyph);
     archetypalGlyphs.push_back (zigzagLines);

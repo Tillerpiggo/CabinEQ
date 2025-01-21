@@ -197,6 +197,11 @@ const juce::String CabinEqProfile::getName() const
     return profileName;
 }
 
+const bool CabinEqProfile::getIsLocked() const
+{
+    return isLocked;
+}
+
 const float CabinEqProfile::getVolume() const
 {
     return profileVolume;

@@ -90,11 +90,12 @@ public:
     virtual float getCurrPlayingTime() = 0;
 };
 
-class FreeTrialBannerListener
+class FreeTrialListener
 {
 public:
-    virtual ~FreeTrialBannerListener() = default;
+    virtual ~FreeTrialListener() = default;
     virtual void freeTrialDidReset() = 0;
+    virtual void showActivateLicenseForm() = 0;
 };
 
 //class GlyphViewDataSource

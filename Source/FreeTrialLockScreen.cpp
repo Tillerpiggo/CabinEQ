@@ -45,7 +45,7 @@ void FreeTrialLockScreen::resized()
     layout.addRow ({ Space() });
     layout.addRow ({ Space (&titleLabel) });
     layout.addRow ({ Space (&explanationLabel) });
-    layout.addRow ({ Space (&buyButton) });
+    layout.addRow ({ Space (&activateLicenseButton) });
     layout.addRow ({ Space() });
     layout.updateComponentBounds();
 }

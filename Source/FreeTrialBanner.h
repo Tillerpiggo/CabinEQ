@@ -26,18 +26,19 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     
-    void setListener (FreeTrialBannerListener* listener);
+    void setListener (FreeTrialListener* listener);
     
     void timerCallback() override;
     
 private:
     std::string convertSecondsToTimeFormat (int seconds);
     
-    FreeTrialBannerListener* listener;
+    FreeTrialListener* listener;
     
     int secondsLeftUntilReset;
     int resetCycleInSeconds = 60;
     
     juce::Label timeLabel;
     juce::Label freeTrialLabel;
+    juce::TextButton activateLicenseButton { "Activate License" };
 };
