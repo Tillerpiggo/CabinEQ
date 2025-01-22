@@ -112,7 +112,11 @@ public:
     BandProfile getBandProfile() override;
     
     std::optional<juce::String> getLastSelectedProfileName();
+    float getMasterVolume();
+    bool getHasLicense();
     void setLastSelectedProfileName (juce::String profileName);
+    void setMasterVolume (float masterVolume);
+    void setHasLicense (bool hasLicense);
     
     // Setting bands
     void updateFilter(); // updates the filter to match whatever bands are associated with profileName

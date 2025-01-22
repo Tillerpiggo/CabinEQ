@@ -23,13 +23,16 @@
 #include "FreeTrialBanner.h"
 #include "FreeTrialLockScreen.h"
 #include "Listeners.h"
+#include "CabinEqMarketplaceStatus.h"
+#include "CabinEqUnlockForm.h"
 //#include "MagicKnob.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
                       public CabinEqAudioProcessor::Listener,
-                      public FreeTrialListener
+                      public FreeTrialListener,
+                      public juce::Timer
 //                      public MagicKnob::Listener
 {
 public:
@@ -51,6 +54,7 @@ public:
     void showActivateLicenseForm() override;
     
 //    void setBands (std::vector<Band> bands) override;
+    void timerCallback() override;
     
     void didLoadData() override;
     
@@ -62,6 +66,8 @@ protected:
     
     void showForm();
     void unlockApp();
+    
+    void lockIfNecessary();
     
     void goToProfileWithId (juce::String profileIdToGoTo);
     bool isDuplicateProfileName (juce::String profileName);
@@ -78,6 +84,10 @@ protected:
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
     bool isBypassed = false;
+    
+    // Free Trial Unlock
+    CabinEqMarketplaceStatus marketplaceStatus;
+    CabinEqUnlockForm unlockForm;
     
     bool creatingDuplicate = false;
     bool renamingProfile = false;

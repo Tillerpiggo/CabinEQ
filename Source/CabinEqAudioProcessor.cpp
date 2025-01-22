@@ -223,6 +223,7 @@ void CabinEqAudioProcessor::setVolume (float volume)
 {
     playbackManager.setVolume (volume);
     updateFilter();
+    setMasterVolume (volume);
 }
 
 void CabinEqAudioProcessor::setIsFilterOn (bool isFilterOn)
@@ -315,8 +316,8 @@ bool CabinEqAudioProcessor::isProfileLocked()
 {
     auto profile = profileNamed (profileId);
     if (profile.has_value())
-        return profile->get().getIsLocked();
-    return true;
+        return ! getHasLicense() && profile->get().getIsLocked();
+    return ! getHasLicense();
 }
 
 const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const
@@ -342,10 +343,31 @@ std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()
     return cabinEqProfileManager.getLastSelectedProfileName();
 }
 
+float CabinEqAudioProcessor::getMasterVolume()
+{
+    return cabinEqProfileManager.getMasterVolume();
+}
+
+bool CabinEqAudioProcessor::getHasLicense()
+{
+    return true;
+    return cabinEqProfileManager.getHasLicense();
+}
+
 void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName)
 {
     cabinEqProfileManager.setLastSelectedProfileName (profileName);
     profileId = profileName;
+}
+
+void CabinEqAudioProcessor::setMasterVolume (float masterVolume)
+{
+    cabinEqProfileManager.setMasterVolume (masterVolume);
+}
+
+void CabinEqAudioProcessor::setHasLicense (bool hasLicense)
+{
+    cabinEqProfileManager.setHasLicense (hasLicense);
 }
 
 void CabinEqAudioProcessor::updateFilter()

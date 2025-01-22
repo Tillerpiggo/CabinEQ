@@ -40,5 +40,5 @@ private:
     
     juce::Label timeLabel;
     juce::Label freeTrialLabel;
-    juce::TextButton activateLicenseButton { "Activate License" };
+    juce::TextButton activateLicenseButton { "Sign in to activate license" };
 };

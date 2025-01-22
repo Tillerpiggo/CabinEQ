@@ -18,7 +18,7 @@ FreeTrialBanner::FreeTrialBanner()
     addAndMakeVisible (freeTrialLabel);
     addAndMakeVisible (timeLabel);
     addButton (&activateLicenseButton);
-    freeTrialLabel.setText ("Free Trial - profiles will lock every 20 minutes", juce::dontSendNotification);
+    freeTrialLabel.setText ("Free Trial - current profiles will lock in 20:00", juce::dontSendNotification);
     timeLabel.setText (convertSecondsToTimeFormat (resetCycleInSeconds), juce::dontSendNotification);
     timeLabel.setJustificationType (juce::Justification::right);
     
@@ -41,7 +41,7 @@ void FreeTrialBanner::paint (juce::Graphics& g)
 void FreeTrialBanner::resized()
 {
     Layout layout (getBounds().withX (0).withY (0), 8.0f);
-    layout.addRow ({ Space (&freeTrialLabel), Space(), Space (&timeLabel) });
+    layout.addRow ({ Space (&freeTrialLabel), Space(), Space(&activateLicenseButton) });
     layout.updateComponentBounds();
 }
 
@@ -60,7 +60,8 @@ void FreeTrialBanner::timerCallback()
             listener->freeTrialDidReset();
     }
     
-    timeLabel.setText (convertSecondsToTimeFormat (secondsLeftUntilReset), juce::dontSendNotification);
+    freeTrialLabel.setText ("Free Trial - current profiles will lock in " +  convertSecondsToTimeFormat (secondsLeftUntilReset), juce::dontSendNotification);
+//    timeLabel.setText (, juce::dontSendNotification);
 }
 
 std::string FreeTrialBanner::convertSecondsToTimeFormat(int totalSeconds) {

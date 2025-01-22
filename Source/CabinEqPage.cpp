@@ -11,7 +11,7 @@
 #include "CabinEqPage.h"
 
 CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE")
+    : processor (p), profileId ("NO_PROFILE"), unlockForm (marketplaceStatus)
 {
     amplGraph = std::make_unique<CabinPeqGraph>();
     
@@ -52,12 +52,15 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
+    addAndMakeVisible (unlockForm);
+    unlockForm.setVisible (false);
     
     amplGraph->toBack();
     
     didLoadData();
     
 //    setLookAndFeel (&cabinEqLookAndFeel);
+    startTimer (100);
 }
 
 CabinEqPage::~CabinEqPage()
@@ -69,6 +72,8 @@ CabinEqPage::~CabinEqPage()
     amplGraph->removeListener();
 //    
     processor.removeListener();
+    
+    stopTimer();
     
 //    setLookAndFeel (nullptr);
 }
@@ -96,6 +101,8 @@ void CabinEqPage::resized()
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.updateComponentBounds();
+    
+    unlockForm.centreWithSize (getWidth() * 0.8, getHeight() * 0.8);
 }
 
 // ====================================================
@@ -253,21 +260,15 @@ void CabinEqPage::inputAttemptWhenModal()
 
 void CabinEqPage::freeTrialDidReset()
 {
+    bypassButton.setButtonText ("OFF");
     processor.freeTrialDidReset();
-    if (processor.isProfileLocked())
-    {
-        isBypassed = true;
-        amplGraph->setGrayscale (true);
-    }
-    updateButtonText();
-    processor.setIsFilterOn (! isBypassed);
-    loadDropdownOptions();
+    lockIfNecessary();
     freeTrialLockScreen.setVisible (processor.isProfileLocked());
 }
 
 void CabinEqPage::showActivateLicenseForm()
 {
-    
+    showForm();
 }
 
 //void CabinEqPage::setBands (std::vector<Band> bands)
@@ -303,6 +304,10 @@ void CabinEqPage::didLoadData()
         goToProfileWithId (firstProfileId);
     }
     
+    lockIfNecessary(); // locks the filter/graph if you don't have a license and the profile is locked
+    
+    masterVolumeSlider.setValue (processor.getMasterVolume(), juce::sendNotification);
+    
 //    multiBandStepBar.updateBandProfile (processor.getBandProfile());
 }
 
@@ -312,10 +317,8 @@ void CabinEqPage::toggleBypass()
     isBypassed = ! isBypassed;
     if (processor.isProfileLocked())
         isBypassed = true;
-    
     amplGraph->setGrayscale (isBypassed);
-//    panGraph->setGrayscale (isBypassed);
-//    phaseGraph->setGrayscale (isBypassed);
+    processor.setIsFilterOn (! isBypassed);
     updateButtonText();
 }
 
@@ -357,15 +360,35 @@ void CabinEqPage::updateButtonText()
 
 void CabinEqPage::showForm()
 {
-//    unlockForm.setVisible (true);
-    bypassButton.setEnabled (true);
+    unlockForm.setVisible (true);
 }
 
 void CabinEqPage::unlockApp()
 {
-    bypassButton.setEnabled (true);
-//    unlockLabel.setText ("Status: Unlocked", juce::dontSendNotification);
-//    unlockLabel.setColour (juce::Label::textColourId, juce::Colours::green);
+    processor.setHasLicense (true);
+    
+    amplGraph->setGrayscale (isBypassed);
+    processor.setIsFilterOn (! isBypassed);
+    updateButtonText();
+}
+
+void CabinEqPage::timerCallback()
+{
+    if (! processor.getHasLicense() && marketplaceStatus.isUnlocked())
+    {
+        unlockApp();
+    }
+}
+
+void CabinEqPage::lockIfNecessary()
+{
+    if (! processor.isProfileLocked())
+        return;
+    
+    bypassButton.setButtonText ("OFF");
+    amplGraph->setGrayscale (true);
+    processor.setIsFilterOn (false);
+    loadDropdownOptions();
 }
 
 void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
@@ -377,13 +400,17 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     amplGraph->setBandProfile (bandProfile);
     profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter();
-    if (processor.isProfileLocked())
+    if (! processor.isProfileLocked())
     {
-        isBypassed = true;
-        amplGraph->setGrayscale (true);
+        processor.setIsFilterOn (! isBypassed);
+        amplGraph->setGrayscale (isBypassed);
         updateButtonText();
     }
-    processor.setIsFilterOn (! isBypassed);
+    else
+    {
+        lockIfNecessary();
+    }
+        
     freeTrialLockScreen.setVisible (processor.isProfileLocked());
 }
 

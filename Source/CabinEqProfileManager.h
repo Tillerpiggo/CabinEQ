@@ -32,12 +32,18 @@ public:
     const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
     std::optional<juce::String> getLastSelectedProfileName() const;
+    float getMasterVolume() const;
+    bool getHasLicense() const;
     
     void setLastSelectedProfileName (juce::String lastSelectedProfileName);
+    void setMasterVolume (float masterVolume);
+    bool setHasLicense (bool hasLicense);
     
 private:
     juce::AudioProcessorValueTreeState& apvts;
     std::vector<std::unique_ptr<CabinEqProfile>> profiles; // must use unique ptr because the copy operator is implicitly deleted
     
     juce::Identifier lastSelectedProfileId { "lastSelectedProfileId" };
+    juce::Identifier masterVolumeId { "masterVolumeId" };
+    juce::Identifier hasLicenseId { "hasLicenseId" };
 };

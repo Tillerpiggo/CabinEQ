@@ -104,7 +104,35 @@ std::optional<juce::String> CabinEqProfileManager::getLastSelectedProfileName() 
     return std::nullopt;
 }
 
+float CabinEqProfileManager::getMasterVolume() const
+{
+    if (! apvts.state.hasProperty (masterVolumeId))
+    {
+        apvts.state.setProperty (masterVolumeId, 0, nullptr);
+    }
+    return apvts.state.getProperty (masterVolumeId);
+}
+
+bool CabinEqProfileManager::getHasLicense() const
+{
+    if (! apvts.state.hasProperty (hasLicenseId))
+    {
+        apvts.state.setProperty (hasLicenseId, false, nullptr);
+    }
+    return apvts.state.getProperty (hasLicenseId);
+}
+
 void CabinEqProfileManager::setLastSelectedProfileName (juce::String lastSelectedProfileName)
 {
     apvts.state.setProperty (lastSelectedProfileId, lastSelectedProfileName, nullptr);
+}
+
+void CabinEqProfileManager::setMasterVolume (float masterVolume)
+{
+    apvts.state.setProperty (masterVolumeId, masterVolume, nullptr);
+}
+
+bool CabinEqProfileManager::setHasLicense (bool hasLicense)
+{
+    apvts.state.setProperty (hasLicenseId, hasLicense, nullptr);
 }

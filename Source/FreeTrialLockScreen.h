@@ -26,6 +26,8 @@ public:
 private:
     juce::Label titleLabel;
     juce::Label explanationLabel;
-    juce::TextButton activateLicenseButton { "Activate License" };
-    juce::TextButton buyButton { "Buy CabinEQ ($120)" };
+    juce::HyperlinkButton cabinaudioButton { "cabinaudio.com", juce::URL("https://cabinaudio.webflow.io") };
+    juce::Label explanationLabel2;
+//    juce::TextButton activateLicenseButton { "Activate License" };
+//    juce::TextButton buyButton { "Go to cabinaudio.com ->" };
 };
