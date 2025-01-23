@@ -125,13 +125,19 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 1, -1, 1 }, { -1, 1, 1 }})
     });
     ArchetypalGlyph line5Glyph (12, {
-        Stroke ({{ 1, 1, 1 }, { -1, -1, 1 }})
+        Stroke ({{ 0.5, 1, 1 }, { -0.5, -1, 1 }, { 0.5, 1, 1 }})
     });
     ArchetypalGlyph line6Glyph (13, {
-        Stroke ({{ -1, 1, 1 }, { 1, -1, 1 }})
+        Stroke ({{ -1, 0.5, 1 }, { 1, -0.5, 1 }, { -1, 0.5, 1 }})
     });
     ArchetypalGlyph line4Glyph (2, {
         Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
+    });
+    ArchetypalGlyph horizontalFastGlyph (16, {
+        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }})
+    });
+    ArchetypalGlyph horizontalReallyFastGlyph (17, {
+        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }})
     });
     ArchetypalGlyph cubeGlyph (3, {
         Stroke ({{ -1, -1, 1 }, { -1, 1, 1 }, { -0.5, 0.5, 0 }, { 0.5, 0.5, 0 }, { 1, 1, 0 }, { 1, 1, 1 }, { 1, -1, 1 }, { 0.5, -0.5, 0 }, { -0.5, -0.5, 0 }, { -1, -1, 1 }})
@@ -158,6 +164,8 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (line6Glyph);
     archetypalGlyphs.push_back (line2Glyph);
     archetypalGlyphs.push_back (line3Glyph);
+    archetypalGlyphs.push_back (horizontalFastGlyph);
+    archetypalGlyphs.push_back (horizontalReallyFastGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
     archetypalGlyphs.push_back (comparisonGlyph);
 //    archetypalGlyphs.push_back (diamonds);
