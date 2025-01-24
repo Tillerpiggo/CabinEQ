@@ -119,6 +119,7 @@ public:
     virtual ~CalibrationListener() = default;
     
     virtual void setVolume (float volume) = 0;
+    virtual void setCalibrationVolume (float calibrationVolume) = 0;
     virtual void setIsFilterOn (bool isFilterOn) = 0;
     virtual void setIsPlaying (bool isPlaying) = 0;
     virtual void setIsCabinNoise (bool isCabinNoise) = 0;

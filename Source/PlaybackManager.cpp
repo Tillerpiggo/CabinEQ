@@ -116,6 +116,11 @@ void PlaybackManager::setVolume (float volume)
     overallVolumeProcessor.setGainDecibels (volume);
 }
 
+void PlaybackManager::setCalibrationVolume (float calibrationVolume)
+{
+    this->calibrationVolume = calibrationVolume;
+}
+
 void PlaybackManager::setMinFreq (float minFreq)
 {
     glyphGridPlayer.setMinFreq (minFreq);

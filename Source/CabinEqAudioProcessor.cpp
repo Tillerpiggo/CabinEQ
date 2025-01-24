@@ -226,6 +226,12 @@ void CabinEqAudioProcessor::setVolume (float volume)
     setMasterVolume (volume);
 }
 
+void CabinEqAudioProcessor::setCalibrationVolume (float calibrationVolume)
+{
+    playbackManager.setCalibrationVolume (calibrationVolume);
+    updateFilter();
+}
+
 void CabinEqAudioProcessor::setIsFilterOn (bool isFilterOn)
 {
     playbackManager.setIsFilterOn (isFilterOn);

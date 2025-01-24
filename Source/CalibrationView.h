@@ -49,6 +49,8 @@ private:
     juce::Label speedLabel;
     juce::Slider bandwidthSlider;
     juce::Label bandwidthLabel;
+    juce::Slider volumeSlider;
+    juce::Label volumeLabel;
     juce::TextButton playButton { "Play" };
     juce::TextButton iirButton { "IIR" };
     juce::TextButton updateFilterButton { "Update" };

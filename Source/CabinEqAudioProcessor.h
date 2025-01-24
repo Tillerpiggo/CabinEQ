@@ -85,6 +85,7 @@ public:
     
     // Calibration listener methods
     void setVolume (float volume) override;
+    void setCalibrationVolume (float calibrationVolume) override;
     void setIsFilterOn (bool isFilterOn) override;
     void setIsPlaying (bool isPlaying) override;
     void setIsCabinNoise (bool isCabinNoise) override;

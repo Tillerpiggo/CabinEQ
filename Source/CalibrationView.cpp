@@ -14,7 +14,9 @@ CalibrationView::CalibrationView()
 {
     // Calibration setting components
     addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
-    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 1.0f);
+    speedSlider.setSkewFactorFromMidPoint (1.0f);
+    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 1.0f, 4.0f, 1.0f);
+    addSliderAndLabel (&volumeSlider, &volumeLabel, "Volume", -24.0f, 24.0f, 0.0f);
     addButton (&playButton);
 //    addButton (&iirButton);
 //    addButton (&updateFilterButton);
@@ -36,6 +38,12 @@ CalibrationView::CalibrationView()
         {
             calibrationListener->setBandwidth (bandwidthSlider.getValue());
             // TODO: propogate visual change to the glyph view
+        }
+    });
+    addSliderAction (&volumeSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setCalibrationVolume (volumeSlider.getValue());
         }
     });
     
@@ -100,6 +108,7 @@ void CalibrationView::resized()
     Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
+    settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
 //    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
     settingsLayout.addRow ({ Space (&playButton) });
     settingsLayout.updateComponentBounds();

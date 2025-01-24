@@ -35,6 +35,7 @@ public:
     void setIsPlayingNoise (bool isPlayingNoise);
     void setIsCabinNoise (bool isCabinNoise);
     void setVolume (float volume);
+    void setCalibrationVolume (float calibrationVolume);
     void setMinFreq (float minFreq);
     void setMaxFreq (float maxFreq);
     void setSpeedFactor (float speedFactor);
