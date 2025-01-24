@@ -13,11 +13,11 @@ CabinEqProcessorEditor::CabinEqProcessorEditor(CabinEqAudioProcessor& p)
 {
     setSize (1080, 720);
     addAndMakeVisible (cabinEqPage);
-    addAndMakeVisible (visibilityButton);
+//    addAndMakeVisible (visibilityButton);
     setResizable (true, false);
     setResizeLimits (300, 200, 10000, 10000);
     
-    visibilityButton.addListener (this);
+//    visibilityButton.addListener (this);
 }
 
 CabinEqProcessorEditor::~CabinEqProcessorEditor()
