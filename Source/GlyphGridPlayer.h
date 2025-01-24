@@ -38,6 +38,8 @@ public:
 private:
     void addRemoveNoiseGeneratorsIfNeeded();
     void updateNoiseGeneratorsIfNeeded();
+    float scaleToBarkBandwidth (float bandwidth, float centerFrequency);
+    float barkToHz (float hz);
     
     std::pair<std::pair<float, float>, float> getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float currTime);
     float volToDB (float vol); // converts volume (from 0 to 1) to db using some arbitrary formula

@@ -133,11 +133,24 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
         // Set the appropriate bandpass filter for each noise generator, and implement helper function
         auto [freqPan, vol] = getFreqPanVolFromGlyphAtTime (glyphs[i], currTime);
         auto [freq, pan] = freqPan;
-        noiseGenerators[i].setBandwidth (bandwidth);
+        noiseGenerators[i].setBandwidth (scaleToBarkBandwidth (bandwidth, freq));
         noiseGenerators[i].setBandpass (freq);
         noiseGenerators[i].setPan (pan);
         noiseGenerators[i].setVolumeDB (volToDB (glyphs[i].getVolume()) + volToDB (vol));
     }
+}
+
+float GlyphGridPlayer::scaleToBarkBandwidth (float bandwidth, float centerFrequency)
+{
+    float criticalBandwidth = 25.0 + 75.0 * pow(1.0 + 1.4 * pow (centerFrequency / 1000.0, 2.0), 0.69);
+    float actualBandwidth = centerFrequency * (pow (2.0, 1.0 / 2.0) - pow (2.0, -1.0 / 2.0));
+    std::cout << "ratio: " << criticalBandwidth / actualBandwidth << std::endl;
+    return bandwidth * fmin (criticalBandwidth / actualBandwidth, 1.0f);
+}
+
+float GlyphGridPlayer::barkToHz (float hz)
+{
+    return 600.0f * sinh(hz / 6.0);
 }
 
 //std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
@@ -185,7 +198,7 @@ std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyp
     float barkFreq = barkMin + normalizedFreq * (barkMax - barkMin); // Map to Bark scale
 
     // Convert Bark to Hz (inverse mapping of Bark scale)
-    float hzFreq = 600.0f * sinh(barkFreq / 6.0);/*600.0f * (std::exp(barkFreq / 6.0f) - std::exp(-barkFreq / 6.0f));*/
+    float hzFreq = barkToHz (barkFreq);/*600.0f * (std::exp(barkFreq / 6.0f) - std::exp(-barkFreq / 6.0f));*/
 
     // Calculate vol
     float vol = normalizedCoords.vol;
