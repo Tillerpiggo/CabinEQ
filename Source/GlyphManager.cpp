@@ -177,31 +177,55 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 //    archetypalGlyphs.push_back (cubeGlyph);
 ////    archetypalGlyphs.push_back (dotGlyph);
     
-    ArchetypalGlyph line1Glyph (1, {
-        Stroke ({{ 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }})
+//    ArchetypalGlyph line1Glyph (1, {
+//        Stroke ({{ 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }})
+//    });
+//    
+//    ArchetypalGlyph line2Glyph (1, {
+//        Stroke ({{ 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }})
+//    });
+//    ArchetypalGlyph line3Glyph (1, {
+//        Stroke ({{ 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }})
+//    });
+//
+//    ArchetypalGlyph line4Glyph (1, {
+//        Stroke ({{ 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }})
+//    });
+//
+//    ArchetypalGlyph line5Glyph (1, {
+//        Stroke ({{ 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }})
+//    });
+    
+    ArchetypalGlyph horizontalGlyph (1, {
+        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
     });
     
-    ArchetypalGlyph line2Glyph (1, {
-        Stroke ({{ 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }})
+    ArchetypalGlyph verticalGlyph (2, {
+        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
     });
-    ArchetypalGlyph line3Glyph (1, {
-        Stroke ({{ 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }})
+    
+    ArchetypalGlyph diagonalGlyph (3, {
+        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }})
+    });
+    
+    ArchetypalGlyph diagonalGlyph2 (4, {
+        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
+    });
+    
+    ArchetypalGlyph steepDiagonalGlpyh (5, {
+        Stroke ({{ -0.5, -1 }, { 0.5, 1 }, { -0.5, -1 }})
+    });
+    
+    ArchetypalGlyph steepDiagonalGlyph2 (6, {
+        Stroke ({{ 0.5, -1 }, { -0.5, 1 }, { 0.5, -1 }})
     });
 
-    ArchetypalGlyph line4Glyph (1, {
-        Stroke ({{ 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }})
-    });
-
-    ArchetypalGlyph line5Glyph (1, {
-        Stroke ({{ 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }})
-    });
-
-    archetypalGlyphs.push_back (line1Glyph);
-    archetypalGlyphs.push_back (line2Glyph);
-    archetypalGlyphs.push_back (line3Glyph);
-    archetypalGlyphs.push_back (line4Glyph);
-    archetypalGlyphs.push_back (line5Glyph);
-    archetypalGlyphs.push_back (lineJulianGlyph);
+    archetypalGlyphs.push_back (horizontalGlyph);
+    archetypalGlyphs.push_back (verticalGlyph);
+    archetypalGlyphs.push_back (diagonalGlyph);
+    archetypalGlyphs.push_back (diagonalGlyph2);
+    archetypalGlyphs.push_back (steepDiagonalGlpyh);
+    archetypalGlyphs.push_back (steepDiagonalGlyph2);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

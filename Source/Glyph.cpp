@@ -145,11 +145,10 @@ void Glyph::incrementVolume (float increment)
 
 void Glyph::incrementSizeFactor (float increment)
 {
-    this->sizeFactor = getSizeFactorWithinBounds (increment);
-//    this->sizeFactor = std::min (std::max (sizeFactor + increment, 0.1f), 1.0f);
-//    
-//    if (! isInBounds (centerPos))
-//        moveSizeFactorWithinBounds();
+//    this->sizeFactor = getSizeFactorWithinBounds (increment);
+    this->sizeFactor = std::min (std::max (sizeFactor + increment, 0.05f), 1.0f);
+    if (! isInBounds (centerPos))
+        moveGlyphWithinBounds();
 }
 
 void Glyph::setCenterPos (juce::Point<float> centerPos)

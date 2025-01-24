@@ -142,10 +142,17 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
 
 float GlyphGridPlayer::scaleToBarkBandwidth (float bandwidth, float centerFrequency)
 {
-    float criticalBandwidth = 25.0 + 75.0 * pow(1.0 + 1.4 * pow (centerFrequency / 1000.0, 2.0), 0.69);
-    float actualBandwidth = centerFrequency * (pow (2.0, 1.0 / 2.0) - pow (2.0, -1.0 / 2.0));
-    std::cout << "ratio: " << criticalBandwidth / actualBandwidth << std::endl;
-    return bandwidth * fmin (criticalBandwidth / actualBandwidth, 1.0f);
+    centerFrequency = fmax (centerFrequency, 20.0f);
+    float erb = 24.7f * (4.37f * centerFrequency / 1000.0f + 1.0f);
+    float erbInOctaves = log2 (1.0f + erb / centerFrequency);
+    return bandwidth * erbInOctaves;
+//    float lowerFrequency = centerFrequency / pow (2.0f, bandwidth);
+//    float upperFrequency = centerFrequency * pow (2.0f, bandwidth);
+//    float lowerBarkFrequency = barkToHz
+//    float lowerFrequency = centerFrequency - criticalBandwidth / 2.0f;
+//    float upperFrequency = centerFrequency + criticalBandwidth / 2.0f;
+//    float octaves = log2 (upperFrequency / lowerFrequency);
+//    return bandwidth * octaves;
 }
 
 float GlyphGridPlayer::barkToHz (float hz)
