@@ -58,8 +58,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     amplGraph->toBack();
     
     didLoadData();
-    
-//    setLookAndFeel (&cabinEqLookAndFeel);
     startTimer (100);
 }
 
@@ -68,21 +66,16 @@ CabinEqPage::~CabinEqPage()
     profileDropdown.removeListener (this);
     bypassButton.removeListener (this);
     masterVolumeSlider.removeListener (this);
-//    
+
     amplGraph->removeListener();
-//    
+
     processor.removeListener();
     
     stopTimer();
-    
-//    setLookAndFeel (nullptr);
 }
 
 void CabinEqPage::paint (juce::Graphics& g)
 {
-//    g.fillAll (juce::Colours::lightgrey);
-    
-    
     juce::ColourGradient fadeGradient (BACKGROUND_GRADIENT_LIGHT, 0, 0, // Bottom
         BACKGROUND_GRADIENT_DARK, 900, 300, // Top edge
         true);
@@ -270,20 +263,6 @@ void CabinEqPage::showActivateLicenseForm()
 {
     showForm();
 }
-
-//void CabinEqPage::setBands (std::vector<Band> bands)
-//{
-////    return; // stop for now, for practical reasons
-//    
-//    // Set the bands. If they're not all there, this will crash...
-//    for (int i = 0; i < 24; ++i)
-//    {
-//        auto band = bands[i];
-//        processor.updateBand (i, band.freq, band.ampl, band.bandwidth, band.type, 0);
-//    }
-//    
-//    amplGraph->updateBands();
-//}
 
 void CabinEqPage::didLoadData()
 {

@@ -31,8 +31,9 @@ std::pair<float, float> GlyphGridPlayer::getNextSample()
     for (int i = 0; i < noiseGenerators.size(); ++i)
     {
         auto noiseSample = noiseGenerators[i].getNextSample();
-        nextSample.first += noiseSample.first * 5.0f;// / static_cast<float> (i + 1);
-        nextSample.second += noiseSample.second * 5.0f;// / static_cast<float> (i + 1);
+        float factor = 1.0f;
+        nextSample.first += noiseSample.first * factor;// / static_cast<float> (i + 1);
+        nextSample.second += noiseSample.second * factor;// / static_cast<float> (i + 1);
     }
     
     // Increment time
@@ -139,6 +140,31 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
     }
 }
 
+//std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
+//{
+//    // Calculate coords
+//    auto normalizedCoords = glyph.positionAtTime (time).first;
+//    float x = normalizedCoords.x * glyph.getSizeFactor() + glyph.getCenterPos().x;
+//    float y = normalizedCoords.y * glyph.getSizeFactor() + glyph.getCenterPos().y;
+//    
+//    // Calculate pan
+//    float pan = x;
+//    
+//    // Calculate freq
+//    float freq = y;
+//    float normalizedFreq = (freq + 1.0f) / 2.0f;
+//    
+//    float logMinFreq = std::log (minFreq);
+//    float logMaxFreq = std::log (maxFreq);
+//    float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
+//    freq = std::exp (logFreq);
+//    
+//    // Calculate vol
+//    float vol = normalizedCoords.vol;
+//    
+//    return {{ freq, pan }, vol };
+//}
+
 std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
 {
     // Calculate coords
@@ -149,19 +175,22 @@ std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyp
     // Calculate pan
     float pan = x;
     
-    // Calculate freq
-    float freq = y;
-    float normalizedFreq = (freq + 1.0f) / 2.0f;
-    
-    float logMinFreq = std::log (minFreq);
-    float logMaxFreq = std::log (maxFreq);
-    float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
-    freq = std::exp (logFreq);
-    
+    // Calculate freq using Bark scaling
+    float freq = y; // Use y-coordinate for frequency
+    float normalizedFreq = (freq + 1.0f) / 2.0f; // Normalize y to [0, 1]
+
+    // Map normalized frequency to Bark scale (0 to 24 Barks)
+    float barkMin = 0.0f; // Minimum Bark value
+    float barkMax = 24.0f; // Maximum Bark value
+    float barkFreq = barkMin + normalizedFreq * (barkMax - barkMin); // Map to Bark scale
+
+    // Convert Bark to Hz (inverse mapping of Bark scale)
+    float hzFreq = 600.0f * sinh(barkFreq / 6.0);/*600.0f * (std::exp(barkFreq / 6.0f) - std::exp(-barkFreq / 6.0f));*/
+
     // Calculate vol
     float vol = normalizedCoords.vol;
-    
-    return {{ freq, pan }, vol };
+
+    return {{ hzFreq, pan }, vol };
 }
 
 std::vector<float> GlyphGridPlayer::getCurrPlayingFreqs()

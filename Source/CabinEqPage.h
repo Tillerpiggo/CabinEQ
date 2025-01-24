@@ -25,7 +25,6 @@
 #include "Listeners.h"
 #include "CabinEqMarketplaceStatus.h"
 #include "CabinEqUnlockForm.h"
-//#include "MagicKnob.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
@@ -33,7 +32,6 @@ class CabinEqPage   : public BuildableComponent,
                       public CabinEqAudioProcessor::Listener,
                       public FreeTrialListener,
                       public juce::Timer
-//                      public MagicKnob::Listener
 {
 public:
     CabinEqPage (CabinEqAudioProcessor& p);
