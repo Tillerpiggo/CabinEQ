@@ -530,6 +530,7 @@ void CabinEqAudioProcessor::incrementGlyphVolume (int glyphId, float increment)
 void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float increment)
 {
     glyphManager.incrementSizeFactor (glyphId, increment);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 
 void CabinEqAudioProcessor::moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions)
