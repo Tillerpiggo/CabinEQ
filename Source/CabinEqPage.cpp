@@ -46,7 +46,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     // Extra stuff, will clean up later
     
-    addAndMakeVisible (freeTrialBanner);
+//    addAndMakeVisible (freeTrialBanner);
     addAndMakeVisible (freeTrialLockScreen);
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
@@ -89,7 +89,10 @@ void CabinEqPage::resized()
     float sidebarWidth = 120.0f;
     
     Layout layout (getBounds(), 0.0f);
-    layout.addRow ({ Space (&freeTrialBanner) }, 40);
+    if (! processor.getHasLicense())
+    {
+        layout.addRow ({ Space (&freeTrialBanner) }, 40);
+    }
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
@@ -253,10 +256,13 @@ void CabinEqPage::inputAttemptWhenModal()
 
 void CabinEqPage::freeTrialDidReset()
 {
-    bypassButton.setButtonText ("OFF");
-    processor.freeTrialDidReset();
-    lockIfNecessary();
-    freeTrialLockScreen.setVisible (processor.isProfileLocked());
+    if (! processor.getHasLicense())
+    {
+        bypassButton.setButtonText ("OFF");
+        processor.freeTrialDidReset();
+        lockIfNecessary();
+        freeTrialLockScreen.setVisible (processor.isProfileLocked());
+    }
 }
 
 void CabinEqPage::showActivateLicenseForm()
@@ -286,6 +292,8 @@ void CabinEqPage::didLoadData()
     lockIfNecessary(); // locks the filter/graph if you don't have a license and the profile is locked
     
     masterVolumeSlider.setValue (processor.getMasterVolume(), juce::sendNotification);
+    
+    resized();
     
 //    multiBandStepBar.updateBandProfile (processor.getBandProfile());
 }
