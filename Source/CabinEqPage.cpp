@@ -59,6 +59,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     didLoadData();
     startTimer (100);
+    
+    loadDropdownOptions();
 }
 
 CabinEqPage::~CabinEqPage()
