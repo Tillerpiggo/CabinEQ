@@ -142,10 +142,15 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
 
 float GlyphGridPlayer::scaleToBarkBandwidth (float bandwidth, float centerFrequency)
 {
-    centerFrequency = fmax (centerFrequency, 20.0f);
+    centerFrequency = fmax (centerFrequency, 40.0f);
     float erb = 24.7f * (4.37f * centerFrequency / 1000.0f + 1.0f);
     float erbInOctaves = log2 (1.0f + erb / centerFrequency);
-    return bandwidth * erbInOctaves;
+    
+    if (erbScalingEnabled)
+        return bandwidth * erbInOctaves * 2.5f;
+    else
+        return bandwidth;
+//    return bandwidth;// * erbInOctaves * 2.5f;
 //    float lowerFrequency = centerFrequency / pow (2.0f, bandwidth);
 //    float upperFrequency = centerFrequency * pow (2.0f, bandwidth);
 //    float lowerBarkFrequency = barkToHz
@@ -155,13 +160,23 @@ float GlyphGridPlayer::scaleToBarkBandwidth (float bandwidth, float centerFreque
 //    return bandwidth * octaves;
 }
 
-float GlyphGridPlayer::barkToHz (float hz)
+float GlyphGridPlayer::barkToHz (float bark)
 {
-    return 600.0f * sinh(hz / 6.0);
+    return 600.0f * sinh(bark / 6.0);
 }
 
-//std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
-//{
+void GlyphGridPlayer::setBarkScaling (bool barkScalingEnabled)
+{
+    this->barkScalingEnabled = barkScalingEnabled;
+}
+
+void GlyphGridPlayer::setERBScaling (bool erbScalingEnbaled)
+{
+    this->erbScalingEnabled = erbScalingEnbaled;
+}
+
+////std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
+////{
 //    // Calculate coords
 //    auto normalizedCoords = glyph.positionAtTime (time).first;
 //    float x = normalizedCoords.x * glyph.getSizeFactor() + glyph.getCenterPos().x;
@@ -183,7 +198,7 @@ float GlyphGridPlayer::barkToHz (float hz)
 //    float vol = normalizedCoords.vol;
 //    
 //    return {{ freq, pan }, vol };
-//}
+////}
 
 std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
 {
@@ -200,17 +215,25 @@ std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyp
     float normalizedFreq = (freq + 1.0f) / 2.0f; // Normalize y to [0, 1]
 
     // Map normalized frequency to Bark scale (0 to 24 Barks)
-    float barkMin = 0.0f; // Minimum Bark value
+    float barkMin = 1.0f; // Minimum Bark value (~60hz)
     float barkMax = 24.0f; // Maximum Bark value
     float barkFreq = barkMin + normalizedFreq * (barkMax - barkMin); // Map to Bark scale
 
     // Convert Bark to Hz (inverse mapping of Bark scale)
     float hzFreq = barkToHz (barkFreq);/*600.0f * (std::exp(barkFreq / 6.0f) - std::exp(-barkFreq / 6.0f));*/
+    
+    float logMinFreq = std::log (minFreq);
+    float logMaxFreq = std::log (maxFreq);
+    float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
+    freq = std::exp (logFreq);
 
     // Calculate vol
     float vol = normalizedCoords.vol;
 
-    return {{ hzFreq, pan }, vol };
+    if (barkScalingEnabled)
+        return {{ hzFreq, pan }, vol };
+    else
+        return {{ freq, pan }, vol };
 }
 
 std::vector<float> GlyphGridPlayer::getCurrPlayingFreqs()

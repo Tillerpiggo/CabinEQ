@@ -145,6 +145,16 @@ void PlaybackManager::setBandwidth (float bandwidth)
     gridSequencer.setBandwidth (bandwidth);
 }
 
+void PlaybackManager::setBarkScaling (bool barkScalingEnabled)
+{
+    glyphGridPlayer.setBarkScaling (barkScalingEnabled);
+}
+
+void PlaybackManager::setERBScaling (bool erbScalingEnabled)
+{
+    glyphGridPlayer.setERBScaling (erbScalingEnabled);
+}
+
 void PlaybackManager::updateFIRFilter()
 {
     // Calculate curve pts

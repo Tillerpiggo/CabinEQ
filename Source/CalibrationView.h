@@ -55,6 +55,8 @@ private:
     juce::TextButton iirButton { "IIR" };
     juce::TextButton updateFilterButton { "Update" };
     juce::ComboBox qualityComboBox;
+    juce::ComboBox scalingComboBox;
+    juce::ComboBox erbComboBox;
     bool isPlaying = false;
     bool isIIR = true;
     bool isFIRFilterUpdated = false;

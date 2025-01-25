@@ -40,6 +40,8 @@ public:
     void setMaxFreq (float maxFreq);
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
+    void setBarkScaling (bool barkScalingEnabled);
+    void setERBScaling (bool erbScalingEnabled);
     
     void updateFIRFilter();
     void setIIR (bool isIIR);

@@ -219,6 +219,19 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     ArchetypalGlyph steepDiagonalGlyph2 (6, {
         Stroke ({{ 0.5, -1 }, { -0.5, 1 }, { 0.5, -1 }})
     });
+    
+//    ArchetypalGlyph tonalGlyph (6, {
+//        Stroke ({{ 0, -1 }, { 0, -1 }}),
+//        Stroke ({{ 0, -0.5 }, { 0, -0.5 }}),
+//        Stroke ({{ 0, 0 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0.5 }, { 0, 0.5 }}),
+//        Stroke ({{ 0, 1 }, { 0, 1 }}),
+//    });
+    
+    ArchetypalGlyph comparisonGlyph (6, {
+        Stroke ({{ 0, -1 }, { 0, -1 }}),
+        Stroke ({{ 0, 1 }, { 0, 1 }})
+    });
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
@@ -226,6 +239,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (diagonalGlyph2);
     archetypalGlyphs.push_back (steepDiagonalGlpyh);
     archetypalGlyphs.push_back (steepDiagonalGlyph2);
+    archetypalGlyphs.push_back (comparisonGlyph);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

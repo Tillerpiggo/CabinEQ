@@ -30,6 +30,8 @@ public:
     void setMinFreq (float minFreq);
     void setMaxFreq (float maxFreq);
     void setPanRange (float leftmostPan, float rightmostPan); // max leftmostPan is -1 and max rightmostPan is 1
+    void setBarkScaling (bool barkScalingEnabled);
+    void setERBScaling (bool erbScalingEnabled);
     
     float getCurrPlayingTime();
     
@@ -66,4 +68,7 @@ private:
     
     bool shouldAddRemoveNoiseGenerators = false;
     bool shouldUpdateNoiseGenerators = false;
+    
+    bool barkScalingEnabled = false;
+    bool erbScalingEnabled = false;
 };

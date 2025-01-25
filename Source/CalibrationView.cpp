@@ -15,9 +15,21 @@ CalibrationView::CalibrationView()
     // Calibration setting components
     addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
     speedSlider.setSkewFactorFromMidPoint (1.0f);
-    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 1.0f, 4.0f, 1.0f);
+    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 1.0f, 4.0f, 2.5f);
     addSliderAndLabel (&volumeSlider, &volumeLabel, "Volume", -24.0f, 24.0f, 0.0f);
     addButton (&playButton);
+    
+    addAndMakeVisible (scalingComboBox);
+    scalingComboBox.addItem ("Logarithmic", 1);
+    scalingComboBox.addItem ("Bark", 2);
+    scalingComboBox.setSelectedId (1);
+    scalingComboBox.addListener (this);
+    addAndMakeVisible (erbComboBox);
+    erbComboBox.addItem ("Uniform", 1);
+    erbComboBox.addItem ("ERB", 2);
+    erbComboBox.setSelectedId (1);
+    erbComboBox.addListener (this);
+    
 //    addButton (&iirButton);
 //    addButton (&updateFilterButton);
 //    
@@ -109,6 +121,7 @@ void CalibrationView::resized()
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
+    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox) });
 //    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
     settingsLayout.addRow ({ Space (&playButton) });
     settingsLayout.updateComponentBounds();
@@ -132,8 +145,18 @@ void CalibrationView::setDataSource (GlyphViewDataSource* dataSource)
 
 void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
-    if (calibrationListener != nullptr)
+    if (calibrationListener == nullptr)
     {
-        calibrationListener->setFIRQuality (qualityComboBox.getSelectedId());
+        return;
+//        calibrationListener->setFIRQuality (qualityComboBox.getSelectedId());
+    }
+    
+    if (comboBoxThatHasChanged == &scalingComboBox)
+    {
+        calibrationListener->setBarkScaling (scalingComboBox.getSelectedId() == 2);
+    }
+    else if (comboBoxThatHasChanged == &erbComboBox)
+    {
+        calibrationListener->setERBScaling (erbComboBox.getSelectedId() == 2);
     }
 }

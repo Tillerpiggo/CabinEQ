@@ -96,6 +96,8 @@ public:
     void setIIR (bool isIIR) override;
     void updateFIRFilter() override;
     void setFIRQuality (int fftSize) override;
+    void setBarkScaling (bool barkScalingEnabled) override;
+    void setERBScaling (bool erbScalingEnabled) override;
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);

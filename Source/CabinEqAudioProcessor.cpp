@@ -282,6 +282,16 @@ void CabinEqAudioProcessor::setFIRQuality (int fftSize)
     playbackManager.setFIRQuality (fftSize);
 }
 
+void CabinEqAudioProcessor::setBarkScaling (bool barkScalingEnabled)
+{
+    playbackManager.setBarkScaling (barkScalingEnabled);
+}
+
+void CabinEqAudioProcessor::setERBScaling (bool erbScalingEnabled)
+{
+    playbackManager.setERBScaling (erbScalingEnabled);
+}
+
 void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
 {
     playbackManager.setProvisionalBands (provisionalBands);
