@@ -98,6 +98,7 @@ public:
     void setFIRQuality (int fftSize) override;
     void setBarkScaling (bool barkScalingEnabled) override;
     void setERBScaling (bool erbScalingEnabled) override;
+    void setPinkNoise (bool pinkNoiseEnabled) override;
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);

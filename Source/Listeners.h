@@ -134,4 +134,5 @@ public:
     
     virtual void setBarkScaling (bool barkScalingEnabled) = 0;
     virtual void setERBScaling (bool erbScalingEnabled) = 0;
+    virtual void setPinkNoise (bool pinkNoiseEnabled) = 0;
 };

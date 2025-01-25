@@ -65,7 +65,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
-    if (isPlayingNoise)
+    if (isPlayingNoise && isCabinNoise)
     {
         tiltFilter.process (ioContext);
     }
@@ -153,6 +153,11 @@ void PlaybackManager::setBarkScaling (bool barkScalingEnabled)
 void PlaybackManager::setERBScaling (bool erbScalingEnabled)
 {
     glyphGridPlayer.setERBScaling (erbScalingEnabled);
+}
+
+void PlaybackManager::setPinkNoise (bool pinkNoiseEnabled)
+{
+    this->isCabinNoise = ! pinkNoiseEnabled;
 }
 
 void PlaybackManager::updateFIRFilter()

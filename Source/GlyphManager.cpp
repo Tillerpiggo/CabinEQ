@@ -30,9 +30,9 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 //    ArchetypalGlyph grid2 (5, {
 //        Stroke ({{ -1, 1 }, { 1, 1 }, { 1, 0 }, { -1, 0 }, { -1, -1 }, { 1, -1 }})
 //    });
-//    ArchetypalGlyph starGlyph (2, {
-//        Stroke ({{ 0, 1 }, { -0.588, -0.809 }, { 0.951, 0.309 }, { -0.951, 0.309 }, { 0.588, -0.809 }, { 0, 1 }})
-//    });
+    ArchetypalGlyph starGlyph (2, {
+        Stroke ({{ 0, 1 }, { -0.588, -0.809 }, { 0.951, 0.309 }, { -0.951, 0.309 }, { 0.588, -0.809 }, { 0, 1 }})
+    });
 //    ArchetypalGlyph squareGlyph (2, {
 //        Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})
 //    });
@@ -232,6 +232,18 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 0, -1 }, { 0, -1 }}),
         Stroke ({{ 0, 1 }, { 0, 1 }})
     });
+    
+    ArchetypalGlyph threeByThree (7, {
+        Stroke ({{ -1, 1 }, { 0, 1 }, { 1, 1 }}),
+        Stroke ({{ -1, 0 }, { 0, 0 }, { 1, 0 }}),
+        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 }})
+    });
+    
+    ArchetypalGlyph threeByThreeSquished (7, {
+        Stroke ({{ -1, 0.5 }, { 0, 0.5 }, { 1, 0.5 }}),
+        Stroke ({{ -1, 0 }, { 0, 0 }, { 1, 0 }}),
+        Stroke ({{ -1, -0.5 }, { 0, -0.5 }, { 1, -0.5 }})
+    });
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
@@ -239,7 +251,9 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (diagonalGlyph2);
     archetypalGlyphs.push_back (steepDiagonalGlpyh);
     archetypalGlyphs.push_back (steepDiagonalGlyph2);
-    archetypalGlyphs.push_back (comparisonGlyph);
+//    archetypalGlyphs.push_back (threeByThree);
+//    archetypalGlyphs.push_back (threeByThreeSquished);
+//    archetypalGlyphs.push_back (starGlyph);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

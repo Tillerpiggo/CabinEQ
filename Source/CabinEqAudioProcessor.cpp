@@ -292,6 +292,11 @@ void CabinEqAudioProcessor::setERBScaling (bool erbScalingEnabled)
     playbackManager.setERBScaling (erbScalingEnabled);
 }
 
+void CabinEqAudioProcessor::setPinkNoise (bool pinkNoiseEnabled)
+{
+    playbackManager.setPinkNoise (pinkNoiseEnabled);
+}
+
 void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
 {
     playbackManager.setProvisionalBands (provisionalBands);

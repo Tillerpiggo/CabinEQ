@@ -29,6 +29,11 @@ CalibrationView::CalibrationView()
     erbComboBox.addItem ("ERB", 2);
     erbComboBox.setSelectedId (1);
     erbComboBox.addListener (this);
+    addAndMakeVisible (pinkNoiseBox);
+    pinkNoiseBox.addItem ("Cabin Noise", 1);
+    pinkNoiseBox.addItem ("Pink Noise", 2);
+    pinkNoiseBox.setSelectedId (1);
+    pinkNoiseBox.addListener (this);
     
 //    addButton (&iirButton);
 //    addButton (&updateFilterButton);
@@ -121,7 +126,7 @@ void CalibrationView::resized()
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
-    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox) });
+//    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
     settingsLayout.addRow ({ Space (&playButton) });
     settingsLayout.updateComponentBounds();
@@ -158,5 +163,9 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == &erbComboBox)
     {
         calibrationListener->setERBScaling (erbComboBox.getSelectedId() == 2);
+    }
+    else if (comboBoxThatHasChanged == &pinkNoiseBox)
+    {
+        calibrationListener->setPinkNoise (pinkNoiseBox.getSelectedId() == 2);
     }
 }

@@ -42,6 +42,7 @@ public:
     void setBandwidth (float bandwidth);
     void setBarkScaling (bool barkScalingEnabled);
     void setERBScaling (bool erbScalingEnabled);
+    void setPinkNoise (bool pinkNoiseEnabled);
     
     void updateFIRFilter();
     void setIIR (bool isIIR);
@@ -81,7 +82,7 @@ private:
     // State
     bool isFilterOn; // if the EQ curve is being applied
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
-    bool isCabinNoise; // if it is, turn on the tilt filter
+    bool isCabinNoise = true; // if it is, turn on the tilt filter
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
     bool isIIR = true; // if it is, use filterChain. Otherwise, use firFilter.
     

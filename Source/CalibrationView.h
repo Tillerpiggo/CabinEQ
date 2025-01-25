@@ -57,6 +57,7 @@ private:
     juce::ComboBox qualityComboBox;
     juce::ComboBox scalingComboBox;
     juce::ComboBox erbComboBox;
+    juce::ComboBox pinkNoiseBox;
     bool isPlaying = false;
     bool isIIR = true;
     bool isFIRFilterUpdated = false;
