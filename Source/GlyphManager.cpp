@@ -209,7 +209,8 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     });
     
     ArchetypalGlyph diagonalGlyph2 (4, {
-        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
+        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }}),
+        Stroke ({{ 1, -1, 0.5 }, { -1, 1, 0.5 }, { 1, -1, 0.5 }})
     });
     
     ArchetypalGlyph steepDiagonalGlpyh (5, {
@@ -244,6 +245,17 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, 0 }, { 0, 0 }, { 1, 0 }}),
         Stroke ({{ -1, -0.5 }, { 0, -0.5 }, { 1, -0.5 }})
     });
+    
+    ArchetypalGlyph diagonalDots (8, {
+        Stroke ({{ -1, -1 }, { -1, -1 }}),
+        Stroke ({{ -0.5, -0.5 }, { -0.5, -0.5 }}),
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 0.5, 0.5 }, { 0.5, 0.5 }}),
+        Stroke ({{ 1, 1 }, { 1, 1 }}),
+        Stroke ({{ 0.5, 0.5 }, { 0.5, 0.5 }}),
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ -0.5, -0.5 }, { -0.5, -0.5 }}),
+    });
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
@@ -251,6 +263,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (diagonalGlyph2);
     archetypalGlyphs.push_back (steepDiagonalGlpyh);
     archetypalGlyphs.push_back (steepDiagonalGlyph2);
+    archetypalGlyphs.push_back (diagonalDots);
 //    archetypalGlyphs.push_back (threeByThree);
 //    archetypalGlyphs.push_back (threeByThreeSquished);
 //    archetypalGlyphs.push_back (starGlyph);

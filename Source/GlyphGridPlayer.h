@@ -69,6 +69,6 @@ private:
     bool shouldAddRemoveNoiseGenerators = false;
     bool shouldUpdateNoiseGenerators = false;
     
-    bool barkScalingEnabled = false;
-    bool erbScalingEnabled = false;
+    bool barkScalingEnabled = true;
+    bool erbScalingEnabled = true;
 };
