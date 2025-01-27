@@ -371,7 +371,6 @@ float CabinEqAudioProcessor::getMasterVolume()
 
 bool CabinEqAudioProcessor::getHasLicense()
 {
-    return true;
     return cabinEqProfileManager.getHasLicense();
 }
 

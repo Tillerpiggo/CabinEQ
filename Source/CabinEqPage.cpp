@@ -13,6 +13,9 @@
 CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     : processor (p), profileId ("NO_PROFILE"), unlockForm (marketplaceStatus)
 {
+    marketplaceStatus.load();
+    isUnlocked = marketplaceStatus.isUnlocked();
+
     amplGraph = std::make_unique<CabinPeqGraph>();
     
     // Sliders
@@ -45,9 +48,11 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     processor.addListener (this);
     
     // Extra stuff, will clean up later
-    
-//    addAndMakeVisible (freeTrialBanner);
-    addAndMakeVisible (freeTrialLockScreen);
+    if (! isUnlocked)
+    {
+        addAndMakeVisible (freeTrialBanner);
+        addAndMakeVisible (freeTrialLockScreen);
+    }
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
     addAndMakeVisible (noiseGridView);
@@ -355,15 +360,19 @@ void CabinEqPage::showForm()
 void CabinEqPage::unlockApp()
 {
     processor.setHasLicense (true);
-    
+    marketplaceStatus.save();
+
     amplGraph->setGrayscale (isBypassed);
     processor.setIsFilterOn (! isBypassed);
     updateButtonText();
+
+    /* Should this happen here?  Justin */
+    freeTrialBanner.setVisible (false);
 }
 
 void CabinEqPage::timerCallback()
 {
-    if (! processor.getHasLicense() && marketplaceStatus.isUnlocked())
+    if (marketplaceStatus.isUnlocked())
     {
         unlockApp();
     }
