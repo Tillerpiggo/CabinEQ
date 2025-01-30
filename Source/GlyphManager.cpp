@@ -256,6 +256,94 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 0, 0 }, { 0, 0 }}),
         Stroke ({{ -0.5, -0.5 }, { -0.5, -0.5 }}),
     });
+    
+    ArchetypalGlyph growingDot (9, {
+        Stroke ({{ 0, 0, 0.0 }, { 0, 0, 1 }, { 0, 0, 0.0 }})
+    });
+    
+    ArchetypalGlyph growingDot2 (10, {
+        Stroke ({{ 0, 0, 0.0 }, { 0, 0, 1 }, { 0, 0, 0.0 }, { 0, 0, 1 }, { 0, 0, 0 }})
+    });
+    ArchetypalGlyph circumscribedCircle (11, {
+        Stroke ({
+            { 1, 0 },
+            { 0.981, 0.195 },
+            { 0.924, 0.383 },
+            { 0.831, 0.556 },
+            { 0.707, 0.707 },
+            { 0.556, 0.831 },
+            { 0.383, 0.924 },
+            { 0.195, 0.981 },
+            { 0, 1 },
+            { -0.195, 0.981 },
+            { -0.383, 0.924 },
+            { -0.556, 0.831 },
+            { -0.707, 0.707 },
+            { -0.831, 0.556 },
+            { -0.924, 0.383 },
+            { -0.981, 0.195 },
+            { -1, 0 },
+            { -0.981, -0.195 },
+            { -0.924, -0.383 },
+            { -0.831, -0.556 },
+            { -0.707, -0.707 },
+            { -0.556, -0.831 },
+            { -0.383, -0.924 },
+            { -0.195, -0.981 },
+            { 0, -1 },
+            { 0.195, -0.981 },
+            { 0.383, -0.924 },
+            { 0.556, -0.831 },
+            { 0.707, -0.707 },
+            { 0.831, -0.556 },
+            { 0.924, -0.383 },
+            { 0.981, -0.195 },
+            { 1, 0 }
+        })
+    });
+    
+    ArchetypalGlyph heartShape (12, {
+        Stroke ({
+            { 0.000, -0.500 },
+            { 0.300, -0.600 },
+            { 0.600, -0.400 },
+            { 0.800, -0.100 },
+            { 0.700, 0.300 },
+            { 0.400, 0.600 },
+            { 0.000, 0.700 },
+            { -0.400, 0.600 },
+            { -0.700, 0.300 },
+            { -0.800, -0.100 },
+            { -0.600, -0.400 },
+            { -0.300, -0.600 },
+            { 0.000, -0.500 }
+        })
+    });
+    ArchetypalGlyph commandSymbol (13, {
+        Stroke ({
+            { -0.33, 0.33 },
+            { -0.33, 1 },
+            { -1, 1 },
+            { -1, 0.33 },
+            { -0.33, 0.33 },
+            { 0.33, 0.33 },
+            { 1, 0.33 },
+            { 1, 1 },
+            { 0.33, 1 },
+            { 0.33, 0.33 },
+            { 0.33, -0.33 },
+            { 0.33, -1 },
+            { 1, -1 },
+            { 1, -0.33 },
+            { 0.33, -0.33 },
+            { -0.33, -0.33 },
+            { -1, -0.33 },
+            { -1, -1 },
+            { -0.33, -1 },
+            { -0.33, -0.33 },
+            { -0.33, 0.33 }
+        })
+    });
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
@@ -263,7 +351,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (diagonalGlyph2);
     archetypalGlyphs.push_back (steepDiagonalGlpyh);
     archetypalGlyphs.push_back (steepDiagonalGlyph2);
-    archetypalGlyphs.push_back (diagonalDots);
+    archetypalGlyphs.push_back (circumscribedCircle);
 //    archetypalGlyphs.push_back (threeByThree);
 //    archetypalGlyphs.push_back (threeByThreeSquished);
 //    archetypalGlyphs.push_back (starGlyph);

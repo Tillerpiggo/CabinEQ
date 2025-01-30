@@ -3,6 +3,8 @@
 <JUCERPROJECT id="tuQjdv" name="CabinEQ" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="tB8nJa" name="CabinEQ">
+    <FILE id="RQqeWn" name="CabinEQIconEighty.png" compile="0" resource="1"
+          file="../../../Downloads/CabinEQIconEighty.png"/>
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
       <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
             file="Source/CabinEqAudioProcessor.cpp"/>
@@ -326,7 +328,7 @@
     <XCODE_MAC targetFolder="Builds/MacOSX" microphonePermissionNeeded="1" microphonePermissionsText="This app requires microphone input to route system audio."
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
                customPList="&lt;key&gt;com.apple.security.get-task-allow&lt;/key&gt;&#10;&lt;false/&gt;"
-               iosDevelopmentTeamID="E88BK26E9L">
+               iosDevelopmentTeamID="E88BK26E9L" bigIcon="RQqeWn" smallIcon="RQqeWn">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ" customXcodeFlags="OTHER_CODE_SIGN_FLAGS=--deep"
                        codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"/>

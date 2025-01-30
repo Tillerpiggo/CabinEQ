@@ -142,7 +142,7 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
 
 float GlyphGridPlayer::scaleToBarkBandwidth (float bandwidth, float centerFrequency)
 {
-    centerFrequency = fmax (centerFrequency, 40.0f);
+    centerFrequency = fmax (centerFrequency, minFreq);
     float erb = 24.7f * (4.37f * centerFrequency / 1000.0f + 1.0f);
     float erbInOctaves = log2 (1.0f + erb / centerFrequency);
     
@@ -226,6 +226,7 @@ std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyp
     float logMaxFreq = std::log (maxFreq);
     float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
     freq = std::exp (logFreq);
+    std::cout << "freq: " << freq << std::endl;
 
     // Calculate vol
     float vol = normalizedCoords.vol;

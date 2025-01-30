@@ -22,12 +22,12 @@ CalibrationView::CalibrationView()
     addAndMakeVisible (scalingComboBox);
     scalingComboBox.addItem ("Logarithmic", 1);
     scalingComboBox.addItem ("Bark", 2);
-    scalingComboBox.setSelectedId (2);
+    scalingComboBox.setSelectedId (1);
     scalingComboBox.addListener (this);
     addAndMakeVisible (erbComboBox);
     erbComboBox.addItem ("Uniform", 1);
     erbComboBox.addItem ("ERB", 2);
-    erbComboBox.setSelectedId (2);
+    erbComboBox.setSelectedId (1);
     erbComboBox.addListener (this);
     addAndMakeVisible (pinkNoiseBox);
     pinkNoiseBox.addItem ("Cabin Noise", 1);
