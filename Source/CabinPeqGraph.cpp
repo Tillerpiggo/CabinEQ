@@ -334,7 +334,6 @@ void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::M
 
 void CabinPeqGraph::positionChanged (juce::Point<float> pos)
 {
-    std::cout << "pos.x: " << pos.x << ", pos.y: " << pos.y << std::endl;
     auto [freq1, freq2] = dimensionalSliderPosToFreqs (pos);
     float bandwidth1 = (std::sin (std::log2 (freq2 / freq1)) + 1.5f);
     float bandwidth2 = (std::cos (std::log2 (freq1 / freq2)) + 1.5f);

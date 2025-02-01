@@ -230,8 +230,6 @@ std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyp
     
     // Calculate vol
     float vol = normalizedCoords.vol;
-    
-    std::cout << "y: " << y << ", freq: " << freq << ", minFreq: " << minFreq << std::endl;
 
     if (barkScalingEnabled)
         return {{ hzFreq, pan }, vol };

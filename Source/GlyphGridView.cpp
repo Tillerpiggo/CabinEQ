@@ -96,6 +96,7 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
         selectionEnd = eventPos;
         selectionRect = { eventPos, eventPos };
         selectedIds.clear();
+        instructionText.setText (selectInstructions, juce::NotificationType::dontSendNotification);
         return;
     }
     
@@ -160,12 +161,6 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
     else
     {
         moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
-    }
-    
-    std::cout << "hoveringId: " << hoveringId << std::endl;
-    if (! event.mods.isRightButtonDown() && hoveringId == -1)
-    {
-        instructionText.setText (selectInstructions, juce::NotificationType::dontSendNotification);
     }
 }
 
@@ -431,8 +426,6 @@ void GlyphGridView::drawDraggingGlyph (juce::Graphics& g)
 juce::Point<float> GlyphGridView::getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor)
 {
     float padding = 0.0f;
-    
-    std::cout << "centerPos(x: " << centerPos.x << ", y: " << centerPos.y << std::endl;
     
     // Scale according to sizeFactor and centerPos;
     point.x *= sizeFactor;
