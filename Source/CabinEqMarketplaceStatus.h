@@ -17,7 +17,7 @@ public:
 
     juce::String getProductID() override
     {
-        return "TestApp";
+        return "cabineq";
     }
 
     bool doesProductIDMatch (const juce::String& returnedIDFromServer) override
@@ -27,11 +27,27 @@ public:
 
     juce::RSAKey getPublicKey() override
     {
-        return juce::RSAKey ("INSERT_PUBLIC_KEY_HERE");
+        return juce::RSAKey ("5,766b50255400a29ebbc8396c4d9a4cdebc2b09f529dbd8d102b0fb255d551101");
     }
 
-    void saveState (const juce::String&) override {}
-    juce::String getState() override { return {}; }
+    juce::String getLicenseFilePath()
+    {
+        /*
+            Does this need to be freed by the caller?
+        */
+        return juce::String(juce::File::getSpecialLocation(juce::File::SpecialLocationType::userApplicationDataDirectory).getFullPathName()) + "/CabinEQ.license";
+    }
+
+    void saveState (const juce::String& licenseString) override {
+        juce::File licenseFile(getLicenseFilePath());
+        if (! licenseFile.existsAsFile())
+            licenseFile.create();
+        licenseFile.replaceWithText(licenseString);
+    }
+
+    juce::String getState() override {
+        return juce::File(getLicenseFilePath()).loadFileAsString();
+    }
 
     juce::String getWebsiteName() override
     {
@@ -40,7 +56,7 @@ public:
 
     juce::URL getServerAuthenticationURL() override
     {
-        return juce::URL ("https://localhost:8443/auth.php");
+        return juce::URL ("https://api.cabinaudio.com/login_user");
     }
 
     juce::String readReplyFromWebserver (const juce::String& email, const juce::String& password) override
