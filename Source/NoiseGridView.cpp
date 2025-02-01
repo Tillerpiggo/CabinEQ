@@ -59,12 +59,12 @@ NoiseGridView::NoiseGridView()
         }
     });
     addSliderAction (&minFreqSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-            calibrationListener->setMinFreq (minFreqSlider.getValue());
+//        if (calibrationListener != nullptr)
+//            calibrationListener->setMinFreq (minFreqSlider.getValue());
     });
     addSliderAction (&maxFreqSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-            calibrationListener->setMaxFreq (maxFreqSlider.getValue());
+//        if (calibrationListener != nullptr)
+//            calibrationListener->setMaxFreq (maxFreqSlider.getValue());
     });
     addSliderAction (&bandwidthSlider, [this](juce::Slider*) {
         if (calibrationListener != nullptr)

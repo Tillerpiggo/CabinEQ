@@ -88,6 +88,8 @@ public:
     virtual const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() = 0;
     virtual const std::vector<Glyph>& getGlyphs() = 0;
     virtual float getCurrPlayingTime() = 0;
+    virtual bool getIsPlaying() = 0;
+    virtual float getBandwidth() = 0;
 };
 
 class FreeTrialListener

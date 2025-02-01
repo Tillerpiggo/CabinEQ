@@ -209,8 +209,8 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     });
     
     ArchetypalGlyph diagonalGlyph2 (4, {
-        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }}),
-        Stroke ({{ 1, -1, 0.5 }, { -1, 1, 0.5 }, { 1, -1, 0.5 }})
+        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
+//        Stroke ({{ 1, -1, 0.5 }, { -1, 1, 0.5 }, { 1, -1, 0.5 }})
     });
     
     ArchetypalGlyph steepDiagonalGlpyh (5, {
@@ -230,14 +230,20 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 //    });
     
     ArchetypalGlyph comparisonGlyph (6, {
-        Stroke ({{ 0, -1 }, { 0, -1 }}),
-        Stroke ({{ 0, 1 }, { 0, 1 }})
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 1, 1 }, { 1, 1 }})
     });
     
     ArchetypalGlyph threeByThree (7, {
-        Stroke ({{ -1, 1 }, { 0, 1 }, { 1, 1 }}),
-        Stroke ({{ -1, 0 }, { 0, 0 }, { 1, 0 }}),
-        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 }})
+        Stroke ({{ -1, 1 }, { 0, 1 }, { 1, 1 }, { 0, 1 }, { -1, 1 }}),
+        Stroke ({{ -1, 0 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { -1, 0 }}),
+        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 }, { 0, -1 }, { -1, -1 }})
+    });
+    
+    ArchetypalGlyph diagonalGrid (8, {
+        Stroke ({{ -1, 0 }, { 0, 1 }}),
+        Stroke ({{ -1, -1 }, { 1, 1 }}),
+        Stroke ({{ 0, -1 }, { 1, 0 }}),
     });
     
     ArchetypalGlyph threeByThreeSquished (7, {
@@ -344,6 +350,27 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
             { -0.33, 0.33 }
         })
     });
+    
+    std::vector<Stroke> strokes;
+    float gridSize = 5;
+    for (int col = 0; col < gridSize; col++)
+    {
+        for (int row = 0; row < gridSize; row++)
+        {
+        
+            float startX = (2.0f * (float) row / (gridSize - 1)) - 1.0f;
+            float startY = (2.0f * (float) (gridSize - col) / (gridSize - 1)) - 1.0f;
+            float offset = 2.0f / (gridSize - 1);
+            
+            startX -= offset / 2.0f;
+            startY -= offset / 2.0f;
+            
+            strokes.push_back (Stroke ({{ startX, startY } , { startX, startY - offset }, { startX + offset, startY - offset }, { startX + offset, startY }, { startX, startY }}));
+        }
+    }
+    ArchetypalGlyph grid (50, {
+        strokes
+    });
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
@@ -351,8 +378,11 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (diagonalGlyph2);
     archetypalGlyphs.push_back (steepDiagonalGlpyh);
     archetypalGlyphs.push_back (steepDiagonalGlyph2);
-    archetypalGlyphs.push_back (circumscribedCircle);
+//    archetypalGlyphs.push_back (comparisonGlyph);
+//    archetypalGlyphs.push_back (grid);
+//    archetypalGlyphs.push_back (comparisonGlyph);
 //    archetypalGlyphs.push_back (threeByThree);
+//    archetypalGlyphs.push_back (diagonalGrid);
 //    archetypalGlyphs.push_back (threeByThreeSquished);
 //    archetypalGlyphs.push_back (starGlyph);
 }

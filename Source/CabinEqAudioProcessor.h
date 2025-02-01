@@ -159,6 +159,8 @@ public:
     const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
     const std::vector<Glyph>& getGlyphs() override;
     float getCurrPlayingTime() override;
+    bool getIsPlaying() override;
+    float getBandwidth() override;
     
     // Listener
     void addListener (Listener* listener);

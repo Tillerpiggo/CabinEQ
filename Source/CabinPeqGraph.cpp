@@ -15,8 +15,12 @@ CabinPeqGraph::CabinPeqGraph()
     startTimer (5);
     
     addAndMakeVisible (leftRightButton);
+    addAndMakeVisible (instructionLabel);
     addAndMakeVisible (dimensionalSlider);
     dimensionalSlider.setListener (this);
+    
+    instructionLabel.setJustificationType (juce::Justification::bottomRight);
+    instructionLabel.setInterceptsMouseClicks (false, true);
     
     addButton (&leftRightButton);
     addButtonAction (&leftRightButton, [this](juce::Button*) {
@@ -38,6 +42,7 @@ CabinPeqGraph::CabinPeqGraph()
     });
     
     // Initialize variables for faster painting
+    instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
 }
 
 CabinPeqGraph::~CabinPeqGraph()
@@ -68,6 +73,10 @@ void CabinPeqGraph::resized()
     // Add button in bottom right corner
 //    leftRightButton.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 50.0f, 80.0f, 40.0f);
 //    dimensionalSlider.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 100.0f, 100.0f, 100.0f);
+    
+    // Add instruction label in bottom right corner
+    float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());
+    instructionLabel.setBounds (getBounds().getWidth() - instructionWidth, getBounds().getHeight() - 50.0f, instructionWidth, 40.0f);
     
     // Recalculate needed vars
     
@@ -106,6 +115,18 @@ void CabinPeqGraph::resized()
 void CabinPeqGraph::mouseMove (const juce::MouseEvent &event)
 {
     updateHoveringStatus (event);
+    if (hoveringId != -1)
+    {
+        instructionLabel.setText (removeBandInstructions, juce::NotificationType::dontSendNotification);
+    }
+    else if (isHoveringOverDotControl)
+    {
+        instructionLabel.setText (volumeInstructions, juce::NotificationType::dontSendNotification);
+    }
+    else
+    {
+        instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
+    }
     repaint();
 }
 
@@ -194,7 +215,16 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     
     // If we right click and were hovering, delete the band
     if (hoveringId != -1 && event.mods.isRightButtonDown())
+    {
         removeBand (hoveringId);
+        instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
+    }
+    
+    // Update instruction text
+    if (draggingId != -1 && ! event.mods.isRightButtonDown())
+    {
+        instructionLabel.setText (adjustBandwidthInstructions, juce::NotificationType::dontSendNotification);
+    }
     
     repaint();
 }
@@ -268,6 +298,8 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
     // Change the dot size back to normal
     selectedDotSize = DOT_SIZE_DEFAULT;
     
+    instructionLabel.setText(addBandInstructions, juce::NotificationType::dontSendNotification);
+    
     repaint();
 }
 
@@ -294,6 +326,8 @@ void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::M
     maxFreqShowing = std::min (projectedMaxFreq, MAX_FREQ);
     
     updateHoveringStatus (event);
+    
+    instructionLabel.setText (scrollInstructions, juce::NotificationType::dontSendNotification);
     
     repaint();
 }
@@ -376,7 +410,7 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
     g.setColour (centerLineColour);
-    g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS));
+    g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS * 1.5f));
     
     // Draw the other horizontal lines
     g.setColour (lineColour);

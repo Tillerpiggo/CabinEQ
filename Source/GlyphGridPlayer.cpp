@@ -79,6 +79,7 @@ void GlyphGridPlayer::setMinFreq (float minFreq)
 {
     this->minFreq = minFreq;
     shouldUpdateNoiseGenerators = true;
+    std::cout << "minFreq set to " << minFreq << std::endl;
 }
 
 void GlyphGridPlayer::setMaxFreq (float maxFreq)
@@ -133,7 +134,7 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
         // Set the appropriate bandpass filter for each noise generator, and implement helper function
         auto [freqPan, vol] = getFreqPanVolFromGlyphAtTime (glyphs[i], currTime);
         auto [freq, pan] = freqPan;
-        noiseGenerators[i].setBandwidth (scaleToBarkBandwidth (bandwidth, freq));
+        noiseGenerators[i].setBandwidth (bandwidth);//scaleToBarkBandwidth (bandwidth, freq));
         noiseGenerators[i].setBandpass (freq);
         noiseGenerators[i].setPan (pan);
         noiseGenerators[i].setVolumeDB (volToDB (glyphs[i].getVolume()) + volToDB (vol));
@@ -226,10 +227,11 @@ std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyp
     float logMaxFreq = std::log (maxFreq);
     float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
     freq = std::exp (logFreq);
-    std::cout << "freq: " << freq << std::endl;
-
+    
     // Calculate vol
     float vol = normalizedCoords.vol;
+    
+    std::cout << "y: " << y << ", freq: " << freq << ", minFreq: " << minFreq << std::endl;
 
     if (barkScalingEnabled)
         return {{ hzFreq, pan }, vol };

@@ -13,6 +13,11 @@
 GlyphGridView::GlyphGridView()
 {
     startTimer (5);
+    
+    instructionText.setJustificationType (juce::Justification::bottomRight);
+    instructionText.setText (dragInstructions, juce::NotificationType::dontSendNotification);
+    instructionText.setInterceptsMouseClicks (false, true);
+    addAndMakeVisible (instructionText);
 }
 
 GlyphGridView::~GlyphGridView()
@@ -24,15 +29,19 @@ void GlyphGridView::paint (juce::Graphics& g)
 {
     drawGridLines (g);
     drawGlyphs (g);
-    drawCenterDots (g);
     drawPlayingDots (g);
+    drawCenterDots (g);
     drawDraggingGlyph (g);
     drawSelection (g);
 }
 
 void GlyphGridView::resized()
 {
-    
+    // Put the instruction text in the bottom right, with some padding
+    float padding = 5.0f;
+    float width = instructionText.getFont().getStringWidth (instructionText.getText());
+    float height = 40.0f;
+    instructionText.setBounds (getWidth() - width - padding, getHeight() - height - padding, width, height);
 }
 
 void GlyphGridView::setListener (GlyphViewListener* listener)
@@ -54,10 +63,31 @@ void GlyphGridView::timerCallback()
 void GlyphGridView::mouseMove (const juce::MouseEvent &event)
 {
     updateHoveringStatus (event);
+    
+    if (hoveringId != -1)
+    {
+        instructionText.setText (scrollInstructions, juce::NotificationType::dontSendNotification);
+        resized();
+    }
+    else if (glyphs.size() == 0)
+    {
+        instructionText.setText (dragInstructions, juce::NotificationType::dontSendNotification);
+        resized();
+    }
+    else
+    {
+        if (dataSource == nullptr || ! dataSource->getIsPlaying())
+            instructionText.setText (playInstructions, juce::NotificationType::dontSendNotification);
+        else
+            instructionText.setText (pauseInstructions, juce::NotificationType::dontSendNotification);
+        resized();
+    }
 }
 
 void GlyphGridView::mouseDown (const juce::MouseEvent &event)
 {
+    updateHoveringStatus (event);
+    
     // If not hovering, begin a selection
     if (hoveringId == -1)
     {
@@ -105,6 +135,7 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
         if (selectedIds.find (hoveringId) != selectedIds.end())
             for (const auto& selectedId : selectedIds)
                 removeGlyph (selectedId);
+        hoveringId = -1;
     }
     
     // If we selected multiple, register their starting positions
@@ -129,6 +160,12 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
     else
     {
         moveGlyph (draggingId, getNormalizedPointFromMouseEvent (event));
+    }
+    
+    std::cout << "hoveringId: " << hoveringId << std::endl;
+    if (! event.mods.isRightButtonDown() && hoveringId == -1)
+    {
+        instructionText.setText (selectInstructions, juce::NotificationType::dontSendNotification);
     }
 }
 
@@ -254,11 +291,36 @@ bool GlyphGridView::shouldDrawDragImageWhenOver()
     return false;
 }
 
+void GlyphGridView::updateIsPlaying()
+{
+    if (glyphs.size() == 0)
+        instructionText.setText (dragInstructions, juce::NotificationType::dontSendNotification);
+    
+    if (dataSource == nullptr || ! dataSource->getIsPlaying())
+        instructionText.setText (playInstructions, juce::NotificationType::dontSendNotification);
+    else
+        instructionText.setText (pauseInstructions, juce::NotificationType::dontSendNotification);
+}
+
 void GlyphGridView::drawGridLines (juce::Graphics& g)
 {
     // For now, just draw a border
-    g.setColour (juce::Colours::blue);
+    g.setColour (BORDER_COLOUR);
     g.drawRect (0, 0, getWidth(), getHeight());
+    
+    // Now draw the rest of the grid lines
+    int numHorizontalLines = 5;
+    int numVerticalLines = 5;
+    for (int i = 1; i < numHorizontalLines; ++i)
+    {
+        float y = ((float) i / (float) numHorizontalLines) * getHeight();
+        g.drawLine (0, y, getWidth(), y);
+    }
+    for (int i = 1; i < numVerticalLines; ++i)
+    {
+        float x = ((float) i / (float) numVerticalLines) * getWidth();
+        g.drawLine (x, 0, x, getHeight());
+    }
 }
 
 void GlyphGridView::drawGlyphs (juce::Graphics& g)
@@ -285,12 +347,17 @@ void GlyphGridView::drawCenterDots (juce::Graphics &g)
 
 void GlyphGridView::drawPlayingDots (juce::Graphics& g)
 {
+    float bandwidth = 1.0f;
+    if (dataSource != nullptr)
+        bandwidth = dataSource->getBandwidth();
+//    bandwidth *= 2.0f;
+    
     for (const auto& glyph : glyphs)
     {
         auto [point, _] = glyph.positionAtTime (dataSource->getCurrPlayingTime());
         auto pos = getLocalPointFromNormalizedPoint (point.point(), glyph.getCenterPos(), glyph.getSizeFactor());
         
-        drawDot (g, pos, DOT_RADIUS_PLAYING, PLAYING_DOT_COLOUR);
+        drawDot (g, pos, DOT_RADIUS_PLAYING * bandwidth, PLAYING_DOT_COLOUR);
     }
 }
 
@@ -305,30 +372,13 @@ void GlyphGridView::drawSelection (juce::Graphics& g)
     }
 }
 
-//void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour)
-//{
-//    juce::Path path;
-//    for (const auto& stroke : strokes)
-//    {
-//        auto points = stroke.getPoints();
-//        for (int i = 0; i < points.size() - 1; ++i)
-//        {
-//            auto startPoint = points[i];
-//            auto endPoint = points[i + 1];
-//            
-//            auto startPos = getLocalPointFromNormalizedPoint (startPoint.point(), centerPos, sizeFactor);
-//            auto endPos = getLocalPointFromNormalizedPoint (endPoint.point(), centerPos, sizeFactor);
-//            
-//            path.addLineSegment (juce::Line<float> (startPos, endPos), STROKE_WIDTH);
-//        }
-//    }
-//    
-//    g.setColour (strokeColour);
-//    g.fillPath (path);
-//}
-
 void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour)
 {
+    float bandwidth = 1.0f;
+    if (dataSource != nullptr)
+        bandwidth = dataSource->getBandwidth();
+    bandwidth *= 2.0f;
+    
     for (const auto& stroke : strokes)
     {
         auto points = stroke.getPoints();
@@ -357,7 +407,7 @@ void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& str
 
             // Draw the line segment with the gradient
             juce::Path path;
-            path.addLineSegment(juce::Line<float>(startPos, endPos), STROKE_WIDTH);
+            path.addLineSegment(juce::Line<float>(startPos, endPos), STROKE_WIDTH * bandwidth);
             g.fillPath(path);
         }
     }
@@ -380,7 +430,9 @@ void GlyphGridView::drawDraggingGlyph (juce::Graphics& g)
 
 juce::Point<float> GlyphGridView::getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor)
 {
-    float padding = 10.0f;
+    float padding = 0.0f;
+    
+    std::cout << "centerPos(x: " << centerPos.x << ", y: " << centerPos.y << std::endl;
     
     // Scale according to sizeFactor and centerPos;
     point.x *= sizeFactor;

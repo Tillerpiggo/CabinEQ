@@ -519,6 +519,16 @@ float CabinEqAudioProcessor::getCurrTime()
     return playbackManager.getCurrPlayingTime();
 }
 
+bool CabinEqAudioProcessor::getIsPlaying()
+{
+    return playbackManager.getIsPlaying();
+}
+
+float CabinEqAudioProcessor::getBandwidth()
+{
+    return playbackManager.getBandwidth();
+}
+
 std::vector<float> CabinEqAudioProcessor::getCurrPlayingFreqs()
 {
     return playbackManager.getCurrPlayingFreqs();

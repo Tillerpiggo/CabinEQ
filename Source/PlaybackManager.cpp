@@ -143,6 +143,7 @@ void PlaybackManager::setBandwidth (float bandwidth)
 {
     glyphGridPlayer.setBandwidth (bandwidth);
     gridSequencer.setBandwidth (bandwidth);
+    this->bandwidth = bandwidth;
 }
 
 void PlaybackManager::setBarkScaling (bool barkScalingEnabled)
@@ -215,6 +216,16 @@ float PlaybackManager::getCurrPlayingTime()
 {
 //    return gridSequencer.getCurrTime();
     return glyphGridPlayer.getCurrPlayingTime();
+}
+
+bool PlaybackManager::getIsPlaying()
+{
+    return isPlayingNoise;
+}
+
+float PlaybackManager::getBandwidth()
+{
+    return bandwidth;
 }
 
 std::vector<float> PlaybackManager::getCurrPlayingFreqs()

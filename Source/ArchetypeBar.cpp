@@ -23,7 +23,7 @@ ArchetypeBar::~ArchetypeBar()
 void ArchetypeBar::paint (juce::Graphics& g)
 {
     // Don't need to paint anything
-    g.fillAll (juce::Colours::blue);
+    g.fillAll (BACKGROUND_COLOUR);
 }
 
 void ArchetypeBar::resized()

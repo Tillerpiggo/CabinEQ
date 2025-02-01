@@ -64,6 +64,13 @@ private:
     std::vector<int> selectedBandIds;
     bool provisionalBandsVisible = false;
     
+    juce::Label instructionLabel;
+    std::string addBandInstructions { "Click + drag on the center line to add a band" };
+    std::string removeBandInstructions { "Right click to remove band" };
+    std::string adjustBandwidthInstructions { "Shift + drag to adjust bandwidth" };
+    std::string scrollInstructions { "Scroll vertically to zoom in/out" };
+    std::string volumeInstructions { "Drag dot up/down to set volume for this profile" };
+    
     DimensionalSlider dimensionalSlider;
     juce::TextButton leftRightButton { "BOTH" };
     
@@ -159,8 +166,8 @@ private:
     // Variables for faster painting
     
     // drawLines
-    juce::Colour centerLineColour = juce::Colours::lightgrey;
-    juce::Colour lineColour = juce::Colours::lightgrey.withAlpha (0.3f);
+    juce::Colour centerLineColour = juce::Colours::darkgrey.withMultipliedLightness (0.5f);
+    juce::Colour lineColour = juce::Colours::darkgrey.withMultipliedLightness (0.5f);//.withAlpha (0.3f);
     juce::PathStrokeType lineStrokeType { CURVE_THICKNESS / 2.0f};
     
     juce::Path centerPath;

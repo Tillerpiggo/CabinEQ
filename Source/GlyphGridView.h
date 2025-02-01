@@ -46,6 +46,8 @@ public:
     void itemDropped (const SourceDetails& dragSourceDetails) override;
     bool shouldDrawDragImageWhenOver() override;
     
+    void updateIsPlaying(); // signals isPlaying is changed, triggers update of instruction text
+    
 private:
     void drawGridLines (juce::Graphics& g);
     void drawGlyphs (juce::Graphics& g);
@@ -76,9 +78,10 @@ private:
     std::vector<Glyph> glyphs;
     
     float STROKE_WIDTH = 3.0f;
-    juce::Colour STROKE_COLOUR = juce::Colours::red;
+    juce::Colour STROKE_COLOUR = juce::Colours::teal;
     juce::Colour DOT_COLOUR = juce::Colours::turquoise;
-    juce::Colour PLAYING_DOT_COLOUR = juce::Colours::green;
+    juce::Colour PLAYING_DOT_COLOUR = juce::Colours::lightgreen;
+    juce::Colour BORDER_COLOUR = juce::Colours::teal;
     float DOT_RADIUS_DEFAULT = 6.0f;
     float DOT_RADIUS_DRAGGING = 8.0f;
     float DOT_RADIUS_PLAYING = 6.0f;
@@ -104,5 +107,11 @@ private:
     juce::Point<float> selectionStartPos; // the initial position you select
     std::unordered_map<int, juce::Point<float>> selectedIdToStartingPosition; // the starting position for each selected glyph, in local coordinates
     
-    // Mouse event
+    // Instruction text
+    juce::Label instructionText;
+    std::string dragInstructions { "Drag in a symbol to play noise" };
+    std::string playInstructions { "Press play to play noise" };
+    std::string pauseInstructions { "Press pause to stop noise" };
+    std::string selectInstructions { "Drag to select multiple symbols" };
+    std::string scrollInstructions { "Scroll to resize symbol" };
 };

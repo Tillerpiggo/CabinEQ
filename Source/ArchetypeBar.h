@@ -32,4 +32,6 @@ public:
 private:
     GlyphViewDataSource* dataSource = nullptr;
     std::vector<std::unique_ptr<ArchetypeView>> archetypeViews;
+    
+    juce::Colour BACKGROUND_COLOUR = juce::Colours::teal;
 };

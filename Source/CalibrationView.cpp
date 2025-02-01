@@ -15,7 +15,7 @@ CalibrationView::CalibrationView()
     // Calibration setting components
     addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
     speedSlider.setSkewFactorFromMidPoint (1.0f);
-    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 1.0f, 4.0f, 2.5f);
+    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 2.5f);
     addSliderAndLabel (&volumeSlider, &volumeLabel, "Volume", -24.0f, 24.0f, 0.0f);
     addButton (&playButton);
     
@@ -30,9 +30,9 @@ CalibrationView::CalibrationView()
     erbComboBox.setSelectedId (1);
     erbComboBox.addListener (this);
     addAndMakeVisible (pinkNoiseBox);
-    pinkNoiseBox.addItem ("Cabin Noise", 1);
-    pinkNoiseBox.addItem ("Pink Noise", 2);
-    pinkNoiseBox.setSelectedId (1);
+    pinkNoiseBox.addItem ("Cabin Noise (-4.5 dB/oct)", 1);
+    pinkNoiseBox.addItem ("Pink Noise (-3.0 dB/oct)", 2);
+    pinkNoiseBox.setSelectedId (2);
     pinkNoiseBox.addListener (this);
     
 //    addButton (&iirButton);
@@ -70,6 +70,7 @@ CalibrationView::CalibrationView()
         if (calibrationListener != nullptr)
             calibrationListener->setIsPlaying (isPlaying);
         playButton.setButtonText (isPlaying ? "Pause" : "Play");
+        glyphGridView.updateIsPlaying();
     });
     addButtonAction (&iirButton, [this](juce::Button*) {
         isIIR = ! isIIR;
@@ -126,6 +127,7 @@ void CalibrationView::resized()
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
+//    settingsLayout.addRow ({ Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
     settingsLayout.addRow ({ Space (&playButton) });

@@ -55,6 +55,8 @@ public:
     void setGlyphs (std::vector<Glyph> glyphs);
     void setGrid (NoiseSequenceGrid grid);
     float getCurrPlayingTime();
+    bool getIsPlaying();
+    float getBandwidth();
     std::vector<float> getCurrPlayingFreqs();
     
 private:
@@ -90,6 +92,7 @@ private:
     int cycleTimeInSamples = 40000;
     float centerFreq = 1000.0f;
     float referenceFreq = 500.0f;
+    float bandwidth = 2.5f;
     
     int fftSize = 14;
 };
