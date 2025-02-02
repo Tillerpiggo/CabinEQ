@@ -447,10 +447,9 @@ void CabinPeqGraph::drawNoise (juce::Graphics& g)
         auto bandwidth = dataSource->getBandwidth();
         for (const auto& playingFreq : playingFreqs)
         {
-            float lowFreq = std::max (playingFreq * std::pow (2.0f, bandwidth), MIN_FREQ);
-            float highFreq = std::min (playingFreq / std::pow (2.0f, bandwidth), MAX_FREQ);
+            float lowFreq = playingFreq / std::pow (2.0f, bandwidth);
+            float highFreq = playingFreq * std::pow (2.0f, bandwidth);
             float startX = xForFreq (lowFreq);
-            float midX = xForFreq (playingFreq);
             float endX = xForFreq (highFreq);
             juce::Colour startColour = getColourForFrequency (lowFreq).withAlpha (0.0f);
             juce::Colour  midColour = getColourForFrequency (playingFreq).withAlpha (0.3f);

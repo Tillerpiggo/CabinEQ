@@ -127,6 +127,8 @@ private:
     bool isPlayingNoisePattern = false;
     float selectedDotSize = DOT_SIZE_DEFAULT;
     
+    
+    
     // Dragging/zooming constants
     float minFreqShowing = 20.0f;
     float maxFreqShowing = 20000.0f;
