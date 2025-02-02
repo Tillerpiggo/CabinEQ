@@ -84,7 +84,7 @@ private:
     // State
     bool isFilterOn; // if the EQ curve is being applied
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
-    bool isCabinNoise = false; // if it is, turn on the tilt filter
+    bool isCabinNoise = true; // if it is, turn on the tilt filter
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
     bool isIIR = true; // if it is, use filterChain. Otherwise, use firFilter.
     

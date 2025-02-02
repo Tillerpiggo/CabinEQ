@@ -76,6 +76,7 @@ private:
     
     // Drawing/animation
     void drawLines (juce::Graphics& g);
+    void drawNoise (juce::Graphics& g);
     void drawBands (juce::Graphics& g);
     void drawCurve (juce::Graphics& g);
     void drawDots (juce::Graphics& g);

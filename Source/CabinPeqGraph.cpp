@@ -61,6 +61,7 @@ void CabinPeqGraph::paint(juce::Graphics& g)
 {
     // Draw your curve and log lines as usual
     drawLines(g);
+    drawNoise(g);
     drawCurve(g);
     drawBands (g);
     drawDots (g);
@@ -435,6 +436,34 @@ void CabinPeqGraph::drawLines (juce::Graphics& g)
     }
 }
 
+void CabinPeqGraph::drawNoise (juce::Graphics& g)
+{
+    // Draw a faded rectangle with bandwidth around the current noise point
+    
+    // Draw a dot over every currently playing freq
+    if (dataSource != nullptr)
+    {
+        auto playingFreqs = dataSource->getCurrPlayingFreqs();
+        auto bandwidth = dataSource->getBandwidth();
+        for (const auto& playingFreq : playingFreqs)
+        {
+            float lowFreq = std::max (playingFreq * std::pow (2.0f, bandwidth), MIN_FREQ);
+            float highFreq = std::min (playingFreq / std::pow (2.0f, bandwidth), MAX_FREQ);
+            float startX = xForFreq (lowFreq);
+            float midX = xForFreq (playingFreq);
+            float endX = xForFreq (highFreq);
+            juce::Colour startColour = getColourForFrequency (lowFreq).withAlpha (0.0f);
+            juce::Colour  midColour = getColourForFrequency (playingFreq).withAlpha (0.3f);
+            juce::Colour endColour = getColourForFrequency (highFreq).withAlpha (0.0f);
+            juce::ColourGradient gradient (startColour, startX, 0, endColour, endX, 0, false);
+            gradient.addColour (0.5, midColour);
+            
+            g.setGradientFill (gradient);
+            g.fillRect (startX, 0.0f, endX - startX, (float) getHeight());
+        }
+    }
+}
+
 void CabinPeqGraph::drawBands (juce::Graphics& g)
 {
     for (const auto& band : bandProfile.getBands())
@@ -606,18 +635,18 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     juce::Point<float> point = coordsForFrequencyAndAmplitude (freq, ampl);
     drawDot (g, point, DOT_SIZE_DEFAULT, dotColour, isHoveringOverDotControl);
     
-    // Draw a dot over every currently playing freq
-    if (dataSource != nullptr)
-    {
-        auto playingFreqs = dataSource->getCurrPlayingFreqs();
-        for (const auto& playingFreq : playingFreqs)
-        {
-            juce::Colour playingDotColour = getColourForFrequency (playingFreq);
-            juce::Point<float> playingPoint = coordsForFrequencyAndAmplitude (playingFreq, 0);
-            float dotRadius = DOT_SIZE_DEFAULT;
-            drawDot (g, playingPoint, dotRadius, playingDotColour, false);
-        }
-    }
+//    // Draw a dot over every currently playing freq
+//    if (dataSource != nullptr)
+//    {
+//        auto playingFreqs = dataSource->getCurrPlayingFreqs();
+//        for (const auto& playingFreq : playingFreqs)
+//        {
+//            juce::Colour playingDotColour = getColourForFrequency (playingFreq);
+//            juce::Point<float> playingPoint = coordsForFrequencyAndAmplitude (playingFreq, 0);
+//            float dotRadius = DOT_SIZE_DEFAULT;
+//            drawDot (g, playingPoint, dotRadius, playingDotColour, false);
+//        }
+//    }
 }
 
 void CabinPeqGraph::drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour, bool isSelected)
