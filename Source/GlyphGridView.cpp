@@ -96,6 +96,7 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
         selectionEnd = eventPos;
         selectionRect = { eventPos, eventPos };
         selectedIds.clear();
+        selectedIdToStartingPosition.clear();
         instructionText.setText (selectInstructions, juce::NotificationType::dontSendNotification);
         return;
     }
@@ -122,6 +123,22 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
             }
         }
         // If we weren't hovering over anything, we can probably proceed as usual (?)
+    }
+    
+    // If shift clicking, toggle selection
+    if (! event.mods.isRightButtonDown() && hoveringId != -1 && event.mods.isShiftDown())
+    {
+        if (selectedIds.find (hoveringId) != selectedIds.end())
+        {
+            selectedIds.erase (hoveringId);
+            selectedIdToStartingPosition.erase (hoveringId);
+        }
+        else
+        {
+            selectedIds.insert (hoveringId);
+        }
+        draggingId = -1;
+        hoveringId = -1;
     }
     
     // Drag whatever we're hovering over

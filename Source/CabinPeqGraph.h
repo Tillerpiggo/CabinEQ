@@ -127,6 +127,9 @@ private:
     bool isPlayingNoisePattern = false;
     float selectedDotSize = DOT_SIZE_DEFAULT;
     
+    // Selection
+    
+    
     
     
     // Dragging/zooming constants

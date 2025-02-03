@@ -251,24 +251,6 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
         lastDragPosition = getEventCoords (event);
     }
     
-//    // If we're not dragging a node, we're dragging in the blackspace and should drag the graph itself
-//    else
-//    {
-//        float minFreqShowingTime = timeAtFrequency (minFreqShowing);
-//        float maxFreqShowingTime = timeAtFrequency (maxFreqShowing);
-//        float timeChange = (static_cast<float> (event.getDistanceFromDragStart()) / -lastDistanceFromDragStartX) / getWidth();
-//        
-//        float projectedMinFreqShowing = frequencyAtTime (minFreqShowingTime - timeChange);
-//        float projectedMaxFreqShowing = frequencyAtTime (maxFreqShowingTime - timeChange);
-//        
-//        // Apply changes if we are within the bounds of the graph
-//        if (projectedMinFreqShowing >= MIN_FREQ && projectedMaxFreqShowing <= MAX_FREQ)
-//        {
-//            minFreqShowing = projectedMinFreqShowing;
-//            maxFreqShowing = projectedMaxFreqShowing;
-//        }
-//    }
-    
     // If we're not dragging anything, go select stuff
     if (draggingId == -1)
     {
@@ -1053,7 +1035,7 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
             float newX = startPos.x + dragOffsetWhileAdjustingPosition.first;
             float newY = startPos.y + dragOffsetWhileAdjustingPosition.second;
             auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
-            float currBandwidth = band.bandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
+            float currBandwidth = std::min (band.bandwidth * std::pow (1.05f, dragOffsetWhileAdjustingBandwidth.second), 32.0f);
             
             updateBand (band.id, currFreq, currAmpl, currBandwidth, band.type);
         }
@@ -1064,7 +1046,7 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
         float newX = startDragPosition.first + dragOffsetWhileAdjustingPosition.first;
         float newY = startDragPosition.second + dragOffsetWhileAdjustingPosition.second;
         auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
-        float currBandwidth = startDragBandwidth * std::pow (1.05, dragOffsetWhileAdjustingBandwidth.second);
+        float currBandwidth = std::min (startDragBandwidth * std::pow (1.05f, dragOffsetWhileAdjustingBandwidth.second), 32.0f);
         
         updateBand (draggingId, currFreq, currAmpl, currBandwidth, bandType);
     }

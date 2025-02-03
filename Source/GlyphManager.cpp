@@ -200,12 +200,47 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
     });
     
+//    ArchetypalGlyph verticalGlyph (2, {
+//        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
+//    });
+    
     ArchetypalGlyph verticalGlyph (2, {
-        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
+        Stroke ({{ 0, -1 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { 0, 1 }}),
+        Stroke ({{ 0, 1 }, { 0, 1 }}),
+        Stroke ({{ 0, 1 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { 0, -1 }}),
+        Stroke ({{ 0, -1 }, { 0, -1 }})
     });
     
+    ArchetypalGlyph verticalGlyph2 (10, {
+        Stroke ({{ 0, -1 }, { 0, -0.33 }}), Stroke ({{ 0, -0.33 }, { 0, -0.33 }}),
+        Stroke ({{ 0, -0.33 }, { 0, 0.33 }}), Stroke ({{ 0, 0.33 }, { 0, 0.33 }}),
+        Stroke ({{ 0, 0.33 }, { 0, 1 }}), Stroke ({{ 0, 1 }, { 0, 1 }}),
+        Stroke ({{ 0, 1 }, { 0, 0.33 }}), Stroke ({{ 0, 0.33 }, { 0, 0.33 }}),
+        Stroke ({{ 0, 0.33 }, { 0, -0.33 }}), Stroke ({{ 0, -0.33 }, { 0, -0.33 }}),
+        Stroke ({{ 0, -0.33 }, { 0, -1 }}), Stroke ({{ 0, -1 }, { 0, -1 }})
+    });
+    
+    ArchetypalGlyph verticalGlyph3 (11, {
+        
+    });
+    
+//    ArchetypalGlyph diagonalGlyph (3, {
+//        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }}),
+//    });
+    
     ArchetypalGlyph diagonalGlyph (3, {
-        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }})
+        Stroke ({{ -1, -1 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { 1, 1 }}),
+        Stroke ({{ 1, 1 }, { 1, 1 }}),
+        Stroke ({{ 1, 1 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { -1, -1 }}),
+        Stroke ({{ -1, -1 }, { -1, -1 }})
     });
     
     ArchetypalGlyph diagonalGlyph2 (4, {
@@ -234,10 +269,37 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 1, 1 }, { 1, 1 }})
     });
     
+//    ArchetypalGlyph threeByThree (7, {
+//        Stroke ({{ -1, 1 }, { 0, 1 }, { 1, 1 }, { 0, 1 }, { -1, 1 }}),
+//        Stroke ({{ -1, 0 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { -1, 0 }}),
+//        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 }, { 0, -1 }, { -1, -1 }})
+//    });
+    
     ArchetypalGlyph threeByThree (7, {
-        Stroke ({{ -1, 1 }, { 0, 1 }, { 1, 1 }, { 0, 1 }, { -1, 1 }}),
-        Stroke ({{ -1, 0 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { -1, 0 }}),
-        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 }, { 0, -1 }, { -1, -1 }})
+        Stroke ({{ -1, 1 }, { 0, 1 }}), Stroke ({{ 0, 1 }, { 0, 1 }}),
+        Stroke ({{ 0, 1 }, { 1, 1 }}), Stroke ({{ 1, 1 }, { 1, 1 }}),
+        Stroke ({{ 1, 1 }, { 1, 0 }}), Stroke ({{ 1, 0 }, { 1, 0 }}),
+        Stroke ({{ 1, 0 }, { 0, 0 }}), Stroke ({{ 0, 0 }, { 0, 0 }}),
+        Stroke ({{ 0, 0 }, { -1, 0 }}), Stroke ({{ -1, 0 }, { -1, 0 }}),
+        Stroke ({{ -1, 0 }, { -1, -1 }}), Stroke ({{ -1, -1 }, { -1, -1 }}),
+        Stroke ({{ -1, -1 }, { 0, -1 }}), Stroke ({{ 0, -1 }, { 0, -1 }}),
+        Stroke ({{ 0, -1 }, { 1, -1 }}), Stroke ({{ 1, -1 }, { 1, -1 }})
+    });
+    
+    ArchetypalGlyph squareGrid (8, {
+        Stroke ({{ -1, -1 }, { 1, 1 }}), Stroke ({{ 1, 1 }, { 1, 1 }}),
+        Stroke ({{ 1, 1 }, { 1, -1 }}), Stroke ({{ 1, -1 }, { 1, -1 }}),
+        Stroke ({{ 1, -1 }, { -1, 1 }}), Stroke ({{ -1, 1 }, { -1, 1 }}),
+        Stroke ({{ -1, 1 }, { -1, -1 }}), Stroke ({{ -1, -1 }, { -1, -1 }})
+    });
+    
+    ArchetypalGlyph longerDiagonal (9, {
+        Stroke ({{ -1, -1 }, { -0.33, -0.33 }}), Stroke ({{ -0.33, -0.33 }, { -0.33, -0.33 }}),
+        Stroke ({{ -0.33, -0.33 }, { 0.33, 0.33 }}), Stroke ({{ 0.33, 0.33 }, { 0.33, 0.33 }}),
+        Stroke ({{ 0.33, 0.33 }, { 1, 1 }}), Stroke ({{ 1, 1 }, { 1, 1 }}),
+        Stroke ({{ 1, 1 }, { 0.33, 0.33 }}), Stroke ({{ 0.33, 0.33 }, { 0.33, 0.33 }}),
+        Stroke ({{ 0.33, 0.33 }, { -0.33, -0.33 }}), Stroke ({{ -0.33, -0.33 }, { -0.33, -0.33 }}),
+        Stroke ({{ -0.33, -0.33 }, { -1, -1 }}), Stroke ({{ -1, -1 }, { -1, -1 }})
     });
     
     ArchetypalGlyph diagonalGrid (8, {
@@ -374,10 +436,13 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
+    archetypalGlyphs.push_back (verticalGlyph2);
     archetypalGlyphs.push_back (diagonalGlyph);
     archetypalGlyphs.push_back (diagonalGlyph2);
-    archetypalGlyphs.push_back (steepDiagonalGlpyh);
-    archetypalGlyphs.push_back (steepDiagonalGlyph2);
+//    archetypalGlyphs.push_back (steepDiagonalGlpyh);
+//    archetypalGlyphs.push_back (steepDiagonalGlyph2);
+    archetypalGlyphs.push_back (squareGrid);
+    archetypalGlyphs.push_back (longerDiagonal);
 //    archetypalGlyphs.push_back (comparisonGlyph);
 //    archetypalGlyphs.push_back (grid);
 //    archetypalGlyphs.push_back (comparisonGlyph);
