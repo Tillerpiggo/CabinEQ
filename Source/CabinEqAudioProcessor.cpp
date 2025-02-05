@@ -18,8 +18,10 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+                       .withInput  ("Input", juce::AudioChannelSet::mono(), true)
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+                       .withOutput ("Output", juce::AudioChannelSet::mono(), true)
                      #endif
                        ), parameters (*this, nullptr, "Params", createParameterLayout()),
                           cabinEqProfileManager (parameters)
@@ -100,6 +102,7 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
+    std::cout << "num input channels: " << getTotalNumInputChannels() << std::endl;
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
     playbackManager.setGrid (noiseSequenceGrid);
