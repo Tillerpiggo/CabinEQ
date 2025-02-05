@@ -27,7 +27,7 @@ public:
 
     juce::RSAKey getPublicKey() override
     {
-        return juce::RSAKey ("5,766b50255400a29ebbc8396c4d9a4cdebc2b09f529dbd8d102b0fb255d551101");
+        return juce::RSAKey ("11,b4289f05afd76a2c8ca00b8b7202f6f31e91d850adabf3d2ddd2c12dfc2f5b67");
     }
 
     juce::String getLicenseFilePath()
