@@ -60,7 +60,7 @@ Glyph::Glyph (int id, ArchetypalGlyph archetype)
 }
 
 Glyph::Glyph (int id, ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
-    : id (id), archetype (archetype), sizeFactor (sizeFactor), centerPos (centerPos)
+    : id (id), archetype (archetype), horizontalSizeFactor (sizeFactor), verticalSizeFactor (sizeFactor), centerPos (centerPos)
 {
     float minX = 1.0f;
     float maxX = -1.0f;
@@ -103,9 +103,9 @@ ArchetypalGlyph Glyph::getArchetype() const
     return archetype;
 }
 
-float Glyph::getSizeFactor() const
+std::pair<float, float> Glyph::getSizeFactor() const
 {
-    return sizeFactor;
+    return { horizontalSizeFactor, verticalSizeFactor };
 }
 
 float Glyph::getVolume() const
@@ -123,15 +123,16 @@ int Glyph::getId() const
     return id;
 }
 
-void Glyph::setSizeFactor (float sizeFactor)
+void Glyph::setSizeFactor (float horizontalSizeFactor, float verticalSizeFactor)
 {
-    if (sizeFactor <= 0)
+    if (horizontalSizeFactor <= 0 || verticalSizeFactor <= 0)
     {
-        std::cerr << "tried to set illegal size factor with value <= 0 (sizeFactor=" << sizeFactor << ")" << std::endl;
+        std::cerr << "tried to set illegal size factor with value <= 0 (horizontalSizeFactor=" << horizontalSizeFactor << ", verticalSizeFactor=" << verticalSizeFactor << ")" << std::endl;
         return;
     }
     
-    this->sizeFactor = std::min (sizeFactor, 1.0f);
+    this->horizontalSizeFactor = std::min (horizontalSizeFactor, 1.0f);
+    this->verticalSizeFactor = std::min (verticalSizeFactor, 1.0f);
     
     // Make sure we're still in bounds
     if (! isInBounds (centerPos))
@@ -143,10 +144,11 @@ void Glyph::incrementVolume (float increment)
     this->volume = std::max (std::min (volume + increment, 1.0f), 0.0f);
 }
 
-void Glyph::incrementSizeFactor (float increment)
+void Glyph::incrementSizeFactor (float horizontalIncrement, float verticalIncrement)
 {
 //    this->sizeFactor = getSizeFactorWithinBounds (increment);
-    this->sizeFactor = std::min (std::max (sizeFactor + increment, 0.05f), 1.0f);
+    this->horizontalSizeFactor = std::min (std::max (horizontalSizeFactor + horizontalIncrement, 0.05f), 1.0f);
+    this->verticalSizeFactor = std::min (std::max (verticalSizeFactor + verticalIncrement, 0.05f), 1.0f);
     if (! isInBounds (centerPos))
         moveGlyphWithinBounds();
 }
@@ -191,7 +193,7 @@ juce::Point<float> Glyph::getCenterPosWithinBounds (juce::Point<float> hypotheti
 
 float Glyph::getSizeFactorWithinBounds (float hypotheticalIncrement) const
 {
-    float projectedSizeFactor = sizeFactor + hypotheticalIncrement;
+    float projectedSizeFactor = std::max (horizontalSizeFactor, verticalSizeFactor) + hypotheticalIncrement;
     float maxXSizeFactor = std::min (std::abs (-1.0f - centerPos.x), std::abs (1.0f - centerPos.x));
     float maxYSizeFactor = std::min (std::abs (-1.0f - centerPos.y), std::abs (1.0f - centerPos.y));
     projectedSizeFactor = std::min (projectedSizeFactor, std::min (maxXSizeFactor / width, maxYSizeFactor / height));
@@ -208,27 +210,31 @@ std::pair<float, float> Glyph::getProjectedMoveDistance (juce::Point<float> hypo
 
 float Glyph::getProjectedSizeFactorIncrement (float increment) const
 {
-    return getSizeFactorWithinBounds (increment) - sizeFactor;
+    return getSizeFactorWithinBounds (increment) - std::max (horizontalSizeFactor, verticalSizeFactor);
 }
 
 void Glyph::moveSizeFactorWithinBounds()
 {
     float maxXSizeFactor = std::min (std::abs (-1.0f - centerPos.x), std::abs (1.0f - centerPos.x));
     float maxYSizeFactor = std::min (std::abs (-1.0f - centerPos.y), std::abs (1.0f - centerPos.y));
-    sizeFactor = std::min (sizeFactor, std::min (maxXSizeFactor / width, maxYSizeFactor / height));
+    float projectedHorizontalSizeFactor = std::min (horizontalSizeFactor, maxXSizeFactor / width);
+    float projectedVerticalSizeFactor = std::min (verticalSizeFactor, maxYSizeFactor / height);
+    float minScalar = std::min (projectedHorizontalSizeFactor / horizontalSizeFactor, projectedVerticalSizeFactor / verticalSizeFactor); // limit resize by biggest dimension.
+    horizontalSizeFactor *= minScalar;
+    verticalSizeFactor *= minScalar;
 }
 
 std::pair<float, float> Glyph::getXBounds() const
 {
-    float minX = -1.0f + sizeFactor * width;
-    float maxX = 1.0f - sizeFactor * width;
+    float minX = -1.0f + horizontalSizeFactor * width;
+    float maxX = 1.0f - horizontalSizeFactor * width;
     return { minX, maxX };
 }
 
 std::pair<float, float> Glyph::getYBounds() const
 {
-    float minY = -1.0f + sizeFactor * height;
-    float maxY = 1.0f - sizeFactor * height;
+    float minY = -1.0f + verticalSizeFactor * height;
+    float maxY = 1.0f - verticalSizeFactor * height;
     return { minY, maxY };
 }
 

@@ -224,6 +224,34 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 0, -0.33 }, { 0, -1 }}), Stroke ({{ 0, -1 }, { 0, -1 }})
     });
     
+    ArchetypalGlyph panningGlyph3 (11, {
+        
+        Stroke ({{ -1, 1 }, { -1, 1 }}),
+        Stroke ({{ -1, 1 }, { -1, 0.33 }}), Stroke ({{ -1, 0.33 }, { -1, 0.33 }}),
+        Stroke ({{ -1, 0.33 }, { -1, -0.33 }}), Stroke ({{ -1, -0.33 }, { -1, -0.33 }}),
+        Stroke ({{ -1, -0.33 }, { -1, -1 }}), Stroke ({{ -1, -1 }, { -1, -1 }}),
+        
+        Stroke ({{ -0.5, 1 }, { -0.5, 1 }}),
+        Stroke ({{ -0.5, 1 }, { -0.5, 0.33 }}), Stroke ({{ -0.5, 0.33 }, { -0.5, 0.33 }}),
+        Stroke ({{ -0.5, 0.33 }, { -0.5, -0.33 }}), Stroke ({{ -0.5, -0.33 }, { -0.5, -0.33 }}),
+        Stroke ({{ -0.5, -0.33 }, { -0.5, -1 }}), Stroke ({{ -0.5, -1 }, { -0.5, -1 }}),
+        
+        Stroke ({{ 0, 1 }, { 0, 1 }}),
+        Stroke ({{ 0, 1 }, { 0, 0.33 }}), Stroke ({{ 0, 0.33 }, { 0, 0.33 }}),
+        Stroke ({{ 0, 0.33 }, { 0, -0.33 }}), Stroke ({{ 0, -0.33 }, { 0, -0.33 }}),
+        Stroke ({{ 0, -0.33 }, { 0, -1 }}), Stroke ({{ 0, -1 }, { 0, -1 }}),
+        
+        Stroke ({{ 0.5, 1 }, { 0.5, 1 }}),
+        Stroke ({{ 0.5, 1 }, { 0.5, 0.33 }}), Stroke ({{ 0.5, 0.33 }, { 0.5, 0.33 }}),
+        Stroke ({{ 0.5, 0.33 }, { 0.5, -0.33 }}), Stroke ({{ 0.5, -0.33 }, { 0.5, -0.33 }}),
+        Stroke ({{ 0.5, -0.33 }, { 0.5, -1 }}), Stroke ({{ 0.5, -1 }, { 0.5, -1 }}),
+        
+        Stroke ({{ 1, 1 }, { 1, 1 }}),
+        Stroke ({{ 1, 1 }, { 1, 0.33 }}), Stroke ({{ 1, 0.33 }, { 1, 0.33 }}),
+        Stroke ({{ 1, 0.33 }, { 1, -0.33 }}), Stroke ({{ 1, -0.33 }, { 1, -0.33 }}),
+        Stroke ({{ 1, -0.33 }, { 1, -1 }}), Stroke ({{ 1, -1 }, { 1, -1 }})
+    });
+    
     ArchetypalGlyph verticalGlyph3 (11, {
         
     });
@@ -439,10 +467,12 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (verticalGlyph2);
     archetypalGlyphs.push_back (diagonalGlyph);
     archetypalGlyphs.push_back (diagonalGlyph2);
-//    archetypalGlyphs.push_back (steepDiagonalGlpyh);
-//    archetypalGlyphs.push_back (steepDiagonalGlyph2);
     archetypalGlyphs.push_back (squareGrid);
     archetypalGlyphs.push_back (longerDiagonal);
+    archetypalGlyphs.push_back (panningGlyph3);
+//    archetypalGlyphs.push_back (steepDiagonalGlpyh);
+//    archetypalGlyphs.push_back (steepDiagonalGlyph2);
+    
 //    archetypalGlyphs.push_back (comparisonGlyph);
 //    archetypalGlyphs.push_back (grid);
 //    archetypalGlyphs.push_back (comparisonGlyph);
@@ -520,14 +550,14 @@ void GlyphManager::incrementGlyphVolume (int glyphId, float increment)
     }
 }
 
-void GlyphManager::incrementSizeFactor (int glyphId, float increment)
+void GlyphManager::incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement)
 {
     // Find the glyph with that id, and if it exists, increment the size factor
     for (int i = 0; i < glyphs.size(); ++i)
     {
         if (glyphs[i].getId() == glyphId)
         {
-            glyphs[i].incrementSizeFactor (increment);
+            glyphs[i].incrementSizeFactor (horizontalIncrement, verticalIncrement);
             break;
         }
     }
@@ -578,7 +608,7 @@ void GlyphManager::scaleGlyphs (std::unordered_set<int> glyphIds, float incremen
     {
         if (glyphIds.find (glyph.getId()) != glyphIds.end())
         {
-            glyph.incrementSizeFactor (maxIncrement);
+            glyph.incrementSizeFactor (maxIncrement, maxIncrement);
         }
     }
 }

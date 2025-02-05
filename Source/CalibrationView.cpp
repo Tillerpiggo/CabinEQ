@@ -35,15 +35,15 @@ CalibrationView::CalibrationView()
     pinkNoiseBox.setSelectedId (2);
     pinkNoiseBox.addListener (this);
     
-//    addButton (&iirButton);
-//    addButton (&updateFilterButton);
-//    
-//    addAndMakeVisible (qualityComboBox);
-//    qualityComboBox.addItem ("Economy", 10);
-//    qualityComboBox.addItem ("Good", 14);
-//    qualityComboBox.addItem ("Ultra", 18);
-//    qualityComboBox.addListener (this);
-//    qualityComboBox.setSelectedId (14);
+    addButton (&iirButton);
+    addButton (&updateFilterButton);
+    
+    addAndMakeVisible (qualityComboBox);
+    qualityComboBox.addItem ("Economy", 10);
+    qualityComboBox.addItem ("Good", 14);
+    qualityComboBox.addItem ("Ultra", 18);
+    qualityComboBox.addListener (this);
+    qualityComboBox.setSelectedId (14);
     
     // Slider actions
     addSliderAction (&speedSlider, [this](juce::Slider*) {
@@ -129,7 +129,7 @@ void CalibrationView::resized()
     settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
 //    settingsLayout.addRow ({ Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
-//    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
+    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
     settingsLayout.addRow ({ Space (&playButton) });
     settingsLayout.updateComponentBounds();
 }

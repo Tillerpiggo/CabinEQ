@@ -24,7 +24,7 @@ public:
     void moveGlyph (int glyphId, juce::Point<float> centerPos);
     void removeGlyph (int glyphId);
     void incrementGlyphVolume (int glyphId, float increment);
-    void incrementSizeFactor (int glyphId, float increment);
+    void incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement);
     void moveGlyphs (std::unordered_map<int, juce::Point<float>>& idsToPositions);
     void scaleGlyphs (std::unordered_set<int> glyphIds, float increment);
     void addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs);

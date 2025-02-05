@@ -558,9 +558,9 @@ void CabinEqAudioProcessor::incrementGlyphVolume (int glyphId, float increment)
     playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 
-void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float increment)
+void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement)
 {
-    glyphManager.incrementSizeFactor (glyphId, increment);
+    glyphManager.incrementSizeFactor (glyphId, horizontalIncrement, verticalIncrement);
     playbackManager.setGlyphs (glyphManager.getGlyphs());
 }
 

@@ -117,7 +117,7 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
             {
                 draggingGlyph = glyph.getArchetype();
                 draggingPos = event.getPosition().toFloat();
-                draggingSize = glyph.getSizeFactor();
+                draggingSize = std::max (glyph.getSizeFactor().first, glyph.getSizeFactor().second);
                 isDraggingDuplicate = true;
                 return;
             }
@@ -255,7 +255,8 @@ void GlyphGridView::mouseWheelMove (const juce::MouseEvent &event, const juce::M
     
     if (event.mods.isShiftDown())
     {
-        incrementVolume (hoveringId, wheel.deltaY);
+//        incrementVolume (hoveringId, wheel.deltaY);
+        incrementVerticalSizeFactor (hoveringId, wheel.deltaY);
     }
     else
     {
@@ -384,7 +385,7 @@ void GlyphGridView::drawSelection (juce::Graphics& g)
     }
 }
 
-void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour)
+void GlyphGridView::drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, std::pair<float, float> sizeFactor, juce::Colour strokeColour)
 {
     float bandwidth = 1.0f;
     if (dataSource != nullptr)
@@ -436,17 +437,17 @@ void GlyphGridView::drawDraggingGlyph (juce::Graphics& g)
 {
     if (draggingGlyph.has_value())
     {
-        drawGlyph (g, draggingGlyph->getStrokes(), getNormalizedPointFromLocalPoint (draggingPos.value()), draggingSize.value(), STROKE_COLOUR.withAlpha (0.5f));
+        drawGlyph (g, draggingGlyph->getStrokes(), getNormalizedPointFromLocalPoint (draggingPos.value()), { draggingSize.value(), draggingSize.value() }, STROKE_COLOUR.withAlpha (0.5f));
     }
 }
 
-juce::Point<float> GlyphGridView::getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor)
+juce::Point<float> GlyphGridView::getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, std::pair<float, float> sizeFactor)
 {
     float padding = 0.0f;
     
     // Scale according to sizeFactor and centerPos;
-    point.x *= sizeFactor;
-    point.y *= sizeFactor;
+    point.x *= sizeFactor.first;
+    point.y *= sizeFactor.second;
     point.x += centerPos.x;
     point.y += centerPos.y;
     
@@ -571,7 +572,16 @@ void GlyphGridView::incrementSizeFactor (int glyphId, float increment)
 {
     if (listener != nullptr && dataSource != nullptr)
     {
-        listener->incrementSizeFactor (glyphId, increment);
+        listener->incrementSizeFactor (glyphId, increment, increment);
+        glyphs = dataSource->getGlyphs();
+    }
+}
+
+void GlyphGridView::incrementVerticalSizeFactor (int glyphId, float verticalIncrement)
+{
+    if (listener != nullptr && dataSource != nullptr)
+    {
+        listener->incrementSizeFactor (glyphId, 0, verticalIncrement);
         glyphs = dataSource->getGlyphs();
     }
 }

@@ -205,8 +205,9 @@ std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyp
 {
     // Calculate coords
     auto normalizedCoords = glyph.positionAtTime (time).first;
-    float x = normalizedCoords.x * glyph.getSizeFactor() + glyph.getCenterPos().x;
-    float y = normalizedCoords.y * glyph.getSizeFactor() + glyph.getCenterPos().y;
+    auto [horizontalSizeFactor, verticalSizeFactor] = glyph.getSizeFactor();
+    float x = normalizedCoords.x * horizontalSizeFactor + glyph.getCenterPos().x;
+    float y = normalizedCoords.y * verticalSizeFactor + glyph.getCenterPos().y;
     
     // Calculate pan
     float pan = x;

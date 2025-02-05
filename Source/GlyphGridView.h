@@ -53,11 +53,11 @@ private:
     void drawGlyphs (juce::Graphics& g);
     void drawCenterDots (juce::Graphics& g); // draws the center dots for the glyphs
     void drawPlayingDots (juce::Graphics& g);
-    void drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, float sizeFactor, juce::Colour strokeColour);
+    void drawGlyph (juce::Graphics& g, const std::vector<Stroke>& strokes, juce::Point<float> centerPos, std::pair<float, float> sizeFactor, juce::Colour strokeColour);
     void drawDot (juce::Graphics& g, juce::Point<float> point, float dotRadius, juce::Colour dotColour);
     void drawDraggingGlyph (juce::Graphics& g);
     void drawSelection (juce::Graphics& g);
-    juce::Point<float> getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, float sizeFactor);
+    juce::Point<float> getLocalPointFromNormalizedPoint (juce::Point<float> point, juce::Point<float> centerPos, std::pair<float, float> sizeFactor);
     juce::Point<float> getNormalizedPointFromLocalPoint (juce::Point<float> point);
     juce::Point<float> getLocalCenterPosForGlyph (const Glyph& glyph); // gets the local coords for the glyph's center point
     juce::Point<float> getNormalizedPointFromMouseEvent (const juce::MouseEvent& event);
@@ -70,6 +70,7 @@ private:
     void removeGlyph (int glyphId);
     void incrementVolume (int glyphId, float increment);
     void incrementSizeFactor (int glyphId, float increment);
+    void incrementVerticalSizeFactor (int glyphId, float verticalIncrement);
     void scaleSelectedGlyphs (float increment);
     
     GlyphViewListener* listener = nullptr;

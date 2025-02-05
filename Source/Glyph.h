@@ -40,14 +40,14 @@ public:
     const std::vector<NoisePoint> getVertices() const;
     ArchetypalGlyph getArchetype() const; // returns an archetype of this glyph
     
-    float getSizeFactor() const;
+    std::pair<float, float> getSizeFactor() const;
     float getVolume() const;
     juce::Point<float> getCenterPos() const;
     int getId() const;
     
-    void setSizeFactor (float sizeFactor);
+    void setSizeFactor (float horizontalSizeFactor, float verticalSizeFactor);
     void incrementVolume (float increment); // increments volume, with bounds 0 and 1
-    void incrementSizeFactor (float increment); // increments size factor, with bounds, and then updates surroundings.
+    void incrementSizeFactor (float horizontalIncrement, float verticalIncrement); // increments size factor, with bounds, and then updates surroundings.
     void setCenterPos (juce::Point<float> centerPos);
     void moveBy (std::pair<float, float> amountToMove); // moves by [moveX, moveY]
     void setStaticPos (juce::Point<float> staticPos);
@@ -65,7 +65,9 @@ public:
 private:
     int id;
     ArchetypalGlyph archetype;
-    float sizeFactor = 1.0f; // can be in (0, 1], with 1 being full-sized
+//    float sizeFactor = 1.0f; // can be in (0, 1], with 1 being full-sized
+    float horizontalSizeFactor = 1.0f;
+    float verticalSizeFactor = 1.0f;
     float volume = 1.0f; // can be from (0, 1], with 0 being probably around -20db or something
     float width = 1.0f;
     float height = 1.0f;
