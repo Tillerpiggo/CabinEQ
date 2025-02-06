@@ -36,7 +36,7 @@ private:
     FreeTrialListener* listener;
     
     int secondsLeftUntilReset;
-    int resetCycleInSeconds = 60 * 20; // 20 minutes
+    int resetCycleInSeconds = 60 * 120; // 2 hrs
     
     juce::Label timeLabel;
     juce::Label freeTrialLabel;

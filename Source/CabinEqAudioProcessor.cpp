@@ -374,7 +374,6 @@ float CabinEqAudioProcessor::getMasterVolume()
 
 bool CabinEqAudioProcessor::getHasLicense()
 {
-    return true;
     return cabinEqProfileManager.getHasLicense();
 }
 
@@ -530,6 +529,11 @@ bool CabinEqAudioProcessor::getIsPlaying()
 float CabinEqAudioProcessor::getBandwidth()
 {
     return playbackManager.getBandwidth();
+}
+
+CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()
+{
+    return marketplaceStatus;
 }
 
 std::vector<float> CabinEqAudioProcessor::getCurrPlayingFreqs()

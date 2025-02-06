@@ -84,7 +84,7 @@ protected:
     bool isBypassed = false;
     
     // Free Trial Unlock
-    CabinEqMarketplaceStatus marketplaceStatus;
+//    CabinEqMarketplaceStatus marketplaceStatus;
     CabinEqUnlockForm unlockForm;
     
     bool creatingDuplicate = false;

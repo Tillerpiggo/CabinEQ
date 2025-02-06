@@ -11,10 +11,10 @@
 #include "CabinEqPage.h"
 
 CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
-    : processor (p), profileId ("NO_PROFILE"), unlockForm (marketplaceStatus)
+    : processor (p), profileId ("NO_PROFILE"), unlockForm (p.getMarketplaceStatus())
 {
-    marketplaceStatus.load();
-    isUnlocked = marketplaceStatus.isUnlocked();
+    p.getMarketplaceStatus().load();
+    isUnlocked = p.getMarketplaceStatus().isUnlocked();
 
     amplGraph = std::make_unique<CabinPeqGraph>();
     
@@ -360,7 +360,7 @@ void CabinEqPage::showForm()
 void CabinEqPage::unlockApp()
 {
     processor.setHasLicense (true);
-    marketplaceStatus.save();
+    processor.getMarketplaceStatus().save();
 
     amplGraph->setGrayscale (isBypassed);
     processor.setIsFilterOn (! isBypassed);
@@ -368,13 +368,15 @@ void CabinEqPage::unlockApp()
 
     /* Should this happen here?  Justin */
     freeTrialBanner.setVisible (false);
+    resized();
 }
 
 void CabinEqPage::timerCallback()
 {
-    if (marketplaceStatus.isUnlocked())
+    if (processor.getMarketplaceStatus().isUnlocked() && ! isUnlocked)
     {
         unlockApp();
+        isUnlocked = true;
     }
 }
 

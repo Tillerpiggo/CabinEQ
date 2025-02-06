@@ -16,6 +16,7 @@
 #include "CabinPeqGraph.h"
 #include "Listeners.h"
 #include "FreeTrialBanner.h"
+#include "CabinEqMarketplaceStatus.h"
 
 //==============================================================================
 /**
@@ -162,6 +163,8 @@ public:
     bool getIsPlaying() override;
     float getBandwidth() override;
     
+    CabinEqMarketplaceStatus& getMarketplaceStatus();
+    
     // Listener
     void addListener (Listener* listener);
     void removeListener();
@@ -174,6 +177,8 @@ private:
     CabinEqProfileManager cabinEqProfileManager;
     GlyphManager glyphManager;
     NoiseSequenceGrid noiseSequenceGrid { 3, 3 };
+    
+    CabinEqMarketplaceStatus marketplaceStatus;
     
     juce::dsp::ProcessSpec spec;
     
