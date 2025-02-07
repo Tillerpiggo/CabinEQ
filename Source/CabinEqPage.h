@@ -82,6 +82,7 @@ protected:
     CabinEqAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
+    juce::HyperlinkButton setupButton { "How to get sound to work", juce::URL("https://docs.google.com/document/d/1QiblNNfKgauabegU9ERn_jlJF5BGtEAp9przLzF1-o8/edit?tab=t.0") };
     bool isBypassed = false;
     
     // Free Trial Unlock

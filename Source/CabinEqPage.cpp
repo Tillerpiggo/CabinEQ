@@ -39,8 +39,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     noiseGridView.setListener (&processor);
     noiseGridView.setCalibrationListener (&processor);
     noiseGridView.setDataSource (&processor);
-//    multiBandStepBar.setListener (&processor);
-//    magicKnob.setListener (this);
+    setupButton.setFont (juce::Font (juce::FontOptions (16)), false);
     calibrationView.setListener (&processor);
     calibrationView.setCalibrationListener (&processor);
     calibrationView.setDataSource (&processor);
@@ -58,6 +57,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
     addAndMakeVisible (unlockForm);
+    addAndMakeVisible (setupButton);
     unlockForm.setVisible (false);
     
     amplGraph->toBack();
@@ -100,7 +100,7 @@ void CabinEqPage::resized()
     {
         layout.addRow ({ Space (&freeTrialBanner) }, 40);
     }
-    layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
+    layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (&setupButton, 2 * sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.updateComponentBounds();
