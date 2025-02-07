@@ -56,6 +56,8 @@ public:
     void setGrayscale (bool grayscale);
     
 private:
+    void updateContactLabelText(); // updates the contact label text depending on the size of the window
+    
     CabinPeqGraphListener* listener;
     CabinPeqGraphDataSource* dataSource;
     
@@ -65,6 +67,10 @@ private:
     bool provisionalBandsVisible = false;
     
     juce::Label instructionLabel;
+    juce::Label contactLabel;
+    std::string contactLong { "Contact us if anything breaks! julian@cabinaudio.com | tyler@cabinaudio.com" };
+    std::string contactMid { "Contact us if anything breaks! julian@cabinaudio.com" };
+    std::string contactShort { "Contact: julian@cabinaudio.com" };
     std::string addBandInstructions { "Click + drag on the center line to add a band" };
     std::string removeBandInstructions { "Right click to remove band" };
     std::string adjustBandwidthInstructions { "Shift + drag to adjust bandwidth" };

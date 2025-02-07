@@ -14,32 +14,38 @@ CabinPeqGraph::CabinPeqGraph()
 {
     startTimer (5);
     
-    addAndMakeVisible (leftRightButton);
+//    addAndMakeVisible (leftRightButton);
     addAndMakeVisible (instructionLabel);
+    addAndMakeVisible (contactLabel);
     addAndMakeVisible (dimensionalSlider);
     dimensionalSlider.setListener (this);
     
     instructionLabel.setJustificationType (juce::Justification::bottomRight);
     instructionLabel.setInterceptsMouseClicks (false, true);
+    contactLabel.setJustificationType (juce::Justification::bottomLeft);
+    contactLabel.setInterceptsMouseClicks (false, true);
+    contactLabel.setText (contactLong, juce::NotificationType::dontSendNotification);
+    updateContactLabelText();
+    contactLabel.setVisible (true);
     
-    addButton (&leftRightButton);
-    addButtonAction (&leftRightButton, [this](juce::Button*) {
-        int bandTypeInt = static_cast<int> (bandType);
-        bandTypeInt = (bandTypeInt + 1) % 3;
-        bandType = static_cast<Band::Type> (bandTypeInt);
-        switch (bandType)
-        {
-            case Band::Type::both:
-                leftRightButton.setButtonText ("BOTH");
-                break;
-            case Band::Type::left:
-                leftRightButton.setButtonText ("LEFT");
-                break;
-            case Band::Type::right:
-                leftRightButton.setButtonText ("RIGHT");
-                break;
-        }
-    });
+//    addButton (&leftRightButton);
+//    addButtonAction (&leftRightButton, [this](juce::Button*) {
+//        int bandTypeInt = static_cast<int> (bandType);
+//        bandTypeInt = (bandTypeInt + 1) % 3;
+//        bandType = static_cast<Band::Type> (bandTypeInt);
+//        switch (bandType)
+//        {
+//            case Band::Type::both:
+//                leftRightButton.setButtonText ("BOTH");
+//                break;
+//            case Band::Type::left:
+//                leftRightButton.setButtonText ("LEFT");
+//                break;
+//            case Band::Type::right:
+//                leftRightButton.setButtonText ("RIGHT");
+//                break;
+//        }
+//    });
     
     // Initialize variables for faster painting
     instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
@@ -76,8 +82,11 @@ void CabinPeqGraph::resized()
 //    dimensionalSlider.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 100.0f, 100.0f, 100.0f);
     
     // Add instruction label in bottom right corner
+    updateContactLabelText();
     float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());
+    float contactWidth = contactLabel.getFont().getStringWidth (contactLabel.getText());
     instructionLabel.setBounds (getBounds().getWidth() - instructionWidth, getBounds().getHeight() - 50.0f, instructionWidth, 40.0f);
+    contactLabel.setBounds (0, getBounds().getHeight() - 50.0f, contactWidth, 40.0f);
     
     // Recalculate needed vars
     
@@ -1068,4 +1077,33 @@ void CabinPeqGraph::setVolume (float volume)
     
     listener->setProfileVolume (volume);
     updateBands();
+}
+
+void CabinPeqGraph::updateContactLabelText()
+{
+    float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());
+    float contactWidthLong = contactLabel.getFont().getStringWidth (contactLong);
+    float contactWidthMid = contactLabel.getFont().getStringWidth (contactMid);
+    float contactWidthShort = contactLabel.getFont().getStringWidth (contactShort);
+    float minWidth = getWidth() + 10.0f;
+    
+    if (instructionWidth + contactWidthLong < minWidth)
+    {
+        contactLabel.setText (contactLong, juce::NotificationType::dontSendNotification);
+        contactLabel.setVisible (true);
+    }
+//    else if (instructionWidth + contactWidthMid < minWidth)
+//    {
+//        contactLabel.setText (contactMid, juce::NotificationType::dontSendNotification);
+//        contactLabel.setVisible (true);
+//    }
+    else if (instructionWidth + contactWidthShort < minWidth)
+    {
+        contactLabel.setText (contactShort, juce::NotificationType::dontSendNotification);
+        contactLabel.setVisible (true);
+    }
+    else
+    {
+        contactLabel.setVisible (false);
+    }
 }
