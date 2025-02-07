@@ -63,7 +63,8 @@ protected:
     void updateButtonText();
     
     void showForm();
-    void unlockApp();
+    void unlockApp(); // unlocks the app, hiding the free trial banner and free trial lock screen
+    void lockApp(); // locks the app, showing the free trial banner and free trial lock screen
     
     void lockIfNecessary();
     

@@ -374,7 +374,9 @@ float CabinEqAudioProcessor::getMasterVolume()
 
 bool CabinEqAudioProcessor::getHasLicense()
 {
-    return cabinEqProfileManager.getHasLicense();
+//    return false;
+    return marketplaceStatus.isUnlocked();
+//    return cabinEqProfileManager.getHasLicense();
 }
 
 void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName)

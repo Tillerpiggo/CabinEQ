@@ -14,7 +14,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     : processor (p), profileId ("NO_PROFILE"), unlockForm (p.getMarketplaceStatus())
 {
     p.getMarketplaceStatus().load();
-    isUnlocked = p.getMarketplaceStatus().isUnlocked();
+    isUnlocked = p.getHasLicense();
 
     amplGraph = std::make_unique<CabinPeqGraph>();
     
@@ -368,15 +368,35 @@ void CabinEqPage::unlockApp()
 
     /* Should this happen here?  Justin */
     freeTrialBanner.setVisible (false);
+    freeTrialLockScreen.setVisible (false);
+    resized();
+}
+
+void CabinEqPage::lockApp()
+{
+    processor.setHasLicense (false);
+    amplGraph->setGrayscale (true);
+    processor.setIsFilterOn (false);
+    updateButtonText();
+    
+    freeTrialBanner.setVisible (true);
+    freeTrialLockScreen.setVisible (true);
     resized();
 }
 
 void CabinEqPage::timerCallback()
 {
-    if (processor.getMarketplaceStatus().isUnlocked() && ! isUnlocked)
+    if (processor.getHasLicense() && ! isUnlocked)
     {
         unlockApp();
         isUnlocked = true;
+    }
+    
+    // * UNTESTED *
+    if (! processor.getHasLicense() && isUnlocked)
+    {
+        lockApp();
+        isUnlocked = false;
     }
 }
 
