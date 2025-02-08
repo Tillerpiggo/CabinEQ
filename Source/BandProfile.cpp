@@ -11,6 +11,10 @@
 #include "BandProfile.h"
 
 //==============================================
+Band::Band()
+  : id (0), freq (0), ampl (0), bandwidth (1), type (Band::Type::both)
+{}
+
 Band::Band (int id, float freq, float ampl, float bandwidth, Type type)
 : id (id), freq (freq), ampl (ampl), bandwidth (bandwidth), type (type)
 {

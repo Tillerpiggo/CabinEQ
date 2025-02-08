@@ -22,6 +22,7 @@ public:
         right = 2
     };
     
+    Band();
     Band (int id, float freq, float ampl, float bandwidth, Type type);
     static Band withQ (int id, float freq, float ampl, float qFactor, Type type);
     static float bandwidthToQFactor (float bandwidth);

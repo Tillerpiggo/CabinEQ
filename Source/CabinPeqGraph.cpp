@@ -174,6 +174,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
                 if (selectionRect->contains (pos))
                 {
                     selectedIds.insert (band.id);
+                    selectedIdToStartingValue[band.id] = band;
                 }
             }
         }
@@ -314,6 +315,13 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 
 void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
 {
+    if (selectionStart.has_value() || selectionEnd.has_value())
+    {
+        selectionStart.reset();
+        selectionEnd.reset();
+        selectionRect.reset();
+    }
+    
     if (draggingId != -1)
     {
         updateBandFromDrag (event);
@@ -1095,8 +1103,8 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
     {
         for (const auto& bandId : selectedIds)
         {
-//            Band band = selectedIdToStartingValue[bandId];
-            Band band = bandProfile.getBands()[0];
+            Band band = selectedIdToStartingValue[bandId];
+//            Band band = bandProfile.getBands()[0];
             auto startPos = getLocalCoordsForBand (band);
             
             float newX = startPos.x + dragOffsetWhileAdjustingPosition.first;
