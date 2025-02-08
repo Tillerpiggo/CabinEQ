@@ -77,8 +77,8 @@ void CabinPeqGraph::resized()
     leftRightButton.setBounds (20.0f, getBounds().getHeight() - 50.0f, 80.0f, 40.0f);
     
     // Add instruction label in bottom right corner
-    float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());
-    instructionLabel.setBounds (getBounds().getWidth() - instructionWidth, getBounds().getHeight() - 50.0f, instructionWidth, 40.0f);
+//    float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());
+    instructionLabel.setBounds (0.0f, getBounds().getHeight() - 50.0f, getWidth(), 40.0f);
     
     // Recalculate needed vars
     
@@ -119,7 +119,18 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent &event)
     updateHoveringStatus (event);
     if (hoveringId != -1)
     {
-        instructionLabel.setText (removeBandInstructions, juce::NotificationType::dontSendNotification);
+        if (selectedIds.size() == 0)
+        {
+            instructionLabel.setText (removeBandInstructions, juce::NotificationType::dontSendNotification);
+        }
+        else if (selectedIds.find (hoveringId) == selectedIds.end())
+        {
+            instructionLabel.setText (shiftClickBandInstructions, juce::NotificationType::dontSendNotification);
+        }
+        else
+        {
+            instructionLabel.setText (groupRemoveBandInstructions, juce::NotificationType::dontSendNotification);
+        }
     }
     else if (isHoveringOverDotControl)
     {
@@ -127,7 +138,14 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent &event)
     }
     else
     {
-        instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
+        if (selectedIds.size() == 0)
+        {
+            instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
+        }
+        else
+        {
+            instructionLabel.setText (groupDragInstructions, juce::NotificationType::dontSendNotification);
+        }
     }
 }
 
@@ -150,6 +168,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
         selectedIds.clear();
         selectedIdToStartingValue.clear();
         instructionLabel.setText (selectInstructions, juce::NotificationType::dontSendNotification);
+        
         return;
     }
     
@@ -161,37 +180,6 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     draggingId = hoveringId;
     if (draggingId != -1)
     {
-        // If we selected multiple bands, lets start dragging them together
-//        selectedIdToStartingValue.clear();
-//        
-//        if (selectionStart.has_value() && selectionEnd.has_value() && selectionRect.has_value())
-//        {
-//            for (const auto& band : bandProfile.getBands())
-//            {
-//                auto pos = getLocalCoordsForBand (band);
-//                if (selectionRect->contains (pos))
-//                {
-//                    selectedIds.insert (band.id);
-//                    selectedIdToStartingValue[band.id] = band;
-//                }
-//            }
-//        }
-        
-//        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
-//        {
-//            for (const auto& band : bandProfile.getBands())
-//            {
-//                if (band.freq >= selectionStartFreq.value() && band.freq <= selectionEndFreq.value())
-//                {
-//                    startDraggingBands.push_back (band);
-//                }
-//            }
-//        }
-//        else
-//        {
-//            startDraggingBands.clear();
-//        }
-            
         updateBand (draggingId, freq, ampl, startDragBandwidth, bandType);
         
         selectedDotSize = DOT_SIZE_DRAGGING;
@@ -209,14 +197,6 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
                 didSelectSelectedBand = true;
             }
         }
-        
-//        if (! didSelectSelectedBand)
-//        {
-////            clearSelection();
-////            selectionStartFreq.reset();
-////            selectionEndFreq.reset();
-////            startDraggingBands.clear();
-//        }
     }
     
     // If we were going to add a band, do so here
@@ -234,22 +214,44 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
         addingFreq.reset();
         
         clearSelection();
-//        selectionStartFreq.reset();
-//        selectionEndFreq.reset();
-//        startDraggingBands.clear();
     }
     
     // If we right click and were hovering, delete the band
     if (hoveringId != -1 && event.mods.isRightButtonDown())
     {
         removeBand (hoveringId);
-        instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
+        
+        // If we selected multiple, remove all of them...
+        if (selectedIds.find (hoveringId) != selectedIds.end())
+        {
+            for (const auto& id : selectedIds)
+            {
+                removeBand (id);
+            }
+            selectedIds.clear();
+        }
+        
+        if (selectedIds.size() == 0)
+        {
+            instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
+        }
+        else
+        {
+            instructionLabel.setText (groupDragInstructions, juce::NotificationType::dontSendNotification);
+        }
     }
     
     // Update instruction text
     if (draggingId != -1 && ! event.mods.isRightButtonDown())
     {
-        instructionLabel.setText (adjustBandwidthInstructions, juce::NotificationType::dontSendNotification);
+        if (selectedIds.size() == 0)
+        {
+            instructionLabel.setText (adjustBandwidthInstructions, juce::NotificationType::dontSendNotification);
+        }
+        else
+        {
+            instructionLabel.setText (groupAdjustBandwidthInstructions, juce::NotificationType::dontSendNotification);
+        }
     }
     
     repaint();
@@ -323,6 +325,16 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
     if (draggingId != -1)
     {
         updateBandFromDrag (event);
+        
+        // Update selected id values
+        for (const auto& band : bandProfile.getBands())
+        {
+            if (selectedIds.find (band.id) != selectedIds.end())
+            {
+                selectedIdToStartingValue[band.id] = band;
+            }
+        }
+        
         draggingId = -1;
     }
     
@@ -332,7 +344,14 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
     // Change the dot size back to normal
     selectedDotSize = DOT_SIZE_DEFAULT;
     
-    instructionLabel.setText(addBandInstructions, juce::NotificationType::dontSendNotification);
+    if (selectedIds.size() == 0)
+    {
+        instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
+    }
+    else
+    {
+        instructionLabel.setText (groupDragInstructions, juce::NotificationType::dontSendNotification);
+    }
     
     repaint();
 }
@@ -1117,14 +1136,21 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
     // If we're dragging multiple, must update multiple
     if (! selectedIds.empty())
     {
+        Band draggedBand = selectedIdToStartingValue[draggingId];
+        auto draggedStartPos = getLocalCoordsForBand (draggedBand);
+        float draggedCurrY = draggedStartPos.y + dragOffsetWhileAdjustingPosition.second;
+        auto [_, currAmpl] = frequencyAndAmplitudeForCoords (0, draggedCurrY);
+        float amplFactor = currAmpl / draggedBand.ampl;
         for (const auto& bandId : selectedIds)
         {
             Band band = selectedIdToStartingValue[bandId];
             auto startPos = getLocalCoordsForBand (band);
             
             float newX = startPos.x + dragOffsetWhileAdjustingPosition.first;
-            float amplFactor = 1.0f + 0.05f * dragOffsetWhileAdjustingPosition.second;
+            float newY = startPos.y + dragOffsetWhileAdjustingPosition.second;
+
             auto [currFreq, _] = frequencyAndAmplitudeForCoords (newX, 0);
+//            float amplScaleFactor = currAmpl / band.ampl;
             float currBandwidth = std::min (band.bandwidth * std::pow (1.05f, dragOffsetWhileAdjustingBandwidth.second), 32.0f);
             
             updateBand (band.id, currFreq, band.ampl * amplFactor, currBandwidth, band.type);

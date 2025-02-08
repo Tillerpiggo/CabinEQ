@@ -41,7 +41,7 @@ void GlyphGridView::resized()
     float padding = 5.0f;
     float width = instructionText.getFont().getStringWidth (instructionText.getText());
     float height = 40.0f;
-    instructionText.setBounds (getWidth() - width - padding, getHeight() - height - padding, width, height);
+    instructionText.setBounds (padding, getHeight() - height - padding, getWidth() - 2 * padding, height);
 }
 
 void GlyphGridView::setListener (GlyphViewListener* listener)

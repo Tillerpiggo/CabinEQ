@@ -76,8 +76,12 @@ private:
     std::string contactShort { "Contact: julian@cabinaudio.com" };
     std::string addBandInstructions { "Click + drag on the center line to add a band" };
     std::string removeBandInstructions { "Right click to remove band" };
-    std::string adjustBandwidthInstructions { "Shift + drag to adjust bandwidth" };
+    std::string groupRemoveBandInstructions { "Right click to remove selected bands" };
+    std::string shiftClickBandInstructions { "Shift click band to add it to group" };
+    std::string adjustBandwidthInstructions { "Shift + drag to change bandwidth" };
+    std::string groupAdjustBandwidthInstructions { "Shift + drag to change bandwidth(s) of group" };
     std::string selectInstructions { "Drag to select multiple bands" };
+    std::string groupDragInstructions { "Drag highlighted band to move or scale group" };
     std::string scrollInstructions { "Scroll vertically to zoom in/out" };
     std::string volumeInstructions { "Drag dot up/down to set volume for this profile" };
     
