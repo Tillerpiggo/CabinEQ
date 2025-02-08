@@ -141,7 +141,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     lastDistanceFromDragStartX = 0;
     
     // If we aren't dragging/hovering, start a drag selection
-    if (hoveringId == -1)
+    if (hoveringId == -1 && ! addingFreq.has_value())
     {
         auto eventPos = event.getPosition().toFloat();
         selectionStart = eventPos;
@@ -153,31 +153,29 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
         return;
     }
     
-    clearSelection();
-//
-//    selectionStart.reset();
-//    selectionEnd.reset();
-//    selectionRect.reset();
+    selectionStart.reset();
+    selectionEnd.reset();
+    selectionRect.reset();
     
     // If we were hovering over a band node, we should now drag it
     draggingId = hoveringId;
     if (draggingId != -1)
     {
         // If we selected multiple bands, lets start dragging them together
-        startDraggingBands.clear();
-        
-        if (selectionStart.has_value() && selectionEnd.has_value() && selectionRect.has_value())
-        {
-            for (const auto& band : bandProfile.getBands())
-            {
-                auto pos = getLocalCoordsForBand (band);
-                if (selectionRect->contains (pos))
-                {
-                    selectedIds.insert (band.id);
-                    selectedIdToStartingValue[band.id] = band;
-                }
-            }
-        }
+//        selectedIdToStartingValue.clear();
+//        
+//        if (selectionStart.has_value() && selectionEnd.has_value() && selectionRect.has_value())
+//        {
+//            for (const auto& band : bandProfile.getBands())
+//            {
+//                auto pos = getLocalCoordsForBand (band);
+//                if (selectionRect->contains (pos))
+//                {
+//                    selectedIds.insert (band.id);
+//                    selectedIdToStartingValue[band.id] = band;
+//                }
+//            }
+//        }
         
 //        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
 //        {
@@ -212,13 +210,13 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
             }
         }
         
-        if (! didSelectSelectedBand)
-        {
-            clearSelection();
-//            selectionStartFreq.reset();
-//            selectionEndFreq.reset();
-//            startDraggingBands.clear();
-        }
+//        if (! didSelectSelectedBand)
+//        {
+////            clearSelection();
+////            selectionStartFreq.reset();
+////            selectionEndFreq.reset();
+////            startDraggingBands.clear();
+//        }
     }
     
     // If we were going to add a band, do so here
@@ -270,11 +268,10 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
         return;
     }
     
-    // If we're dragging a node, update it to our mouse position
+    // We're dragging a node
     if (draggingId != -1)
     {
         updateBandFromDrag (event);
-        
         lastDragPosition = getEventCoords (event);
     }
     
@@ -297,6 +294,7 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
             if (selectionRect->contains (pos))
             {
                 selectedIds.insert (band.id);
+                selectedIdToStartingValue[band.id] = band;
             }
         }
         
@@ -1099,7 +1097,8 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
         dragOffsetWhileAdjustingPosition.second += currPos.second - lastDragPosition.second;
     }
     
-    if (selectionStart.has_value() && selectionEnd.has_value())
+    // If we're dragging multiple, must update multiple
+    if (! selectedIds.empty())
     {
         for (const auto& bandId : selectedIds)
         {
@@ -1108,11 +1107,11 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
             auto startPos = getLocalCoordsForBand (band);
             
             float newX = startPos.x + dragOffsetWhileAdjustingPosition.first;
-            float newY = startPos.y + dragOffsetWhileAdjustingPosition.second;
-            auto [currFreq, _] = frequencyAndAmplitudeForCoords (newX, newY);
+            float amplFactor = 1.0f +  0.05f * dragOffsetWhileAdjustingPosition.second;
+            auto [currFreq, _] = frequencyAndAmplitudeForCoords (newX, 0);
             float currBandwidth = std::min (band.bandwidth * std::pow (1.05f, dragOffsetWhileAdjustingBandwidth.second), 32.0f);
             
-            
+            updateBand (band.id, currFreq, band.ampl * amplFactor, currBandwidth, band.type);
         }
     }
     
