@@ -141,6 +141,16 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
         hoveringId = -1;
     }
     
+    // If clicking something not selected, reset selection
+    if (hoveringId != -1 && selectedIds.find (hoveringId) == selectedIds.end())
+    {
+        selectionStart.reset();
+        selectionEnd.reset();
+        selectionRect.reset();
+        selectedIds.clear();
+        selectedIdToStartingPosition.clear();
+    }
+    
     // Drag whatever we're hovering over
     draggingId = hoveringId;
     if (draggingId == -1)

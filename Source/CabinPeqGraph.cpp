@@ -366,6 +366,23 @@ void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::M
     repaint();
 }
 
+bool CabinPeqGraph::keyPressed (const juce::KeyPress& key)
+{
+    if (key == juce::KeyPress::deleteKey)
+    {
+        // Delete all selected bands
+        for (const auto& id : selectedBandIds)
+        {
+            removeBand (id);
+            clearSelection();
+        }
+        
+        return true;
+    }
+
+    return false;
+}
+
 void CabinPeqGraph::positionChanged (juce::Point<float> pos)
 {
     auto [freq1, freq2] = dimensionalSliderPosToFreqs (pos);
@@ -1103,11 +1120,10 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
         for (const auto& bandId : selectedIds)
         {
             Band band = selectedIdToStartingValue[bandId];
-//            Band band = bandProfile.getBands()[0];
             auto startPos = getLocalCoordsForBand (band);
             
             float newX = startPos.x + dragOffsetWhileAdjustingPosition.first;
-            float amplFactor = 1.0f +  0.05f * dragOffsetWhileAdjustingPosition.second;
+            float amplFactor = 1.0f + 0.05f * dragOffsetWhileAdjustingPosition.second;
             auto [currFreq, _] = frequencyAndAmplitudeForCoords (newX, 0);
             float currBandwidth = std::min (band.bandwidth * std::pow (1.05f, dragOffsetWhileAdjustingBandwidth.second), 32.0f);
             

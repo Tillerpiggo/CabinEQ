@@ -45,6 +45,8 @@ public:
     
     void positionChanged (juce::Point<float> pos) override;
     
+    bool keyPressed(const juce::KeyPress& key) override;
+    
     void timerCallback() override;
     
     void setListener (CabinPeqGraphListener* listener);
