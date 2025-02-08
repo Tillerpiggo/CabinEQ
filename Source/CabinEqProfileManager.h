@@ -37,7 +37,7 @@ public:
     
     void setLastSelectedProfileName (juce::String lastSelectedProfileName);
     void setMasterVolume (float masterVolume);
-    bool setHasLicense (bool hasLicense);
+    void setHasLicense (bool hasLicense);
     
 private:
     juce::AudioProcessorValueTreeState& apvts;

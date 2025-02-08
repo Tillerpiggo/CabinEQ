@@ -78,6 +78,7 @@ private:
     std::string removeBandInstructions { "Right click to remove band" };
     std::string groupRemoveBandInstructions { "Right click to remove selected bands" };
     std::string shiftClickBandInstructions { "Shift click band to add it to group" };
+    std::string shiftClickRemoveBandInstructions { "Shift click band to remove it from group" };
     std::string adjustBandwidthInstructions { "Shift + drag to change bandwidth" };
     std::string groupAdjustBandwidthInstructions { "Shift + drag to change bandwidth(s) of group" };
     std::string selectInstructions { "Drag to select multiple bands" };

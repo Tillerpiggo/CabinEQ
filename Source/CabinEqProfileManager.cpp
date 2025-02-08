@@ -132,7 +132,7 @@ void CabinEqProfileManager::setMasterVolume (float masterVolume)
     apvts.state.setProperty (masterVolumeId, masterVolume, nullptr);
 }
 
-bool CabinEqProfileManager::setHasLicense (bool hasLicense)
+void CabinEqProfileManager::setHasLicense (bool hasLicense)
 {
     apvts.state.setProperty (hasLicenseId, hasLicense, nullptr);
 }
