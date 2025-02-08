@@ -129,7 +129,7 @@ void CalibrationView::resized()
     settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
 //    settingsLayout.addRow ({ Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
-    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
+//    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
     settingsLayout.addRow ({ Space (&playButton) });
     settingsLayout.updateComponentBounds();
 }
