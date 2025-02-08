@@ -152,7 +152,7 @@ void AnimatedGlyph::drawPlayingDot (juce::Graphics& g)
     if (! glyph.has_value() || dataSource == nullptr)
         return;
     
-    auto [point, _] = glyph->positionAtTime (dataSource->getCurrTime());
+    auto point = glyph->positionAtTime (dataSource->getCurrTime());
     point = getPointInBounds (point);
     
     float dotRadius = strokeWidth * 2.0f * strokeWidthFactor;

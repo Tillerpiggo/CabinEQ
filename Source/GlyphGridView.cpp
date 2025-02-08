@@ -391,8 +391,8 @@ void GlyphGridView::drawPlayingDots (juce::Graphics& g)
     
     for (const auto& glyph : glyphs)
     {
-        auto [point, _] = glyph.positionAtTime (dataSource->getCurrPlayingTime());
-        auto pos = getLocalPointFromNormalizedPoint (point.point(), glyph.getCenterPos(), glyph.getSizeFactor());
+        auto point = glyph.positionAtTime (dataSource->getCurrPlayingTime()).point();
+        auto pos = getLocalPointFromNormalizedPoint (point, glyph.getCenterPos(), glyph.getSizeFactor());
         
         drawDot (g, pos, DOT_RADIUS_PLAYING * bandwidth, PLAYING_DOT_COLOUR);
     }

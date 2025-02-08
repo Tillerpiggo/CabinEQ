@@ -18,7 +18,7 @@ class ArchetypalGlyph
 {
 public:
     ArchetypalGlyph (int id, std::vector<Stroke> initialStrokes = {});
-    std::pair<NoisePoint, float> positionAtTime (float time) const; // time from [0, 1). Returns (pos, %) pair
+    NoisePoint positionAtTime (float time) const; // time from [0, 1). Returns (pos, %) pair
     const std::vector<Stroke>& getStrokes() const;
     const std::vector<NoisePoint> getVertices() const;
     const int getId() const;
@@ -35,7 +35,7 @@ public:
     Glyph (int id, ArchetypalGlyph archetype);
     Glyph (int id, ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor);
     
-    std::pair<NoisePoint, float> positionAtTime (float time) const;
+    NoisePoint positionAtTime (float time) const;
     const std::vector<Stroke>& getStrokes() const;
     const std::vector<NoisePoint> getVertices() const;
     ArchetypalGlyph getArchetype() const; // returns an archetype of this glyph

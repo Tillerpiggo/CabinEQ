@@ -37,6 +37,13 @@ NoisePoint Stroke::positionAtTime (float time) const
     float posY = belowPt.y * belowPercent + abovePt.y * abovePercent;
     float posV = belowPt.vol * belowPercent + abovePt.vol * abovePercent;
     
+    // Ramp volume at ends of stroke to remove pops
+    float rampLength = 0.01f;
+    if (time < 0.01f)
+        posV *= (0.01 - time) * 100.0f;
+    if (time > 0.99f)
+        posV *= (time - 0.99f) * 100.0f;
+    
     // Linearly interpolate the point
     return { posX, posY, posV };
 }

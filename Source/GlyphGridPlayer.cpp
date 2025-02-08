@@ -204,7 +204,7 @@ void GlyphGridPlayer::setERBScaling (bool erbScalingEnbaled)
 std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
 {
     // Calculate coords
-    auto normalizedCoords = glyph.positionAtTime (time).first;
+    auto normalizedCoords = glyph.positionAtTime (time);
     auto [horizontalSizeFactor, verticalSizeFactor] = glyph.getSizeFactor();
     float x = normalizedCoords.x * horizontalSizeFactor + glyph.getCenterPos().x;
     float y = normalizedCoords.y * verticalSizeFactor + glyph.getCenterPos().y;

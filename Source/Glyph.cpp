@@ -15,19 +15,19 @@ ArchetypalGlyph::ArchetypalGlyph (int id, std::vector<Stroke> initialStrokes)
 {
 }
 
-std::pair<NoisePoint, float> ArchetypalGlyph::positionAtTime (float time) const
+NoisePoint ArchetypalGlyph::positionAtTime (float time) const
 {
     if (time < 0 || time >= 1)
     {
         std::cerr << "Called positionAtTime in Glyph with invalid time outside of [0, 1). (time=" << time << ")" << std::endl;
-        return {{ 0.0f, 0.0f }, 0.0f };
+        return { 0.0f, 0.0f };
     }
     
     // Figure out which stroke we're on
     float strokeTime = time * static_cast<float> (strokes.size());
     int strokeIdx = floor (strokeTime);
     float strokeProgress = strokeTime - static_cast<float> (strokeIdx);
-    return { strokes[strokeIdx].positionAtTime (strokeProgress), strokeProgress };
+    return strokes[strokeIdx].positionAtTime (strokeProgress);
 }
 
 const std::vector<Stroke>& ArchetypalGlyph::getStrokes() const
@@ -83,7 +83,7 @@ Glyph::Glyph (int id, ArchetypalGlyph archetype, juce::Point<float> centerPos, f
     moveGlyphWithinBounds();
 }
 
-std::pair<NoisePoint, float> Glyph::positionAtTime (float time) const
+NoisePoint Glyph::positionAtTime (float time) const
 {
     return archetype.positionAtTime (time);
 }

@@ -28,10 +28,9 @@ std::pair<float, float> GlyphGenerator::getNextSample()
     
     if (updateBandpassCounter > 1000)
     {
-        auto [pos, progress] = glyph->positionAtTime (currTime);
-        auto [xPos, yPos, _] = pos;
-        noiseGenerator.setBandpass (freqFromYPos (yPos));
-        noiseGenerator.setPan (panFromXPos (xPos));
+        auto pos = glyph->positionAtTime (currTime);
+        noiseGenerator.setBandpass (freqFromYPos (pos.y));
+        noiseGenerator.setPan (panFromXPos (pos.x));
         updateBandpassCounter = 0;
     }
     updateBandpassCounter++;
