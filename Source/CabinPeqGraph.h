@@ -57,6 +57,7 @@ public:
     
 private:
     void updateContactLabelText(); // updates the contact label text depending on the size of the window
+    void clearSelection(); // clears the current selection and all related variables
     
     CabinPeqGraphListener* listener;
     CabinPeqGraphDataSource* dataSource;
@@ -74,6 +75,7 @@ private:
     std::string addBandInstructions { "Click + drag on the center line to add a band" };
     std::string removeBandInstructions { "Right click to remove band" };
     std::string adjustBandwidthInstructions { "Shift + drag to adjust bandwidth" };
+    std::string selectInstructions { "Drag to select multiple bands" };
     std::string scrollInstructions { "Scroll vertically to zoom in/out" };
     std::string volumeInstructions { "Drag dot up/down to set volume for this profile" };
     
@@ -86,6 +88,7 @@ private:
     void drawBands (juce::Graphics& g);
     void drawCurve (juce::Graphics& g);
     void drawDots (juce::Graphics& g);
+    void drawSelection (juce::Graphics& g);
     
     void drawBand (juce::Graphics& g, const Band& band, juce::Colour colour);
     
@@ -99,6 +102,7 @@ private:
     
     // Coordinates
     std::pair<float, float> getEventCoords (const juce::MouseEvent& event) const;
+    juce::Point<float> getLocalCoordsForBand (const Band band);
     juce::Point<float> coordsForFrequencyAndAmplitude (float freq, float ampl);
     float xForFreq (float freq);
     float yForAmpl (float ampl);
@@ -124,8 +128,8 @@ private:
     void setVolume (float volume);
     
     // Interaction variables
-    std::optional<float> selectionStartFreq;
-    std::optional<float> selectionEndFreq;
+//    std::optional<float> selectionStartFreq;
+//    std::optional<float> selectionEndFreq;
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
     std::optional<float> addingFreq; // the frequency you are hovering over, if you're going to add a point. std::nullopt if you're not hovering in a place where you can add a node
@@ -134,8 +138,14 @@ private:
     float selectedDotSize = DOT_SIZE_DEFAULT;
     
     // Selection
+    std::optional<juce::Point<float>> selectionStart;
+    std::optional<juce::Point<float>> selectionEnd;
+    std::optional<juce::Rectangle<float>> selectionRect;
+    std::unordered_set<int> selectedIds;
     
-    
+    // Selection drag
+    juce::Point<float> selectionStartPos; // the initial position you select for dragging
+    std::unordered_map<int, Band> selectedIdToStartingValue; // the starting value for each selected band
     
     
     // Dragging/zooming constants
@@ -181,6 +191,10 @@ private:
     juce::Colour centerLineColour = juce::Colours::darkgrey.withMultipliedLightness (0.5f);
     juce::Colour lineColour = juce::Colours::darkgrey.withMultipliedLightness (0.5f);//.withAlpha (0.3f);
     juce::PathStrokeType lineStrokeType { CURVE_THICKNESS / 2.0f};
+    
+    juce::Colour SELECTION_COLOUR = juce::Colours::white.withAlpha (0.3f);
+    juce::Colour SELECTION_BORDER_COLOUR = juce::Colours::white;
+    juce::Colour SELECTED_BAND_COLOUR = juce::Colours::white.withAlpha (0.8f);
     
     juce::Path centerPath;
     std::vector<juce::Path> horizontalLinePaths;
