@@ -10,104 +10,6 @@
 
 #include "Glyph.h"
 
-NoiseSource::NoiseSource (float x, float y, float startTime, float endTime, float rampLength)
-    : x (x), y (y), startTime (startTime), endTime (endTime), rampLength (rampLength)
-{
-    rampLengthInTime = (endTime - startTime) * rampLength;
-}
-
-NoisePoint NoiseSource::noisePointAtTime (float time)
-{
-    return NoisePoint (x, y, volumeAtTime (time));
-}
-
-float NoiseSource::volumeAtTime (float time)
-{
-    if (time < startTime || time > endTime)
-        return 0.0f;
-    
-    if (time > startTime + rampLengthInTime || time < endTime - rampLengthInTime)
-        return 1.0f;
-    
-    float MIN_DB = -120.0f; // supposed to be about silent
-    
-    // Start ramp
-    if (time < startTime + rampLengthInTime)
-    {
-        float rampPercent = (time - startTime) / rampLengthInTime;
-        float volDB = MIN_DB * (1.0f - rampPercent);
-        float gain = juce::Decibels::decibelsToGain (volDB);
-        return gain;
-    }
-    
-    // End ramp
-    else
-    {
-        float rampPercent = (endTime - time) / rampLengthInTime;
-        float volDB = MIN_DB * (1.0f - rampPercent);
-        float gain = juce::Decibels::decibelsToGain (volDB);
-        return gain;
-    }
-}
-
-ArchetypalGlyph::ArchetypalGlyph (int id, std::vector<Stroke> initialStrokes)
-    : id (id), strokes (initialStrokes)
-{
-}
-
-NoisePoint ArchetypalGlyph::positionAtTime (float time) const
-{
-    if (time < 0 || time >= 1)
-    {
-        std::cerr << "Called positionAtTime in Glyph with invalid time outside of [0, 1). (time=" << time << ")" << std::endl;
-        return { 0.0f, 0.0f };
-    }
-    
-    // Figure out which stroke we're on
-    float strokeTime = time * static_cast<float> (strokes.size());
-    int strokeIdx = floor (strokeTime);
-    float strokeProgress = strokeTime - static_cast<float> (strokeIdx);
-    return strokes[strokeIdx].positionAtTime (strokeProgress);
-}
-
-const std::vector<Stroke>& ArchetypalGlyph::getStrokes() const
-{
-    return strokes;
-}
-
-const std::vector<NoisePoint> ArchetypalGlyph::getVertices() const
-{
-    // this will overlap the end points... whatever for now
-    std::vector<NoisePoint> vertices;
-    for (const auto& stroke : strokes)
-    {
-        for (const auto& point : stroke.getPoints())
-        {
-            vertices.push_back (point);
-        }
-    }
-    return vertices;
-}
-
-const int ArchetypalGlyph::getId() const
-{
-    return id;
-}
-
-void ArchetypalGlyph::setCascadeSettings (bool isCascading, int density, float strokeOverlap, float dotOverlap)
-{
-    this->isCascading = isCascading;
-    this->density = density;
-    this->strokeOverlap = strokeOverlap;
-    this->dotOverlap = dotOverlap;
-    updateNoiseSources();
-}
-
-void ArchetypalGlyph::updateNoiseSources()
-{
-    
-}
-
 Glyph::Glyph (int id, ArchetypalGlyph archetype)
     : id (id), archetype (archetype)
 {
@@ -220,22 +122,27 @@ void Glyph::moveBy (std::pair<float, float> amountToMove)
 
 void Glyph::setIsCascading (bool isCascading)
 {
-    
+    archetype.setCascadeSettings (isCascading, archetype.getDensity(), archetype.getStrokeOverlap(), archetype.getDotOverlap(), archetype.getRampLength());
 }
 
 void Glyph::setDensity (int density)
 {
-    
+    archetype.setCascadeSettings (archetype.getIsCascading(), density, archetype.getStrokeOverlap(), archetype.getDotOverlap(), archetype.getRampLength());
 }
 
 void Glyph::setStrokeOverlap (float strokeOverlap)
 {
-    
+    archetype.setCascadeSettings (archetype.getIsCascading(), archetype.getDensity(), strokeOverlap, archetype.getDotOverlap(), archetype.getRampLength());
 }
 
 void Glyph::setDotOverlap (float dotOverlap)
 {
-    
+    archetype.setCascadeSettings (archetype.getIsCascading(), archetype.getDensity(), archetype.getStrokeOverlap(), dotOverlap, archetype.getRampLength());
+}
+
+void Glyph::setRampLength (float rampLength)
+{
+    archetype.setCascadeSettings (archetype.getIsCascading(), archetype.getDensity(), archetype.getStrokeOverlap(), archetype.getDotOverlap(), rampLength);
 }
 
 bool Glyph::isInBounds (juce::Point<float> centerPos) const

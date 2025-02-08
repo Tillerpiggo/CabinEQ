@@ -38,7 +38,11 @@ public:
     NoisePoint positionAtTime (float time) const; // time from [0, 1]
     const std::vector<NoisePoint>& getPoints() const;
     std::pair<NoisePoint, NoisePoint> getEndPoints() const; // returns the start and end points
+    float getLength() const;
     
 private:
+    void updateLength(); // computes length from the given points
+    
     std::vector<NoisePoint> points; // for now, assume it moves between all points evenly and continuously over time
+    float length; // total length between all points
 };

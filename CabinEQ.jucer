@@ -37,6 +37,12 @@
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
         <FILE id="zz9fEW" name="Glyph.cpp" compile="1" resource="0" file="Source/Glyph.cpp"/>
         <FILE id="ucSEwm" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
+        <FILE id="ztfxJQ" name="ArchetypalGlyph.cpp" compile="1" resource="0"
+              file="Source/ArchetypalGlyph.cpp"/>
+        <FILE id="dZmom2" name="ArchetypalGlyph.h" compile="0" resource="0"
+              file="Source/ArchetypalGlyph.h"/>
+        <FILE id="qjtM6M" name="NoiseSource.cpp" compile="1" resource="0" file="Source/NoiseSource.cpp"/>
+        <FILE id="xPX2iH" name="NoiseSource.h" compile="0" resource="0" file="Source/NoiseSource.h"/>
         <FILE id="Nv37CZ" name="Stroke.cpp" compile="1" resource="0" file="Source/Stroke.cpp"/>
         <FILE id="EaX6Yr" name="Stroke.h" compile="0" resource="0" file="Source/Stroke.h"/>
         <FILE id="VL1zLi" name="BandProfile.cpp" compile="1" resource="0" file="Source/BandProfile.cpp"/>

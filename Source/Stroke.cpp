@@ -13,6 +13,7 @@
 Stroke::Stroke (std::vector<NoisePoint> points)
     : points (points)
 {
+    updateLength();
 }
 
 NoisePoint Stroke::positionAtTime (float time) const
@@ -39,10 +40,10 @@ NoisePoint Stroke::positionAtTime (float time) const
     
     // Ramp volume at ends of stroke to remove pops
     float rampLength = 0.01f;
-    if (time < 0.01f)
-        posV *= (0.01 - time) * 100.0f;
-    if (time > 0.99f)
-        posV *= (time - 0.99f) * 100.0f;
+    if (time < rampLength)
+        posV *= (rampLength - time) * 100.0f;
+    if (time > 1.0f - rampLength)
+        posV *= (time - (1.0f - rampLength)) * 100.0f;
     
     // Linearly interpolate the point
     return { posX, posY, posV };
@@ -56,4 +57,22 @@ const std::vector<NoisePoint>& Stroke::getPoints() const
 std::pair<NoisePoint, NoisePoint> Stroke::getEndPoints() const
 {
     return { points[0], points[points.size() - 1] };
+}
+
+float Stroke::getLength() const
+{
+    return length;
+}
+
+void Stroke::updateLength()
+{
+    float totalLength = 0.0f;
+    for (int i = 0; i < points.size() - 1; ++i)
+    {
+        // Get the length of each segment
+        auto startPoint = points[i].point();
+        auto endPoint = points[i + 1].point();
+        totalLength += startPoint.getDistanceFrom (endPoint);
+    }
+    length = totalLength;
 }
