@@ -10,6 +10,46 @@
 
 #include "Glyph.h"
 
+NoiseSource::NoiseSource (float x, float y, float startTime, float endTime, float rampLength)
+    : x (x), y (y), startTime (startTime), endTime (endTime), rampLength (rampLength)
+{
+    rampLengthInTime = (endTime - startTime) * rampLength;
+}
+
+NoisePoint NoiseSource::noisePointAtTime (float time)
+{
+    return NoisePoint (x, y, volumeAtTime (time));
+}
+
+float NoiseSource::volumeAtTime (float time)
+{
+    if (time < startTime || time > endTime)
+        return 0.0f;
+    
+    if (time > startTime + rampLengthInTime || time < endTime - rampLengthInTime)
+        return 1.0f;
+    
+    float MIN_DB = -120.0f; // supposed to be about silent
+    
+    // Start ramp
+    if (time < startTime + rampLengthInTime)
+    {
+        float rampPercent = (time - startTime) / rampLengthInTime;
+        float volDB = MIN_DB * (1.0f - rampPercent);
+        float gain = juce::Decibels::decibelsToGain (volDB);
+        return gain;
+    }
+    
+    // End ramp
+    else
+    {
+        float rampPercent = (endTime - time) / rampLengthInTime;
+        float volDB = MIN_DB * (1.0f - rampPercent);
+        float gain = juce::Decibels::decibelsToGain (volDB);
+        return gain;
+    }
+}
+
 ArchetypalGlyph::ArchetypalGlyph (int id, std::vector<Stroke> initialStrokes)
     : id (id), strokes (initialStrokes)
 {
@@ -52,6 +92,20 @@ const std::vector<NoisePoint> ArchetypalGlyph::getVertices() const
 const int ArchetypalGlyph::getId() const
 {
     return id;
+}
+
+void ArchetypalGlyph::setCascadeSettings (bool isCascading, int density, float strokeOverlap, float dotOverlap)
+{
+    this->isCascading = isCascading;
+    this->density = density;
+    this->strokeOverlap = strokeOverlap;
+    this->dotOverlap = dotOverlap;
+    updateNoiseSources();
+}
+
+void ArchetypalGlyph::updateNoiseSources()
+{
+    
 }
 
 Glyph::Glyph (int id, ArchetypalGlyph archetype)
@@ -162,6 +216,26 @@ void Glyph::setCenterPos (juce::Point<float> centerPos)
 void Glyph::moveBy (std::pair<float, float> amountToMove)
 {
     setCenterPos ({ centerPos.x + amountToMove.first, centerPos.y + amountToMove.second });
+}
+
+void Glyph::setIsCascading (bool isCascading)
+{
+    
+}
+
+void Glyph::setDensity (int density)
+{
+    
+}
+
+void Glyph::setStrokeOverlap (float strokeOverlap)
+{
+    
+}
+
+void Glyph::setDotOverlap (float dotOverlap)
+{
+    
 }
 
 bool Glyph::isInBounds (juce::Point<float> centerPos) const

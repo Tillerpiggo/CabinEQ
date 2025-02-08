@@ -12,20 +12,52 @@
 
 #include <JuceHeader.h>
 #include "Stroke.h"
+#include "GainEnvelope.h"
+
+class NoiseSource
+{
+public:
+    NoiseSource (float x, float y, float startTime, float endTime, float rampLength);
+    
+    NoisePoint noisePointAtTime (float time);
+    float volumeAtTime (float time); // time in [0, 1)
+    
+private:
+    float x;
+    float y;
+    float startTime;
+    float endTime;
+    float rampLength;
+    float rampLengthInTime;
+};
 
 // This represents a Glyph archetype that can be copied, which is simply a sequence of strokes. It can tell you the needed position at a given time
 class ArchetypalGlyph
 {
 public:
     ArchetypalGlyph (int id, std::vector<Stroke> initialStrokes = {});
-    NoisePoint positionAtTime (float time) const; // time from [0, 1). Returns (pos, %) pair
+    NoisePoint positionAtTime (float time) const; // time from [0, 1)
+    std::vector<NoisePoint> cascadingPositionsAtTime (float time) const; // time from [0, 1), gives list of multiple positions
+    
     const std::vector<Stroke>& getStrokes() const;
     const std::vector<NoisePoint> getVertices() const;
     const int getId() const;
     
+    void setCascadeSettings (bool isCascading, int density, float strokeOverlap, float dotOverlap);
+    
 private:
+    void updateNoiseSources();
+    
     int id;
     std::vector<Stroke> strokes;
+    
+    GainEnvelope gainEnvelope;
+    
+    bool isCascading = true;
+    int density = 3; // # noise sources in longest stroke
+    float strokeOverlap = 0.3; // % overlap between strokes
+    float dotOverlap = 0.3; // % overlap between dots within stroke
+    float rampLength = 0.2; // % length of ramp compared to overall length
 };
 
 // This represents an actual Glyph that has a position, size, and potentially more state
@@ -50,7 +82,10 @@ public:
     void incrementSizeFactor (float horizontalIncrement, float verticalIncrement); // increments size factor, with bounds, and then updates surroundings.
     void setCenterPos (juce::Point<float> centerPos);
     void moveBy (std::pair<float, float> amountToMove); // moves by [moveX, moveY]
-    void setStaticPos (juce::Point<float> staticPos);
+    void setIsCascading (bool isCascading);
+    void setDensity (int density);
+    void setStrokeOverlap (float strokeOverlap);
+    void setDotOverlap (float dotOverlap);
     
     bool isInBounds (juce::Point<float> centerPos) const; // returns if this glyph would still be in bounds if it had the given center position
     void moveGlyphWithinBounds(); // changes centerPos so that glyph is still in bounds
