@@ -66,12 +66,20 @@ void GlyphGridView::mouseMove (const juce::MouseEvent &event)
     
     if (hoveringId != -1)
     {
-        instructionText.setText (scrollInstructions, juce::NotificationType::dontSendNotification);
+        if (selectedIds.size() == 0)
+            instructionText.setText (scrollInstructions, juce::NotificationType::dontSendNotification);
+        else
+            instructionText.setText (groupScrollInstructions, juce::NotificationType::dontSendNotification);
         resized();
     }
     else if (glyphs.size() == 0)
     {
         instructionText.setText (dragInstructions, juce::NotificationType::dontSendNotification);
+        resized();
+    }
+    else if (selectedIds.size() > 0)
+    {
+        instructionText.setText (groupDragInstructions, juce::NotificationType::dontSendNotification);
         resized();
     }
     else
@@ -161,8 +169,13 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
     {
         removeGlyph (hoveringId);
         if (selectedIds.find (hoveringId) != selectedIds.end())
+        {
             for (const auto& selectedId : selectedIds)
+            {
                 removeGlyph (selectedId);
+                selectedIds.erase (selectedId);
+            }
+        }
         hoveringId = -1;
     }
     

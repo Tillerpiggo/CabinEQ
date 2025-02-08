@@ -114,5 +114,7 @@ private:
     std::string playInstructions { "Press play to play noise" };
     std::string pauseInstructions { "Press pause to stop noise" };
     std::string selectInstructions { "Drag to select multiple symbols" };
-    std::string scrollInstructions { "Scroll to resize symbol" };
+    std::string groupDragInstructions { "Drag highlighted symbol to move selected symbols as a group" };
+    std::string groupScrollInstructions { "Scroll anywhere to resize symbols as a group, right click symbol to delete group" };
+    std::string scrollInstructions { "Scroll to resize symbol, right click to delete symbol" };
 };
