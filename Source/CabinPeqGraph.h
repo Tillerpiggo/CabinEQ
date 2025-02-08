@@ -67,7 +67,7 @@ private:
     bool provisionalBandsVisible = false;
     
     juce::Label instructionLabel;
-    juce::Label contactLabel;
+//    juce::Label contactLabel;
     std::string contactLong { "Contact us if anything breaks! julian@cabinaudio.com | tyler@cabinaudio.com" };
     std::string contactMid { "Contact us if anything breaks! julian@cabinaudio.com" };
     std::string contactShort { "Contact: julian@cabinaudio.com" };

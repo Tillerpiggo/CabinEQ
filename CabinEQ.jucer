@@ -94,6 +94,10 @@
               file="Source/FreeTrialLockScreen.cpp"/>
         <FILE id="aktXXy" name="FreeTrialLockScreen.h" compile="0" resource="0"
               file="Source/FreeTrialLockScreen.h"/>
+        <FILE id="y3z4F0" name="ContactUsBanner.cpp" compile="1" resource="0"
+              file="Source/ContactUsBanner.cpp"/>
+        <FILE id="dngMSN" name="ContactUsBanner.h" compile="0" resource="0"
+              file="Source/ContactUsBanner.h"/>
         <FILE id="IW8ccL" name="CabinEqMarketplaceStatus.h" compile="0" resource="0"
               file="Source/CabinEqMarketplaceStatus.h"/>
         <FILE id="rtRuIB" name="CabinEqUnlockForm.h" compile="0" resource="0"

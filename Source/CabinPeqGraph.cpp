@@ -16,17 +16,17 @@ CabinPeqGraph::CabinPeqGraph()
     
 //    addAndMakeVisible (leftRightButton);
     addAndMakeVisible (instructionLabel);
-    addAndMakeVisible (contactLabel);
+//    addAndMakeVisible (contactLabel);
     addAndMakeVisible (dimensionalSlider);
     dimensionalSlider.setListener (this);
     
     instructionLabel.setJustificationType (juce::Justification::bottomRight);
     instructionLabel.setInterceptsMouseClicks (false, true);
-    contactLabel.setJustificationType (juce::Justification::bottomLeft);
-    contactLabel.setInterceptsMouseClicks (false, true);
-    contactLabel.setText (contactLong, juce::NotificationType::dontSendNotification);
+//    contactLabel.setJustificationType (juce::Justification::bottomLeft);
+//    contactLabel.setInterceptsMouseClicks (false, true);
+//    contactLabel.setText (contactLong, juce::NotificationType::dontSendNotification);
     updateContactLabelText();
-    contactLabel.setVisible (true);
+//    contactLabel.setVisible (true);
     
 //    addButton (&leftRightButton);
 //    addButtonAction (&leftRightButton, [this](juce::Button*) {
@@ -82,11 +82,11 @@ void CabinPeqGraph::resized()
 //    dimensionalSlider.setBounds (getBounds().getWidth() - 100.0f, getBounds().getHeight() - 100.0f, 100.0f, 100.0f);
     
     // Add instruction label in bottom right corner
-    updateContactLabelText();
+//    updateContactLabelText();
     float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());
-    float contactWidth = contactLabel.getFont().getStringWidth (contactLabel.getText());
+//    float contactWidth = contactLabel.getFont().getStringWidth (contactLabel.getText());
     instructionLabel.setBounds (getBounds().getWidth() - instructionWidth, getBounds().getHeight() - 50.0f, instructionWidth, 40.0f);
-    contactLabel.setBounds (0, getBounds().getHeight() - 50.0f, contactWidth, 40.0f);
+//    contactLabel.setBounds (0, getBounds().getHeight() - 50.0f, contactWidth, 40.0f);
     
     // Recalculate needed vars
     
@@ -1081,6 +1081,8 @@ void CabinPeqGraph::setVolume (float volume)
 
 void CabinPeqGraph::updateContactLabelText()
 {
+    /*
+    
     float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());
     float contactWidthLong = contactLabel.getFont().getStringWidth (contactLong);
     float contactWidthMid = contactLabel.getFont().getStringWidth (contactMid);
@@ -1106,4 +1108,6 @@ void CabinPeqGraph::updateContactLabelText()
     {
         contactLabel.setVisible (false);
     }
+    
+    */
 }
