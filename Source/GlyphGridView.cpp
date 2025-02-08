@@ -258,6 +258,7 @@ void GlyphGridView::mouseWheelMove (const juce::MouseEvent &event, const juce::M
     if (selectedIds.size() > 0)
     {
         scaleSelectedGlyphs (wheel.deltaY);
+        return;
     }
     
     if (hoveringId == -1)
