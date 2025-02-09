@@ -44,6 +44,12 @@ public:
     void setERBScaling (bool erbScalingEnabled);
     void setPinkNoise (bool pinkNoiseEnabled);
     
+    void setIsCascading (bool isCascading);
+    void setDensity (int density);
+    void setStrokeOverlap (float strokeOverlap);
+    void setDotOverlap (float dotOverlap);
+    void setRampLength (float rampLength);
+    
     void updateFIRFilter();
     void setIIR (bool isIIR);
     void setFIRQuality (int fftSize); // sets fftSize. DOESN'T UPDATE FIR FILTER AUTOMATICALLY!

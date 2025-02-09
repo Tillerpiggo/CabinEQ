@@ -33,6 +33,12 @@ public:
     void setBarkScaling (bool barkScalingEnabled);
     void setERBScaling (bool erbScalingEnabled);
     
+    void setIsCascading (bool isCascading);
+    void setDensity (int density);
+    void setStrokeOverlap (float strokeOverlap);
+    void setDotOverlap (float dotOverlap);
+    void setRampLength (float rampLength);
+    
     float getCurrPlayingTime();
     
     std::vector<float> getCurrPlayingFreqs();

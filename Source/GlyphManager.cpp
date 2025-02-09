@@ -20,18 +20,22 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, -1, 1 }, { 1, 1, 1 },  { -1, -1, 1 }})
     });
     ArchetypalGlyph horizontalGlyph (1, {
-        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
+        Stroke ({{ -1, 0 }, { 1, 0 }})
     });
+    
     ArchetypalGlyph verticalGlyph (2, {
-        Stroke ({{ 0, -1 }, { 0, 0 }}),
-        Stroke ({{ 0, 0 }, { 0, 0 }}),
-        Stroke ({{ 0, 0 }, { 0, 1 }}),
-        Stroke ({{ 0, 1 }, { 0, 1 }}),
-        Stroke ({{ 0, 1 }, { 0, 0 }}),
-        Stroke ({{ 0, 0 }, { 0, 0 }}),
-        Stroke ({{ 0, 0 }, { 0, -1 }}),
-        Stroke ({{ 0, -1 }, { 0, -1 }})
+        Stroke ({{ 0, -1 }, { 0, 1 }})
     });
+//    ArchetypalGlyph verticalGlyph (2, {
+//        Stroke ({{ 0, -1 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0 }, { 0, 1 }}),
+//        Stroke ({{ 0, 1 }, { 0, 1 }}),
+//        Stroke ({{ 0, 1 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0 }, { 0, -1 }}),
+//        Stroke ({{ 0, -1 }, { 0, -1 }})
+//    });
     
     ArchetypalGlyph verticalGlyph2 (10, {
         Stroke ({{ 0, -1 }, { 0, -0.33 }}), Stroke ({{ 0, -0.33 }, { 0, -0.33 }}),
@@ -92,6 +96,16 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, -1 }, { 1, 1 }})
     });
     
+    ArchetypalGlyph diagonalGlyph2 (4, {
+        Stroke ({{ 1, -1 }, { -1, 1 }})
+    });
+    
+    ArchetypalGlyph threeRows (8, {
+        Stroke ({{ -1, 1 }, { 1, 1 }}),
+        Stroke ({{ -1, 0 }, { 1, 0 }}),
+        Stroke ({{ -1, -1 }, { 1, -1 }})
+    });
+    
     ArchetypalGlyph rows (4, {
         Stroke ({{ -1, 1 }, { 1, 1 }}),
         Stroke ({{ -1, 0.5 }, { 1, 0.5 }}),
@@ -108,10 +122,10 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 1, 1 }, { 1, -1 }})
     });
     
-    ArchetypalGlyph diagonalGlyph2 (4, {
-        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
-//        Stroke ({{ 1, -1, 0.5 }, { -1, 1, 0.5 }, { 1, -1, 0.5 }})
-    });
+//    ArchetypalGlyph diagonalGlyph2 (4, {
+//        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
+////        Stroke ({{ 1, -1, 0.5 }, { -1, 1, 0.5 }, { 1, -1, 0.5 }})
+//    });
     
     ArchetypalGlyph steepDiagonalGlpyh (5, {
         Stroke ({{ -0.5, -1 }, { 0.5, 1 }, { -0.5, -1 }})
@@ -287,12 +301,12 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
-    archetypalGlyphs.push_back (verticalGlyph2);
     archetypalGlyphs.push_back (diagonalGlyph);
+    archetypalGlyphs.push_back (diagonalGlyph2);
     archetypalGlyphs.push_back (rows);
+    archetypalGlyphs.push_back (threeRows);
     archetypalGlyphs.push_back (cols);
-    archetypalGlyphs.push_back (longerDiagonal);
-    archetypalGlyphs.push_back (panningGlyph3);
+    archetypalGlyphs.push_back (starGlyph);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)
@@ -434,6 +448,36 @@ void GlyphManager::addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs)
 void GlyphManager::addArchetypalGlyph (ArchetypalGlyph glyph)
 {
     archetypalGlyphs.push_back (glyph);
+}
+
+void GlyphManager::setIsCascading (bool isCascading)
+{
+    for (auto& glyph : glyphs)
+        glyph.setIsCascading (isCascading);
+}
+
+void GlyphManager::setDensity (int density)
+{
+    for (auto& glyph : glyphs)
+        glyph.setDensity (density);
+}
+
+void GlyphManager::setStrokeOverlap (float strokeOverlap)
+{
+    for (auto& glyph : glyphs)
+        glyph.setStrokeOverlap (strokeOverlap);
+}
+
+void GlyphManager::setDotOverlap (float dotOverlap)
+{
+    for (auto& glyph : glyphs)
+        glyph.setDotOverlap (dotOverlap);
+}
+
+void GlyphManager::setRampLength (float rampLength)
+{
+    for (auto& glyph : glyphs)
+        glyph.setRampLength (rampLength);
 }
 
 const std::vector<Glyph>& GlyphManager::getGlyphs()

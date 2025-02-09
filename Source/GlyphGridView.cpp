@@ -173,8 +173,9 @@ void GlyphGridView::mouseDown (const juce::MouseEvent &event)
             for (const auto& selectedId : selectedIds)
             {
                 removeGlyph (selectedId);
-                selectedIds.erase (selectedId);
             }
+            selectedIds.clear();
+            selectedIdToStartingPosition.clear();
         }
         hoveringId = -1;
     }
@@ -337,6 +338,14 @@ void GlyphGridView::updateIsPlaying()
         instructionText.setText (playInstructions, juce::NotificationType::dontSendNotification);
     else
         instructionText.setText (pauseInstructions, juce::NotificationType::dontSendNotification);
+}
+
+void GlyphGridView::updateGlyphs()
+{
+    if (dataSource != nullptr)
+    {
+        glyphs = dataSource->getGlyphs();
+    }
 }
 
 void GlyphGridView::drawGridLines (juce::Graphics& g)

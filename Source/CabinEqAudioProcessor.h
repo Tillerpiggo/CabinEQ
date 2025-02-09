@@ -101,6 +101,12 @@ public:
     void setERBScaling (bool erbScalingEnabled) override;
     void setPinkNoise (bool pinkNoiseEnabled) override;
     
+    void setIsCascading (bool isCascading) override;
+    void setDensity (int density) override;
+    void setStrokeOverlap (float strokeOverlap) override;
+    void setDotOverlap (float dotOverlap) override;
+    void setRampLength (float rampLength) override;
+    
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
     void setProvisionalBandsOn (bool provisionalBandsOn);

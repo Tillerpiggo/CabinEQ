@@ -47,6 +47,7 @@ public:
     bool shouldDrawDragImageWhenOver() override;
     
     void updateIsPlaying(); // signals isPlaying is changed, triggers update of instruction text
+    void updateGlyphs(); // signals to update the glyphs for visual calculations
     
 private:
     void drawGridLines (juce::Graphics& g);

@@ -138,4 +138,10 @@ public:
     virtual void setBarkScaling (bool barkScalingEnabled) = 0;
     virtual void setERBScaling (bool erbScalingEnabled) = 0;
     virtual void setPinkNoise (bool pinkNoiseEnabled) = 0;
+    
+    virtual void setIsCascading (bool isCascading) = 0;
+    virtual void setDensity (int density) = 0;
+    virtual void setStrokeOverlap (float strokeOverlap) = 0;
+    virtual void setDotOverlap (float dotOverlap) = 0;
+    virtual void setRampLength (float rampLength) = 0;
 };

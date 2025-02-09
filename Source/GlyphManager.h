@@ -30,6 +30,12 @@ public:
     void addArchetypalGlyphs (std::vector<ArchetypalGlyph> newGlyphs);
     void addArchetypalGlyph (ArchetypalGlyph glyph);
     
+    void setIsCascading (bool isCascading);
+    void setDensity (int density);
+    void setStrokeOverlap (float strokeOverlap);
+    void setDotOverlap (float dotOverlap);
+    void setRampLength (float rampLength);
+    
     const std::vector<Glyph>& getGlyphs();
     const std::vector<ArchetypalGlyph>& getArchetypalGlyphs();
     

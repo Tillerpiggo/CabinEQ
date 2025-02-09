@@ -59,6 +59,15 @@ private:
     juce::ComboBox erbComboBox;
     juce::ComboBox pinkNoiseBox;
     
+    juce::Slider densitySlider;
+    juce::Label densityLabel;
+    juce::Slider strokeOverlapSlider;
+    juce::Label strokeOverlapLabel;
+    juce::Slider dotOverlapSlider;
+    juce::Label dotOverlapLabel;
+    juce::Slider rampLengthSlider;
+    juce::Label rampLengthLabel;
+    
     bool isPlaying = false;
     bool isIIR = true;
     bool isFIRFilterUpdated = false;

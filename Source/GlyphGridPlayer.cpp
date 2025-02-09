@@ -190,6 +190,46 @@ void GlyphGridPlayer::setERBScaling (bool erbScalingEnbaled)
     this->erbScalingEnabled = erbScalingEnbaled;
 }
 
+void GlyphGridPlayer::setIsCascading (bool isCascading)
+{
+    for (auto& glyph : glyphs)
+        glyph.setIsCascading (isCascading);
+    shouldAddRemoveNoiseGenerators = true;
+    shouldUpdateNoiseGenerators = true;
+}
+
+void GlyphGridPlayer::setDensity (int density)
+{
+    for (auto& glyph : glyphs)
+        glyph.setDensity (density);
+    shouldAddRemoveNoiseGenerators = true;
+    shouldUpdateNoiseGenerators = true;
+}
+
+void GlyphGridPlayer::setStrokeOverlap (float strokeOverlap)
+{
+    for (auto& glyph : glyphs)
+        glyph.setStrokeOverlap (strokeOverlap);
+    shouldAddRemoveNoiseGenerators = true;
+    shouldUpdateNoiseGenerators = true;
+}
+
+void GlyphGridPlayer::setDotOverlap (float dotOverlap)
+{
+    for (auto& glyph : glyphs)
+        glyph.setDotOverlap (dotOverlap);
+    shouldAddRemoveNoiseGenerators = true;
+    shouldUpdateNoiseGenerators = true;
+}
+
+void GlyphGridPlayer::setRampLength (float rampLength)
+{
+    for (auto& glyph : glyphs)
+        glyph.setRampLength (rampLength);
+    shouldAddRemoveNoiseGenerators = true;
+    shouldUpdateNoiseGenerators = true;
+}
+
 ////std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
 ////{
 //    // Calculate coords

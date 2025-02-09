@@ -45,6 +45,11 @@ CalibrationView::CalibrationView()
     qualityComboBox.addListener (this);
     qualityComboBox.setSelectedId (14);
     
+    addSliderAndLabel (&densitySlider, &densityLabel, "Density", 2.0f, 8.0f, 4.0f);
+    addSliderAndLabel (&strokeOverlapSlider, &strokeOverlapLabel, "Stroke Overlap", 0.0f, 1.0f, 0.2f);
+    addSliderAndLabel (&dotOverlapSlider, &dotOverlapLabel, "Dot Overlap", 0.0f, 1.0f, 0.2f);
+    addSliderAndLabel (&rampLengthSlider, &rampLengthLabel, "Sharpness", 0.0f, 0.5f, 0.2f);
+    
     // Slider actions
     addSliderAction (&speedSlider, [this](juce::Slider*) {
         if (calibrationListener != nullptr)
@@ -61,6 +66,35 @@ CalibrationView::CalibrationView()
         if (calibrationListener != nullptr)
         {
             calibrationListener->setCalibrationVolume (volumeSlider.getValue());
+            glyphGridView.updateGlyphs();
+        }
+    });
+    addSliderAction (&densitySlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setDensity ((int) densitySlider.getValue());
+            glyphGridView.updateGlyphs();
+        }
+    });
+    addSliderAction (&strokeOverlapSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setStrokeOverlap (strokeOverlapSlider.getValue());
+            glyphGridView.updateGlyphs();
+        }
+    });
+    addSliderAction (&dotOverlapSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setDotOverlap (dotOverlapSlider.getValue());
+            glyphGridView.updateGlyphs();
+        }
+    });
+    addSliderAction (&rampLengthSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setRampLength (rampLengthSlider.getValue());
+            glyphGridView.updateGlyphs();
         }
     });
     
@@ -127,6 +161,10 @@ void CalibrationView::resized()
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
+    settingsLayout.addRow ({ Space (80), Space (&densitySlider) });
+    settingsLayout.addRow ({ Space (80), Space (&strokeOverlapSlider) });
+    settingsLayout.addRow ({ Space (80), Space (&dotOverlapSlider) });
+    settingsLayout.addRow ({ Space (80), Space (&rampLengthSlider) });
 //    settingsLayout.addRow ({ Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });

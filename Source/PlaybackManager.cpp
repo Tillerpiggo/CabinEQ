@@ -161,6 +161,31 @@ void PlaybackManager::setPinkNoise (bool pinkNoiseEnabled)
     this->isCabinNoise = ! pinkNoiseEnabled;
 }
 
+void PlaybackManager::setIsCascading (bool isCascading)
+{
+    glyphGridPlayer.setIsCascading (isCascading);
+}
+
+void PlaybackManager::setDensity (int density)
+{
+    glyphGridPlayer.setDensity (density);
+}
+
+void PlaybackManager::setStrokeOverlap (float strokeOverlap)
+{
+    glyphGridPlayer.setStrokeOverlap (strokeOverlap);
+}
+
+void PlaybackManager::setDotOverlap (float dotOverlap)
+{
+    glyphGridPlayer.setDotOverlap (dotOverlap);
+}
+
+void PlaybackManager::setRampLength (float rampLength)
+{
+    glyphGridPlayer.setRampLength (rampLength);
+}
+
 void PlaybackManager::updateFIRFilter()
 {
     // Calculate curve pts

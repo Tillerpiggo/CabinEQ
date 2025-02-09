@@ -300,6 +300,36 @@ void CabinEqAudioProcessor::setPinkNoise (bool pinkNoiseEnabled)
     playbackManager.setPinkNoise (pinkNoiseEnabled);
 }
 
+void CabinEqAudioProcessor::setIsCascading (bool isCascading)
+{
+    playbackManager.setIsCascading (isCascading);
+    glyphManager.setIsCascading (isCascading);
+}
+
+void CabinEqAudioProcessor::setDensity (int density)
+{
+    playbackManager.setDensity (density);
+    glyphManager.setDensity (density);
+}
+
+void CabinEqAudioProcessor::setStrokeOverlap (float strokeOverlap)
+{
+    playbackManager.setStrokeOverlap (strokeOverlap);
+    glyphManager.setStrokeOverlap (strokeOverlap);
+}
+
+void CabinEqAudioProcessor::setDotOverlap (float dotOverlap)
+{
+    playbackManager.setDotOverlap (dotOverlap);
+    glyphManager.setDotOverlap (dotOverlap);
+}
+
+void CabinEqAudioProcessor::setRampLength (float rampLength)
+{
+    playbackManager.setRampLength (rampLength);
+    glyphManager.setRampLength (rampLength);
+}
+
 void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
 {
     playbackManager.setProvisionalBands (provisionalBands);
