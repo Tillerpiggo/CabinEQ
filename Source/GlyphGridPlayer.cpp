@@ -150,7 +150,6 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
             noiseGenerators[noiseGenIdx].setPan (pan);
             noiseGenerators[noiseGenIdx].setVolumeGain (vol);
             
-            std::cout << "freq: " << freq << ", pan: " << pan << ", vol: " << vol << std::endl;
             noiseGenIdx++;
         }
     }
