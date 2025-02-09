@@ -20,11 +20,11 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, -1, 1 }, { 1, 1, 1 },  { -1, -1, 1 }})
     });
     ArchetypalGlyph horizontalGlyph (1, {
-        Stroke ({{ -1, 0 }, { 1, 0 }})
+        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
     });
     
     ArchetypalGlyph verticalGlyph (2, {
-        Stroke ({{ 0, -1 }, { 0, 1 }})
+        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
     });
 //    ArchetypalGlyph verticalGlyph (2, {
 //        Stroke ({{ 0, -1 }, { 0, 0 }}),
@@ -93,11 +93,11 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 //        Stroke ({{ -1, -1 }, { -1, -1 }})
 //    });
     ArchetypalGlyph diagonalGlyph (3, {
-        Stroke ({{ -1, -1 }, { 1, 1 }})
+        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }})
     });
     
     ArchetypalGlyph diagonalGlyph2 (4, {
-        Stroke ({{ 1, -1 }, { -1, 1 }})
+        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
     });
     
     ArchetypalGlyph threeRows (8, {
@@ -312,9 +312,9 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (diagonalGlyph);
     archetypalGlyphs.push_back (diagonalGlyph2);
     archetypalGlyphs.push_back (rows);
-    archetypalGlyphs.push_back (threeRows);
-    archetypalGlyphs.push_back (cols);
-    archetypalGlyphs.push_back (diags);
+//    archetypalGlyphs.push_back (threeRows);
+//    archetypalGlyphs.push_back (cols);
+//    archetypalGlyphs.push_back (diags);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

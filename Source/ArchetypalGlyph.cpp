@@ -119,7 +119,6 @@ void ArchetypalGlyph::setCascadeSettings (bool isCascading, int density, float s
 
 void ArchetypalGlyph::updateNoiseSources()
 {
-    std::cout << "got this far" << std::endl;
     // Recalculate noise sources from settings
     noiseSources.clear();
     

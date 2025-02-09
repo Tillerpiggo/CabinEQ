@@ -139,7 +139,7 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
     {
         // Set the appropriate bandpass filter for each noise generator, and implement helper function
 //        auto [freqPan, vol] = getFreqPanVolFromGlyphAtTime (glyphs[i], currTime);
-        auto noisePoints = getFreqPanVolsFromGlyphAtTime (glyphs[i], currTime);
+        auto noisePoints = getFreqPanVolsFromGlyphAtTime (glyphs[i], fmod (currTime, 1.0f));
 //        auto [freq, pan] = freqPan;
         for (const auto& noisePoint : noisePoints)
         {
