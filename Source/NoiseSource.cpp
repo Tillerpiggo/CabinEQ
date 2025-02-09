@@ -16,17 +16,20 @@ NoiseSource::NoiseSource (float x, float y, float startTime, float endTime, floa
     rampLengthInTime = (endTime - startTime) * rampLength;
 }
 
-NoisePoint NoiseSource::noisePointAtTime (float time)
+NoisePoint NoiseSource::noisePointAtTime (float time) const
 {
     return NoisePoint (x, y, volumeAtTime (time));
 }
 
-float NoiseSource::volumeAtTime (float time)
+float NoiseSource::volumeAtTime (float time) const
 {
+    // First, let's move to relative time where startTime = 0
+    // Then, let's 
+    
     if (time < startTime || time > endTime)
         return 0.0f;
     
-    if (time > startTime + rampLengthInTime || time < endTime - rampLengthInTime)
+    if (time > startTime + rampLengthInTime && time < endTime - rampLengthInTime)
         return 1.0f;
     
     float MIN_DB = -120.0f; // supposed to be about silent

@@ -23,6 +23,7 @@ public:
     
     const std::vector<Stroke>& getStrokes() const;
     const std::vector<NoisePoint> getVertices() const;
+    const int getNumNoiseSources() const;
     const int getId() const;
     bool getIsCascading() const;
     int getDensity() const;

@@ -21,8 +21,10 @@ public:
     Glyph (int id, ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor);
     
     NoisePoint positionAtTime (float time) const;
+    std::vector<NoisePoint> positionsAtTime (float time) const;
     const std::vector<Stroke>& getStrokes() const;
     const std::vector<NoisePoint> getVertices() const;
+    const int getNumNoiseSources() const;
     ArchetypalGlyph getArchetype() const; // returns an archetype of this glyph
     
     std::pair<float, float> getSizeFactor() const;

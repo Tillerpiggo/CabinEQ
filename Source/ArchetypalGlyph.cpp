@@ -13,6 +13,7 @@
 ArchetypalGlyph::ArchetypalGlyph (int id, std::vector<Stroke> initialStrokes)
     : id (id), strokes (initialStrokes)
 {
+    updateNoiseSources();
 }
 
 NoisePoint ArchetypalGlyph::positionAtTime (float time) const
@@ -28,6 +29,25 @@ NoisePoint ArchetypalGlyph::positionAtTime (float time) const
     int strokeIdx = floor (strokeTime);
     float strokeProgress = strokeTime - static_cast<float> (strokeIdx);
     return strokes[strokeIdx].positionAtTime (strokeProgress);
+}
+
+std::vector<NoisePoint> ArchetypalGlyph::cascadingPositionsAtTime (float time) const
+{
+    if (! isCascading)
+        return { positionAtTime (time) };
+    
+    if (time < 0 || time >= 1)
+    {
+        std::cerr << "Called cascadingPositionAtTime in Glyph with invalid time outside of [0, 1). (time=" << time << ")" << std::endl;
+    }
+    
+    std::vector<NoisePoint> cascadingPositionsAtTime;
+    for (const auto& noiseSource : noiseSources)
+    {
+        cascadingPositionsAtTime.push_back (noiseSource.noisePointAtTime (time));
+    }
+    
+    return cascadingPositionsAtTime;
 }
 
 const std::vector<Stroke>& ArchetypalGlyph::getStrokes() const
@@ -47,6 +67,13 @@ const std::vector<NoisePoint> ArchetypalGlyph::getVertices() const
         }
     }
     return vertices;
+}
+
+const int ArchetypalGlyph::getNumNoiseSources() const
+{
+    if (! isCascading)
+        return 1.0f;
+    return (int) noiseSources.size();
 }
 
 const int ArchetypalGlyph::getId() const
@@ -91,6 +118,7 @@ void ArchetypalGlyph::setCascadeSettings (bool isCascading, int density, float s
 
 void ArchetypalGlyph::updateNoiseSources()
 {
+    std::cout << "got this far" << std::endl;
     // Recalculate noise sources from settings
     noiseSources.clear();
     
@@ -108,5 +136,46 @@ void ArchetypalGlyph::updateNoiseSources()
     float maxDensity = density / longestStroke.getLength();
     
     // Figure out the noise source positions for each stroke - stroke by stroke
+    std::vector<juce::Point<float>> noisePositions;
+    for (const auto& stroke : strokes)
+    {
+        int numPositions = std::floor (stroke.getLength() * maxDensity);
+        for (int i = 0; i < numPositions; ++i)
+        {
+            float t = (float) i / ((float) numPositions - 1.0f); // time relative to stroke so that the endpoints have points on them. TODO: modify to divide by numPositions if the stroke loops
+            auto noisePos = stroke.positionAtTime (t);
+            noisePositions.push_back (noisePos.point());
+        }
+    }
     
+    // Figure out the start and end times for each stroke - stroke by stroke
+    std::vector<std::pair<float, float>> noiseStartEndTimes;
+    for (int strokeIdx = 0; strokeIdx < strokes.size(); strokeIdx++)
+    {
+        int numPositions = std::floor (strokes[strokeIdx].getLength() * maxDensity);
+        
+        float strokeStart = strokeIdx / strokes.size();
+        float minStrokeLength = 1.0f / strokes.size();
+        float strokeLength = minStrokeLength + (1.0f - minStrokeLength) * strokeOverlap;
+        float strokeEnd = strokeStart + strokeLength;
+        for (int i = 0; i < numPositions; ++i)
+        {
+            float noiseStart = i / numPositions;
+            float minNoiseLength = 1.0f / numPositions;
+            float noiseLength = minNoiseLength + (1.0f - minNoiseLength) * dotOverlap;
+            float noiseEnd = noiseStart + noiseLength;
+            float normalizedNoiseStart = noiseStart * (strokeEnd - strokeStart) + strokeStart;
+            float normalizedNoiseEnd = noiseEnd * (strokeEnd - strokeStart) + strokeEnd;
+            noiseStartEndTimes.push_back ({ normalizedNoiseStart, normalizedNoiseEnd });
+        }
+    }
+    
+    for (int i = 0; i < noisePositions.size(); ++i)
+    {
+        auto pos = noisePositions[i];
+        auto startEnd = noiseStartEndTimes[i];
+        noiseSources.push_back ({ pos.x, pos.y, startEnd.first, startEnd.second, rampLength });
+    }
+    
+    std::cout << "finished" << std::endl;
 }

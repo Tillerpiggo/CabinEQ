@@ -32,8 +32,9 @@ std::pair<float, float> GlyphGridPlayer::getNextSample()
     {
         auto noiseSample = noiseGenerators[i].getNextSample();
         float factor = 1.0f;
-        nextSample.first += noiseSample.first * factor;// / static_cast<float> (i + 1);
-        nextSample.second += noiseSample.second * factor;// / static_cast<float> (i + 1);
+        
+        nextSample.first += noiseSample.first * factor;
+        nextSample.second += noiseSample.second * factor;
     }
     
     // Increment time
@@ -105,9 +106,13 @@ void GlyphGridPlayer::addRemoveNoiseGeneratorsIfNeeded()
     if (! shouldAddRemoveNoiseGenerators)
         return;
     
-    int numGlyphs = (int) glyphs.size();
+    int numNoiseSources = 0;
+    for (const auto& glyph : glyphs)
+    {
+        numNoiseSources += glyph.getNumNoiseSources();
+    }
     int numGenerators = (int) noiseGenerators.size();
-    int numToAdd = numGlyphs - numGenerators;
+    int numToAdd = numNoiseSources - numGenerators;
     
     // Add needed generators
     for (int i = 0; i < numToAdd; ++i)
@@ -129,15 +134,23 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
         return;
     
     // Update the bandpass of all noise generators
+    int noiseGenIdx = 0;
     for (int i = 0; i < glyphs.size(); ++i)
     {
         // Set the appropriate bandpass filter for each noise generator, and implement helper function
-        auto [freqPan, vol] = getFreqPanVolFromGlyphAtTime (glyphs[i], currTime);
-        auto [freq, pan] = freqPan;
-        noiseGenerators[i].setBandwidth (bandwidth);//scaleToBarkBandwidth (bandwidth, freq));
-        noiseGenerators[i].setBandpass (freq);
-        noiseGenerators[i].setPan (pan);
-        noiseGenerators[i].setVolumeDB (volToDB (glyphs[i].getVolume()) + volToDB (vol));
+//        auto [freqPan, vol] = getFreqPanVolFromGlyphAtTime (glyphs[i], currTime);
+        auto noisePoints = getFreqPanVolsFromGlyphAtTime (glyphs[i], currTime);
+//        auto [freq, pan] = freqPan;
+        for (const auto& noisePoint : noisePoints)
+        {
+            auto [freqPan, vol] = noisePoint;
+            auto [freq, pan] = freqPan;
+            noiseGenerators[i].setBandwidth (bandwidth);
+            noiseGenerators[i].setBandpass (freq);
+            noiseGenerators[i].setPan (pan);
+            noiseGenerators[i].setVolumeDB (volToDB (glyphs[i].getVolume()) + volToDB (vol));
+            noiseGenIdx++;
+        }
     }
 }
 
@@ -200,6 +213,41 @@ void GlyphGridPlayer::setERBScaling (bool erbScalingEnbaled)
 //    
 //    return {{ freq, pan }, vol };
 ////}
+
+std::vector<std::pair<std::pair<float, float>, float>> GlyphGridPlayer::getFreqPanVolsFromGlyphAtTime (const Glyph& glyph, float time)
+{
+    std::vector<std::pair<std::pair<float, float>, float>> freqPanVols;
+    auto noisePoints = glyph.positionsAtTime (time);
+
+    // Calculate coords
+    auto [horizontalSizeFactor, verticalSizeFactor] = glyph.getSizeFactor();
+    
+    for (const auto& noisePoint : noisePoints)
+    {
+        float x = noisePoint.x * horizontalSizeFactor + glyph.getCenterPos().x;
+        float y = noisePoint.y * verticalSizeFactor + glyph.getCenterPos().y;
+        
+        // Calculate freq
+        float freq = y;
+        float normalizedFreq = (freq + 1.0f) / 2.0f;
+        float logMinFreq = std::log (minFreq);
+        float logMaxFreq = std::log (maxFreq);
+        float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
+        freq = std::exp (logFreq);
+        
+        // Calculate pan
+        float pan = x;
+        
+        // Calculate vol
+        float vol = 1.0f;
+//        float vol = noisePoint.vol;
+        
+        freqPanVols.push_back ({{ freq, pan }, vol });
+    }
+    
+    return freqPanVols;
+    
+}
 
 std::pair<std::pair<float, float>, float> GlyphGridPlayer::getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float time)
 {

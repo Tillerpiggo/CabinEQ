@@ -44,6 +44,13 @@ NoisePoint Glyph::positionAtTime (float time) const
     return archetype.positionAtTime (time);
 }
 
+std::vector<NoisePoint> Glyph::positionsAtTime (float time) const
+{
+    if (! archetype.getIsCascading())
+        return { positionAtTime (time) };
+    return archetype.cascadingPositionsAtTime (time);
+}
+
 const std::vector<Stroke>& Glyph::getStrokes() const
 {
     return archetype.getStrokes();
@@ -52,6 +59,11 @@ const std::vector<Stroke>& Glyph::getStrokes() const
 const std::vector<NoisePoint> Glyph::getVertices() const
 {
     return archetype.getVertices();
+}
+
+const int Glyph::getNumNoiseSources() const
+{
+    return archetype.getNumNoiseSources();
 }
 
 ArchetypalGlyph Glyph::getArchetype() const

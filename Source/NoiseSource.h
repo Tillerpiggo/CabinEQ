@@ -17,8 +17,8 @@ class NoiseSource
 public:
     NoiseSource (float x, float y, float startTime, float endTime, float rampLength);
     
-    NoisePoint noisePointAtTime (float time);
-    float volumeAtTime (float time); // time in [0, 1)
+    NoisePoint noisePointAtTime (float time) const;
+    float volumeAtTime (float time) const; // time in [0, 1)
     
 private:
     float x;

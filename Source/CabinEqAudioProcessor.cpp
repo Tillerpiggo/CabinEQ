@@ -28,7 +28,7 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 
 #endif
 {
-    
+    std::cout << "initialized processor" << std::endl;
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()

@@ -13,197 +13,15 @@
 GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     : glyphs (glyphs)
 {
-//    // Initialize some starting archetypes
-//    ArchetypalGlyph diamonds (0, {
-//        Stroke ({{ -1, 0 }, { -0.5, -1 }, { 0, 0 }, { 0.5, 1 }, { 1, 0 }, { 0.5, -1 }, { 0, 0 }, { -0.5, 1 }, { -1, 0 }})
-//    });
-//    ArchetypalGlyph xGlyph (1, {
-//        Stroke ({{ -1, -1 }, { 1, 1 }}),
-//        Stroke ({{ 1, -1 }, { -1, 1 }})
-//    });
-//    ArchetypalGlyph zigzagLines (3, {
-//        Stroke ({{ -1, 1 }, { 1, 1 }, { 0.5, 0.5 }, { -0.5, 0.5 }, { -1, 0 }, { 1, 0 }, { 0.5, -0.5 }, { -0.5, -0.5 }, { -1, -1 }})
-//    });
-//    ArchetypalGlyph grid (4, {
-//        Stroke ({{ -1, -1 }, { -1, 1 }, { 0, 1 }, { 0, -1 }, { 1, -1 }, { 1, 1 }})
-//    });
-//    ArchetypalGlyph grid2 (5, {
-//        Stroke ({{ -1, 1 }, { 1, 1 }, { 1, 0 }, { -1, 0 }, { -1, -1 }, { 1, -1 }})
-//    });
     ArchetypalGlyph starGlyph (2, {
         Stroke ({{ 0, 1 }, { -0.588, -0.809 }, { 0.951, 0.309 }, { -0.951, 0.309 }, { 0.588, -0.809 }, { 0, 1 }})
     });
-//    ArchetypalGlyph squareGlyph (2, {
-//        Stroke ({{ -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 }, { -1, -1 }})
-//    });
-//    ArchetypalGlyph verticalGlyph (14, {
-//        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
-//    });
-//    ArchetypalGlyph horizontalLines (7, {
-//        Stroke ({{ -1, 1 }, { 1, 1 }}),
-//        Stroke ({{ -1, 0.5 }, { 1, 0.5 }}),
-//        Stroke ({{ -1, 0 }, { 1, 0 }}),
-//        Stroke ({{ -1, -0.5 }, { 1, -0.5 }}),
-//        Stroke ({{ -1, -1 }, { 1, -1 }})
-//    });
-//    ArchetypalGlyph newGlyph (25, {
-//        Stroke ({{ -1, 1 }, { -1, 1 }}), // Row 1
-//        Stroke ({{ -0.5, 1 }, { -0.5, 1 }}),
-//        Stroke ({{ 0, 1 }, { 0, 1 }}),
-//        Stroke ({{ 0.5, 1 }, { 0.5, 1 }}),
-//        Stroke ({{ 1, 1 }, { 1, 1 }}),
-//        
-//        Stroke ({{ -1,    0.5 }, { -1,    0.5 }}), // Row 2
-//        Stroke ({{ -0.5,  0.5 }, { -0.5,  0.5 }}),
-//        Stroke ({{  0,    0.5 }, {  0,    0.5 }}),
-//        Stroke ({{  0.5,  0.5 }, {  0.5,  0.5 }}),
-//        Stroke ({{  1,    0.5 }, {  1,    0.5 }}),
-//        
-//        Stroke ({{ -1,    0 }, { -1,    0 }}),   // Row 3
-//        Stroke ({{ -0.5,  0 }, { -0.5,  0 }}),
-//        Stroke ({{  0,    0 }, {  0,    0 }}),
-//        Stroke ({{  0.5,  0 }, {  0.5,  0 }}),
-//        Stroke ({{  1,    0 }, {  1,    0 }}),
-//
-//        Stroke ({{ -1,   -0.5 }, { -1,   -0.5 }}), // Row 4
-//        Stroke ({{ -0.5, -0.5 }, { -0.5, -0.5 }}),
-//        Stroke ({{  0,   -0.5 }, {  0,   -0.5 }}),
-//        Stroke ({{  0.5, -0.5 }, {  0.5, -0.5 }}),
-//        Stroke ({{  1,   -0.5 }, {  1,   -0.5 }}),
-//
-//        Stroke ({{ -1,   -1 }, { -1,   -1 }}),   // Row 5
-//        Stroke ({{ -0.5, -1 }, { -0.5, -1 }}),
-//        Stroke ({{  0,   -1 }, {  0,   -1 }}),
-//        Stroke ({{  0.5, -1 }, {  0.5, -1 }}),
-//        Stroke ({{  1,   -1 }, {  1,   -1 }})
-//    });
-//    
-//    std::vector<Stroke> strokes;
-//    const std::array<float, 5> positions = {-1.0, -0.5, 0.0, 0.5, 1.0};
-//
-//    for (int i = 0; i < positions.size(); i++) {
-//        for (int j = 0; j < positions.size(); j++) {
-//            // Main dot position
-//            strokes.push_back(Stroke({{ positions[i], positions[j] }, { positions[i], positions[j] }}));
-//            strokes.push_back(Stroke({{ -1, 1 }, { -1, 1 }}));
-//            strokes.push_back(Stroke({{ 1, 1 }, { 1, 1 }}));
-//            strokes.push_back(Stroke({{ -1, -1 }, { -1, -1 }}));
-//            strokes.push_back(Stroke({{ 1, -1 }, { 1, -1 }}));
-//        }
-//    }
-//    
-//    ArchetypalGlyph cornersGlyph(25, strokes);
-//    
-//    ArchetypalGlyph spaceFillingCurve (6, {
-//        Stroke ({{ -1, -1 }, { -1, -0.5 }, { -0.5, -0.5 }, { -0.5, -1 }, { 0, -1 }, { 0, -0.5 }, { 0.5, -0.5 }, { 0.5, -1 },
-//                 { 1, -1 }, { 1, -0.5 }, { 0.5, -0.5 }, { 0.5, 0 }, { 1, 0 }, { 1, 0.5 }, { 0.5, 0.5 }, { 0.5, 1 },
-//                 { 0, 1 }, { 0, 0.5 }, { -0.5, 0.5 }, { -0.5, 1 }, { -1, 1 }, { -1, 0.5 }, { -0.5, 0.5 }, { -0.5, 0 },
-//                 { 0, 0 }, { 0, -0.5 }, { -0.5, -0.5 }, { -0.5, 0 }, { -1, 0 }, { -1, -0.5 }, { -1, -1 }})
-//    });
-//    
-//    ArchetypalGlyph zigzags (10, {
-//        Stroke ({{ -1, -1 }, { 1, -0.5 }, { -1, 0 }, { 1, 0.5 }, { -1, 1 }, { 1, 0.5 }, { -1, 0 }, { 1, -0.5 }, { -1, -1 }})
-//    });
-//    
-//    ArchetypalGlyph hourglassGlyph (8, {
-//        Stroke ({{ -1, -1 }, { 1, 0 }, { -1, 1 }, { 1, -1 }, { -1, 0 }, { 1, 1 }, { -1, -1 }})
-//    });
-//    ArchetypalGlyph comparisonGlyph (15, {
-//        Stroke ({{ -1, -1 }, { -1, -1 }}),
-//        Stroke ({{ 1, 1 }, { 1, 1 }})
-//    });
-//    ArchetypalGlyph lineGlyph (0, {
-//        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
-//    });
-//    ArchetypalGlyph line2Glyph (9, {
-//        Stroke ({{ -1, -1, 1 }, { 1, 1, 1 }})
-//    });
     ArchetypalGlyph lineJulianGlyph (13, {
         Stroke ({{ -1, -1, 1 }, { 1, 1, 1 },  { -1, -1, 1 }})
     });
-//    ArchetypalGlyph line3Glyph (11, {
-//        Stroke ({{ 1, -1, 1 }, { -1, 1, 1 }})
-//    });
-//    ArchetypalGlyph line5Glyph (12, {
-//        Stroke ({{ 0.5, 1, 1 }, { -0.5, -1, 1 }, { 0.5, 1, 1 }})
-//    });
-//    ArchetypalGlyph line6Glyph (13, {
-//        Stroke ({{ -1, 0.5, 1 }, { 1, -0.5, 1 }, { -1, 0.5, 1 }})
-//    });
-//    ArchetypalGlyph line4Glyph (2, {
-//        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
-//    });
-//    ArchetypalGlyph horizontalFastGlyph (16, {
-//        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }})
-//    });
-//    ArchetypalGlyph horizontalReallyFastGlyph (17, {
-//        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }})
-//    });
-//    ArchetypalGlyph cubeGlyph (3, {
-//        Stroke ({{ -1, -1, 1 }, { -1, 1, 1 }, { -0.5, 0.5, 0 }, { 0.5, 0.5, 0 }, { 1, 1, 0 }, { 1, 1, 1 }, { 1, -1, 1 }, { 0.5, -0.5, 0 }, { -0.5, -0.5, 0 }, { -1, -1, 1 }})
-//    });
-//    ArchetypalGlyph twoGlyph (14, {
-//        Stroke ({{ -1, 0.5 }, { -0.5, 0.8 }, { 0, 1 }, { 0.5, 0.8 }, { 1, 0.5 }}),
-//        Stroke ({{ 1, 0.5 }, { 0, -0.25 }, { -1, -1 }, { 1, -1 }})
-//    });
-//    ArchetypalGlyph dotGlyph (4, { Stroke ({{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 0, 0 }}) });
-//    ArchetypalGlyph left (8, { Stroke ({{ -1, 0 }, { 1, 0 }})});
-//    ArchetypalGlyph right (8, { Stroke ({{ 1, 0 }, { -1, 0 }})});
-//    
-//    archetypalGlyphs.push_back (twoGlyph);
-//    archetypalGlyphs.push_back (starGlyph);
-//    archetypalGlyphs.push_back (newGlyph);
-//    archetypalGlyphs.push_back (zigzagLines);
-//    archetypalGlyphs.push_back (grid);
-//    archetypalGlyphs.push_back (lineJulianGlyph);
-//    archetypalGlyphs.push_back (horizontalLines);
-//    archetypalGlyphs.push_back (newGlyph);
-//    archetypalGlyphs.push_back (left);
-//    archetypalGlyphs.push_back (cornersGlyph);
-//    archetypalGlyphs.push_back (line5Glyph);
-//    archetypalGlyphs.push_back (line6Glyph);
-//    archetypalGlyphs.push_back (line2Glyph);
-//    archetypalGlyphs.push_back (line3Glyph);
-//    archetypalGlyphs.push_back (horizontalFastGlyph);
-//    archetypalGlyphs.push_back (horizontalReallyFastGlyph);
-//    archetypalGlyphs.push_back (verticalGlyph);
-//    archetypalGlyphs.push_back (comparisonGlyph);
-////    archetypalGlyphs.push_back (diamonds);
-////    archetypalGlyphs.push_back (xGlyph);
-////    archetypalGlyphs.push_back (squareGlyph);
-////    archetypalGlyphs.push_back (lineGlyph);
-////    archetypalGlyphs.push_back (line2Glyph);
-////    archetypalGlyphs.push_back (line3Glyph);
-//    archetypalGlyphs.push_back (cubeGlyph);
-////    archetypalGlyphs.push_back (dotGlyph);
-    
-//    ArchetypalGlyph line1Glyph (1, {
-//        Stroke ({{ 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }})
-//    });
-//    
-//    ArchetypalGlyph line2Glyph (1, {
-//        Stroke ({{ 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }})
-//    });
-//    ArchetypalGlyph line3Glyph (1, {
-//        Stroke ({{ 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }})
-//    });
-//
-//    ArchetypalGlyph line4Glyph (1, {
-//        Stroke ({{ 0, 0.2 }, { 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }})
-//    });
-//
-//    ArchetypalGlyph line5Glyph (1, {
-//        Stroke ({{ 0, 0.6 }, { 0, 1 }, { 0, 0.6 }, { 0, 0.2 }, { 0, -0.2 }, { 0, -0.6 }, { 0, -1 }, { 0, -0.6 }, { 0, -0.2 }, { 0, 0.2 }, { 0, 0.6 }})
-//    });
-    
     ArchetypalGlyph horizontalGlyph (1, {
         Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
     });
-    
-//    ArchetypalGlyph verticalGlyph (2, {
-//        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
-//    });
-    
     ArchetypalGlyph verticalGlyph (2, {
         Stroke ({{ 0, -1 }, { 0, 0 }}),
         Stroke ({{ 0, 0 }, { 0, 0 }}),
@@ -252,9 +70,9 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 1, -0.33 }, { 1, -1 }}), Stroke ({{ 1, -1 }, { 1, -1 }})
     });
     
-    ArchetypalGlyph verticalGlyph3 (11, {
-        
-    });
+//    ArchetypalGlyph verticalGlyph3 (11, {
+//        
+//    });
     
 //    ArchetypalGlyph diagonalGlyph (3, {
 //        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }}),
@@ -284,24 +102,10 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 0.5, -1 }, { -0.5, 1 }, { 0.5, -1 }})
     });
     
-//    ArchetypalGlyph tonalGlyph (6, {
-//        Stroke ({{ 0, -1 }, { 0, -1 }}),
-//        Stroke ({{ 0, -0.5 }, { 0, -0.5 }}),
-//        Stroke ({{ 0, 0 }, { 0, 0 }}),
-//        Stroke ({{ 0, 0.5 }, { 0, 0.5 }}),
-//        Stroke ({{ 0, 1 }, { 0, 1 }}),
-//    });
-    
     ArchetypalGlyph comparisonGlyph (6, {
         Stroke ({{ 0, 0 }, { 0, 0 }}),
         Stroke ({{ 1, 1 }, { 1, 1 }})
     });
-    
-//    ArchetypalGlyph threeByThree (7, {
-//        Stroke ({{ -1, 1 }, { 0, 1 }, { 1, 1 }, { 0, 1 }, { -1, 1 }}),
-//        Stroke ({{ -1, 0 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { -1, 0 }}),
-//        Stroke ({{ -1, -1 }, { 0, -1 }, { 1, -1 }, { 0, -1 }, { -1, -1 }})
-//    });
     
     ArchetypalGlyph threeByThree (7, {
         Stroke ({{ -1, 1 }, { 0, 1 }}), Stroke ({{ 0, 1 }, { 0, 1 }}),
@@ -461,6 +265,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     ArchetypalGlyph grid (50, {
         strokes
     });
+    std::cout << "finished initializing glyphs" << std::endl;
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
@@ -470,16 +275,8 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (squareGrid);
     archetypalGlyphs.push_back (longerDiagonal);
     archetypalGlyphs.push_back (panningGlyph3);
-//    archetypalGlyphs.push_back (steepDiagonalGlpyh);
-//    archetypalGlyphs.push_back (steepDiagonalGlyph2);
     
-//    archetypalGlyphs.push_back (comparisonGlyph);
-//    archetypalGlyphs.push_back (grid);
-//    archetypalGlyphs.push_back (comparisonGlyph);
-//    archetypalGlyphs.push_back (threeByThree);
-//    archetypalGlyphs.push_back (diagonalGrid);
-//    archetypalGlyphs.push_back (threeByThreeSquished);
-//    archetypalGlyphs.push_back (starGlyph);
+    std::cout << "finsihed glyphManager" << std::endl;
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)
