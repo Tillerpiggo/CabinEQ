@@ -260,6 +260,11 @@ std::vector<float> PlaybackManager::getCurrPlayingFreqs()
 //    return gridSequencer.getCurrPlayingFreqs();
 }
 
+std::vector<std::pair<float, float>> PlaybackManager::getCurrPlayingFreqsAndVols()
+{
+    return glyphGridPlayer.getCurrPlayingFreqsAndVols();
+}
+
 std::pair<float, float> PlaybackManager::getNextSample()
 {
     return glyphGridPlayer.getNextSample();

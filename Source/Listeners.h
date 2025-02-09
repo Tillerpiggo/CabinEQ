@@ -38,6 +38,7 @@ public:
     
     virtual BandProfile getBandProfile() = 0;
     virtual std::vector<float> getCurrPlayingFreqs() = 0;
+    virtual std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols() = 0;
     virtual float getBandwidth() = 0;
 };
 

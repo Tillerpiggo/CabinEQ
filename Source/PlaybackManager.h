@@ -64,6 +64,7 @@ public:
     bool getIsPlaying();
     float getBandwidth();
     std::vector<float> getCurrPlayingFreqs();
+    std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols();
     
 private:
     std::pair<float, float> getNextSample();

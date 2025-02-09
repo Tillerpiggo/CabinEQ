@@ -21,6 +21,8 @@ public:
     float volumeAtTime (float time) const; // time in [0, 1)
     
 private:
+    float volumeAtUnboundedTime (float time) const;
+    
     float x;
     float y;
     float startTime;

@@ -34,6 +34,11 @@ CalibrationView::CalibrationView()
     pinkNoiseBox.addItem ("Pink Noise (-3.0 dB/oct)", 2);
     pinkNoiseBox.setSelectedId (2);
     pinkNoiseBox.addListener (this);
+    addAndMakeVisible (isCascadingBox);
+    isCascadingBox.addItem ("Sweeping", 1);
+    isCascadingBox.addItem ("Cascading", 2);
+    isCascadingBox.setSelectedId (1);
+    isCascadingBox.addListener (this);
     
     addButton (&iirButton);
     addButton (&updateFilterButton);
@@ -161,10 +166,25 @@ void CalibrationView::resized()
     settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
     settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
-    settingsLayout.addRow ({ Space (80), Space (&densitySlider) });
-    settingsLayout.addRow ({ Space (80), Space (&strokeOverlapSlider) });
-    settingsLayout.addRow ({ Space (80), Space (&dotOverlapSlider) });
-    settingsLayout.addRow ({ Space (80), Space (&rampLengthSlider) });
+    settingsLayout.addRow ({ Space (&isCascadingBox) });
+    if (isCascadingBox.getSelectedId() == 2)
+    {
+        settingsLayout.addRow ({ Space (80), Space (&densitySlider) });
+        settingsLayout.addRow ({ Space (80), Space (&strokeOverlapSlider) });
+        settingsLayout.addRow ({ Space (80), Space (&dotOverlapSlider) });
+        settingsLayout.addRow ({ Space (80), Space (&rampLengthSlider) });
+        densitySlider.setVisible (true);
+        strokeOverlapSlider.setVisible (true);
+        dotOverlapSlider.setVisible (true);
+        rampLengthSlider.setVisible (true);
+    }
+    else
+    {
+        densitySlider.setVisible (false);
+        strokeOverlapSlider.setVisible (false);
+        dotOverlapSlider.setVisible (false);
+        rampLengthSlider.setVisible (false);
+    }
 //    settingsLayout.addRow ({ Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
@@ -207,5 +227,11 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == &pinkNoiseBox)
     {
         calibrationListener->setPinkNoise (pinkNoiseBox.getSelectedId() == 2);
+    }
+    else if (comboBoxThatHasChanged == &isCascadingBox)
+    {
+        calibrationListener->setIsCascading (isCascadingBox.getSelectedId() == 2);
+        resized();
+        glyphGridView.updateGlyphs();
     }
 }

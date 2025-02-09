@@ -542,16 +542,18 @@ void CabinPeqGraph::drawNoise (juce::Graphics& g)
     // Draw a dot over every currently playing freq
     if (dataSource != nullptr)
     {
-        auto playingFreqs = dataSource->getCurrPlayingFreqs();
+//        auto playingFreqs = dataSource->getCurrPlayingFreqs();
+        auto playingFreqsAndVols = dataSource->getCurrPlayingFreqsAndVols();
         auto bandwidth = dataSource->getBandwidth();
-        for (const auto& playingFreq : playingFreqs)
+        for (const auto& playingFreqAndVol : playingFreqsAndVols)
         {
+            auto [playingFreq, playingVol] = playingFreqAndVol;
             float lowFreq = playingFreq / std::pow (2.0f, bandwidth);
             float highFreq = playingFreq * std::pow (2.0f, bandwidth);
             float startX = xForFreq (lowFreq);
             float endX = xForFreq (highFreq);
             juce::Colour startColour = getColourForFrequency (lowFreq).withAlpha (0.0f);
-            juce::Colour  midColour = getColourForFrequency (playingFreq).withAlpha (0.3f);
+            juce::Colour  midColour = getColourForFrequency (playingFreq).withAlpha (0.3f * playingVol);
             juce::Colour endColour = getColourForFrequency (highFreq).withAlpha (0.0f);
             juce::ColourGradient gradient (startColour, startX, 0, endColour, endX, 0, false);
             gradient.addColour (0.5, midColour);

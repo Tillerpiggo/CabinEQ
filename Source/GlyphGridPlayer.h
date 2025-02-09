@@ -42,6 +42,7 @@ public:
     float getCurrPlayingTime();
     
     std::vector<float> getCurrPlayingFreqs();
+    std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols();
     
 private:
     void addRemoveNoiseGeneratorsIfNeeded();

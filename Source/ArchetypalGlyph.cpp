@@ -141,6 +141,8 @@ void ArchetypalGlyph::updateNoiseSources()
     for (const auto& stroke : strokes)
     {
         int numPositions = std::ceil (stroke.getLength() * maxDensity);
+        if (stroke.getLength() == 0)
+            numPositions = 1;
         for (int i = 0; i < numPositions; ++i)
         {
             float t = (float) i / ((float) numPositions - 1.0f); // time relative to stroke so that the endpoints have points on them. TODO: modify to divide by numPositions if the stroke loops
@@ -154,6 +156,8 @@ void ArchetypalGlyph::updateNoiseSources()
     for (int strokeIdx = 0; strokeIdx < strokes.size(); strokeIdx++)
     {
         int numPositions = std::ceil (strokes[strokeIdx].getLength() * maxDensity);
+        if (strokes[strokeIdx].getLength() == 0)
+            numPositions = 1;
         
         float strokeStart = (float) strokeIdx / (float) (strokes.size());// + 1.0f);
         float minStrokeLength = 1.0f / (float) (strokes.size());// + 1.0f);
@@ -167,6 +171,7 @@ void ArchetypalGlyph::updateNoiseSources()
             float noiseEnd = noiseStart + noiseLength;
             float normalizedNoiseStart = noiseStart * (strokeEnd - strokeStart) + strokeStart;
             float normalizedNoiseEnd = noiseEnd * (strokeEnd - strokeStart) + strokeStart;
+            
             noiseStartEndTimes.push_back ({ normalizedNoiseStart, normalizedNoiseEnd });
         }
     }

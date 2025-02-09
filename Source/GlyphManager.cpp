@@ -122,6 +122,14 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 1, 1 }, { 1, -1 }})
     });
     
+    ArchetypalGlyph diags (6, {
+        Stroke ({{ -1, 1 }, { -1, 1 }}),
+        Stroke ({{ -1, 0 }, { 0, 1 }}),
+        Stroke ({{ -1, -1 }, { 1, 1 }}),
+        Stroke ({{ 0, -1 }, { 0, 1 }}),
+        Stroke ({{ 1, 1 }, { 1, 1 }})
+    });
+    
 //    ArchetypalGlyph diagonalGlyph2 (4, {
 //        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
 ////        Stroke ({{ 1, -1, 0.5 }, { -1, 1, 0.5 }, { 1, -1, 0.5 }})
@@ -306,7 +314,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (rows);
     archetypalGlyphs.push_back (threeRows);
     archetypalGlyphs.push_back (cols);
-    archetypalGlyphs.push_back (starGlyph);
+    archetypalGlyphs.push_back (diags);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

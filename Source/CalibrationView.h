@@ -59,6 +59,7 @@ private:
     juce::ComboBox erbComboBox;
     juce::ComboBox pinkNoiseBox;
     
+    juce::ComboBox isCascadingBox;
     juce::Slider densitySlider;
     juce::Label densityLabel;
     juce::Slider strokeOverlapSlider;

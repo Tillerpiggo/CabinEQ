@@ -332,9 +332,23 @@ std::vector<float> GlyphGridPlayer::getCurrPlayingFreqs()
     std::vector<float> playingFreqs;
     for (const auto& glyph : glyphs)
     {
-        playingFreqs.push_back (getFreqPanVolFromGlyphAtTime (glyph, currTime).first.first);
+        auto freqPanVols = getFreqPanVolsFromGlyphAtTime (glyph, currTime);
+        for (const auto& freqPanVol : freqPanVols)
+            playingFreqs.push_back (freqPanVol.first.first);
     }
     return playingFreqs;
+}
+
+std::vector<std::pair<float, float>> GlyphGridPlayer::getCurrPlayingFreqsAndVols()
+{
+    std::vector<std::pair<float, float>> playingFreqsAndVols;
+    for (const auto& glyph : glyphs)
+    {
+        auto freqPanVols = getFreqPanVolsFromGlyphAtTime (glyph, currTime);
+        for (const auto& freqPanVol : freqPanVols)
+            playingFreqsAndVols.push_back ({ freqPanVol.first.first, freqPanVol.second });
+    }
+    return playingFreqsAndVols;
 }
 
 float GlyphGridPlayer::volToDB (float vol)

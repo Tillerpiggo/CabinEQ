@@ -152,6 +152,7 @@ public:
     int getSequenceIdAtCoords (std::pair<int, int> coords) override;
     float getCurrTime() override;
     std::vector<float> getCurrPlayingFreqs() override;
+    std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols() override;
     
     // GlyphViewListener + GlyphViewDataSource
 //    float getCurrPlayingTime() override;
