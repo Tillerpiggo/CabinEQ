@@ -41,7 +41,7 @@ private:
     
     std::vector<NoiseSource> noiseSources;
     bool isCascading = true;
-    int density = 1; // # noise sources in longest stroke
+    int density = 2; // # noise sources in longest stroke
     float strokeOverlap = 0.3; // % overlap between strokes
     float dotOverlap = 0.0; // % overlap between dots within stroke
     float rampLength = 0.5; // % length of ramp compared to overall length

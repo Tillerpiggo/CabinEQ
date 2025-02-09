@@ -46,7 +46,7 @@ std::vector<NoisePoint> ArchetypalGlyph::cascadingPositionsAtTime (float time) c
     {
         auto noisePoint = noiseSource.noisePointAtTime (time);
         cascadingPositionsAtTime.push_back (noisePoint);
-//        std::cout << "posAtTime: (time: " << time << ", x: " << noisePoint.x << ", y: " << noisePoint.y << ", vol: " << noisePoint.vol << std::endl;
+        std::cout << "posAtTime: (time: " << time << ", x: " << noisePoint.x << ", y: " << noisePoint.y << ", vol: " << noisePoint.vol << std::endl;
     }
     
     return cascadingPositionsAtTime;
@@ -166,9 +166,9 @@ void ArchetypalGlyph::updateNoiseSources()
             float minNoiseLength = 1.0f / numPositions;
             float noiseLength = minNoiseLength + (1.0f - minNoiseLength) * dotOverlap;
             float noiseEnd = noiseStart + noiseLength;
-            float normalizedNoiseStart = noiseStart * (strokeEnd - strokeStart) + strokeStart;
-            float normalizedNoiseEnd = noiseEnd * (strokeEnd - strokeStart) + strokeEnd;
-            noiseStartEndTimes.push_back ({ normalizedNoiseStart, normalizedNoiseEnd });
+//            float normalizedNoiseStart = noiseStart * (strokeEnd - strokeStart) + strokeStart;
+//            float normalizedNoiseEnd = noiseEnd * (strokeEnd - strokeStart) + strokeEnd;
+            noiseStartEndTimes.push_back ({ noiseStart, noiseEnd });
         }
     }
     

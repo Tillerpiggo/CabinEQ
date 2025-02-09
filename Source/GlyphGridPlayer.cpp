@@ -241,8 +241,8 @@ std::vector<std::pair<std::pair<float, float>, float>> GlyphGridPlayer::getFreqP
         float pan = x;
         
         // Calculate vol
-        float vol = 1.0f;
-//        float vol = noisePoint.vol;
+//        float vol = 1.0f;
+        float vol = noisePoint.vol;
         
         freqPanVols.push_back ({{ freq, pan }, vol });
     }
