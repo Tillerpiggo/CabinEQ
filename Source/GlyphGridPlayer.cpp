@@ -145,10 +145,12 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
         {
             auto [freqPan, vol] = noisePoint;
             auto [freq, pan] = freqPan;
-            noiseGenerators[i].setBandwidth (bandwidth);
-            noiseGenerators[i].setBandpass (freq);
-            noiseGenerators[i].setPan (pan);
-            noiseGenerators[i].setVolumeDB (volToDB (glyphs[i].getVolume()) + volToDB (vol));
+            noiseGenerators[noiseGenIdx].setBandwidth (bandwidth);
+            noiseGenerators[noiseGenIdx].setBandpass (freq);
+            noiseGenerators[noiseGenIdx].setPan (pan);
+            noiseGenerators[noiseGenIdx].setVolumeGain (vol);
+            
+            std::cout << "freq: " << freq << ", pan: " << pan << ", vol: " << vol << std::endl;
             noiseGenIdx++;
         }
     }
@@ -298,22 +300,5 @@ std::vector<float> GlyphGridPlayer::getCurrPlayingFreqs()
 
 float GlyphGridPlayer::volToDB (float vol)
 {
-    return (1.0f - vol) * -20.0f;
+//    return (1.0f - vol) * -20.0f;
 }
-//
-//std::pair<float, float> GlyphGridPlayer::getFreqAndPanFromNormalizedCoords (juce::Point<float> coords)
-//{
-//    // Calculate pan
-//    float pan = coords.x;
-//    
-//    // Calculate freq
-//    float freq = coords.y; // flip upside down because y is weird
-//    float normalizedFreq = (freq + 1.0f) / 2.0f;
-//    
-//    float logMinFreq = std::log (minFreq);
-//    float logMaxFreq = std::log (maxFreq);
-//    float logFreq = logMinFreq + normalizedFreq * (logMaxFreq - logMinFreq);
-//    freq = std::exp (logFreq);
-//    
-//    return { freq, pan };
-//}

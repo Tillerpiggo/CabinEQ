@@ -136,6 +136,11 @@ void NoiseGenerator::setVolumeDB (float volumeDB)
     this->totalGain = juce::Decibels::decibelsToGain (volumeDB);
 }
 
+void NoiseGenerator::setVolumeGain (float volumeGain)
+{
+    this->totalGain = volumeGain;
+}
+
 void NoiseGenerator::mute()
 {
     isMuted = true;

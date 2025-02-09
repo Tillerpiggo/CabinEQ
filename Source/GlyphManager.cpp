@@ -78,15 +78,18 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 //        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }}),
 //    });
     
+//    ArchetypalGlyph diagonalGlyph (3, {
+//        Stroke ({{ -1, -1 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0 }, { 1, 1 }}),
+//        Stroke ({{ 1, 1 }, { 1, 1 }}),
+//        Stroke ({{ 1, 1 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0 }, { 0, 0 }}),
+//        Stroke ({{ 0, 0 }, { -1, -1 }}),
+//        Stroke ({{ -1, -1 }, { -1, -1 }})
+//    });
     ArchetypalGlyph diagonalGlyph (3, {
-        Stroke ({{ -1, -1 }, { 0, 0 }}),
-        Stroke ({{ 0, 0 }, { 0, 0 }}),
-        Stroke ({{ 0, 0 }, { 1, 1 }}),
-        Stroke ({{ 1, 1 }, { 1, 1 }}),
-        Stroke ({{ 1, 1 }, { 0, 0 }}),
-        Stroke ({{ 0, 0 }, { 0, 0 }}),
-        Stroke ({{ 0, 0 }, { -1, -1 }}),
-        Stroke ({{ -1, -1 }, { -1, -1 }})
+        Stroke ({{ -1, -1 }, { 1, 1 }})
     });
     
     ArchetypalGlyph diagonalGlyph2 (4, {
@@ -265,7 +268,6 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     ArchetypalGlyph grid (50, {
         strokes
     });
-    std::cout << "finished initializing glyphs" << std::endl;
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
@@ -275,8 +277,6 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (squareGrid);
     archetypalGlyphs.push_back (longerDiagonal);
     archetypalGlyphs.push_back (panningGlyph3);
-    
-    std::cout << "finsihed glyphManager" << std::endl;
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

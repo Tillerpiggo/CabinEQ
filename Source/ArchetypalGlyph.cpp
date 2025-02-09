@@ -44,7 +44,9 @@ std::vector<NoisePoint> ArchetypalGlyph::cascadingPositionsAtTime (float time) c
     std::vector<NoisePoint> cascadingPositionsAtTime;
     for (const auto& noiseSource : noiseSources)
     {
-        cascadingPositionsAtTime.push_back (noiseSource.noisePointAtTime (time));
+        auto noisePoint = noiseSource.noisePointAtTime (time);
+        cascadingPositionsAtTime.push_back (noisePoint);
+//        std::cout << "posAtTime: (time: " << time << ", x: " << noisePoint.x << ", y: " << noisePoint.y << ", vol: " << noisePoint.vol << std::endl;
     }
     
     return cascadingPositionsAtTime;
@@ -139,7 +141,7 @@ void ArchetypalGlyph::updateNoiseSources()
     std::vector<juce::Point<float>> noisePositions;
     for (const auto& stroke : strokes)
     {
-        int numPositions = std::floor (stroke.getLength() * maxDensity);
+        int numPositions = std::ceil (stroke.getLength() * maxDensity);
         for (int i = 0; i < numPositions; ++i)
         {
             float t = (float) i / ((float) numPositions - 1.0f); // time relative to stroke so that the endpoints have points on them. TODO: modify to divide by numPositions if the stroke loops
@@ -152,7 +154,7 @@ void ArchetypalGlyph::updateNoiseSources()
     std::vector<std::pair<float, float>> noiseStartEndTimes;
     for (int strokeIdx = 0; strokeIdx < strokes.size(); strokeIdx++)
     {
-        int numPositions = std::floor (strokes[strokeIdx].getLength() * maxDensity);
+        int numPositions = std::ceil (strokes[strokeIdx].getLength() * maxDensity);
         
         float strokeStart = strokeIdx / strokes.size();
         float minStrokeLength = 1.0f / strokes.size();

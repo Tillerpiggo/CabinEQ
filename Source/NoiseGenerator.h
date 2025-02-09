@@ -26,6 +26,7 @@ public:
     void setBandpass (float centerFreq);
     void setPan (float pan);
     void setVolumeDB (float volumeDB);
+    void setVolumeGain (float volumeGain);
     void mute();
     
 private:
