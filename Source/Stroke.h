@@ -20,7 +20,7 @@ public:
         : x (x), y (y), vol (vol)
     {}
     
-    juce::Point<float> point()
+    juce::Point<float> point() const
     {
         return { x, y };
     }

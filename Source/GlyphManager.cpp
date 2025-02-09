@@ -92,6 +92,22 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, -1 }, { 1, 1 }})
     });
     
+    ArchetypalGlyph rows (4, {
+        Stroke ({{ -1, 1 }, { 1, 1 }}),
+        Stroke ({{ -1, 0.5 }, { 1, 0.5 }}),
+        Stroke ({{ -1, 0 }, { 1, 0 }}),
+        Stroke ({{ -1, -0.5 }, { 1, -0.5 }}),
+        Stroke ({{ -1, -1 }, { 1, -1 }})
+    });
+    
+    ArchetypalGlyph cols (5, {
+        Stroke ({{ -1, 1 }, { -1, -1 }}),
+        Stroke ({{ -0.5, 1 }, { -0.5, -1 }}),
+        Stroke ({{ 0, 1 }, { 0, -1 }}),
+        Stroke ({{ 0.5, 1 }, { 0.5, -1 }}),
+        Stroke ({{ 1, 1 }, { 1, -1 }})
+    });
+    
     ArchetypalGlyph diagonalGlyph2 (4, {
         Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
 //        Stroke ({{ 1, -1, 0.5 }, { -1, 1, 0.5 }, { 1, -1, 0.5 }})
@@ -273,8 +289,8 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     archetypalGlyphs.push_back (verticalGlyph);
     archetypalGlyphs.push_back (verticalGlyph2);
     archetypalGlyphs.push_back (diagonalGlyph);
-    archetypalGlyphs.push_back (diagonalGlyph2);
-    archetypalGlyphs.push_back (squareGrid);
+    archetypalGlyphs.push_back (rows);
+    archetypalGlyphs.push_back (cols);
     archetypalGlyphs.push_back (longerDiagonal);
     archetypalGlyphs.push_back (panningGlyph3);
 }

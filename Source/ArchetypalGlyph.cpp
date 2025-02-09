@@ -155,14 +155,14 @@ void ArchetypalGlyph::updateNoiseSources()
     {
         int numPositions = std::ceil (strokes[strokeIdx].getLength() * maxDensity);
         
-        float strokeStart = strokeIdx / strokes.size();
-        float minStrokeLength = 1.0f / strokes.size();
+        float strokeStart = (float) strokeIdx / (float) (strokes.size() + 1.0f);
+        float minStrokeLength = 1.0f / (float) (strokes.size() + 1.0f);
         float strokeLength = minStrokeLength + (1.0f - minStrokeLength) * strokeOverlap;
         float strokeEnd = strokeStart + strokeLength;
         for (int i = 0; i < numPositions; ++i)
         {
-            float noiseStart = (float) i / (float) numPositions;
-            float minNoiseLength = 1.0f / numPositions;
+            float noiseStart = (float) i / (float) (numPositions + 1);
+            float minNoiseLength = 1.0f / (float) (numPositions + 1);
             float noiseLength = minNoiseLength + (1.0f - minNoiseLength) * dotOverlap;
             float noiseEnd = noiseStart + noiseLength;
 //            std::cout << "noiseStart: " << noiseStart << std::endl;
@@ -177,9 +177,6 @@ void ArchetypalGlyph::updateNoiseSources()
     {
         auto pos = noisePositions[i];
         auto startEnd = noiseStartEndTimes[i];
-        std::cout << "startTime: " << startEnd.first << ", endTime: " << startEnd.second << std::endl;
         noiseSources.push_back ({ pos.x, pos.y, startEnd.first, startEnd.second, rampLength });
     }
-    
-    std::cout << "finished" << std::endl;
 }

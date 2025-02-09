@@ -92,8 +92,6 @@ void OldGlyphGenerator::setGlyph (OldGlyph glyph)
     }
     
     isMuted = false;
-    
-    std::cout << "finished setting glyph" << std::endl;
 }
 
 void OldGlyphGenerator::setSpeedFactor (float speedFactor)

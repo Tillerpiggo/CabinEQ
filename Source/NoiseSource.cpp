@@ -23,16 +23,27 @@ NoisePoint NoiseSource::noisePointAtTime (float time) const
 
 float NoiseSource::volumeAtTime (float time) const
 {
+    float MIN_DB = -120.0f; // supposed to be about silent
+    
     // First, let's move to relative time where startTime = 0
-    // Then, let's 
+    // Then, let's offset the time by the amount we moved it back...
+    
+    // End ramp, but at the start
+    if (endTime > 1.0f && time < fmod (endTime, 1.0f) && time < startTime)
+    {
+        float normalizedEndTime = fmod (endTime, 1.0f);
+        float rampPercent = std::min ((normalizedEndTime - time) / rampLengthInTime, 1.0f);
+        float volDB = MIN_DB * (1.0f - rampPercent);
+        float gain = juce::Decibels::decibelsToGain (volDB);
+
+        return gain;
+    }
     
     if (time < startTime || time > endTime)
         return 0.0f;
     
     if (time > startTime + rampLengthInTime && time < endTime - rampLengthInTime)
         return 1.0f;
-    
-    float MIN_DB = -120.0f; // supposed to be about silent
     
     // Start ramp
     if (time < startTime + rampLengthInTime)
