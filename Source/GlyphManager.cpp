@@ -26,6 +26,10 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     ArchetypalGlyph verticalGlyph (2, {
         Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
     });
+    
+    ArchetypalGlyph verticalGlyphUpsideDown (3, {
+        Stroke ({{ 0, 1 }, { 0, -1 }, { 0, 1 }})
+    });
 //    ArchetypalGlyph verticalGlyph (2, {
 //        Stroke ({{ 0, -1 }, { 0, 0 }}),
 //        Stroke ({{ 0, 0 }, { 0, 0 }}),
@@ -73,6 +77,12 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 1, 0.33 }, { 1, -0.33 }}), Stroke ({{ 1, -0.33 }, { 1, -0.33 }}),
         Stroke ({{ 1, -0.33 }, { 1, -1 }}), Stroke ({{ 1, -1 }, { 1, -1 }})
     });
+    
+//    ArchetypalGlyph rotatingGlyph (17, {
+//        Stroke ({{ -1, -1 }, { 1, 1 }}),
+//        Stroke ({{ -1, -0.5 }, { 1, 0.5 }}),
+//        Stroke ({{ }})
+//    });
     
 //    ArchetypalGlyph verticalGlyph3 (11, {
 //        
@@ -128,6 +138,14 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ -1, -1 }, { 1, 1 }}),
         Stroke ({{ 0, -1 }, { 0, 1 }}),
         Stroke ({{ 1, 1 }, { 1, 1 }})
+    });
+    
+    ArchetypalGlyph diamond2 (10, {
+        Stroke ({{ 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 }})
+    });
+    
+    ArchetypalGlyph dub (11, {
+        Stroke ({{ -1, 1 }, { -0.5, -1 }, { 0, 1 } , { 0.5, -1 }, { 1, 1 }})
     });
     
 //    ArchetypalGlyph diagonalGlyph2 (4, {
@@ -309,9 +327,13 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
 
     archetypalGlyphs.push_back (horizontalGlyph);
     archetypalGlyphs.push_back (verticalGlyph);
+    archetypalGlyphs.push_back (verticalGlyphUpsideDown);
     archetypalGlyphs.push_back (diagonalGlyph);
     archetypalGlyphs.push_back (diagonalGlyph2);
+    archetypalGlyphs.push_back (diamond2);
+    archetypalGlyphs.push_back (dub);
     archetypalGlyphs.push_back (rows);
+    archetypalGlyphs.push_back (cols);
 //    archetypalGlyphs.push_back (threeRows);
 //    archetypalGlyphs.push_back (cols);
 //    archetypalGlyphs.push_back (diags);

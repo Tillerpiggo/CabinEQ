@@ -27,5 +27,6 @@ public:
 private:
     juce::Font setupButtonFont { juce::FontOptions (16) };
     juce::Label contactLabel;
+    juce::HyperlinkButton howToButton { "How to use", juce::URL("https://docs.google.com/document/d/162MVRm11t0VAeSKOezLR6heoVUkZqhfN9HOny6xhnEk/edit?usp=sharing") };
     juce::HyperlinkButton setupButton { "How to get sound to work", juce::URL("https://docs.google.com/document/d/1QiblNNfKgauabegU9ERn_jlJF5BGtEAp9przLzF1-o8/edit?tab=t.0") };
 };

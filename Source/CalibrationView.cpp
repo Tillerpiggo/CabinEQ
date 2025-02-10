@@ -50,7 +50,7 @@ CalibrationView::CalibrationView()
     qualityComboBox.addListener (this);
     qualityComboBox.setSelectedId (14);
     
-    addSliderAndLabel (&densitySlider, &densityLabel, "Density", 2.0f, 8.0f, 4.0f);
+    addSliderAndLabel (&densitySlider, &densityLabel, "Density", 2.0f, 40.0f, 4.0f);
     addSliderAndLabel (&strokeOverlapSlider, &strokeOverlapLabel, "Stroke Overlap", 0.0f, 1.0f, 0.2f);
     addSliderAndLabel (&dotOverlapSlider, &dotOverlapLabel, "Dot Overlap", 0.0f, 1.0f, 0.2f);
     addSliderAndLabel (&rampLengthSlider, &rampLengthLabel, "Sharpness", 0.0f, 0.5f, 0.2f);

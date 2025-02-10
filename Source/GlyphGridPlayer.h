@@ -14,6 +14,7 @@
 #include "NoiseGenerator.h"
 #include "Glyph.h"
 #include "GainEnvelope.h"
+#include "PatternEnvelope.h"
 
 // This plays a grid of glyphs simultaneously
 class GlyphGridPlayer
@@ -79,4 +80,6 @@ private:
     
     bool barkScalingEnabled = false;
     bool erbScalingEnabled = false;
+    
+    PatternEnvelope patternEnvelope;
 };

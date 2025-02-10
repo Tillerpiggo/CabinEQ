@@ -148,7 +148,7 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
             noiseGenerators[noiseGenIdx].setBandwidth (bandwidth);
             noiseGenerators[noiseGenIdx].setBandpass (freq);
             noiseGenerators[noiseGenIdx].setPan (pan);
-            noiseGenerators[noiseGenIdx].setVolumeGain (vol);
+            noiseGenerators[noiseGenIdx].setVolumeGain (vol);// * patternEnvelope.volumeAtTime (fmod (currTime * 2.0f, 1.0f), i));
             
             noiseGenIdx++;
         }

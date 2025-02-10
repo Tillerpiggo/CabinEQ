@@ -114,6 +114,10 @@
               file="Source/GlyphGridPlayer.cpp"/>
         <FILE id="MLBVno" name="GlyphGridPlayer.h" compile="0" resource="0"
               file="Source/GlyphGridPlayer.h"/>
+        <FILE id="t0hEBL" name="PatternEnvelope.cpp" compile="1" resource="0"
+              file="Source/PatternEnvelope.cpp"/>
+        <FILE id="tAQLFT" name="PatternEnvelope.h" compile="0" resource="0"
+              file="Source/PatternEnvelope.h"/>
         <GROUP id="{26F692A9-D131-4C48-F7CC-A6231946AB74}" name="Sequencer Helpers">
           <FILE id="ggV13i" name="TimeGainEnvelope.cpp" compile="1" resource="0"
                 file="Source/TimeGainEnvelope.cpp"/>

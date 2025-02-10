@@ -52,10 +52,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
         addAndMakeVisible (freeTrialBanner);
         addAndMakeVisible (freeTrialLockScreen);
     }
-    else
-    {
-        addAndMakeVisible (contactUsBanner);
-    }
+    
+    addAndMakeVisible (contactUsBanner);
     
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
@@ -108,10 +106,7 @@ void CabinEqPage::resized()
     layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
-    if (processor.getHasLicense())
-    {
-        layout.addRow ({ Space (&contactUsBanner) }, 40);
-    }
+    layout.addRow ({ Space (&contactUsBanner) }, 40);
     layout.updateComponentBounds();
     
     unlockForm.centreWithSize (getWidth() * 0.8, getHeight() * 0.8);
@@ -377,7 +372,7 @@ void CabinEqPage::unlockApp()
 
     freeTrialBanner.setVisible (false);
     freeTrialLockScreen.setVisible (false);
-    contactUsBanner.setVisible (true);
+//    contactUsBanner.setVisible (true);
     resized();
 }
 
@@ -390,7 +385,7 @@ void CabinEqPage::lockApp()
     
     freeTrialBanner.setVisible (true);
     freeTrialLockScreen.setVisible (true);
-    contactUsBanner.setVisible (false);
+//    contactUsBanner.setVisible (false);
     resized();
 }
 

@@ -15,12 +15,17 @@ ContactUsBanner::ContactUsBanner()
     contactLabel.setJustificationType (juce::Justification::left);
     contactLabel.setText ("Contact Us | julian@cabinaudio.com | tyler@cabinaudio.com", juce::NotificationType::dontSendNotification);
     
+    howToButton.setJustificationType (juce::Justification::right);
+    howToButton.setColour (juce::HyperlinkButton::ColourIds::textColourId, juce::Colours::orange);
+    howToButton.setFont (setupButtonFont, false);
+    
     setupButton.setJustificationType (juce::Justification::right);
     setupButton.setColour (juce::HyperlinkButton::ColourIds::textColourId, juce::Colours::orange);
     setupButton.setFont (setupButtonFont, false);
     
     addAndMakeVisible (contactLabel);
     addAndMakeVisible (setupButton);
+    addAndMakeVisible (howToButton);
 }
 
 ContactUsBanner::~ContactUsBanner()
@@ -34,9 +39,10 @@ void ContactUsBanner::paint (juce::Graphics& g)
 
 void ContactUsBanner::resized()
 {
+    float howToWidth = setupButtonFont.getStringWidth (howToButton.getButtonText()) + 20.0f;
     float setupWidth = setupButtonFont.getStringWidth (setupButton.getButtonText()) + 20.0f;
     
     Layout layout (getBounds().withX (0).withY (0), 8.0f);
-    layout.addRow ({ Space (&contactLabel), Space (&setupButton, setupWidth) });
+    layout.addRow ({ Space (&contactLabel), Space(), Space (&howToButton, howToWidth), Space (&setupButton, setupWidth) });
     layout.updateComponentBounds();
 }

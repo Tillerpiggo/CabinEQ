@@ -404,7 +404,6 @@ float CabinEqAudioProcessor::getMasterVolume()
 
 bool CabinEqAudioProcessor::getHasLicense()
 {
-//    return false;
     return marketplaceStatus.isUnlocked();
 //    return cabinEqProfileManager.getHasLicense();
 }
