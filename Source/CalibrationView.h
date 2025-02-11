@@ -31,7 +31,7 @@ public:
     
     void setListener (GlyphViewListener* listener);
     void setCalibrationListener (CalibrationListener* calibrationListener);
-//    void setDataSource (GlyphViewDataSource* dataSource);
+    //    void setDataSource (GlyphViewDataSource* dataSource);
     void setDataSource (CheckerboardViewDataSource* dataSource);
     
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
@@ -40,7 +40,7 @@ private:
     CalibrationListener* calibrationListener = nullptr;
     
     // Glyph View
-//    GlyphGridView glyphGridView;
+    //    GlyphGridView glyphGridView;
     CheckerboardView checkerboardView;
     
     // Archetype Bar
@@ -55,6 +55,7 @@ private:
     juce::Slider volumeSlider;
     juce::Label volumeLabel;
     juce::TextButton playButton { "Play" };
+    juce::TextButton polarityButton { "Toggle Black/White" };
     juce::TextButton iirButton { "IIR" };
     juce::TextButton updateFilterButton { "Update" };
     juce::ComboBox qualityComboBox;
@@ -62,6 +63,7 @@ private:
     juce::ComboBox erbComboBox;
     juce::ComboBox pinkNoiseBox;
     
+    juce::ComboBox resolutionBox;
     juce::ComboBox isCascadingBox;
     juce::Slider densitySlider;
     juce::Label densityLabel;

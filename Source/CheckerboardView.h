@@ -26,7 +26,7 @@ public:
     
     void setDataSource (CheckerboardViewDataSource* dataSource);
     void updateIsPlaying(); // signals isPlaying is changed, triggers update of visuals
-    void updateCheckerboardChanged(); // signals the checkerboard changes, also triggers update of visuals
+    void updateCheckerboard(); // signals the checkerboard changes, also triggers update of visuals
 private:
     void drawGridLines (juce::Graphics& g);
     void drawSquares (juce::Graphics& g);

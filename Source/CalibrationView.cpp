@@ -18,6 +18,12 @@ CalibrationView::CalibrationView()
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 2.5f);
     addSliderAndLabel (&volumeSlider, &volumeLabel, "Volume", -24.0f, 24.0f, 0.0f);
     addButton (&playButton);
+    addButton (&polarityButton);
+    
+    addAndMakeVisible (resolutionComboBox);
+    int minResolution = 2;
+    int maxResolution = 8;
+    
     
     addAndMakeVisible (scalingComboBox);
     scalingComboBox.addItem ("Logarithmic", 1);
@@ -112,6 +118,13 @@ CalibrationView::CalibrationView()
         checkerboardView.updateIsPlaying();
 //        glyphGridView.updateIsPlaying();
     });
+    addButtonAction (&polarityButton, [this](juce::Button*) {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->toggleCheckerboardPolarity();
+            checkerboardView.updateCheckerboard();
+        }
+    })
     addButtonAction (&iirButton, [this](juce::Button*) {
         isIIR = ! isIIR;
         if (calibrationListener != nullptr)
@@ -161,34 +174,35 @@ void CalibrationView::resized()
     glyphLayout.updateComponentBounds();
     
     // Archetype sidebar
-    Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
-    archetypeBarLayout.addRow ({ Space (&archetypeBar) });
-    archetypeBarLayout.updateComponentBounds();
+//    Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+//    archetypeBarLayout.addRow ({ Space (&archetypeBar) });
+//    archetypeBarLayout.updateComponentBounds();
     
     // Settings section
     Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
-    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
-    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
+//    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
+//    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
-    settingsLayout.addRow ({ Space (&isCascadingBox) });
-    if (isCascadingBox.getSelectedId() == 2)
-    {
-        settingsLayout.addRow ({ Space (80), Space (&densitySlider) });
-        settingsLayout.addRow ({ Space (80), Space (&strokeOverlapSlider) });
-        settingsLayout.addRow ({ Space (80), Space (&dotOverlapSlider) });
-        settingsLayout.addRow ({ Space (80), Space (&rampLengthSlider) });
-        densitySlider.setVisible (true);
-        strokeOverlapSlider.setVisible (true);
-        dotOverlapSlider.setVisible (true);
-        rampLengthSlider.setVisible (true);
-    }
-    else
-    {
-        densitySlider.setVisible (false);
-        strokeOverlapSlider.setVisible (false);
-        dotOverlapSlider.setVisible (false);
-        rampLengthSlider.setVisible (false);
-    }
+    settingsLayout.addRow ({ Space (&polarityButton) });
+//    settingsLayout.addRow ({ Space (&isCascadingBox) });
+//    if (isCascadingBox.getSelectedId() == 2)
+//    {
+//        settingsLayout.addRow ({ Space (80), Space (&densitySlider) });
+//        settingsLayout.addRow ({ Space (80), Space (&strokeOverlapSlider) });
+//        settingsLayout.addRow ({ Space (80), Space (&dotOverlapSlider) });
+//        settingsLayout.addRow ({ Space (80), Space (&rampLengthSlider) });
+//        densitySlider.setVisible (true);
+//        strokeOverlapSlider.setVisible (true);
+//        dotOverlapSlider.setVisible (true);
+//        rampLengthSlider.setVisible (true);
+//    }
+//    else
+//    {
+//        densitySlider.setVisible (false);
+//        strokeOverlapSlider.setVisible (false);
+//        dotOverlapSlider.setVisible (false);
+//        rampLengthSlider.setVisible (false);
+//    }
 //    settingsLayout.addRow ({ Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });

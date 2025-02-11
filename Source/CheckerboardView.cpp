@@ -45,7 +45,7 @@ void CheckerboardView::updateIsPlaying()
     }
 }
 
-void CheckerboardView::updateCheckerboardChanged()
+void CheckerboardView::updateCheckerboard()
 {
     if (dataSource != nullptr)
     {
