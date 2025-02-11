@@ -54,10 +54,10 @@ void CheckerboardView::mouseUp (const juce::MouseEvent &event)
     // If we clicked on something and didn't move our mouse to a different square, toggle the solo at that point
     if (hoverSquareCoords.has_value() && mouseUpCoords == hoverSquareCoords)
     {
-        if (soloSquareCoords.has_value())
-            soloSquareCoords.reset();
+        if (soloSquareCoords.find (mouseUpCoords.value()) != soloSquareCoords.end())
+            soloSquareCoords.erase (mouseUpCoords.value());
         else
-            soloSquareCoords = mouseUpCoords;
+            soloSquareCoords.insert (mouseUpCoords.value());
         
         if (listener != nullptr)
             listener->setSoloSquareCoords (soloSquareCoords);
@@ -135,14 +135,14 @@ void CheckerboardView::drawSquares (juce::Graphics& g)
         for (int panIdx = 0; panIdx < resolution; ++panIdx)
         {
             juce::Colour squareColour = isPlaying ? SQUARE_ON_COLOUR : SQUARE_OFF_COLOUR;
-            bool isSoloSquare = soloSquareCoords.has_value() && panIdx == soloSquareCoords->first && freqIdx == soloSquareCoords->second;
+            bool isSoloSquare = soloSquareCoords.find ({ panIdx, freqIdx }) != soloSquareCoords.end();
             bool isHoveringSquare = hoverSquareCoords.has_value() && panIdx == hoverSquareCoords->first && freqIdx == hoverSquareCoords->second;
             if (! grid[panIdx][freqIdx])
                 squareColour = SQUARE_EMPTY_COLOUR;
             if (isSoloSquare)
                 squareColour = SOLO_SQUARE_COLOUR;
             if (isHoveringSquare)
-                squareColour = squareColour.interpolatedWith (HOVER_SQUARE_COLOUR, 0.5f);
+                squareColour = squareColour.interpolatedWith (HOVER_SQUARE_COLOUR, grid[panIdx][freqIdx] ? 0.3f : 0.1f);
             drawSquare (freqIdx, panIdx, squareColour, g);
         }
     }

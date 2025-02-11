@@ -249,7 +249,7 @@ void PlaybackManager::setCheckerboard (Checkerboard checkerboard)
     checkerboardPlayer.setCheckerboard (checkerboard);
 }
 
-void PlaybackManager::setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords)
+void PlaybackManager::setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords)
 {
     checkerboardPlayer.setSoloSquareCoords (soloSquareCoords);
 }
@@ -258,7 +258,11 @@ void PlaybackManager::setIsAudioFilePlaying (bool isPlaying)
 {
     if (isPlaying)
     {
-        
+        audioTransportSource.start();
+    }
+    else
+    {
+        audioTransportSource.stop();
     }
 }
 

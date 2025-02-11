@@ -222,6 +222,16 @@ void CabinEqAudioProcessor::freeTrialDidReset()
     cabinEqProfileManager.lockAllProfiles();
 }
 
+void CabinEqAudioProcessor::setIsAudioFilePlaying (bool isPlaying)
+{
+    playbackManager.setIsAudioFilePlaying (isPlaying);
+}
+
+void CabinEqAudioProcessor::addAsListener (PlaybackManagerListener* listener)
+{
+    playbackManager.setListener (listener);
+}
+
 void CabinEqAudioProcessor::setVolume (float volume)
 {
     playbackManager.setVolume (volume);
@@ -342,7 +352,7 @@ void CabinEqAudioProcessor::toggleCheckerboardPolarity()
     playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
 }
 
-void CabinEqAudioProcessor::setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords)
+void CabinEqAudioProcessor::setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords)
 {
     playbackManager.setSoloSquareCoords (soloSquareCoords);
 }

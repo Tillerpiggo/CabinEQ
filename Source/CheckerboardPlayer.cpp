@@ -43,7 +43,7 @@ void CheckerboardPlayer::setCheckerboard (Checkerboard checkerboard)
     shouldUpdateNoiseGenerators = true;
 }
 
-void CheckerboardPlayer::setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords)
+void CheckerboardPlayer::setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords)
 {
     this->soloSquareCoords = soloSquareCoords;
     std::cout << "set solo square coords" << std::endl;
@@ -60,13 +60,15 @@ void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
     int resolution = checkerboard.getResolution();
     
     // Clear noise generators and add new ones
-    if (soloSquareCoords.has_value()) // if solo'd, just play the one square
+    if (! soloSquareCoords.empty()) // if solo'd, just play the one square
     {
-        std::cout << "only adding a single square" << std::endl;
-        noiseGenerators.push_back (SquareGenerator());
-        noiseGenerators[0].prepare (spec);
-        noiseGenerators[0].setResolution (resolution);
-        noiseGenerators[0].setCheckerboardCoords (soloSquareCoords->first, soloSquareCoords->second);
+        for (const auto& soloSquareCoordPair : soloSquareCoords)
+        {
+            noiseGenerators.push_back (SquareGenerator());
+            noiseGenerators[0].prepare (spec);
+            noiseGenerators[0].setResolution (resolution);
+            noiseGenerators[0].setCheckerboardCoords (soloSquareCoordPair.first, soloSquareCoordPair.second);
+        }
     }
     else 
     {

@@ -23,6 +23,7 @@
 /**
 */
 class CabinEqAudioProcessor  : public juce::AudioProcessor,
+                               public AudioPlayerComponentListener,
                                public CabinPeqGraphListener,
                                public CabinPeqGraphDataSource,
                                public NoiseGridViewListener,
@@ -87,6 +88,10 @@ public:
     
     void freeTrialDidReset();
     
+    // AudioPlayerComponentListener
+    void setIsAudioFilePlaying (bool isPlaying) override;
+    void addAsListener (PlaybackManagerListener* listener) override;
+    
     // Calibration listener methods
     void setVolume (float volume) override;
     void setCalibrationVolume (float calibrationVolume) override;
@@ -112,7 +117,7 @@ public:
     
     void setCheckerboardResolution (int newResolution) override;
     void toggleCheckerboardPolarity() override;
-    void setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords) override;
+    void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) override;
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);

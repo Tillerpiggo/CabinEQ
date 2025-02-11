@@ -63,7 +63,7 @@ public:
     
     // Checkerboard
     void setCheckerboard (Checkerboard checkerboard);
-    void setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords);
+    void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords);
     
     // Audio file
     void setIsAudioFilePlaying (bool isPlaying);

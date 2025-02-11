@@ -26,6 +26,7 @@
 #include "Listeners.h"
 #include "CabinEqMarketplaceStatus.h"
 #include "CabinEqUnlockForm.h"
+#include "AudioPlayerComponent.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
@@ -84,6 +85,7 @@ protected:
     CabinEqAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
+    AudioPlayerComponent audioPlayerComponent;
     
     bool isBypassed = false;
     

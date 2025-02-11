@@ -117,7 +117,7 @@ class CheckerboardViewListener
 public:
     virtual ~CheckerboardViewListener() = default;
     
-    virtual void setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords) = 0;
+    virtual void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) = 0;
 };
 
 

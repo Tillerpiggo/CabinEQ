@@ -60,7 +60,7 @@ private:
     juce::Colour HOVER_SQUARE_COLOUR = juce::Colours::teal.withLightness (0.5f);
     
     // Solo'd square
-    std::optional<std::pair<int, int>> soloSquareCoords;
+    std::set<std::pair<int, int>> soloSquareCoords;
     std::optional<std::pair<int, int>> hoverSquareCoords;
     std::optional<std::pair<int, int>> mouseDownCoords;
 };

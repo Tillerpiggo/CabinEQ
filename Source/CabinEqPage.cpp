@@ -60,6 +60,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
     addAndMakeVisible (unlockForm);
+    addAndMakeVisible (audioPlayerComponent);
 //    addAndMakeVisible (setupButton);
     unlockForm.setVisible (false);
     
@@ -67,6 +68,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     didLoadData();
     startTimer (100);
+    
+    audioPlayerComponent.setListener (&processor);
     
     loadDropdownOptions();
 }
@@ -96,7 +99,11 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
+    float audioPlayerWidth = 120.0f;
     float sidebarWidth = 120.0f;
+    
+//    Layout audioPlayerLayout (getBounds().withTrimmedLeft (getWidth() - audioPlayerWidth), 0.0f);
+//    audioPlayerLayout.addRow ({ Space (&audioPlayerComponent )});
     
     Layout layout (getBounds(), 0.0f);
     if (! processor.getHasLicense())
