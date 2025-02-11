@@ -37,7 +37,7 @@ std::pair<float, float> SquareGenerator::getNextSample()
     }
     
     // Filter the pink noise
-    if (freqIdx > 0)
+    if (freqIdx < resolution - 1)
     {
         for (int i = 0; i < order; ++i)
         {
@@ -46,7 +46,7 @@ std::pair<float, float> SquareGenerator::getNextSample()
         }
     }
     
-    if (freqIdx < resolution - 1)
+    if (freqIdx > 0)
     {
         for (int i = 0; i < order; ++i)
         {
@@ -142,10 +142,14 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     // Calculate low and high freq based off of freqIdx and resolution
     float logMin = std::log2 (MIN_FREQ);
     float logMax = std::log2 (MAX_FREQ);
-    float freqStep = (logMax - logMin) / resolution;
+    float freqStep = (logMax - logMin) / (float) resolution;
     
     float lowFreq = std::pow (2.0f, logMin + freqIdx * freqStep);
     float highFreq = std::pow (2.0f, logMin + (freqIdx + 1.0f) * freqStep);
+    
+    std::cout << "freqIdx: " << freqIdx << std::endl;
+    std::cout << "lowFreq: " << lowFreq << std::endl;
+    std::cout << "highFreq: " << highFreq << std::endl;
     
     // Compute low and high pass filters to match lowFreq/highFreq bounds
     for (int i = 0; i < order; ++i)
@@ -155,7 +159,6 @@ void SquareGenerator::updateGeneratorsIfNeeded()
         *highPassFiltersLeft[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
         *highPassFiltersRight[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
     }
-    shouldUpdateGenerators = false;
     
     // Update the panning based on panIdx and resolution
     float panStep = 1.0f / (float) resolution;
@@ -165,15 +168,12 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     endPan = endPan * 2.0f - 1.0f; // map to [-1, 1]
     float panWidth = endPan - startPan;
     
-//    std::cout << "panWidth: " << panWidth << std::endl;
-    
     // Populate leftRightGains
     leftRightGains.clear();
     float interPanStep = panWidth / (float) density; // panning division within this one square
     for (int i = 0; i < density; ++i)
     {
         float interPan = startPan + ((float) i + 0.5f) * interPanStep;
-        std::cout << "panIdx: " << panIdx << ", interpan: " << interPan << std::endl;
         float angle = (interPan + 1.0f) * M_PI / 4.0f; // map pan from [-1, 1] to angle [0, π/2]
         float leftGain = std::cos (angle);
         float rightGain = std::sin (angle);
@@ -186,4 +186,6 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     {
         pinkNoises.push_back (PinkNoise());
     }
+    
+    shouldUpdateGenerators = false;
 }
