@@ -31,6 +31,29 @@ bool Checkerboard::getPolarity()
     return polarity;
 }
 
+int Checkerboard::getNumNoiseGenerators()
+{
+    // TODO: test this function
+    
+    // Compute num noise generators with dumb brute force
+    int numNoiseGenerators = 0;
+    bool colPolarity = false; // invert every other column, don't change the first column
+    bool rowPolarity = polarity;
+    for (int panIdx = 0; panIdx < resolution; panIdx++)
+    {
+        for (int freqIdx = 0; freqIdx < resolution; freqIdx++)
+        {
+            if (rowPolarity ^ colPolarity)
+                numNoiseGenerators++;
+            rowPolarity = ! rowPolarity;
+        }
+        rowPolarity = polarity; // start at the same base polarity
+        colPolarity = ! colPolarity; // make sure every other column is inverted
+    }
+    
+    return numNoiseGenerators;
+}
+
 
 void Checkerboard::togglePolarity()
 {

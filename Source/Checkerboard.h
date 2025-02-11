@@ -20,10 +20,11 @@ public:
     
     int getResolution();
     bool getPolarity();
+    int getNumNoiseGenerators(); // returns the number of noise generators needed given this polarity and this time
     
     void togglePolarity();
     
 private:
     int resolution;
-    bool polarity;
+    bool polarity; // true = bottom left corner (0, 0) is filled, false = bottom left corner (0, 0) is empty
 };
