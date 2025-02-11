@@ -330,6 +330,18 @@ void CabinEqAudioProcessor::setRampLength (float rampLength)
     glyphManager.setRampLength (rampLength);
 }
 
+void CabinEqAudioProcessor::setCheckerboardResolution (int newResolution)
+{
+    checkerboardManager.setResolution (newResolution);
+    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
+}
+
+void CabinEqAudioProcessor::toggleCheckerboardPolarity()
+{
+    checkerboardManager.togglePolarity();
+    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
+}
+
 void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
 {
     playbackManager.setProvisionalBands (provisionalBands);
@@ -552,14 +564,24 @@ float CabinEqAudioProcessor::getCurrTime()
     return playbackManager.getCurrPlayingTime();
 }
 
-bool CabinEqAudioProcessor::getIsPlaying()
-{
-    return playbackManager.getIsPlaying();
-}
+//bool CabinEqAudioProcessor::getIsPlaying()
+//{
+//    return playbackManager.getIsPlaying();
+//}
 
 float CabinEqAudioProcessor::getBandwidth()
 {
     return playbackManager.getBandwidth();
+}
+
+const Checkerboard CabinEqAudioProcessor::getCheckerboard()
+{
+    return checkerboardManager.getCheckerboard();
+}
+
+bool CabinEqAudioProcessor::getIsPlaying()
+{
+    return playbackManager.getIsPlaying();
 }
 
 CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()

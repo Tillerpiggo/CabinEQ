@@ -22,8 +22,8 @@ CheckerboardView::~CheckerboardView()
 
 void CheckerboardView::paint (juce::Graphics& g)
 {
-    drawGridLines (g);
     drawSquares (g);
+    drawGridLines (g);
 }
 
 void CheckerboardView::resized()
@@ -98,6 +98,8 @@ void CheckerboardView::drawSquares (juce::Graphics& g)
 void CheckerboardView::drawSquare (int freqIdx, int panIdx, juce::Colour squareColour, juce::Graphics& g)
 {
     auto rect = getRectForFreqIdxAndPanIdx (freqIdx, panIdx);
+    g.setColour (squareColour);
+    g.fillRect (rect);
 }
 
 juce::Rectangle<float> CheckerboardView::getRectForFreqIdxAndPanIdx (int freqIdx, int panIdx)

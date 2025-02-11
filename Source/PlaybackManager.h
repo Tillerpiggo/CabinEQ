@@ -14,9 +14,11 @@
 #include "BandProfile.h"
 #include "FilterChain.h"
 #include "GlyphGridPlayer.h"
+#include "CheckerboardPlayer.h"
 #include "GridSequencer.h"
 #include "ArbitraryResponseFilter.h"
 #include "BandEqCurve.h"
+#include "Checkerboard.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -58,6 +60,9 @@ public:
     void setProvisionalBands (std::vector<Band> provisionalBands);
     void setProvisionalBandsOn (bool isProvisionalOn);
     
+    // Checkerboard
+    void setCheckerboard (Checkerboard checkerboard);
+    
     void setGlyphs (std::vector<Glyph> glyphs);
     void setGrid (NoiseSequenceGrid grid);
     float getCurrPlayingTime();
@@ -74,6 +79,7 @@ private:
     // Sound generation
     GridSequencer gridSequencer;
     GlyphGridPlayer glyphGridPlayer;
+    CheckerboardPlayer checkerboardPlayer;
     
     // Audio Processing
     FilterChain filter;

@@ -71,37 +71,37 @@ CalibrationView::CalibrationView()
         if (calibrationListener != nullptr)
         {
             calibrationListener->setCalibrationVolume (volumeSlider.getValue());
-            glyphGridView.updateGlyphs();
+//            glyphGridView.updateGlyphs();
         }
     });
-    addSliderAction (&densitySlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->setDensity ((int) densitySlider.getValue());
-            glyphGridView.updateGlyphs();
-        }
-    });
-    addSliderAction (&strokeOverlapSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->setStrokeOverlap (strokeOverlapSlider.getValue());
-            glyphGridView.updateGlyphs();
-        }
-    });
-    addSliderAction (&dotOverlapSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->setDotOverlap (dotOverlapSlider.getValue());
-            glyphGridView.updateGlyphs();
-        }
-    });
-    addSliderAction (&rampLengthSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->setRampLength (rampLengthSlider.getValue());
-            glyphGridView.updateGlyphs();
-        }
-    });
+//    addSliderAction (&densitySlider, [this](juce::Slider*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->setDensity ((int) densitySlider.getValue());
+//            glyphGridView.updateGlyphs();
+//        }
+//    });
+//    addSliderAction (&strokeOverlapSlider, [this](juce::Slider*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->setStrokeOverlap (strokeOverlapSlider.getValue());
+//            glyphGridView.updateGlyphs();
+//        }
+//    });
+//    addSliderAction (&dotOverlapSlider, [this](juce::Slider*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->setDotOverlap (dotOverlapSlider.getValue());
+//            glyphGridView.updateGlyphs();
+//        }
+//    });
+//    addSliderAction (&rampLengthSlider, [this](juce::Slider*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->setRampLength (rampLengthSlider.getValue());
+//            glyphGridView.updateGlyphs();
+//        }
+//    });
     
     // Button actions
     addButtonAction (&playButton, [this](juce::Button*) {
@@ -109,7 +109,8 @@ CalibrationView::CalibrationView()
         if (calibrationListener != nullptr)
             calibrationListener->setIsPlaying (isPlaying);
         playButton.setButtonText (isPlaying ? "Pause" : "Play");
-        glyphGridView.updateIsPlaying();
+        checkerboardView.updateIsPlaying();
+//        glyphGridView.updateIsPlaying();
     });
     addButtonAction (&iirButton, [this](juce::Button*) {
         isIIR = ! isIIR;
@@ -127,7 +128,9 @@ CalibrationView::CalibrationView()
 
     
     // Glyph Grid View
-    addAndMakeVisible (glyphGridView);
+//    addAndMakeVisible (glyphGridView);
+    // Checkerboard View
+    addAndMakeVisible (checkerboardView);
     
     // Archetype Bar
     addAndMakeVisible (archetypeViewport);
@@ -153,7 +156,8 @@ void CalibrationView::resized()
     
     // Glyph View
     Layout glyphLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth), 8.0f);
-    glyphLayout.addRow ({ Space (&glyphGridView) });
+    glyphLayout.addRow ({ Space (&checkerboardView ) });
+//    glyphLayout.addRow ({ Space (&glyphGridView) });
     glyphLayout.updateComponentBounds();
     
     // Archetype sidebar
@@ -194,7 +198,7 @@ void CalibrationView::resized()
 
 void CalibrationView::setListener (GlyphViewListener* listener)
 {
-    glyphGridView.setListener (listener);
+//    glyphGridView.setListener (listener);
 }
 
 void CalibrationView::setCalibrationListener (CalibrationListener* calibrationListener)
@@ -202,10 +206,15 @@ void CalibrationView::setCalibrationListener (CalibrationListener* calibrationLi
     this->calibrationListener = calibrationListener;
 }
 
-void CalibrationView::setDataSource (GlyphViewDataSource* dataSource)
+//void CalibrationView::setDataSource (GlyphViewDataSource* dataSource)
+//{
+//    glyphGridView.setDataSource (dataSource);
+//    archetypeBar.setDataSource (dataSource);
+//}
+
+void CalibrationView::setDataSource (CheckerboardViewDataSource* dataSource)
 {
-    glyphGridView.setDataSource (dataSource);
-    archetypeBar.setDataSource (dataSource);
+    checkerboardView.setDataSource (dataSource);
 }
 
 void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
@@ -232,6 +241,6 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     {
         calibrationListener->setIsCascading (isCascadingBox.getSelectedId() == 2);
         resized();
-        glyphGridView.updateGlyphs();
+//        glyphGridView.updateGlyphs();
     }
 }

@@ -13,6 +13,7 @@
 #include "PlaybackManager.h"
 #include "CabinEqProfileManager.h"
 #include "GlyphManager.h"
+#include "CheckerboardManager.h"
 #include "CabinPeqGraph.h"
 #include "Listeners.h"
 #include "FreeTrialBanner.h"
@@ -28,6 +29,7 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public NoiseGridViewDataSource,
                                public GlyphViewListener,
                                public GlyphViewDataSource,
+                               public CheckerboardViewDataSource,
                                public CalibrationListener
 {
 public:
@@ -107,6 +109,9 @@ public:
     void setDotOverlap (float dotOverlap) override;
     void setRampLength (float rampLength) override;
     
+    void setCheckerboardResolution (int newResolution) override;
+    void toggleCheckerboardPolarity() override;
+    
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);
     void setProvisionalBandsOn (bool provisionalBandsOn);
@@ -167,8 +172,12 @@ public:
     const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
     const std::vector<Glyph>& getGlyphs() override;
     float getCurrPlayingTime() override;
-    bool getIsPlaying() override;
+//    bool getIsPlaying() override;
     float getBandwidth() override;
+    
+    // CheckerboardViewDataSource
+    const Checkerboard getCheckerboard() override;
+    bool getIsPlaying() override;
     
     CabinEqMarketplaceStatus& getMarketplaceStatus();
     
@@ -183,6 +192,7 @@ private:
     PlaybackManager playbackManager;
     CabinEqProfileManager cabinEqProfileManager;
     GlyphManager glyphManager;
+    CheckerboardManager checkerboardManager;
     NoiseSequenceGrid noiseSequenceGrid { 3, 3 };
     
     CabinEqMarketplaceStatus marketplaceStatus;

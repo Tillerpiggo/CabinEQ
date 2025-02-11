@@ -84,7 +84,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
     
-    glyphGridPlayer.prepare (spec);
+    checkerboardPlayer.prepare (spec);
+//    glyphGridPlayer.prepare (spec);
     gridSequencer.prepare (spec);
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
@@ -227,6 +228,11 @@ void PlaybackManager::setProvisionalBandsOn (bool provisionalBandsOn)
     this->isProvisionalOn = provisionalBandsOn;
 }
 
+void PlaybackManager::setCheckerboard (Checkerboard checkerboard)
+{
+    checkerboardPlayer.setCheckerboard (checkerboard);
+}
+
 void PlaybackManager::setGlyphs (std::vector<Glyph> glyphs)
 {
     glyphGridPlayer.setGlyphs (glyphs);
@@ -255,18 +261,21 @@ float PlaybackManager::getBandwidth()
 
 std::vector<float> PlaybackManager::getCurrPlayingFreqs()
 {
-    return glyphGridPlayer.getCurrPlayingFreqs();
+    return {}; // for checkerboard player
+//    return glyphGridPlayer.getCurrPlayingFreqs();
 //    return
 //    return gridSequencer.getCurrPlayingFreqs();
 }
 
 std::vector<std::pair<float, float>> PlaybackManager::getCurrPlayingFreqsAndVols()
 {
-    return glyphGridPlayer.getCurrPlayingFreqsAndVols();
+    return {}; // for checkerboard player
+//    return glyphGridPlayer.getCurrPlayingFreqsAndVols();
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return glyphGridPlayer.getNextSample();
+    return checkerboardPlayer.getNextSample();
+//    return glyphGridPlayer.getNextSample();
 //    return gridSequencer.getNextSample();
 }

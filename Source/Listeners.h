@@ -142,6 +142,7 @@ public:
     virtual void setSpeedFactor (float speedFactor) = 0;
     virtual void setBandwidth (float bandwidth) = 0;
     
+    // This section might all be outdated now
     virtual void setIIR (bool isIIR) = 0;
     virtual void updateFIRFilter() = 0;
     virtual void setFIRQuality (int fftSize) = 0;
@@ -155,4 +156,8 @@ public:
     virtual void setStrokeOverlap (float strokeOverlap) = 0;
     virtual void setDotOverlap (float dotOverlap) = 0;
     virtual void setRampLength (float rampLength) = 0;
+    
+    // Checkerboard stuff
+    virtual void setCheckerboardResolution (int newResolution) = 0;
+    virtual void toggleCheckerboardPolarity() = 0;
 };
