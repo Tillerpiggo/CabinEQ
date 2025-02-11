@@ -19,6 +19,7 @@ CalibrationView::CalibrationView()
     addSliderAndLabel (&volumeSlider, &volumeLabel, "Noise Volume", -24.0f, 24.0f, 0.0f);
     addButton (&playButton);
     addButton (&polarityButton);
+    addButton (&autoPolarityButton);
     
     addAndMakeVisible (resolutionComboBox);
     int minResolution = 2;
@@ -130,6 +131,22 @@ CalibrationView::CalibrationView()
             checkerboardView.updateCheckerboard();
         }
     });
+    addButtonAction (&autoPolarityButton, [this](juce::Button*) {
+        if (calibrationListener != nullptr)
+        {
+            isAutoToggling = ! isAutoToggling;
+            if (isAutoToggling)
+            {
+                startTimer (1000);
+                autoPolarityButton.setButtonText ("Stop Auto Toggling");
+            }
+            else
+            {
+                stopTimer();
+                autoPolarityButton.setButtonText ("Auto Toggle");
+            }
+        }
+    });
     addButtonAction (&iirButton, [this](juce::Button*) {
         isIIR = ! isIIR;
         if (calibrationListener != nullptr)
@@ -190,7 +207,7 @@ void CalibrationView::resized()
     float volumeLabelWidth = volumeLabel.getFont().getStringWidth (volumeLabel.getText());
     settingsLayout.addRow ({ Space (volumeLabelWidth), Space (&volumeSlider) });
     settingsLayout.addRow ({ Space (&resolutionComboBox) });
-    settingsLayout.addRow ({ Space (&polarityButton) });
+    settingsLayout.addRow ({ Space (&polarityButton), Space (&autoPolarityButton, 100) });
 //    settingsLayout.addRow ({ Space (&isCascadingBox) });
 //    if (isCascadingBox.getSelectedId() == 2)
 //    {
@@ -274,5 +291,15 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         calibrationListener->setCheckerboardResolution (resolutionComboBox.getSelectedId());
         checkerboardView.updateCheckerboard();
         resized();
+    }
+}
+
+void CalibrationView::timerCallback()
+{
+    std::cout << "timer callback" << std::endl;
+    if (calibrationListener != nullptr)
+    {
+        calibrationListener->toggleCheckerboardPolarity();
+        checkerboardView.updateCheckerboard();
     }
 }

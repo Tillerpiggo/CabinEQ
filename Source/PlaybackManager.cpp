@@ -23,6 +23,9 @@ PlaybackManager::PlaybackManager()
     profileVolumeProcessor.setGainDecibels (0.0f);
     overallVolumeProcessor.setRampDurationSeconds (0.05);
     overallVolumeProcessor.setGainDecibels (0.0f);
+    
+    audioFormatManager.registerBasicFormats();
+    audioTransportSource.addChangeListener (this);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -30,6 +33,17 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     auto* leftChannel = ioBuffer.getWritePointer(0);
     auto* rightChannel = ioBuffer.getNumChannels() > 1 ? ioBuffer.getWritePointer(1) : nullptr;
     
+    // Play audio file
+    if (isPlayingAudioFile)
+    {
+        juce::AudioSourceChannelInfo bufferToFill;
+        bufferToFill.buffer = &ioBuffer;
+        bufferToFill.startSample = 0;
+        bufferToFill.numSamples = ioBuffer.getNumSamples();
+        audioTransportSource.getNextAudioBlock (bufferToFill);
+    }
+    
+    // Calibration noise
     if (isPlayingNoise)
     {
         float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume);
@@ -84,7 +98,9 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
     
+    audioTransportSource.prepareToPlay (spec.maximumBlockSize, spec.sampleRate);
     checkerboardPlayer.prepare (spec);
+    
 //    glyphGridPlayer.prepare (spec);
     gridSequencer.prepare (spec);
     filter.prepare (spec);
@@ -238,6 +254,35 @@ void PlaybackManager::setSoloSquareCoords (std::optional<std::pair<int, int>> so
     checkerboardPlayer.setSoloSquareCoords (soloSquareCoords);
 }
 
+void PlaybackManager::setIsAudioFilePlaying (bool isPlaying)
+{
+    if (isPlaying)
+    {
+        
+    }
+}
+
+void PlaybackManager::setListener (PlaybackManagerListener* listener)
+{
+    this->listener = listener;
+}
+
+void PlaybackManager::setAudioFile (juce::File file)
+{
+    auto* fileReader = audioFormatManager.createReaderFor (file);
+    
+    if (fileReader != nullptr)
+    {
+        auto newAudioSource = std::make_unique<juce::AudioFormatReaderSource> (fileReader, true);
+        audioTransportSource.setSource (newAudioSource.get(), 0, nullptr, fileReader->sampleRate);
+        if (listener != nullptr)
+        {
+//            listener->fileDidLoad();
+        }
+        audioReaderSource.reset (newAudioSource.release());
+    }
+}
+
 void PlaybackManager::setGlyphs (std::vector<Glyph> glyphs)
 {
     glyphGridPlayer.setGlyphs (glyphs);
@@ -276,6 +321,14 @@ std::vector<std::pair<float, float>> PlaybackManager::getCurrPlayingFreqsAndVols
 {
     return {}; // for checkerboard player
 //    return glyphGridPlayer.getCurrPlayingFreqsAndVols();
+}
+
+void PlaybackManager::changeListenerCallback (juce::ChangeBroadcaster* source)
+{
+    if (source == &audioTransportSource)
+    {
+        listener->audioFilePlayingChanged (audioTransportSource.isPlaying());
+    }
 }
 
 std::pair<float, float> PlaybackManager::getNextSample()

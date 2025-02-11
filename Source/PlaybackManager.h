@@ -19,11 +19,12 @@
 #include "ArbitraryResponseFilter.h"
 #include "BandEqCurve.h"
 #include "Checkerboard.h"
+#include "Listeners.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
 /// process audio or play sine tones as needed.
-class PlaybackManager
+class PlaybackManager  : public juce::ChangeListener
 {
 public:
     PlaybackManager();
@@ -64,6 +65,15 @@ public:
     void setCheckerboard (Checkerboard checkerboard);
     void setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords);
     
+    // Audio file
+    void setIsAudioFilePlaying (bool isPlaying);
+    void setListener (PlaybackManagerListener* listener);
+    void setAudioFile (juce::File file);
+    
+    // Change Listener (for audio file)
+    void changeListenerCallback (juce::ChangeBroadcaster* source) override;
+    
+    // Glyph stuff (old)
     void setGlyphs (std::vector<Glyph> glyphs);
     void setGrid (NoiseSequenceGrid grid);
     float getCurrPlayingTime();
@@ -98,6 +108,7 @@ private:
     // State
     bool isFilterOn; // if the EQ curve is being applied
     bool isPlayingNoise; // if calibration audio is being played rather than system audio
+    bool isPlayingAudioFile; // whether it's playing the user-loaded audio file
     bool isCabinNoise = true; // if it is, turn on the tilt filter
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
     bool isIIR = true; // if it is, use filterChain. Otherwise, use firFilter.
@@ -109,4 +120,11 @@ private:
     float bandwidth = 2.5f;
     
     int fftSize = 14;
+    
+    // Audio file stuff
+    juce::AudioFormatManager audioFormatManager;
+    std::unique_ptr<juce::AudioFormatReaderSource> audioReaderSource;
+    juce::AudioTransportSource audioTransportSource;
+    PlaybackManagerListener* listener;
+    
 };

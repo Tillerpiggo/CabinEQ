@@ -73,6 +73,10 @@
           <FILE id="ZVJieY" name="BuildableComponent.h" compile="0" resource="0"
                 file="Source/BuildableComponent.h"/>
         </GROUP>
+        <FILE id="RcknLC" name="AudioPlayerComponent.cpp" compile="1" resource="0"
+              file="Source/AudioPlayerComponent.cpp"/>
+        <FILE id="oETEKy" name="AudioPlayerComponent.h" compile="0" resource="0"
+              file="Source/AudioPlayerComponent.h"/>
         <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
         <FILE id="XTfbD5" name="CabinPeqGraph.cpp" compile="1" resource="0"

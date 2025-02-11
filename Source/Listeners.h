@@ -17,6 +17,23 @@
 #include "Checkerboard.h"
 #include "Glyph.h"
 
+class PlaybackManagerListener
+{
+public:
+    virtual ~PlaybackManagerListener() = default;
+    
+    virtual void audioFilePlayingChanged (bool isPlaying) = 0;
+};
+
+class AudioPlayerComponentListener
+{
+public:
+    virtual ~AudioPlayerComponentListener() = default;
+    
+    virtual void setIsAudioFilePlaying (bool isPlaying) = 0;
+    virtual void addAsListener (PlaybackManagerListener* listener) = 0;
+};
+
 class CabinPeqGraphListener
 {
 public:
