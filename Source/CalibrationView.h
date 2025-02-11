@@ -63,7 +63,7 @@ private:
     juce::ComboBox erbComboBox;
     juce::ComboBox pinkNoiseBox;
     
-    juce::ComboBox resolutionBox;
+    juce::ComboBox resolutionComboBox;
     juce::ComboBox isCascadingBox;
     juce::Slider densitySlider;
     juce::Label densityLabel;

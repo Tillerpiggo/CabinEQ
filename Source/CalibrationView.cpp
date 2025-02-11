@@ -16,14 +16,19 @@ CalibrationView::CalibrationView()
     addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
     speedSlider.setSkewFactorFromMidPoint (1.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 2.5f);
-    addSliderAndLabel (&volumeSlider, &volumeLabel, "Volume", -24.0f, 24.0f, 0.0f);
+    addSliderAndLabel (&volumeSlider, &volumeLabel, "Noise Volume", -24.0f, 24.0f, 0.0f);
     addButton (&playButton);
     addButton (&polarityButton);
     
     addAndMakeVisible (resolutionComboBox);
     int minResolution = 2;
     int maxResolution = 8;
-    
+    for (int i = minResolution; i <= maxResolution; ++i)
+    {
+        resolutionComboBox.addItem (std::to_string (i) + "x" + std::to_string (i), i);
+    }
+    resolutionComboBox.setSelectedId (2); // start out at resolution 2
+    resolutionComboBox.addListener (this);
     
     addAndMakeVisible (scalingComboBox);
     scalingComboBox.addItem ("Logarithmic", 1);
@@ -124,7 +129,7 @@ CalibrationView::CalibrationView()
             calibrationListener->toggleCheckerboardPolarity();
             checkerboardView.updateCheckerboard();
         }
-    })
+    });
     addButtonAction (&iirButton, [this](juce::Button*) {
         isIIR = ! isIIR;
         if (calibrationListener != nullptr)
@@ -179,10 +184,12 @@ void CalibrationView::resized()
 //    archetypeBarLayout.updateComponentBounds();
     
     // Settings section
-    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
+    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
 //    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
 //    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
-    settingsLayout.addRow ({ Space (80), Space (&volumeSlider) });
+    float volumeLabelWidth = volumeLabel.getFont().getStringWidth (volumeLabel.getText());
+    settingsLayout.addRow ({ Space (volumeLabelWidth), Space (&volumeSlider) });
+    settingsLayout.addRow ({ Space (&resolutionComboBox) });
     settingsLayout.addRow ({ Space (&polarityButton) });
 //    settingsLayout.addRow ({ Space (&isCascadingBox) });
 //    if (isCascadingBox.getSelectedId() == 2)
@@ -256,5 +263,10 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         calibrationListener->setIsCascading (isCascadingBox.getSelectedId() == 2);
         resized();
 //        glyphGridView.updateGlyphs();
+    }
+    else if (comboBoxThatHasChanged == &resolutionComboBox)
+    {
+        calibrationListener->setCheckerboardResolution (resolutionComboBox.getSelectedId());
+        resized();
     }
 }

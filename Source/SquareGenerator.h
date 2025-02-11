@@ -21,8 +21,9 @@ public:
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setResolution (int resolution);
-    void setFreqIdx (int freqIdx);
-    void setPanIdx (int panIdx);
+    void setCheckerboardCoords (int panIdx, int freqIdx);
+//    void setFreqIdx (int freqIdx);
+//    void setPanIdx (int panIdx);
     void setVolumeGain (float volumeGain);
     
 private:

@@ -87,25 +87,47 @@ void SquareGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 void SquareGenerator::setResolution (int resolution)
 {
     this->resolution = resolution;
+    shouldUpdateGenerators = true;
 }
 
-void SquareGenerator::setFreqIdx (int freqIdx)
+void SquareGenerator::setCheckerboardCoords (int panIdx, int freqIdx)
 {
     if (freqIdx >= resolution || freqIdx < 0)
     {
         std::cerr << "ERR: trying to set out of bounds freqIdx (freqIdx: " << freqIdx << ", resolution: " << resolution << ") in SquareGenerator::setFreqIdx" << std::endl;
         return;
     }
-    this->freqIdx = freqIdx;
-}
-
-void SquareGenerator::setPanIdx (int panIdx)
-{
-    if (panIdx >= resolution || panIdx < resolution)
+    
+    if (panIdx >= resolution || panIdx < 0)
     {
         std::cerr << "ERR: trying to set out of bounds panIdx (panIdx: " << panIdx << ", resolution: " << resolution << ") in SquareGenerator::setPanIdx" << std::endl;
     }
+    
+    this->freqIdx = freqIdx;
+    this->panIdx = panIdx;
+    shouldUpdateGenerators = true;
 }
+//
+//void SquareGenerator::setFreqIdx (int freqIdx)
+//{
+//    if (freqIdx >= resolution || freqIdx < 0)
+//    {
+//        std::cerr << "ERR: trying to set out of bounds freqIdx (freqIdx: " << freqIdx << ", resolution: " << resolution << ") in SquareGenerator::setFreqIdx" << std::endl;
+//        return;
+//    }
+//    this->freqIdx = freqIdx;
+//    updateGeneratorsIfNeeded();
+//}
+//
+//void SquareGenerator::setPanIdx (int panIdx)
+//{
+//    if (panIdx >= resolution || panIdx < resolution)
+//    {
+//        std::cerr << "ERR: trying to set out of bounds panIdx (panIdx: " << panIdx << ", resolution: " << resolution << ") in SquareGenerator::setPanIdx" << std::endl;
+//    }
+//    this->panIdx = panIdx;
+//    updateGeneratorsIfNeeded();
+//}
 
 void SquareGenerator::setVolumeGain (float volumeGain)
 {

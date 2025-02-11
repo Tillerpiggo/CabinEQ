@@ -48,6 +48,23 @@ void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
     if (! shouldUpdateNoiseGenerators)
         return;
     
+    noiseGenerators.clear();
+    
     // Clear noise generators and add new ones
     int numNoiseGenerators = checkerboard.getNumNoiseGenerators();
+    int resolution = checkerboard.getResolution();
+    for (int freqIdx = 0; freqIdx < resolution; ++freqIdx)
+    {
+        for (int panIdx = 0; panIdx < resolution; ++panIdx)
+        {
+            int lastIdx = freqIdx * resolution + panIdx;
+            noiseGenerators.push_back (SquareGenerator());
+            noiseGenerators[lastIdx].prepare (spec);
+            noiseGenerators[lastIdx].setResolution (resolution);
+            noiseGenerators[lastIdx].setCheckerboardCoords (panIdx, freqIdx);
+            
+        }
+    }
+    
+    shouldUpdateNoiseGenerators = false;
 }
