@@ -15,7 +15,8 @@
 #include "Checkerboard.h"
 
 // This view displays a dynamic checkerboard that represents a given checkerboard. It also includes an interface for changing the displayed checkerboard interactively (not yet)
-class CheckerboardView  : public juce::Component
+class CheckerboardView  : public juce::Component,
+                          public juce::Timer
 {
 public:
     
@@ -36,6 +37,8 @@ public:
     void setDataSource (CheckerboardViewDataSource* dataSource);
     void updateIsPlaying(); // signals isPlaying is changed, triggers update of visuals
     void updateCheckerboard(); // signals the checkerboard changes, also triggers update of visuals
+    
+    void timerCallback();
 private:
     void drawGridLines (juce::Graphics& g);
     void drawSquares (juce::Graphics& g);

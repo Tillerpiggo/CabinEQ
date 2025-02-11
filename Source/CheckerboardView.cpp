@@ -12,7 +12,7 @@
 
 CheckerboardView::CheckerboardView()
 {
-    
+    startTimer (5);
 }
 
 CheckerboardView::~CheckerboardView()
@@ -97,6 +97,11 @@ void CheckerboardView::updateCheckerboard()
         this->checkerboard = dataSource->getCheckerboard();
         repaint();
     }
+}
+
+void CheckerboardView::timerCallback()
+{
+    repaint();
 }
 
 void CheckerboardView::drawGridLines (juce::Graphics& g)
