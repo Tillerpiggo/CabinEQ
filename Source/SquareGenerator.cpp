@@ -14,8 +14,10 @@ SquareGenerator::SquareGenerator()
 {
     for (int i = 0; i < order; ++i)
     {
-        lowPassFilters.push_back (juce::dsp::IIR::Filter<float>());
-        highPassFilters.push_back (juce::dsp::IIR::Filter<float>());
+        lowPassFiltersLeft.push_back (juce::dsp::IIR::Filter<float>());
+        lowPassFiltersRight.push_back (juce::dsp::IIR::Filter<float>());
+        highPassFiltersLeft.push_back (juce::dsp::IIR::Filter<float>());
+        highPassFiltersRight.push_back (juce::dsp::IIR::Filter<float>());
     }
 }
 
@@ -35,9 +37,22 @@ std::pair<float, float> SquareGenerator::getNextSample()
     }
     
     // Filter the pink noise
-    for (int i = 0; i < order; ++i)
+    if (freqIdx > 0)
     {
-        pinkNoiseSample = lowPassFilters[i].processSample (nextLeftSample);
+        for (int i = 0; i < order; ++i)
+        {
+            nextLeftSample = lowPassFiltersLeft[i].processSample (nextLeftSample);
+            nextRightSample = lowPassFiltersRight[i].processSample (nextRightSample);
+        }
+    }
+    
+    if (freqIdx < resolution - 1)
+    {
+        for (int i = 0; i < order; ++i)
+        {
+            nextLeftSample = highPassFiltersLeft[i].processSample (nextLeftSample);
+            nextRightSample = highPassFiltersRight[i].processSample (nextRightSample);
+        }
     }
     
     // Reset the filters if needed
@@ -45,23 +60,33 @@ std::pair<float, float> SquareGenerator::getNextSample()
     {
         for (int i = 0; i < order; ++i)
         {
-            lowPassFilters[i].snapToZero();
-            highPassFilters[i].snapToZero();
+            lowPassFiltersLeft[i].snapToZero();
+            lowPassFiltersRight[i].snapToZero();
+            highPassFiltersLeft[i].snapToZero();
+            highPassFiltersRight[i].snapToZero();
         }
         snapToZeroCounter = 0;
     }
+    snapToZeroCounter++;
     
-    
+    return { nextLeftSample, nextRightSample };
 }
 
 void SquareGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    
+    this->sampleRate = spec.sampleRate;
+    for (int i = 0; i < order; ++i)
+    {
+        lowPassFiltersLeft[i].prepare (spec);
+        lowPassFiltersRight[i].prepare (spec);
+        highPassFiltersLeft[i].prepare (spec);
+        highPassFiltersRight[i].prepare (spec);
+    }
 }
 
 void SquareGenerator::setResolution (int resolution)
 {
-    
+    this->resolution = resolution;
 }
 
 void SquareGenerator::setFreqIdx (int freqIdx)
@@ -103,8 +128,10 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     // Compute low and high pass filters to match lowFreq/highFreq bounds
     for (int i = 0; i < order; ++i)
     {
-        *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
-        *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
+        *lowPassFiltersLeft[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
+        *lowPassFiltersRight[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
+        *highPassFiltersLeft[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
+        *highPassFiltersRight[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
     }
     shouldUpdateGenerators = false;
     

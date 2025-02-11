@@ -22,6 +22,7 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setResolution (int resolution);
     void setFreqIdx (int freqIdx);
+    void setPanIdx (int panIdx);
     void setVolumeGain (float volumeGain);
     
 private:
@@ -33,8 +34,10 @@ private:
     
     // Pink noise generation
     std::vector<PinkNoise> pinkNoises;
-    std::vector<juce::dsp::IIR::Filter<float>> lowPassFilters;
-    std::vector<juce::dsp::IIR::Filter<float>> highPassFilters;
+    std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersLeft;
+    std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersRight;
+    std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersLeft;
+    std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersRight;
     int order = 16;
     int snapToZeroCounter = 0;
     
