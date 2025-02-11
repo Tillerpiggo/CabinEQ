@@ -29,6 +29,7 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public NoiseGridViewDataSource,
                                public GlyphViewListener,
                                public GlyphViewDataSource,
+                               public CheckerboardViewListener,
                                public CheckerboardViewDataSource,
                                public CalibrationListener
 {
@@ -111,6 +112,7 @@ public:
     
     void setCheckerboardResolution (int newResolution) override;
     void toggleCheckerboardPolarity() override;
+    void setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords) override;
     
     // Provisional bands
     void setProvisionalBands (std::vector<Band> provisionalBands);

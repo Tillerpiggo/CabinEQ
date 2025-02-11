@@ -62,6 +62,7 @@ public:
     
     // Checkerboard
     void setCheckerboard (Checkerboard checkerboard);
+    void setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords);
     
     void setGlyphs (std::vector<Glyph> glyphs);
     void setGrid (NoiseSequenceGrid grid);

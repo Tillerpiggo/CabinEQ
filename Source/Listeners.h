@@ -95,6 +95,15 @@ public:
     virtual float getBandwidth() = 0;
 };
 
+class CheckerboardViewListener
+{
+public:
+    virtual ~CheckerboardViewListener() = default;
+    
+    virtual void setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords) = 0;
+};
+
+
 class CheckerboardViewDataSource
 {
 public:
@@ -161,3 +170,5 @@ public:
     virtual void setCheckerboardResolution (int newResolution) = 0;
     virtual void toggleCheckerboardPolarity() = 0;
 };
+
+

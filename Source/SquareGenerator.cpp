@@ -158,19 +158,22 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     shouldUpdateGenerators = false;
     
     // Update the panning based on panIdx and resolution
-    float panStep = 1.0f / resolution;
+    float panStep = 1.0f / (float) resolution;
     float startPan = panStep * (panIdx); // mapped to [0, 1]
-    float endPan = panStep * (panIdx); // mapped to [0, 1]
+    float endPan = panStep * (panIdx + 1.0f); // mapped to [0, 1]
     startPan = startPan * 2.0f - 1.0f; // map to [-1, 1]
     endPan = endPan * 2.0f - 1.0f; // map to [-1, 1]
     float panWidth = endPan - startPan;
     
+//    std::cout << "panWidth: " << panWidth << std::endl;
+    
     // Populate leftRightGains
     leftRightGains.clear();
-    float interPanStep = panWidth / density; // panning division within this one square
+    float interPanStep = panWidth / (float) density; // panning division within this one square
     for (int i = 0; i < density; ++i)
     {
-        float interPan = (i + 0.5f) * interPanStep;
+        float interPan = startPan + ((float) i + 0.5f) * interPanStep;
+        std::cout << "panIdx: " << panIdx << ", interpan: " << interPan << std::endl;
         float angle = (interPan + 1.0f) * M_PI / 4.0f; // map pan from [-1, 1] to angle [0, π/2]
         float leftGain = std::cos (angle);
         float rightGain = std::sin (angle);

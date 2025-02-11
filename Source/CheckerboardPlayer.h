@@ -22,6 +22,7 @@ public:
     std::pair<float, float> getNextSample();
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setCheckerboard (Checkerboard checkerboard);
+    void setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords); // soloSquareCoords are [panIdx, freqIdx] - sets the coords of the currently "solod" square so that it only plays that square while muting everything else. If set to null, stops soloing the square
     
 private:
     void updateNoiseGeneratorsIfNeeded(); // completely recaulcates noise generators if shouldUpdateNoiseGenerators = true
@@ -29,6 +30,8 @@ private:
     juce::dsp::ProcessSpec spec;
     Checkerboard checkerboard;
     std::vector<SquareGenerator> noiseGenerators;
+    
+    std::optional<std::pair<int, int>> soloSquareCoords;
     
     bool shouldUpdateNoiseGenerators = true;
     

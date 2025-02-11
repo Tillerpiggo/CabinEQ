@@ -217,9 +217,14 @@ void CalibrationView::resized()
     settingsLayout.updateComponentBounds();
 }
 
-void CalibrationView::setListener (GlyphViewListener* listener)
+//void CalibrationView::setListener (GlyphViewListener* listener)
+//{
+////    glyphGridView.setListener (listener);
+//}
+
+void CalibrationView::setListener (CheckerboardViewListener* listener)
 {
-//    glyphGridView.setListener (listener);
+    checkerboardView.setListener (listener);
 }
 
 void CalibrationView::setCalibrationListener (CalibrationListener* calibrationListener)
@@ -267,6 +272,7 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == &resolutionComboBox)
     {
         calibrationListener->setCheckerboardResolution (resolutionComboBox.getSelectedId());
+        checkerboardView.updateCheckerboard();
         resized();
     }
 }

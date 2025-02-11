@@ -342,6 +342,11 @@ void CabinEqAudioProcessor::toggleCheckerboardPolarity()
     playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
 }
 
+void CabinEqAudioProcessor::setSoloSquareCoords (std::optional<std::pair<int, int>> soloSquareCoords)
+{
+    playbackManager.setSoloSquareCoords (soloSquareCoords);
+}
+
 void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
 {
     playbackManager.setProvisionalBands (provisionalBands);

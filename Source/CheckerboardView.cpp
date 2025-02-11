@@ -31,6 +31,51 @@ void CheckerboardView::resized()
     
 }
 
+void CheckerboardView::mouseMove (const juce::MouseEvent &event)
+{
+    // Update hoverSquareCoords
+    hoverSquareCoords = coordsForMouseEvent (event);
+}
+
+void CheckerboardView::mouseDown (const juce::MouseEvent &event)
+{
+    mouseDownCoords = coordsForMouseEvent (event);
+}
+
+void CheckerboardView::mouseDrag (const juce::MouseEvent &event)
+{
+    
+}
+
+void CheckerboardView::mouseUp (const juce::MouseEvent &event)
+{
+    auto mouseUpCoords = coordsForMouseEvent (event);
+    
+    // If we clicked on something and didn't move our mouse to a different square, toggle the solo at that point
+    if (hoverSquareCoords.has_value() && mouseUpCoords == hoverSquareCoords)
+    {
+        if (soloSquareCoords.has_value())
+            soloSquareCoords.reset();
+        else
+            soloSquareCoords = mouseUpCoords;
+        
+        if (listener != nullptr)
+            listener->setSoloSquareCoords (soloSquareCoords);
+    }
+    
+    mouseDownCoords = std::nullopt;
+}
+
+void CheckerboardView::mouseExit (const juce::MouseEvent &event)
+{
+    hoverSquareCoords.reset();
+}
+
+void CheckerboardView::setListener (CheckerboardViewListener* listener)
+{
+    this->listener = listener;
+}
+
 void CheckerboardView::setDataSource (CheckerboardViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
@@ -89,8 +134,16 @@ void CheckerboardView::drawSquares (juce::Graphics& g)
     {
         for (int panIdx = 0; panIdx < resolution; ++panIdx)
         {
-            if (grid[panIdx][freqIdx])
-                drawSquare (freqIdx, panIdx, isPlaying ? SQUARE_ON_COLOUR : SQUARE_OFF_COLOUR, g);
+            juce::Colour squareColour = isPlaying ? SQUARE_ON_COLOUR : SQUARE_OFF_COLOUR;
+            bool isSoloSquare = soloSquareCoords.has_value() && panIdx == soloSquareCoords->first && freqIdx == soloSquareCoords->second;
+            bool isHoveringSquare = hoverSquareCoords.has_value() && panIdx == hoverSquareCoords->first && freqIdx == hoverSquareCoords->second;
+            if (! grid[panIdx][freqIdx])
+                squareColour = SQUARE_EMPTY_COLOUR;
+            if (isSoloSquare)
+                squareColour = SOLO_SQUARE_COLOUR;
+            if (isHoveringSquare)
+                squareColour = squareColour.interpolatedWith (HOVER_SQUARE_COLOUR, 0.5f);
+            drawSquare (freqIdx, panIdx, squareColour, g);
         }
     }
 }
@@ -131,4 +184,22 @@ juce::Rectangle<float> CheckerboardView::getRectForFreqIdxAndPanIdx (int freqIdx
     return { absX, absY, width, height };
 }
 
-
+std::optional<std::pair<int, int>> CheckerboardView::coordsForMouseEvent (const juce::MouseEvent &event)
+{
+    if (dataSource == nullptr)
+        return std::nullopt;
+    
+    // Get absolute coords
+    int resolution = checkerboard.getResolution();
+    auto absCoords = event.getPosition().toFloat();
+    float relativeX = (absCoords.x / (float) getWidth()) * resolution;
+    float relativeY = (1.0f - (absCoords.y / (float) getHeight())) * resolution;
+    int panIdx = std::floor (relativeX);
+    int freqIdx = std::floor (relativeY);
+    
+    // Make sure we're within bounds
+    panIdx = std::min (resolution - 1, std::max (0, panIdx));
+    freqIdx = std::min (resolution - 1, std::max (0, freqIdx));
+    
+    return std::optional<std::pair<int, int>> ({ panIdx, freqIdx });
+}

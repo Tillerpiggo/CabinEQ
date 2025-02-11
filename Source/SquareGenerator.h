@@ -43,8 +43,8 @@ private:
     int snapToZeroCounter = 0;
     
     int resolution = 2;
-    int freqIdx; // the frequency idx from [0, resolution). Panning width assumed to match resolution width. 0 is lowest and resolution is highest.
-    int panIdx; // the pan idx from [0, resolution]. 0 is farthest to left, 1 is farthest to right.
+    int freqIdx = 0; // the frequency idx from [0, resolution). Panning width assumed to match resolution width. 0 is lowest and resolution is highest.
+    int panIdx = 0; // the pan idx from [0, resolution]. 0 is farthest to left, 1 is farthest to right.
     int density = 4; // noise sources per unit resolution
     
     bool shouldUpdateGenerators = true; // updates generators and position to match resolution, freqIdx, and volumeGain

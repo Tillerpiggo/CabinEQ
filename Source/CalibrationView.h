@@ -29,7 +29,7 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     
-    void setListener (GlyphViewListener* listener);
+    void setListener (CheckerboardViewListener* listener);
     void setCalibrationListener (CalibrationListener* calibrationListener);
     //    void setDataSource (GlyphViewDataSource* dataSource);
     void setDataSource (CheckerboardViewDataSource* dataSource);
