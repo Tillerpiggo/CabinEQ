@@ -13,49 +13,74 @@
 Checkerboard::Checkerboard()
     : resolution (2), polarity (true)
 {
-    
+    calculateGrid();
 }
 
 Checkerboard::Checkerboard (int resolution, bool polarity)
     : resolution (resolution), polarity (polarity)
 {
+    calculateGrid();
 }
 
-int Checkerboard::getResolution()
+int Checkerboard::getResolution() const
 {
     return resolution;
 }
 
-bool Checkerboard::getPolarity()
+bool Checkerboard::getPolarity() const
 {
     return polarity;
 }
 
-int Checkerboard::getNumNoiseGenerators()
+int Checkerboard::getNumNoiseGenerators() const
 {
-    // TODO: test this function
-    
-    // Compute num noise generators with dumb brute force
+    // Just count the number of 1's in grid
     int numNoiseGenerators = 0;
-    bool colPolarity = false; // invert every other column, don't change the first column
-    bool rowPolarity = polarity;
-    for (int panIdx = 0; panIdx < resolution; panIdx++)
+    for (int i = 0; i < resolution; ++i)
     {
-        for (int freqIdx = 0; freqIdx < resolution; freqIdx++)
+        for (int j = 0; j < resolution; ++j)
         {
-            if (rowPolarity ^ colPolarity)
+            if (grid[i][j])
                 numNoiseGenerators++;
-            rowPolarity = ! rowPolarity;
         }
-        rowPolarity = polarity; // start at the same base polarity
-        colPolarity = ! colPolarity; // make sure every other column is inverted
     }
-    
     return numNoiseGenerators;
+}
+
+std::vector<std::vector<bool>> Checkerboard::getGrid() const
+{
+    return grid;
+}
+
+void Checkerboard::setResolution (int resolution)
+{
+    this->resolution = resolution;
+    calculateGrid();
 }
 
 
 void Checkerboard::togglePolarity()
 {
     polarity = ! polarity;
+    calculateGrid();
+}
+
+void Checkerboard::calculateGrid()
+{
+    // Calculates and populates the grid based on current resolution and polarity
+    grid.clear();
+    
+    bool colPolarity = false; // invert every other column, don't change the first column
+    bool rowPolarity = polarity;
+    for (int panIdx = 0; panIdx < resolution; panIdx++)
+    {
+        grid.push_back (std::vector<bool>());
+        for (int freqIdx = 0; freqIdx < resolution; freqIdx++)
+        {
+            grid[panIdx].push_back (rowPolarity ^ colPolarity);
+            rowPolarity = ! rowPolarity;
+        }
+        rowPolarity = polarity; // start at the same base polarity
+        colPolarity = ! colPolarity; // make sure every other column is inverted
+    }
 }

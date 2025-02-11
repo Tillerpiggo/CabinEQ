@@ -14,6 +14,7 @@
 #include "BandProfile.h"
 #include "NoiseSequence.h"
 #include "NoiseSequenceGrid.h"
+#include "Checkerboard.h"
 #include "Glyph.h"
 
 class CabinPeqGraphListener
@@ -92,6 +93,15 @@ public:
     virtual float getCurrPlayingTime() = 0;
     virtual bool getIsPlaying() = 0;
     virtual float getBandwidth() = 0;
+};
+
+class CheckerboardViewDataSource
+{
+public:
+    virtual ~CheckerboardViewDataSource() = default;
+    
+    virtual const Checkerboard getCheckerboard() = 0;
+    virtual bool getIsPlaying() = 0;
 };
 
 class FreeTrialListener

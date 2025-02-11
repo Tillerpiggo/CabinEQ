@@ -49,5 +49,5 @@ void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
         return;
     
     // Clear noise generators and add new ones
-    int numNoiseGenerators = checkerboard.getNumNoiseSources();
+    int numNoiseGenerators = checkerboard.getNumNoiseGenerators();
 }
