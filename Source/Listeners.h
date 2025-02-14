@@ -31,6 +31,7 @@ public:
     virtual ~AudioPlayerComponentListener() = default;
     
     virtual void setIsAudioFilePlaying (bool isPlaying) = 0;
+    virtual void setFile (juce::File file) = 0;
     virtual void addAsListener (PlaybackManagerListener* listener) = 0;
 };
 
@@ -185,6 +186,7 @@ public:
     
     // Checkerboard stuff
     virtual void setCheckerboardResolution (int newResolution) = 0;
+    virtual void setCheckerboardSharpness (float newSharpness) = 0;
     virtual void toggleCheckerboardPolarity() = 0;
 };
 

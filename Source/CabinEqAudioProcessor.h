@@ -90,6 +90,7 @@ public:
     
     // AudioPlayerComponentListener
     void setIsAudioFilePlaying (bool isPlaying) override;
+    void setFile (juce::File file) override;
     void addAsListener (PlaybackManagerListener* listener) override;
     
     // Calibration listener methods
@@ -116,6 +117,7 @@ public:
     void setRampLength (float rampLength) override;
     
     void setCheckerboardResolution (int newResolution) override;
+    void setCheckerboardSharpness (float newSharpness) override;
     void toggleCheckerboardPolarity() override;
     void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) override;
     

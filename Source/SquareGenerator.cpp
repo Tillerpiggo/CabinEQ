@@ -28,16 +28,16 @@ std::pair<float, float> SquareGenerator::getNextSample()
     // Get the pink noise sample by adding pink noises
     float nextLeftSample = 0.0f;
     float nextRightSample = 0.0f;
-    for (int i = 0; i < pinkNoises.size(); ++i)
+    for (int i = 0; i < leftRightGains.size(); ++i)
     {
         auto [leftGain, rightGain] = leftRightGains[i];
-        float pinkNoiseSample = pinkNoises[i].generate() * 10.0f * totalGain / (float) density;
+        float pinkNoiseSample = random.nextFloat() * totalGain * 10.0f / (float) density;//pinkNoises[i].generate() * 10.0f * totalGain / (float) density;
         nextLeftSample += pinkNoiseSample * leftGain;
         nextRightSample += pinkNoiseSample * rightGain;
     }
     
     // Filter the pink noise
-    if (freqIdx < resolution - 1)
+    if (true || freqIdx < resolution - 1)
     {
         for (int i = 0; i < order; ++i)
         {
@@ -46,7 +46,7 @@ std::pair<float, float> SquareGenerator::getNextSample()
         }
     }
     
-    if (freqIdx > 0)
+    if (true || freqIdx > 0)
     {
         for (int i = 0; i < order; ++i)
         {
@@ -87,6 +87,12 @@ void SquareGenerator::prepare (const juce::dsp::ProcessSpec& spec)
 void SquareGenerator::setResolution (int resolution)
 {
     this->resolution = resolution;
+    shouldUpdateGenerators = true;
+}
+
+void SquareGenerator::setSharpness (float sharpness)
+{
+    this->sharpness = sharpness;
     shouldUpdateGenerators = true;
 }
 
@@ -147,9 +153,9 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     float lowFreq = std::pow (2.0f, logMin + freqIdx * freqStep);
     float highFreq = std::pow (2.0f, logMin + (freqIdx + 1.0f) * freqStep);
     
-    std::cout << "freqIdx: " << freqIdx << std::endl;
-    std::cout << "lowFreq: " << lowFreq << std::endl;
-    std::cout << "highFreq: " << highFreq << std::endl;
+    // Sharpening Factor
+    lowFreq /= sharpness;
+    highFreq *= sharpness;
     
     // Compute low and high pass filters to match lowFreq/highFreq bounds
     for (int i = 0; i < order; ++i)
@@ -164,6 +170,8 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     float panStep = 1.0f / (float) resolution;
     float startPan = panStep * (panIdx); // mapped to [0, 1]
     float endPan = panStep * (panIdx + 1.0f); // mapped to [0, 1]
+    startPan += (1.0f - sharpness);
+    endPan -= (1.0f - sharpness);
     startPan = startPan * 2.0f - 1.0f; // map to [-1, 1]
     endPan = endPan * 2.0f - 1.0f; // map to [-1, 1]
     float panWidth = endPan - startPan;
@@ -181,11 +189,11 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     }
     
     // Get correct # of pink noise generators
-    pinkNoises.clear();
-    for (int i = 0; i < density; i++)
-    {
-        pinkNoises.push_back (PinkNoise());
-    }
+//    pinkNoises.clear();
+//    for (int i = 0; i < density; i++)
+//    {
+//        pinkNoises.push_back (PinkNoise());
+//    }
     
     shouldUpdateGenerators = false;
 }

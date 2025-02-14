@@ -19,11 +19,11 @@ public:
     SquareGenerator();
     
     std::pair<float, float> getNextSample();
+    
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setResolution (int resolution);
+    void setSharpness (float sharpness);
     void setCheckerboardCoords (int panIdx, int freqIdx);
-//    void setFreqIdx (int freqIdx);
-//    void setPanIdx (int panIdx);
     void setVolumeGain (float volumeGain);
     
 private:
@@ -34,7 +34,8 @@ private:
     float totalGain = 1.0f;
     
     // Pink noise generation
-    std::vector<PinkNoise> pinkNoises;
+//    std::vector<PinkNoise> pinkNoises;
+    juce::Random random;
     std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersLeft;
     std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersRight;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersLeft;
@@ -43,9 +44,10 @@ private:
     int snapToZeroCounter = 0;
     
     int resolution = 2;
+    float sharpness = 1.0f;
     int freqIdx = 0; // the frequency idx from [0, resolution). Panning width assumed to match resolution width. 0 is lowest and resolution is highest.
     int panIdx = 0; // the pan idx from [0, resolution]. 0 is farthest to left, 1 is farthest to right.
-    int density = 4; // noise sources per unit resolution
+    int density = 10; // noise sources per unit resolution
     
     bool shouldUpdateGenerators = true; // updates generators and position to match resolution, freqIdx, and volumeGain
     

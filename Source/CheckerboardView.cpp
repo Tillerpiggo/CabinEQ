@@ -102,6 +102,14 @@ void CheckerboardView::updateCheckerboard()
 void CheckerboardView::timerCallback()
 {
     repaint();
+    
+//    if (soloCounter > soloMax)
+//    {
+//        isSolod = ! isSolod;
+//        listener->setSoloSquareCoords (isSolod ? std::set<std::pair<int, int>>() : soloSquareCoords);
+//        soloCounter = 0;
+//    }
+//    soloCounter++;
 }
 
 void CheckerboardView::drawGridLines (juce::Graphics& g)

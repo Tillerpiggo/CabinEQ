@@ -227,6 +227,11 @@ void CabinEqAudioProcessor::setIsAudioFilePlaying (bool isPlaying)
     playbackManager.setIsAudioFilePlaying (isPlaying);
 }
 
+void CabinEqAudioProcessor::setFile (juce::File file)
+{
+    playbackManager.setAudioFile (file);
+}
+
 void CabinEqAudioProcessor::addAsListener (PlaybackManagerListener* listener)
 {
     playbackManager.setListener (listener);
@@ -343,6 +348,12 @@ void CabinEqAudioProcessor::setRampLength (float rampLength)
 void CabinEqAudioProcessor::setCheckerboardResolution (int newResolution)
 {
     checkerboardManager.setResolution (newResolution);
+    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
+}
+
+void CabinEqAudioProcessor::setCheckerboardSharpness (float newSharpness)
+{
+    checkerboardManager.setSharpness (newSharpness);
     playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
 }
 

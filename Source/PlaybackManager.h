@@ -126,5 +126,4 @@ private:
     std::unique_ptr<juce::AudioFormatReaderSource> audioReaderSource;
     juce::AudioTransportSource audioTransportSource;
     PlaybackManagerListener* listener;
-    
 };

@@ -16,8 +16,8 @@ Checkerboard::Checkerboard()
     calculateGrid();
 }
 
-Checkerboard::Checkerboard (int resolution, bool polarity)
-    : resolution (resolution), polarity (polarity)
+Checkerboard::Checkerboard (int resolution, float sharpness, bool polarity)
+    : resolution (resolution), sharpness (sharpness), polarity (polarity)
 {
     calculateGrid();
 }
@@ -25,6 +25,11 @@ Checkerboard::Checkerboard (int resolution, bool polarity)
 int Checkerboard::getResolution() const
 {
     return resolution;
+}
+
+float Checkerboard::getSharpness() const
+{
+    return sharpness;
 }
 
 bool Checkerboard::getPolarity() const
@@ -58,6 +63,10 @@ void Checkerboard::setResolution (int resolution)
     calculateGrid();
 }
 
+void Checkerboard::setSharpness (float sharpness)
+{
+    this->sharpness = sharpness;
+}
 
 void Checkerboard::togglePolarity()
 {
@@ -72,7 +81,7 @@ void Checkerboard::calculateGrid()
     
     bool colPolarity = false; // invert every other column, don't change the first column
     bool rowPolarity = polarity;
-    for (int panIdx = 0; panIdx < resolution; panIdx++)
+    for (int panIdx = 0; panIdx < resolution; panIdx++)//resolution; panIdx++)
     {
         grid.push_back (std::vector<bool>());
         for (int freqIdx = 0; freqIdx < resolution; freqIdx++)

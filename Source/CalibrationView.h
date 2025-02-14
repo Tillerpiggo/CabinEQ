@@ -57,6 +57,8 @@ private:
     juce::Label bandwidthLabel;
     juce::Slider volumeSlider;
     juce::Label volumeLabel;
+    juce::Slider sharpnessSlider;
+    juce::Label sharpnessLabel;
     juce::TextButton playButton { "Play" };
     juce::TextButton polarityButton { "Toggle Black/White" };
     juce::TextButton autoPolarityButton { "Auto Toggle" };

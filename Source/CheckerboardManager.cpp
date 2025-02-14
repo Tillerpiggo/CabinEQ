@@ -25,6 +25,11 @@ void CheckerboardManager::setResolution (int resolution)
     checkerboard.setResolution (resolution);
 }
 
+void CheckerboardManager::setSharpness (float sharpness)
+{
+    checkerboard.setSharpness (sharpness);
+}
+
 void CheckerboardManager::togglePolarity()
 {
     checkerboard.togglePolarity();

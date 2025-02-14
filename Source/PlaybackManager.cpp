@@ -44,9 +44,9 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     }
     
     // Calibration noise
-    if (isPlayingNoise)
+    if (isPlayingNoise && ! juce::SystemAudioVolume::isMuted())
     {
-        float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume);
+        float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume) * juce::SystemAudioVolume::getGain();
         for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
         {
             std::pair<float, float> value = getNextSample();
@@ -79,7 +79,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
-    if (isPlayingNoise && isCabinNoise)
+    if (isPlayingNoise)// && isCabinNoise)
     {
         tiltFilter.process (ioContext);
     }

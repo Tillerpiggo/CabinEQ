@@ -102,10 +102,12 @@ void CabinEqPage::resized()
     float audioPlayerWidth = 120.0f;
     float sidebarWidth = 120.0f;
     
-//    Layout audioPlayerLayout (getBounds().withTrimmedLeft (getWidth() - audioPlayerWidth), 0.0f);
-//    audioPlayerLayout.addRow ({ Space (&audioPlayerComponent )});
+    Layout audioPlayerLayout (getBounds().withTrimmedLeft (getWidth() - audioPlayerWidth), 0.0f);
+    audioPlayerLayout.addRow ({ Space (&audioPlayerComponent) });
+    audioPlayerLayout.updateComponentBounds();
     
-    Layout layout (getBounds(), 0.0f);
+    
+    Layout layout (getBounds().withTrimmedRight (audioPlayerWidth), 0.0f);
     if (! processor.getHasLicense())
     {
         layout.addRow ({ Space (&freeTrialBanner) }, 40);
@@ -117,6 +119,7 @@ void CabinEqPage::resized()
     layout.updateComponentBounds();
     
     unlockForm.centreWithSize (getWidth() * 0.8, getHeight() * 0.8);
+     
 }
 
 // ====================================================

@@ -22,6 +22,7 @@ public:
     const Checkerboard getCheckerboard();
     
     void setResolution (int resolution);
+    void setSharpness (float sharpness);
     void togglePolarity();
     
 private:

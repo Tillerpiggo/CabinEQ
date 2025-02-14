@@ -24,7 +24,8 @@ enum AudioState
 };
 
 // This is a component that allows one to play audio files they upload from their compueter
-class AudioPlayerComponent  : public BuildableComponent
+class AudioPlayerComponent  : public BuildableComponent,
+                              public PlaybackManagerListener
 {
 public:
     AudioPlayerComponent();
@@ -35,12 +36,15 @@ public:
     
     void setListener (AudioPlayerComponentListener* listener);
     
+    void audioFilePlayingChanged (bool isPlaying) override;
+    
 private:
+    void openButtonClicked();
+    
+    AudioPlayerComponentListener* listener;
+    
     juce::TextButton uploadFileButton { "Upload File..." };
     juce::TextButton playButton { "Play" };
     
-    AudioState state;
-    juce::AudioFormatManager audioFormatManager;
-    std::unique_ptr<juce::AudioFormatReaderSource> audioReaderSource;
-    juce::AudioTransportSource audioTransportSource;
+    
 };

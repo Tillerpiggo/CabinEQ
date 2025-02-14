@@ -58,37 +58,43 @@ void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
     noiseGenerators.clear();
     
     int resolution = checkerboard.getResolution();
+    float sharpness = checkerboard.getSharpness();
     
-    // Clear noise generators and add new ones
-    if (! soloSquareCoords.empty()) // if solo'd, just play the one square
-    {
-        for (const auto& soloSquareCoordPair : soloSquareCoords)
-        {
-            noiseGenerators.push_back (SquareGenerator());
-            noiseGenerators[0].prepare (spec);
-            noiseGenerators[0].setResolution (resolution);
-            noiseGenerators[0].setCheckerboardCoords (soloSquareCoordPair.first, soloSquareCoordPair.second);
-        }
-    }
-    else 
-    {
+//    // Clear noise generators and add new ones
+//    if (! soloSquareCoords.empty()) // if solo'd, just play the one square
+//    {
+//        int lastIdx = 0;
+//        for (const auto& soloSquareCoordPair : soloSquareCoords)
+//        {
+//            noiseGenerators.push_back (SquareGenerator());
+//            noiseGenerators[lastIdx].prepare (spec);
+//            noiseGenerators[lastIdx].setResolution (resolution);
+//            noiseGenerators[lastIdx].setSharpness (sharpness);
+//            noiseGenerators[lastIdx].setCheckerboardCoords (soloSquareCoordPair.first, soloSquareCoordPair.second);
+//            lastIdx++;
+//        }
+//    }
+//    else 
+//    {
         auto grid = checkerboard.getGrid();
         int lastIdx = 0;
         for (int freqIdx = 0; freqIdx < resolution; ++freqIdx)
         {
             for (int panIdx = 0; panIdx < resolution; ++panIdx)
             {
-                if (grid[panIdx][freqIdx])
+                bool isSoloed = soloSquareCoords.empty() || (soloSquareCoords.find({ panIdx, freqIdx }) != soloSquareCoords.end());
+                if (grid[panIdx][freqIdx] && isSoloed)
                 {
                     noiseGenerators.push_back (SquareGenerator());
                     noiseGenerators[lastIdx].prepare (spec);
                     noiseGenerators[lastIdx].setResolution (resolution);
+                    noiseGenerators[lastIdx].setSharpness (sharpness);
                     noiseGenerators[lastIdx].setCheckerboardCoords (panIdx, freqIdx);
                     lastIdx++;
                 }
             }
         }
-    }
+//    }
 
     
     shouldUpdateNoiseGenerators = false;

@@ -17,6 +17,7 @@ CalibrationView::CalibrationView()
     speedSlider.setSkewFactorFromMidPoint (1.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 2.5f);
     addSliderAndLabel (&volumeSlider, &volumeLabel, "Noise Volume", -24.0f, 24.0f, 0.0f);
+    addSliderAndLabel (&sharpnessSlider, &sharpnessLabel, "Sharpness", 0.5f, 1.0f, 0.8f);
     addButton (&playButton);
     addButton (&polarityButton);
     addButton (&autoPolarityButton);
@@ -84,6 +85,12 @@ CalibrationView::CalibrationView()
         {
             calibrationListener->setCalibrationVolume (volumeSlider.getValue());
 //            glyphGridView.updateGlyphs();
+        }
+    });
+    addSliderAction (&sharpnessSlider, [this](juce::Slider*) {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setCheckerboardSharpness (sharpnessSlider.getValue());
         }
     });
 //    addSliderAction (&densitySlider, [this](juce::Slider*) {
@@ -205,7 +212,9 @@ void CalibrationView::resized()
 //    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
 //    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     float volumeLabelWidth = volumeLabel.getFont().getStringWidth (volumeLabel.getText());
+    float sharpnessLabelWidth = sharpnessLabel.getFont().getStringWidth (sharpnessLabel.getText());
     settingsLayout.addRow ({ Space (volumeLabelWidth), Space (&volumeSlider) });
+    settingsLayout.addRow ({ Space (sharpnessLabelWidth), Space (&sharpnessSlider) });
     settingsLayout.addRow ({ Space (&resolutionComboBox) });
     settingsLayout.addRow ({ Space (&polarityButton), Space (&autoPolarityButton, 100) });
 //    settingsLayout.addRow ({ Space (&isCascadingBox) });
@@ -242,6 +251,7 @@ void CalibrationView::resized()
 void CalibrationView::setListener (CheckerboardViewListener* listener)
 {
     checkerboardView.setListener (listener);
+//    this->checkerboardViewListener = listener;
 }
 
 void CalibrationView::setCalibrationListener (CalibrationListener* calibrationListener)
@@ -296,7 +306,7 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 
 void CalibrationView::timerCallback()
 {
-    std::cout << "timer callback" << std::endl;
+//    std::cout << "timer callback" << std::endl;
     if (calibrationListener != nullptr)
     {
         calibrationListener->toggleCheckerboardPolarity();

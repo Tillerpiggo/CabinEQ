@@ -38,7 +38,7 @@ public:
     void updateIsPlaying(); // signals isPlaying is changed, triggers update of visuals
     void updateCheckerboard(); // signals the checkerboard changes, also triggers update of visuals
     
-    void timerCallback();
+    void timerCallback() override;
 private:
     void drawGridLines (juce::Graphics& g);
     void drawSquares (juce::Graphics& g);
@@ -66,4 +66,8 @@ private:
     std::set<std::pair<int, int>> soloSquareCoords;
     std::optional<std::pair<int, int>> hoverSquareCoords;
     std::optional<std::pair<int, int>> mouseDownCoords;
+    
+    int soloCounter = 0;
+    int soloMax = 80;
+    bool isSolod = true;
 };

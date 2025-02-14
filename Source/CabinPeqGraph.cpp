@@ -14,7 +14,7 @@ CabinPeqGraph::CabinPeqGraph()
 {
     startTimer (5);
     
-//    addAndMakeVisible (leftRightButton);
+    addAndMakeVisible (leftRightButton);
     addAndMakeVisible (instructionLabel);
     addAndMakeVisible (dimensionalSlider);
     dimensionalSlider.setListener (this);
@@ -23,24 +23,24 @@ CabinPeqGraph::CabinPeqGraph()
     instructionLabel.setInterceptsMouseClicks (false, true);
     updateContactLabelText();
     
-//    addButton (&leftRightButton);
-//    addButtonAction (&leftRightButton, [this](juce::Button*) {
-//        int bandTypeInt = static_cast<int> (bandType);
-//        bandTypeInt = (bandTypeInt + 1) % 3;
-//        bandType = static_cast<Band::Type> (bandTypeInt);
-//        switch (bandType)
-//        {
-//            case Band::Type::both:
-//                leftRightButton.setButtonText ("BOTH");
-//                break;
-//            case Band::Type::left:
-//                leftRightButton.setButtonText ("LEFT");
-//                break;
-//            case Band::Type::right:
-//                leftRightButton.setButtonText ("RIGHT");
-//                break;
-//        }
-//    });
+    addButton (&leftRightButton);
+    addButtonAction (&leftRightButton, [this](juce::Button*) {
+        int bandTypeInt = static_cast<int> (bandType);
+        bandTypeInt = (bandTypeInt + 1) % 3;
+        bandType = static_cast<Band::Type> (bandTypeInt);
+        switch (bandType)
+        {
+            case Band::Type::both:
+                leftRightButton.setButtonText ("BOTH");
+                break;
+            case Band::Type::left:
+                leftRightButton.setButtonText ("LEFT");
+                break;
+            case Band::Type::right:
+                leftRightButton.setButtonText ("RIGHT");
+                break;
+        }
+    });
     
     // Initialize variables for faster painting
     instructionLabel.setText (addBandInstructions, juce::NotificationType::dontSendNotification);
