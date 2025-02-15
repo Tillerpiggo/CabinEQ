@@ -36,6 +36,14 @@ std::pair<float, float> SquareGenerator::getNextSample()
         nextRightSample += pinkNoiseSample * rightGain;
     }
     
+    if (currRampSample < rampSamples)
+    {
+        float gain = gainEnvelope.gainAtSample (currRampSample, rampSamples);
+        nextLeftSample *= gain;
+        nextRightSample *= gain;
+        currRampSample++;
+    }
+    
     // Filter the pink noise
     if (freqIdx < numRows - 1)
     {
@@ -89,9 +97,10 @@ void SquareGenerator::setGridDimensions (int numRows, int numCols)
     this->numRows = numRows;
     this->numCols = numCols;
     shouldUpdateGenerators = true;
+    currRampSample = 0;
 }
 
-void SquareGenerator::setCheckerboardCoords (int panIdx, int freqIdx)
+void SquareGenerator::setCheckerboardCoords (int freqIdx, int panIdx)
 {
     if (freqIdx >= numRows || freqIdx < 0)
     {
@@ -107,6 +116,7 @@ void SquareGenerator::setCheckerboardCoords (int panIdx, int freqIdx)
     this->freqIdx = freqIdx;
     this->panIdx = panIdx;
     shouldUpdateGenerators = true;
+    currRampSample = 0;
 }
 //
 //void SquareGenerator::setFreqIdx (int freqIdx)
@@ -191,4 +201,5 @@ void SquareGenerator::updateGeneratorsIfNeeded()
 //    }
     
     shouldUpdateGenerators = false;
+    currRampSample = 0;
 }

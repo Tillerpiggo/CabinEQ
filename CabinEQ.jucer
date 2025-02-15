@@ -6,10 +6,16 @@
   <MAINGROUP id="tB8nJa" name="CabinEQ">
     <FILE id="RQqeWn" name="CabinEQIconEighty.png" compile="0" resource="1"
           file="../../../Downloads/CabinEQIconEighty.png"/>
-    <FILE id="lOAPU6" name="PauseButtonIcon.png" compile="0" resource="1"
+    <FILE id="xgG489" name="PauseButtonIcon.png" compile="0" resource="1"
           file="../../../Downloads/PauseButtonIcon.png"/>
     <FILE id="pE0gsw" name="PlayButtonIcon.png" compile="0" resource="1"
           file="../../../Downloads/PlayButtonIcon.png"/>
+    <FILE id="X2mn55" name="NextButtonIcon.png" compile="0" resource="1"
+          file="../../../Downloads/NextButtonIcon.png"/>
+    <FILE id="jnVZcE" name="PrevButtonIcon.png" compile="0" resource="1"
+          file="../../../Downloads/PrevButtonIcon.png"/>
+    <FILE id="GJYOoB" name="SpeakerIcon.png" compile="0" resource="1" file="../../../Downloads/SpeakerIcon.png"/>
+    <FILE id="CJ6B6z" name="MuteIcon.png" compile="0" resource="1" file="../../../Downloads/MuteIcon.png"/>
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
       <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
             file="Source/CabinEqAudioProcessor.cpp"/>

@@ -11,18 +11,23 @@
 #include "Checkerboard.h"
 
 Checkerboard::Checkerboard()
-    : numRows (2), numCols (2), polarity (true)
+    : title ("Unnamed Calibration"), numRows (2), numCols (2), polarity (true)
 {
     calculateGrid();
 }
 
-Checkerboard::Checkerboard (int numRows, int numCols, bool polarity)
-    : numRows (numRows), numCols (numCols), polarity (polarity)
+Checkerboard::Checkerboard (std::string title, int numRows, int numCols, bool polarity)
+    : title (title), numRows (numRows), numCols (numCols), polarity (polarity)
 {
     calculateGrid();
 }
 
-std::pair<int, int> Checkerboard::getGridDimensions()
+std::string Checkerboard::getTitle() const
+{
+    return title;
+}
+
+std::pair<int, int> Checkerboard::getGridDimensions() const
 {
     return { numRows, numCols };
 }
@@ -77,6 +82,7 @@ void Checkerboard::calculateGrid()
         {
             grid[freqIdx].push_back (rowPolarity ^ colPolarity);
             colPolarity = ! colPolarity;
+            std::cout << "numRows: " << numRows << ", numCols: " << numCols << ", point: " << (rowPolarity ^ colPolarity) << std::endl;
         }
         colPolarity = polarity; // start at the same base polarity
         rowPolarity = ! rowPolarity; // make sure every other row is inverted

@@ -116,6 +116,10 @@ public:
     void setDotOverlap (float dotOverlap) override;
     void setRampLength (float rampLength) override;
     
+    void goToNext() override;
+    void goToPrev() override;
+    bool hasNext() override;
+    bool hasPrev() override;
     void toggleCheckerboardPolarity() override;
     void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) override;
     

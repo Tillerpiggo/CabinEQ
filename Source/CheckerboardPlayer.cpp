@@ -96,13 +96,13 @@ void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
         {
             for (int panIdx = 0; panIdx < numCols; ++panIdx)
             {
-                bool isSoloed = soloSquareCoords.empty() || (soloSquareCoords.find({ panIdx, freqIdx }) != soloSquareCoords.end());
-                if (grid[panIdx][freqIdx] && isSoloed)
+                bool isSoloed = soloSquareCoords.empty() || (soloSquareCoords.find({ freqIdx, panIdx }) != soloSquareCoords.end());
+                if (grid[freqIdx][panIdx] && isSoloed)
                 {
                     noiseGenerators.push_back (SquareGenerator());
                     noiseGenerators[lastIdx].prepare (spec);
                     noiseGenerators[lastIdx].setGridDimensions (numRows, numCols);
-                    noiseGenerators[lastIdx].setCheckerboardCoords (panIdx, freqIdx);
+                    noiseGenerators[lastIdx].setCheckerboardCoords (freqIdx, panIdx);
                     lastIdx++;
                 }
             }

@@ -16,9 +16,10 @@ class Checkerboard
 {
 public:
     Checkerboard();
-    Checkerboard (int numRows, int numCols, bool polarity = true);
+    Checkerboard (std::string title, int numRows, int numCols, bool polarity = true);
     
-    std::pair<int, int> getGridDimensions(); // returns [rows, cols]
+    std::string getTitle() const;
+    std::pair<int, int> getGridDimensions() const; // returns [rows, cols]
     bool getPolarity() const;
     int getNumNoiseGenerators() const; // calculates and returns the number of noise generators needed given this polarity and the resolution
     std::vector<std::vector<bool>> getGrid() const;
@@ -28,6 +29,7 @@ public:
 private:
     void calculateGrid();
     
+    std::string title;
     int numRows;
     int numCols;
     bool polarity; // true = bottom left corner (0, 0) is filled, false = bottom left corner (0, 0) is empty

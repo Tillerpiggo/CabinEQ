@@ -121,8 +121,8 @@ void CheckerboardView::drawGridLines (juce::Graphics& g)
     // Draw grid lines
     g.setColour (GRIDLINE_COLOUR);
     auto [numRows, numCols] = checkerboard.getGridDimensions();
-    int numHorizontalLines = numCols;
-    int numVerticalLines = numRows;
+    int numHorizontalLines = numRows;
+    int numVerticalLines = numCols;
     for (int i = 1; i < numHorizontalLines; ++i)
     {
         float y = ((float) i / (float) numHorizontalLines) * getHeight();
@@ -148,14 +148,14 @@ void CheckerboardView::drawSquares (juce::Graphics& g)
         for (int panIdx = 0; panIdx < numCols; ++panIdx)
         {
             juce::Colour squareColour = isPlaying ? SQUARE_ON_COLOUR : SQUARE_OFF_COLOUR;
-            bool isSoloSquare = soloSquareCoords.find ({ panIdx, freqIdx }) != soloSquareCoords.end();
-            bool isHoveringSquare = hoverSquareCoords.has_value() && panIdx == hoverSquareCoords->first && freqIdx == hoverSquareCoords->second;
-            if (! grid[panIdx][freqIdx])
+            bool isSoloSquare = soloSquareCoords.find ({ freqIdx, panIdx }) != soloSquareCoords.end();
+            bool isHoveringSquare = hoverSquareCoords.has_value() && freqIdx == hoverSquareCoords->first && panIdx == hoverSquareCoords->second;
+            if (! grid[freqIdx][panIdx])
                 squareColour = SQUARE_EMPTY_COLOUR;
             if (isSoloSquare)
                 squareColour = SOLO_SQUARE_COLOUR;
             if (isHoveringSquare)
-                squareColour = squareColour.interpolatedWith (HOVER_SQUARE_COLOUR, grid[panIdx][freqIdx] ? 0.3f : 0.1f);
+                squareColour = squareColour.interpolatedWith (HOVER_SQUARE_COLOUR, grid[freqIdx][panIdx] ? 0.3f : 0.1f);
             drawSquare (freqIdx, panIdx, squareColour, g);
         }
     }
@@ -214,5 +214,5 @@ std::optional<std::pair<int, int>> CheckerboardView::coordsForMouseEvent (const 
     panIdx = std::min (numCols - 1, std::max (0, panIdx));
     freqIdx = std::min (numRows - 1, std::max (0, freqIdx));
     
-    return std::optional<std::pair<int, int>> ({ panIdx, freqIdx });
+    return std::optional<std::pair<int, int>> ({ freqIdx, panIdx });
 }

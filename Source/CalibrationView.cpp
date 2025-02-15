@@ -16,17 +16,81 @@ CalibrationView::CalibrationView()
     addAndMakeVisible (checkerboardView);
     
     // Setup new player component
+    // Title
+    addAndMakeVisible (titleLabel);
+    titleLabel.setFont (juce::Font (juce::FontOptions (20, juce::Font::bold)));
+    titleLabel.setJustificationType (juce::Justification::centred);
+    
+    // Play button
     addAndMakeVisible (playPauseButton);
-    juce::Image playImage = juce::ImageFileFormat::loadFrom (BinaryData::PlayButtonIcon_png, BinaryData::PlayButtonIcon_pngSize);
-    juce::Image pauseImage = juce::ImageFileFormat::loadFrom (BinaryData::PauseButtonIcon_png, BinaryData::PauseButtonIcon_pngSize);
-    playPauseButton.setImages (false, true, true, playImage, 1.0f, juce::Colours::white.withAlpha (0.0f), playImage, 0.0f, juce::Colours::black, playImage, 1.0f, juce::Colours::white);
+    updatePlayPauseButton();
     playPauseButton.onClick = [this] {
         if (calibrationListener != nullptr)
         {
             isPlaying = ! isPlaying;
             calibrationListener->setIsPlaying (isPlaying);
+            updatePlayPauseButton();
         }
     };
+    
+    // Prev + next buttons
+    addAndMakeVisible (prevButton);
+    addAndMakeVisible (nextButton);
+    prevButton.setImages (false, true, true, prevImage, 1.0f, juce::Colours::white.withAlpha (0.0f), prevImage, 1.0f, juce::Colours::black.withAlpha (0.1f), prevImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
+    nextButton.setImages (false, true, true, nextImage, 1.0f, juce::Colours::white.withAlpha (0.0f), nextImage, 1.0f, juce::Colours::black.withAlpha (0.1f), nextImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
+    updatePlayer();
+    prevButton.onClick = [this] {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->goToPrev();
+            checkerboardView.updateCheckerboard();
+            updatePlayer();
+        }
+    };
+    nextButton.onClick = [this] {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->goToNext();
+            checkerboardView.updateCheckerboard();
+            updatePlayer();
+        }
+    };
+    
+    // Volume slider
+    addAndMakeVisible (speakerButton);
+    updateSpeakerButton();
+    addSlider (&noiseVolumeSlider, -120.0f, 12.0f, 0.0f);
+    
+    speakerButton.onClick = [this] {
+        if (calibrationListener != nullptr)
+        {
+            isMuted = ! isMuted;
+            updateSpeakerButton();
+            
+            if (isMuted)
+            {
+                calibrationListener->setCalibrationVolume (-120.0f);
+                currVolume = noiseVolumeSlider.getValue();
+                noiseVolumeSlider.setValue (-120.0f);
+            }
+            else
+            {
+                calibrationListener->setCalibrationVolume (currVolume);
+                noiseVolumeSlider.setValue (currVolume);
+            }
+        }
+    };
+    noiseVolumeSlider.setTextBoxStyle (juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    noiseVolumeSlider.onValueChange = [this] {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setCalibrationVolume (noiseVolumeSlider.getValue());
+            isMuted = noiseVolumeSlider.getValue() == -120.0f;
+            updateSpeakerButton();
+        }
+    };
+    
+    startTimer (1000);
     
     // Calibration setting components
 //    addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
@@ -217,8 +281,13 @@ void CalibrationView::resized()
     glyphLayout.addRow ({ Space (&checkerboardView ) });
     glyphLayout.updateComponentBounds();
     
-    Layout playerLayout (localBounds.withTrimmedLeft (sidebarWidth + archetypeBarWidth), 8.0f);
-    playerLayout.addRow ({ Space(), Space (&playPauseButton, 80.0f), Space() } );
+    Layout playerLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+    playerLayout.addRow ({ Space() });
+    playerLayout.addRow ({ Space (&titleLabel) });
+    playerLayout.addRow ({ Space(), Space (&prevButton, 40.0f), Space (&playPauseButton, 80.0f), Space (&nextButton, 40.0f), Space() } );
+    playerLayout.addRow ({ Space() }, 8.0f);
+    playerLayout.addRow ({ Space(), Space (&speakerButton, 16.0f), Space (&noiseVolumeSlider), Space() }, 20.0f);
+    playerLayout.addRow ({ Space() });
     playerLayout.updateComponentBounds();
     
     // Archetype sidebar
@@ -276,6 +345,7 @@ void CalibrationView::setListener (CheckerboardViewListener* listener)
 void CalibrationView::setCalibrationListener (CalibrationListener* calibrationListener)
 {
     this->calibrationListener = calibrationListener;
+    updatePlayer();
 }
 
 //void CalibrationView::setDataSource (GlyphViewDataSource* dataSource)
@@ -287,6 +357,8 @@ void CalibrationView::setCalibrationListener (CalibrationListener* calibrationLi
 void CalibrationView::setDataSource (CheckerboardViewDataSource* dataSource)
 {
     checkerboardView.setDataSource (dataSource);
+    this->dataSource = dataSource;
+    updatePlayer();
 }
 
 void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
@@ -326,9 +398,40 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 void CalibrationView::timerCallback()
 {
 //    std::cout << "timer callback" << std::endl;
-    if (calibrationListener != nullptr)
+    if (calibrationListener != nullptr && isPlaying)
     {
         calibrationListener->toggleCheckerboardPolarity();
         checkerboardView.updateCheckerboard();
     }
+}
+
+void CalibrationView::updateSpeakerButton()
+{
+    juce::Image currSpeakerImage = isMuted ? mutedImage : speakerImage;
+    speakerButton.setImages (false, true, true, currSpeakerImage, 1.0f, juce::Colours::white.withAlpha (0.1f), currSpeakerImage, 1.0f, juce::Colours::white.withAlpha (0.2f), currSpeakerImage, 1.0f, juce::Colours::white.withAlpha (1.0f));
+}
+
+void CalibrationView::updatePlayPauseButton()
+{
+    juce::Image buttonImage = isPlaying ? pauseImage : playImage;
+    playPauseButton.setImages (false, true, true, buttonImage, 1.0f, juce::Colours::white.withAlpha (0.0f), buttonImage, 1.0f, juce::Colours::black.withAlpha (0.1f), buttonImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
+}
+
+void CalibrationView::updatePlayer()
+{
+    if (calibrationListener == nullptr || dataSource == nullptr)
+    {
+        prevButton.setEnabled (false);
+        nextButton.setEnabled (false);
+        titleLabel.setText ("No Audio Selected", juce::NotificationType::dontSendNotification);
+        return;
+    }
+    bool hasPrev = calibrationListener->hasPrev();
+    bool hasNext = calibrationListener->hasNext();
+    prevButton.setEnabled (calibrationListener->hasPrev());
+    prevButton.setAlpha (hasPrev ? 1.0f : 0.8f);
+    nextButton.setEnabled (calibrationListener->hasNext());
+    nextButton.setAlpha (hasNext ? 1.0f : 0.8f);
+    titleLabel.setText (dataSource->getCheckerboard().getTitle(), juce::NotificationType::dontSendNotification);
+    
 }

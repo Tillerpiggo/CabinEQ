@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "PinkNoise.h"
+#include "GainEnvelope.h"
 
 class SquareGenerator
 {
@@ -22,7 +23,7 @@ public:
     
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setGridDimensions (int numRows, int numCols);
-    void setCheckerboardCoords (int panIdx, int freqIdx);
+    void setCheckerboardCoords (int freqIdx, int panIdx);
     void setVolumeGain (float volumeGain);
     
 private:
@@ -41,6 +42,11 @@ private:
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersRight;
     int order = 16;
     int snapToZeroCounter = 0;
+    
+    // Add ramp when starting from nothing
+    GainEnvelope gainEnvelope;
+    int rampSamples = 10000;
+    int currRampSample = 0; // 0 = ramp start, > 1000 = ramp ended
     
     int numRows = 2;
     int numCols = 2;

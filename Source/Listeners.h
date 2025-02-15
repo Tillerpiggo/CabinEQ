@@ -185,6 +185,10 @@ public:
     virtual void setRampLength (float rampLength) = 0;
     
     // Checkerboard stuff
+    virtual void goToNext() = 0;
+    virtual void goToPrev() = 0;
+    virtual bool hasNext() = 0;
+    virtual bool hasPrev() = 0;
     virtual void toggleCheckerboardPolarity() = 0;
 };
 

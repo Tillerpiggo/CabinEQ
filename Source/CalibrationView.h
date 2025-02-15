@@ -37,10 +37,15 @@ public:
     
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     
-    void timerCallback();
+    void timerCallback() override;
     
 private:
+    void updateSpeakerButton();
+    void updatePlayPauseButton(); // updates the images of playPauseButton based on isPlaying
+    void updatePlayer(); // updates prev next buttons based on availability of prev and next
+    
     CalibrationListener* calibrationListener = nullptr;
+    CheckerboardViewDataSource* dataSource = nullptr;
     
     // Glyph View
     //    GlyphGridView glyphGridView;
@@ -81,8 +86,22 @@ private:
 //    juce::Label rampLengthLabel;
     
     // Play button stuff
-    juce::ImageButton playPauseButton;
+    juce::Image playImage = juce::ImageFileFormat::loadFrom (BinaryData::PlayButtonIcon_png, BinaryData::PlayButtonIcon_pngSize);
+    juce::Image pauseImage = juce::ImageFileFormat::loadFrom (BinaryData::PauseButtonIcon_png, BinaryData::PauseButtonIcon_pngSize);
+    juce::Image prevImage = juce::ImageFileFormat::loadFrom (BinaryData::PrevButtonIcon_png, BinaryData::PrevButtonIcon_pngSize);
+    juce::Image nextImage = juce::ImageFileFormat::loadFrom (BinaryData::NextButtonIcon_png, BinaryData::NextButtonIcon_pngSize);
+    juce::Image speakerImage = juce::ImageFileFormat::loadFrom (BinaryData::SpeakerIcon_png, BinaryData::SpeakerIcon_pngSize);
+    juce::Image mutedImage = juce::ImageFileFormat::loadFrom (BinaryData::MuteIcon_png, BinaryData::MuteIcon_pngSize);
     
+    juce::Label titleLabel;
+    juce::ImageButton playPauseButton;
+    juce::ImageButton prevButton; // goes to the previous "song" (e.g. the previous checkerboard)
+    juce::ImageButton nextButton; // goes to the next "song" (e.g. the next checkerboard)
+    juce::ImageButton speakerButton; // a button, but for now, doesn't do anything
+    juce::Slider noiseVolumeSlider;
+    
+    bool isMuted = false;
+    float currVolume = 0.0f;
     bool isPlaying = false;
     bool isIIR = true;
     bool isFIRFilterUpdated = false;

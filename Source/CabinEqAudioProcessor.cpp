@@ -357,6 +357,28 @@ void CabinEqAudioProcessor::setRampLength (float rampLength)
 //    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
 //}
 
+void CabinEqAudioProcessor::goToNext()
+{
+    checkerboardManager.goToNext();
+    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
+}
+
+void CabinEqAudioProcessor::goToPrev()
+{
+    checkerboardManager.goToPrev();
+    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
+}
+
+bool CabinEqAudioProcessor::hasNext()
+{
+    return checkerboardManager.hasNext();
+}
+
+bool CabinEqAudioProcessor::hasPrev()
+{
+    return checkerboardManager.hasPrev();
+}
+
 void CabinEqAudioProcessor::toggleCheckerboardPolarity()
 {
     checkerboardManager.togglePolarity();

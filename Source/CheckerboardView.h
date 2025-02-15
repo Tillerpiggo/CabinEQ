@@ -45,7 +45,7 @@ private:
     
     void drawSquare (int freqIdx, int panIdx, juce::Colour squareColour, juce::Graphics& g); // uses Checkerboard info to draw a square at the given location
     juce::Rectangle<float> getRectForFreqIdxAndPanIdx (int freqIdx, int panIdx); // based on checkerboard, gets the associated coords for this freq/pan idx. Returns a rectangle with 0 size if freq idx or pan idx are out of bounds
-    std::optional<std::pair<int, int>> coordsForMouseEvent (const juce::MouseEvent &event); // gets the [panIdx, freqIdx] for a given mouse event
+    std::optional<std::pair<int, int>> coordsForMouseEvent (const juce::MouseEvent &event); // gets the [freqIdx, panIdx] for a given mouse event
     
     CheckerboardViewListener* listener = nullptr;
     CheckerboardViewDataSource* dataSource = nullptr;
