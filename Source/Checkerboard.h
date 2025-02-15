@@ -16,23 +16,20 @@ class Checkerboard
 {
 public:
     Checkerboard();
-    Checkerboard (int resolution, float sharpness, bool polarity);
+    Checkerboard (int numRows, int numCols, bool polarity = true);
     
-    int getResolution() const;
-    float getSharpness() const;
+    std::pair<int, int> getGridDimensions(); // returns [rows, cols]
     bool getPolarity() const;
     int getNumNoiseGenerators() const; // calculates and returns the number of noise generators needed given this polarity and the resolution
     std::vector<std::vector<bool>> getGrid() const;
     
-    void setResolution (int resolution);
-    void setSharpness (float sharpness);
     void togglePolarity();
     
 private:
     void calculateGrid();
     
-    int resolution;
-    float sharpness; // from 1.0f (least sharp) to 0.5f (most sharp)
+    int numRows;
+    int numCols;
     bool polarity; // true = bottom left corner (0, 0) is filled, false = bottom left corner (0, 0) is empty
     
     std::vector<std::vector<bool>> grid; // [resolution x resolution] grid where 0 = off and 1 = on

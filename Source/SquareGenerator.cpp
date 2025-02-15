@@ -37,7 +37,7 @@ std::pair<float, float> SquareGenerator::getNextSample()
     }
     
     // Filter the pink noise
-    if (true || freqIdx < resolution - 1)
+    if (freqIdx < numRows - 1)
     {
         for (int i = 0; i < order; ++i)
         {
@@ -46,7 +46,7 @@ std::pair<float, float> SquareGenerator::getNextSample()
         }
     }
     
-    if (true || freqIdx > 0)
+    if (freqIdx > 0)
     {
         for (int i = 0; i < order; ++i)
         {
@@ -84,29 +84,24 @@ void SquareGenerator::prepare (const juce::dsp::ProcessSpec& spec)
     }
 }
 
-void SquareGenerator::setResolution (int resolution)
+void SquareGenerator::setGridDimensions (int numRows, int numCols)
 {
-    this->resolution = resolution;
-    shouldUpdateGenerators = true;
-}
-
-void SquareGenerator::setSharpness (float sharpness)
-{
-    this->sharpness = sharpness;
+    this->numRows = numRows;
+    this->numCols = numCols;
     shouldUpdateGenerators = true;
 }
 
 void SquareGenerator::setCheckerboardCoords (int panIdx, int freqIdx)
 {
-    if (freqIdx >= resolution || freqIdx < 0)
+    if (freqIdx >= numRows || freqIdx < 0)
     {
-        std::cerr << "ERR: trying to set out of bounds freqIdx (freqIdx: " << freqIdx << ", resolution: " << resolution << ") in SquareGenerator::setFreqIdx" << std::endl;
+        std::cerr << "ERR: trying to set out of bounds freqIdx (freqIdx: " << freqIdx << ", numRows: " << numRows << ") in SquareGenerator::setFreqIdx" << std::endl;
         return;
     }
     
-    if (panIdx >= resolution || panIdx < 0)
+    if (panIdx >= numCols || panIdx < 0)
     {
-        std::cerr << "ERR: trying to set out of bounds panIdx (panIdx: " << panIdx << ", resolution: " << resolution << ") in SquareGenerator::setPanIdx" << std::endl;
+        std::cerr << "ERR: trying to set out of bounds panIdx (panIdx: " << panIdx << ", numCols: " << numCols << ") in SquareGenerator::setPanIdx" << std::endl;
     }
     
     this->freqIdx = freqIdx;
@@ -148,14 +143,14 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     // Calculate low and high freq based off of freqIdx and resolution
     float logMin = std::log2 (MIN_FREQ);
     float logMax = std::log2 (MAX_FREQ);
-    float freqStep = (logMax - logMin) / (float) resolution;
+    float freqStep = (logMax - logMin) / (float) numRows;
     
     float lowFreq = std::pow (2.0f, logMin + freqIdx * freqStep);
     float highFreq = std::pow (2.0f, logMin + (freqIdx + 1.0f) * freqStep);
     
     // Sharpening Factor
-    lowFreq /= sharpness;
-    highFreq *= sharpness;
+//    lowFreq /= sharpness;
+//    highFreq *= sharpness;
     
     // Compute low and high pass filters to match lowFreq/highFreq bounds
     for (int i = 0; i < order; ++i)
@@ -167,11 +162,11 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     }
     
     // Update the panning based on panIdx and resolution
-    float panStep = 1.0f / (float) resolution;
+    float panStep = 1.0f / (float) numCols;
     float startPan = panStep * (panIdx); // mapped to [0, 1]
     float endPan = panStep * (panIdx + 1.0f); // mapped to [0, 1]
-    startPan += (1.0f - sharpness);
-    endPan -= (1.0f - sharpness);
+//    startPan += (1.0f - sharpness);
+//    endPan -= (1.0f - sharpness);
     startPan = startPan * 2.0f - 1.0f; // map to [-1, 1]
     endPan = endPan * 2.0f - 1.0f; // map to [-1, 1]
     float panWidth = endPan - startPan;

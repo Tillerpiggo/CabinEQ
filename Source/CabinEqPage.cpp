@@ -72,6 +72,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     audioPlayerComponent.setListener (&processor);
     
     loadDropdownOptions();
+    
+    bypassButton.setColour (juce::TextButton::buttonColourId, juce::Colours::blueviolet);
 }
 
 CabinEqPage::~CabinEqPage()
@@ -102,24 +104,27 @@ void CabinEqPage::resized()
     float audioPlayerWidth = 120.0f;
     float sidebarWidth = 120.0f;
     
-    Layout audioPlayerLayout (getBounds().withTrimmedLeft (getWidth() - audioPlayerWidth), 0.0f);
-    audioPlayerLayout.addRow ({ Space (&audioPlayerComponent) });
-    audioPlayerLayout.updateComponentBounds();
+//    Layout audioPlayerLayout (getBounds().withTrimmedRight (getWidth() - audioPlayerWidth), 0.0f);
+//    audioPlayerLayout.addRow ({ Space (&audioPlayerComponent) });
+//    audioPlayerLayout.updateComponentBounds();
     
-    
-    Layout layout (getBounds().withTrimmedRight (audioPlayerWidth), 0.0f);
+    Layout layout (getBounds(), 0.0f);
     if (! processor.getHasLicense())
     {
         layout.addRow ({ Space (&freeTrialBanner) }, 40);
     }
-    layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown) }, 40);
+    layout.addRow ({ Space (&bypassButton, 60), Space (&profileDropdown) }, 40);
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.addRow ({ Space (&contactUsBanner) }, 40);
     layout.updateComponentBounds();
     
     unlockForm.centreWithSize (getWidth() * 0.8, getHeight() * 0.8);
-     
+    
+//    Layout onButtonLayout (getBounds().withTrimmedLeft (getWidth() - sidebarWidth), 0.0f);
+//    onButtonLayout.addRow ({ Space (&bypassButton) });
+//    onButtonLayout.addRow ({ Space() }, 0.5);
+//    onButtonLayout.updateComponentBounds();
 }
 
 // ====================================================
@@ -363,7 +368,16 @@ void CabinEqPage::dismissAlertWindow()
                                 
 void CabinEqPage::updateButtonText()
 {
-    bypassButton.setButtonText (isBypassed ? "OFF" : "ON");
+    if (isBypassed)
+    {
+        bypassButton.setButtonText ("OFF");
+        bypassButton.setColour (juce::TextButton::buttonColourId, juce::Colours::grey);
+    }
+    else
+    {
+        bypassButton.setButtonText ("ON");
+        bypassButton.setColour (juce::TextButton::buttonColourId, juce::Colours::blueviolet);
+    }
 }
 
 void CabinEqPage::showForm()

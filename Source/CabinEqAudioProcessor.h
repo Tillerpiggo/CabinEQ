@@ -116,8 +116,6 @@ public:
     void setDotOverlap (float dotOverlap) override;
     void setRampLength (float rampLength) override;
     
-    void setCheckerboardResolution (int newResolution) override;
-    void setCheckerboardSharpness (float newSharpness) override;
     void toggleCheckerboardPolarity() override;
     void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) override;
     

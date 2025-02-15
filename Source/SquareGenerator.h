@@ -21,8 +21,7 @@ public:
     std::pair<float, float> getNextSample();
     
     void prepare (const juce::dsp::ProcessSpec& spec);
-    void setResolution (int resolution);
-    void setSharpness (float sharpness);
+    void setGridDimensions (int numRows, int numCols);
     void setCheckerboardCoords (int panIdx, int freqIdx);
     void setVolumeGain (float volumeGain);
     
@@ -43,8 +42,8 @@ private:
     int order = 16;
     int snapToZeroCounter = 0;
     
-    int resolution = 2;
-    float sharpness = 1.0f;
+    int numRows = 2;
+    int numCols = 2;
     int freqIdx = 0; // the frequency idx from [0, resolution). Panning width assumed to match resolution width. 0 is lowest and resolution is highest.
     int panIdx = 0; // the pan idx from [0, resolution]. 0 is farthest to left, 1 is farthest to right.
     int density = 10; // noise sources per unit resolution

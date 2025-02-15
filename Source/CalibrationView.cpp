@@ -298,7 +298,7 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     }
     else if (comboBoxThatHasChanged == &resolutionComboBox)
     {
-        calibrationListener->setCheckerboardResolution (resolutionComboBox.getSelectedId());
+//        calibrationListener->setCheckerboardResolution (resolutionComboBox.getSelectedId());
         checkerboardView.updateCheckerboard();
         resized();
     }

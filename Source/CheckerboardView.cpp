@@ -120,9 +120,9 @@ void CheckerboardView::drawGridLines (juce::Graphics& g)
     
     // Draw grid lines
     g.setColour (GRIDLINE_COLOUR);
-    int resolution = checkerboard.getResolution();
-    int numHorizontalLines = resolution;
-    int numVerticalLines = resolution;
+    auto [numRows, numCols] = checkerboard.getGridDimensions();
+    int numHorizontalLines = numCols;
+    int numVerticalLines = numRows;
     for (int i = 1; i < numHorizontalLines; ++i)
     {
         float y = ((float) i / (float) numHorizontalLines) * getHeight();
@@ -142,10 +142,10 @@ void CheckerboardView::drawSquares (juce::Graphics& g)
         isPlaying = dataSource->getIsPlaying();
     
     auto grid = checkerboard.getGrid();
-    int resolution = checkerboard.getResolution();
-    for (int freqIdx = 0; freqIdx < resolution; ++freqIdx)
+    auto [numRows, numCols] = checkerboard.getGridDimensions();
+    for (int freqIdx = 0; freqIdx < numRows; ++freqIdx)
     {
-        for (int panIdx = 0; panIdx < resolution; ++panIdx)
+        for (int panIdx = 0; panIdx < numCols; ++panIdx)
         {
             juce::Colour squareColour = isPlaying ? SQUARE_ON_COLOUR : SQUARE_OFF_COLOUR;
             bool isSoloSquare = soloSquareCoords.find ({ panIdx, freqIdx }) != soloSquareCoords.end();
@@ -170,27 +170,27 @@ void CheckerboardView::drawSquare (int freqIdx, int panIdx, juce::Colour squareC
 
 juce::Rectangle<float> CheckerboardView::getRectForFreqIdxAndPanIdx (int freqIdx, int panIdx)
 {
-    int resolution = checkerboard.getResolution();
-    if (freqIdx < 0 || freqIdx >= resolution)
+    auto [numRows, numCols] = checkerboard.getGridDimensions();
+    if (freqIdx < 0 || freqIdx >= numRows)
     {
-        std::cerr << "ERR: getting rect for freq idx and pan idx with freqIdx out of bounds (freqIdx: " << freqIdx << ", resolution: " << resolution << std::endl;
+        std::cerr << "ERR: getting rect for freq idx and pan idx with freqIdx out of bounds (freqIdx: " << freqIdx << ", numRows: " << numRows << std::endl;
         return { 0, 0, 0, 0 };
     }
     
-    if (panIdx < 0 || panIdx >= resolution)
+    if (panIdx < 0 || panIdx >= numCols)
     {
-        std::cerr << "ERR: getting rect for freq idx and pan idx with panIdx out of bounds (panIdx: " << panIdx << ", resolution: " << resolution << std::endl;
+        std::cerr << "ERR: getting rect for freq idx and pan idx with panIdx out of bounds (panIdx: " << panIdx << ", numCols: " << numCols << std::endl;
         return { 0, 0, 0, 0 };
     }
     
     // Get width and height
-    float width = (float) getWidth() / (float) resolution;
-    float height = (float) getHeight() / (float) resolution;
+    float width = (float) getWidth() / (float) numCols;
+    float height = (float) getHeight() / (float) numRows;
     
     // Get x and y coords
     
-    float normalizedX = (float) panIdx / (float) resolution;
-    float normalizedY = (float) (freqIdx + 1) / (float) resolution; // +1 so that when we flip it upside, y starts at the top instead of the bottom
+    float normalizedX = (float) panIdx / (float) numCols;
+    float normalizedY = (float) (freqIdx + 1) / (float) numRows; // +1 so that when we flip it upside, y starts at the top instead of the bottom
     float absX = normalizedX * (float) getWidth();
     float absY = (1.0f - normalizedY) * (float) getHeight();
     
@@ -203,16 +203,16 @@ std::optional<std::pair<int, int>> CheckerboardView::coordsForMouseEvent (const 
         return std::nullopt;
     
     // Get absolute coords
-    int resolution = checkerboard.getResolution();
+    auto [numRows, numCols] = checkerboard.getGridDimensions();
     auto absCoords = event.getPosition().toFloat();
-    float relativeX = (absCoords.x / (float) getWidth()) * resolution;
-    float relativeY = (1.0f - (absCoords.y / (float) getHeight())) * resolution;
+    float relativeX = (absCoords.x / (float) getWidth()) * numCols;
+    float relativeY = (1.0f - (absCoords.y / (float) getHeight())) * numRows;
     int panIdx = std::floor (relativeX);
     int freqIdx = std::floor (relativeY);
     
     // Make sure we're within bounds
-    panIdx = std::min (resolution - 1, std::max (0, panIdx));
-    freqIdx = std::min (resolution - 1, std::max (0, freqIdx));
+    panIdx = std::min (numCols - 1, std::max (0, panIdx));
+    freqIdx = std::min (numRows - 1, std::max (0, freqIdx));
     
     return std::optional<std::pair<int, int>> ({ panIdx, freqIdx });
 }

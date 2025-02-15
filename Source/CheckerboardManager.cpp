@@ -15,22 +15,34 @@ CheckerboardManager::CheckerboardManager()
     
 }
 
-const Checkerboard CheckerboardManager::getCheckerboard()
+const Checkerboard CheckerboardManager::getCurrCheckerboard()
 {
-    return checkerboard;
+    return checkerboards[currIdx];
 }
 
-void CheckerboardManager::setResolution (int resolution)
+void CheckerboardManager::goToNext()
 {
-    checkerboard.setResolution (resolution);
+    if (hasNext())
+        currIdx++;
 }
 
-void CheckerboardManager::setSharpness (float sharpness)
+void CheckerboardManager::goToPrev()
 {
-    checkerboard.setSharpness (sharpness);
+    if (hasPrev())
+        currIdx--;
+}
+
+bool CheckerboardManager::hasNext()
+{
+    return currIdx < checkerboards.size() - 1;
+}
+
+bool CheckerboardManager::hasPrev()
+{
+    return currIdx > 0;
 }
 
 void CheckerboardManager::togglePolarity()
 {
-    checkerboard.togglePolarity();
+    checkerboards[currIdx].togglePolarity();
 }

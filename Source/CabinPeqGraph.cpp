@@ -74,7 +74,7 @@ void CabinPeqGraph::resized()
     setBounds (getBoundsInParent());
     
     // Add button in bottom right corner
-    leftRightButton.setBounds (20.0f, getBounds().getHeight() - 50.0f, 80.0f, 40.0f);
+//    leftRightButton.setBounds (20.0f, getBounds().getHeight() - 50.0f, 80.0f, 40.0f);
     
     // Add instruction label in bottom right corner
 //    float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());

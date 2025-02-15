@@ -345,22 +345,22 @@ void CabinEqAudioProcessor::setRampLength (float rampLength)
     glyphManager.setRampLength (rampLength);
 }
 
-void CabinEqAudioProcessor::setCheckerboardResolution (int newResolution)
-{
-    checkerboardManager.setResolution (newResolution);
-    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
-}
+//void CabinEqAudioProcessor::setCheckerboardResolution (int newResolution)
+//{
+//    checkerboardManager.setResolution (newResolution);
+//    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
+//}
 
-void CabinEqAudioProcessor::setCheckerboardSharpness (float newSharpness)
-{
-    checkerboardManager.setSharpness (newSharpness);
-    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
-}
+//void CabinEqAudioProcessor::setCheckerboardSharpness (float newSharpness)
+//{
+//    checkerboardManager.setSharpness (newSharpness);
+//    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
+//}
 
 void CabinEqAudioProcessor::toggleCheckerboardPolarity()
 {
     checkerboardManager.togglePolarity();
-    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
+    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
 }
 
 void CabinEqAudioProcessor::setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords)
@@ -602,7 +602,7 @@ float CabinEqAudioProcessor::getBandwidth()
 
 const Checkerboard CabinEqAudioProcessor::getCheckerboard()
 {
-    return checkerboardManager.getCheckerboard();
+    return checkerboardManager.getCurrCheckerboard();
 }
 
 bool CabinEqAudioProcessor::getIsPlaying()

@@ -185,8 +185,6 @@ public:
     virtual void setRampLength (float rampLength) = 0;
     
     // Checkerboard stuff
-    virtual void setCheckerboardResolution (int newResolution) = 0;
-    virtual void setCheckerboardSharpness (float newSharpness) = 0;
     virtual void toggleCheckerboardPolarity() = 0;
 };
 

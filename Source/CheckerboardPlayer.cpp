@@ -70,8 +70,9 @@ void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
     
     noiseGenerators.clear();
     
-    int resolution = checkerboard.getResolution();
-    float sharpness = checkerboard.getSharpness();
+//    int resolution = checkerboard.getResolution();
+    auto [numRows, numCols] = checkerboard.getGridDimensions();
+//    float sharpness = checkerboard.getSharpness();
     
 //    // Clear noise generators and add new ones
 //    if (! soloSquareCoords.empty()) // if solo'd, just play the one square
@@ -91,17 +92,16 @@ void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
 //    {
         auto grid = checkerboard.getGrid();
         int lastIdx = 0;
-        for (int freqIdx = 0; freqIdx < resolution; ++freqIdx)
+        for (int freqIdx = 0; freqIdx < numRows; ++freqIdx)
         {
-            for (int panIdx = 0; panIdx < resolution; ++panIdx)
+            for (int panIdx = 0; panIdx < numCols; ++panIdx)
             {
                 bool isSoloed = soloSquareCoords.empty() || (soloSquareCoords.find({ panIdx, freqIdx }) != soloSquareCoords.end());
                 if (grid[panIdx][freqIdx] && isSoloed)
                 {
                     noiseGenerators.push_back (SquareGenerator());
                     noiseGenerators[lastIdx].prepare (spec);
-                    noiseGenerators[lastIdx].setResolution (resolution);
-                    noiseGenerators[lastIdx].setSharpness (sharpness);
+                    noiseGenerators[lastIdx].setGridDimensions (numRows, numCols);
                     noiseGenerators[lastIdx].setCheckerboardCoords (panIdx, freqIdx);
                     lastIdx++;
                 }
