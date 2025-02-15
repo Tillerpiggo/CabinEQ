@@ -51,34 +51,37 @@ private:
     ArchetypeBar archetypeBar;
     
     // Calibration settings
-    juce::Slider speedSlider;
-    juce::Label speedLabel;
-    juce::Slider bandwidthSlider;
-    juce::Label bandwidthLabel;
-    juce::Slider volumeSlider;
-    juce::Label volumeLabel;
-    juce::Slider sharpnessSlider;
-    juce::Label sharpnessLabel;
-    juce::TextButton playButton { "Play" };
-    juce::TextButton polarityButton { "Toggle Black/White" };
-    juce::TextButton autoPolarityButton { "Auto Toggle" };
-    juce::TextButton iirButton { "IIR" };
-    juce::TextButton updateFilterButton { "Update" };
-    juce::ComboBox qualityComboBox;
-    juce::ComboBox scalingComboBox;
-    juce::ComboBox erbComboBox;
-    juce::ComboBox pinkNoiseBox;
+//    juce::Slider speedSlider;
+//    juce::Label speedLabel;
+//    juce::Slider bandwidthSlider;
+//    juce::Label bandwidthLabel;
+//    juce::Slider volumeSlider;
+//    juce::Label volumeLabel;
+//    juce::Slider sharpnessSlider;
+//    juce::Label sharpnessLabel;
+//    juce::TextButton playButton { "Play" };
+//    juce::TextButton polarityButton { "Toggle Black/White" };
+//    juce::TextButton autoPolarityButton { "Auto Toggle" };
+//    juce::TextButton iirButton { "IIR" };
+//    juce::TextButton updateFilterButton { "Update" };
+//    juce::ComboBox qualityComboBox;
+//    juce::ComboBox scalingComboBox;
+//    juce::ComboBox erbComboBox;
+//    juce::ComboBox pinkNoiseBox;
+//    
+//    juce::ComboBox resolutionComboBox;
+//    juce::ComboBox isCascadingBox;
+//    juce::Slider densitySlider;
+//    juce::Label densityLabel;
+//    juce::Slider strokeOverlapSlider;
+//    juce::Label strokeOverlapLabel;
+//    juce::Slider dotOverlapSlider;
+//    juce::Label dotOverlapLabel;
+//    juce::Slider rampLengthSlider;
+//    juce::Label rampLengthLabel;
     
-    juce::ComboBox resolutionComboBox;
-    juce::ComboBox isCascadingBox;
-    juce::Slider densitySlider;
-    juce::Label densityLabel;
-    juce::Slider strokeOverlapSlider;
-    juce::Label strokeOverlapLabel;
-    juce::Slider dotOverlapSlider;
-    juce::Label dotOverlapLabel;
-    juce::Slider rampLengthSlider;
-    juce::Label rampLengthLabel;
+    // Play button stuff
+    juce::ImageButton playPauseButton;
     
     bool isPlaying = false;
     bool isIIR = true;

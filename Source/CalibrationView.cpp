@@ -12,81 +12,97 @@
 
 CalibrationView::CalibrationView()
 {
+    // Checkerboard view
+    addAndMakeVisible (checkerboardView);
+    
+    // Setup new player component
+    addAndMakeVisible (playPauseButton);
+    juce::Image playImage = juce::ImageFileFormat::loadFrom (BinaryData::PlayButtonIcon_png, BinaryData::PlayButtonIcon_pngSize);
+    juce::Image pauseImage = juce::ImageFileFormat::loadFrom (BinaryData::PauseButtonIcon_png, BinaryData::PauseButtonIcon_pngSize);
+    playPauseButton.setImages (false, true, true, playImage, 1.0f, juce::Colours::white.withAlpha (0.0f), playImage, 0.0f, juce::Colours::black, playImage, 1.0f, juce::Colours::white);
+    playPauseButton.onClick = [this] {
+        if (calibrationListener != nullptr)
+        {
+            isPlaying = ! isPlaying;
+            calibrationListener->setIsPlaying (isPlaying);
+        }
+    };
+    
     // Calibration setting components
-    addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
-    speedSlider.setSkewFactorFromMidPoint (1.0f);
-    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 2.5f);
-    addSliderAndLabel (&volumeSlider, &volumeLabel, "Noise Volume", -24.0f, 24.0f, 0.0f);
-//    addSliderAndLabel (&sharpnessSlider, &sharpnessLabel, "Sharpness", 0.5f, 1.0f, 0.8f);
-    addButton (&playButton);
-    addButton (&polarityButton);
-    addButton (&autoPolarityButton);
+//    addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
+//    speedSlider.setSkewFactorFromMidPoint (1.0f);
+//    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 2.5f);
+//    addSliderAndLabel (&volumeSlider, &volumeLabel, "Noise Volume", -24.0f, 24.0f, 0.0f);
+////    addSliderAndLabel (&sharpnessSlider, &sharpnessLabel, "Sharpness", 0.5f, 1.0f, 0.8f);
+//    addButton (&playButton);
+//    addButton (&polarityButton);
+//    addButton (&autoPolarityButton);
     
-    addAndMakeVisible (resolutionComboBox);
-    int minResolution = 2;
-    int maxResolution = 8;
-    for (int i = minResolution; i <= maxResolution; ++i)
-    {
-        resolutionComboBox.addItem (std::to_string (i) + "x" + std::to_string (i), i);
-    }
-    resolutionComboBox.setSelectedId (2); // start out at resolution 2
-    resolutionComboBox.addListener (this);
-    
-    addAndMakeVisible (scalingComboBox);
-    scalingComboBox.addItem ("Logarithmic", 1);
-    scalingComboBox.addItem ("Bark", 2);
-    scalingComboBox.setSelectedId (1);
-    scalingComboBox.addListener (this);
-    addAndMakeVisible (erbComboBox);
-    erbComboBox.addItem ("Uniform", 1);
-    erbComboBox.addItem ("ERB", 2);
-    erbComboBox.setSelectedId (1);
-    erbComboBox.addListener (this);
-    addAndMakeVisible (pinkNoiseBox);
-    pinkNoiseBox.addItem ("Cabin Noise (-4.5 dB/oct)", 1);
-    pinkNoiseBox.addItem ("Pink Noise (-3.0 dB/oct)", 2);
-    pinkNoiseBox.setSelectedId (2);
-    pinkNoiseBox.addListener (this);
-    addAndMakeVisible (isCascadingBox);
-    isCascadingBox.addItem ("Sweeping", 1);
-    isCascadingBox.addItem ("Cascading", 2);
-    isCascadingBox.setSelectedId (1);
-    isCascadingBox.addListener (this);
-    
-    addButton (&iirButton);
-    addButton (&updateFilterButton);
-    
-    addAndMakeVisible (qualityComboBox);
-    qualityComboBox.addItem ("Economy", 10);
-    qualityComboBox.addItem ("Good", 14);
-    qualityComboBox.addItem ("Ultra", 18);
-    qualityComboBox.addListener (this);
-    qualityComboBox.setSelectedId (14);
-    
-    addSliderAndLabel (&densitySlider, &densityLabel, "Density", 2.0f, 40.0f, 4.0f);
-    addSliderAndLabel (&strokeOverlapSlider, &strokeOverlapLabel, "Stroke Overlap", 0.0f, 1.0f, 0.2f);
-    addSliderAndLabel (&dotOverlapSlider, &dotOverlapLabel, "Dot Overlap", 0.0f, 1.0f, 0.2f);
-//    addSliderAndLabel (&rampLengthSlider, &rampLengthLabel, "Sharpness", 0.0f, 0.5f, 0.2f);
-    
-    // Slider actions
-    addSliderAction (&speedSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-            calibrationListener->setSpeedFactor (speedSlider.getValue());
-    });
-    addSliderAction (&bandwidthSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->setBandwidth (bandwidthSlider.getValue());
-            // TODO: propogate visual change to the glyph view
-        }
-    });
-    addSliderAction (&volumeSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->setCalibrationVolume (volumeSlider.getValue());
-//            glyphGridView.updateGlyphs();
-        }
-    });
+//    addAndMakeVisible (resolutionComboBox);
+//    int minResolution = 2;
+//    int maxResolution = 8;
+//    for (int i = minResolution; i <= maxResolution; ++i)
+//    {
+//        resolutionComboBox.addItem (std::to_string (i) + "x" + std::to_string (i), i);
+//    }
+//    resolutionComboBox.setSelectedId (2); // start out at resolution 2
+//    resolutionComboBox.addListener (this);
+//    
+//    addAndMakeVisible (scalingComboBox);
+//    scalingComboBox.addItem ("Logarithmic", 1);
+//    scalingComboBox.addItem ("Bark", 2);
+//    scalingComboBox.setSelectedId (1);
+//    scalingComboBox.addListener (this);
+//    addAndMakeVisible (erbComboBox);
+//    erbComboBox.addItem ("Uniform", 1);
+//    erbComboBox.addItem ("ERB", 2);
+//    erbComboBox.setSelectedId (1);
+//    erbComboBox.addListener (this);
+//    addAndMakeVisible (pinkNoiseBox);
+//    pinkNoiseBox.addItem ("Cabin Noise (-4.5 dB/oct)", 1);
+//    pinkNoiseBox.addItem ("Pink Noise (-3.0 dB/oct)", 2);
+//    pinkNoiseBox.setSelectedId (2);
+//    pinkNoiseBox.addListener (this);
+//    addAndMakeVisible (isCascadingBox);
+//    isCascadingBox.addItem ("Sweeping", 1);
+//    isCascadingBox.addItem ("Cascading", 2);
+//    isCascadingBox.setSelectedId (1);
+//    isCascadingBox.addListener (this);
+//    
+//    addButton (&iirButton);
+//    addButton (&updateFilterButton);
+//    
+//    addAndMakeVisible (qualityComboBox);
+//    qualityComboBox.addItem ("Economy", 10);
+//    qualityComboBox.addItem ("Good", 14);
+//    qualityComboBox.addItem ("Ultra", 18);
+//    qualityComboBox.addListener (this);
+//    qualityComboBox.setSelectedId (14);
+//    
+//    addSliderAndLabel (&densitySlider, &densityLabel, "Density", 2.0f, 40.0f, 4.0f);
+//    addSliderAndLabel (&strokeOverlapSlider, &strokeOverlapLabel, "Stroke Overlap", 0.0f, 1.0f, 0.2f);
+//    addSliderAndLabel (&dotOverlapSlider, &dotOverlapLabel, "Dot Overlap", 0.0f, 1.0f, 0.2f);
+////    addSliderAndLabel (&rampLengthSlider, &rampLengthLabel, "Sharpness", 0.0f, 0.5f, 0.2f);
+//    
+//    // Slider actions
+//    addSliderAction (&speedSlider, [this](juce::Slider*) {
+//        if (calibrationListener != nullptr)
+//            calibrationListener->setSpeedFactor (speedSlider.getValue());
+//    });
+//    addSliderAction (&bandwidthSlider, [this](juce::Slider*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->setBandwidth (bandwidthSlider.getValue());
+//            // TODO: propogate visual change to the glyph view
+//        }
+//    });
+//    addSliderAction (&volumeSlider, [this](juce::Slider*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->setCalibrationVolume (volumeSlider.getValue());
+////            glyphGridView.updateGlyphs();
+//        }
+//    });
 //    addSliderAction (&sharpnessSlider, [this](juce::Slider*) {
 //        if (calibrationListener != nullptr)
 //        {
@@ -122,63 +138,63 @@ CalibrationView::CalibrationView()
 //        }
 //    });
     
-    // Button actions
-    addButtonAction (&playButton, [this](juce::Button*) {
-        isPlaying = ! isPlaying;
-        if (calibrationListener != nullptr)
-            calibrationListener->setIsPlaying (isPlaying);
-        playButton.setButtonText (isPlaying ? "Pause" : "Play");
-        checkerboardView.updateIsPlaying();
-//        glyphGridView.updateIsPlaying();
-    });
-    addButtonAction (&polarityButton, [this](juce::Button*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->toggleCheckerboardPolarity();
-            checkerboardView.updateCheckerboard();
-        }
-    });
-    addButtonAction (&autoPolarityButton, [this](juce::Button*) {
-        if (calibrationListener != nullptr)
-        {
-            isAutoToggling = ! isAutoToggling;
-            if (isAutoToggling)
-            {
-                startTimer (1000);
-                autoPolarityButton.setButtonText ("Stop Auto Toggling");
-            }
-            else
-            {
-                stopTimer();
-                autoPolarityButton.setButtonText ("Auto Toggle");
-            }
-        }
-    });
-    addButtonAction (&iirButton, [this](juce::Button*) {
-        isIIR = ! isIIR;
-        if (calibrationListener != nullptr)
-            calibrationListener->setIIR (isIIR);
-        iirButton.setButtonText (isIIR ? "IIR" : "FIR");
-    });
-
-    addButtonAction (&updateFilterButton, [this](juce::Button*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->updateFIRFilter();
-        }
-    });
-
-    
-    // Glyph Grid View
-//    addAndMakeVisible (glyphGridView);
-    // Checkerboard View
-    addAndMakeVisible (checkerboardView);
-    
-    // Archetype Bar
-    addAndMakeVisible (archetypeViewport);
-    addAndMakeVisible (archetypeBar);
-//    archetypeViewport.setViewedComponent (&archetypeBar);
-    archetypeViewport.setScrollBarsShown (true, false);
+//    // Button actions
+//    addButtonAction (&playButton, [this](juce::Button*) {
+//        isPlaying = ! isPlaying;
+//        if (calibrationListener != nullptr)
+//            calibrationListener->setIsPlaying (isPlaying);
+//        playButton.setButtonText (isPlaying ? "Pause" : "Play");
+//        checkerboardView.updateIsPlaying();
+////        glyphGridView.updateIsPlaying();
+//    });
+//    addButtonAction (&polarityButton, [this](juce::Button*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->toggleCheckerboardPolarity();
+//            checkerboardView.updateCheckerboard();
+//        }
+//    });
+//    addButtonAction (&autoPolarityButton, [this](juce::Button*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            isAutoToggling = ! isAutoToggling;
+//            if (isAutoToggling)
+//            {
+//                startTimer (1000);
+//                autoPolarityButton.setButtonText ("Stop Auto Toggling");
+//            }
+//            else
+//            {
+//                stopTimer();
+//                autoPolarityButton.setButtonText ("Auto Toggle");
+//            }
+//        }
+//    });
+//    addButtonAction (&iirButton, [this](juce::Button*) {
+//        isIIR = ! isIIR;
+//        if (calibrationListener != nullptr)
+//            calibrationListener->setIIR (isIIR);
+//        iirButton.setButtonText (isIIR ? "IIR" : "FIR");
+//    });
+//
+//    addButtonAction (&updateFilterButton, [this](juce::Button*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->updateFIRFilter();
+//        }
+//    });
+//
+//    
+//    // Glyph Grid View
+////    addAndMakeVisible (glyphGridView);
+//    // Checkerboard View
+//    addAndMakeVisible (checkerboardView);
+//    
+//    // Archetype Bar
+//    addAndMakeVisible (archetypeViewport);
+//    addAndMakeVisible (archetypeBar);
+////    archetypeViewport.setViewedComponent (&archetypeBar);
+//    archetypeViewport.setScrollBarsShown (true, false);
 }
 
 CalibrationView::~CalibrationView()
@@ -199,24 +215,27 @@ void CalibrationView::resized()
     // Glyph View
     Layout glyphLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth), 8.0f);
     glyphLayout.addRow ({ Space (&checkerboardView ) });
-//    glyphLayout.addRow ({ Space (&glyphGridView) });
     glyphLayout.updateComponentBounds();
+    
+    Layout playerLayout (localBounds.withTrimmedLeft (sidebarWidth + archetypeBarWidth), 8.0f);
+    playerLayout.addRow ({ Space(), Space (&playPauseButton, 80.0f), Space() } );
+    playerLayout.updateComponentBounds();
     
     // Archetype sidebar
 //    Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
 //    archetypeBarLayout.addRow ({ Space (&archetypeBar) });
 //    archetypeBarLayout.updateComponentBounds();
     
-    // Settings section
-    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
-//    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
-//    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
-    float volumeLabelWidth = volumeLabel.getFont().getStringWidth (volumeLabel.getText());
-//    float sharpnessLabelWidth = sharpnessLabel.getFont().getStringWidth (sharpnessLabel.getText());
-    settingsLayout.addRow ({ Space (volumeLabelWidth), Space (&volumeSlider) });
-//    settingsLayout.addRow ({ Space (sharpnessLabelWidth), Space (&sharpnessSlider) });
-    settingsLayout.addRow ({ Space (&resolutionComboBox) });
-    settingsLayout.addRow ({ Space (&polarityButton), Space (&autoPolarityButton, 100) });
+//    // Settings section
+//    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+////    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
+////    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
+//    float volumeLabelWidth = volumeLabel.getFont().getStringWidth (volumeLabel.getText());
+////    float sharpnessLabelWidth = sharpnessLabel.getFont().getStringWidth (sharpnessLabel.getText());
+//    settingsLayout.addRow ({ Space (volumeLabelWidth), Space (&volumeSlider) });
+////    settingsLayout.addRow ({ Space (sharpnessLabelWidth), Space (&sharpnessSlider) });
+//    settingsLayout.addRow ({ Space (&resolutionComboBox) });
+//    settingsLayout.addRow ({ Space (&polarityButton), Space (&autoPolarityButton, 100) });
 //    settingsLayout.addRow ({ Space (&isCascadingBox) });
 //    if (isCascadingBox.getSelectedId() == 2)
 //    {
@@ -239,8 +258,8 @@ void CalibrationView::resized()
 //    settingsLayout.addRow ({ Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
 //    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
-    settingsLayout.addRow ({ Space (&playButton) });
-    settingsLayout.updateComponentBounds();
+//    settingsLayout.addRow ({ Space (&playButton) });
+//    settingsLayout.updateComponentBounds();
 }
 
 //void CalibrationView::setListener (GlyphViewListener* listener)
@@ -278,30 +297,30 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 //        calibrationListener->setFIRQuality (qualityComboBox.getSelectedId());
     }
     
-    if (comboBoxThatHasChanged == &scalingComboBox)
-    {
-        calibrationListener->setBarkScaling (scalingComboBox.getSelectedId() == 2);
-    }
-    else if (comboBoxThatHasChanged == &erbComboBox)
-    {
-        calibrationListener->setERBScaling (erbComboBox.getSelectedId() == 2);
-    }
-    else if (comboBoxThatHasChanged == &pinkNoiseBox)
-    {
-        calibrationListener->setPinkNoise (pinkNoiseBox.getSelectedId() == 2);
-    }
-    else if (comboBoxThatHasChanged == &isCascadingBox)
-    {
-        calibrationListener->setIsCascading (isCascadingBox.getSelectedId() == 2);
-        resized();
-//        glyphGridView.updateGlyphs();
-    }
-    else if (comboBoxThatHasChanged == &resolutionComboBox)
-    {
-//        calibrationListener->setCheckerboardResolution (resolutionComboBox.getSelectedId());
-        checkerboardView.updateCheckerboard();
-        resized();
-    }
+//    if (comboBoxThatHasChanged == &scalingComboBox)
+//    {
+//        calibrationListener->setBarkScaling (scalingComboBox.getSelectedId() == 2);
+//    }
+//    else if (comboBoxThatHasChanged == &erbComboBox)
+//    {
+//        calibrationListener->setERBScaling (erbComboBox.getSelectedId() == 2);
+//    }
+//    else if (comboBoxThatHasChanged == &pinkNoiseBox)
+//    {
+//        calibrationListener->setPinkNoise (pinkNoiseBox.getSelectedId() == 2);
+//    }
+//    else if (comboBoxThatHasChanged == &isCascadingBox)
+//    {
+//        calibrationListener->setIsCascading (isCascadingBox.getSelectedId() == 2);
+//        resized();
+////        glyphGridView.updateGlyphs();
+//    }
+//    else if (comboBoxThatHasChanged == &resolutionComboBox)
+//    {
+////        calibrationListener->setCheckerboardResolution (resolutionComboBox.getSelectedId());
+//        checkerboardView.updateCheckerboard();
+//        resized();
+//    }
 }
 
 void CalibrationView::timerCallback()
