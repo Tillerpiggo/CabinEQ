@@ -70,16 +70,15 @@ void AudioPlayerComponent::audioFilePlayingChanged (bool isPlaying)
 
 void AudioPlayerComponent::openButtonClicked()
 {
-//    std::unique_ptr<juce::FileChooser> chooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...",
-//                                                   juce::File{},
-//                                                   "*.wav");                     // [7]
-//    auto chooserFlags = juce::FileBrowserComponent::openMode
-//                      | juce::FileBrowserComponent::canSelectFiles;
-//
-//    chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)     // [8]
-//    {
-//        auto file = fc.getResult();
-//        if (listener != nullptr)
-//            listener->setFile (file);
-//    });
+    fileChooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...",
+                                                   juce::File{},
+                                                                                      "*.wav");
+    auto chooserFlags = juce::FileBrowserComponent::openMode
+                      | juce::FileBrowserComponent::canSelectFiles;
+
+    fileChooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc) {
+        auto file = fc.getResult();
+        if (listener != nullptr)
+            listener->setFile (file);
+    });
 }

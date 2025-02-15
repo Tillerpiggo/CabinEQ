@@ -315,7 +315,8 @@ float PlaybackManager::getBandwidth()
 
 std::vector<float> PlaybackManager::getCurrPlayingFreqs()
 {
-    return {}; // for checkerboard player
+    return checkerboardPlayer.getCurrSolodFreqs();
+   // return {}; // for checkerboard player
 //    return glyphGridPlayer.getCurrPlayingFreqs();
 //    return
 //    return gridSequencer.getCurrPlayingFreqs();

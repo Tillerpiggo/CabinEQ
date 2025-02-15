@@ -17,7 +17,7 @@ CalibrationView::CalibrationView()
     speedSlider.setSkewFactorFromMidPoint (1.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.1f, 4.0f, 2.5f);
     addSliderAndLabel (&volumeSlider, &volumeLabel, "Noise Volume", -24.0f, 24.0f, 0.0f);
-    addSliderAndLabel (&sharpnessSlider, &sharpnessLabel, "Sharpness", 0.5f, 1.0f, 0.8f);
+//    addSliderAndLabel (&sharpnessSlider, &sharpnessLabel, "Sharpness", 0.5f, 1.0f, 0.8f);
     addButton (&playButton);
     addButton (&polarityButton);
     addButton (&autoPolarityButton);
@@ -66,7 +66,7 @@ CalibrationView::CalibrationView()
     addSliderAndLabel (&densitySlider, &densityLabel, "Density", 2.0f, 40.0f, 4.0f);
     addSliderAndLabel (&strokeOverlapSlider, &strokeOverlapLabel, "Stroke Overlap", 0.0f, 1.0f, 0.2f);
     addSliderAndLabel (&dotOverlapSlider, &dotOverlapLabel, "Dot Overlap", 0.0f, 1.0f, 0.2f);
-    addSliderAndLabel (&rampLengthSlider, &rampLengthLabel, "Sharpness", 0.0f, 0.5f, 0.2f);
+//    addSliderAndLabel (&rampLengthSlider, &rampLengthLabel, "Sharpness", 0.0f, 0.5f, 0.2f);
     
     // Slider actions
     addSliderAction (&speedSlider, [this](juce::Slider*) {
@@ -87,12 +87,12 @@ CalibrationView::CalibrationView()
 //            glyphGridView.updateGlyphs();
         }
     });
-    addSliderAction (&sharpnessSlider, [this](juce::Slider*) {
-        if (calibrationListener != nullptr)
-        {
-            calibrationListener->setCheckerboardSharpness (sharpnessSlider.getValue());
-        }
-    });
+//    addSliderAction (&sharpnessSlider, [this](juce::Slider*) {
+//        if (calibrationListener != nullptr)
+//        {
+//            calibrationListener->setCheckerboardSharpness (sharpnessSlider.getValue());
+//        }
+//    });
 //    addSliderAction (&densitySlider, [this](juce::Slider*) {
 //        if (calibrationListener != nullptr)
 //        {
@@ -212,9 +212,9 @@ void CalibrationView::resized()
 //    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
 //    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
     float volumeLabelWidth = volumeLabel.getFont().getStringWidth (volumeLabel.getText());
-    float sharpnessLabelWidth = sharpnessLabel.getFont().getStringWidth (sharpnessLabel.getText());
+//    float sharpnessLabelWidth = sharpnessLabel.getFont().getStringWidth (sharpnessLabel.getText());
     settingsLayout.addRow ({ Space (volumeLabelWidth), Space (&volumeSlider) });
-    settingsLayout.addRow ({ Space (sharpnessLabelWidth), Space (&sharpnessSlider) });
+//    settingsLayout.addRow ({ Space (sharpnessLabelWidth), Space (&sharpnessSlider) });
     settingsLayout.addRow ({ Space (&resolutionComboBox) });
     settingsLayout.addRow ({ Space (&polarityButton), Space (&autoPolarityButton, 100) });
 //    settingsLayout.addRow ({ Space (&isCascadingBox) });

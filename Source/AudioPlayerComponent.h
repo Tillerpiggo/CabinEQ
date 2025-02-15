@@ -42,6 +42,7 @@ private:
     void openButtonClicked();
     
     AudioPlayerComponentListener* listener;
+    std::unique_ptr<juce::FileChooser> fileChooser;
     
     juce::TextButton uploadFileButton { "Upload File..." };
     juce::TextButton playButton { "Play" };

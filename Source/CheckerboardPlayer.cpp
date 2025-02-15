@@ -50,6 +50,19 @@ void CheckerboardPlayer::setSoloSquareCoords (std::set<std::pair<int, int>> solo
     shouldUpdateNoiseGenerators = true;
 }
 
+std::vector<float> CheckerboardPlayer::getCurrSolodFreqs()
+{
+    // Just return the solod freqs without thinking too hard about it
+    std::set<float> solodFreqs;
+//    for (i)
+}
+
+float CheckerboardPlayer::getBandwidth()
+{
+    // TODO: implement
+    return 1.0f;
+}
+
 void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
 {
     if (! shouldUpdateNoiseGenerators)

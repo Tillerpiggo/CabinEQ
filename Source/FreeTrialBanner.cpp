@@ -18,7 +18,7 @@ FreeTrialBanner::FreeTrialBanner()
     addAndMakeVisible (freeTrialLabel);
     addAndMakeVisible (timeLabel);
     addButton (&activateLicenseButton);
-    freeTrialLabel.setText ("Free Trial - current profiles will lock in 20:00", juce::dontSendNotification);
+    freeTrialLabel.setText ("Free Trial - current profiles will lock in 2 hrs", juce::dontSendNotification);
     timeLabel.setText (convertSecondsToTimeFormat (resetCycleInSeconds), juce::dontSendNotification);
     timeLabel.setJustificationType (juce::Justification::right);
     

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="tuQjdv" name="CabinEQ" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              defines="JUCE_MODAL_LOOPS_PERMITTED=1">
   <MAINGROUP id="tB8nJa" name="CabinEQ">
     <FILE id="RQqeWn" name="CabinEQIconEighty.png" compile="0" resource="1"
           file="../../../Downloads/CabinEQIconEighty.png"/>

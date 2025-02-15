@@ -19,7 +19,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     amplGraph = std::make_unique<CabinPeqGraph>();
     
     // Sliders
-    addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
+//    addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
     
     // Buttons
     addButton (&bypassButton);
@@ -112,8 +112,8 @@ void CabinEqPage::resized()
     {
         layout.addRow ({ Space (&freeTrialBanner) }, 40);
     }
-    layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown), Space (sidebarWidth) }, 40);
-    layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen), Space (&masterVolumeSlider).withFixedSize (sidebarWidth) }, 0.5);
+    layout.addRow ({ Space (&bypassButton).withFixedSize (50), Space (&profileDropdown) }, 40);
+    layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.addRow ({ Space (&contactUsBanner) }, 40);
     layout.updateComponentBounds();
