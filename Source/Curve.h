@@ -87,7 +87,7 @@ class TiltCurve  : public Curve
 public:
     const std::pair<float, float> valueAtTime (float time) override
     {
-        float freq = std::max (20.0f, time * 22050);
+        float freq = std::max (20.0f, time * 22050.0f);
         float val = -3.0f * std::log2 (freq / 1000.0f);
         return { val, val };
     }

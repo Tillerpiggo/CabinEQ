@@ -40,12 +40,11 @@ private:
     std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersRight;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersLeft;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersRight;
-    int order = 16;
+    int order = 4;
     int snapToZeroCounter = 0;
     
     // Add ramp when starting from nothing
-    GainEnvelope gainEnvelope;
-    int rampSamples = 10000;
+    int rampSamples = 5000;
     int currRampSample = 0; // 0 = ramp start, > 1000 = ramp ended
     
     int numRows = 2;

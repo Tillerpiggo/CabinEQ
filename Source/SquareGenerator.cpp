@@ -38,14 +38,19 @@ std::pair<float, float> SquareGenerator::getNextSample()
     
     if (currRampSample < rampSamples)
     {
-        float gain = gainEnvelope.gainAtSample (currRampSample, rampSamples);
+        float MIN_DB = -120.0f;
+        float rampPercent = (float) currRampSample / (float) rampSamples;
+        float volDB = MIN_DB * (1.0f - rampPercent);
+        
+        float gain = juce::Decibels::decibelsToGain (volDB);
         nextLeftSample *= gain;
         nextRightSample *= gain;
         currRampSample++;
+//        std::cout << "gain: " << gain << std::endl;
     }
     
     // Filter the pink noise
-    if (freqIdx < numRows - 1)
+    if (true || freqIdx < numRows - 1)
     {
         for (int i = 0; i < order; ++i)
         {
@@ -54,7 +59,7 @@ std::pair<float, float> SquareGenerator::getNextSample()
         }
     }
     
-    if (freqIdx > 0)
+    if (true || freqIdx > 0)
     {
         for (int i = 0; i < order; ++i)
         {

@@ -45,6 +45,7 @@ void CheckerboardView::mouseDown (const juce::MouseEvent &event)
     {
         soloSquareCoords.clear();
         soloSquareCoords.insert (mouseDownCoords.value());
+        listener->setSoloSquareCoords (soloSquareCoords);
     }
 }
 
@@ -86,6 +87,7 @@ void CheckerboardView::mouseUp (const juce::MouseEvent &event)
         else
         {
             soloSquareCoords.clear();
+            listener->setSoloSquareCoords (soloSquareCoords);
         }
         hasSelection = ! hasSelection;
     }
@@ -266,6 +268,10 @@ void CheckerboardView::selectBetween (std::pair<int, int> point1, std::pair<int,
                 soloSquareCoords.insert ({ freqIdx, panIdx });
             }
         }
+    }
+    if (listener != nullptr)
+    {
+        listener->setSoloSquareCoords (soloSquareCoords);
     }
 }
 

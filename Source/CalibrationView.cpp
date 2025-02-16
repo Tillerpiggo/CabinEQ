@@ -90,7 +90,7 @@ CalibrationView::CalibrationView()
         }
     };
     
-    startTimer (1000);
+    startTimer (2000);
     
     // Calibration setting components
 //    addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.1f, 5.0f, 1.0f);
