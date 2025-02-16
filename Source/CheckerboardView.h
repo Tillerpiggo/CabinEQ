@@ -42,6 +42,8 @@ public:
 private:
     void drawGridLines (juce::Graphics& g);
     void drawSquares (juce::Graphics& g);
+    void drawSoloBorder (juce::Graphics& g);
+    void selectBetween (std::pair<int, int> point1, std::pair<int, int> point2); // selects/solos the coordinates between the two given points
     
     void drawSquare (int freqIdx, int panIdx, juce::Colour squareColour, juce::Graphics& g); // uses Checkerboard info to draw a square at the given location
     juce::Rectangle<float> getRectForFreqIdxAndPanIdx (int freqIdx, int panIdx); // based on checkerboard, gets the associated coords for this freq/pan idx. Returns a rectangle with 0 size if freq idx or pan idx are out of bounds
@@ -58,9 +60,13 @@ private:
     juce::Colour GRIDLINE_COLOUR = juce::Colours::teal;
     juce::Colour SQUARE_ON_COLOUR = juce::Colours::teal;
     juce::Colour SQUARE_OFF_COLOUR = juce::Colours::teal.withAlpha (0.3f);
-    juce::Colour SQUARE_EMPTY_COLOUR = juce::Colours::black;
-    juce::Colour SOLO_SQUARE_COLOUR = juce::Colours::teal.withLightness (0.8f);
-    juce::Colour HOVER_SQUARE_COLOUR = juce::Colours::teal.withLightness (0.5f);
+    juce::Colour SQUARE_EMPTY_COLOUR = juce::Colours::teal.withAlpha (0.1f);
+    juce::Colour SOLO_BORDER_COLOUR = juce::Colours::skyblue;
+//    juce::Colour SOLO_SQUARE_ON_COLOUR = juce::Colours::purple;
+//    juce::Colour SOLO_SQUARE_OFF_COLOUR = juce::Colours::purple.withAlpha (0.3f);
+//    juce::Colour SOLO_SQUARE_EMPTY_COLOUR = juce::Colours::purple.withAlpha (0.2f);
+//    juce::Colour SOLO_SQUARE_COLOUR = juce::Colours::purple.withAlpha (0.3f);
+    juce::Colour HOVER_SQUARE_COLOUR = juce::Colours::black.withAlpha (0.2f);
     
     // Solo'd square
     std::set<std::pair<int, int>> soloSquareCoords;
@@ -70,4 +76,5 @@ private:
     int soloCounter = 0;
     int soloMax = 80;
     bool isSolod = true;
+    bool hasSelection = false; // if there is an active soloSquareCoords selection
 };
