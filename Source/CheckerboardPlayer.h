@@ -29,6 +29,7 @@ public:
     
     std::vector<float> getCurrSolodFreqs(); // gets the current freqs that are solod.
     float getBandwidth(); // returns bandwidth relative to current frequency resolution.
+    float centerFreqAtFreqIdx (int freqIdx);
     
 private:
     void updateNoiseGeneratorsIfNeeded(); // completely recaulcates noise generators if shouldUpdateNoiseGenerators = true

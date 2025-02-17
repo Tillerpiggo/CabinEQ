@@ -24,7 +24,8 @@
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
 /// process audio or play sine tones as needed.
-class PlaybackManager  : public juce::ChangeListener
+class PlaybackManager  : public juce::ChangeListener,
+                         public juce::Timer
 {
 public:
     PlaybackManager();
@@ -82,6 +83,8 @@ public:
     std::vector<float> getCurrPlayingFreqs();
     std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols();
     
+    void timerCallback() override;
+    
 private:
     std::pair<float, float> getNextSample();
     
@@ -104,6 +107,7 @@ private:
     juce::dsp::Gain<float> overallVolumeProcessor;
     float volume = 0.0f; // in dB
     float calibrationVolume = 0.0f; // in dB
+    float systemVolume = 1.0f;
     
     // State
     bool isFilterOn; // if the EQ curve is being applied

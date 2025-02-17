@@ -19,9 +19,6 @@ CheckerboardPlayer::CheckerboardPlayer()
 
 void CheckerboardPlayer::processBlock (juce::AudioBuffer<float>& buffer, float gain)
 {
-    // Volume processing
-    systemVolumeProcessor.setGainLinear (juce::SystemAudioVolume::getGain());
-    
     // Make copy of buffer
     juce::AudioBuffer<float> copyBuffer;
     copyBuffer.makeCopyOf (buffer);
@@ -93,15 +90,36 @@ void CheckerboardPlayer::setSoloSquareCoords (std::set<std::pair<int, int>> solo
 std::vector<float> CheckerboardPlayer::getCurrSolodFreqs()
 {
     // Just return the solod freqs without thinking too hard about it
-    std::set<float> solodFreqs;
-//    for (i)
+    std::vector<float> solodFreqs;
+    for (const auto& soloSquareCoordPair : soloSquareCoords)
+    {
+        solodFreqs.push_back (centerFreqAtFreqIdx (soloSquareCoordPair.first));
+    }
+    return solodFreqs;
 }
 
 float CheckerboardPlayer::getBandwidth()
 {
-    // TODO: implement
-    return 1.0f;
+    // Calculate based off of total bandwidth
+    auto [numRows, _] = checkerboard.getGridDimensions();
+    float MIN_FREQ = 20.0f;
+    float MAX_FREQ = 20000.0f;
+    float numOctaves = std::log2 (MAX_FREQ / MIN_FREQ);
+    return numOctaves / (float) numRows;
 }
+
+float CheckerboardPlayer::centerFreqAtFreqIdx (int freqIdx)
+{
+    // Calculate based off of checkerboard
+    float numOctavesPerBand = getBandwidth();
+    float MIN_FREQ = 20.0f;
+    return MIN_FREQ * std::pow (2.0f, numOctavesPerBand * ((float) freqIdx + 0.5f));
+}
+
+//void CheckerboardPlayer::timerCallback()
+//{
+//    systemVolumeProcessor.setGainLinear (juce::SystemAudioVolume::getGain());
+//}
 
 void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
 {

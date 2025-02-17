@@ -28,6 +28,8 @@ PlaybackManager::PlaybackManager()
     
     audioFormatManager.registerBasicFormats();
     audioTransportSource.addChangeListener (this);
+    
+    startTimer (50);
 }
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
@@ -42,9 +44,9 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         audioTransportSource.getNextAudioBlock (bufferToFill);
     }
     
-    if (isPlayingNoise && ! juce::SystemAudioVolume::isMuted())
+    if (isPlayingNoise)// && ! juce::SystemAudioVolume::isMuted())
     {
-        checkerboardPlayer.processBlock (ioBuffer, juce::Decibels::decibelsToGain (calibrationVolume));
+        checkerboardPlayer.processBlock (ioBuffer, systemVolume);
     }
     
     
@@ -332,6 +334,11 @@ std::vector<std::pair<float, float>> PlaybackManager::getCurrPlayingFreqsAndVols
 {
     return {}; // for checkerboard player
 //    return glyphGridPlayer.getCurrPlayingFreqsAndVols();
+}
+
+void PlaybackManager::timerCallback()
+{
+    systemVolume = juce::SystemAudioVolume::isMuted() ? 0.0f : juce::SystemAudioVolume::getGain();
 }
 
 void PlaybackManager::changeListenerCallback (juce::ChangeBroadcaster* source)
