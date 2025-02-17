@@ -50,4 +50,6 @@ private:
     TiltCurve tiltCurve;
     
     float minFreq = 20.0f;
+    
+    float currTime = 0.0f;
 };

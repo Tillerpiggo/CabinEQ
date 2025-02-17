@@ -48,6 +48,16 @@ void CheckerboardPlayer::processBlock (juce::AudioBuffer<float>& buffer, float g
     {
         buffer.addFrom (channel, 0, copyBuffer, channel, 0, copyBuffer.getNumSamples());
     }
+    
+//    currTime += 0.01f;
+//    if (currTime > 2.0f)
+//        currTime -= 2.0f;
+//    
+//    // Update noise generators
+//    for (auto& noiseGenerator : noiseGenerators)
+//    {
+//        noiseGenerator.setBandpassRange (0.0f, fmin (currTime, 1.0f));
+//    }
 }
 
 std::pair<float, float> CheckerboardPlayer::getNextSample()

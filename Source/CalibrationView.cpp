@@ -294,7 +294,7 @@ void CalibrationView::resized()
     playerLayout.addRow ({ Space(), Space (&prevButton, 40.0f), Space (&playPauseButton, 80.0f), Space (&nextButton, 40.0f), Space() } );
     playerLayout.addRow ({ Space() }, 8.0f);
     playerLayout.addRow ({ Space(), Space (&speakerButton, 16.0f), Space (&noiseVolumeSlider), Space() }, 20.0f);
-    playerLayout.addRow ({ Space(), Space (&minFreqSlider), Space() }, 20.0f);
+//    playerLayout.addRow ({ Space(), Space (&minFreqSlider), Space() }, 20.0f);
     playerLayout.addRow ({ Space() });
     playerLayout.updateComponentBounds();
     
