@@ -17,7 +17,7 @@ CheckerboardPlayer::CheckerboardPlayer()
     systemVolumeProcessor.setGainLinear (juce::SystemAudioVolume::getGain());
 }
 
-void CheckerboardPlayer::processBlock (juce::AudioBuffer<float>& buffer)
+void CheckerboardPlayer::processBlock (juce::AudioBuffer<float>& buffer, float gain)
 {
     // Volume processing
     systemVolumeProcessor.setGainLinear (juce::SystemAudioVolume::getGain());
@@ -34,10 +34,10 @@ void CheckerboardPlayer::processBlock (juce::AudioBuffer<float>& buffer)
     for (int sample = 0; sample < copyBuffer.getNumSamples(); ++sample)
     {
         auto nextSample = getNextSample();
-        leftChannel[sample] += nextSample.first * 0.15 * 0.5;
+        leftChannel[sample] += nextSample.first * 0.15 * 0.5 * gain;
         
         if (rightChannel)
-            rightChannel[sample] += nextSample.second * 0.15 * 0.5;
+            rightChannel[sample] += nextSample.second * 0.15 * 0.5 * gain;
     }
     
     // Filter buffer

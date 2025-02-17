@@ -18,10 +18,10 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                       .withInput  ("Input", juce::AudioChannelSet::mono(), true)
+//                       .withInput  ("Input", juce::AudioChannelSet::mono(), true)
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                       .withOutput ("Output", juce::AudioChannelSet::mono(), true)
+//                       .withOutput ("Output", juce::AudioChannelSet::mono(), true)
                      #endif
                        ), parameters (*this, nullptr, "Params", createParameterLayout()),
                           cabinEqProfileManager (parameters)

@@ -22,7 +22,7 @@ public:
     CheckerboardPlayer();
     
     std::pair<float, float> getNextSample();
-    void processBlock (juce::AudioBuffer<float>& buffer);
+    void processBlock (juce::AudioBuffer<float>& buffer, float gain = 1.0f);
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setCheckerboard (Checkerboard checkerboard);
     void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords); // soloSquareCoords are [freqIdx, panIdx] - sets the coords of the currently "solod" square so that it only plays that square while muting everything else. If set to null, stops soloing the square

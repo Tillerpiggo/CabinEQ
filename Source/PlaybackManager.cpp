@@ -32,9 +32,6 @@ PlaybackManager::PlaybackManager()
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 {
-    auto* leftChannel = ioBuffer.getWritePointer(0);
-    auto* rightChannel = ioBuffer.getNumChannels() > 1 ? ioBuffer.getWritePointer(1) : nullptr;
-    
     // Play audio file
     if (isPlayingAudioFile)
     {
@@ -47,7 +44,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     
     if (isPlayingNoise && ! juce::SystemAudioVolume::isMuted())
     {
-        checkerboardPlayer.processBlock (ioBuffer);
+        checkerboardPlayer.processBlock (ioBuffer, juce::Decibels::decibelsToGain (calibrationVolume));
     }
     
     
