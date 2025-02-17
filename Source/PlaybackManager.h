@@ -108,11 +108,12 @@ private:
     float volume = 0.0f; // in dB
     float calibrationVolume = 0.0f; // in dB
     float systemVolume = 1.0f;
+    int blockCount = 0; // for debug
     
     // State
-    bool isFilterOn; // if the EQ curve is being applied
-    bool isPlayingNoise; // if calibration audio is being played rather than system audio
-    bool isPlayingAudioFile; // whether it's playing the user-loaded audio file
+    bool isFilterOn = true; // if the EQ curve is being applied
+    bool isPlayingNoise = false; // if calibration audio is being played rather than system audio
+    bool isPlayingAudioFile = false; // whether it's playing the user-loaded audio file
     bool isCabinNoise = true; // if it is, turn on the tilt filter
     bool isProvisionalOn = false; // if provisional bands are being applied to audio output
     bool isIIR = true; // if it is, use filterChain. Otherwise, use firFilter.
