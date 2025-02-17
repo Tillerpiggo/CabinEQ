@@ -87,6 +87,12 @@ void CheckerboardPlayer::setSoloSquareCoords (std::set<std::pair<int, int>> solo
     shouldUpdateNoiseGenerators = true;
 }
 
+void CheckerboardPlayer::setMinFreq (float minFreq)
+{
+    this->minFreq = minFreq;
+    shouldUpdateNoiseGenerators = true;
+}
+
 std::vector<float> CheckerboardPlayer::getCurrSolodFreqs()
 {
     // Just return the solod freqs without thinking too hard about it
@@ -161,6 +167,7 @@ void CheckerboardPlayer::updateNoiseGeneratorsIfNeeded()
                     noiseGenerators[lastIdx].prepare (spec);
                     noiseGenerators[lastIdx].setGridDimensions (numRows, numCols);
                     noiseGenerators[lastIdx].setCheckerboardCoords (freqIdx, panIdx);
+                    noiseGenerators[lastIdx].setMinFreq (minFreq);
                     lastIdx++;
                 }
             }

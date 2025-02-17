@@ -99,6 +99,8 @@ private:
     juce::ImageButton nextButton; // goes to the next "song" (e.g. the next checkerboard)
     juce::ImageButton speakerButton; // a button, but for now, doesn't do anything
     juce::Slider noiseVolumeSlider;
+    juce::Slider minFreqSlider;
+    juce::Label minFreqLabel;
     
     bool isMuted = false;
     float currVolume = 0.0f;

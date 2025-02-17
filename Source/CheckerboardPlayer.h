@@ -27,9 +27,12 @@ public:
     void setCheckerboard (Checkerboard checkerboard);
     void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords); // soloSquareCoords are [freqIdx, panIdx] - sets the coords of the currently "solod" square so that it only plays that square while muting everything else. If set to null, stops soloing the square
     
+    void setMinFreq (float minFreq);
+    
     std::vector<float> getCurrSolodFreqs(); // gets the current freqs that are solod.
     float getBandwidth(); // returns bandwidth relative to current frequency resolution.
     float centerFreqAtFreqIdx (int freqIdx);
+    
     
 private:
     void updateNoiseGeneratorsIfNeeded(); // completely recaulcates noise generators if shouldUpdateNoiseGenerators = true
@@ -46,4 +49,5 @@ private:
     ArbitraryResponseFilter tiltFilter;
     TiltCurve tiltCurve;
     
+    float minFreq = 20.0f;
 };

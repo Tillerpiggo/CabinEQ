@@ -25,6 +25,7 @@ public:
     void setGridDimensions (int numRows, int numCols);
     void setCheckerboardCoords (int freqIdx, int panIdx);
     void setVolumeGain (float volumeGain);
+    void setMinFreq (float minFreq);
     
 private:
     void updateGeneratorsIfNeeded(); // recalculates generators to match state if shouldUpdateGenerators is true

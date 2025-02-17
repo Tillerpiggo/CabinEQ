@@ -70,8 +70,13 @@ protected:
     
     void lockIfNecessary();
     
+    void addProfile();
+    void duplicateProfile();
+    void renameProfile();
+    
     void goToProfileWithId (juce::String profileIdToGoTo);
     bool isDuplicateProfileName (juce::String profileName);
+    
     
     CabinEqLookAndFeel cabinEqLookAndFeel;
     
@@ -99,6 +104,10 @@ protected:
     
     std::unique_ptr<CabinPeqGraph> amplGraph;
     juce::ComboBox profileDropdown;
+    juce::TextButton addProfileButton { "+ New" };
+    juce::TextButton duplicateProfileButton { "Duplicate" };
+    juce::TextButton renameProfileButton { "Rename" };
+    
     std::unique_ptr<juce::AlertWindow> alertWindow;
     
     const juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);

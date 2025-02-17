@@ -150,6 +150,12 @@ void SquareGenerator::setVolumeGain (float volumeGain)
     this->totalGain = volumeGain;
 }
 
+void SquareGenerator::setMinFreq (float minFreq)
+{
+    this->MIN_FREQ = minFreq;
+    shouldUpdateGenerators = true;
+}
+
 void SquareGenerator::updateGeneratorsIfNeeded()
 {
     if (! shouldUpdateGenerators)

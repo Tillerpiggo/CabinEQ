@@ -34,13 +34,13 @@ PlaybackManager::PlaybackManager()
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 {
-    if (blockCount > 100)
-    {
-        auto leftPointer = ioBuffer.getReadPointer (0);
-        std::cout << "curr sample: " << leftPointer[0] << std::endl;
-        blockCount = 0;
-    }
-    blockCount++;
+//    if (blockCount > 100)
+//    {
+//        auto leftPointer = ioBuffer.getReadPointer (0);
+//        std::cout << "curr sample: " << leftPointer[0] << std::endl;
+//        blockCount = 0;
+//    }
+//    blockCount++;
     
 //    // Play audio file
 //    if (isPlayingAudioFile)
@@ -53,27 +53,27 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 //    }
     
     // output sample
-    if (blockCount > 100)
-    {
-        auto leftPointer = ioBuffer.getReadPointer (0);
-        std::cout << "before processing: " << leftPointer[0] << std::endl;
-        blockCount = 0;
-    }
-    blockCount++;
+//    if (blockCount > 100)
+//    {
+//        auto leftPointer = ioBuffer.getReadPointer (0);
+//        std::cout << "before processing: " << leftPointer[0] << std::endl;
+//        blockCount = 0;
+//    }
+//    blockCount++;
     
     if (isPlayingNoise)// && ! juce::SystemAudioVolume::isMuted())
     {
         checkerboardPlayer.processBlock (ioBuffer, systemVolume);
     }
     
-    // output sample
-    if (blockCount > 100)
-    {
-        auto leftPointer = ioBuffer.getReadPointer (0);
-        std::cout << "after processing: " << leftPointer[0] << std::endl;
-        blockCount = 0;
-    }
-    blockCount++;
+//    // output sample
+//    if (blockCount > 100)
+//    {
+//        auto leftPointer = ioBuffer.getReadPointer (0);
+//        std::cout << "after processing: " << leftPointer[0] << std::endl;
+//        blockCount = 0;
+//    }
+//    blockCount++;
     
     // Calibration noise
 //    if (isPlayingNoise && ! juce::SystemAudioVolume::isMuted())
@@ -118,14 +118,14 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
     
     overallVolumeProcessor.process (ioContext);
     
-    // output sample
-    if (blockCount > 100)
-    {
-        auto leftPointer = ioBuffer.getReadPointer (0);
-        std::cout << "output sample: " << leftPointer[0] << std::endl;
-        blockCount = 0;
-    }
-    blockCount++;
+//    // output sample
+//    if (blockCount > 100)
+//    {
+//        auto leftPointer = ioBuffer.getReadPointer (0);
+//        std::cout << "output sample: " << leftPointer[0] << std::endl;
+//        blockCount = 0;
+//    }
+//    blockCount++;
 }
 
 void PlaybackManager::updateFilterWithBandProfile (BandProfile bandProfile)
@@ -181,8 +181,9 @@ void PlaybackManager::setCalibrationVolume (float calibrationVolume)
 
 void PlaybackManager::setMinFreq (float minFreq)
 {
-    glyphGridPlayer.setMinFreq (minFreq);
-    gridSequencer.setMinFreq (minFreq);
+    checkerboardPlayer.setMinFreq (minFreq);
+//    glyphGridPlayer.setMinFreq (minFreq);
+//    gridSequencer.setMinFreq (minFreq);
 }
 
 void PlaybackManager::setMaxFreq (float maxFreq)

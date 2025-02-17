@@ -57,12 +57,25 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
+    addAndMakeVisible (addProfileButton);
+    addAndMakeVisible (duplicateProfileButton);
+    addAndMakeVisible (renameProfileButton);
     addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
     addAndMakeVisible (unlockForm);
     addAndMakeVisible (audioPlayerComponent);
 //    addAndMakeVisible (setupButton);
     unlockForm.setVisible (false);
+    
+    addProfileButton.onClick = [this] {
+        addProfile();
+    };
+    duplicateProfileButton.onClick = [this] {
+        duplicateProfile();
+    };
+    renameProfileButton.onClick = [this] {
+        renameProfile();
+    };
     
     amplGraph->toBack();
     
@@ -113,7 +126,13 @@ void CabinEqPage::resized()
     {
         layout.addRow ({ Space (&freeTrialBanner) }, 40);
     }
-    layout.addRow ({ Space (&bypassButton, 60), Space (&profileDropdown) }, 40);
+    
+    int topRowHeight = 40;
+    float addProfileWidth = addProfileButton.getBestWidthForHeight (topRowHeight);
+    float duplicateProfileWidth = duplicateProfileButton.getBestWidthForHeight (topRowHeight);
+    float renameProfileWidth = renameProfileButton.getBestWidthForHeight (topRowHeight);
+    
+    layout.addRow ({ Space (&bypassButton, 60), Space (&profileDropdown), Space (&duplicateProfileButton, duplicateProfileWidth), Space (&renameProfileButton, renameProfileWidth) }, (float) topRowHeight);
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.addRow ({ Space (&contactUsBanner) }, 40);
@@ -135,8 +154,9 @@ void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)
     bool isDuplicate = isDuplicateProfileName (text);
     if (renamingProfile && text == profileId) // To be less annoying, let people rename a profile to itself
         isDuplicate = false;
+    std::string message = (renamingProfile || creatingDuplicate) ? "Enter new name" : "Enter profile name";
     alertWindow->setMessage (isDuplicate ? "This profile name is already taken!" :
-                                           "Enter your profile name");
+                                           message);
 }
 
 void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
@@ -205,63 +225,68 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             return;
         }
         
+        
         // Add a profile if you select "+ Add Profile"
-        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 2)
+        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems())
         {
-            // Create and present an alert for the user to enter the profile name into
-            alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
-            creatingDuplicate = false;
-            
-            alertWindow->addTextEditor (textEditorName, "");
-            alertWindow->getTextEditor (textEditorName)->addListener (this);
-            alertWindow->setEscapeKeyCancels (true);
-            
-            alertWindow->enterModalState();
-            
-            profileDropdown.setSelectedId (lastSelectedId);
+            addProfile();
+//            // Create and present an alert for the user to enter the profile name into
+//            alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+//            creatingDuplicate = false;
+//            
+//            alertWindow->addTextEditor (textEditorName, "");
+//            alertWindow->getTextEditor (textEditorName)->addListener (this);
+//            alertWindow->setEscapeKeyCancels (true);
+//            
+//            alertWindow->enterModalState();
+//            
+//            profileDropdown.setSelectedId (lastSelectedId);
         }
         
         // Duplicate a profile if you select "Duplicate [profilename]"
-        else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 1)
-        {
-            // Present option to add duplicate profile, and opportunity to name it
-            // Create a present an alert for the user to enter the profile name into
-            alertWindow = std::make_unique<juce::AlertWindow> ("Create Duplicate Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
-            creatingDuplicate = true;
-            
-            // Create copy name
-            auto copyName = profileId + " copy";
-            
-            while (isDuplicateProfileName (copyName))
-            {
-                copyName += " copy";
-            }
-            
-            alertWindow->addTextEditor (textEditorName, copyName);
-            alertWindow->getTextEditor (textEditorName)->addListener (this);
-            alertWindow->setEscapeKeyCancels (true);
-            
-            alertWindow->enterModalState();
-            
-            profileDropdown.setSelectedId (lastSelectedId);
-        }
+       // else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 1)
+       // {
+//            duplicateProfile();
+//            // Present option to add duplicate profile, and opportunity to name it
+//            // Create a present an alert for the user to enter the profile name into
+//            alertWindow = std::make_unique<juce::AlertWindow> ("Create Duplicate Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+//            creatingDuplicate = true;
+//            
+//            // Create copy name
+//            auto copyName = profileId + " copy";
+//            
+//            while (isDuplicateProfileName (copyName))
+//            {
+//                copyName += " copy";
+//            }
+//            
+//            alertWindow->addTextEditor (textEditorName, copyName);
+//            alertWindow->getTextEditor (textEditorName)->addListener (this);
+//            alertWindow->setEscapeKeyCancels (true);
+//            
+//            alertWindow->enterModalState();
+//            
+//            profileDropdown.setSelectedId (lastSelectedId);
+       // }
         
         // Rename a profile if you select "Rename [profileName]"
-        else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems())
-        {
-            // Create and present alert to rename profile
-            alertWindow = std::make_unique<juce::AlertWindow> ("Rename Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
-            renamingProfile = true;
-            
-            alertWindow->addTextEditor (textEditorName, profileId);
-            alertWindow->getTextEditor (textEditorName)->addListener (this);
-            alertWindow->setEscapeKeyCancels (true);
-            
-            alertWindow->enterModalState();
-            
-            profileDropdown.setSelectedId (lastSelectedId);
-        }
+       // else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems())
+       // {
+//            renameProfile();
+//            // Create and present alert to rename profile
+//            alertWindow = std::make_unique<juce::AlertWindow> ("Rename Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+//            renamingProfile = true;
+//            
+//            alertWindow->addTextEditor (textEditorName, profileId);
+//            alertWindow->getTextEditor (textEditorName)->addListener (this);
+//            alertWindow->setEscapeKeyCancels (true);
+//            
+//            alertWindow->enterModalState();
+//            
+//            profileDropdown.setSelectedId (lastSelectedId);
+//        }
         
+         
         // Go to a profile if you select the profile
         else if (profileDropdown.getSelectedId() != lastSelectedId && profileDropdown.getSelectedId() > 0)
         {
@@ -354,8 +379,8 @@ void CabinEqPage::loadDropdownOptions()
     }
     
     profileDropdown.addItem ("+ Add Profile", i);
-    profileDropdown.addItem ("[] Duplicate \"" + profileId + "\"", i + 1);
-    profileDropdown.addItem ("* Rename \"" + profileId + "\"", i + 2);
+//    profileDropdown.addItem ("[] Duplicate \"" + profileId + "\"", i + 1);
+//    profileDropdown.addItem ("* Rename \"" + profileId + "\"", i + 2);
     
     profileDropdown.setItemEnabled (i + 1, ! processor.isProfileLocked());
 }
@@ -438,6 +463,73 @@ void CabinEqPage::lockIfNecessary()
     amplGraph->setGrayscale (true);
     processor.setIsFilterOn (false);
     loadDropdownOptions();
+}
+
+void CabinEqPage::addProfile()
+{
+    // Create and present an alert for the user to enter the profile name into
+    alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+    creatingDuplicate = false;
+    
+    alertWindow->addTextEditor (textEditorName, "");
+    alertWindow->getTextEditor (textEditorName)->addListener (this);
+    alertWindow->setEscapeKeyCancels (true);
+    
+    alertWindow->enterModalState();
+    
+//    profileDropdown.setSelectedId (lastSelectedId);
+}
+
+void CabinEqPage::duplicateProfile()
+{
+//    auto copyName = profileId + " copy";
+//    while (isDuplicateProfileName (copyName))
+//    {
+//        copyName += " copy";
+//    }
+//    
+//    processor.addDuplicateProfile (copyName, profileId);
+//    
+//    // Select the new profile and go to it
+//    profileDropdown.setSelectedId (profileDropdown.getItemId (profileDropdown.getNumItems() - 2));
+//    goToProfileWithId (copyName);
+//    loadDropdownOptions();
+//    
+    // Present option to add duplicate profile, and opportunity to name it
+    // Create a present an alert for the user to enter the profile name into
+    alertWindow = std::make_unique<juce::AlertWindow> ("Duplicate \"" + profileId + "\"", "Enter new name", juce::MessageBoxIconType::NoIcon);
+    creatingDuplicate = true;
+    
+    // Create copy name
+    auto copyName = profileId + " copy";
+    
+    while (isDuplicateProfileName (copyName))
+    {
+        copyName += " copy";
+    }
+    
+    alertWindow->addTextEditor (textEditorName, copyName);
+    alertWindow->getTextEditor (textEditorName)->addListener (this);
+    alertWindow->setEscapeKeyCancels (true);
+    
+    alertWindow->enterModalState();
+    
+    profileDropdown.setSelectedId (lastSelectedId);
+}
+
+void CabinEqPage::renameProfile()
+{
+    // Create and present alert to rename profile
+    alertWindow = std::make_unique<juce::AlertWindow> ("Rename \"" + profileId + "\"", "Enter new name", juce::MessageBoxIconType::NoIcon);
+    renamingProfile = true;
+    
+    alertWindow->addTextEditor (textEditorName, profileId);
+    alertWindow->getTextEditor (textEditorName)->addListener (this);
+    alertWindow->setEscapeKeyCancels (true);
+    
+    alertWindow->enterModalState();
+    
+//    profileDropdown.setSelectedId (lastSelectedId);
 }
 
 void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
