@@ -96,9 +96,9 @@ private:
     FilterChain filter;
     FilterChain provisionalFilter;
     ArbitraryResponseFilter firFilter;
-    ArbitraryResponseFilter tiltFilter;
+//    ArbitraryResponseFilter tiltFilter;
     Curve firCurve;
-    TiltCurve tiltCurve;
+//    TiltCurve tiltCurve;
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> profileVolumeProcessor;
     juce::dsp::Gain<float> overallVolumeProcessor;

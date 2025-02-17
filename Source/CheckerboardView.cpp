@@ -45,7 +45,7 @@ void CheckerboardView::mouseDown (const juce::MouseEvent &event)
     {
         soloSquareCoords.clear();
         soloSquareCoords.insert (mouseDownCoords.value());
-        listener->setSoloSquareCoords (soloSquareCoords);
+        selectBetween (mouseDownCoords.value(), mouseDownCoords.value());
     }
 }
 

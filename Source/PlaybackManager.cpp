@@ -15,12 +15,14 @@
 
 PlaybackManager::PlaybackManager()
     : firFilter (14),
-      tiltFilter (12),
+//      tiltFilter (12),
       isFilterOn (true),
       isPlayingNoise (false)
 {
     profileVolumeProcessor.setRampDurationSeconds (0.05);
     profileVolumeProcessor.setGainDecibels (0.0f);
+//    systemVolumeProcessor.setRampDurationSeconds (0.05);
+//    systemVolumeProcessor.setGain (juce::SystemAudioVolume::getGain());
     overallVolumeProcessor.setRampDurationSeconds (0.05);
     overallVolumeProcessor.setGainDecibels (0.0f);
     
@@ -43,19 +45,26 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         audioTransportSource.getNextAudioBlock (bufferToFill);
     }
     
-    // Calibration noise
     if (isPlayingNoise && ! juce::SystemAudioVolume::isMuted())
     {
-        float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume) * juce::SystemAudioVolume::getGain();
-        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
-        {
-            std::pair<float, float> value = getNextSample();
-            leftChannel[sample] += value.first * 0.15 * 0.5 * volumeOffset;
-            
-            if (rightChannel)
-                rightChannel[sample] += value.second * 0.15 * 0.5 * volumeOffset;
-        }
+        checkerboardPlayer.processBlock (ioBuffer);
     }
+    
+    
+    
+    // Calibration noise
+//    if (isPlayingNoise && ! juce::SystemAudioVolume::isMuted())
+//    {
+//        float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume) * juce::SystemAudioVolume::getGain();
+//        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
+//        {
+//            std::pair<float, float> value = getNextSample();
+//            leftChannel[sample] += value.first * 0.15 * 0.5 * volumeOffset;
+//            
+//            if (rightChannel)
+//                rightChannel[sample] += value.second * 0.15 * 0.5 * volumeOffset;
+//        }
+//    }
     
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
     juce::dsp::ProcessContextReplacing<float> ioContext (ioBlock);
@@ -79,10 +88,10 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
-    if (isPlayingNoise)// && isCabinNoise)
-    {
-        tiltFilter.process (ioContext);
-    }
+//    if (isPlayingNoise)// && isCabinNoise)
+//    {
+//        tiltFilter.process (ioContext);
+//    }
     
     overallVolumeProcessor.process (ioContext);
 }
@@ -106,8 +115,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
     firFilter.prepare (spec);
-    tiltFilter.prepare (spec);
-    tiltFilter.updateWithCurve (tiltCurve, 12);
+//    tiltFilter.prepare (spec);
+//    tiltFilter.updateWithCurve (tiltCurve, 12);
 //    firFilter.updateWithCurve (firCurve);
 }
 
