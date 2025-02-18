@@ -84,6 +84,8 @@
           <FILE id="ZVJieY" name="BuildableComponent.h" compile="0" resource="0"
                 file="Source/BuildableComponent.h"/>
         </GROUP>
+        <FILE id="vGo9Jr" name="MusicList2.cpp" compile="1" resource="0" file="Source/MusicList2.cpp"/>
+        <FILE id="lYo6qe" name="MusicList2.h" compile="0" resource="0" file="Source/MusicList2.h"/>
         <FILE id="LsKhyc" name="MusicList.cpp" compile="1" resource="0" file="../../../Downloads/MusicList.cpp"/>
         <FILE id="wvSaHN" name="MusicList.h" compile="0" resource="0" file="../../../Downloads/MusicList.h"/>
         <FILE id="RcknLC" name="AudioPlayerComponent.cpp" compile="1" resource="0"
