@@ -129,7 +129,7 @@ void CalibrationView::resized()
     checkerboardLayout.addRow ({ Space (&checkerboardView ) });
     checkerboardLayout.updateComponentBounds();
     
-    Layout playerLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth + musicListWidth)), 8.0f);
+    Layout playerLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
     playerLayout.addRow ({ Space() });
     playerLayout.addRow ({ Space (&titleLabel) });
     playerLayout.addRow ({ Space(), Space (&prevButton, 40.0f), Space (&playPauseButton, 80.0f), Space (&nextButton, 40.0f), Space() } );
