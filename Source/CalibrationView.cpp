@@ -14,7 +14,7 @@ CalibrationView::CalibrationView()
 {
     // Music List
     addAndMakeVisible (musicList);
-//    musicList.setListener (this);
+    musicList.setListener (this);
     
     // Checkerboard view
     addAndMakeVisible (checkerboardView);
@@ -156,7 +156,7 @@ void CalibrationView::setCalibrationListener (CalibrationListener* calibrationLi
 void CalibrationView::setDataSource (CheckerboardViewDataSource* dataSource)
 {
     checkerboardView.setDataSource (dataSource);
-//    musicList.setDataSource (dataSource);
+    musicList.setDataSource (dataSource);
     this->dataSource = dataSource;
     updatePlayer();
 }

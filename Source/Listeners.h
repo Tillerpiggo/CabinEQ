@@ -184,6 +184,8 @@ public:
     virtual bool hasNext() = 0;
     virtual bool hasPrev() = 0;
     virtual void toggleCheckerboardPolarity() = 0;
+    
+//    virtual void selectCheckerboardAtIdx (int idx) = 0;
 };
 
 

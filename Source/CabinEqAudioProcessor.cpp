@@ -634,15 +634,12 @@ bool CabinEqAudioProcessor::getIsPlaying()
 
 int CabinEqAudioProcessor::getNumCheckerboards()
 {
-    std::cout << "getting num checkerboards" << std::endl;
-    return 2;
-//    return checkerboardManager.getNumCheckerboards();
+    return checkerboardManager.getNumCheckerboards();
 }
 
 std::string CabinEqAudioProcessor::getNameAtIdx (int idx)
 {
-    return "Successfully loaded lol";
-//    return checkerboardManager.getNameAtIdx (idx);
+    return checkerboardManager.getNameAtIdx (idx);
 }
 
 CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()

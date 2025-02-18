@@ -20,6 +20,22 @@ const Checkerboard CheckerboardManager::getCurrCheckerboard()
     return checkerboards[currIdx];
 }
 
+int CheckerboardManager::getNumCheckerboards()
+{
+    return static_cast<int> (checkerboards.size());
+}
+
+std::string CheckerboardManager::getNameAtIdx (int idx)
+{
+    if (idx < 0 || idx >= getNumCheckerboards())
+    {
+        std::cerr << "called getNameAtIdx in CheckerboardManager with out of bounds idx  (idx = " << idx << ", numCheckerboards = " << getNumCheckerboards() << std::endl;
+        return "ERROR";
+    }
+    
+    return checkerboards[idx].getTitle();
+}
+
 void CheckerboardManager::goToNext()
 {
     if (hasNext())
@@ -45,4 +61,14 @@ bool CheckerboardManager::hasPrev()
 void CheckerboardManager::togglePolarity()
 {
     checkerboards[currIdx].togglePolarity();
+}
+
+void CheckerboardManager::selectIdx (int idx)
+{
+    if (idx < 0 || idx >= getNumCheckerboards())
+    {
+        std::cerr << "selectIdx called in CheckerboardManager with idx out of bounds (idx = " << idx << ", numCheckerboards = " << getNumCheckerboards() << std::endl;
+    }
+    
+    currIdx = idx;
 }
