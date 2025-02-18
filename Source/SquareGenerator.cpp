@@ -46,9 +46,10 @@ std::pair<float, float> SquareGenerator::getNextSample()
         float gain = juce::Decibels::decibelsToGain (volDB);
         nextLeftSample *= gain;
         nextRightSample *= gain;
-        currRampSample++;
 //        std::cout << "gain: " << gain << std::endl;
+        currRampSample++;
     }
+    
     
     // Filter the pink noise
     if (freqIdx < numRows - 1)
@@ -215,8 +216,9 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     float logMax = std::log2 (MAX_FREQ);
     float freqStep = (logMax - logMin) / (float) numRows;
     
-    float lowFreq = std::pow (2.0f, logMin + freqIdx * freqStep);
-    float highFreq = std::pow (2.0f, logMin + (freqIdx + 1.0f) * freqStep);
+    float offset = 0.5f;
+    float lowFreq = std::max (std::pow (2.0f, logMin + (freqIdx + offset) * freqStep), MIN_FREQ);
+    float highFreq = std::min (std::pow (2.0f, logMin + (freqIdx + offset + 1.0f) * freqStep), MAX_FREQ);
     
     minFreq = lowFreq;
     maxFreq = highFreq;
@@ -240,8 +242,6 @@ void SquareGenerator::updateGeneratorsIfNeeded()
     startPan = startPan * 2.0f - 1.0f; // map to [-1, 1]
     endPan = endPan * 2.0f - 1.0f; // map to [-1, 1]
     float panWidth = endPan - startPan;
-    
-    std::cout << "startPan: " << startPan << ", endPan: " << endPan << std::endl;
     
     // Populate leftRightGains
     leftRightGains.clear();

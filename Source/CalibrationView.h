@@ -17,6 +17,7 @@
 #include "ArchetypeBar.h"
 #include "GlyphGridView.h"
 #include "CheckerboardView.h"
+#include "MusicList.h"
 
 // This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
 class CalibrationView  : public BuildableComponent,
@@ -47,6 +48,9 @@ private:
     CalibrationListener* calibrationListener = nullptr;
     CheckerboardViewDataSource* dataSource = nullptr;
     
+    // Music selection
+    MusicList musicList;
+    
     // Glyph View
     //    GlyphGridView glyphGridView;
     CheckerboardView checkerboardView;
@@ -54,36 +58,6 @@ private:
     // Archetype Bar
     juce::Viewport archetypeViewport;
     ArchetypeBar archetypeBar;
-    
-    // Calibration settings
-//    juce::Slider speedSlider;
-//    juce::Label speedLabel;
-//    juce::Slider bandwidthSlider;
-//    juce::Label bandwidthLabel;
-//    juce::Slider volumeSlider;
-//    juce::Label volumeLabel;
-//    juce::Slider sharpnessSlider;
-//    juce::Label sharpnessLabel;
-//    juce::TextButton playButton { "Play" };
-//    juce::TextButton polarityButton { "Toggle Black/White" };
-//    juce::TextButton autoPolarityButton { "Auto Toggle" };
-//    juce::TextButton iirButton { "IIR" };
-//    juce::TextButton updateFilterButton { "Update" };
-//    juce::ComboBox qualityComboBox;
-//    juce::ComboBox scalingComboBox;
-//    juce::ComboBox erbComboBox;
-//    juce::ComboBox pinkNoiseBox;
-//    
-//    juce::ComboBox resolutionComboBox;
-//    juce::ComboBox isCascadingBox;
-//    juce::Slider densitySlider;
-//    juce::Label densityLabel;
-//    juce::Slider strokeOverlapSlider;
-//    juce::Label strokeOverlapLabel;
-//    juce::Slider dotOverlapSlider;
-//    juce::Label dotOverlapLabel;
-//    juce::Slider rampLengthSlider;
-//    juce::Label rampLengthLabel;
     
     // Play button stuff
     juce::Image playImage = juce::ImageFileFormat::loadFrom (BinaryData::PlayButtonIcon_png, BinaryData::PlayButtonIcon_pngSize);

@@ -47,7 +47,7 @@ private:
     int snapToZeroCounter = 0;
     
     // Add ramp when starting from nothing
-    int rampSamples = 5000;
+    int rampSamples = 10000;
     int currRampSample = 0; // 0 = ramp start, > 1000 = ramp ended
     
     int numRows = 2;

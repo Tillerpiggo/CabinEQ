@@ -82,7 +82,6 @@ void Checkerboard::calculateGrid()
         {
             grid[freqIdx].push_back (rowPolarity ^ colPolarity);
             colPolarity = ! colPolarity;
-            std::cout << "numRows: " << numRows << ", numCols: " << numCols << ", point: " << (rowPolarity ^ colPolarity) << std::endl;
         }
         colPolarity = polarity; // start at the same base polarity
         rowPolarity = ! rowPolarity; // make sure every other row is inverted
