@@ -221,6 +221,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout CabinEqAudioProcessor::creat
 void CabinEqAudioProcessor::freeTrialDidReset()
 {
     cabinEqProfileManager.lockAllProfiles();
+    dataHasChanged = true;
 }
 
 void CabinEqAudioProcessor::setIsAudioFilePlaying (bool isPlaying)
@@ -483,6 +484,7 @@ void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName
 {
     cabinEqProfileManager.setLastSelectedProfileName (profileName);
     profileId = profileName;
+    dataHasChanged = true;
 }
 
 void CabinEqAudioProcessor::setMasterVolume (float masterVolume)
@@ -493,6 +495,7 @@ void CabinEqAudioProcessor::setMasterVolume (float masterVolume)
 void CabinEqAudioProcessor::setHasLicense (bool hasLicense)
 {
     cabinEqProfileManager.setHasLicense (hasLicense);
+    dataHasChanged = true;
 }
 
 void CabinEqAudioProcessor::updateFilter()
@@ -664,9 +667,9 @@ void CabinEqAudioProcessor::saveData()
     juce::StandalonePluginHolder::getInstance()->savePluginState();
 }
 
-void CabinEqAudioProcessor::resetAudio()
+void CabinEqAudioProcessor::restartAudio()
 {
-    
+    juce::StandalonePluginHolder::getInstance()->restartAudio();
 }
 
 CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()

@@ -83,6 +83,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     startTimer (100);
     
     audioPlayerComponent.setListener (&processor);
+    contactUsBanner.setListener (&processor);
     
     loadDropdownOptions();
     

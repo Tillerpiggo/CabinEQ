@@ -23,9 +23,18 @@ ContactUsBanner::ContactUsBanner()
     setupButton.setColour (juce::HyperlinkButton::ColourIds::textColourId, juce::Colours::orange);
     setupButton.setFont (setupButtonFont, false);
     
+    restartAudioButton.setJustificationType (juce::Justification::right);
+//    restartAudioButton.setColour (juce::TextButton::ColourIds::textColourId, juce::Colours::red);
+    restartAudioButton.setFont (setupButtonFont, false);
+    restartAudioButton.onClick = [this] {
+        if (listener != nullptr)
+            listener->restartAudio();
+    };
+    
     addAndMakeVisible (contactLabel);
     addAndMakeVisible (setupButton);
     addAndMakeVisible (howToButton);
+    addAndMakeVisible (restartAudioButton);
 }
 
 ContactUsBanner::~ContactUsBanner()
@@ -41,8 +50,14 @@ void ContactUsBanner::resized()
 {
     float howToWidth = setupButtonFont.getStringWidth (howToButton.getButtonText()) + 20.0f;
     float setupWidth = setupButtonFont.getStringWidth (setupButton.getButtonText()) + 20.0f;
+    float restartAudioWidth = setupButtonFont.getStringWidth (restartAudioButton.getButtonText()) + 20.0f;
     
     Layout layout (getBounds().withX (0).withY (0), 8.0f);
-    layout.addRow ({ Space (&contactLabel), Space(), Space (&howToButton, howToWidth), Space (&setupButton, setupWidth) });
+    layout.addRow ({ Space (&contactLabel), Space (20.0f), Space (&howToButton, howToWidth), Space (&setupButton, setupWidth), Space (&restartAudioButton, restartAudioWidth) });
     layout.updateComponentBounds();
+}
+
+void ContactUsBanner::setListener (ContactUsBannerListener* listener)
+{
+    this->listener = listener;
 }

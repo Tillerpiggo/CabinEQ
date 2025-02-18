@@ -34,6 +34,7 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public CheckerboardViewListener,
                                public CheckerboardViewDataSource,
                                public CalibrationListener,
+                               public ContactUsBannerListener,
                                public juce::Timer
 {
 public:
@@ -197,7 +198,7 @@ public:
     
     // StandalonePlugin/AudioDeviceManager methods
     void saveData();
-    void resetAudio();
+    void restartAudio() override;
     
     CabinEqMarketplaceStatus& getMarketplaceStatus();
     

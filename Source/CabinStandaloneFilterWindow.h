@@ -410,6 +410,13 @@ public:
     }
 
     static StandalonePluginHolder* getInstance();
+    
+    //==============================================================================
+    void restartAudio()
+    {
+        deviceManager.closeAudioDevice();
+        deviceManager.restartLastAudioDevice();
+    }
 
     //==============================================================================
     OptionalScopedPointer<PropertySet> settings;
@@ -750,7 +757,7 @@ public:
        #if JUCE_IOS || JUCE_ANDROID
         setTitleBarHeight (0);
        #else
-        setUsingNativeTitleBar (true);
+//        setUsingNativeTitleBar (true);
         setTitleBarButtonsRequired (DocumentWindow::minimiseButton | DocumentWindow::closeButton, false);
 
         Component::addAndMakeVisible (optionsButton);

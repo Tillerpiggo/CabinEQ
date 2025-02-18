@@ -189,4 +189,12 @@ public:
     virtual void selectCheckerboardAtIdx (int idx) = 0;
 };
 
+class ContactUsBannerListener
+{
+public:
+    virtual ~ContactUsBannerListener() = default;
+    
+    virtual void restartAudio() = 0;
+};
+
 
