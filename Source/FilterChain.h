@@ -70,6 +70,9 @@ public:
         {
             filter->process (rightContext);
         }
+        
+        autoGainFilter.process (leftContext);
+        autoGainFilter.process (rightContext);
     }
     
     void setPitch (float pitch)
@@ -121,6 +124,14 @@ private:
                 updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
             }
         }
+        
+        // Update auto gain
+        float autoGainCompDB = 0.0f;
+        for (int i = 0; i < bands.size(); ++i)
+        {
+            autoGainCompDB -= bands[i].ampl * bands[i].bandwidth / 10.0f;
+        }
+        autoGainFilter.setGainDecibels (autoGainCompDB);
     }
     
     std::vector<std::unique_ptr<Filter>> leftFilters;
@@ -154,4 +165,6 @@ private:
         *filters[idx]->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
                                                                     juce::Decibels::decibelsToGain (amplInDB));
     }
+    
+    juce::dsp::Gain<float> autoGainFilter;
 };

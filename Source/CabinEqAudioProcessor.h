@@ -193,11 +193,15 @@ public:
     std::string getNameAtIdx (int idx) override;
     int getSelectedRow() override;
     
+    // AudioDeviceManager
+    void resetAudio() override;
+    
     CabinEqMarketplaceStatus& getMarketplaceStatus();
     
     // Listener
     void addListener (Listener* listener);
     void removeListener();
+    
     
 
 private:

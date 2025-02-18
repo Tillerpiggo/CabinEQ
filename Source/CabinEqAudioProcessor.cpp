@@ -653,6 +653,11 @@ int CabinEqAudioProcessor::getSelectedRow()
     return checkerboardManager.getSelectedRow();
 }
 
+void CabinEqAudioProcessor::resetAudio()
+{
+    
+}
+
 CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()
 {
     return marketplaceStatus;

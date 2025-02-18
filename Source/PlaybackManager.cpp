@@ -34,60 +34,10 @@ PlaybackManager::PlaybackManager()
 
 void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 {
-//    if (blockCount > 100)
-//    {
-//        auto leftPointer = ioBuffer.getReadPointer (0);
-//        std::cout << "curr sample: " << leftPointer[0] << std::endl;
-//        blockCount = 0;
-//    }
-//    blockCount++;
-    
-//    // Play audio file
-//    if (isPlayingAudioFile)
-//    {
-//        juce::AudioSourceChannelInfo bufferToFill;
-//        bufferToFill.buffer = &ioBuffer;
-//        bufferToFill.startSample = 0;
-//        bufferToFill.numSamples = ioBuffer.getNumSamples();
-//        audioTransportSource.getNextAudioBlock (bufferToFill);
-//    }
-    
-    // output sample
-//    if (blockCount > 100)
-//    {
-//        auto leftPointer = ioBuffer.getReadPointer (0);
-//        std::cout << "before processing: " << leftPointer[0] << std::endl;
-//        blockCount = 0;
-//    }
-//    blockCount++;
-    
-    if (isPlayingNoise)// && ! juce::SystemAudioVolume::isMuted())
+    if (isPlayingNoise)
     {
-        checkerboardPlayer.processBlock (ioBuffer, systemVolume);
+        checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
     }
-    
-//    // output sample
-//    if (blockCount > 100)
-//    {
-//        auto leftPointer = ioBuffer.getReadPointer (0);
-//        std::cout << "after processing: " << leftPointer[0] << std::endl;
-//        blockCount = 0;
-//    }
-//    blockCount++;
-    
-    // Calibration noise
-//    if (isPlayingNoise && ! juce::SystemAudioVolume::isMuted())
-//    {
-//        float volumeOffset = juce::Decibels::decibelsToGain (calibrationVolume) * juce::SystemAudioVolume::getGain();
-//        for (int sample = 0; sample < ioBuffer.getNumSamples(); ++sample)
-//        {
-//            std::pair<float, float> value = getNextSample();
-//            leftChannel[sample] += value.first * 0.15 * 0.5 * volumeOffset;
-//            
-//            if (rightChannel)
-//                rightChannel[sample] += value.second * 0.15 * 0.5 * volumeOffset;
-//        }
-//    }
     
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
     juce::dsp::ProcessContextReplacing<float> ioContext (ioBlock);
@@ -111,21 +61,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         }
     }
     
-//    if (isPlayingNoise)// && isCabinNoise)
-//    {
-//        tiltFilter.process (ioContext);
-//    }
-    
     overallVolumeProcessor.process (ioContext);
-    
-//    // output sample
-//    if (blockCount > 100)
-//    {
-//        auto leftPointer = ioBuffer.getReadPointer (0);
-//        std::cout << "output sample: " << leftPointer[0] << std::endl;
-//        blockCount = 0;
-//    }
-//    blockCount++;
 }
 
 void PlaybackManager::updateFilterWithBandProfile (BandProfile bandProfile)
