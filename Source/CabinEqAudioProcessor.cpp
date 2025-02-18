@@ -634,6 +634,7 @@ bool CabinEqAudioProcessor::getIsPlaying()
 
 int CabinEqAudioProcessor::getNumCheckerboards()
 {
+    std::cout << "getting num checkerboards" << std::endl;
     return 2;
 //    return checkerboardManager.getNumCheckerboards();
 }

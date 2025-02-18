@@ -31,8 +31,8 @@ public:
     void setDataSource (CheckerboardViewDataSource* dataSource);
     
 private:
-    MusicListListener* listener;
-    CheckerboardViewDataSource* dataSource;
+    MusicListListener* listener = nullptr;
+    CheckerboardViewDataSource* dataSource = nullptr;
     
     juce::ListBox listBox;
     

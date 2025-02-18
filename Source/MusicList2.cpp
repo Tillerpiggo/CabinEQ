@@ -29,18 +29,16 @@ void MusicList::resized()
 // ListBoxModel methods
 int MusicList::getNumRows()
 {
-    return 1;
-//    if (dataSource == nullptr)
-//        return 1;
-//    return dataSource->getNumCheckerboards();
+    if (dataSource == nullptr)
+        return 1;
+    return dataSource->getNumCheckerboards();
 }
 
 juce::String MusicList::getNameForRow (int rowNumber)
 {
-    return "Loading...";
-//    if (dataSource == nullptr)
-//        return "Loading...";
-//    return dataSource->getNameAtIdx (rowNumber);
+    if (dataSource == nullptr)
+        return "Loading...";
+    return dataSource->getNameAtIdx (rowNumber);
 }
 
 void MusicList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
