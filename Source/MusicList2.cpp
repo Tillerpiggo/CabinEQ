@@ -41,6 +41,13 @@ juce::String MusicList::getNameForRow (int rowNumber)
     return dataSource->getNameAtIdx (rowNumber);
 }
 
+void MusicList::listBoxItemClicked (int row, const juce::MouseEvent& event)
+{
+    if (listener == nullptr)
+        return;
+    listener->selectedRow (row);
+}
+
 void MusicList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
 {
     g.setColour (rowIsSelected ? SELECTED_COLOUR : UNSELECTED_COLOUR);
@@ -62,5 +69,13 @@ void MusicList::setListener (MusicListListener* listener)
 void MusicList::setDataSource (CheckerboardViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
+    updateSelectedRow();
+}
+
+void MusicList::updateSelectedRow()
+{
+    if (dataSource == nullptr)
+        return;
+    listBox.selectRow (dataSource->getSelectedRow());
     listBox.updateContent();
 }

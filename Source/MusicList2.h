@@ -26,9 +26,11 @@ public:
     int getNumRows() override;
     juce::String getNameForRow (int rowNumber) override;
     void paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected) override;
+    void listBoxItemClicked (int row, const juce::MouseEvent& event) override;
     
     void setListener (MusicListListener* listener);
     void setDataSource (CheckerboardViewDataSource* dataSource);
+    void updateSelectedRow(); // triggers an update to sync the selected row with the current selected row
     
 private:
     MusicListListener* listener = nullptr;

@@ -385,6 +385,12 @@ void CabinEqAudioProcessor::toggleCheckerboardPolarity()
     playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
 }
 
+void CabinEqAudioProcessor::selectCheckerboardAtIdx (int idx)
+{
+    checkerboardManager.selectIdx (idx);
+    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
+}
+
 void CabinEqAudioProcessor::setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords)
 {
     playbackManager.setSoloSquareCoords (soloSquareCoords);
@@ -640,6 +646,11 @@ int CabinEqAudioProcessor::getNumCheckerboards()
 std::string CabinEqAudioProcessor::getNameAtIdx (int idx)
 {
     return checkerboardManager.getNameAtIdx (idx);
+}
+
+int CabinEqAudioProcessor::getSelectedRow()
+{
+    return checkerboardManager.getSelectedRow();
 }
 
 CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()

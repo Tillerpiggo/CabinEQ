@@ -121,6 +121,7 @@ public:
     bool hasNext() override;
     bool hasPrev() override;
     void toggleCheckerboardPolarity() override;
+    void selectCheckerboardAtIdx (int idx) override;
     void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) override;
     
     // Provisional bands
@@ -190,6 +191,7 @@ public:
     bool getIsPlaying() override;
     int getNumCheckerboards() override;
     std::string getNameAtIdx (int idx) override;
+    int getSelectedRow() override;
     
     CabinEqMarketplaceStatus& getMarketplaceStatus();
     

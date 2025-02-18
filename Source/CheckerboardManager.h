@@ -22,6 +22,7 @@ public:
     const Checkerboard getCurrCheckerboard();
     int getNumCheckerboards();
     std::string getNameAtIdx (int idx);
+    int getSelectedRow();
     
     void goToNext();
     void goToPrev();

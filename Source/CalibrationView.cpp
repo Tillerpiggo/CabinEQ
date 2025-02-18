@@ -48,6 +48,7 @@ CalibrationView::CalibrationView()
         {
             calibrationListener->goToPrev();
             checkerboardView.updateCheckerboard();
+            musicList.updateSelectedRow();
             updatePlayer();
         }
     };
@@ -56,6 +57,7 @@ CalibrationView::CalibrationView()
         {
             calibrationListener->goToNext();
             checkerboardView.updateCheckerboard();
+            musicList.updateSelectedRow();
             updatePlayer();
         }
     };
@@ -171,7 +173,12 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 
 void CalibrationView::selectedRow (int rowIdx)
 {
-    std::cout << "row was selected!" << std::endl;
+    if (calibrationListener != nullptr)
+    {
+        calibrationListener->selectCheckerboardAtIdx (rowIdx);
+        checkerboardView.updateCheckerboard();
+        updatePlayer();
+    }
 }
 
 void CalibrationView::timerCallback()

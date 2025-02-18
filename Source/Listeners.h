@@ -138,6 +138,7 @@ public:
     virtual bool getIsPlaying() = 0;
     virtual int getNumCheckerboards() = 0;
     virtual std::string getNameAtIdx (int idx) = 0;
+    virtual int getSelectedRow() = 0;
 };
 
 class FreeTrialListener
@@ -185,7 +186,7 @@ public:
     virtual bool hasPrev() = 0;
     virtual void toggleCheckerboardPolarity() = 0;
     
-//    virtual void selectCheckerboardAtIdx (int idx) = 0;
+    virtual void selectCheckerboardAtIdx (int idx) = 0;
 };
 
 

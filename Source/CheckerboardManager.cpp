@@ -36,6 +36,11 @@ std::string CheckerboardManager::getNameAtIdx (int idx)
     return checkerboards[idx].getTitle();
 }
 
+int CheckerboardManager::getSelectedRow()
+{
+    return currIdx;
+}
+
 void CheckerboardManager::goToNext()
 {
     if (hasNext())
