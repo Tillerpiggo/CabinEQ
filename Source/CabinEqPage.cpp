@@ -13,6 +13,7 @@
 CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     : processor (p), profileId ("NO_PROFILE"), unlockForm (p.getMarketplaceStatus())
 {
+    /*
     p.getMarketplaceStatus().load();
     isUnlocked = p.getHasLicense();
 
@@ -85,8 +86,10 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     audioPlayerComponent.setListener (&processor);
     
     loadDropdownOptions();
+     
     
     bypassButton.setColour (juce::TextButton::buttonColourId, juce::Colours::blueviolet);
+     */
 }
 
 CabinEqPage::~CabinEqPage()
