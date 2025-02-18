@@ -194,7 +194,7 @@ public:
     int getSelectedRow() override;
     
     // AudioDeviceManager
-    void resetAudio() override;
+    void resetAudio();
     
     CabinEqMarketplaceStatus& getMarketplaceStatus();
     

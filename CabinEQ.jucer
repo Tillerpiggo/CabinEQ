@@ -17,6 +17,10 @@
     <FILE id="GJYOoB" name="SpeakerIcon.png" compile="0" resource="1" file="../../../Downloads/SpeakerIcon.png"/>
     <FILE id="CJ6B6z" name="MuteIcon.png" compile="0" resource="1" file="../../../Downloads/MuteIcon.png"/>
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
+      <FILE id="x7mh4S" name="CabinStandalone.cpp" compile="1" resource="0"
+            file="Source/CabinStandalone.cpp"/>
+      <FILE id="GJyWix" name="CabinStandaloneFilterWindow.h" compile="0"
+            resource="0" file="Source/CabinStandaloneFilterWindow.h"/>
       <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
             file="Source/CabinEqAudioProcessor.cpp"/>
       <FILE id="ZcW2ES" name="CabinEqAudioProcessor.h" compile="0" resource="0"
