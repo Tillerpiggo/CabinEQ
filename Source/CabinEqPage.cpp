@@ -158,51 +158,15 @@ void CabinEqPage::textEditorTextChanged (juce::TextEditor& textEditor)
     std::string message = (renamingProfile || creatingDuplicate) ? "Enter new name" : "Enter profile name";
     alertWindow->setMessage (isDuplicate ? "This profile name is already taken!" :
                                            message);
+    
+    // Update alert window
+    bool canAddProfile = ! isDuplicate && ! text.isEmpty();
+    alertWindow->getButton (1)->setEnabled (canAddProfile);
 }
 
 void CabinEqPage::textEditorReturnKeyPressed (juce::TextEditor& textEditor)
 {
-    if (textEditor.getText().isEmpty())
-    {
-        dismissAlertWindow();
-        return;
-    }
-    
-    // Check if the text is a duplicate. If it is, don't add or do anything
-    if (isDuplicateProfileName (textEditor.getText()))
-        return;
-    
-    // If we're renaming the profile to a new name, change the name of the profile
-    if (renamingProfile)
-    {
-        juce::String text = textEditor.getText();
-        processor.renameProfile (profileId, text);
-        profileId = text;
-        goToProfileWithId (text);
-        renamingProfile = false;
-    }
-    
-    // Add & retrieve profile from processor
-    juce::String profileName = textEditor.getText();
-    if (! creatingDuplicate)
-    {
-        processor.addProfile (profileName);
-    }
-    else
-    {
-        processor.addDuplicateProfile (profileName, profileId);
-        creatingDuplicate = false;
-    }
-    
-    loadDropdownOptions();
-    
-    // Select the new profile and go to it
-    profileDropdown.setSelectedId (profileDropdown.getItemId (profileDropdown.getNumItems() - 2));
-    goToProfileWithId (profileName);
-    loadDropdownOptions();
-    
-    // Finally, dismiss the window
-    dismissAlertWindow();
+//    submitAlertWindowText();
 }
 
 void CabinEqPage::textEditorEscapeKeyPressed (juce::TextEditor& textEditor)
@@ -345,6 +309,8 @@ void CabinEqPage::didLoadData()
     
     masterVolumeSlider.setValue (processor.getMasterVolume(), juce::sendNotification);
     
+    lastSelectedId = profileDropdown.getSelectedId(); // make sure we think the newly selected id is the last selected id
+    
     resized();
     
 //    multiBandStepBar.updateBandProfile (processor.getBandProfile());
@@ -390,6 +356,8 @@ void CabinEqPage::dismissAlertWindow()
 {
     alertWindow->getTextEditor (textEditorName)->removeListener (this);
     alertWindow.reset();
+    creatingDuplicate = false;
+    renamingProfile = false;
 }
                                 
 void CabinEqPage::updateButtonText()
@@ -469,16 +437,26 @@ void CabinEqPage::lockIfNecessary()
 void CabinEqPage::addProfile()
 {
     // Create and present an alert for the user to enter the profile name into
-    alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
+    alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter profile name", juce::MessageBoxIconType::NoIcon);
     creatingDuplicate = false;
     
     alertWindow->addTextEditor (textEditorName, "");
     alertWindow->getTextEditor (textEditorName)->addListener (this);
+    alertWindow->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
+    alertWindow->addButton ("Add", 1, juce::KeyPress (juce::KeyPress::returnKey));
     alertWindow->setEscapeKeyCancels (true);
     
-    alertWindow->enterModalState();
+    alertWindow->getButton (0)->onClick = [this] {
+        dismissAlertWindow();
+    };
+    alertWindow->getButton (1)->onClick = [this] {
+        submitAlertWindowText();
+    };
     
-//    profileDropdown.setSelectedId (lastSelectedId);
+    alertWindow->enterModalState();
+    alertWindow->getTextEditor (textEditorName)->grabKeyboardFocus();
+    
+    profileDropdown.setSelectedId (lastSelectedId);
 }
 
 void CabinEqPage::duplicateProfile()
@@ -513,9 +491,21 @@ void CabinEqPage::duplicateProfile()
     alertWindow->getTextEditor (textEditorName)->addListener (this);
     alertWindow->setEscapeKeyCancels (true);
     
-    alertWindow->enterModalState();
+    alertWindow->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
+    alertWindow->addButton ("Duplicate", 1, juce::KeyPress (juce::KeyPress::returnKey));
+    alertWindow->setEscapeKeyCancels (true);
     
-    profileDropdown.setSelectedId (lastSelectedId);
+    alertWindow->getButton (0)->onClick = [this] {
+        dismissAlertWindow();
+    };
+    alertWindow->getButton (1)->onClick = [this] {
+        submitAlertWindowText();
+    };
+    
+    alertWindow->enterModalState();
+    alertWindow->getTextEditor (textEditorName)->grabKeyboardFocus();
+    
+//    profileDropdown.setSelectedId (lastSelectedId);
 }
 
 void CabinEqPage::renameProfile()
@@ -528,7 +518,19 @@ void CabinEqPage::renameProfile()
     alertWindow->getTextEditor (textEditorName)->addListener (this);
     alertWindow->setEscapeKeyCancels (true);
     
+    alertWindow->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
+    alertWindow->addButton ("Rename", 1, juce::KeyPress (juce::KeyPress::returnKey));
+    alertWindow->setEscapeKeyCancels (true);
+    
+    alertWindow->getButton (0)->onClick = [this] {
+        dismissAlertWindow();
+    };
+    alertWindow->getButton (1)->onClick = [this] {
+        submitAlertWindowText();
+    };
+    
     alertWindow->enterModalState();
+    alertWindow->getTextEditor (textEditorName)->grabKeyboardFocus();
     
 //    profileDropdown.setSelectedId (lastSelectedId);
 }
@@ -565,4 +567,55 @@ bool CabinEqPage::isDuplicateProfileName (juce::String profileName)
             return true;
     
     return false;
+}
+
+void CabinEqPage::submitAlertWindowText()
+{
+    std::cout << "submit alert window text" << std::endl;
+    auto textEditor = alertWindow->getTextEditor (textEditorName);
+    if (textEditor == nullptr)
+        return;
+    
+    if (textEditor->getText().isEmpty())
+    {
+        dismissAlertWindow();
+        return;
+    }
+    
+    // This is handled by the button being enabled/disabled
+//    // Check if the text is a duplicate. If it is, don't add or do anything
+//    if (isDuplicateProfileName (textEditor->getText()))
+//        return;
+    
+    // If we're renaming the profile to a new name, change the name of the profile
+    if (renamingProfile)
+    {
+        juce::String text = textEditor->getText();
+        processor.renameProfile (profileId, text);
+        profileId = text;
+        goToProfileWithId (text);
+        renamingProfile = false;
+    }
+    
+    // Add & retrieve profile from processor
+    juce::String profileName = textEditor->getText();
+    if (! creatingDuplicate)
+    {
+        processor.addProfile (profileName);
+    }
+    else
+    {
+        processor.addDuplicateProfile (profileName, profileId);
+        creatingDuplicate = false;
+    }
+    
+    loadDropdownOptions();
+    
+    // Select the new profile and go to it
+    profileDropdown.setSelectedId (profileDropdown.getItemId (profileDropdown.getNumItems() - 2));
+    goToProfileWithId (profileName);
+    loadDropdownOptions();
+    
+    // Finally, dismiss the window
+    dismissAlertWindow();
 }

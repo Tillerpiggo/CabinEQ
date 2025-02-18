@@ -77,6 +77,8 @@ protected:
     void goToProfileWithId (juce::String profileIdToGoTo);
     bool isDuplicateProfileName (juce::String profileName);
     
+    void submitAlertWindowText(); // tries to add, rename, or duplicate the profile based on the text in the textEditor
+    
     
     CabinEqLookAndFeel cabinEqLookAndFeel;
     

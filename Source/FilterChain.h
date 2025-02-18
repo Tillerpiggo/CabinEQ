@@ -71,8 +71,9 @@ public:
             filter->process (rightContext);
         }
         
-        autoGainFilter.process (leftContext);
-        autoGainFilter.process (rightContext);
+        // Autogain Processing
+//        autoGainFilter.process (leftContext);
+//        autoGainFilter.process (rightContext);
     }
     
     void setPitch (float pitch)
