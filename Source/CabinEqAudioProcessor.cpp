@@ -29,6 +29,7 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 #endif
 {
     std::cout << "initialized processor" << std::endl;
+    startTimer (5000); // autosave every 5 seconds if data has changed
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()
@@ -409,21 +410,25 @@ void CabinEqAudioProcessor::setProvisionalBandsOn (bool provisionalBandsOn)
 void CabinEqAudioProcessor::addProfile (juce::String profileName)
 {
     cabinEqProfileManager.addProfile (profileName);
+    dataHasChanged = true;
 }
 
 void CabinEqAudioProcessor::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
 {
     cabinEqProfileManager.addDuplicateProfile (profileName, oldProfileName);
+    dataHasChanged = true;
 }
 
 void CabinEqAudioProcessor::removeProfile (juce::String profileName)
 {
     cabinEqProfileManager.removeProfile (profileName);
+    dataHasChanged = true;
 }
 
 void CabinEqAudioProcessor::renameProfile (juce::String profileName, juce::String newProfileName)
 {
     cabinEqProfileManager.renameProfile (profileName, newProfileName);
+    dataHasChanged = true;
 }
 
 void CabinEqAudioProcessor::setProfileVolume (float masterVolume)
@@ -495,6 +500,7 @@ void CabinEqAudioProcessor::updateFilter()
     auto profile = profileNamed (profileId);
     if (profile.has_value())
         playbackManager.updateFilterWithBandProfile (profile->get().getBandProfile());
+    dataHasChanged = true;
 }
 
 int CabinEqAudioProcessor::addMultiBandStep()
@@ -653,6 +659,11 @@ int CabinEqAudioProcessor::getSelectedRow()
     return checkerboardManager.getSelectedRow();
 }
 
+void CabinEqAudioProcessor::saveData()
+{
+    juce::StandalonePluginHolder::getInstance()->savePluginState();
+}
+
 void CabinEqAudioProcessor::resetAudio()
 {
     
@@ -738,6 +749,15 @@ void CabinEqAudioProcessor::addListener (Listener* listener)
 void CabinEqAudioProcessor::removeListener()
 {
     // VERY BAD FIX THIS: eh whatever 
+}
+
+void CabinEqAudioProcessor::timerCallback()
+{
+    if (dataHasChanged)
+    {
+        saveData();
+        dataHasChanged = false;
+    }
 }
 
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const

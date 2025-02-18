@@ -122,6 +122,11 @@ public:
         mainWindow = nullptr;
         appProperties.saveIfNeeded();
     }
+    
+    void saveData()
+    {
+        appProperties.saveIfNeeded();
+    }
 
     //==============================================================================
     void systemRequestedQuit() override

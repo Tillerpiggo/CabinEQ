@@ -18,6 +18,7 @@
 #include "Listeners.h"
 #include "FreeTrialBanner.h"
 #include "CabinEqMarketplaceStatus.h"
+#include "CabinStandaloneFilterWindow.h"
 
 //==============================================================================
 /**
@@ -32,7 +33,8 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public GlyphViewDataSource,
                                public CheckerboardViewListener,
                                public CheckerboardViewDataSource,
-                               public CalibrationListener
+                               public CalibrationListener,
+                               public juce::Timer
 {
 public:
     class Listener
@@ -193,7 +195,8 @@ public:
     std::string getNameAtIdx (int idx) override;
     int getSelectedRow() override;
     
-    // AudioDeviceManager
+    // StandalonePlugin/AudioDeviceManager methods
+    void saveData();
     void resetAudio();
     
     CabinEqMarketplaceStatus& getMarketplaceStatus();
@@ -202,7 +205,8 @@ public:
     void addListener (Listener* listener);
     void removeListener();
     
-    
+    // Timer
+    void timerCallback() override; // used to autosave
 
 private:
     std::optional<std::reference_wrapper<CabinEqProfile>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
@@ -212,6 +216,8 @@ private:
     GlyphManager glyphManager;
     CheckerboardManager checkerboardManager;
     NoiseSequenceGrid noiseSequenceGrid { 3, 3 };
+    
+    bool dataHasChanged = false;
     
     CabinEqMarketplaceStatus marketplaceStatus;
     
