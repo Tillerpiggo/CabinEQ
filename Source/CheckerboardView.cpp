@@ -67,16 +67,16 @@ void CheckerboardView::mouseUp (const juce::MouseEvent &event)
     auto mouseUpCoords = coordsForMouseEvent (event);
     
     // If we clicked on something and didn't move our mouse to a different square, toggle the solo at that point
-    if (hoverSquareCoords.has_value() && mouseUpCoords == hoverSquareCoords)
-    {
-        if (soloSquareCoords.find (mouseUpCoords.value()) != soloSquareCoords.end())
-            soloSquareCoords.erase (mouseUpCoords.value());
-        else
-            soloSquareCoords.insert (mouseUpCoords.value());
-        
-        if (listener != nullptr)
-            listener->setSoloSquareCoords (soloSquareCoords);
-    }
+//    if (hoverSquareCoords.has_value() && mouseUpCoords == hoverSquareCoords)
+//    {
+//        if (soloSquareCoords.find (mouseUpCoords.value()) != soloSquareCoords.end())
+//            soloSquareCoords.erase (mouseUpCoords.value());
+//        else
+//            soloSquareCoords.insert (mouseUpCoords.value());
+//        
+//        if (listener != nullptr)
+//            listener->setSoloSquareCoords (soloSquareCoords);
+//    }
     
     if (mouseUpCoords.has_value() && mouseDownCoords.has_value())
     {

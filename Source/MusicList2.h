@@ -27,6 +27,7 @@ public:
     juce::String getNameForRow (int rowNumber) override;
     void paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected) override;
     void listBoxItemClicked (int row, const juce::MouseEvent& event) override;
+    void selectedRowsChanged (int lastRowSelected) override;
     
     void setListener (MusicListListener* listener);
     void setDataSource (CheckerboardViewDataSource* dataSource);

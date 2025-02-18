@@ -61,6 +61,13 @@ void MusicList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, i
     g.drawText (getNameForRow (rowNumber), area, juce::Justification::centredLeft);
 }
 
+void MusicList::selectedRowsChanged (int lastRowSelected)
+{
+    if (listener == nullptr)
+        return;
+    listener->selectedRow (lastRowSelected);
+}
+
 void MusicList::setListener (MusicListListener* listener)
 {
     this->listener = listener;
