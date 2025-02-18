@@ -121,6 +121,13 @@ public:
     virtual void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) = 0;
 };
 
+class MusicListListener
+{
+public:
+    virtual ~MusicListListener() = default;
+    
+    virtual void selectedRow (int rowIdx) = 0;
+};
 
 class CheckerboardViewDataSource
 {
@@ -129,6 +136,8 @@ public:
     
     virtual const Checkerboard getCheckerboard() = 0;
     virtual bool getIsPlaying() = 0;
+    virtual int getNumCheckerboards() = 0;
+    virtual std::string getNameAtIdx (int idx) = 0;
 };
 
 class FreeTrialListener
@@ -138,21 +147,6 @@ public:
     virtual void freeTrialDidReset() = 0;
     virtual void showActivateLicenseForm() = 0;
 };
-
-//class GlyphViewDataSource
-//{
-//public:
-//    virtual ~GlyphViewDataSource() = default;
-//    
-//    virtual Glyph getCurrGlyph() = 0;
-//    virtual bool hasNextGlyph() = 0;
-//    virtual bool hasPrevGlyph() = 0;
-//    
-//    virtual float getSizeFactor() = 0;
-//    virtual juce::Point<float> getCenterPos() = 0;
-//    
-//    virtual float getCurrPlayingTime() = 0;
-//};
 
 class CalibrationListener
 {

@@ -183,12 +183,13 @@ public:
     const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
     const std::vector<Glyph>& getGlyphs() override;
     float getCurrPlayingTime() override;
-//    bool getIsPlaying() override;
     float getBandwidth() override;
     
     // CheckerboardViewDataSource
     const Checkerboard getCheckerboard() override;
     bool getIsPlaying() override;
+    int getNumCheckerboards() override;
+    std::string getNameAtIdx (int idx) override;
     
     CabinEqMarketplaceStatus& getMarketplaceStatus();
     

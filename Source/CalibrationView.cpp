@@ -14,6 +14,7 @@ CalibrationView::CalibrationView()
 {
     // Music List
     addAndMakeVisible (musicList);
+//    musicList.setListener (this);
     
     // Checkerboard view
     addAndMakeVisible (checkerboardView);
@@ -138,52 +139,7 @@ void CalibrationView::resized()
 //    playerLayout.addRow ({ Space(), Space (&minFreqSlider), Space() }, 20.0f);
     playerLayout.addRow ({ Space() });
     playerLayout.updateComponentBounds();
-    
-    // Archetype sidebar
-//    Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
-//    archetypeBarLayout.addRow ({ Space (&archetypeBar) });
-//    archetypeBarLayout.updateComponentBounds();
-    
-//    // Settings section
-//    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
-////    settingsLayout.addRow ({ Space (80), Space (&speedSlider) });
-////    settingsLayout.addRow ({ Space (80), Space (&bandwidthSlider) });
-//    float volumeLabelWidth = volumeLabel.getFont().getStringWidth (volumeLabel.getText());
-////    float sharpnessLabelWidth = sharpnessLabel.getFont().getStringWidth (sharpnessLabel.getText());
-//    settingsLayout.addRow ({ Space (volumeLabelWidth), Space (&volumeSlider) });
-////    settingsLayout.addRow ({ Space (sharpnessLabelWidth), Space (&sharpnessSlider) });
-//    settingsLayout.addRow ({ Space (&resolutionComboBox) });
-//    settingsLayout.addRow ({ Space (&polarityButton), Space (&autoPolarityButton, 100) });
-//    settingsLayout.addRow ({ Space (&isCascadingBox) });
-//    if (isCascadingBox.getSelectedId() == 2)
-//    {
-//        settingsLayout.addRow ({ Space (80), Space (&densitySlider) });
-//        settingsLayout.addRow ({ Space (80), Space (&strokeOverlapSlider) });
-//        settingsLayout.addRow ({ Space (80), Space (&dotOverlapSlider) });
-//        settingsLayout.addRow ({ Space (80), Space (&rampLengthSlider) });
-//        densitySlider.setVisible (true);
-//        strokeOverlapSlider.setVisible (true);
-//        dotOverlapSlider.setVisible (true);
-//        rampLengthSlider.setVisible (true);
-//    }
-//    else
-//    {
-//        densitySlider.setVisible (false);
-//        strokeOverlapSlider.setVisible (false);
-//        dotOverlapSlider.setVisible (false);
-//        rampLengthSlider.setVisible (false);
-//    }
-//    settingsLayout.addRow ({ Space (&pinkNoiseBox) });
-//    settingsLayout.addRow ({ Space (&scalingComboBox), Space (&erbComboBox), Space (&pinkNoiseBox) });
-//    settingsLayout.addRow ({ Space (&iirButton), Space (&qualityComboBox), Space (&updateFilterButton) });
-//    settingsLayout.addRow ({ Space (&playButton) });
-//    settingsLayout.updateComponentBounds();
 }
-
-//void CalibrationView::setListener (GlyphViewListener* listener)
-//{
-////    glyphGridView.setListener (listener);
-//}
 
 void CalibrationView::setListener (CheckerboardViewListener* listener)
 {
@@ -197,15 +153,10 @@ void CalibrationView::setCalibrationListener (CalibrationListener* calibrationLi
     updatePlayer();
 }
 
-//void CalibrationView::setDataSource (GlyphViewDataSource* dataSource)
-//{
-//    glyphGridView.setDataSource (dataSource);
-//    archetypeBar.setDataSource (dataSource);
-//}
-
 void CalibrationView::setDataSource (CheckerboardViewDataSource* dataSource)
 {
     checkerboardView.setDataSource (dataSource);
+//    musicList.setDataSource (dataSource);
     this->dataSource = dataSource;
     updatePlayer();
 }
@@ -215,33 +166,12 @@ void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     if (calibrationListener == nullptr)
     {
         return;
-//        calibrationListener->setFIRQuality (qualityComboBox.getSelectedId());
     }
-    
-//    if (comboBoxThatHasChanged == &scalingComboBox)
-//    {
-//        calibrationListener->setBarkScaling (scalingComboBox.getSelectedId() == 2);
-//    }
-//    else if (comboBoxThatHasChanged == &erbComboBox)
-//    {
-//        calibrationListener->setERBScaling (erbComboBox.getSelectedId() == 2);
-//    }
-//    else if (comboBoxThatHasChanged == &pinkNoiseBox)
-//    {
-//        calibrationListener->setPinkNoise (pinkNoiseBox.getSelectedId() == 2);
-//    }
-//    else if (comboBoxThatHasChanged == &isCascadingBox)
-//    {
-//        calibrationListener->setIsCascading (isCascadingBox.getSelectedId() == 2);
-//        resized();
-////        glyphGridView.updateGlyphs();
-//    }
-//    else if (comboBoxThatHasChanged == &resolutionComboBox)
-//    {
-////        calibrationListener->setCheckerboardResolution (resolutionComboBox.getSelectedId());
-//        checkerboardView.updateCheckerboard();
-//        resized();
-//    }
+}
+
+void CalibrationView::selectedRow (int rowIdx)
+{
+    std::cout << "row was selected!" << std::endl;
 }
 
 void CalibrationView::timerCallback()

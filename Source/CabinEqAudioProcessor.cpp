@@ -632,6 +632,18 @@ bool CabinEqAudioProcessor::getIsPlaying()
     return playbackManager.getIsPlaying();
 }
 
+int CabinEqAudioProcessor::getNumCheckerboards()
+{
+    return 2;
+//    return checkerboardManager.getNumCheckerboards();
+}
+
+std::string CabinEqAudioProcessor::getNameAtIdx (int idx)
+{
+    return "Successfully loaded lol";
+//    return checkerboardManager.getNameAtIdx (idx);
+}
+
 CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()
 {
     return marketplaceStatus;

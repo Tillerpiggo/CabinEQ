@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Listeners.h"
 
 class MusicList  : public juce::Component,
                    public juce::ListBoxModel
@@ -26,7 +27,13 @@ public:
     juce::String getNameForRow (int rowNumber) override;
     void paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected) override;
     
+    void setListener (MusicListListener* listener);
+    void setDataSource (CheckerboardViewDataSource* dataSource);
+    
 private:
+    MusicListListener* listener;
+    CheckerboardViewDataSource* dataSource;
+    
     juce::ListBox listBox;
     
     juce::Colour SELECTED_COLOUR = juce::Colours::teal;
