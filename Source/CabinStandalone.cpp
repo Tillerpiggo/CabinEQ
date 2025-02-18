@@ -52,21 +52,18 @@
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <juce_audio_utils/juce_audio_utils.h>
 
-// You can set this flag in your build if you need to specify a different
-// standalone JUCEApplication class for your app to use. If you don't
-// set it then by default we'll just create a simple one as below.
-#if ! JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP
-
-#include <juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h>
+// EDIT: Removed the "!" because this is our custom standalone plugin window
+#if JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP
+#include "CabinStandaloneFilterWindow.h"
 
 namespace juce
 {
 
 //==============================================================================
-class StandaloneFilterApp final : public JUCEApplication
+class CabinStandaloneFilterApp final : public JUCEApplication
 {
 public:
-    StandaloneFilterApp()
+    CabinStandaloneFilterApp()
     {
         PropertiesFile::Options options;
 
@@ -191,18 +188,19 @@ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 #endif
 
 #if JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP
- extern juce::JUCEApplicationBase* juce_CreateApplication();
+// extern juce::JUCEApplicationBase* juce_CreateApplication();
+JUCE_CREATE_APPLICATION_DEFINE (juce::CabinStandaloneFilterApp)
 
  #if JUCE_IOS
   extern void* juce_GetIOSCustomDelegateClass();
  #endif
 
 #else
- JUCE_CREATE_APPLICATION_DEFINE (juce::StandaloneFilterApp)
+ JUCE_CREATE_APPLICATION_DEFINE (CabinStandaloneFilterApp)
 #endif
 
 #if ! JUCE_USE_CUSTOM_PLUGIN_STANDALONE_ENTRYPOINT
- JUCE_MAIN_FUNCTION_DEFINITION
+// JUCE_MAIN_FUNCTION_DEFINITION
 #endif
 
 #endif
