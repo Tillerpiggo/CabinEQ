@@ -114,6 +114,7 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
+    /*
     float audioPlayerWidth = 120.0f;
     float sidebarWidth = 120.0f;
     
@@ -139,11 +140,7 @@ void CabinEqPage::resized()
     layout.updateComponentBounds();
     
     unlockForm.centreWithSize (getWidth() * 0.8, getHeight() * 0.8);
-    
-//    Layout onButtonLayout (getBounds().withTrimmedLeft (getWidth() - sidebarWidth), 0.0f);
-//    onButtonLayout.addRow ({ Space (&bypassButton) });
-//    onButtonLayout.addRow ({ Space() }, 0.5);
-//    onButtonLayout.updateComponentBounds();
+     */
 }
 
 // ====================================================

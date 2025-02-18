@@ -59,7 +59,15 @@ void MusicList::paintListBoxItem (int rowNumber, juce::Graphics& g, int width, i
     g.drawText (getNameForRow (rowNumber), area, juce::Justification::centredLeft);
 }
 
-void MusicList::setListener (CheckerboardViewListener* listener)
+void MusicList::listBoxItemClicked (int row, const juce::MouseEvent& event)
+{
+    if (listener != nullptr)
+    {
+        listener->selectedRow (row);
+    }
+}
+
+void MusicList::setListener (MusicListListener* listener)
 {
     this->listener = listener;
 }
@@ -67,4 +75,5 @@ void MusicList::setListener (CheckerboardViewListener* listener)
 void MusicList::setDataSource (CheckerboardViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
+    listBox.updateContent();
 }

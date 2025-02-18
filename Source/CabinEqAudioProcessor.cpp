@@ -345,18 +345,6 @@ void CabinEqAudioProcessor::setRampLength (float rampLength)
     glyphManager.setRampLength (rampLength);
 }
 
-//void CabinEqAudioProcessor::setCheckerboardResolution (int newResolution)
-//{
-//    checkerboardManager.setResolution (newResolution);
-//    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
-//}
-
-//void CabinEqAudioProcessor::setCheckerboardSharpness (float newSharpness)
-//{
-//    checkerboardManager.setSharpness (newSharpness);
-//    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
-//}
-
 void CabinEqAudioProcessor::goToNext()
 {
     checkerboardManager.goToNext();
@@ -612,19 +600,30 @@ float CabinEqAudioProcessor::getCurrTime()
     return playbackManager.getCurrPlayingTime();
 }
 
-//bool CabinEqAudioProcessor::getIsPlaying()
-//{
-//    return playbackManager.getIsPlaying();
-//}
-
 float CabinEqAudioProcessor::getBandwidth()
 {
     return playbackManager.getBandwidth();
 }
 
+void CabinEqAudioProcessor::selectRow (int rowIdx)
+{
+    checkerboardManager.selectIdx (rowIdx);
+    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
+}
+
 const Checkerboard CabinEqAudioProcessor::getCheckerboard()
 {
     return checkerboardManager.getCurrCheckerboard();
+}
+
+int CabinEqAudioProcessor::getNumRows()
+{
+    return checkerboardManager.getNumCheckerboards();
+}
+
+std::string CabinEqAudioProcessor::getNameAtRow (int rowIdx)
+{
+    return checkerboardManager.getNameAtIdx (rowIdx);
 }
 
 bool CabinEqAudioProcessor::getIsPlaying()

@@ -113,13 +113,20 @@ public:
     virtual float getBandwidth() = 0;
 };
 
+class MusicListListener
+{
+public:
+    virtual ~MusicListListener() = default;
+    
+    virtual void selectedRow (int rowIdx) = 0;
+};
+
 class CheckerboardViewListener
 {
 public:
     virtual ~CheckerboardViewListener() = default;
     
     virtual void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) = 0;
-    virtual void selectedRow (int rowIdx);
 };
 
 
@@ -178,6 +185,9 @@ public:
     virtual bool hasNext() = 0;
     virtual bool hasPrev() = 0;
     virtual void toggleCheckerboardPolarity() = 0;
+    
+    // Music selection
+    virtual void selectRow (int rowIdx) = 0;
 };
 
 

@@ -186,9 +186,14 @@ public:
 //    bool getIsPlaying() override;
     float getBandwidth() override;
     
+    // CheckerboardViewListener (TODO: refactor - missing some methods)
+    void selectRow (int rowIdx) override;
+    
     // CheckerboardViewDataSource
     const Checkerboard getCheckerboard() override;
     bool getIsPlaying() override;
+    int getNumRows() override;
+    std::string getNameAtRow (int rowIdx) override;
     
     CabinEqMarketplaceStatus& getMarketplaceStatus();
     

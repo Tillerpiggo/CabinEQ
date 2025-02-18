@@ -29,12 +29,13 @@ public:
     int getNumRows() override;
     juce::String getNameForRow (int rowNumber) override;
     void paintListBoxItem (int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
+    void listBoxItemClicked (int row, const juce::MouseEvent& event);
     
-    void setListener (CheckerboardViewListener* listener);
+    void setListener (MusicListListener* listener);
     void setDataSource (CheckerboardViewDataSource* dataSource);
     
 private:
-    CheckerboardViewListener* listener;
+    MusicListListener* listener;
     CheckerboardViewDataSource* dataSource;
     
     juce::ListBox listBox;

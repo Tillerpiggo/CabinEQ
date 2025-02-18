@@ -22,6 +22,7 @@
 // This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
 class CalibrationView  : public BuildableComponent,
                          public juce::ComboBox::Listener,
+                         public MusicListListener,
                          public juce::Timer
 {
 public:
@@ -37,6 +38,9 @@ public:
     void setDataSource (CheckerboardViewDataSource* dataSource);
     
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
+    
+    // MusicListListener
+    void selectedRow (int row) override;
     
     void timerCallback() override;
     
