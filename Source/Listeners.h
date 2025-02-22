@@ -104,6 +104,7 @@ public:
     virtual void duplicateProfile (int rowIdx) = 0;
     virtual void renameProfile (int rowIdx, juce::String newProfileName) = 0;
     virtual void deleteProfile (int rowIdx) = 0;
+    virtual void addProfile (juce::String profileName) = 0;
 };
 
 class ProfileListDataSource

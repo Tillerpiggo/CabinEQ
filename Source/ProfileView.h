@@ -35,6 +35,7 @@ public:
     void duplicateProfile (int rowIdx) override;
     void renameProfile (int rowIdx, juce::String newProfileName) override;
     void deleteProfile (int rowIdx) override;
+    void addProfile (juce::String profileName) override;
 
     std::vector<juce::String> getProfileNames() override;
     bool getIsProfileLocked (int rowIdx) override;

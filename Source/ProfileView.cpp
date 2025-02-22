@@ -24,10 +24,12 @@ ProfileView::ProfileView()
     addProfileButton.onClick = [this] {
 //        if (listener != nullptr)
 //            listener->addedProfile();
+        profileList.setIsAddingProfile (true);
     };
 
     profileList.setListener (this);
     profileList.setDataSource (this);
+    std::cout << "ProfileView constructor called" << std::endl;
 }
 
 void ProfileView::paint (juce::Graphics& g)
@@ -97,6 +99,14 @@ void ProfileView::deleteProfile (int rowIdx)
         return;
     juce::String profileName = dataSource->getProfileNames()[rowIdx];
     listener->deleteProfile (profileName);
+    profileList.updateContent();
+}
+
+void ProfileView::addProfile (juce::String profileName)
+{
+    if (listener == nullptr || dataSource == nullptr)
+        return;
+    listener->addProfile (profileName);
     profileList.updateContent();
 }
 

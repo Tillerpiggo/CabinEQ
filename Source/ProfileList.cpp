@@ -24,9 +24,6 @@ ProfileList::ProfileList()
         optionsMenuRow = -1;
     });
     optionsMenu->addItem ("Rename", [this] {
-//        if (listener != nullptr)
-//            listener->renameProfile (optionsMenuRow, juce::String());
-        std::cout << "options menu row: " << optionsMenuRow << std::endl;
         editingRowNumber = optionsMenuRow;
         updateContent();
     });
@@ -52,7 +49,9 @@ int ProfileList::getNumRows()
 {
     if (dataSource == nullptr)
         return 0;
-    return static_cast<int> (dataSource->getProfileNames().size());
+    int numRows = static_cast<int> (dataSource->getProfileNames().size());
+    numRows += isAddingProfile ? 1 : 0;
+    return numRows;
 }
 
 juce::String ProfileList::getNameForRow (int rowNumber)
@@ -62,6 +61,10 @@ juce::String ProfileList::getNameForRow (int rowNumber)
     if (rowNumber < 0 || rowNumber >= dataSource->getProfileNames().size())
     {
         return "OUT OF BOUNDS";
+    }
+    if (isAddingProfile && rowNumber == dataSource->getProfileNames().size())
+    {
+        return "Adding Profile...";
     }
     return dataSource->getProfileNames()[rowNumber];
 }
@@ -112,6 +115,13 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
     row->setRowNumber (rowNumber);
     row->setIsSelected (rowNumber == selectedRowNumber);
     row->setIsEditing (rowNumber == editingRowNumber);
+
+    // Make the adding profile row editable
+    if (isAddingProfile && rowNumber == dataSource->getProfileNames().size())
+    {
+        row->setIsEditing (true);
+    }
+
     return row;
 }
 
@@ -122,11 +132,18 @@ void ProfileList::profileRowClicked (int row)
     selectedRowNumber = row;
     optionsMenuRow = -1;
     editingRowNumber = -1;
+    isAddingProfile = false;
     listBox.updateContent();
 }
 
 void ProfileList::profileRowOptionsClicked (int row)
 {
+    // If we're adding a profile, don't respond to the options menu changing... we should probably just hide it for now anyways
+    if (isAddingProfile && row == dataSource->getProfileNames().size())
+    {
+        return;
+    }
+
     optionsMenuRow = row; // must be before - showAt del
     editingRowNumber = -1;
     optionsMenu->showAt (listBox.getComponentForRowNumber (row));
@@ -143,10 +160,30 @@ void ProfileList::setDataSource (ProfileListDataSource* dataSource)
     updateContent();
 }
 
+void ProfileList::setIsAddingProfile (bool isAddingProfile)
+{
+    this->isAddingProfile = isAddingProfile;
+    updateContent();
+    scrollToBottom();
+}
+
 void ProfileList::profileRowRenamed (int row, juce::String newProfileName)
 {
     if (listener != nullptr)
-        listener->renameProfile (row, newProfileName);
+    {
+        // If we're adding a profile, then rename should add the profile
+        if (isAddingProfile && row == dataSource->getProfileNames().size())
+        {
+            listener->addProfile (newProfileName);
+            isAddingProfile = false;
+        }
+
+        // Otherwise, just rename the profile
+        else
+        {
+            listener->renameProfile (row, newProfileName);
+        }
+    }
     editingRowNumber = -1;
 }
 

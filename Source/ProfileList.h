@@ -44,6 +44,9 @@ public:
     void setListener (ProfileListListener* listener);
     void setDataSource (ProfileListDataSource* dataSource);
 
+    // Adding profile
+    void setIsAddingProfile (bool isAddingProfile);
+
 private:
     ProfileListListener* listener = nullptr;
     ProfileListDataSource* dataSource = nullptr;
@@ -55,6 +58,9 @@ private:
     int selectedRowNumber = -1;
     int optionsMenuRow = -1;
     int editingRowNumber = -1;
+
+    // Adding profile state
+    bool isAddingProfile = false;
 };
     
     
