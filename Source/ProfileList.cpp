@@ -112,8 +112,6 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
     row->setRowNumber (rowNumber);
     row->setIsSelected (rowNumber == selectedRowNumber);
     row->setIsEditing (rowNumber == editingRowNumber);
-    std::cout << "rowNumber: " << rowNumber << ", editingRowNumber" << editingRowNumber << std::endl;
-//    std::cout << "name: " << getNameForRow (rowNumber) << ", rowNumber: " << rowNumber << ", selected: " << (rowNumber == selectedRowNumber) << std::endl;
     return row;
 }
 

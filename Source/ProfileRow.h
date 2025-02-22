@@ -48,6 +48,10 @@ public:
 
     void setListener (ProfileRowListener* listener);
 
+    void focusLost (FocusChangeType cause) override;
+
+    void grabRenameEditorKeyboardFocus();
+
 private:
     ProfileRowListener* listener = nullptr;
     

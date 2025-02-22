@@ -37,7 +37,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     calibrationView.setListener (&processor);
     calibrationView.setCalibrationListener (&processor);
     calibrationView.setDataSource (&processor);
-    profileDropdown.addListener (this);
+    // profileDropdown.addListener (this);
     processor.addListener (this);
     
     // Extra stuff, will clean up later
@@ -50,7 +50,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (contactUsBanner);
     
     addAndMakeVisible (amplGraph.get());
-    addAndMakeVisible (profileDropdown);
+//    addAndMakeVisible (profileDropdown);
     addAndMakeVisible (profileView);
     addAndMakeVisible (addProfileButton);
     addAndMakeVisible (duplicateProfileButton);
@@ -78,14 +78,14 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     profileView.setListener (this);
     profileView.setDataSource (&processor);
     
-    loadDropdownOptions();
+    // loadDropdownOptions();
     
     bypassButton.setColour (juce::TextButton::buttonColourId, juce::Colours::blueviolet);
 }
 
 CabinEqPage::~CabinEqPage()
 {
-    profileDropdown.removeListener (this);
+    // profileDropdown.removeListener (this);
     bypassButton.removeListener (this);
     masterVolumeSlider.removeListener (this);
 
@@ -125,7 +125,7 @@ void CabinEqPage::resized()
     float duplicateProfileWidth = duplicateProfileButton.getBestWidthForHeight (topRowHeight);
     float renameProfileWidth = renameProfileButton.getBestWidthForHeight (topRowHeight);
     
-    layout.addRow ({ Space (&bypassButton, 60), Space (&profileDropdown), Space (&duplicateProfileButton, duplicateProfileWidth), Space (&renameProfileButton, renameProfileWidth) }, (float) topRowHeight);
+    // layout.addRow ({ Space (&bypassButton, 60), Space (&profileDropdown), Space (&duplicateProfileButton, duplicateProfileWidth), Space (&renameProfileButton, renameProfileWidth) }, (float) topRowHeight);
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.addRow ({ Space (&contactUsBanner) }, 40);
@@ -173,6 +173,7 @@ void CabinEqPage::textEditorFocusLost (juce::TextEditor& textEditor)
 
 void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
 {
+    /*
     if (comboBoxThatHasChanged == &profileDropdown)
     {
         // Lazy flag so weird stuff doesn't happen when adding the very first profile
@@ -250,11 +251,12 @@ void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
             int selectedIndex = profileDropdown.indexOfItemId (profileDropdown.getSelectedId());
             juce::String profileIdSelected = profileDropdown.getItemText (selectedIndex);
             goToProfileWithId (profileIdSelected);
-            loadDropdownOptions();
+            // loadDropdownOptions();
         }
         
         lastSelectedId = profileDropdown.getSelectedId();
     }
+     */
 }
 
 void CabinEqPage::inputAttemptWhenModal()
@@ -282,31 +284,31 @@ void CabinEqPage::showActivateLicenseForm()
 void CabinEqPage::addProfile (juce::String profileName)
 {
     processor.addProfile (profileName);
-    loadDropdownOptions();
+    // loadDropdownOptions();
 }
 
 void CabinEqPage::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
 {
     processor.addDuplicateProfile (profileName, oldProfileName);
-    loadDropdownOptions();
+    // loadDropdownOptions();
 }
 
 void CabinEqPage::renameProfile (juce::String profileName, juce::String newProfileName)
 {
     processor.renameProfile (profileName, newProfileName);
-    loadDropdownOptions();
+    // loadDropdownOptions();
 }
 
 void CabinEqPage::deleteProfile (juce::String profileName)
 {
     // processor.deleteProfile (profileName);
-    loadDropdownOptions();
+    // loadDropdownOptions();
 }
 
 void CabinEqPage::selectProfile (juce::String profileName)
 {
     goToProfileWithId (profileName);
-    loadDropdownOptions();
+    // loadDropdownOptions();
 }
 
 void CabinEqPage::didLoadData()
@@ -317,7 +319,7 @@ void CabinEqPage::didLoadData()
     if (lastSelectedProfileName.has_value())
     {
         goToProfileWithId (lastSelectedProfileName.value());
-        loadDropdownOptions();
+        // loadDropdownOptions();
     }
     
     // If there are no profiles, add one
@@ -332,7 +334,8 @@ void CabinEqPage::didLoadData()
     
     masterVolumeSlider.setValue (processor.getMasterVolume(), juce::sendNotification);
     
-    lastSelectedId = profileDropdown.getSelectedId(); // make sure we think the newly selected id is the last selected id
+    // TODO: Figure out lastSelectedId with profileView
+    // lastSelectedId = profileDropdown.getSelectedId(); // make sure we think the newly selected id is the last selected id
     
     resized();
     
@@ -350,30 +353,30 @@ void CabinEqPage::toggleBypass()
     updateButtonText();
 }
 
-void CabinEqPage::loadDropdownOptions()
-{
-    profileDropdown.clear();
+// void CabinEqPage::loadDropdownOptions()
+// {
+//     profileDropdown.clear();
     
-    // Add existing profiles to dropdown menu
-    int i = 1;
-    for (const auto& name : processor.getProfileNames())
-    {
-        profileDropdown.addItem (name, i);
-        i++;
-    }
+//     // Add existing profiles to dropdown menu
+//     int i = 1;
+//     for (const auto& name : processor.getProfileNames())
+//     {
+//         profileDropdown.addItem (name, i);
+//         i++;
+//     }
     
-    if (profileDropdown.getNumItems() > 0)
-    {
-        profileDropdown.addSeparator();
-        profileDropdown.setText (profileId);
-    }
+//     if (profileDropdown.getNumItems() > 0)
+//     {
+//         profileDropdown.addSeparator();
+//         profileDropdown.setText (profileId);
+//     }
     
-    profileDropdown.addItem ("+ Add Profile", i);
-//    profileDropdown.addItem ("[] Duplicate \"" + profileId + "\"", i + 1);
-//    profileDropdown.addItem ("* Rename \"" + profileId + "\"", i + 2);
+//     profileDropdown.addItem ("+ Add Profile", i);
+// //    profileDropdown.addItem ("[] Duplicate \"" + profileId + "\"", i + 1);
+// //    profileDropdown.addItem ("* Rename \"" + profileId + "\"", i + 2);
     
-    profileDropdown.setItemEnabled (i + 1, ! processor.isProfileLocked());
-}
+//     profileDropdown.setItemEnabled (i + 1, ! processor.isProfileLocked());
+// }
 
 void CabinEqPage::dismissAlertWindow()
 {
@@ -454,7 +457,7 @@ void CabinEqPage::lockIfNecessary()
     bypassButton.setButtonText ("OFF");
     amplGraph->setGrayscale (true);
     processor.setIsFilterOn (false);
-    loadDropdownOptions();
+    // loadDropdownOptions();
 }
 
 void CabinEqPage::addProfile()
@@ -479,7 +482,7 @@ void CabinEqPage::addProfile()
     alertWindow->enterModalState();
     alertWindow->getTextEditor (textEditorName)->grabKeyboardFocus();
     
-    profileDropdown.setSelectedId (lastSelectedId);
+    // profileDropdown.setSelectedId (lastSelectedId);
 }
 
 void CabinEqPage::duplicateProfile()
@@ -565,7 +568,7 @@ void CabinEqPage::goToProfileWithId (juce::String profileIdToGoTo)
     
     BandProfile bandProfile = processor.getBandProfile();
     amplGraph->setBandProfile (bandProfile);
-    profileDropdown.setText (profileIdToGoTo);
+    // profileDropdown.setText (profileIdToGoTo);
     processor.updateFilter();
     if (! processor.isProfileLocked())
     {
@@ -632,12 +635,12 @@ void CabinEqPage::submitAlertWindowText()
         creatingDuplicate = false;
     }
     
-    loadDropdownOptions();
+    // loadDropdownOptions();
     
     // Select the new profile and go to it
-    profileDropdown.setSelectedId (profileDropdown.getItemId (profileDropdown.getNumItems() - 2));
+    // profileDropdown.setSelectedId (profileDropdown.getItemId (profileDropdown.getNumItems() - 2));
     goToProfileWithId (profileName);
-    loadDropdownOptions();
+    // loadDropdownOptions();
     
     // Finally, dismiss the window
     dismissAlertWindow();

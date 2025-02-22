@@ -103,9 +103,11 @@ void ProfileRow::setIsEditing (bool isEditing)
     renameEditor.setVisible (isEditing);
     renameEditor.setText ("rename...");
     profileNameLabel.setVisible (! isEditing);
-    repaint();
+    renameEditor.setWantsKeyboardFocus (isEditing);
     if (isEditing)
+    {
         renameEditor.grabKeyboardFocus();
+    }
 }
 
 void ProfileRow::setRowNumber (int rowNumber)
@@ -133,3 +135,25 @@ void ProfileRow::setListener (ProfileRowListener* listener)
     this->listener = listener;
 }
 
+void ProfileRow::focusLost (FocusChangeType cause)
+{
+    std::cout << "focusLost" << std::endl;
+    if (cause == FocusChangeType::focusChangedByMouseClick)
+    {
+        std::cout << "focus changed by mouse click for ProfileRow (" << rowNumber << ")" << std::endl;
+    }
+    else if (cause == FocusChangeType::focusChangedByTabKey)
+    {
+        std::cout << "focus changed by tab key for ProfileRow (" << rowNumber << ")" << std::endl;
+    }
+    else if (cause == FocusChangeType::focusChangedDirectly)
+    {
+        std::cout << "focus changed directly for ProfileRow (" << rowNumber << ")" << std::endl;
+    }
+}
+
+void ProfileRow::grabRenameEditorKeyboardFocus()
+{
+    std::cout << "grabRenameEditorKeyboardFocus" << std::endl;
+    renameEditor.grabKeyboardFocus();
+}
