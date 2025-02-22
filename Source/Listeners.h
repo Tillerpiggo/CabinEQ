@@ -74,6 +74,26 @@ public:
     virtual void selectedRow (int rowIdx) = 0;
 };
 
+class ProfileListListener
+{
+public:
+    virtual ~ProfileListListener() = default;
+    
+    virtual void selectedRow (int rowIdx) = 0;
+    virtual void duplicateProfile (int rowIdx) = 0;
+    virtual void renameProfile (int rowIdx) = 0;
+    virtual void deleteProfile (int rowIdx) = 0;
+};
+
+class ProfileListDataSource
+{
+public:
+    virtual ~ProfileListDataSource() = default;
+    
+    virtual std::vector<BandProfile> getProfiles() = 0;
+    virtual bool getIsProfileLocked (int rowIdx) = 0;
+};
+
 class CheckerboardViewDataSource
 {
 public:
