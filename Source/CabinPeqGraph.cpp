@@ -474,20 +474,17 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
-    g.setColour (centerLineColour);
+    g.setColour (CENTER_LINE_COLOUR);
     g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS * 1.5f));
     
     // Draw the other horizontal lines
-    g.setColour (lineColour);
+    g.setColour (LINE_COLOUR);
     for (const auto& horizontalLinePath : horizontalLinePaths)
     {
         g.strokePath (horizontalLinePath, lineStrokeType);
     }
     
     // Draw the log lines
-    // draw lines starting at intervals of 10
-    // every 10 it goes to intervals of 100
-    // etc.
     for (const auto& lineFreq : lineFreqs)
     {
         if (lineFreq >= minFreqShowing / 1.1f && lineFreq <= maxFreqShowing * 1.1f)
@@ -615,7 +612,7 @@ void CabinPeqGraph::drawCurve (juce::Graphics& g)
     rectPath.lineTo (getWidth(), yForAmpl (bandProfile.getVolume()));
     rectPath.lineTo (getWidth(), yForAmpl (0));
     rectPath.lineTo (0, yForAmpl (0));
-    g.setColour (juce::Colours::lightgrey.withAlpha (0.3f));
+    g.setColour (VOLUME_RECT_COLOUR);
     g.fillPath (rectPath);
 }
 
