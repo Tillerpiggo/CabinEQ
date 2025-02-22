@@ -28,6 +28,7 @@ class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
                       public CabinEqAudioProcessor::Listener,
+                      public ProfileViewListener,
                       public FreeTrialListener,
                       public juce::Timer
 {
@@ -48,6 +49,13 @@ public:
     
     void freeTrialDidReset() override;
     void showActivateLicenseForm() override;
+
+    // ProfileViewListener methods
+    void addedProfile() override;
+    void duplicateProfile (int rowIdx) override;
+    void renameProfile (int rowIdx) override;
+    void deleteProfile (int rowIdx) override;
+    void selectProfile (int rowIdx) override;
     
 //    void setBands (std::vector<Band> bands) override;
     void timerCallback() override;

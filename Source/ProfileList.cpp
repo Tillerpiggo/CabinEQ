@@ -88,6 +88,7 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
     
     row->setProfileName (getNameForRow (rowNumber));
     row->setIsSelected (rowNumber == selectedRowNumber);
+    row->setRowNumber (rowNumber);
     std::cout << "name: " << getNameForRow (rowNumber) << ", rowNumber: " << rowNumber << ", selected: " << (rowNumber == selectedRowNumber) << std::endl;
     return row;
 }
@@ -97,6 +98,7 @@ void ProfileList::profileRowClicked (int row)
     if (listener != nullptr)
         listener->selectedRow (row);
     this->selectedRowNumber = row;
+    std::cout << "profile row clicked, row: " << row << std::endl;
     listBox.updateContent();
 }
 

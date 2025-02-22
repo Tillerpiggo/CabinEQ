@@ -75,6 +75,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     startTimer (100);
 
     contactUsBanner.setListener (&processor);
+    profileView.setListener (this);
     profileView.setDataSource (&processor);
     
     loadDropdownOptions();
@@ -281,6 +282,32 @@ void CabinEqPage::freeTrialDidReset()
 void CabinEqPage::showActivateLicenseForm()
 {
     showForm();
+}
+
+void CabinEqPage::addedProfile()
+{
+    std::cout << "add profile" << std::endl;
+}
+
+void CabinEqPage::duplicateProfile (int rowIdx)
+{
+    std::cout << "duplicate profile" << std::endl;
+}
+
+void CabinEqPage::renameProfile (int rowIdx)
+{
+    std::cout << "rename profile" << std::endl;
+}
+
+void CabinEqPage::deleteProfile (int rowIdx)
+{
+    std::cout << "delete profile" << std::endl;
+}
+
+void CabinEqPage::selectProfile (int rowIdx)
+{
+    goToProfileWithId (profileDropdown.getItemText (rowIdx));
+    loadDropdownOptions();
 }
 
 void CabinEqPage::didLoadData()

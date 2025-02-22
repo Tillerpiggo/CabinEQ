@@ -23,7 +23,7 @@ ProfileView::ProfileView()
     addProfileButton.setButtonText ("Add Profile");
     addProfileButton.onClick = [this] {
         if (listener != nullptr)
-            listener->addProfile();
+            listener->addedProfile();
     };
 
     profileList.setListener (this);
@@ -57,8 +57,8 @@ void ProfileView::setDataSource (ProfileViewDataSource* dataSource)
 
 void ProfileView::selectedRow (int rowIdx)
 {
-//    if (listener != nullptr)
-//        listener->selectedRow (rowIdx);
+   if (listener != nullptr)
+       listener->selectProfile (rowIdx);
 }
 
 void ProfileView::duplicateProfile (int rowIdx)

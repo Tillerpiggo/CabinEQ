@@ -79,10 +79,11 @@ class ProfileViewListener
 public:
     virtual ~ProfileViewListener() = default;
     
-    virtual void addProfile() = 0;
+    virtual void addedProfile() = 0;
     virtual void duplicateProfile (int rowIdx) = 0;
     virtual void renameProfile (int rowIdx) = 0;
     virtual void deleteProfile (int rowIdx) = 0;
+    virtual void selectProfile (int rowIdx) = 0;
 };
 
 class ProfileViewDataSource

@@ -20,6 +20,8 @@ ProfileRow::ProfileRow (int rowNumber)
     profileNameLabel.setJustificationType (juce::Justification::left);
     profileNameLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     profileNameLabel.setInterceptsMouseClicks (false, false);
+
+    std::cout << "profile named " << profileNameLabel.getText() << " created, row: " << rowNumber << std::endl;
 }
 
 void ProfileRow::paint (juce::Graphics& g)
@@ -61,6 +63,7 @@ void ProfileRow::mouseDown (const juce::MouseEvent& event)
 void ProfileRow::setProfileName (const juce::String& profileName)
 {
     profileNameLabel.setText (profileName, juce::dontSendNotification);
+    std::cout << "profile name set: " << profileName << ", row: " << rowNumber << std::endl;
 }
 
 void ProfileRow::setIsSelected (bool isSelected)
@@ -73,6 +76,11 @@ void ProfileRow::setIsHovering (bool isHovering)
 {
     this->isHovering = isHovering;
     repaint();
+}
+
+void ProfileRow::setRowNumber (int rowNumber)
+{
+    this->rowNumber = rowNumber;
 }
 
 void ProfileRow::setListener (ProfileRowListener* listener)

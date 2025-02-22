@@ -37,6 +37,7 @@ public:
     void setProfileName (const juce::String& profileName);
     void setIsSelected (bool isSelected);
     void setIsHovering (bool isHovering);
+    void setRowNumber (int rowNumber);
 
     void setListener (ProfileRowListener* listener);
 
