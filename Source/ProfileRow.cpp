@@ -22,10 +22,10 @@ ProfileRow::ProfileRow (int rowNumber)
     profileNameLabel.setInterceptsMouseClicks (false, false);
 
     ellipsisButton.setImages (false, true, true, ellipsisImage, 1.0f, juce::Colours::white.withAlpha (0.0f), ellipsisImage, 1.0f, juce::Colours::black.withAlpha (0.1f), ellipsisImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
-    ellipsisButton.onClick = [this, rowNumber] {
+    ellipsisButton.onClick = [this] {
         if (listener != nullptr)
         {
-            listener->profileRowOptionsClicked (rowNumber);
+            listener->profileRowOptionsClicked (this->rowNumber);
 //            listener->profileRowClicked (rowNumber);
         }
     };
@@ -104,8 +104,8 @@ void ProfileRow::setIsEditing (bool isEditing)
     renameEditor.setText ("rename...");
     profileNameLabel.setVisible (! isEditing);
     repaint();
-    renameEditor.grabKeyboardFocus();
-    std::cout << "set is editing: " << isEditing << std::endl;
+    if (isEditing)
+        renameEditor.grabKeyboardFocus();
 }
 
 void ProfileRow::setRowNumber (int rowNumber)
