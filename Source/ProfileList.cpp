@@ -141,6 +141,11 @@ void ProfileList::updateContent()
     listBox.updateContent();
 }
 
+void ProfileList::scrollToBottom()
+{
+    listBox.scrollToEnsureRowIsOnscreen (getNumRows() - 1);
+}
+
 
 
 

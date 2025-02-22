@@ -37,7 +37,9 @@ public:
     void profileRowOptionsClicked (int row) override;
 
     void updateContent(); // triggers an update of the list box content
+    void scrollToBottom();
 
+    // ProfileListListener methods
     void setListener (ProfileListListener* listener);
     void setDataSource (ProfileListDataSource* dataSource);
 

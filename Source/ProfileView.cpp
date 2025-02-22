@@ -78,6 +78,8 @@ void ProfileView::duplicateProfile (int rowIdx)
     }
 
     listener->addDuplicateProfile (duplicateProfileName, oldProfileName);
+    profileList.updateContent();
+    profileList.scrollToBottom();
 }
 
 void ProfileView::renameProfile (int rowIdx, juce::String newProfileName)
@@ -86,6 +88,7 @@ void ProfileView::renameProfile (int rowIdx, juce::String newProfileName)
         return;
     juce::String oldProfileName = dataSource->getProfileNames()[rowIdx];
     listener->renameProfile (oldProfileName, newProfileName);
+    profileList.updateContent();
 }
 
 void ProfileView::deleteProfile (int rowIdx)
@@ -94,6 +97,7 @@ void ProfileView::deleteProfile (int rowIdx)
         return;
     juce::String profileName = dataSource->getProfileNames()[rowIdx];
     listener->deleteProfile (profileName);
+    profileList.updateContent();
 }
 
 std::vector<juce::String> ProfileView::getProfileNames()
