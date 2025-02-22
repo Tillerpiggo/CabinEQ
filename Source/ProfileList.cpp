@@ -60,7 +60,7 @@ juce::String ProfileList::getNameForRow (int rowNumber)
         return juce::String();
     if (rowNumber < 0 || rowNumber >= dataSource->getProfileNames().size())
     {
-        return "OUT OF BOUNDS";
+        return "";
     }
     if (isAddingProfile && rowNumber == dataSource->getProfileNames().size())
     {
@@ -133,6 +133,12 @@ void ProfileList::backgroundClicked (const juce::MouseEvent& event)
 
 void ProfileList::profileRowClicked (int row)
 {
+    // Don't do anything if we click on the adding profile row
+    if (row == dataSource->getProfileNames().size() && isAddingProfile)
+    {
+        return;
+    }
+
     if (listener != nullptr)
         listener->selectedRow (row);
     selectedRowNumber = row;

@@ -40,7 +40,8 @@ ProfileRow::ProfileRow (int rowNumber)
     renameEditor.setColour (juce::TextEditor::focusedOutlineColourId, juce::Colours::white.withAlpha (0.0f));
     renameEditor.setColour (juce::Label::outlineWhenEditingColourId, juce::Colours::white.withAlpha (0.0f));
     renameEditor.setColour (juce::TextEditor::shadowColourId, juce::Colours::white.withAlpha (0.0f));
-    renameEditor.setColour (juce::TextEditor::highlightColourId, juce::Colours::white.withAlpha (0.0f));
+    renameEditor.setTextToShowWhenEmpty ("Profile name...", juce::Colours::grey);
+    renameEditor.setSelectAllWhenFocused (true);
 
     renameEditor.setInterceptsMouseClicks (false, false);
     renameEditor.setMultiLine (false);
@@ -90,7 +91,7 @@ void ProfileRow::setProfileName (const juce::String& profileName)
 {
     this->profileName = profileName;
     profileNameLabel.setText (profileName, juce::dontSendNotification);
-//    std::cout << "profile name set: " << profileName << ", row: " << rowNumber << std::endl;
+    renameEditor.setText (profileName);
 }
 
 void ProfileRow::setIsSelected (bool isSelected)
@@ -109,8 +110,6 @@ void ProfileRow::setIsEditing (bool isEditing)
 {
     this->isEditing = isEditing;
     renameEditor.setVisible (isEditing);
-    renameEditor.setText ("");
-    renameEditor.setTextToShowWhenEmpty ("Rename...", juce::Colours::grey);
     profileNameLabel.setVisible (! isEditing);
     renameEditor.setWantsKeyboardFocus (isEditing);
     if (isEditing)
