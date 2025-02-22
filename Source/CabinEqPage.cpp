@@ -50,7 +50,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (contactUsBanner);
     
     addAndMakeVisible (amplGraph.get());
-//    addAndMakeVisible (profileDropdown);
     addAndMakeVisible (profileView);
     addAndMakeVisible (addProfileButton);
     addAndMakeVisible (duplicateProfileButton);
@@ -171,94 +170,6 @@ void CabinEqPage::textEditorFocusLost (juce::TextEditor& textEditor)
     dismissAlertWindow();
 }
 
-void CabinEqPage::comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged)
-{
-    /*
-    if (comboBoxThatHasChanged == &profileDropdown)
-    {
-        // Lazy flag so weird stuff doesn't happen when adding the very first profile
-        if (addingFirstProfile)
-        {
-            addingFirstProfile = false;
-            return;
-        }
-        
-        
-        // Add a profile if you select "+ Add Profile"
-        if (profileDropdown.getSelectedId() == profileDropdown.getNumItems())
-        {
-            addProfile();
-//            // Create and present an alert for the user to enter the profile name into
-//            alertWindow = std::make_unique<juce::AlertWindow> ("Add Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
-//            creatingDuplicate = false;
-//            
-//            alertWindow->addTextEditor (textEditorName, "");
-//            alertWindow->getTextEditor (textEditorName)->addListener (this);
-//            alertWindow->setEscapeKeyCancels (true);
-//            
-//            alertWindow->enterModalState();
-//            
-//            profileDropdown.setSelectedId (lastSelectedId);
-        }
-        
-        // Duplicate a profile if you select "Duplicate [profilename]"
-       // else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems() - 1)
-       // {
-//            duplicateProfile();
-//            // Present option to add duplicate profile, and opportunity to name it
-//            // Create a present an alert for the user to enter the profile name into
-//            alertWindow = std::make_unique<juce::AlertWindow> ("Create Duplicate Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
-//            creatingDuplicate = true;
-//            
-//            // Create copy name
-//            auto copyName = profileId + " copy";
-//            
-//            while (isDuplicateProfileName (copyName))
-//            {
-//                copyName += " copy";
-//            }
-//            
-//            alertWindow->addTextEditor (textEditorName, copyName);
-//            alertWindow->getTextEditor (textEditorName)->addListener (this);
-//            alertWindow->setEscapeKeyCancels (true);
-//            
-//            alertWindow->enterModalState();
-//            
-//            profileDropdown.setSelectedId (lastSelectedId);
-       // }
-        
-        // Rename a profile if you select "Rename [profileName]"
-       // else if (profileDropdown.getSelectedId() == profileDropdown.getNumItems())
-       // {
-//            renameProfile();
-//            // Create and present alert to rename profile
-//            alertWindow = std::make_unique<juce::AlertWindow> ("Rename Profile", "Enter your profile name", juce::MessageBoxIconType::NoIcon);
-//            renamingProfile = true;
-//            
-//            alertWindow->addTextEditor (textEditorName, profileId);
-//            alertWindow->getTextEditor (textEditorName)->addListener (this);
-//            alertWindow->setEscapeKeyCancels (true);
-//            
-//            alertWindow->enterModalState();
-//            
-//            profileDropdown.setSelectedId (lastSelectedId);
-//        }
-        
-         
-        // Go to a profile if you select the profile
-        else if (profileDropdown.getSelectedId() != lastSelectedId && profileDropdown.getSelectedId() > 0)
-        {
-            int selectedIndex = profileDropdown.indexOfItemId (profileDropdown.getSelectedId());
-            juce::String profileIdSelected = profileDropdown.getItemText (selectedIndex);
-            goToProfileWithId (profileIdSelected);
-            // loadDropdownOptions();
-        }
-        
-        lastSelectedId = profileDropdown.getSelectedId();
-    }
-     */
-}
-
 void CabinEqPage::inputAttemptWhenModal()
 {
     dismissAlertWindow();
@@ -284,31 +195,26 @@ void CabinEqPage::showActivateLicenseForm()
 void CabinEqPage::addProfile (juce::String profileName)
 {
     processor.addProfile (profileName);
-    // loadDropdownOptions();
 }
 
 void CabinEqPage::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
 {
     processor.addDuplicateProfile (profileName, oldProfileName);
-    // loadDropdownOptions();
 }
 
 void CabinEqPage::renameProfile (juce::String profileName, juce::String newProfileName)
 {
     processor.renameProfile (profileName, newProfileName);
-    // loadDropdownOptions();
 }
 
 void CabinEqPage::deleteProfile (juce::String profileName)
 {
-    // processor.deleteProfile (profileName);
-    // loadDropdownOptions();
+    processor.removeProfile (profileName);
 }
 
 void CabinEqPage::selectProfile (juce::String profileName)
 {
     goToProfileWithId (profileName);
-    // loadDropdownOptions();
 }
 
 void CabinEqPage::didLoadData()
@@ -319,7 +225,6 @@ void CabinEqPage::didLoadData()
     if (lastSelectedProfileName.has_value())
     {
         goToProfileWithId (lastSelectedProfileName.value());
-        // loadDropdownOptions();
     }
     
     // If there are no profiles, add one
@@ -352,31 +257,6 @@ void CabinEqPage::toggleBypass()
     processor.setIsFilterOn (! isBypassed);
     updateButtonText();
 }
-
-// void CabinEqPage::loadDropdownOptions()
-// {
-//     profileDropdown.clear();
-    
-//     // Add existing profiles to dropdown menu
-//     int i = 1;
-//     for (const auto& name : processor.getProfileNames())
-//     {
-//         profileDropdown.addItem (name, i);
-//         i++;
-//     }
-    
-//     if (profileDropdown.getNumItems() > 0)
-//     {
-//         profileDropdown.addSeparator();
-//         profileDropdown.setText (profileId);
-//     }
-    
-//     profileDropdown.addItem ("+ Add Profile", i);
-// //    profileDropdown.addItem ("[] Duplicate \"" + profileId + "\"", i + 1);
-// //    profileDropdown.addItem ("* Rename \"" + profileId + "\"", i + 2);
-    
-//     profileDropdown.setItemEnabled (i + 1, ! processor.isProfileLocked());
-// }
 
 void CabinEqPage::dismissAlertWindow()
 {
@@ -416,7 +296,6 @@ void CabinEqPage::unlockApp()
 
     freeTrialBanner.setVisible (false);
     freeTrialLockScreen.setVisible (false);
-//    contactUsBanner.setVisible (true);
     resized();
 }
 
@@ -429,7 +308,6 @@ void CabinEqPage::lockApp()
     
     freeTrialBanner.setVisible (true);
     freeTrialLockScreen.setVisible (true);
-//    contactUsBanner.setVisible (false);
     resized();
 }
 

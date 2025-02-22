@@ -25,7 +25,6 @@
 #include "ProfileView.h"
 
 class CabinEqPage   : public BuildableComponent,
-                      public juce::ComboBox::Listener,
                       public juce::TextEditor::Listener,
                       public CabinEqAudioProcessor::Listener,
                       public ProfileViewListener,
@@ -44,7 +43,6 @@ public:
     void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorEscapeKeyPressed (juce::TextEditor& textEditor) override;
     void textEditorFocusLost (juce::TextEditor& textEditor) override;
-    void comboBoxChanged (juce::ComboBox *comboBoxThatHasChanged) override;
     void inputAttemptWhenModal() override;
     
     void freeTrialDidReset() override;
