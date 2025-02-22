@@ -23,6 +23,9 @@ ProfileList::ProfileList()
             listener->duplicateProfile (selectedRowNumber);
     });
     optionsMenu->addItem ("Rename", [this] {
+        juce::Component* renamedRow = listBox.getComponentForRowNumber (selectedRowNumber);
+        if (renamedRow != nullptr)
+            dynamic_cast<ProfileRow*>(renamedRow)->setIsEditing (true);
         // if (listener != nullptr)
         //     listener->renameProfile (selectedRowNumber, juce::String());
     });
@@ -134,6 +137,12 @@ void ProfileList::setDataSource (ProfileListDataSource* dataSource)
 {
     this->dataSource = dataSource;
     updateContent();
+}
+
+void ProfileList::profileRowRenamed (int row, juce::String newProfileName)
+{
+    if (listener != nullptr)
+        listener->renameProfile (row, newProfileName);
 }
 
 void ProfileList::updateContent()

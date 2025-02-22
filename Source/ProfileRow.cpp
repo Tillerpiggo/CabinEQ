@@ -29,6 +29,14 @@ ProfileRow::ProfileRow (int rowNumber)
 //            listener->profileRowClicked (rowNumber);
         }
     };
+
+    addAndMakeVisible (renameEditor);
+    renameEditor.setFont (juce::Font (16.0f, juce::Font::bold));
+    renameEditor.setJustification (juce::Justification::left);
+    renameEditor.setColour (juce::Label::textColourId, juce::Colours::white);
+    renameEditor.setInterceptsMouseClicks (false, false);
+    renameEditor.setMultiLine (false);
+    renameEditor.setVisible (false);
 }
 
 void ProfileRow::paint (juce::Graphics& g)
@@ -86,9 +94,29 @@ void ProfileRow::setIsHovering (bool isHovering)
     repaint();
 }
 
+void ProfileRow::setIsEditing (bool isEditing)
+{
+    this->isEditing = isEditing;
+    renameEditor.setVisible (isEditing);
+    profileNameLabel.setVisible (! isEditing);
+    renameEditor.grabKeyboardFocus();
+    repaint();
+}
+
 void ProfileRow::setRowNumber (int rowNumber)
 {
     this->rowNumber = rowNumber;
+}
+
+void ProfileRow::textEditorReturnKeyPressed (juce::TextEditor& editor)
+{
+    if (listener != nullptr)
+        listener->profileRowRenamed (rowNumber, editor.getText());
+}
+
+void ProfileRow::textEditorEscapeKeyPressed (juce::TextEditor& editor)
+{
+    setIsEditing (false);
 }
 
 void ProfileRow::setListener (ProfileRowListener* listener)
