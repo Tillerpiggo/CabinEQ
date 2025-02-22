@@ -71,8 +71,14 @@ void ProfileList::setListener (ProfileListListener* listener)
 void ProfileList::setDataSource (ProfileListDataSource* dataSource)
 {
     this->dataSource = dataSource;
+    updateContent();
+}
+
+void ProfileList::updateContent()
+{
     listBox.updateContent();
 }
+
 
 
 

@@ -52,6 +52,7 @@ void ProfileView::setListener (ProfileViewListener* listener)
 void ProfileView::setDataSource (ProfileViewDataSource* dataSource)
 {
     this->dataSource = dataSource;
+    profileList.updateContent();
 }
 
 void ProfileView::selectedRow (int rowIdx)
