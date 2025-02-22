@@ -14,6 +14,7 @@
 #include "Listeners.h"
 #include "BuildableComponent.h"
 #include "Layout.h"
+#include "ProfileList.h"
 
 // This class hosts a profileList and allows users to also add profiles to the list
 class ProfileView  : public BuildableComponent,

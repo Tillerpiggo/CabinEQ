@@ -56,8 +56,8 @@ void ProfileView::setDataSource (ProfileViewDataSource* dataSource)
 
 void ProfileView::selectedRow (int rowIdx)
 {
-    if (listener != nullptr)
-        listener->selectedRow (rowIdx);
+//    if (listener != nullptr)
+//        listener->selectedRow (rowIdx);
 }
 
 void ProfileView::duplicateProfile (int rowIdx)
