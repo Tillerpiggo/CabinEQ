@@ -50,10 +50,14 @@ public:
     void setIsAddingProfile (bool isAddingProfile);
 
 private:
+    void showAlertWindow();
+    void dismissAlertWindow();
+
     ProfileListListener* listener = nullptr;
     ProfileListDataSource* dataSource = nullptr;
 
     std::unique_ptr<juce::PopupMenu> optionsMenu;
+    std::unique_ptr<juce::AlertWindow> alertWindow;
 
     juce::ListBox listBox;
 

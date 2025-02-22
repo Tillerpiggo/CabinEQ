@@ -28,11 +28,7 @@ ProfileList::ProfileList()
         updateContent();
     });
     optionsMenu->addSeparator();
-    optionsMenu->addItem ("Delete", [this] {
-        if (listener != nullptr)
-            listener->deleteProfile (optionsMenuRow);
-        optionsMenuRow = -1;
-    });
+    optionsMenu->addColouredItem (3, "Delete", juce::Colours::red); // handle on return
 }
 
 void ProfileList::paint (juce::Graphics& g)
@@ -158,7 +154,12 @@ void ProfileList::profileRowOptionsClicked (int row)
 
     optionsMenuRow = row; // must be before - showAt del
     editingRowNumber = -1;
-    optionsMenu->showAt (listBox.getComponentForRowNumber (row));
+    int selectedItem = optionsMenu->showAt (listBox.getComponentForRowNumber (row));
+    if (selectedItem == 3)
+    {
+        showAlertWindow();
+    }
+
     isAddingProfile = false;
 }
 
@@ -218,3 +219,33 @@ void ProfileList::scrollToBottom()
 {
     listBox.scrollToEnsureRowIsOnscreen (getNumRows() - 1);
 }
+
+void ProfileList::showAlertWindow()
+{
+    alertWindow = std::make_unique<juce::AlertWindow> ("Delete Profile", "Are you sure you want to delete this profile?", juce::MessageBoxIconType::NoIcon);
+    alertWindow->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
+    alertWindow->addButton ("Delete", 1, juce::KeyPress (juce::KeyPress::returnKey));
+    alertWindow->setEscapeKeyCancels (true);
+
+    alertWindow->getButton (0)->onClick = [this] {
+        dismissAlertWindow();
+    };
+    alertWindow->getButton (1)->onClick = [this] {
+        if (listener != nullptr)
+        {
+            listener->deleteProfile (optionsMenuRow);
+            dismissAlertWindow();
+            updateContent();
+        }
+    };
+
+    alertWindow->enterModalState();
+}
+
+void ProfileList::dismissAlertWindow()
+{
+    alertWindow.reset();
+}
+
+
+
