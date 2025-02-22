@@ -28,11 +28,12 @@ public:
 
     void setProfileName (const juce::String& profileName);
     void setIsSelected (bool isSelected);
+    void setIsHovering (bool isHovering);
 
 private:
     juce::Label profileNameLabel;
     juce::ImageButton ellipsisButton;
 
-    bool isHovering = false;
     bool isSelected = false;
+    bool isHovering = false;
 };

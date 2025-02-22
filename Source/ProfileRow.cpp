@@ -18,6 +18,7 @@ ProfileRow::ProfileRow()
     profileNameLabel.setFont (juce::Font (16.0f, juce::Font::bold));
     profileNameLabel.setJustificationType (juce::Justification::left);
     profileNameLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    profileNameLabel.setInterceptsMouseClicks (false, false);
 }
 
 void ProfileRow::paint (juce::Graphics& g)
@@ -57,5 +58,11 @@ void ProfileRow::setProfileName (const juce::String& profileName)
 void ProfileRow::setIsSelected (bool isSelected)
 {
     this->isSelected = isSelected;
+    repaint();
+}
+
+void ProfileRow::setIsHovering (bool isHovering)
+{
+    this->isHovering = isHovering;
     repaint();
 }

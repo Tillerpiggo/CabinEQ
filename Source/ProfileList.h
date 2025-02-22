@@ -31,6 +31,9 @@ public:
     void selectedRowsChanged (int lastRowSelected) override;
     juce::Component* refreshComponentForRow (int rowNumber, bool isRowSelected, juce::Component* existingComponentToUpdate) override;
 
+    // Mouse listener methods
+    void mouseMove (const juce::MouseEvent& event) override;
+
     void updateContent(); // triggers an update of the list box content
 
     void setListener (ProfileListListener* listener);
@@ -41,6 +44,8 @@ private:
     ProfileListDataSource* dataSource = nullptr;
 
     juce::ListBox listBox;
+
+    int selectedRowNumber = -1;
 };
     
     

@@ -15,6 +15,7 @@ ProfileList::ProfileList()
     addAndMakeVisible (listBox);
     listBox.setModel (this);
     listBox.setRowHeight (40);
+    listBox.addMouseListener (this, true);
 }
 
 void ProfileList::paint (juce::Graphics& g)
@@ -43,7 +44,7 @@ juce::String ProfileList::getNameForRow (int rowNumber)
 
 void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
 {
-    g.fillAll (juce::Colours::black);
+    g.fillAll (juce::Colours::lightblue);
     g.setColour (juce::Colours::white);
     g.drawText (getNameForRow (rowNumber), 0, 0, width, height, juce::Justification::centred);
 }
@@ -78,9 +79,16 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
         }
     }
     
-   row->setProfileName (getNameForRow (rowNumber));
+    row->setProfileName (getNameForRow (rowNumber));
     row->setIsSelected (isRowSelected);
     return row;
+}
+
+void ProfileList::mouseMove (const juce::MouseEvent& event)
+{
+    selectedRowNumber = listBox.getRowContainingPosition (event.position.x, event.position.y);
+    std::cout << "mouse move to position: " << event.position.x << ", " << event.position.y << std::endl;
+//    std::cout << "mouse move, " << selectedRowNumber << std::endl;
 }
 
 void ProfileList::setListener (ProfileListListener* listener)
