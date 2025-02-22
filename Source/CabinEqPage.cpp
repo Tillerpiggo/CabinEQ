@@ -51,7 +51,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     addAndMakeVisible (amplGraph.get());
 //    addAndMakeVisible (profileDropdown);
-//    addAndMakeVisible (profileView);
+    addAndMakeVisible (profileView);
     addAndMakeVisible (addProfileButton);
     addAndMakeVisible (duplicateProfileButton);
     addAndMakeVisible (renameProfileButton);
@@ -75,13 +75,12 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     startTimer (100);
 
     contactUsBanner.setListener (&processor);
-//    profileView.setListener (this);
-//    profileView.setDataSource (&processor);
+    profileView.setListener (this);
+    profileView.setDataSource (&processor);
     
     // loadDropdownOptions();
     
     bypassButton.setColour (juce::TextButton::buttonColourId, juce::Colours::blueviolet);
-    std::cout << "cabineqpage loaded"
 }
 
 CabinEqPage::~CabinEqPage()
@@ -111,9 +110,9 @@ void CabinEqPage::resized()
 {
     float profileViewWidth = 240.0f;
 
-//    Layout profileViewLayout (getBounds().withTrimmedRight (getWidth() - profileViewWidth), 0.0f);
-//    profileViewLayout.addRow ({ Space(&profileView) });
-//    profileViewLayout.updateComponentBounds();
+    Layout profileViewLayout (getBounds().withTrimmedRight (getWidth() - profileViewWidth), 0.0f);
+    profileViewLayout.addRow ({ Space(&profileView) });
+    profileViewLayout.updateComponentBounds();
     
     Layout layout (getBounds().withTrimmedLeft (profileViewWidth), 0.0f);
     if (! processor.getHasLicense())

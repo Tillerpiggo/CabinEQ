@@ -112,7 +112,7 @@ protected:
     juce::TextButton duplicateProfileButton { "Duplicate" };
     juce::TextButton renameProfileButton { "Rename" };
 
-//    ProfileView profileView;
+    ProfileView profileView;
     
     std::unique_ptr<juce::AlertWindow> alertWindow;
     
