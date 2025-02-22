@@ -37,9 +37,11 @@ int ProfileList::getNumRows()
 
 juce::String ProfileList::getNameForRow (int rowNumber)
 {
-   if (dataSource == nullptr)
-       return juce::String();
-   return "Test name";//dataSource->getProfileNames()[rowNumber];
+    if (dataSource == nullptr)
+        return juce::String();
+    if (rowNumber < 0 || rowNumber >= dataSource->getProfileNames().size())
+        return "OUT OF BOUNDS";
+    return dataSource->getProfileNames()[rowNumber];
 }
 
 void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
