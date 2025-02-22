@@ -54,6 +54,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileDropdown);
+    // addAndMakeVisible (profileView);
     addAndMakeVisible (addProfileButton);
     addAndMakeVisible (duplicateProfileButton);
     addAndMakeVisible (renameProfileButton);
@@ -107,14 +108,19 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
+    float profileViewWidth = 180.0f;
     float audioPlayerWidth = 120.0f;
     float sidebarWidth = 120.0f;
     
 //    Layout audioPlayerLayout (getBounds().withTrimmedRight (getWidth() - audioPlayerWidth), 0.0f);
 //    audioPlayerLayout.addRow ({ Space (&audioPlayerComponent) });
 //    audioPlayerLayout.updateComponentBounds();
+
+    // Layout profileViewLayout (getBounds().withTrimmedRight (getWidth() - profileViewWidth), 0.0f);
+    // profileViewLayout.addRow ({ Space(&profileView) });
+    // profileViewLayout.updateComponentBounds();
     
-    Layout layout (getBounds(), 0.0f);
+    Layout layout (getBounds().withTrimmedRight (getWidth() - profileViewWidth), 0.0f);
     if (! processor.getHasLicense())
     {
         layout.addRow ({ Space (&freeTrialBanner) }, 40);

@@ -524,6 +524,8 @@ int CabinEqAudioProcessor::getSelectedRow()
     return checkerboardManager.getSelectedRow();
 }
 
+//void CabinEqAudioProcessor::addProfile()
+
 void CabinEqAudioProcessor::saveData()
 {
     juce::StandalonePluginHolder::getInstance()->savePluginState();

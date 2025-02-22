@@ -79,9 +79,9 @@ class ProfileViewListener
 public:
     virtual ~ProfileViewListener() = default;
     
-    virtual void addProfile() = 0;
-    virtual void duplicateProfile (int rowIdx) = 0;
-    virtual void renameProfile (int rowIdx) = 0;
+    virtual void addProfile (juce::String profileName) = 0;
+    virtual void duplicateProfile (int rowIdx, juce::String profileName) = 0;
+    virtual void renameProfile (int rowIdx, juce::String profileName) = 0;
     virtual void deleteProfile (int rowIdx) = 0;
 };
 
@@ -90,7 +90,7 @@ class ProfileViewDataSource
 public:
     virtual ~ProfileViewDataSource() = default;
     
-    virtual std::vector<BandProfile> getProfiles() = 0;
+    virtual std::vector<juce::String> getProfileNames() = 0;
     virtual bool getIsProfileLocked (int rowIdx) = 0;
 };
 
@@ -110,7 +110,7 @@ class ProfileListDataSource
 public:
     virtual ~ProfileListDataSource() = default;
     
-    virtual std::vector<BandProfile> getProfiles() = 0;
+    virtual std::vector<juce::String> getProfileNames() = 0;
     virtual bool getIsProfileLocked (int rowIdx) = 0;
 };
 

@@ -154,6 +154,14 @@ public:
     int getNumCheckerboards() override;
     std::string getNameAtIdx (int idx) override;
     int getSelectedRow() override;
+
+    // ProfileViewListener + ProfileViewDataSource
+//    void addProfile() override;
+//    void duplicateProfile (int rowIdx) override;
+//    void renameProfile (int rowIdx) override;
+//    void deleteProfile (int rowIdx) override;
+//    std::vector<BandProfile> getProfiles() override;
+//    bool getIsProfileLocked (int rowIdx) override;
     
     // StandalonePlugin/AudioDeviceManager methods
     void saveData();

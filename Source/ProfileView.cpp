@@ -12,7 +12,7 @@
 
 ProfileView::ProfileView()
 {
-    addAndMakeVisible (profileList);
+//    addAndMakeVisible (profileList);
     addAndMakeVisible (addProfileButton);
     addAndMakeVisible (titleLabel);
 
@@ -22,12 +22,13 @@ ProfileView::ProfileView()
 
     addProfileButton.setButtonText ("Add Profile");
     addProfileButton.onClick = [this] {
-        if (listener != nullptr)
-            listener->addProfile();
+        // TODO: add profile
+        // if (listener != nullptr)
+        //     listener->addProfile();
     };
 
-    profileList.setListener (this);
-    profileList.setDataSource (this);
+//    profileList.setListener (this);
+//    profileList.setDataSource (this);
 }
 
 void ProfileView::paint (juce::Graphics& g)
@@ -40,7 +41,7 @@ void ProfileView::resized()
     Layout layout (getBounds().withX (0).withY (0), 8.0f);
     layout.addRow ({ Space(&titleLabel) }, 20.0f);
     layout.addRow ({ Space(&addProfileButton) }, 40.0f);
-    layout.addRow ({ Space(&profileList) });
+//    layout.addRow ({ Space(&profileList) });
     layout.updateComponentBounds();
 }
 
@@ -56,32 +57,32 @@ void ProfileView::setDataSource (ProfileViewDataSource* dataSource)
 
 void ProfileView::selectedRow (int rowIdx)
 {
-    if (listener != nullptr)
-        listener->selectedRow (rowIdx);
+//    if (listener != nullptr)
+//        listener->selectedRow (rowIdx);
 }
 
 void ProfileView::duplicateProfile (int rowIdx)
 {
-    if (listener != nullptr)
-        listener->duplicateProfile (rowIdx);
+//    if (listener != nullptr)
+//        listener->duplicateProfile (rowIdx);
 }
 
 void ProfileView::renameProfile (int rowIdx)
 {
-    if (listener != nullptr)
-        listener->renameProfile (rowIdx);
+//    if (listener != nullptr)
+//        listener->renameProfile (rowIdx);
 }
 
 void ProfileView::deleteProfile (int rowIdx)
 {
-    if (listener != nullptr)
-        listener->deleteProfile (rowIdx);
+//    if (listener != nullptr)
+//        listener->deleteProfile (rowIdx);
 }
 
-std::vector<BandProfile> ProfileView::getProfiles()
+std::vector<juce::String> ProfileView::getProfileNames()
 {
     if (dataSource != nullptr)
-        return dataSource->getProfiles();
+        return dataSource->getProfileNames();
     return {};
 }
 

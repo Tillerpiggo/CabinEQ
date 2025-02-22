@@ -28,14 +28,14 @@ void ProfileList::resized()
 
 int ProfileList::getNumRows()
 {
-    return dataSource->getProfiles().size();
+    return dataSource->getProfileNames().size();
 }
 
 juce::String ProfileList::getNameForRow (int rowNumber)
 {
     if (dataSource == nullptr)
         return juce::String();
-    return dataSource->getProfiles()[rowNumber].getName();
+    return dataSource->getProfileNames()[rowNumber];
 }
 
 void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
