@@ -12,11 +12,9 @@
 
 ProfileList::ProfileList()
 {
-    std::cout << "ProfileList constructor start" << std::endl;
     addAndMakeVisible (listBox);
-    std::cout << "listBox added" << std::endl;
     listBox.setModel (this);
-    std::cout << "ProfileList constructor end" << std::endl;
+    listBox.setRowHeight (40);
 }
 
 void ProfileList::paint (juce::Graphics& g)
@@ -48,7 +46,6 @@ void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width,
     g.fillAll (juce::Colours::black);
     g.setColour (juce::Colours::white);
     g.drawText (getNameForRow (rowNumber), 0, 0, width, height, juce::Justification::centred);
-    std::cout <<  "Painting list box item " << rowNumber << std::endl;
 }
 
 void ProfileList::listBoxItemClicked (int row, const juce::MouseEvent& event)
