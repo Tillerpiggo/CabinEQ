@@ -27,9 +27,8 @@ ProfileList::ProfileList()
 //        if (listener != nullptr)
 //            listener->renameProfile (optionsMenuRow, juce::String());
         std::cout << "options menu row: " << optionsMenuRow << std::endl;
-        juce::Component* renamingRow = listBox.getComponentForRowNumber (optionsMenuRow);
-        if (renamingRow != nullptr)
-            dynamic_cast<ProfileRow*>(renamingRow)->setIsEditing (true);
+        editingRowNumber = optionsMenuRow;
+        updateContent();
     });
     optionsMenu->addSeparator();
     optionsMenu->addItem ("Delete", [this] {
@@ -111,6 +110,7 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
     
     row->setProfileName (getNameForRow (rowNumber));
     row->setIsSelected (rowNumber == selectedRowNumber);
+    row->setIsEditing (rowNumber == editingRowNumber);
     row->setRowNumber (rowNumber);
 //    std::cout << "name: " << getNameForRow (rowNumber) << ", rowNumber: " << rowNumber << ", selected: " << (rowNumber == selectedRowNumber) << std::endl;
     return row;
@@ -122,13 +122,14 @@ void ProfileList::profileRowClicked (int row)
         listener->selectedRow (row);
     this->selectedRowNumber = row;
     listBox.updateContent();
+    optionsMenuRow = -1;
+    editingRowNumber = -1;
 }
 
 void ProfileList::profileRowOptionsClicked (int row)
 {
     optionsMenuRow = row; // must be before - showAt del
     optionsMenu->showAt (listBox.getComponentForRowNumber (row));
-    std::cout << "showing options menu: " << row << std::endl;
 }
 
 void ProfileList::setListener (ProfileListListener* listener)
@@ -144,9 +145,9 @@ void ProfileList::setDataSource (ProfileListDataSource* dataSource)
 
 void ProfileList::profileRowRenamed (int row, juce::String newProfileName)
 {
-    std::cout << "profile row renamed" << std::endl;
     if (listener != nullptr)
         listener->renameProfile (row, newProfileName);
+    editingRowNumber = -1;
 }
 
 void ProfileList::updateContent()
@@ -158,18 +159,3 @@ void ProfileList::scrollToBottom()
 {
     listBox.scrollToEnsureRowIsOnscreen (getNumRows() - 1);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -54,6 +54,7 @@ private:
 
     int selectedRowNumber = -1;
     int optionsMenuRow = -1;
+    int editingRowNumber = -1;
 };
     
     

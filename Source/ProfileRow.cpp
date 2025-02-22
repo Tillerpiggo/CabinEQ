@@ -103,8 +103,8 @@ void ProfileRow::setIsEditing (bool isEditing)
     renameEditor.setVisible (isEditing);
     renameEditor.setText ("rename...");
     profileNameLabel.setVisible (! isEditing);
-    renameEditor.grabKeyboardFocus();
     repaint();
+    renameEditor.grabKeyboardFocus();
     std::cout << "set is editing: " << isEditing << std::endl;
 }
 
@@ -117,7 +117,10 @@ void ProfileRow::textEditorReturnKeyPressed (juce::TextEditor& editor)
 {
     std::cout << "textEditorReturnKeyPressed" << std::endl;
     if (listener != nullptr && editor.getText().isNotEmpty())
+    {
         listener->profileRowRenamed (rowNumber, editor.getText());
+        setIsEditing (false);
+    }
 }
 
 void ProfileRow::textEditorEscapeKeyPressed (juce::TextEditor& editor)
