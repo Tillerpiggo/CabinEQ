@@ -51,6 +51,9 @@ void ProfileRow::paint (juce::Graphics& g)
         g.fillAll (juce::Colours::darkgrey);
     else
         g.fillAll (juce::Colours::black);
+
+    if (isEditing)
+        renameEditor.grabKeyboardFocus();
 }
 
 void ProfileRow::resized()
