@@ -75,6 +75,8 @@
           <FILE id="ZVJieY" name="BuildableComponent.h" compile="0" resource="0"
                 file="Source/BuildableComponent.h"/>
         </GROUP>
+        <FILE id="nowByd" name="ProfileView.cpp" compile="1" resource="0" file="Source/ProfileView.cpp"/>
+        <FILE id="lBKBF0" name="ProfileView.h" compile="0" resource="0" file="Source/ProfileView.h"/>
         <FILE id="W90tjd" name="ProfileList.cpp" compile="1" resource="0" file="Source/ProfileList.cpp"/>
         <FILE id="DkNEsi" name="ProfileList.h" compile="0" resource="0" file="Source/ProfileList.h"/>
         <FILE id="vGo9Jr" name="MusicList2.cpp" compile="1" resource="0" file="Source/MusicList2.cpp"/>

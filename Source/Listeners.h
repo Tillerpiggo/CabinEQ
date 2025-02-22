@@ -74,6 +74,26 @@ public:
     virtual void selectedRow (int rowIdx) = 0;
 };
 
+class ProfileViewListener
+{
+public:
+    virtual ~ProfileViewListener() = default;
+    
+    virtual void addProfile() = 0;
+    virtual void duplicateProfile (int rowIdx) = 0;
+    virtual void renameProfile (int rowIdx) = 0;
+    virtual void deleteProfile (int rowIdx) = 0;
+};
+
+class ProfileViewDataSource
+{
+public:
+    virtual ~ProfileViewDataSource() = default;
+    
+    virtual std::vector<BandProfile> getProfiles() = 0;
+    virtual bool getIsProfileLocked (int rowIdx) = 0;
+};
+
 class ProfileListListener
 {
 public:

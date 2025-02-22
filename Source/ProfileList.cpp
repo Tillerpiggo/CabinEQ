@@ -13,6 +13,7 @@
 ProfileList::ProfileList()
 {
     addAndMakeVisible (listBox);
+    listBox.setModel (this);
 }
 
 void ProfileList::paint (juce::Graphics& g)
