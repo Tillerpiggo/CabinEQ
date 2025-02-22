@@ -33,7 +33,7 @@ int ProfileList::getNumRows()
 {
     if (dataSource == nullptr)
         return 0;
-    return dataSource->getProfileNames().size();
+    return static_cast<int> (dataSource->getProfileNames().size());
 }
 
 juce::String ProfileList::getNameForRow (int rowNumber)

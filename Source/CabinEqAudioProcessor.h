@@ -30,6 +30,8 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public CheckerboardViewDataSource,
                                public CalibrationListener,
                                public ContactUsBannerListener,
+                            //    public ProfileViewListener,
+                                public ProfileViewDataSource,
                                public juce::Timer
 {
 public:
@@ -122,7 +124,6 @@ public:
     void renameProfile (juce::String profileName, juce::String newProfileName);
     void setProfileVolume (float masterVolume) override;
     bool isProfileLocked();
-    const std::vector<juce::String> getProfileNames() const;
     std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
     BandProfile getBandProfile() override;
     
@@ -154,6 +155,14 @@ public:
     int getNumCheckerboards() override;
     std::string getNameAtIdx (int idx) override;
     int getSelectedRow() override;
+
+    // ProfileViewListener + ProfileViewDataSource
+    // void addProfile() override;
+    // void duplicateProfile (int rowIdx) override;
+    // void renameProfile (int rowIdx) override;
+    // void deleteProfile (int rowIdx) override;
+    std::vector<juce::String> getProfileNames() override;
+    bool getIsProfileLocked (int rowIdx) override;
     
     // StandalonePlugin/AudioDeviceManager methods
     void saveData();

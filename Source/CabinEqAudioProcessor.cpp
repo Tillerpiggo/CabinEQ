@@ -376,11 +376,6 @@ bool CabinEqAudioProcessor::isProfileLocked()
     return ! getHasLicense();
 }
 
-const std::vector<juce::String> CabinEqAudioProcessor::getProfileNames() const
-{
-    return cabinEqProfileManager.getProfileNames();
-}
-
 std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::getProfileNamed (juce::String profileName) const
 {
     return cabinEqProfileManager.getProfileNamed (profileName);
@@ -523,6 +518,17 @@ int CabinEqAudioProcessor::getSelectedRow()
 {
     return checkerboardManager.getSelectedRow();
 }
+
+std::vector<juce::String> CabinEqAudioProcessor::getProfileNames()
+{
+    return cabinEqProfileManager.getProfileNames();
+}
+
+bool CabinEqAudioProcessor::getIsProfileLocked (int rowIdx)
+{
+    return false; // for now
+}
+
 
 void CabinEqAudioProcessor::saveData()
 {

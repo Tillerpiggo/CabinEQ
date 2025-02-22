@@ -18,9 +18,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 
     amplGraph = std::make_unique<CabinPeqGraph>();
     
-    // Sliders
-//    addVerticalSlider (&masterVolumeSlider, -20.0f, 20.0f, 0.0f);
-    
     // Buttons
     addButton (&bypassButton);
     
@@ -76,7 +73,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     didLoadData();
     startTimer (100);
+
     contactUsBanner.setListener (&processor);
+    profileView.setDataSource (&processor);
     
     loadDropdownOptions();
     
