@@ -12,7 +12,7 @@
 
 ProfileView::ProfileView()
 {
-    // addAndMakeVisible (profileList);
+    addAndMakeVisible (profileList);
     addAndMakeVisible (addProfileButton);
     addAndMakeVisible (titleLabel);
 

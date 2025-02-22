@@ -45,7 +45,10 @@ juce::String ProfileList::getNameForRow (int rowNumber)
 
 void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
 {
-    g.fillAll (juce::Colours::blue);
+    g.fillAll (juce::Colours::black);
+    g.setColour (juce::Colours::white);
+    g.drawText (getNameForRow (rowNumber), 0, 0, width, height, juce::Justification::centred);
+    std::cout <<  "Painting list box item " << rowNumber << std::endl;
 }
 
 void ProfileList::listBoxItemClicked (int row, const juce::MouseEvent& event)
@@ -68,6 +71,7 @@ void ProfileList::setListener (ProfileListListener* listener)
 void ProfileList::setDataSource (ProfileListDataSource* dataSource)
 {
     this->dataSource = dataSource;
+    listBox.updateContent();
 }
 
 
