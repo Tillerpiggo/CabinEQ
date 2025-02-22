@@ -172,8 +172,8 @@ private:
     // Variables for faster painting
     
     // drawLines
-    juce::Colour centerLineColour = juce::Colours::darkgrey.withMultipliedLightness (0.5f);
-    juce::Colour lineColour = juce::Colours::darkgrey.withMultipliedLightness (0.5f);//.withAlpha (0.3f);
+    juce::Colour centerLineColour = CENTER_LINE_COLOUR;
+    juce::Colour lineColour = LINE_COLOUR;
     juce::PathStrokeType lineStrokeType { CURVE_THICKNESS / 2.0f};
     
     juce::Path centerPath;
