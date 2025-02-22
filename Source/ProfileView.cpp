@@ -22,8 +22,8 @@ ProfileView::ProfileView()
 
     addProfileButton.setButtonText ("Add Profile");
     addProfileButton.onClick = [this] {
-        if (listener != nullptr)
-            listener->addedProfile();
+//        if (listener != nullptr)
+//            listener->addedProfile();
     };
 
     profileList.setListener (this);
@@ -57,26 +57,43 @@ void ProfileView::setDataSource (ProfileViewDataSource* dataSource)
 
 void ProfileView::selectedRow (int rowIdx)
 {
-   if (listener != nullptr)
-       listener->selectProfile (rowIdx);
+    if (listener == nullptr || dataSource == nullptr || dataSource->getProfileNames().size() == 0)
+        return;
+    juce::String profileName = dataSource->getProfileNames()[rowIdx];
+    listener->selectProfile (profileName);
 }
 
 void ProfileView::duplicateProfile (int rowIdx)
 {
-    if (listener != nullptr)
-        listener->duplicateProfile (rowIdx);
+    if (listener == nullptr || dataSource == nullptr || dataSource->getProfileNames().size() == 0)
+        return;
+
+    // Create the duplicate profile name
+    juce::String oldProfileName = dataSource->getProfileNames()[rowIdx];
+    juce::String duplicateProfileName = oldProfileName + " copy";
+
+    while (isDuplicateProfileName (duplicateProfileName))
+    {
+        duplicateProfileName += " copy";
+    }
+
+    listener->addDuplicateProfile (duplicateProfileName, oldProfileName);
 }
 
-void ProfileView::renameProfile (int rowIdx)
+void ProfileView::renameProfile (int rowIdx, juce::String newProfileName)
 {
-    if (listener != nullptr)
-        listener->renameProfile (rowIdx);
+    if (listener == nullptr || dataSource == nullptr || dataSource->getProfileNames().size() == 0)
+        return;
+    juce::String oldProfileName = dataSource->getProfileNames()[rowIdx];
+    listener->renameProfile (oldProfileName, newProfileName);
 }
 
 void ProfileView::deleteProfile (int rowIdx)
 {
-    if (listener != nullptr)
-        listener->deleteProfile (rowIdx);
+    if (listener == nullptr || dataSource == nullptr || dataSource->getProfileNames().size() == 0)
+        return;
+    juce::String profileName = dataSource->getProfileNames()[rowIdx];
+    listener->deleteProfile (profileName);
 }
 
 std::vector<juce::String> ProfileView::getProfileNames()
@@ -93,7 +110,16 @@ bool ProfileView::getIsProfileLocked (int rowIdx)
     return false;
 }
 
-
+bool ProfileView::isDuplicateProfileName (juce::String profileName)
+{
+    if (dataSource == nullptr)
+        return false;
+    auto profileNames = dataSource->getProfileNames();
+    for (const auto& existingProfileName : profileNames)
+        if (profileName == existingProfileName)
+            return true;
+    return false;
+}
 
 
 

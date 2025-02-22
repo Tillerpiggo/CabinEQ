@@ -79,11 +79,11 @@ class ProfileViewListener
 public:
     virtual ~ProfileViewListener() = default;
     
-    virtual void addedProfile() = 0;
-    virtual void duplicateProfile (int rowIdx) = 0;
-    virtual void renameProfile (int rowIdx) = 0;
-    virtual void deleteProfile (int rowIdx) = 0;
-    virtual void selectProfile (int rowIdx) = 0;
+    virtual void addProfile (juce::String profileName) = 0;
+    virtual void addDuplicateProfile (juce::String profileName, juce::String oldProfileName) = 0;
+    virtual void renameProfile (juce::String profileName, juce::String newProfileName) = 0;
+    virtual void deleteProfile (juce::String profileName) = 0;
+    virtual void selectProfile (juce::String profileName) = 0;
 };
 
 class ProfileViewDataSource
@@ -102,7 +102,7 @@ public:
     
     virtual void selectedRow (int rowIdx) = 0;
     virtual void duplicateProfile (int rowIdx) = 0;
-    virtual void renameProfile (int rowIdx) = 0;
+    virtual void renameProfile (int rowIdx, juce::String newProfileName) = 0;
     virtual void deleteProfile (int rowIdx) = 0;
 };
 

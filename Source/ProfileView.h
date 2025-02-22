@@ -33,13 +33,15 @@ public:
     // ProfileListListener methods
     void selectedRow (int rowIdx) override;
     void duplicateProfile (int rowIdx) override;
-    void renameProfile (int rowIdx) override;
+    void renameProfile (int rowIdx, juce::String newProfileName) override;
     void deleteProfile (int rowIdx) override;
 
     std::vector<juce::String> getProfileNames() override;
     bool getIsProfileLocked (int rowIdx) override;
 
 private:
+    bool isDuplicateProfileName (juce::String profileName);
+
     ProfileViewListener* listener = nullptr;
     ProfileViewDataSource* dataSource = nullptr;
 

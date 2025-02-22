@@ -278,29 +278,34 @@ void CabinEqPage::showActivateLicenseForm()
     showForm();
 }
 
-void CabinEqPage::addedProfile()
+// ProfileViewListener methods
+void CabinEqPage::addProfile (juce::String profileName)
 {
-    std::cout << "add profile" << std::endl;
+    processor.addProfile (profileName);
+    loadDropdownOptions();
 }
 
-void CabinEqPage::duplicateProfile (int rowIdx)
+void CabinEqPage::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
 {
-    std::cout << "duplicate profile" << std::endl;
+    processor.addDuplicateProfile (profileName, oldProfileName);
+    loadDropdownOptions();
 }
 
-void CabinEqPage::renameProfile (int rowIdx)
+void CabinEqPage::renameProfile (juce::String profileName, juce::String newProfileName)
 {
-    std::cout << "rename profile" << std::endl;
+    processor.renameProfile (profileName, newProfileName);
+    loadDropdownOptions();
 }
 
-void CabinEqPage::deleteProfile (int rowIdx)
+void CabinEqPage::deleteProfile (juce::String profileName)
 {
-    std::cout << "delete profile" << std::endl;
+    // processor.deleteProfile (profileName);
+    loadDropdownOptions();
 }
 
-void CabinEqPage::selectProfile (int rowIdx)
+void CabinEqPage::selectProfile (juce::String profileName)
 {
-    goToProfileWithId (profileDropdown.getItemText (rowIdx));
+    goToProfileWithId (profileName);
     loadDropdownOptions();
 }
 

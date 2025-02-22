@@ -30,7 +30,6 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public CheckerboardViewDataSource,
                                public CalibrationListener,
                                public ContactUsBannerListener,
-                            //    public ProfileViewListener,
                                 public ProfileViewDataSource,
                                public juce::Timer
 {

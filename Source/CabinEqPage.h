@@ -51,11 +51,11 @@ public:
     void showActivateLicenseForm() override;
 
     // ProfileViewListener methods
-    void addedProfile() override;
-    void duplicateProfile (int rowIdx) override;
-    void renameProfile (int rowIdx) override;
-    void deleteProfile (int rowIdx) override;
-    void selectProfile (int rowIdx) override;
+    void addProfile (juce::String profileName) override;
+    void addDuplicateProfile (juce::String profileName, juce::String oldProfileName) override;
+    void renameProfile (juce::String profileName, juce::String newProfileName) override;
+    void deleteProfile (juce::String profileName) override;
+    void selectProfile (juce::String profileName) override;
     
 //    void setBands (std::vector<Band> bands) override;
     void timerCallback() override;
