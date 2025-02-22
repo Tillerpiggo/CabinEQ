@@ -10,7 +10,6 @@
 
 #include "ArbitraryResponseFilter.h"
 
-
 void ArbitraryResponseFilter::updateWithCurve (Curve& amplCurve, int fft_size)
 {
     juce::Thread::launch([this, &amplCurve, fft_size]() {

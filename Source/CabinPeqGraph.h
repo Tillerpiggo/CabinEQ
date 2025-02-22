@@ -66,7 +66,6 @@ private:
     bool provisionalBandsVisible = false;
     
     juce::Label instructionLabel;
-//    juce::Label contactLabel;
     std::string contactLong { "Contact us if anything breaks! julian@cabinaudio.com | tyler@cabinaudio.com" };
     std::string contactMid { "Contact us if anything breaks! julian@cabinaudio.com" };
     std::string contactShort { "Contact: julian@cabinaudio.com" };
@@ -124,8 +123,6 @@ private:
     void setVolume (float volume);
     
     // Interaction variables
-//    std::optional<float> selectionStartFreq;
-//    std::optional<float> selectionEndFreq;
     int draggingId = -1; // not currently dragging any point
     int hoveringId = -1; // not hovering over any point
     std::optional<float> addingFreq; // the frequency you are hovering over, if you're going to add a point. std::nullopt if you're not hovering in a place where you can add a node
@@ -165,15 +162,6 @@ private:
     float MIN_DB = -36.0f;
     float DEFAULT_BANDWIDTH = 1.0f;
     
-    // Visual constants
-    static constexpr float NUM_POINTS = 1000; // num points used to render the curve
-//    static constexpr float DOT_SIZE_SELECTED = 5.5f;
-//    static constexpr float DOT_SIZE_DRAGGING = 8.0f;
-//    static constexpr float DOT_SIZE_DEFAULT = 3.5f;
-//    static constexpr float DOT_PADDING = 3.0f;
-//    static constexpr float CURVE_THICKNESS = 2.5f;
-//    const juce::Colour BACKGROUND_COLOR = juce::Colour::fromRGB (0.1, 0.1, 0.2);
-    
     // Visual flags
     bool isGrayscale = false;
     
@@ -187,10 +175,6 @@ private:
     juce::Colour centerLineColour = juce::Colours::darkgrey.withMultipliedLightness (0.5f);
     juce::Colour lineColour = juce::Colours::darkgrey.withMultipliedLightness (0.5f);//.withAlpha (0.3f);
     juce::PathStrokeType lineStrokeType { CURVE_THICKNESS / 2.0f};
-    
-    juce::Colour SELECTION_COLOUR = juce::Colours::white.withAlpha (0.3f);
-    juce::Colour SELECTION_BORDER_COLOUR = juce::Colours::white;
-    juce::Colour SELECTED_BAND_COLOUR = juce::Colours::white.withAlpha (0.8f);
     
     juce::Path centerPath;
     std::vector<juce::Path> horizontalLinePaths;

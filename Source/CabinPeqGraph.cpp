@@ -679,13 +679,6 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
         juce::Colour dotColour = getColourForFrequency (band.freq);
         if (selectedIds.find (band.id) != selectedIds.end())
             dotColour = SELECTION_BORDER_COLOUR;
-//        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
-//        {
-//            if (band.freq >= selectionStartFreq.value() && band.freq <= selectionEndFreq.value())
-//            {
-//                dotColour = juce::Colours::white;
-//            }
-//        }
         
         // Figure out the radius - it's different if it's hovering vs. dragging
         float dotRadius = DOT_SIZE_DEFAULT;

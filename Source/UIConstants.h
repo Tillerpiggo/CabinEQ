@@ -14,7 +14,13 @@
 
 // This fie contains UI constants like colors, spacing, and more
 
+
+// CabinEqPage
+const juce::Colour BACKGROUND_GRADIENT_LIGHT = juce::Colours::black.withAlpha (1.0f);
+const juce::Colour BACKGROUND_GRADIENT_DARK = juce::Colours::black.withAlpha (1.0f);
+
 // CabinPeqGraph
+constexpr int NUM_POINTS = 200;
 constexpr float DOT_SIZE_SELECTED = 5.5f;
 constexpr float DOT_SIZE_DRAGGING = 8.0f;
 constexpr float DOT_SIZE_DEFAULT = 3.5f;
@@ -24,18 +30,15 @@ const juce::ColourGradient BACKGROUND_GRADIENT (
                                                                              juce::Colours::black.withAlpha (0.95f), 0.0f, static_cast<float> (400), // Bottom
                                                                              juce::Colours::black.withAlpha (0.6f), 0.0f, 0.0f, // Top edge
                                                                              false);
-
-// CabinEqPage
-const juce::Colour BACKGROUND_GRADIENT_LIGHT = juce::Colours::black.withAlpha (1.0f);
-const juce::Colour BACKGROUND_GRADIENT_DARK = juce::Colours::black.withAlpha (1.0f);
-
-// CabinPeqGraph
-const juce::Colour CURVE_GRAYSCALE_COLOR = juce::Colour::fromFloatRGBA (0.3f, 0.3, 0.3f, 1.0f);
-const juce::Colour CURVE_GRADIENT_COLOR_1 = juce::Colour::fromFloatRGBA (0.0f, 0.5f, 1.0f, 1.0f);
-const juce::Colour CURVE_GRADIENT_COLOR_2 =  juce::Colour::fromFloatRGBA (0.0f, 0.75f, 1.0f, 1.0f);
-const juce::Colour CURVE_GRADIENT_COLOR_3 = juce::Colour::fromFloatRGBA (0.0f, 1.0f, 0.75f, 1.0f);
-const juce::Colour CURVE_GRADIENT_COLOR_4 = juce::Colour::fromFloatRGBA (0.0f, 1.0f, 0.3f, 1.0f);
-const juce::Colour CURVE_GRADIENT_COLOR_5 = juce::Colour::fromFloatRGBA(0.7f, 1.0f, 0.3f, 1.0f);
+const juce::Colour CURVE_GRAYSCALE_COLOR = juce::Colours::lightgrey;
+const juce::Colour CURVE_GRADIENT_COLOR_1 = juce::Colour(0xFF31C1FF);  // Blue
+const juce::Colour CURVE_GRADIENT_COLOR_2 = juce::Colour(0xFF1E88E5);  // Darker Blue
+const juce::Colour CURVE_GRADIENT_COLOR_3 = juce::Colour(0xFFFFA726);  // Orange
+const juce::Colour CURVE_GRADIENT_COLOR_4 = juce::Colour(0xFFEF5350);  // Red
+const juce::Colour CURVE_GRADIENT_COLOR_5 = juce::Colour(0xFFE91E63);  // Pink
+const juce::Colour SELECTION_COLOUR = juce::Colours::white.withAlpha(0.3f);
+const juce::Colour SELECTION_BORDER_COLOUR = juce::Colours::white;
+const juce::Colour SELECTED_BAND_COLOUR = juce::Colours::white.withAlpha(0.8f);
 
 // GlyphView
 const juce::Colour CONTROL_BAR_BACKGROUND_COLOR = juce::Colours::black.withAlpha (0.7f);
@@ -270,3 +273,6 @@ const juce::Colour DRAGGING_DOT_COLOR = juce::Colours::lightgreen;
 //const juce::Colour STROKE_COLOR = juce::Colours::lightgreen;
 //const juce::Colour PLAYING_DOT_COLOR = juce::Colours::limegreen;
 //const juce::Colour DRAGGING_DOT_COLOR = juce::Colours::mediumaquamarine;
+
+// Graph Background
+const juce::Colour BACKGROUND_COLOR = juce::Colour::fromRGB(0.1, 0.1, 0.2);
