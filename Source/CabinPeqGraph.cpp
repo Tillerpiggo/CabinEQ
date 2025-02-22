@@ -19,7 +19,6 @@ CabinPeqGraph::CabinPeqGraph()
     
     instructionLabel.setJustificationType (juce::Justification::bottomRight);
     instructionLabel.setInterceptsMouseClicks (false, true);
-    updateContactLabelText();
     
     addButton (&leftRightButton);
     addButtonAction (&leftRightButton, [this](juce::Button*) {
@@ -327,15 +326,6 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
                 selectedIdToStartingValue[band.id] = band;
             }
         }
-        
-//        selectionEndFreq = freq;
-//        
-//        if (selectionEndFreq.value() < selectionStartFreq.value())
-//        {
-//            float temp = selectionEndFreq.value();
-//            selectionEndFreq = selectionStartFreq.value();
-//            selectionStartFreq = temp;
-//        }
     }
     
     repaint();
@@ -550,52 +540,12 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
         juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (bandAlpha);
         if (selectedIds.find (band.id) != selectedIds.end())
             bandColour = SELECTED_BAND_COLOUR;
-//        if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
-//        {
-//            if (band.freq >= selectionStartFreq.value() && band.freq <= selectionEndFreq.value())
-//            {
-//                bandColour = juce::Colours::white.withAlpha (0.8f);
-//            }
-//        }
         
         if (band.type == Band::Type::left)
             bandColour = juce::Colours::red;
         if (band.type == Band::Type::right)
             bandColour = juce::Colours::purple;
         drawBand (g, band, bandColour);
-//        // Get the color for the band
-        
-        
-//        juce::Path path;
-//        
-//        if (band.type == Band::Type::left)
-//            bandColour = juce::Colours::red;
-//        if (band.type == Band::Type::right)
-//            bandColour = juce::Colours::purple;
-//        
-//        // Draw curve with NUM_POINTS points
-//        for (int i = 0; i < NUM_POINTS; ++i)
-//        {
-//            float t = static_cast<float> (i) / static_cast<float> (NUM_POINTS);
-//            
-//            float freq = frequencyAtTime (t);
-//            float ampl = curve.dbAtFrequencyForBand (band, freq);
-//            juce::Point<float> coords = coordsForFrequencyAndAmplitude (freq, ampl);
-//            if (i == 0)
-//            {
-//                path.startNewSubPath (coords);
-//            }
-//            else
-//            {
-//                path.lineTo (coords);
-//            }
-//        }
-//        
-//        // Complete the shape and fill in with band color
-//        path.lineTo (juce::Point<float> (getWidth(), yForAmpl (0)));
-//        path.lineTo (juce::Point<float> (0, yForAmpl (0)));
-//        g.setGradientFill (juce::ColourGradient (bandColour.withAlpha (bandAlpha), 0, 0, bandColour.withAlpha (bandAlpha), 0, getHeight(), false));
-//        g.fillPath (path);
     }
     
     if (provisionalBandsVisible)
@@ -707,19 +657,6 @@ void CabinPeqGraph::drawDots (juce::Graphics& g)
     float ampl = bandProfile.getVolume();
     juce::Point<float> point = coordsForFrequencyAndAmplitude (freq, ampl);
     drawDot (g, point, DOT_SIZE_DEFAULT, dotColour, isHoveringOverDotControl);
-    
-//    // Draw a dot over every currently playing freq
-//    if (dataSource != nullptr)
-//    {
-//        auto playingFreqs = dataSource->getCurrPlayingFreqs();
-//        for (const auto& playingFreq : playingFreqs)
-//        {
-//            juce::Colour playingDotColour = getColourForFrequency (playingFreq);
-//            juce::Point<float> playingPoint = coordsForFrequencyAndAmplitude (playingFreq, 0);
-//            float dotRadius = DOT_SIZE_DEFAULT;
-//            drawDot (g, playingPoint, dotRadius, playingDotColour, false);
-//        }
-//    }
 }
 
 void CabinPeqGraph::drawSelection (juce::Graphics& g)
@@ -1108,21 +1045,6 @@ void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)
             updateBand (band.id, currFreq, projAmpl, currBandwidth, band.type);
         }
     }
-    
-//    if (selectionStartFreq.has_value() && selectionEndFreq.has_value())
-//    {
-//        for (const auto& band : startDraggingBands)
-//        {
-//            auto startPos = coordsForFrequencyAndAmplitude (band.freq, band.ampl);
-//            
-//            float newX = startPos.x + dragOffsetWhileAdjustingPosition.first;
-//            float newY = startPos.y + dragOffsetWhileAdjustingPosition.second;
-//            auto [currFreq, currAmpl] = frequencyAndAmplitudeForCoords (newX, newY);
-//            float currBandwidth = std::min (band.bandwidth * std::pow (1.05f, dragOffsetWhileAdjustingBandwidth.second), 32.0f);
-//            
-//            updateBand (band.id, currFreq, currAmpl, currBandwidth, band.type);
-//        }
-//    }
     else
     {
         // Update dragging node a final time
@@ -1160,38 +1082,4 @@ void CabinPeqGraph::clearSelection()
     selectionRect.reset();
     selectedIds.clear();
     selectedIdToStartingValue.clear();
-}
-
-
-void CabinPeqGraph::updateContactLabelText()
-{
-    /*
-    
-    float instructionWidth = instructionLabel.getFont().getStringWidth (instructionLabel.getText());
-    float contactWidthLong = contactLabel.getFont().getStringWidth (contactLong);
-    float contactWidthMid = contactLabel.getFont().getStringWidth (contactMid);
-    float contactWidthShort = contactLabel.getFont().getStringWidth (contactShort);
-    float minWidth = getWidth() + 10.0f;
-    
-    if (instructionWidth + contactWidthLong < minWidth)
-    {
-        contactLabel.setText (contactLong, juce::NotificationType::dontSendNotification);
-        contactLabel.setVisible (true);
-    }
-//    else if (instructionWidth + contactWidthMid < minWidth)
-//    {
-//        contactLabel.setText (contactMid, juce::NotificationType::dontSendNotification);
-//        contactLabel.setVisible (true);
-//    }
-    else if (instructionWidth + contactWidthShort < minWidth)
-    {
-        contactLabel.setText (contactShort, juce::NotificationType::dontSendNotification);
-        contactLabel.setVisible (true);
-    }
-    else
-    {
-        contactLabel.setVisible (false);
-    }
-    
-    */
 }

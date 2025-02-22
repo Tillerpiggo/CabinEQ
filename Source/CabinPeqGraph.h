@@ -54,7 +54,6 @@ public:
     void setGrayscale (bool grayscale);
     
 private:
-    void updateContactLabelText(); // updates the contact label text depending on the size of the window
     void clearSelection(); // clears the current selection and all related variables
     
     CabinPeqGraphListener* listener;
