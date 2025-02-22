@@ -36,14 +36,14 @@ public:
     void renameProfile (int rowIdx) override;
     void deleteProfile (int rowIdx) override;
 
-    std::vector<BandProfile> getProfiles() override;
+    std::vector<juce::String> getProfileNames() override;
     bool getIsProfileLocked (int rowIdx) override;
 
 private:
     ProfileViewListener* listener = nullptr;
     ProfileViewDataSource* dataSource = nullptr;
 
-    // ProfileList profileList;
+    ProfileList profileList;
     juce::Label titleLabel { "Profiles" };
     juce::TextButton addProfileButton { "Add Profile" };
 };

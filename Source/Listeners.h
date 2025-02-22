@@ -90,7 +90,7 @@ class ProfileViewDataSource
 public:
     virtual ~ProfileViewDataSource() = default;
     
-    virtual std::vector<BandProfile> getProfiles() = 0;
+    virtual std::vector<juce::String> getProfileNames() = 0;
     virtual bool getIsProfileLocked (int rowIdx) = 0;
 };
 
@@ -110,7 +110,7 @@ class ProfileListDataSource
 public:
     virtual ~ProfileListDataSource() = default;
     
-    virtual std::vector<BandProfile> getProfiles() = 0;
+    virtual std::vector<juce::String> getProfileNames() = 0;
     virtual bool getIsProfileLocked (int rowIdx) = 0;
 };
 

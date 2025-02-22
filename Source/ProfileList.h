@@ -14,7 +14,7 @@
 #include "Listeners.h"
 
 class ProfileList : public juce::Component,
-                   public juce::ListBoxModel
+                    public juce::ListBoxModel
 {
 public:
     ProfileList();

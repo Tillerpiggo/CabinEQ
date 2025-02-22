@@ -12,8 +12,11 @@
 
 ProfileList::ProfileList()
 {
+    std::cout << "ProfileList constructor start" << std::endl;
     addAndMakeVisible (listBox);
+    std::cout << "listBox added" << std::endl;
     listBox.setModel (this);
+    std::cout << "ProfileList constructor end" << std::endl;
 }
 
 void ProfileList::paint (juce::Graphics& g)
@@ -28,15 +31,16 @@ void ProfileList::resized()
 
 int ProfileList::getNumRows()
 {
-    return dataSource->getProfiles().size();
+    if (dataSource == nullptr)
+        return 0;
+    return dataSource->getProfileNames().size();
 }
 
 juce::String ProfileList::getNameForRow (int rowNumber)
 {
-    return juce::String();
-//    if (dataSource == nullptr)
-//        return juce::String();
-//    return dataSource->getProfileNames()[rowNumber].getName();
+   if (dataSource == nullptr)
+       return juce::String();
+   return dataSource->getProfileNames()[rowNumber];
 }
 
 void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
