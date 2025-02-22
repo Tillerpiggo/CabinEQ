@@ -55,12 +55,15 @@ void ProfileList::listBoxItemClicked (int row, const juce::MouseEvent& event)
 {
     if (listener != nullptr)
         listener->selectedRow (row);
+    listBox.selectRow (row);
+    std::cout << "list box item clicked, row: " << row << std::endl;
 }
 
 void ProfileList::selectedRowsChanged (int lastRowSelected)
 {
     if (listener != nullptr)
         listener->selectedRow (lastRowSelected);
+    std::cout << "selected rows changed to: " << lastRowSelected << std::endl;
 }
 
 juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowSelected, juce::Component* existingComponentToUpdate)
@@ -69,7 +72,8 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
     
     if (existingComponentToUpdate == nullptr)
     {
-        row = new ProfileRow();
+        row = new ProfileRow (rowNumber);
+        row->setListener (this);
     }
     else
     {
@@ -77,20 +81,23 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
         if (row == nullptr)
         {
             delete existingComponentToUpdate;
-            row = new ProfileRow();
+            row = new ProfileRow (rowNumber);
+            row->setListener (this);
         }
     }
     
     row->setProfileName (getNameForRow (rowNumber));
-    row->setIsSelected (isRowSelected);
+    row->setIsSelected (rowNumber == selectedRowNumber);
+    std::cout << "name: " << getNameForRow (rowNumber) << ", rowNumber: " << rowNumber << ", selected: " << (rowNumber == selectedRowNumber) << std::endl;
     return row;
 }
 
-void ProfileList::mouseMove (const juce::MouseEvent& event)
+void ProfileList::profileRowClicked (int row)
 {
-    selectedRowNumber = listBox.getRowContainingPosition (event.position.x, event.position.y);
-    std::cout << "mouse move to position: " << event.position.x << ", " << event.position.y << std::endl;
-//    std::cout << "mouse move, " << selectedRowNumber << std::endl;
+    if (listener != nullptr)
+        listener->selectedRow (row);
+    this->selectedRowNumber = row;
+    listBox.updateContent();
 }
 
 void ProfileList::setListener (ProfileListListener* listener)

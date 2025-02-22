@@ -18,22 +18,35 @@
 class ProfileRow :  public BuildableComponent
 {
 public:
-    ProfileRow();
+    class ProfileRowListener
+    {
+    public:
+        virtual ~ProfileRowListener() = default;
+        virtual void profileRowClicked (int row) = 0;
+    };
+
+    ProfileRow (int rowNumber);
     
     void paint (juce::Graphics& g) override;
     void resized() override;
 
     void mouseEnter (const juce::MouseEvent& event) override;
     void mouseExit (const juce::MouseEvent& event) override;
+    void mouseDown (const juce::MouseEvent& event) override;
 
     void setProfileName (const juce::String& profileName);
     void setIsSelected (bool isSelected);
     void setIsHovering (bool isHovering);
 
+    void setListener (ProfileRowListener* listener);
+
 private:
+    ProfileRowListener* listener = nullptr;
+
     juce::Label profileNameLabel;
     juce::ImageButton ellipsisButton;
 
+    int rowNumber;
     bool isSelected = false;
     bool isHovering = false;
 };

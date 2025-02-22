@@ -10,7 +10,8 @@
 
 #include "ProfileRow.h"
 
-ProfileRow::ProfileRow()
+ProfileRow::ProfileRow (int rowNumber)
+    : rowNumber (rowNumber)
 {
     addAndMakeVisible (profileNameLabel);
     addAndMakeVisible (ellipsisButton);
@@ -50,6 +51,13 @@ void ProfileRow::mouseExit (const juce::MouseEvent& event)
     repaint();
 }
 
+void ProfileRow::mouseDown (const juce::MouseEvent& event)
+{
+    if (listener != nullptr)
+        listener->profileRowClicked (rowNumber);
+    std::cout << "profile row clicked, row: " << rowNumber << std::endl;
+}
+
 void ProfileRow::setProfileName (const juce::String& profileName)
 {
     profileNameLabel.setText (profileName, juce::dontSendNotification);
@@ -66,3 +74,9 @@ void ProfileRow::setIsHovering (bool isHovering)
     this->isHovering = isHovering;
     repaint();
 }
+
+void ProfileRow::setListener (ProfileRowListener* listener)
+{
+    this->listener = listener;
+}
+
