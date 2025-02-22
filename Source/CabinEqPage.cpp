@@ -108,13 +108,7 @@ void CabinEqPage::paint (juce::Graphics& g)
 
 void CabinEqPage::resized()
 {
-    float profileViewWidth = 180.0f;
-    float audioPlayerWidth = 120.0f;
-    float sidebarWidth = 120.0f;
-    
-//    Layout audioPlayerLayout (getBounds().withTrimmedRight (getWidth() - audioPlayerWidth), 0.0f);
-//    audioPlayerLayout.addRow ({ Space (&audioPlayerComponent) });
-//    audioPlayerLayout.updateComponentBounds();
+    float profileViewWidth = 240.0f;
 
     Layout profileViewLayout (getBounds().withTrimmedRight (getWidth() - profileViewWidth), 0.0f);
     profileViewLayout.addRow ({ Space(&profileView) });

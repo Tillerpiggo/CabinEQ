@@ -16,6 +16,24 @@ ProfileList::ProfileList()
     listBox.setModel (this);
     listBox.setRowHeight (40);
     listBox.addMouseListener (this, true);
+
+    optionsMenu = std::make_unique<juce::PopupMenu>();
+    optionsMenu->addItem ("Duplicate", [this] {
+        if (listener != nullptr)
+            listener->duplicateProfile (selectedRowNumber);
+        juce::PopupMenu::dismissAllActiveMenus();
+    });
+    optionsMenu->addItem ("Rename", [this] {
+        if (listener != nullptr)
+            listener->renameProfile (selectedRowNumber);
+        juce::PopupMenu::dismissAllActiveMenus();
+    });
+    optionsMenu->addSeparator();
+    optionsMenu->addItem ("Delete", [this] {
+        if (listener != nullptr)
+            listener->deleteProfile (selectedRowNumber);
+        juce::PopupMenu::dismissAllActiveMenus();
+    });
 }
 
 void ProfileList::paint (juce::Graphics& g)
@@ -100,6 +118,12 @@ void ProfileList::profileRowClicked (int row)
     this->selectedRowNumber = row;
     std::cout << "profile row clicked, row: " << row << std::endl;
     listBox.updateContent();
+}
+
+void ProfileList::profileRowOptionsClicked (int row)
+{
+    optionsMenu->showAt (listBox.getComponentForRowNumber (row));
+    std::cout << "showing options menu" << std::endl;
 }
 
 void ProfileList::setListener (ProfileListListener* listener)

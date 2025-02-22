@@ -23,6 +23,7 @@ public:
     public:
         virtual ~ProfileRowListener() = default;
         virtual void profileRowClicked (int row) = 0;
+        virtual void profileRowOptionsClicked (int row) = 0;
     };
 
     ProfileRow (int rowNumber);
@@ -46,6 +47,8 @@ private:
 
     juce::Label profileNameLabel;
     juce::ImageButton ellipsisButton;
+
+    juce::Image ellipsisImage = juce::ImageFileFormat::loadFrom (BinaryData::EllipsisIcon_png, BinaryData::EllipsisIcon_pngSize);
 
     int rowNumber;
     bool isSelected = false;

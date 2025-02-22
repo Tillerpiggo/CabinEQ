@@ -34,7 +34,8 @@ public:
 
     // ProfileRowListener methods
     void profileRowClicked (int row) override;
-    
+    void profileRowOptionsClicked (int row) override;
+
     void updateContent(); // triggers an update of the list box content
 
     void setListener (ProfileListListener* listener);
@@ -43,6 +44,8 @@ public:
 private:
     ProfileListListener* listener = nullptr;
     ProfileListDataSource* dataSource = nullptr;
+
+    std::unique_ptr<juce::PopupMenu> optionsMenu;
 
     juce::ListBox listBox;
 

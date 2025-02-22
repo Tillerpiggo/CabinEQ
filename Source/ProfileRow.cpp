@@ -21,7 +21,14 @@ ProfileRow::ProfileRow (int rowNumber)
     profileNameLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     profileNameLabel.setInterceptsMouseClicks (false, false);
 
-    std::cout << "profile named " << profileNameLabel.getText() << " created, row: " << rowNumber << std::endl;
+    ellipsisButton.setImages (false, true, true, ellipsisImage, 1.0f, juce::Colours::white.withAlpha (0.0f), ellipsisImage, 1.0f, juce::Colours::black.withAlpha (0.1f), ellipsisImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
+    ellipsisButton.onClick = [this, rowNumber] {
+        if (listener != nullptr)
+        {
+            listener->profileRowOptionsClicked (rowNumber);
+            listener->profileRowClicked (rowNumber);
+        }
+    };
 }
 
 void ProfileRow::paint (juce::Graphics& g)
