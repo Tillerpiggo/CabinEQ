@@ -133,7 +133,7 @@ void ProfileList::profileRowClicked (int row)
     optionsMenuRow = -1;
     editingRowNumber = -1;
     isAddingProfile = false;
-    listBox.updateContent();
+    updateContent();
 }
 
 void ProfileList::profileRowOptionsClicked (int row)
@@ -147,6 +147,7 @@ void ProfileList::profileRowOptionsClicked (int row)
     optionsMenuRow = row; // must be before - showAt del
     editingRowNumber = -1;
     optionsMenu->showAt (listBox.getComponentForRowNumber (row));
+    isAddingProfile = false;
 }
 
 void ProfileList::setListener (ProfileListListener* listener)
@@ -185,6 +186,15 @@ void ProfileList::profileRowRenamed (int row, juce::String newProfileName)
         }
     }
     editingRowNumber = -1;
+    isAddingProfile = false;
+    updateContent();
+}
+
+void ProfileList::profileRowRenameCancelled (int row)
+{
+    editingRowNumber = -1;
+    isAddingProfile = false;
+    updateContent();
 }
 
 void ProfileList::updateContent()

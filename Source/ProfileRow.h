@@ -26,6 +26,7 @@ public:
         virtual void profileRowClicked (int row) = 0;
         virtual void profileRowOptionsClicked (int row) = 0;
         virtual void profileRowRenamed (int row, juce::String newProfileName) = 0;
+        virtual void profileRowRenameCancelled (int row) = 0;
     };
 
     ProfileRow (int rowNumber);
