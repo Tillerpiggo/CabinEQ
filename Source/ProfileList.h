@@ -31,6 +31,7 @@ public:
     void listBoxItemClicked (int row, const juce::MouseEvent& event) override;
     void selectedRowsChanged (int lastRowSelected) override;
     juce::Component* refreshComponentForRow (int rowNumber, bool isRowSelected, juce::Component* existingComponentToUpdate) override;
+    void backgroundClicked (const juce::MouseEvent& event) override;
 
     // ProfileRowListener methods
     void profileRowClicked (int row) override;

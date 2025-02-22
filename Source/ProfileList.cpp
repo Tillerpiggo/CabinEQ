@@ -125,6 +125,12 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
     return row;
 }
 
+void ProfileList::backgroundClicked (const juce::MouseEvent& event)
+{
+    isAddingProfile = false;
+    updateContent();
+}
+
 void ProfileList::profileRowClicked (int row)
 {
     if (listener != nullptr)

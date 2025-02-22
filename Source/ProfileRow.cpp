@@ -36,7 +36,12 @@ ProfileRow::ProfileRow (int rowNumber)
     renameEditor.setColour (juce::Label::textColourId, juce::Colours::white);
     renameEditor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::black.withAlpha (0.0f));
     renameEditor.setColour (juce::TextEditor::outlineColourId, juce::Colours::black.withAlpha (0.0f));
-    renameEditor.setColour (juce::TextEditor::outlineColourId, juce::Colours::white);
+    renameEditor.setColour (juce::TextEditor::outlineColourId, juce::Colours::white.withAlpha (0.0f));
+    renameEditor.setColour (juce::TextEditor::focusedOutlineColourId, juce::Colours::white.withAlpha (0.0f));
+    renameEditor.setColour (juce::Label::outlineWhenEditingColourId, juce::Colours::white.withAlpha (0.0f));
+    renameEditor.setColour (juce::TextEditor::shadowColourId, juce::Colours::white.withAlpha (0.0f));
+    renameEditor.setColour (juce::TextEditor::highlightColourId, juce::Colours::white.withAlpha (0.0f));
+
     renameEditor.setInterceptsMouseClicks (false, false);
     renameEditor.setMultiLine (false);
     renameEditor.setVisible (false);
@@ -104,7 +109,8 @@ void ProfileRow::setIsEditing (bool isEditing)
 {
     this->isEditing = isEditing;
     renameEditor.setVisible (isEditing);
-    renameEditor.setText ("rename...");
+    renameEditor.setText ("");
+    renameEditor.setTextToShowWhenEmpty ("Rename...", juce::Colours::grey);
     profileNameLabel.setVisible (! isEditing);
     renameEditor.setWantsKeyboardFocus (isEditing);
     if (isEditing)
@@ -130,6 +136,10 @@ void ProfileRow::textEditorReturnKeyPressed (juce::TextEditor& editor)
 
 void ProfileRow::textEditorEscapeKeyPressed (juce::TextEditor& editor)
 {
+    if (listener != nullptr)
+    {
+        listener->profileRowRenameCancelled (rowNumber);
+    }
     setIsEditing (false);
 }
 
