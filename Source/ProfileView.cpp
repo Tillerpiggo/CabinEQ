@@ -12,7 +12,7 @@
 
 ProfileView::ProfileView()
 {
-    addAndMakeVisible (profileList);
+    // addAndMakeVisible (profileList);
     addAndMakeVisible (addProfileButton);
     addAndMakeVisible (titleLabel);
 
@@ -26,8 +26,8 @@ ProfileView::ProfileView()
             listener->addProfile();
     };
 
-    profileList.setListener (this);
-    profileList.setDataSource (this);
+    // profileList.setListener (this);
+    // profileList.setDataSource (this);
 }
 
 void ProfileView::paint (juce::Graphics& g)
@@ -40,7 +40,7 @@ void ProfileView::resized()
     Layout layout (getBounds().withX (0).withY (0), 8.0f);
     layout.addRow ({ Space(&titleLabel) }, 20.0f);
     layout.addRow ({ Space(&addProfileButton) }, 40.0f);
-    layout.addRow ({ Space(&profileList) });
+    // layout.addRow ({ Space(&profileList) });
     layout.updateComponentBounds();
 }
 

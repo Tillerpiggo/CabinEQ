@@ -43,7 +43,7 @@ private:
     ProfileViewListener* listener = nullptr;
     ProfileViewDataSource* dataSource = nullptr;
 
-    ProfileList profileList;
+    // ProfileList profileList;
     juce::Label titleLabel { "Profiles" };
     juce::TextButton addProfileButton { "Add Profile" };
 };

@@ -22,6 +22,7 @@
 #include "Listeners.h"
 #include "CabinEqMarketplaceStatus.h"
 #include "CabinEqUnlockForm.h"
+#include "ProfileView.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
@@ -102,6 +103,8 @@ protected:
     juce::TextButton addProfileButton { "+ New" };
     juce::TextButton duplicateProfileButton { "Duplicate" };
     juce::TextButton renameProfileButton { "Rename" };
+
+    ProfileView profileView;
     
     std::unique_ptr<juce::AlertWindow> alertWindow;
     
