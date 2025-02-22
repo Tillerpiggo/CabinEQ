@@ -38,7 +38,7 @@ juce::String ProfileList::getNameForRow (int rowNumber)
 {
    if (dataSource == nullptr)
        return juce::String();
-   return dataSource->getProfileNames()[rowNumber];
+   return "Test name";//dataSource->getProfileNames()[rowNumber];
 }
 
 void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
@@ -58,6 +58,29 @@ void ProfileList::selectedRowsChanged (int lastRowSelected)
 {
     if (listener != nullptr)
         listener->selectedRow (lastRowSelected);
+}
+
+juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowSelected, juce::Component* existingComponentToUpdate)
+{
+    ProfileRow* row = nullptr;
+    
+    if (existingComponentToUpdate == nullptr)
+    {
+        row = new ProfileRow();
+    }
+    else
+    {
+        row = dynamic_cast<ProfileRow*>(existingComponentToUpdate);
+        if (row == nullptr)
+        {
+            delete existingComponentToUpdate;
+            row = new ProfileRow();
+        }
+    }
+    
+   row->setProfileName (getNameForRow (rowNumber));
+    row->setIsSelected (isRowSelected);
+    return row;
 }
 
 void ProfileList::setListener (ProfileListListener* listener)

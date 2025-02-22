@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "Listeners.h"
+#include "ProfileRow.h"
 
 class ProfileList : public juce::Component,
                     public juce::ListBoxModel
@@ -28,6 +29,7 @@ public:
     void paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected) override;
     void listBoxItemClicked (int row, const juce::MouseEvent& event) override;
     void selectedRowsChanged (int lastRowSelected) override;
+    juce::Component* refreshComponentForRow (int rowNumber, bool isRowSelected, juce::Component* existingComponentToUpdate) override;
 
     void updateContent(); // triggers an update of the list box content
 

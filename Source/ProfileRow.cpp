@@ -22,7 +22,12 @@ ProfileRow::ProfileRow()
 
 void ProfileRow::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::black);
+    if (isSelected)
+        g.fillAll (juce::Colours::lightblue);
+    else if (isHovering)
+        g.fillAll (juce::Colours::darkgrey);
+    else
+        g.fillAll (juce::Colours::black);
 }
 
 void ProfileRow::resized()
@@ -34,12 +39,14 @@ void ProfileRow::resized()
 
 void ProfileRow::mouseEnter (const juce::MouseEvent& event)
 {
-    profileNameLabel.setColour (juce::Label::textColourId, juce::Colours::lightblue);
+    isHovering = true;
+    repaint();
 }
 
 void ProfileRow::mouseExit (const juce::MouseEvent& event)
 {
-    profileNameLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    isHovering = false;
+    repaint();
 }
 
 void ProfileRow::setProfileName (const juce::String& profileName)
@@ -47,3 +54,8 @@ void ProfileRow::setProfileName (const juce::String& profileName)
     profileNameLabel.setText (profileName, juce::dontSendNotification);
 }
 
+void ProfileRow::setIsSelected (bool isSelected)
+{
+    this->isSelected = isSelected;
+    repaint();
+}
