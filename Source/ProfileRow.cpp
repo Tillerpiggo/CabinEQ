@@ -31,12 +31,16 @@ ProfileRow::ProfileRow (int rowNumber)
     };
 
     addAndMakeVisible (renameEditor);
-    renameEditor.setFont (juce::Font (16.0f, juce::Font::bold));
+    renameEditor.setFont (juce::Font (juce::FontOptions (16.0f, juce::Font::bold)));
     renameEditor.setJustification (juce::Justification::left);
     renameEditor.setColour (juce::Label::textColourId, juce::Colours::white);
+    renameEditor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::black.withAlpha (0.0f));
+    renameEditor.setColour (juce::TextEditor::outlineColourId, juce::Colours::black.withAlpha (0.0f));
+    renameEditor.setColour (juce::TextEditor::outlineColourId, juce::Colours::white);
     renameEditor.setInterceptsMouseClicks (false, false);
     renameEditor.setMultiLine (false);
     renameEditor.setVisible (false);
+    renameEditor.addListener (this);
 }
 
 void ProfileRow::paint (juce::Graphics& g)
@@ -52,7 +56,7 @@ void ProfileRow::paint (juce::Graphics& g)
 void ProfileRow::resized()
 {
     Layout layout (getBounds().withX (0).withY (0), 8.0f);
-    layout.addRow ({ Space(&profileNameLabel), Space (&ellipsisButton, 20.0f) }, 20.0f);
+    layout.addRow ({ Space(&profileNameLabel, &renameEditor), Space (&ellipsisButton, 20.0f) }, 20.0f);
     layout.updateComponentBounds();
 }
 
@@ -72,7 +76,6 @@ void ProfileRow::mouseDown (const juce::MouseEvent& event)
 {
     if (listener != nullptr)
         listener->profileRowClicked (rowNumber);
-    std::cout << "on " << profileName << "profile row clicked, row: " << rowNumber << std::endl;
 }
 
 void ProfileRow::setProfileName (const juce::String& profileName)
@@ -98,9 +101,11 @@ void ProfileRow::setIsEditing (bool isEditing)
 {
     this->isEditing = isEditing;
     renameEditor.setVisible (isEditing);
+    renameEditor.setText ("rename...");
     profileNameLabel.setVisible (! isEditing);
     renameEditor.grabKeyboardFocus();
     repaint();
+    std::cout << "set is editing: " << isEditing << std::endl;
 }
 
 void ProfileRow::setRowNumber (int rowNumber)
@@ -110,7 +115,8 @@ void ProfileRow::setRowNumber (int rowNumber)
 
 void ProfileRow::textEditorReturnKeyPressed (juce::TextEditor& editor)
 {
-    if (listener != nullptr)
+    std::cout << "textEditorReturnKeyPressed" << std::endl;
+    if (listener != nullptr && editor.getText().isNotEmpty())
         listener->profileRowRenamed (rowNumber, editor.getText());
 }
 

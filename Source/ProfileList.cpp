@@ -20,19 +20,22 @@ ProfileList::ProfileList()
     optionsMenu = std::make_unique<juce::PopupMenu>();
     optionsMenu->addItem ("Duplicate", [this] {
         if (listener != nullptr)
-            listener->duplicateProfile (selectedRowNumber);
+            listener->duplicateProfile (optionsMenuRow);
+        optionsMenuRow = -1;
     });
     optionsMenu->addItem ("Rename", [this] {
-        juce::Component* renamedRow = listBox.getComponentForRowNumber (selectedRowNumber);
-        if (renamedRow != nullptr)
-            dynamic_cast<ProfileRow*>(renamedRow)->setIsEditing (true);
-        // if (listener != nullptr)
-        //     listener->renameProfile (selectedRowNumber, juce::String());
+//        if (listener != nullptr)
+//            listener->renameProfile (optionsMenuRow, juce::String());
+        std::cout << "options menu row: " << optionsMenuRow << std::endl;
+        juce::Component* renamingRow = listBox.getComponentForRowNumber (optionsMenuRow);
+        if (renamingRow != nullptr)
+            dynamic_cast<ProfileRow*>(renamingRow)->setIsEditing (true);
     });
     optionsMenu->addSeparator();
     optionsMenu->addItem ("Delete", [this] {
         if (listener != nullptr)
-            listener->deleteProfile (selectedRowNumber);
+            listener->deleteProfile (optionsMenuRow);
+        optionsMenuRow = -1;
     });
 }
 
@@ -118,14 +121,14 @@ void ProfileList::profileRowClicked (int row)
     if (listener != nullptr)
         listener->selectedRow (row);
     this->selectedRowNumber = row;
-    std::cout << "profile row clicked, row: " << row << std::endl;
     listBox.updateContent();
 }
 
 void ProfileList::profileRowOptionsClicked (int row)
 {
+    optionsMenuRow = row; // must be before - showAt del
     optionsMenu->showAt (listBox.getComponentForRowNumber (row));
-    std::cout << "showing options menu" << std::endl;
+    std::cout << "showing options menu: " << row << std::endl;
 }
 
 void ProfileList::setListener (ProfileListListener* listener)
@@ -141,6 +144,7 @@ void ProfileList::setDataSource (ProfileListDataSource* dataSource)
 
 void ProfileList::profileRowRenamed (int row, juce::String newProfileName)
 {
+    std::cout << "profile row renamed" << std::endl;
     if (listener != nullptr)
         listener->renameProfile (row, newProfileName);
 }

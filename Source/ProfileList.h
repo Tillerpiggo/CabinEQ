@@ -36,7 +36,7 @@ public:
     void profileRowClicked (int row) override;
     void profileRowOptionsClicked (int row) override;
     void profileRowRenamed (int row, juce::String newProfileName) override;
-    
+
     void updateContent(); // triggers an update of the list box content
     void scrollToBottom();
 
@@ -53,6 +53,7 @@ private:
     juce::ListBox listBox;
 
     int selectedRowNumber = -1;
+    int optionsMenuRow = -1;
 };
     
     
