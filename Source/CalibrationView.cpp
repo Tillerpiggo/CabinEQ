@@ -12,10 +12,6 @@
 
 CalibrationView::CalibrationView()
 {
-    // Music List
-    addAndMakeVisible (musicList);
-    musicList.setListener (this);
-    
     // Checkerboard view
     addAndMakeVisible (checkerboardView);
     

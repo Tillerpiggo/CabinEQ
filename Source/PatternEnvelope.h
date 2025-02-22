@@ -11,7 +11,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "GainEnvelope.h"
 
 // This class modulates the gain of a noise source according to a bank of predefined patterns
 class PatternEnvelope

@@ -36,10 +36,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     amplGraph->setListener (&processor);
     amplGraph->addDataSource (&processor);
     freeTrialBanner.setListener (this);
-    noiseGridView.setListener (&processor);
-    noiseGridView.setCalibrationListener (&processor);
-    noiseGridView.setDataSource (&processor);
-//    setupButton.setFont (juce::Font (juce::FontOptions (16)), false);
+    
     calibrationView.setListener (&processor);
     calibrationView.setCalibrationListener (&processor);
     calibrationView.setDataSource (&processor);
@@ -60,11 +57,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (addProfileButton);
     addAndMakeVisible (duplicateProfileButton);
     addAndMakeVisible (renameProfileButton);
-    addAndMakeVisible (noiseGridView);
     addAndMakeVisible (calibrationView);
     addAndMakeVisible (unlockForm);
-    addAndMakeVisible (audioPlayerComponent);
-//    addAndMakeVisible (setupButton);
     unlockForm.setVisible (false);
     
     addProfileButton.onClick = [this] {
@@ -81,8 +75,6 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     
     didLoadData();
     startTimer (100);
-    
-    audioPlayerComponent.setListener (&processor);
     contactUsBanner.setListener (&processor);
     
     loadDropdownOptions();

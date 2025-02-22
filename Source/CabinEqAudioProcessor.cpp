@@ -18,10 +18,8 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-//                       .withInput  ("Input", juce::AudioChannelSet::mono(), true)
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-//                       .withOutput ("Output", juce::AudioChannelSet::mono(), true)
                      #endif
                        ), parameters (*this, nullptr, "Params", createParameterLayout()),
                           cabinEqProfileManager (parameters)
@@ -106,7 +104,6 @@ void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     std::cout << "num input channels: " << getTotalNumInputChannels() << std::endl;
     spec.numChannels = getTotalNumInputChannels();
     playbackManager.prepare (spec);
-    playbackManager.setGrid (noiseSequenceGrid);
 //    playbackManager.setGlyph (getCurrGlyph());
 }
 
@@ -272,21 +269,6 @@ void CabinEqAudioProcessor::setMinFreq (float newMinFreq)
     playbackManager.setMinFreq (newMinFreq);
 }
 
-void CabinEqAudioProcessor::setMaxFreq (float newMaxFreq)
-{
-    playbackManager.setMaxFreq (newMaxFreq);
-}
-
-void CabinEqAudioProcessor::setSpeedFactor (float speedFactor)
-{
-    playbackManager.setSpeedFactor (speedFactor);
-}
-
-void CabinEqAudioProcessor::setBandwidth (float bandwidth)
-{
-    playbackManager.setBandwidth (bandwidth);
-}
-
 void CabinEqAudioProcessor::setIIR (bool isIIR)
 {
     playbackManager.setIIR (isIIR);
@@ -302,62 +284,10 @@ void CabinEqAudioProcessor::setFIRQuality (int fftSize)
     playbackManager.setFIRQuality (fftSize);
 }
 
-void CabinEqAudioProcessor::setBarkScaling (bool barkScalingEnabled)
-{
-    playbackManager.setBarkScaling (barkScalingEnabled);
-}
-
-void CabinEqAudioProcessor::setERBScaling (bool erbScalingEnabled)
-{
-    playbackManager.setERBScaling (erbScalingEnabled);
-}
-
 void CabinEqAudioProcessor::setPinkNoise (bool pinkNoiseEnabled)
 {
     playbackManager.setPinkNoise (pinkNoiseEnabled);
 }
-
-void CabinEqAudioProcessor::setIsCascading (bool isCascading)
-{
-    playbackManager.setIsCascading (isCascading);
-    glyphManager.setIsCascading (isCascading);
-}
-
-void CabinEqAudioProcessor::setDensity (int density)
-{
-    playbackManager.setDensity (density);
-    glyphManager.setDensity (density);
-}
-
-void CabinEqAudioProcessor::setStrokeOverlap (float strokeOverlap)
-{
-    playbackManager.setStrokeOverlap (strokeOverlap);
-    glyphManager.setStrokeOverlap (strokeOverlap);
-}
-
-void CabinEqAudioProcessor::setDotOverlap (float dotOverlap)
-{
-    playbackManager.setDotOverlap (dotOverlap);
-    glyphManager.setDotOverlap (dotOverlap);
-}
-
-void CabinEqAudioProcessor::setRampLength (float rampLength)
-{
-    playbackManager.setRampLength (rampLength);
-    glyphManager.setRampLength (rampLength);
-}
-
-//void CabinEqAudioProcessor::setCheckerboardResolution (int newResolution)
-//{
-//    checkerboardManager.setResolution (newResolution);
-//    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
-//}
-
-//void CabinEqAudioProcessor::setCheckerboardSharpness (float newSharpness)
-//{
-//    checkerboardManager.setSharpness (newSharpness);
-//    playbackManager.setCheckerboard (checkerboardManager.getCheckerboard());
-//}
 
 void CabinEqAudioProcessor::goToNext()
 {
@@ -564,74 +494,6 @@ void CabinEqAudioProcessor::removeBand (int bandId, int stepId)
     }
 }
 
-void CabinEqAudioProcessor::addSequence (NoiseSequence sequence)
-{
-    noiseSequenceGrid.addSequence (sequence);
-    playbackManager.setGrid (noiseSequenceGrid);
-}
-
-void CabinEqAudioProcessor::addSequenceWithCoords (std::vector<std::pair<int, int>> coords)
-{
-    int id = noiseSequenceGrid.getNextAvailableId();
-    noiseSequenceGrid.addSequence (NoiseSequence (coords, id));
-    playbackManager.setGrid (noiseSequenceGrid);
-}
-
-void CabinEqAudioProcessor::removeSequence (std::pair<int, int> origin)
-{
-    noiseSequenceGrid.removeSequence (origin);
-    playbackManager.setGrid (noiseSequenceGrid);
-}
-
-void CabinEqAudioProcessor::moveSequence (int id, std::pair<int, int> newOrigin)
-{
-    noiseSequenceGrid.moveSequence (id, newOrigin);
-    playbackManager.setGrid (noiseSequenceGrid);
-}
-
-void CabinEqAudioProcessor::toggleCoords (std::pair<int, int> point)
-{
-    noiseSequenceGrid.toggleCoords (point);
-    playbackManager.setGrid (noiseSequenceGrid);
-}
-
-void CabinEqAudioProcessor::scaleUpGrid()
-{
-    noiseSequenceGrid.scaleUpGrid();
-    playbackManager.setGrid (noiseSequenceGrid);
-}
-
-void CabinEqAudioProcessor::scaleDownGrid()
-{
-    noiseSequenceGrid.scaleDownGrid();
-    playbackManager.setGrid (noiseSequenceGrid);
-}
-
-NoiseSequenceGrid CabinEqAudioProcessor::getNoiseGrid()
-{
-    return noiseSequenceGrid;
-}
-
-std::pair<int, int> CabinEqAudioProcessor::getNumRowsAndNumCols()
-{
-    return noiseSequenceGrid.getNumRowsAndNumCols();
-}
-
-int CabinEqAudioProcessor::getSequenceIdAtCoords (std::pair<int, int> coords)
-{
-    return noiseSequenceGrid.getSequenceIdAtCoords (coords);
-}
-
-float CabinEqAudioProcessor::getCurrTime()
-{
-    return playbackManager.getCurrPlayingTime();
-}
-
-//bool CabinEqAudioProcessor::getIsPlaying()
-//{
-//    return playbackManager.getIsPlaying();
-//}
-
 float CabinEqAudioProcessor::getBandwidth()
 {
     return playbackManager.getBandwidth();
@@ -685,63 +547,6 @@ std::vector<float> CabinEqAudioProcessor::getCurrPlayingFreqs()
 std::vector<std::pair<float, float>> CabinEqAudioProcessor::getCurrPlayingFreqsAndVols()
 {
     return playbackManager.getCurrPlayingFreqsAndVols();
-}
-
-void CabinEqAudioProcessor::addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
-{
-    glyphManager.addGlyph (archetype, centerPos, sizeFactor);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::moveGlyph (int glyphId, juce::Point<float> centerPos)
-{
-    glyphManager.moveGlyph (glyphId, centerPos);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::removeGlyph (int glyphId)
-{
-    glyphManager.removeGlyph (glyphId);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::incrementGlyphVolume (int glyphId, float increment)
-{
-    glyphManager.incrementGlyphVolume (glyphId, increment);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement)
-{
-    glyphManager.incrementSizeFactor (glyphId, horizontalIncrement, verticalIncrement);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions)
-{
-    glyphManager.moveGlyphs (idsToPositions);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::scaleGlyphs (std::unordered_set<int> glyphIds, float increment)
-{
-    glyphManager.scaleGlyphs (glyphIds, increment);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
-{
-    return glyphManager.getArchetypalGlyphs();
-}
-
-const std::vector<Glyph>& CabinEqAudioProcessor::getGlyphs()
-{
-    return glyphManager.getGlyphs();
-}
-
-float CabinEqAudioProcessor::getCurrPlayingTime()
-{
-    return playbackManager.getCurrPlayingTime();
 }
 
 void CabinEqAudioProcessor::addListener (Listener* listener)

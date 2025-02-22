@@ -14,8 +14,6 @@
 #include "BuildableComponent.h"
 #include "Layout.h"
 #include "Listeners.h"
-#include "ArchetypeBar.h"
-#include "GlyphGridView.h"
 #include "CheckerboardView.h"
 #include "MusicList2.h"
 
@@ -57,10 +55,6 @@ private:
     // Glyph View
     //    GlyphGridView glyphGridView;
     CheckerboardView checkerboardView;
-    
-    // Archetype Bar
-    juce::Viewport archetypeViewport;
-    ArchetypeBar archetypeBar;
     
     // Play button stuff
     juce::Image playImage = juce::ImageFileFormat::loadFrom (BinaryData::PlayButtonIcon_png, BinaryData::PlayButtonIcon_pngSize);

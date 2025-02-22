@@ -16,8 +16,6 @@ CabinPeqGraph::CabinPeqGraph()
     
     addAndMakeVisible (leftRightButton);
     addAndMakeVisible (instructionLabel);
-    addAndMakeVisible (dimensionalSlider);
-    dimensionalSlider.setListener (this);
     
     instructionLabel.setJustificationType (juce::Justification::bottomRight);
     instructionLabel.setInterceptsMouseClicks (false, true);
@@ -430,28 +428,6 @@ bool CabinPeqGraph::keyPressed (const juce::KeyPress& key)
     }
 
     return false;
-}
-
-void CabinPeqGraph::positionChanged (juce::Point<float> pos)
-{
-    auto [freq1, freq2] = dimensionalSliderPosToFreqs (pos);
-    float bandwidth1 = (std::sin (std::log2 (freq2 / freq1)) + 1.5f);
-    float bandwidth2 = (std::cos (std::log2 (freq1 / freq2)) + 1.5f);
-    
-    // Get the bands we're changing and update them
-    for (const auto& band : bandProfile.getBands())
-    {
-        if (band.id == 0)
-        {
-            listener->updateBand (band.id, freq1, band.ampl, bandwidth1, band.type, currStepId);
-        }
-        if (band.id == 1)
-        {
-            listener->updateBand (band.id, freq2, band.ampl, bandwidth2, band.type, currStepId);
-        }
-    }
-    
-    updateBands();
 }
 
 void CabinPeqGraph::setProvisionalBands (std::vector<Band> provisionalBands)
@@ -1076,36 +1052,6 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
     return closestBand;
 }
 
-#include <cmath>
-
-std::pair<float, float> CabinPeqGraph::dimensionalSliderPosToFreqs(juce::Point<float> pos)
-{
-    // Map slider position [-1, 1] to [0, 1] range
-    float normalizedX = (pos.x + 1.0f) * 0.5f;
-    float normalizedY = (pos.y + 1.0f) * 0.5f;
-
-    // Convert normalized range [0, 1] to frequency range [minFreq, maxFreq] logarithmically
-    float freq1 = dimensionalMinFreq * std::pow (dimensionalMaxFreq / dimensionalMinFreq, normalizedX);
-    float freq2 = dimensionalMinFreq * std::pow (dimensionalMaxFreq / dimensionalMinFreq, normalizedY);
-
-    return { freq1, freq2 };
-}
-
-juce::Point<float> CabinPeqGraph::freqsToDimensionalSliderPos(std::pair<float, float> freqs)
-{
-    // Frequencies are in the range [20.0, 20000.0]
-    auto [freq1, freq2] = freqs;
-
-    // Convert frequencies to normalized range [0, 1] logarithmically
-    float normalizedX = std::log (freq1 / dimensionalMinFreq) / std::log(dimensionalMaxFreq / dimensionalMinFreq);
-    float normalizedY = std::log (freq2 / dimensionalMinFreq) / std::log(dimensionalMaxFreq / dimensionalMinFreq);
-
-    // Convert normalized range [0, 1] to slider position range [-1, 1]
-    float x = (normalizedX * 2.0f) - 1.0f;
-    float y = (normalizedY * 2.0f) - 1.0f;
-
-    return { x, y };
-}
 int CabinPeqGraph::addBand (float freq, float ampl, float bandwidth, Band::Type type)
 {
     if (listener == nullptr || dataSource == nullptr) // don't add a band unless we can reflect that change
@@ -1124,30 +1070,6 @@ void CabinPeqGraph::updateBand (int id, float freq, float ampl, float bandwidth,
     
     listener->updateBand (id, freq, ampl, bandwidth, type, currStepId);
     updateBands();
-    
-    // If a dimensional slider controlled band was selected, update the slider
-    if (id == 0 || id == 1)
-    {
-        // Calculate band freqs
-        float geometricMean = std::sqrt (dimensionalMinFreq * dimensionalMinFreq + dimensionalMaxFreq * dimensionalMaxFreq);
-        float freq1 = std::sqrt (geometricMean);
-        float freq2 = std::sqrt (geometricMean);
-        for (const auto& band : bandProfile.getBands())
-        {
-            if (band.id == 0)
-            {
-                freq1 = band.freq;
-            }
-            if (band.id == 1)
-            {
-                freq2 = band.freq;
-            }
-        }
-        
-        // Update dimensional slider with those freqs
-        auto pos = freqsToDimensionalSliderPos ({ freq1, freq2 });
-        dimensionalSlider.setPosition (pos);
-    }
 }
 
 void CabinPeqGraph::updateBandFromDrag (const juce::MouseEvent& event)

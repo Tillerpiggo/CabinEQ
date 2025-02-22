@@ -12,7 +12,6 @@
 
 #include "PlaybackManager.h"
 #include "CabinEqProfileManager.h"
-#include "GlyphManager.h"
 #include "CheckerboardManager.h"
 #include "CabinPeqGraph.h"
 #include "Listeners.h"
@@ -27,10 +26,6 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public AudioPlayerComponentListener,
                                public CabinPeqGraphListener,
                                public CabinPeqGraphDataSource,
-                               public NoiseGridViewListener,
-                               public NoiseGridViewDataSource,
-                               public GlyphViewListener,
-                               public GlyphViewDataSource,
                                public CheckerboardViewListener,
                                public CheckerboardViewDataSource,
                                public CalibrationListener,
@@ -103,21 +98,10 @@ public:
     void setIsPlaying (bool isPlaying) override;
     void setIsCabinNoise (bool isCabinNoise) override;
     void setMinFreq (float newMinFreq) override;
-    void setMaxFreq (float newMaxFreq) override;
-    void setSpeedFactor (float speedFactor) override;
-    void setBandwidth (float bandwidth) override;
     void setIIR (bool isIIR) override;
     void updateFIRFilter() override;
     void setFIRQuality (int fftSize) override;
-    void setBarkScaling (bool barkScalingEnabled) override;
-    void setERBScaling (bool erbScalingEnabled) override;
     void setPinkNoise (bool pinkNoiseEnabled) override;
-    
-    void setIsCascading (bool isCascading) override;
-    void setDensity (int density) override;
-    void setStrokeOverlap (float strokeOverlap) override;
-    void setDotOverlap (float dotOverlap) override;
-    void setRampLength (float rampLength) override;
     
     void goToNext() override;
     void goToPrev() override;
@@ -158,35 +142,10 @@ public:
     void updateBand (int bandId, float freq, float ampl, float bandwidth, Band::Type type, int stepId) override;
     void removeBand (int bandId, int stepId) override;
     
-    // NoiseGridViewListener + NoiseGridViewDataSource
-    void addSequence (NoiseSequence sequence) override;
-    void addSequenceWithCoords (std::vector<std::pair<int, int>> coords) override;
-    void removeSequence (std::pair<int, int> origin) override;
-    void moveSequence (int id, std::pair<int, int> newOrigin) override;
-    void toggleCoords (std::pair<int, int> point) override;
-    void scaleUpGrid() override;
-    void scaleDownGrid() override;
     
-    NoiseSequenceGrid getNoiseGrid() override;
-    std::pair<int, int> getNumRowsAndNumCols() override;
-    int getSequenceIdAtCoords (std::pair<int, int> coords) override;
-    float getCurrTime() override;
     std::vector<float> getCurrPlayingFreqs() override;
     std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols() override;
     
-    // GlyphViewListener + GlyphViewDataSource
-//    float getCurrPlayingTime() override;
-    void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) override;
-    void moveGlyph (int glyphId, juce::Point<float> centerPos) override;
-    void removeGlyph (int glyphId) override;
-    void incrementGlyphVolume (int glyphId, float increment) override;
-    void incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement) override;
-    void moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions) override;
-    void scaleGlyphs (std::unordered_set<int> glyphIds, float increment) override;
-    
-    const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
-    const std::vector<Glyph>& getGlyphs() override;
-    float getCurrPlayingTime() override;
     float getBandwidth() override;
     
     // CheckerboardViewDataSource
@@ -214,9 +173,7 @@ private:
 
     PlaybackManager playbackManager;
     CabinEqProfileManager cabinEqProfileManager;
-    GlyphManager glyphManager;
     CheckerboardManager checkerboardManager;
-    NoiseSequenceGrid noiseSequenceGrid { 3, 3 };
     
     bool dataHasChanged = false;
     

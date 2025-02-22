@@ -13,9 +13,7 @@
 #include <JuceHeader.h>
 #include "BandProfile.h"
 #include "FilterChain.h"
-#include "GlyphGridPlayer.h"
 #include "CheckerboardPlayer.h"
-#include "GridSequencer.h"
 #include "ArbitraryResponseFilter.h"
 #include "BandEqCurve.h"
 #include "Checkerboard.h"
@@ -41,18 +39,7 @@ public:
     void setVolume (float volume);
     void setCalibrationVolume (float calibrationVolume);
     void setMinFreq (float minFreq);
-    void setMaxFreq (float maxFreq);
-    void setSpeedFactor (float speedFactor);
-    void setBandwidth (float bandwidth);
-    void setBarkScaling (bool barkScalingEnabled);
-    void setERBScaling (bool erbScalingEnabled);
     void setPinkNoise (bool pinkNoiseEnabled);
-    
-    void setIsCascading (bool isCascading);
-    void setDensity (int density);
-    void setStrokeOverlap (float strokeOverlap);
-    void setDotOverlap (float dotOverlap);
-    void setRampLength (float rampLength);
     
     void updateFIRFilter();
     void setIIR (bool isIIR);
@@ -73,11 +60,6 @@ public:
     
     // Change Listener (for audio file)
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
-    
-    // Glyph stuff (old)
-    void setGlyphs (std::vector<Glyph> glyphs);
-    void setGrid (NoiseSequenceGrid grid);
-    float getCurrPlayingTime();
     bool getIsPlaying();
     float getBandwidth();
     std::vector<float> getCurrPlayingFreqs();
@@ -90,9 +72,6 @@ private:
     
     BandEqCurve bandEqCurve;
     
-    // Sound generation
-    GridSequencer gridSequencer;
-    GlyphGridPlayer glyphGridPlayer;
     CheckerboardPlayer checkerboardPlayer;
     
     // Audio Processing

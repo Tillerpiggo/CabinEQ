@@ -78,8 +78,6 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     audioTransportSource.prepareToPlay (spec.maximumBlockSize, spec.sampleRate);
     checkerboardPlayer.prepare (spec);
     
-//    glyphGridPlayer.prepare (spec);
-    gridSequencer.prepare (spec);
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
     firFilter.prepare (spec);
@@ -118,67 +116,11 @@ void PlaybackManager::setCalibrationVolume (float calibrationVolume)
 void PlaybackManager::setMinFreq (float minFreq)
 {
     checkerboardPlayer.setMinFreq (minFreq);
-//    glyphGridPlayer.setMinFreq (minFreq);
-//    gridSequencer.setMinFreq (minFreq);
-}
-
-void PlaybackManager::setMaxFreq (float maxFreq)
-{
-    glyphGridPlayer.setMaxFreq (maxFreq);
-    gridSequencer.setMaxFreq (maxFreq);
-}
-
-void PlaybackManager::setSpeedFactor (float speedFactor)
-{
-    glyphGridPlayer.setSpeedFactor (speedFactor);
-    gridSequencer.setSpeedFactor (speedFactor);
-}
-
-void PlaybackManager::setBandwidth (float bandwidth)
-{
-    glyphGridPlayer.setBandwidth (bandwidth);
-    gridSequencer.setBandwidth (bandwidth);
-    this->bandwidth = bandwidth;
-}
-
-void PlaybackManager::setBarkScaling (bool barkScalingEnabled)
-{
-    glyphGridPlayer.setBarkScaling (barkScalingEnabled);
-}
-
-void PlaybackManager::setERBScaling (bool erbScalingEnabled)
-{
-    glyphGridPlayer.setERBScaling (erbScalingEnabled);
 }
 
 void PlaybackManager::setPinkNoise (bool pinkNoiseEnabled)
 {
     this->isCabinNoise = ! pinkNoiseEnabled;
-}
-
-void PlaybackManager::setIsCascading (bool isCascading)
-{
-    glyphGridPlayer.setIsCascading (isCascading);
-}
-
-void PlaybackManager::setDensity (int density)
-{
-    glyphGridPlayer.setDensity (density);
-}
-
-void PlaybackManager::setStrokeOverlap (float strokeOverlap)
-{
-    glyphGridPlayer.setStrokeOverlap (strokeOverlap);
-}
-
-void PlaybackManager::setDotOverlap (float dotOverlap)
-{
-    glyphGridPlayer.setDotOverlap (dotOverlap);
-}
-
-void PlaybackManager::setRampLength (float rampLength)
-{
-    glyphGridPlayer.setRampLength (rampLength);
 }
 
 void PlaybackManager::updateFIRFilter()
@@ -263,22 +205,6 @@ void PlaybackManager::setAudioFile (juce::File file)
         }
         audioReaderSource.reset (newAudioSource.release());
     }
-}
-
-void PlaybackManager::setGlyphs (std::vector<Glyph> glyphs)
-{
-    glyphGridPlayer.setGlyphs (glyphs);
-}
-
-void PlaybackManager::setGrid (NoiseSequenceGrid grid)
-{
-    gridSequencer.setNoiseGrid (grid);
-}
-
-float PlaybackManager::getCurrPlayingTime()
-{
-//    return gridSequencer.getCurrTime();
-    return glyphGridPlayer.getCurrPlayingTime();
 }
 
 bool PlaybackManager::getIsPlaying()

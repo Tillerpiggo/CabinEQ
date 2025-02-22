@@ -17,11 +17,9 @@
 #include "UIConstants.h"
 #include "Listeners.h"
 #include "BuildableComponent.h"
-#include "DimensionalSlider.h"
 
 class CabinPeqGraph  : public BuildableComponent,
-                       public juce::Timer,
-                       public DimensionalSlider::Listener
+                       public juce::Timer
 {
 public:
     
@@ -42,8 +40,6 @@ public:
     void mouseDrag (const juce::MouseEvent &event) override;
     void mouseUp (const juce::MouseEvent &event) override;
     void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
-    
-    void positionChanged (juce::Point<float> pos) override;
     
     bool keyPressed(const juce::KeyPress& key) override;
     
@@ -86,7 +82,6 @@ private:
     std::string scrollInstructions { "Scroll vertically to zoom in/out" };
     std::string volumeInstructions { "Drag dot up/down to set volume for this profile" };
     
-    DimensionalSlider dimensionalSlider;
     juce::TextButton leftRightButton { "BOTH" };
     
     // Drawing/animation
@@ -120,12 +115,6 @@ private:
     float mouseEventDistanceFromBand (const juce::MouseEvent& event, Band band) const; // distance from the node of the band
     float mouseEventDistanceFromFrequencyAndAmplitude (const juce::MouseEvent& event, float freq, float ampl) const;
     std::optional<Band> getClosestBandToMouseEvent (const juce::MouseEvent& event) const; // which band's node is the closest to the mouse
-    
-    // Utils for dimensional slider nonsense
-    std::pair<float, float> dimensionalSliderPosToFreqs (juce::Point<float> pos);
-    juce::Point<float> freqsToDimensionalSliderPos (std::pair<float, float> freqs);
-    float dimensionalMinFreq = 20.0f;
-    float dimensionalMaxFreq = 20000.0f;
     
     // Utils to handle calls to the listener if listener is nullptr
     int addBand (float freq, float ampl, float bandwidth, Band::Type type);

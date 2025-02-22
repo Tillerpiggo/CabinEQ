@@ -49,31 +49,18 @@
               file="Source/CheckerboardManager.cpp"/>
         <FILE id="XPNplm" name="CheckerboardManager.h" compile="0" resource="0"
               file="Source/CheckerboardManager.h"/>
-        <FILE id="rLzB3c" name="GlyphManager.cpp" compile="1" resource="0"
-              file="Source/GlyphManager.cpp"/>
-        <FILE id="M6xNFQ" name="GlyphManager.h" compile="0" resource="0" file="Source/GlyphManager.h"/>
       </GROUP>
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
         <FILE id="WsEXIM" name="Checkerboard.cpp" compile="1" resource="0"
               file="Source/Checkerboard.cpp"/>
         <FILE id="qmoxTe" name="Checkerboard.h" compile="0" resource="0" file="Source/Checkerboard.h"/>
-        <FILE id="zz9fEW" name="Glyph.cpp" compile="1" resource="0" file="Source/Glyph.cpp"/>
-        <FILE id="ucSEwm" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
-        <FILE id="ztfxJQ" name="ArchetypalGlyph.cpp" compile="1" resource="0"
-              file="Source/ArchetypalGlyph.cpp"/>
-        <FILE id="dZmom2" name="ArchetypalGlyph.h" compile="0" resource="0"
-              file="Source/ArchetypalGlyph.h"/>
         <FILE id="qjtM6M" name="NoiseSource.cpp" compile="1" resource="0" file="Source/NoiseSource.cpp"/>
         <FILE id="xPX2iH" name="NoiseSource.h" compile="0" resource="0" file="Source/NoiseSource.h"/>
-        <FILE id="Nv37CZ" name="Stroke.cpp" compile="1" resource="0" file="Source/Stroke.cpp"/>
-        <FILE id="EaX6Yr" name="Stroke.h" compile="0" resource="0" file="Source/Stroke.h"/>
         <FILE id="VL1zLi" name="BandProfile.cpp" compile="1" resource="0" file="Source/BandProfile.cpp"/>
         <FILE id="IsbkTz" name="BandProfile.h" compile="0" resource="0" file="Source/BandProfile.h"/>
         <FILE id="AynBKb" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
       </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
-        <FILE id="kzvoaZ" name="PlainTextButtonLookAndFeel.h" compile="0" resource="0"
-              file="Source/PlainTextButtonLookAndFeel.h"/>
         <GROUP id="{3B5A2BE2-E6B6-3B7A-F6E4-7F90726FB230}" name="Layout">
           <FILE id="AatRfE" name="Layout.cpp" compile="1" resource="0" file="Source/Layout.cpp"/>
           <FILE id="IvB2LP" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
@@ -90,12 +77,6 @@
         </GROUP>
         <FILE id="vGo9Jr" name="MusicList2.cpp" compile="1" resource="0" file="Source/MusicList2.cpp"/>
         <FILE id="lYo6qe" name="MusicList2.h" compile="0" resource="0" file="Source/MusicList2.h"/>
-        <FILE id="LsKhyc" name="MusicList.cpp" compile="1" resource="0" file="../../../Downloads/MusicList.cpp"/>
-        <FILE id="wvSaHN" name="MusicList.h" compile="0" resource="0" file="../../../Downloads/MusicList.h"/>
-        <FILE id="RcknLC" name="AudioPlayerComponent.cpp" compile="1" resource="0"
-              file="Source/AudioPlayerComponent.cpp"/>
-        <FILE id="oETEKy" name="AudioPlayerComponent.h" compile="0" resource="0"
-              file="Source/AudioPlayerComponent.h"/>
         <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
         <FILE id="ss4ShX" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
         <FILE id="XTfbD5" name="CabinPeqGraph.cpp" compile="1" resource="0"
@@ -109,20 +90,6 @@
               file="Source/CalibrationView.cpp"/>
         <FILE id="HZSDMv" name="CalibrationView.h" compile="0" resource="0"
               file="Source/CalibrationView.h"/>
-        <FILE id="WjKVnP" name="ArchetypeView.cpp" compile="1" resource="0"
-              file="Source/ArchetypeView.cpp"/>
-        <FILE id="jNjLOi" name="ArchetypeView.h" compile="0" resource="0" file="Source/ArchetypeView.h"/>
-        <FILE id="EXsvdg" name="ArchetypeBar.cpp" compile="1" resource="0"
-              file="Source/ArchetypeBar.cpp"/>
-        <FILE id="FJv9bT" name="ArchetypeBar.h" compile="0" resource="0" file="Source/ArchetypeBar.h"/>
-        <FILE id="Ct5deW" name="GlyphView.cpp" compile="1" resource="0" file="Source/GlyphView.cpp"/>
-        <FILE id="HXWses" name="GlyphView.h" compile="0" resource="0" file="Source/GlyphView.h"/>
-        <FILE id="B4HVZD" name="GlyphGridView.cpp" compile="1" resource="0"
-              file="Source/GlyphGridView.cpp"/>
-        <FILE id="wKYiBO" name="GlyphGridView.h" compile="0" resource="0" file="Source/GlyphGridView.h"/>
-        <FILE id="tRV2cb" name="AnimatedGlyph.cpp" compile="1" resource="0"
-              file="Source/AnimatedGlyph.cpp"/>
-        <FILE id="rb92RX" name="AnimatedGlyph.h" compile="0" resource="0" file="Source/AnimatedGlyph.h"/>
         <FILE id="Oarkv3" name="UIConstants.h" compile="0" resource="0" file="Source/UIConstants.h"/>
         <FILE id="uEJ18I" name="CabinEqLookAndFeel.h" compile="0" resource="0"
               file="Source/CabinEqLookAndFeel.h"/>
@@ -152,38 +119,10 @@
               file="Source/SquareGenerator.cpp"/>
         <FILE id="oY9BZb" name="SquareGenerator.h" compile="0" resource="0"
               file="Source/SquareGenerator.h"/>
-        <FILE id="EbblTP" name="GlyphGridPlayer.cpp" compile="1" resource="0"
-              file="Source/GlyphGridPlayer.cpp"/>
-        <FILE id="MLBVno" name="GlyphGridPlayer.h" compile="0" resource="0"
-              file="Source/GlyphGridPlayer.h"/>
         <FILE id="t0hEBL" name="PatternEnvelope.cpp" compile="1" resource="0"
               file="Source/PatternEnvelope.cpp"/>
         <FILE id="tAQLFT" name="PatternEnvelope.h" compile="0" resource="0"
               file="Source/PatternEnvelope.h"/>
-        <GROUP id="{26F692A9-D131-4C48-F7CC-A6231946AB74}" name="Sequencer Helpers">
-          <FILE id="ggV13i" name="TimeGainEnvelope.cpp" compile="1" resource="0"
-                file="Source/TimeGainEnvelope.cpp"/>
-          <FILE id="yJhP4w" name="TimeGainEnvelope.h" compile="0" resource="0"
-                file="Source/TimeGainEnvelope.h"/>
-          <FILE id="AnuU42" name="SequencerListener.h" compile="0" resource="0"
-                file="Source/SequencerListener.h"/>
-          <FILE id="VLnqpz" name="StereoGainEnvelope.cpp" compile="1" resource="0"
-                file="Source/StereoGainEnvelope.cpp"/>
-          <FILE id="Yfy4sY" name="StereoGainEnvelope.h" compile="0" resource="0"
-                file="Source/StereoGainEnvelope.h"/>
-          <FILE id="WOTg5b" name="GainEnvelope.cpp" compile="1" resource="0"
-                file="Source/GainEnvelope.cpp"/>
-          <FILE id="fGlITw" name="GainEnvelope.h" compile="0" resource="0" file="Source/GainEnvelope.h"/>
-          <FILE id="r7e5Q0" name="SequenceableNote.cpp" compile="1" resource="0"
-                file="Source/SequenceableNote.cpp"/>
-          <FILE id="Q1O3wL" name="SequenceableNote.h" compile="0" resource="0"
-                file="Source/SequenceableNote.h"/>
-          <FILE id="ORZUZr" name="Note.h" compile="0" resource="0" file="Source/Note.h"/>
-          <FILE id="T6KOdv" name="MelodicNotes.h" compile="0" resource="0" file="Source/MelodicNotes.h"/>
-          <FILE id="IjP5j6" name="SweepPattern.cpp" compile="1" resource="0"
-                file="Source/SweepPattern.cpp"/>
-          <FILE id="TI4MYv" name="SweepPattern.h" compile="0" resource="0" file="Source/SweepPattern.h"/>
-        </GROUP>
       </GROUP>
       <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
         <GROUP id="{F6096DA6-34F0-3CE6-E2DD-77C9A668712F}" name="Sound Generation Helpers">
@@ -213,150 +152,6 @@
         <FILE id="Ix4Abh" name="FilterChain.h" compile="0" resource="0" file="Source/FilterChain.h"/>
         <FILE id="Uo9gHR" name="SIMDIIRFilter.h" compile="0" resource="0" file="Source/SIMDIIRFilter.h"/>
       </GROUP>
-    </GROUP>
-    <GROUP id="{5027FEA5-FBCD-5D10-D2D5-FC30C8130169}" name="VAE Stuff">
-      <FILE id="QQV5E6" name="MagicDecoder.cpp" compile="1" resource="0"
-            file="Source/MagicDecoder.cpp"/>
-      <FILE id="n9YrCr" name="MagicDecoder.h" compile="0" resource="0" file="Source/MagicDecoder.h"/>
-      <GROUP id="{E12FACF9-626B-B601-A01A-5449597D0221}" name="decoder_model_test">
-        <GROUP id="{C14FA21C-58E8-397C-A1FF-BB47367D226A}" name="assets"/>
-        <GROUP id="{72751938-D19A-CB67-5B15-4CBF81648F04}" name="variables">
-          <FILE id="ZsOXKO" name="variables.data-00000-of-00001" compile="0"
-                resource="1" file="../CabinAI/decoder_model_test/variables/variables.data-00000-of-00001"/>
-          <FILE id="dtQpdk" name="variables.index" compile="0" resource="1" file="../CabinAI/decoder_model_test/variables/variables.index"/>
-        </GROUP>
-        <FILE id="B20pge" name="fingerprint.pb" compile="0" resource="1" file="../CabinAI/decoder_model_test/fingerprint.pb"/>
-        <FILE id="HL0HWT" name="saved_model.pb" compile="0" resource="1" file="../CabinAI/decoder_model_test/saved_model.pb"/>
-      </GROUP>
-    </GROUP>
-    <GROUP id="{41775B42-C5FA-EAED-2185-E529EED0849D}" name="Old/Unused">
-      <FILE id="OUhR01" name="CabinEqGraph.cpp" compile="1" resource="0"
-            file="Source/CabinEqGraph.cpp"/>
-      <FILE id="gQElt6" name="CabinEqGraph.h" compile="0" resource="0" file="Source/CabinEqGraph.h"/>
-      <FILE id="Q0zFcX" name="DimensionalSlider.cpp" compile="1" resource="0"
-            file="Source/DimensionalSlider.cpp"/>
-      <FILE id="XrqO91" name="DimensionalSlider.h" compile="0" resource="0"
-            file="Source/DimensionalSlider.h"/>
-      <FILE id="vTw5w7" name="PinkNoiseGenerator.cpp" compile="1" resource="0"
-            file="Source/PinkNoiseGenerator.cpp"/>
-      <FILE id="P9K6rT" name="PinkNoiseGenerator.h" compile="0" resource="0"
-            file="Source/PinkNoiseGenerator.h"/>
-      <FILE id="Nm4Y5z" name="NoiseSweepGenerator.cpp" compile="1" resource="0"
-            file="Source/NoiseSweepGenerator.cpp"/>
-      <FILE id="QfQPIf" name="NoiseSweepGenerator.h" compile="0" resource="0"
-            file="Source/NoiseSweepGenerator.h"/>
-      <FILE id="vo2Ieh" name="SpatialPinkNoiseGenerator.cpp" compile="1"
-            resource="0" file="Source/SpatialPinkNoiseGenerator.cpp"/>
-      <FILE id="FonrTG" name="SpatialPinkNoiseGenerator.h" compile="0" resource="0"
-            file="Source/SpatialPinkNoiseGenerator.h"/>
-      <FILE id="ju4dFJ" name="GlyphGenerator.cpp" compile="1" resource="0"
-            file="Source/GlyphGenerator.cpp"/>
-      <FILE id="ouThxh" name="GlyphGenerator.h" compile="0" resource="0"
-            file="Source/GlyphGenerator.h"/>
-      <FILE id="TBcTbv" name="OldGlyphGenerator.cpp" compile="1" resource="0"
-            file="Source/OldGlyphGenerator.cpp"/>
-      <FILE id="nMRFuc" name="OldGlyphGenerator.h" compile="0" resource="0"
-            file="Source/OldGlyphGenerator.h"/>
-      <FILE id="zjJTaL" name="SpatialPatternGenerator.cpp" compile="1" resource="0"
-            file="Source/SpatialPatternGenerator.cpp"/>
-      <FILE id="rNkScX" name="SpatialPatternGenerator.h" compile="0" resource="0"
-            file="Source/SpatialPatternGenerator.h"/>
-      <FILE id="dgYCTx" name="ArbitrarySequencer.cpp" compile="1" resource="0"
-            file="Source/ArbitrarySequencer.cpp"/>
-      <FILE id="bX0MJX" name="ArbitrarySequencer.h" compile="0" resource="0"
-            file="Source/ArbitrarySequencer.h"/>
-      <FILE id="t1XNqp" name="MelodicNoiseSequencer.cpp" compile="1" resource="0"
-            file="Source/MelodicNoiseSequencer.cpp"/>
-      <FILE id="EZQ9U5" name="MelodicNoiseSequencer.h" compile="0" resource="0"
-            file="Source/MelodicNoiseSequencer.h"/>
-      <FILE id="RhwdzZ" name="GridSequencer.cpp" compile="1" resource="0"
-            file="Source/GridSequencer.cpp"/>
-      <FILE id="TPQGCb" name="GridSequencer.h" compile="0" resource="0" file="Source/GridSequencer.h"/>
-      <FILE id="N1nSHM" name="SpatialNoiseGenerator.cpp" compile="1" resource="0"
-            file="Source/SpatialNoiseGenerator.cpp"/>
-      <FILE id="DI0mrk" name="SpatialNoiseGenerator.h" compile="0" resource="0"
-            file="Source/SpatialNoiseGenerator.h"/>
-      <FILE id="TtWJFa" name="HiddenPatternGenerator.cpp" compile="1" resource="0"
-            file="Source/HiddenPatternGenerator.cpp"/>
-      <FILE id="BaBzuW" name="HiddenPatternGenerator.h" compile="0" resource="0"
-            file="Source/HiddenPatternGenerator.h"/>
-      <FILE id="di7qhr" name="KnobView.cpp" compile="1" resource="0" file="Source/KnobView.cpp"/>
-      <FILE id="E6LaB7" name="KnobView.h" compile="0" resource="0" file="Source/KnobView.h"/>
-      <FILE id="qtD056" name="MultiBandStepView.cpp" compile="1" resource="0"
-            file="Source/MultiBandStepView.cpp"/>
-      <FILE id="Jeai9W" name="MultiBandStepView.h" compile="0" resource="0"
-            file="Source/MultiBandStepView.h"/>
-      <FILE id="eanpXQ" name="MultiBandStepBar.cpp" compile="1" resource="0"
-            file="Source/MultiBandStepBar.cpp"/>
-      <FILE id="dmCApa" name="MultiBandStepBar.h" compile="0" resource="0"
-            file="Source/MultiBandStepBar.h"/>
-      <FILE id="pvhksR" name="StepView.cpp" compile="1" resource="0" file="Source/StepView.cpp"/>
-      <FILE id="B3mQPN" name="StepView.h" compile="0" resource="0" file="Source/StepView.h"/>
-      <FILE id="lOovQy" name="NoiseGridView.cpp" compile="1" resource="0"
-            file="Source/NoiseGridView.cpp"/>
-      <FILE id="XfCJZ2" name="NoiseGridView.h" compile="0" resource="0" file="Source/NoiseGridView.h"/>
-      <FILE id="xw52aN" name="MagicKnob.cpp" compile="1" resource="0" file="Source/MagicKnob.cpp"/>
-      <FILE id="JgcoC3" name="MagicKnob.h" compile="0" resource="0" file="Source/MagicKnob.h"/>
-      <FILE id="B7G5KQ" name="QualityStep.h" compile="0" resource="0" file="Source/QualityStep.h"/>
-      <FILE id="cyinty" name="SpatialStep.h" compile="0" resource="0" file="Source/SpatialStep.h"/>
-      <FILE id="ApKM6n" name="IntelligibilityStep.h" compile="0" resource="0"
-            file="Source/IntelligibilityStep.h"/>
-      <FILE id="EydLzl" name="PatternsStep.h" compile="0" resource="0" file="Source/PatternsStep.h"/>
-      <FILE id="Nxg6ju" name="FractalStep.h" compile="0" resource="0" file="Source/FractalStep.h"/>
-      <FILE id="nbwoaQ" name="OldGlyph.h" compile="0" resource="0" file="Source/OldGlyph.h"/>
-      <FILE id="gEYC7N" name="NoiseSequence.cpp" compile="1" resource="0"
-            file="Source/NoiseSequence.cpp"/>
-      <FILE id="No04yh" name="NoiseSequence.h" compile="0" resource="0" file="Source/NoiseSequence.h"/>
-      <FILE id="JVfYLC" name="NoiseSequenceGrid.cpp" compile="1" resource="0"
-            file="Source/NoiseSequenceGrid.cpp"/>
-      <FILE id="boBgMW" name="NoiseSequenceGrid.h" compile="0" resource="0"
-            file="Source/NoiseSequenceGrid.h"/>
-      <FILE id="OsORxm" name="FractalPattern.cpp" compile="1" resource="0"
-            file="Source/FractalPattern.cpp"/>
-      <FILE id="YPHmDn" name="FractalPattern.h" compile="0" resource="0"
-            file="Source/FractalPattern.h"/>
-      <FILE id="P7D4Fv" name="QualityStepManager.cpp" compile="1" resource="0"
-            file="Source/QualityStepManager.cpp"/>
-      <FILE id="Jdl3qk" name="QualityStepManager.h" compile="0" resource="0"
-            file="Source/QualityStepManager.h"/>
-      <FILE id="a352vX" name="CrossfeedFilter.cpp" compile="1" resource="0"
-            file="Source/CrossfeedFilter.cpp"/>
-      <FILE id="c3tkD9" name="CrossfeedFilter.h" compile="0" resource="0"
-            file="Source/CrossfeedFilter.h"/>
-      <FILE id="HEZUbQ" name="HiddenPattern.cpp" compile="1" resource="0"
-            file="Source/HiddenPattern.cpp"/>
-      <FILE id="LnZOLr" name="HiddenPattern.h" compile="0" resource="0" file="Source/HiddenPattern.h"/>
-      <FILE id="KOdH6F" name="AudioPattern.cpp" compile="1" resource="0"
-            file="Source/AudioPattern.cpp"/>
-      <FILE id="SYoPuJ" name="AudioPattern.h" compile="0" resource="0" file="Source/AudioPattern.h"/>
-      <FILE id="KOH1dO" name="DifficultyRange.h" compile="0" resource="0"
-            file="Source/DifficultyRange.h"/>
-      <FILE id="MJSFfb" name="FauxMusicPattern.cpp" compile="1" resource="0"
-            file="Source/FauxMusicPattern.cpp"/>
-      <FILE id="s1PAyt" name="FauxMusicPattern.h" compile="0" resource="0"
-            file="Source/FauxMusicPattern.h"/>
-      <FILE id="sv59Y7" name="Pattern.cpp" compile="1" resource="0" file="Source/Pattern.cpp"/>
-      <FILE id="Yn5yLj" name="Pattern.h" compile="0" resource="0" file="Source/Pattern.h"/>
-      <FILE id="hhSB6o" name="FractalPatternGenerator.cpp" compile="1" resource="0"
-            file="Source/FractalPatternGenerator.cpp"/>
-      <FILE id="ODaSou" name="FractalPatternGenerator.h" compile="0" resource="0"
-            file="Source/FractalPatternGenerator.h"/>
-      <FILE id="mDOWTb" name="MultiplePatternGenerator.cpp" compile="1" resource="0"
-            file="Source/MultiplePatternGenerator.cpp"/>
-      <FILE id="MiiREf" name="MultiplePatternGenerator.h" compile="0" resource="0"
-            file="Source/MultiplePatternGenerator.h"/>
-      <FILE id="WzIXXQ" name="SineSweepGenerator.cpp" compile="1" resource="0"
-            file="Source/SineSweepGenerator.cpp"/>
-      <FILE id="sYwXtF" name="SineSweepGenerator.h" compile="0" resource="0"
-            file="Source/SineSweepGenerator.h"/>
-      <FILE id="u9ZaeK" name="SineWaveGenerator.cpp" compile="1" resource="0"
-            file="Source/SineWaveGenerator.cpp"/>
-      <FILE id="ZhbVSx" name="SineWaveGenerator.h" compile="0" resource="0"
-            file="Source/SineWaveGenerator.h"/>
-      <FILE id="avYfQi" name="RandomBandPattern.cpp" compile="1" resource="0"
-            file="Source/RandomBandPattern.cpp"/>
-      <FILE id="kqemxZ" name="RandomBandPattern.h" compile="0" resource="0"
-            file="Source/RandomBandPattern.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

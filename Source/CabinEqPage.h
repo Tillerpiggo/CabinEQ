@@ -14,19 +14,14 @@
 #include "BuildableComponent.h"
 #include "CabinEqAudioProcessor.h"
 #include "CabinPeqGraph.h"
-#include "GlyphView.h"
-#include "KnobView.h"
 #include "CabinEqLookAndFeel.h"
-#include "NoiseGridView.h"
 #include "CalibrationView.h"
-#include "MultiBandStepBar.h"
 #include "FreeTrialBanner.h"
 #include "FreeTrialLockScreen.h"
 #include "ContactUsBanner.h"
 #include "Listeners.h"
 #include "CabinEqMarketplaceStatus.h"
 #include "CabinEqUnlockForm.h"
-#include "AudioPlayerComponent.h"
 
 class CabinEqPage   : public BuildableComponent,
                       public juce::ComboBox::Listener,
@@ -86,13 +81,11 @@ protected:
     FreeTrialBanner freeTrialBanner;
     ContactUsBanner contactUsBanner;
     FreeTrialLockScreen freeTrialLockScreen;
-    NoiseGridView noiseGridView;
     CalibrationView calibrationView;
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;
     juce::String profileId;
     juce::TextButton bypassButton { "ON" };
-    AudioPlayerComponent audioPlayerComponent;
     
     bool isBypassed = false;
     

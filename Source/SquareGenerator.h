@@ -12,7 +12,6 @@
 
 #include <JuceHeader.h>
 #include "PinkNoise.h"
-#include "GainEnvelope.h"
 
 class SquareGenerator
 {
