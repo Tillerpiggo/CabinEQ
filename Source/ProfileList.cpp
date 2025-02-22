@@ -19,20 +19,24 @@ ProfileList::ProfileList()
 
     optionsMenu = std::make_unique<juce::PopupMenu>();
     optionsMenu->addItem ("Duplicate", [this] {
+        std::cout << "selectedRowNumber: " << selectedRowNumber << std::endl;
         if (listener != nullptr)
             listener->duplicateProfile (selectedRowNumber);
-        juce::PopupMenu::dismissAllActiveMenus();
+//        juce::PopupMenu::dismissAllActiveMenus();
+        std::cout << "duplicating with selected row: " << selectedRowNumber << std::endl;
     });
     optionsMenu->addItem ("Rename", [this] {
         if (listener != nullptr)
             listener->renameProfile (selectedRowNumber);
-        juce::PopupMenu::dismissAllActiveMenus();
+//        juce::PopupMenu::dismissAllActiveMenus();
+        std::cout << "renaming with selected row: " << selectedRowNumber << std::endl;
     });
     optionsMenu->addSeparator();
     optionsMenu->addItem ("Delete", [this] {
         if (listener != nullptr)
             listener->deleteProfile (selectedRowNumber);
-        juce::PopupMenu::dismissAllActiveMenus();
+//        juce::PopupMenu::dismissAllActiveMenus();
+        std::cout << "deleting with selected row: " << selectedRowNumber << std::endl;
     });
 }
 
@@ -58,7 +62,9 @@ juce::String ProfileList::getNameForRow (int rowNumber)
     if (dataSource == nullptr)
         return juce::String();
     if (rowNumber < 0 || rowNumber >= dataSource->getProfileNames().size())
+    {
         return "OUT OF BOUNDS";
+    }
     return dataSource->getProfileNames()[rowNumber];
 }
 
@@ -107,7 +113,7 @@ juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowS
     row->setProfileName (getNameForRow (rowNumber));
     row->setIsSelected (rowNumber == selectedRowNumber);
     row->setRowNumber (rowNumber);
-    std::cout << "name: " << getNameForRow (rowNumber) << ", rowNumber: " << rowNumber << ", selected: " << (rowNumber == selectedRowNumber) << std::endl;
+//    std::cout << "name: " << getNameForRow (rowNumber) << ", rowNumber: " << rowNumber << ", selected: " << (rowNumber == selectedRowNumber) << std::endl;
     return row;
 }
 

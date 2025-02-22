@@ -26,7 +26,7 @@ ProfileRow::ProfileRow (int rowNumber)
         if (listener != nullptr)
         {
             listener->profileRowOptionsClicked (rowNumber);
-            listener->profileRowClicked (rowNumber);
+//            listener->profileRowClicked (rowNumber);
         }
     };
 }
@@ -64,13 +64,14 @@ void ProfileRow::mouseDown (const juce::MouseEvent& event)
 {
     if (listener != nullptr)
         listener->profileRowClicked (rowNumber);
-    std::cout << "profile row clicked, row: " << rowNumber << std::endl;
+    std::cout << "on " << profileName << "profile row clicked, row: " << rowNumber << std::endl;
 }
 
 void ProfileRow::setProfileName (const juce::String& profileName)
 {
+    this->profileName = profileName;
     profileNameLabel.setText (profileName, juce::dontSendNotification);
-    std::cout << "profile name set: " << profileName << ", row: " << rowNumber << std::endl;
+//    std::cout << "profile name set: " << profileName << ", row: " << rowNumber << std::endl;
 }
 
 void ProfileRow::setIsSelected (bool isSelected)

@@ -44,7 +44,8 @@ public:
 
 private:
     ProfileRowListener* listener = nullptr;
-
+    
+    juce::String profileName;
     juce::Label profileNameLabel;
     juce::ImageButton ellipsisButton;
 
