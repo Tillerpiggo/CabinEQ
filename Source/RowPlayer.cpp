@@ -60,7 +60,7 @@ std::pair<float, float> RowPlayer::getNextSample()
         snapToZeroCounter = 0;
     }
     snapToZeroCounter++;
-
+//
     return { leftSample, rightSample };
 }
 
@@ -109,6 +109,20 @@ void RowPlayer::updateFiltersIfNeeded()
         highPassFiltersLeft[i].coefficients = highPassCoeffs;
         highPassFiltersRight[i].coefficients = highPassCoeffs;
     }
+
+    // Figure out the panning based on density, where its evenly spaced across
+    float startPan = -1;
+    float endPan = 1;
+    float panWidth = endPan - startPan;
+
+    leftRightGains.clear();
+    float panStep = panWidth / ((float) density - 1.0f); // panning division within this one square
+    for (int i = 0; i < density; ++i)
+    {
+        float interPan = startPan + i * panStep;
+        leftRightGains.push_back({ interPan, interPan });
+    }
+
 
     shouldUpdateFilters = false;
 }
