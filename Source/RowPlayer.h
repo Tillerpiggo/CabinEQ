@@ -23,6 +23,7 @@ public:
     void setFrequency (float centerFreqHz);
     void setBandwidth (float bandwidthOctaves);
     void setMinAndMaxFreqs (float minFreqHz, float maxFreqHz);
+    void setPlayingIdx (int playingIdx);
     
 private:
     void updateFiltersIfNeeded();
@@ -42,6 +43,8 @@ private:
     int order = 4;
     int snapToZeroCounter = 0;
     int density = 5; // noise sources per row
+
+    int playingIdx = -1;
 
     float MIN_FREQ = 20.0f;
     float MAX_FREQ = 20000.0f;

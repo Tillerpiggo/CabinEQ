@@ -33,9 +33,14 @@ std::pair<float, float> RowPlayer::getNextSample()
     // Generate and sum noise sources
     for (int i = 0; i < density; ++i)
     {
+        // If playing a specific index, don't play other indices
+        if (playingIdx != -1 && i != playingIdx)
+            continue;
+
         float noise = (random.nextFloat() * 2.0f - 1.0f) * totalGain / (float) density;
         leftSample += noise * leftRightGains[i].first;
         rightSample += noise * leftRightGains[i].second;
+        std::cout << "leftRightGains[i].first: " << leftRightGains[i].first << ", leftRightGains[i].second: " << leftRightGains[i].second << std::endl;
     }
 
     // Apply filters
@@ -94,6 +99,11 @@ void RowPlayer::setMinAndMaxFreqs(float minFreqHz, float maxFreqHz)
     MIN_FREQ = minFreqHz;
     MAX_FREQ = maxFreqHz;
     shouldUpdateFilters = true;
+}
+
+void RowPlayer::setPlayingIdx(int playingIdx)
+{
+    this->playingIdx = playingIdx;
 }
 
 void RowPlayer::updateFiltersIfNeeded()

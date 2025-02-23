@@ -67,7 +67,7 @@ void ElevationCalibrationPlayer::processBlock(juce::AudioBuffer<float>& buffer, 
     }
     
     // Update time
-    currTime += 0.01f;
+    currTime += 0.005f;
     if (currTime >= 1.0f)
         currTime -= 1.0f;
 }
@@ -112,6 +112,12 @@ void ElevationCalibrationPlayer::updateRowGains()
     for (int i = 0; i < rowGains.size(); ++i)
     {
         rowGains[i] = (i == playingRow) ? 1.0f : 0.0f;
+    }
+
+    // Also update row players
+    for (int i = 0; i < rowPlayers.size(); ++i)
+    {
+        rowPlayers[i].setPlayingIdx(calibration.getPlayingColAtTime(currTime));
     }
 }
 

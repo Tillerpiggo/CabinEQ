@@ -31,6 +31,7 @@ public:
     
     // Playback
     int getPlayingRowAtTime(double normalizedTime) const;
+    int getPlayingColAtTime(double normalizedTime) const;
     
 private:
     std::vector<int> getAdjacentRows(int row) const;
@@ -40,4 +41,5 @@ private:
     
     int numRows = 3;           // Always odd: 3, 5, 9, 17, etc.
     int selectedRow = 1;       // Currently selected row (for UI)
+    int numCols = 5;           // Number of columns to iterate through as we do the calibration
 };
