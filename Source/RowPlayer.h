@@ -9,3 +9,39 @@
 */
 
 #pragma once
+
+#include <JuceHeader.h>
+
+class RowPlayer
+{
+public:
+    RowPlayer();
+    
+    std::pair<float, float> getNextSample();
+    
+    void prepare (const juce::dsp::ProcessSpec& spec);
+    void setFrequency (float centerFreqHz);
+    void setBandwidth (float bandwidthOctaves);
+    
+private:
+    void updateFiltersIfNeeded();
+    
+    float sampleRate;
+    float totalGain = 1.0f;
+    float centerFreq;
+    float bandwidth;
+    std::vector<std::pair<float, float>> leftRightGains;
+    
+    
+    juce::Random random;
+    std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersLeft;
+    std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersRight;
+    std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersLeft;
+    std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersRight;
+    int order = 4;
+    int snapToZeroCounter = 0;
+    int density = 12; // noise sources per row
+
+    bool shouldUpdateGenerators = true;
+    bool shouldUpdateFilters = true;
+};

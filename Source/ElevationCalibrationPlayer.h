@@ -9,3 +9,43 @@
 */
 
 #pragma once
+
+#include <JuceHeader.h>
+#include "RowPlayer.h"
+#include "ElevationCalibration.h"
+#include "Curve.h"
+#include "ArbitraryResponseFilter.h"
+
+class ElevationCalibrationPlayer
+{
+public:
+    ElevationCalibrationPlayer();
+    
+    std::pair<float, float> getNextSample();
+    void processBlock(juce::AudioBuffer<float>& buffer, float gain = 1.0f);
+    void prepare(const juce::dsp::ProcessSpec& spec);
+
+    void setCalibration(ElevationCalibration calibration);
+    void setBandwidth(float bandwidthOctaves);
+
+    std::vector<float> getCurrPlayingFreqs();
+    
+private:
+    void updateRowPlayersIfNeeded();
+    float getFrequencyForRow(int row) const;
+
+    juce::dsp::ProcessSpec spec;
+    ElevationCalibration calibration;
+    std::vector<RowPlayer> rowPlayers;
+    bool shouldUpdateRowPlayers = true;
+
+    ArbitraryResponseFilter tiltFilter;
+    TiltCurve tiltCurve;
+
+    float bandwidth = 0.5f;
+    float MIN_FREQ = 20.0f;
+    float MAX_FREQ = 16000.0f;
+    
+    
+};
+
