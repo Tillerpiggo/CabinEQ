@@ -63,6 +63,7 @@ int ElevationCalibration::getPlayingRowAtTime(double normalizedTime) const
 int ElevationCalibration::getPlayingColAtTime(double normalizedTime) const
 {
     float normalizedRowTime = std::fmod(normalizedTime, 1.0f / static_cast<float>(numCols));
+    normalizedRowTime *= static_cast<float>(numCols);
     return static_cast<int>(std::clamp(normalizedRowTime * numCols, 0.0f, static_cast<float>(numCols-1)));
 }
 

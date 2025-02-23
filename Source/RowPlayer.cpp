@@ -37,10 +37,9 @@ std::pair<float, float> RowPlayer::getNextSample()
         if (playingIdx != -1 && i != playingIdx)
             continue;
 
-        float noise = (random.nextFloat() * 2.0f - 1.0f) * totalGain / (float) density;
+        float noise = (random.nextFloat() * 2.0f - 1.0f) * totalGain;
         leftSample += noise * leftRightGains[i].first;
         rightSample += noise * leftRightGains[i].second;
-        std::cout << "leftRightGains[i].first: " << leftRightGains[i].first << ", leftRightGains[i].second: " << leftRightGains[i].second << std::endl;
     }
 
     // Apply filters
@@ -140,7 +139,7 @@ void RowPlayer::updateFiltersIfNeeded()
         float angle = (interPan + 1.0f) * M_PI / 4.0f; // map pan from [-1, 1] to angle [0, π/2]
         float leftGain = std::cos (angle);
         float rightGain = std::sin (angle);
-        leftRightGains.push_back({ interPan, interPan });
+        leftRightGains.push_back({ leftGain, rightGain });
     }
 
 
