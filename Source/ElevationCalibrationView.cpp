@@ -102,6 +102,7 @@ void ElevationCalibrationView::setListener(ElevationCalibrationListener* listene
 void ElevationCalibrationView::setDataSource(ElevationCalibrationDataSource* dataSource)
 {
     this->dataSource = dataSource;
+    updateElevationCalibration();
 }
 
 void ElevationCalibrationView::updateElevationCalibration()
@@ -130,11 +131,20 @@ void ElevationCalibrationView::updatePlusMinusButtons()
 
 void ElevationCalibrationView::drawGridLines(juce::Graphics& g)
 {
-    // Draw horizontal grid lines
+    // Draw horizontal grid lines surrounding each row, as well as vertical grid lines on the outside
     auto bounds = getLocalBounds().toFloat();
     g.setColour(GRIDLINE_COLOUR);
     
-    // Implementation will depend on your specific grid needs
+    // Draw vertical lines on left and right edges
+    g.drawLine(bounds.getX(), bounds.getY(), bounds.getX(), bounds.getBottom());
+    g.drawLine(bounds.getRight(), bounds.getY(), bounds.getRight(), bounds.getBottom());
+    
+    // Draw horizontal lines between rows
+    float rowHeight = bounds.getHeight() / numRows;
+    for (int i = 0; i <= numRows; ++i) {
+        float y = bounds.getY() + i * rowHeight;
+        g.drawLine(bounds.getX(), y, bounds.getRight(), y);
+    }
 }
 
 void ElevationCalibrationView::drawRows(juce::Graphics& g)
