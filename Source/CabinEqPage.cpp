@@ -80,10 +80,13 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     // loadDropdownOptions();
     
     bypassButton.setColour (juce::TextButton::buttonColourId, juce::Colours::blueviolet);
+    
+    setLookAndFeel (&cabinEqLookAndFeel);
 }
 
 CabinEqPage::~CabinEqPage()
 {
+    setLookAndFeel (nullptr);
     // profileDropdown.removeListener (this);
     bypassButton.removeListener (this);
     masterVolumeSlider.removeListener (this);
