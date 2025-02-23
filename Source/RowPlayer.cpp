@@ -102,8 +102,8 @@ void RowPlayer::updateFiltersIfNeeded()
         return;
 
     // Calculate filter frequencies
-    float lowFreq = std::max(centerFreq * std::pow(2.0f, -bandwidth / 2.0f), MIN_FREQ);
-    float highFreq = std::min(centerFreq * std::pow(2.0f, bandwidth / 2.0f), MAX_FREQ);
+    float lowFreq = std::max(centerFreq * std::pow(2.0f, -bandwidth), MIN_FREQ);
+    float highFreq = std::min(centerFreq * std::pow(2.0f, bandwidth), MAX_FREQ);
 
     // Update all filter coefficients
     for (int i = 0; i < order; ++i)
@@ -127,6 +127,9 @@ void RowPlayer::updateFiltersIfNeeded()
     for (int i = 0; i < density; ++i)
     {
         float interPan = startPan + i * panStep;
+        float angle = (interPan + 1.0f) * M_PI / 4.0f; // map pan from [-1, 1] to angle [0, π/2]
+        float leftGain = std::cos (angle);
+        float rightGain = std::sin (angle);
         leftRightGains.push_back({ interPan, interPan });
     }
 
