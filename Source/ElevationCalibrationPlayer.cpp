@@ -93,11 +93,19 @@ void ElevationCalibrationPlayer::setBandwidth(float bandwidthOctaves)
 
 std::vector<float> ElevationCalibrationPlayer::getCurrPlayingFreqs()
 {
+    int playingRow = calibration.getPlayingRowAtTime(currTime);
     std::vector<float> freqs;
     for (int i = 0; i < rowPlayers.size(); ++i)
     {
-        freqs.push_back (getFrequencyForRow (i));
+        if (i == playingRow)
+            freqs.push_back (getFrequencyForRow (i));
     }
+
+    // std::vector<float> freqs;
+    // for (int i = 0; i < rowPlayers.size(); ++i)
+    // {
+    //     freqs.push_back (getFrequencyForRow (i));
+    // }
     return freqs;
 }
 
@@ -149,11 +157,15 @@ float ElevationCalibrationPlayer::getFrequencyForRow(int row) const
 {
     auto numRows = calibration.getNumRows();
 
-    // Evenly subdivide numRows-1 divisions between MIN_FREQ and MAX_FREQ
-    float numOctaves = std::log2(MAX_FREQ / MIN_FREQ);
+    // Adjust MIN_FREQ and MAX_FREQ to account for bandwidth
+    float adjustedMinFreq = MIN_FREQ * std::pow(2.0f, bandwidth);
+    float adjustedMaxFreq = MAX_FREQ / std::pow(2.0f, bandwidth);
+
+    // Evenly subdivide numRows-1 divisions between adjusted frequencies
+    float numOctaves = std::log2(adjustedMaxFreq / adjustedMinFreq);
     float octavePerBand = numOctaves / static_cast<float> (numRows - 1);
 
     // Return logarithmically spaced frequency for this row
-    return MIN_FREQ * std::pow(2.0f, octavePerBand * row);
+    return adjustedMinFreq * std::pow(2.0f, octavePerBand * row);
 }
 

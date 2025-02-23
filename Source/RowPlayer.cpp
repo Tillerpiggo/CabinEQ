@@ -36,7 +36,7 @@ std::pair<float, float> RowPlayer::getNextSample()
         // If playing a specific index, don't play other indices
         if (playingIdx != -1 && i != playingIdx)
             continue;
-
+        
         float noise = (random.nextFloat() * 2.0f - 1.0f) * totalGain;
         leftSample += noise * leftRightGains[i].first;
         rightSample += noise * leftRightGains[i].second;

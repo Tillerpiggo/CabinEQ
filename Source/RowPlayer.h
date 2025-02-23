@@ -40,7 +40,7 @@ private:
     std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersRight;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersLeft;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersRight;
-    int order = 4;
+    int order = 1;
     int snapToZeroCounter = 0;
     int density = 5; // noise sources per row
 
