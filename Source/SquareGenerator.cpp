@@ -32,7 +32,7 @@ std::pair<float, float> SquareGenerator::getNextSample()
     for (int i = 0; i < leftRightGains.size(); ++i)
     {
         auto [leftGain, rightGain] = leftRightGains[i];
-        float pinkNoiseSample = random.nextFloat() * totalGain * 10.0f / (float) density;//pinkNoises[i].generate() * 10.0f * totalGain / (float) density;
+        float pinkNoiseSample = (random.nextFloat() * 2.0f - 1.0f) * totalGain * 10.0f / (float) density;//pinkNoises[i].generate() * 10.0f * totalGain / (float) density;
         nextLeftSample += pinkNoiseSample * leftGain;
         nextRightSample += pinkNoiseSample * rightGain;
     }
