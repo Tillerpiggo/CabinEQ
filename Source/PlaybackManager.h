@@ -66,6 +66,7 @@ public:
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
     bool getIsPlaying();
     float getBandwidth();
+    float getCurrTime();
     std::vector<float> getCurrPlayingFreqs();
     std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols();
     

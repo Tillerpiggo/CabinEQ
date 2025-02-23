@@ -30,6 +30,7 @@ public:
     // ElevationCalibrationDataSource
     int getNumRows();
     int getSelectedRow();
+    int getPlayingRowAtTime(float normalizedTime);
     ElevationCalibration getCurrElevationCalibration();
     
     int getPlayingRowAtTime(double normalizedTime) const;

@@ -190,6 +190,7 @@ public:
     
     virtual int getNumRows() = 0;
     virtual int getSelectedElevationRow() = 0;
+    virtual int getPlayingElevationRow() = 0;
     virtual bool getIsPlaying() = 0;
     virtual bool canIncreaseNumRows() = 0;
     virtual bool canDecreaseNumRows() = 0;

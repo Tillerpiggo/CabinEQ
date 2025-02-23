@@ -43,8 +43,8 @@ void ElevationCalibrationView::paint(juce::Graphics& g)
 {
     g.fillAll(BACKGROUND_COLOUR);
     
-    drawGridLines(g);
     drawRows(g);
+    drawGridLines(g);
 }
 
 void ElevationCalibrationView::resized()
@@ -166,8 +166,13 @@ void ElevationCalibrationView::drawRow(int rowIdx, juce::Graphics& g)
         
     auto rowBounds = getRowRect(rowIdx);
     bool isSelected = (rowIdx == dataSource->getSelectedElevationRow());
-
-    g.setColour(isSelected ? ON_COLOUR : ROW_COLOUR);
+    juce::Colour rowColour = isSelected ? ON_COLOUR : ROW_COLOUR;
+    if (isPlaying && rowIdx == dataSource->getPlayingElevationRow())
+    {
+        rowColour = PLAYING_ROW_COLOUR;
+    }
+    
+    g.setColour(rowColour);
     g.fillRect(rowBounds);
 }
 
@@ -180,7 +185,7 @@ juce::Rectangle<float> ElevationCalibrationView::getRowRect(int rowIdx)
     int numRows = dataSource->getNumRows();
     float rowHeight = bounds.getHeight() / numRows;
     
-    return bounds.withHeight(rowHeight).withY(bounds.getY() + rowIdx * rowHeight);
+    return bounds.withHeight(rowHeight).withY(bounds.getY() + bounds.getHeight() - (rowIdx + 1) * rowHeight);
 }
 
 std::optional<int> ElevationCalibrationView::rowIdxForMouseEvent(const juce::MouseEvent& event)
@@ -193,6 +198,7 @@ std::optional<int> ElevationCalibrationView::rowIdxForMouseEvent(const juce::Mou
     float rowHeight = bounds.getHeight() / numRows;
     
     int rowIdx = (event.y - bounds.getY()) / rowHeight;
+    rowIdx = numRows - rowIdx - 1; // reverse to make sure we're doing things right
     if (rowIdx >= 0 && rowIdx < numRows)
         return rowIdx;
         

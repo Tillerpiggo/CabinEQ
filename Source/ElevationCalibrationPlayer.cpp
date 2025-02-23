@@ -101,6 +101,11 @@ std::vector<float> ElevationCalibrationPlayer::getCurrPlayingFreqs()
     return freqs;
 }
 
+float ElevationCalibrationPlayer::getCurrTime()
+{
+    return currTime;
+}
+
 void ElevationCalibrationPlayer::updateRowGains()
 {
     auto playingRow = calibration.getPlayingRowAtTime(currTime);

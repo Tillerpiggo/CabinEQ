@@ -66,6 +66,7 @@ private:
     juce::Colour GRIDLINE_COLOUR = juce::Colours::teal;
     juce::Colour ROW_COLOUR = juce::Colours::teal;
     juce::Colour HOVER_COLOUR = juce::Colours::black.withAlpha (0.2f);
+    juce::Colour PLAYING_ROW_COLOUR = juce::Colours::yellow;
 };
 
 

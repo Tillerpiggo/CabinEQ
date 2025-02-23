@@ -531,6 +531,11 @@ int CabinEqAudioProcessor::getSelectedElevationRow()
     return elevationCalibrationManager.getSelectedRow();
 }
 
+int CabinEqAudioProcessor::getPlayingElevationRow()
+{
+    return elevationCalibrationManager.getPlayingRowAtTime(playbackManager.getCurrTime());
+}
+
 int CabinEqAudioProcessor::getNumRows()
 {
     return elevationCalibrationManager.getNumRows();

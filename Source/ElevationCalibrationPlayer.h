@@ -29,6 +29,7 @@ public:
     void setBandwidth(float bandwidthOctaves);
 
     std::vector<float> getCurrPlayingFreqs();
+    float getCurrTime();
     
 private:
     void updateRowGains();

@@ -164,6 +164,7 @@ public:
     void decreaseNumRows() override;
     int getNumRows() override;
     int getSelectedElevationRow() override;
+    int getPlayingElevationRow() override;
     bool canIncreaseNumRows() override;
     bool canDecreaseNumRows() override;
 

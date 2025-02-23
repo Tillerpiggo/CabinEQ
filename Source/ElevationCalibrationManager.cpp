@@ -55,6 +55,11 @@ int ElevationCalibrationManager::getSelectedRow()
     return calibration.getSelectedRow();
 }
 
+int ElevationCalibrationManager::getPlayingRowAtTime(float normalizedTime)
+{
+    return calibration.getPlayingRowAtTime(normalizedTime);
+}
+
 ElevationCalibration ElevationCalibrationManager::getCurrElevationCalibration()
 {
     return calibration;

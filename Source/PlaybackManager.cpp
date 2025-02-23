@@ -224,6 +224,11 @@ float PlaybackManager::getBandwidth()
     return bandwidth;
 }
 
+float PlaybackManager::getCurrTime()
+{
+    return elevationCalibrationPlayer.getCurrTime();
+}
+
 std::vector<float> PlaybackManager::getCurrPlayingFreqs()
 {
     return elevationCalibrationPlayer.getCurrPlayingFreqs();
