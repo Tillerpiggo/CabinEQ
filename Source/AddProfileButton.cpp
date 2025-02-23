@@ -15,9 +15,12 @@ AddProfileButton::AddProfileButton()
     label.setText ("New Profile", juce::dontSendNotification);
     label.setFont (juce::Font (16.0f));
     label.setColour (juce::Label::textColourId, textColour);
-    addAndMakeVisible (&label);
+    label.setInterceptsMouseClicks (false, false);
 
     icon.setImage (iconImage);
+    icon.setInterceptsMouseClicks (false, false);
+
+    addAndMakeVisible (&label);
     addAndMakeVisible (&icon);
 }
 
