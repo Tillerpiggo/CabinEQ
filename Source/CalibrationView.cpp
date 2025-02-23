@@ -13,7 +13,8 @@
 CalibrationView::CalibrationView()
 {
     // Checkerboard view
-    addAndMakeVisible (checkerboardView);
+    // addAndMakeVisible (checkerboardView);
+    addAndMakeVisible (elevationCalibrationView);
     
     // Setup new player component
     // Title
@@ -123,10 +124,15 @@ void CalibrationView::resized()
     musicListLayout.addRow ({ Space (&musicList) });
     musicListLayout.updateComponentBounds();
     
-    // Checkerboard View
-    Layout checkerboardLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
-    checkerboardLayout.addRow ({ Space (&checkerboardView ) });
-    checkerboardLayout.updateComponentBounds();
+    // // Checkerboard View
+    // Layout checkerboardLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
+    // checkerboardLayout.addRow ({ Space (&checkerboardView ) });
+    // checkerboardLayout.updateComponentBounds();
+
+    // Elevation Calibration View
+    Layout elevationCalibrationLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
+    elevationCalibrationLayout.addRow ({ Space (&elevationCalibrationView ) });
+    elevationCalibrationLayout.updateComponentBounds();
     
     Layout playerLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
     playerLayout.addRow ({ Space() });
@@ -184,6 +190,7 @@ void CalibrationView::timerCallback()
     {
         calibrationListener->toggleCheckerboardPolarity();
         checkerboardView.updateCheckerboard();
+        elevationCalibrationView.updateElevationCalibration();
     }
 }
 

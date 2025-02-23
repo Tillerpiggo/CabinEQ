@@ -15,6 +15,7 @@
 #include "Layout.h"
 #include "Listeners.h"
 #include "CheckerboardView.h"
+#include "ElevationCalibrationView.h"
 #include "MusicList2.h"
 
 // This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
@@ -48,6 +49,7 @@ private:
     
     CalibrationListener* calibrationListener = nullptr;
     CheckerboardViewDataSource* dataSource = nullptr;
+    ElevationCalibrationDataSource* elevationCalibrationDataSource = nullptr;
     
     // Music list
     MusicList musicList;
@@ -55,6 +57,7 @@ private:
     // Glyph View
     //    GlyphGridView glyphGridView;
     CheckerboardView checkerboardView;
+    ElevationCalibrationView elevationCalibrationView;
     
     // Play button stuff
     juce::Image playImage = juce::ImageFileFormat::loadFrom (BinaryData::PlayButtonIcon_png, BinaryData::PlayButtonIcon_pngSize);

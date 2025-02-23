@@ -104,6 +104,15 @@ void ElevationCalibrationView::setDataSource(ElevationCalibrationDataSource* dat
     this->dataSource = dataSource;
 }
 
+void ElevationCalibrationView::updateElevationCalibration()
+{
+    if (dataSource == nullptr)
+        return;
+        
+    numRows = dataSource->getNumRows();
+    selectedRow = dataSource->getSelectedRow();
+}
+
 void ElevationCalibrationView::timerCallback()
 {
     // Update animation state and repaint

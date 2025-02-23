@@ -35,6 +35,8 @@ public:
     void setListener (ElevationCalibrationListener* listener);
     void setDataSource (ElevationCalibrationDataSource* dataSource);
 
+    void updateElevationCalibration();
+
     void timerCallback() override;
     
 private:
@@ -56,6 +58,8 @@ private:
     bool isPlaying = false;
 
     // Gestures
+    int numRows = 3;
+    int selectedRow = 1; // 0-indexed, 0 = lower frequency
     
 
     // Visual constants
