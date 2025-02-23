@@ -84,7 +84,9 @@ void ProfileList::selectedRowsChanged (int lastRowSelected)
 {
     if (listener != nullptr)
         listener->selectedRow (lastRowSelected);
-    std::cout << "selected rows changed to: " << lastRowSelected << std::endl;
+    selectedRowNumber = lastRowSelected;
+    updateContent();
+    listBox.scrollToEnsureRowIsOnscreen (lastRowSelected);
 }
 
 juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowSelected, juce::Component* existingComponentToUpdate)
