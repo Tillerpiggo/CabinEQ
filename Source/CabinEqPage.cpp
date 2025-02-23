@@ -221,6 +221,15 @@ void CabinEqPage::didLoadData()
     if (lastSelectedProfileName.has_value())
     {
         goToProfileWithId (lastSelectedProfileName.value());
+        int lastSelectedId = 0;
+        for (int i = 0; i < profileView.getProfileNames().size(); i++)
+        {
+            if (profileView.getProfileNames()[i] == lastSelectedProfileName.value())
+            {
+                lastSelectedId = i;
+            }
+        }
+        profileView.setProfileSelected (lastSelectedId);
     }
     
     // If there are no profiles, add one
@@ -234,9 +243,6 @@ void CabinEqPage::didLoadData()
     lockIfNecessary(); // locks the filter/graph if you don't have a license and the profile is locked
     
     masterVolumeSlider.setValue (processor.getMasterVolume(), juce::sendNotification);
-    
-    // TODO: Figure out lastSelectedId with profileView
-    // lastSelectedId = profileDropdown.getSelectedId(); // make sure we think the newly selected id is the last selected id
     
     resized();
     

@@ -181,6 +181,13 @@ void ProfileList::setIsAddingProfile (bool isAddingProfile)
     scrollToBottom();
 }
 
+void ProfileList::setSelectedRow (int row)
+{
+    selectedRowNumber = row;
+    updateContent();
+    listBox.scrollToEnsureRowIsOnscreen (row);
+}
+
 void ProfileList::profileRowRenamed (int row, juce::String newProfileName)
 {
     if (listener != nullptr)

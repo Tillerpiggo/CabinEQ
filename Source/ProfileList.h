@@ -50,6 +50,9 @@ public:
     // Adding profile
     void setIsAddingProfile (bool isAddingProfile);
 
+    // Programmatically select a row
+    void setSelectedRow (int row);
+
 private:
     void showAlertWindow();
     void dismissAlertWindow();

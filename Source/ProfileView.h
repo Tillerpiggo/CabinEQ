@@ -40,6 +40,7 @@ public:
 
     std::vector<juce::String> getProfileNames() override;
     bool getIsProfileLocked (int rowIdx) override;
+    void setProfileSelected (int rowIdx);
 
 private:
     bool isDuplicateProfileName (juce::String profileName);

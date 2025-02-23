@@ -123,6 +123,13 @@ bool ProfileView::getIsProfileLocked (int rowIdx)
     return false;
 }
 
+void ProfileView::setProfileSelected (int rowIdx)
+{
+    if (listener == nullptr || dataSource == nullptr || dataSource->getProfileNames().size() == 0)
+        return;
+    profileList.setSelectedRow (rowIdx);
+}
+
 bool ProfileView::isDuplicateProfileName (juce::String profileName)
 {
     if (dataSource == nullptr)
