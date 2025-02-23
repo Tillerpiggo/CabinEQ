@@ -20,7 +20,6 @@ ProfileView::ProfileView()
     titleLabel.setFont (juce::Font (18.0f, juce::Font::bold));
     titleLabel.setJustificationType (juce::Justification::left);
 
-    addProfileButton.setButtonText ("Add Profile");
     addProfileButton.onClick = [this] {
 //        if (listener != nullptr)
 //            listener->addedProfile();

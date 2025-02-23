@@ -31,6 +31,8 @@ public:
     std::function<void()> onClick; // called when the button is pressed
 
 private:
+    juce::Colour currBackgroundColour = juce::Colours::white;
+    
     // UI Constants
     juce::Colour backgroundColour = juce::Colours::white;
     juce::Colour hoverColour = juce::Colours::lightgrey;

@@ -15,6 +15,7 @@
 #include "BuildableComponent.h"
 #include "Layout.h"
 #include "ProfileList.h"
+#include "AddProfileButton.h"
 
 // This class hosts a profileList and allows users to also add profiles to the list
 class ProfileView  : public BuildableComponent,
@@ -48,5 +49,5 @@ private:
 
     ProfileList profileList;
     juce::Label titleLabel { "Profiles" };
-    juce::TextButton addProfileButton { "Add Profile" };
+    AddProfileButton addProfileButton;
 };

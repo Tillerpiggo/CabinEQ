@@ -27,7 +27,7 @@ AddProfileButton::~AddProfileButton()
 
 void AddProfileButton::paint (juce::Graphics& g)
 {
-    g.setColour (backgroundColour);
+    g.setColour (currBackgroundColour);
     g.fillRect (getLocalBounds());
 }
 
@@ -40,22 +40,22 @@ void AddProfileButton::resized()
 
 void AddProfileButton::mouseEnter (const juce::MouseEvent& event)
 {
-    backgroundColour = hoverColour;
+    currBackgroundColour = hoverColour;
 }
 
 void AddProfileButton::mouseExit (const juce::MouseEvent& event)
 {
-    backgroundColour = backgroundColour;
+    currBackgroundColour = backgroundColour;
 }
 
 void AddProfileButton::mouseDown (const juce::MouseEvent& event)
 {
-    backgroundColour = pressedColour;
+    currBackgroundColour = pressedColour;
 }
 
 void AddProfileButton::mouseUp (const juce::MouseEvent& event)
 {
-    backgroundColour = hoverColour;
+    currBackgroundColour = hoverColour;
     if (onClick != nullptr)
         onClick();
 }
