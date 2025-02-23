@@ -12,6 +12,7 @@
           file="../../../Downloads/PlayButtonIcon.png"/>
     <FILE id="X2mn55" name="NextButtonIcon.png" compile="0" resource="1"
           file="../../../Downloads/NextButtonIcon.png"/>
+    <FILE id="leouzo" name="PlusIcon.png" compile="0" resource="1" file="../../../Downloads/PlusIcon.png"/>
     <FILE id="jnVZcE" name="PrevButtonIcon.png" compile="0" resource="1"
           file="../../../Downloads/PrevButtonIcon.png"/>
     <FILE id="GJYOoB" name="SpeakerIcon.png" compile="0" resource="1" file="../../../Downloads/SpeakerIcon.png"/>
@@ -63,6 +64,10 @@
         <FILE id="AynBKb" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
       </GROUP>
       <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
+        <FILE id="vms39t" name="AddProfileButton.cpp" compile="1" resource="0"
+              file="Source/AddProfileButton.cpp"/>
+        <FILE id="b0RjiP" name="AddProfileButton.h" compile="0" resource="0"
+              file="Source/AddProfileButton.h"/>
         <GROUP id="{3B5A2BE2-E6B6-3B7A-F6E4-7F90726FB230}" name="Layout">
           <FILE id="AatRfE" name="Layout.cpp" compile="1" resource="0" file="Source/Layout.cpp"/>
           <FILE id="IvB2LP" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
