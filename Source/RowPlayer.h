@@ -22,6 +22,7 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     void setFrequency (float centerFreqHz);
     void setBandwidth (float bandwidthOctaves);
+    void setMinAndMaxFreqs (float minFreqHz, float maxFreqHz);
     
 private:
     void updateFiltersIfNeeded();
@@ -41,6 +42,9 @@ private:
     int order = 4;
     int snapToZeroCounter = 0;
     int density = 12; // noise sources per row
+
+    float MIN_FREQ = 20.0f;
+    float MAX_FREQ = 20000.0f;
 
     bool shouldUpdateGenerators = true;
     bool shouldUpdateFilters = true;

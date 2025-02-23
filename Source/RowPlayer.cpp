@@ -89,14 +89,21 @@ void RowPlayer::setBandwidth(float bandwidthOctaves)
     shouldUpdateFilters = true;
 }
 
+void RowPlayer::setMinAndMaxFreqs(float minFreqHz, float maxFreqHz)
+{
+    MIN_FREQ = minFreqHz;
+    MAX_FREQ = maxFreqHz;
+    shouldUpdateFilters = true;
+}
+
 void RowPlayer::updateFiltersIfNeeded()
 {
     if (!shouldUpdateFilters)
         return;
 
     // Calculate filter frequencies
-    float lowFreq = centerFreq * std::pow(2.0f, -bandwidth / 2.0f);
-    float highFreq = centerFreq * std::pow(2.0f, bandwidth / 2.0f);
+    float lowFreq = std::max(centerFreq * std::pow(2.0f, -bandwidth / 2.0f), MIN_FREQ);
+    float highFreq = std::min(centerFreq * std::pow(2.0f, bandwidth / 2.0f), MAX_FREQ);
 
     // Update all filter coefficients
     for (int i = 0; i < order; ++i)

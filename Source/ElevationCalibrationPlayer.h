@@ -42,7 +42,7 @@ private:
     ArbitraryResponseFilter tiltFilter;
     TiltCurve tiltCurve;
 
-    float bandwidth = 0.5f;
+    float bandwidth = 2.0f;
     float MIN_FREQ = 20.0f;
     float MAX_FREQ = 16000.0f;
     

@@ -46,7 +46,7 @@ void ElevationCalibrationPlayer::processBlock(juce::AudioBuffer<float>& buffer, 
 
     for (int sample = 0; sample < copyBuffer.getNumSamples(); ++sample)
     {
-        std::pair<float, float> nextSample = { random.nextFloat() * 2.0f - 1.0f, random.nextFloat() * 2.0f - 1.0f }; //getNextSample();
+        std::pair<float, float> nextSample = getNextSample();
         leftChannel[sample] += nextSample.first * 0.15 * gain;
 
         if (rightChannel)
@@ -111,6 +111,7 @@ void ElevationCalibrationPlayer::updateRowPlayersIfNeeded()
         rowPlayers.back().prepare (spec);
         rowPlayers.back().setFrequency (freq);
         rowPlayers.back().setBandwidth (bandwidth);
+        rowPlayers.back().setMinAndMaxFreqs (MIN_FREQ, MAX_FREQ);
     }
 
     shouldUpdateRowPlayers = false;
