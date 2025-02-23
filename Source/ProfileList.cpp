@@ -190,6 +190,9 @@ void ProfileList::profileRowRenamed (int row, juce::String newProfileName)
         {
             listener->addProfile (newProfileName);
             isAddingProfile = false;
+            selectedRowNumber = dataSource->getProfileNames().size() - 1;
+            listBox.scrollToEnsureRowIsOnscreen (selectedRowNumber);
+            listener->selectedRow (selectedRowNumber);
         }
 
         // Otherwise, just rename the profile
