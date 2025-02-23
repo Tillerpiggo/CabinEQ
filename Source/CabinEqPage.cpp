@@ -94,12 +94,8 @@ CabinEqPage::~CabinEqPage()
 
 void CabinEqPage::paint (juce::Graphics& g)
 {
-    juce::ColourGradient fadeGradient (BACKGROUND_GRADIENT_LIGHT, 0, 0, // Bottom
-        BACKGROUND_GRADIENT_DARK, 900, 300, // Top edge
-        true);
-    
-    g.setGradientFill(fadeGradient);
-    g.fillRect(getLocalBounds());
+    g.setColour (BACKGROUND_COLOUR);
+    g.fillRect (getLocalBounds());
 }
 
 void CabinEqPage::resized()

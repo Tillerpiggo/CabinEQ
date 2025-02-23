@@ -474,11 +474,11 @@ void CabinPeqGraph::setGrayscale (bool isGrayscale)
 void CabinPeqGraph::drawLines (juce::Graphics& g)
 {
     // Draw the center line
-    g.setColour (CENTER_LINE_COLOUR);
+    g.setColour (GRAPH_LINE_COLOUR);
     g.strokePath (centerPath, juce::PathStrokeType (CURVE_THICKNESS * 1.5f));
     
     // Draw the other horizontal lines
-    g.setColour (LINE_COLOUR);
+    g.setColour (GRAPH_LINE_COLOUR);
     for (const auto& horizontalLinePath : horizontalLinePaths)
     {
         g.strokePath (horizontalLinePath, lineStrokeType);
@@ -536,7 +536,7 @@ void CabinPeqGraph::drawBands (juce::Graphics& g)
             bandAlpha = 0.8f;
         juce::Colour bandColour = getColourForFrequency (band.freq).withAlpha (bandAlpha);
         if (selectedIds.find (band.id) != selectedIds.end())
-            bandColour = SELECTED_BAND_COLOUR;
+            bandColour = SELECTION_COLOUR;
         
         if (band.type == Band::Type::left)
             bandColour = juce::Colours::red;
