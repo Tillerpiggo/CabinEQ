@@ -33,8 +33,9 @@ public:
     
     void setListener (CheckerboardViewListener* listener);
     void setCalibrationListener (CalibrationListener* calibrationListener);
-    //    void setDataSource (GlyphViewDataSource* dataSource);
     void setDataSource (CheckerboardViewDataSource* dataSource);
+    void setElevationCalibrationListener (ElevationCalibrationListener* elevationCalibrationListener);
+    void setElevationCalibrationDataSource (ElevationCalibrationDataSource* elevationCalibrationDataSource);
     
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     

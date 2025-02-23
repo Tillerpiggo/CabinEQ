@@ -27,6 +27,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     calibrationView.setListener (&processor);
     calibrationView.setCalibrationListener (&processor);
     calibrationView.setDataSource (&processor);
+    calibrationView.setElevationCalibrationListener (&processor);
+    calibrationView.setElevationCalibrationDataSource (&processor);
 
     freeTrialBanner.setListener (this);
     contactUsBanner.setListener (&processor);

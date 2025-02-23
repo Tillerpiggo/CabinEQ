@@ -111,7 +111,7 @@ void ElevationCalibrationView::updateElevationCalibration()
         return;
         
     numRows = dataSource->getNumRows();
-    selectedRow = dataSource->getSelectedRow();
+    selectedRow = dataSource->getSelectedElevationRow();
 }
 
 void ElevationCalibrationView::timerCallback()
@@ -165,8 +165,10 @@ void ElevationCalibrationView::drawRow(int rowIdx, juce::Graphics& g)
         return;
         
     auto rowBounds = getRowRect(rowIdx);
-    bool isSelected = (rowIdx == dataSource->getSelectedRow());
+    bool isSelected = (rowIdx == dataSource->getSelectedElevationRow());
     
+    std::cout << "rowBounds: (x: " << rowBounds.getX() << ", y: " << rowBounds.getY() << ", width: " << rowBounds.getWidth() << ", height: " << rowBounds.getHeight() << ")" << std::endl;
+
     g.setColour(isSelected ? ON_COLOUR : ROW_COLOUR);
     g.fillRect(rowBounds);
 }

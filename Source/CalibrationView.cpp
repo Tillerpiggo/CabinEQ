@@ -165,6 +165,16 @@ void CalibrationView::setDataSource (CheckerboardViewDataSource* dataSource)
     updatePlayer();
 }
 
+void CalibrationView::setElevationCalibrationListener (ElevationCalibrationListener* elevationCalibrationListener)
+{
+    elevationCalibrationView.setListener (elevationCalibrationListener);
+}
+
+void CalibrationView::setElevationCalibrationDataSource (ElevationCalibrationDataSource* elevationCalibrationDataSource)
+{
+    elevationCalibrationView.setDataSource (elevationCalibrationDataSource);
+}
+
 void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     if (calibrationListener == nullptr)

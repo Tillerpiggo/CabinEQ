@@ -189,8 +189,8 @@ public:
     virtual ~ElevationCalibrationDataSource() = default;
     
     virtual int getNumRows() = 0;
-    virtual int getSelectedRow() = 0;
-    virtual bool isPlaying() = 0;
+    virtual int getSelectedElevationRow() = 0;
+    virtual bool getIsPlaying() = 0;
     virtual bool canIncreaseNumRows() = 0;
     virtual bool canDecreaseNumRows() = 0;
 };

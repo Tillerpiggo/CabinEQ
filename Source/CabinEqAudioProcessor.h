@@ -13,6 +13,7 @@
 #include "PlaybackManager.h"
 #include "CabinEqProfileManager.h"
 #include "CheckerboardManager.h"
+#include "ElevationCalibrationManager.h"
 #include "CabinPeqGraph.h"
 #include "Listeners.h"
 #include "FreeTrialBanner.h"
@@ -28,6 +29,8 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public CabinPeqGraphDataSource,
                                public CheckerboardViewListener,
                                public CheckerboardViewDataSource,
+                               public ElevationCalibrationListener,
+                               public ElevationCalibrationDataSource,
                                public CalibrationListener,
                                public ContactUsBannerListener,
                                 public ProfileViewDataSource,
@@ -155,6 +158,15 @@ public:
     std::string getNameAtIdx (int idx) override;
     int getSelectedRow() override;
 
+    // ElevationCalibrationListener + ElevationCalibrationDataSource
+    void selectedRowChanged (int newRow) override;
+    void increaseNumRows() override;
+    void decreaseNumRows() override;
+    int getNumRows() override;
+    int getSelectedElevationRow() override;
+    bool canIncreaseNumRows() override;
+    bool canDecreaseNumRows() override;
+
     // ProfileViewListener + ProfileViewDataSource
     // void addProfile() override;
     // void duplicateProfile (int rowIdx) override;
@@ -183,6 +195,7 @@ private:
     PlaybackManager playbackManager;
     CabinEqProfileManager cabinEqProfileManager;
     CheckerboardManager checkerboardManager;
+    ElevationCalibrationManager elevationCalibrationManager;
     
     bool dataHasChanged = false;
     

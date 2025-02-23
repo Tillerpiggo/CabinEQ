@@ -519,6 +519,46 @@ int CabinEqAudioProcessor::getSelectedRow()
     return checkerboardManager.getSelectedRow();
 }
 
+// ElevationCalibrationListener + ElevationCalibrationDataSource
+void CabinEqAudioProcessor::selectedRowChanged (int newRow)
+{
+    elevationCalibrationManager.setSelectedRow (newRow);
+    playbackManager.setElevationCalibration (elevationCalibrationManager.getCurrElevationCalibration());
+}
+
+int CabinEqAudioProcessor::getSelectedElevationRow()
+{
+    return elevationCalibrationManager.getSelectedRow();
+}
+
+int CabinEqAudioProcessor::getNumRows()
+{
+    return elevationCalibrationManager.getNumRows();
+}
+
+void CabinEqAudioProcessor::increaseNumRows()
+{
+    elevationCalibrationManager.increaseNumRows();
+}
+
+void CabinEqAudioProcessor::decreaseNumRows()
+{
+    elevationCalibrationManager.decreaseNumRows();
+}
+
+bool CabinEqAudioProcessor::canIncreaseNumRows()
+{
+    return elevationCalibrationManager.canIncreaseNumRows();
+}
+
+bool CabinEqAudioProcessor::canDecreaseNumRows()
+{
+    return elevationCalibrationManager.canDecreaseNumRows();
+}
+
+
+
+
 std::vector<juce::String> CabinEqAudioProcessor::getProfileNames()
 {
     return cabinEqProfileManager.getProfileNames();

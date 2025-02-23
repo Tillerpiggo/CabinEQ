@@ -13,7 +13,7 @@
 #include "ElevationCalibration.h"
 #include "Listeners.h"
 
-class ElevationCalibrationManager  : public ElevationCalibrationDataSource
+class ElevationCalibrationManager
 {
 public:
     ElevationCalibrationManager();
@@ -28,13 +28,12 @@ public:
     void setSelectedRow(int row);
     
     // ElevationCalibrationDataSource
-    int getNumRows() override;
-    int getSelectedRow() override;
-    bool isPlaying() override;
+    int getNumRows();
+    int getSelectedRow();
+    ElevationCalibration getCurrElevationCalibration();
     
     int getPlayingRowAtTime(double normalizedTime) const;
     
 private:
     ElevationCalibration calibration;
-    bool playing = false;
 };

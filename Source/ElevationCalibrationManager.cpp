@@ -55,9 +55,9 @@ int ElevationCalibrationManager::getSelectedRow()
     return calibration.getSelectedRow();
 }
 
-bool ElevationCalibrationManager::isPlaying()
+ElevationCalibration ElevationCalibrationManager::getCurrElevationCalibration()
 {
-    return playing;
+    return calibration;
 }
 
 int ElevationCalibrationManager::getPlayingRowAtTime(double normalizedTime) const
