@@ -166,6 +166,7 @@ public:
     // StandalonePlugin/AudioDeviceManager methods
     void saveData();
     void restartAudio() override;
+    void showAudioSettingsDialog();
     
     CabinEqMarketplaceStatus& getMarketplaceStatus();
     

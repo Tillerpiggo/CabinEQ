@@ -540,6 +540,11 @@ void CabinEqAudioProcessor::restartAudio()
     juce::StandalonePluginHolder::getInstance()->restartAudio();
 }
 
+void CabinEqAudioProcessor::showAudioSettingsDialog()
+{
+    juce::StandalonePluginHolder::getInstance()->showAudioSettingsDialog();
+}
+
 CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()
 {
     return marketplaceStatus;

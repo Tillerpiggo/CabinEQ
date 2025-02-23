@@ -16,7 +16,25 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     p.getMarketplaceStatus().load();
     isUnlocked = p.getHasLicense();
 
+    profileView.setListener (this);
+    profileView.setDataSource (&processor);
+
     amplGraph = std::make_unique<CabinPeqGraph>();
+    amplGraph->setListener (&processor);
+    amplGraph->addDataSource (&processor);
+    amplGraph->toBack();
+
+    calibrationView.setListener (&processor);
+    calibrationView.setCalibrationListener (&processor);
+    calibrationView.setDataSource (&processor);
+
+    freeTrialBanner.setListener (this);
+    contactUsBanner.setListener (&processor);
+
+    gearButton.setButtonText ("Advanced...");
+    gearButton.onClick = [this] {
+        processor.showAudioSettingsDialog();
+    };
     
     // Buttons
     addButton (&bypassButton);
@@ -30,13 +48,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
         toggleBypass();
         processor.setIsFilterOn (! isBypassed);
     });
-    amplGraph->setListener (&processor);
-    amplGraph->addDataSource (&processor);
-    freeTrialBanner.setListener (this);
     
-    calibrationView.setListener (&processor);
-    calibrationView.setCalibrationListener (&processor);
-    calibrationView.setDataSource (&processor);
     // profileDropdown.addListener (this);
     processor.addListener (this);
     
@@ -48,36 +60,18 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     }
     
     addAndMakeVisible (contactUsBanner);
-    
     addAndMakeVisible (amplGraph.get());
     addAndMakeVisible (profileView);
-    addAndMakeVisible (addProfileButton);
-    addAndMakeVisible (duplicateProfileButton);
-    addAndMakeVisible (renameProfileButton);
+    addAndMakeVisible (inputDropdown);
+    addAndMakeVisible (outputDropdown);
+    addAndMakeVisible (gearButton);
     addAndMakeVisible (calibrationView);
     addAndMakeVisible (unlockForm);
+
     unlockForm.setVisible (false);
-    
-    addProfileButton.onClick = [this] {
-        addProfile();
-    };
-    duplicateProfileButton.onClick = [this] {
-        duplicateProfile();
-    };
-    renameProfileButton.onClick = [this] {
-        renameProfile();
-    };
-    
-    amplGraph->toBack();
     
     didLoadData();
     startTimer (100);
-
-    contactUsBanner.setListener (&processor);
-    profileView.setListener (this);
-    profileView.setDataSource (&processor);
-    
-    // loadDropdownOptions();
     
     bypassButton.setColour (juce::TextButton::buttonColourId, juce::Colours::blueviolet);
     
@@ -112,10 +106,12 @@ void CabinEqPage::resized()
 {
     float profileViewWidth = 240.0f;
     
+    // ProfileView
     Layout profileViewLayout (getBounds().withTrimmedRight (getWidth() - profileViewWidth), 0.0f);
     profileViewLayout.addRow ({ Space(&profileView) });
     profileViewLayout.updateComponentBounds();
     
+    // Everything else
     Layout layout (getBounds().withTrimmedLeft (profileViewWidth), 0.0f);
     if (! processor.getHasLicense())
     {
@@ -123,11 +119,8 @@ void CabinEqPage::resized()
     }
     
     int topRowHeight = 40;
-    float addProfileWidth = addProfileButton.getBestWidthForHeight (topRowHeight);
-    float duplicateProfileWidth = duplicateProfileButton.getBestWidthForHeight (topRowHeight);
-    float renameProfileWidth = renameProfileButton.getBestWidthForHeight (topRowHeight);
     
-    // layout.addRow ({ Space (&bypassButton, 60), Space (&profileDropdown), Space (&duplicateProfileButton, duplicateProfileWidth), Space (&renameProfileButton, renameProfileWidth) }, (float) topRowHeight);
+    layout.addRow ({ Space (&bypassButton, 60), Space (&inputDropdown), Space (&outputDropdown), Space (&gearButton) }, (float) topRowHeight);
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.addRow ({ Space (&contactUsBanner) }, 40);

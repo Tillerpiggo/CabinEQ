@@ -81,7 +81,6 @@ protected:
     
     void submitAlertWindowText(); // tries to add, rename, or duplicate the profile based on the text in the textEditor
     
-    
     CabinEqLookAndFeel cabinEqLookAndFeel;
     
     // JUCE Labels
@@ -97,7 +96,6 @@ protected:
     bool isBypassed = false;
     
     // Free Trial Unlock
-//    CabinEqMarketplaceStatus marketplaceStatus;
     CabinEqUnlockForm unlockForm;
     
     bool creatingDuplicate = false;
@@ -105,10 +103,9 @@ protected:
     int fftSize = 16;
     
     std::unique_ptr<CabinPeqGraph> amplGraph;
-    // juce::ComboBox profileDropdown;
-    juce::TextButton addProfileButton { "+ New" };
-    juce::TextButton duplicateProfileButton { "Duplicate" };
-    juce::TextButton renameProfileButton { "Rename" };
+    juce::ComboBox inputDropdown;
+    juce::ComboBox outputDropdown;
+    juce::TextButton gearButton;
 
     ProfileView profileView;
     
