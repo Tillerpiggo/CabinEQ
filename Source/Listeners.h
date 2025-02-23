@@ -173,4 +173,26 @@ public:
     virtual void restartAudio() = 0;
 };
 
+class ElevationCalibrationListener
+{
+public:
+    virtual ~ElevationCalibrationListener() = default;
+    
+    virtual void selectedRowChanged(int newRow) = 0;
+    virtual void increaseNumRows() = 0;
+    virtual void decreaseNumRows() = 0;
+};
+
+class ElevationCalibrationDataSource
+{
+public:
+    virtual ~ElevationCalibrationDataSource() = default;
+    
+    virtual int getNumRows() = 0;
+    virtual int getSelectedRow() = 0;
+    virtual bool isPlaying() = 0;
+    virtual bool canIncreaseNumRows() = 0;
+    virtual bool canDecreaseNumRows() = 0;
+};
+
 

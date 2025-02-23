@@ -55,8 +55,16 @@
               file="Source/CheckerboardManager.cpp"/>
         <FILE id="XPNplm" name="CheckerboardManager.h" compile="0" resource="0"
               file="Source/CheckerboardManager.h"/>
+        <FILE id="hqETSI" name="ElevationCalibrationManager.cpp" compile="1"
+              resource="0" file="Source/ElevationCalibrationManager.cpp"/>
+        <FILE id="piCdim" name="ElevationCalibrationManager.h" compile="0"
+              resource="0" file="Source/ElevationCalibrationManager.h"/>
       </GROUP>
       <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
+        <FILE id="oYYUcZ" name="ElevationCalibration.cpp" compile="1" resource="0"
+              file="Source/ElevationCalibration.cpp"/>
+        <FILE id="YXrRBM" name="ElevationCalibration.h" compile="0" resource="0"
+              file="Source/ElevationCalibration.h"/>
         <FILE id="WsEXIM" name="Checkerboard.cpp" compile="1" resource="0"
               file="Source/Checkerboard.cpp"/>
         <FILE id="qmoxTe" name="Checkerboard.h" compile="0" resource="0" file="Source/Checkerboard.h"/>
@@ -131,6 +139,12 @@
               file="Source/CabinEqUnlockForm.h"/>
       </GROUP>
       <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Sequencers">
+        <FILE id="tGW8Ds" name="ElevationCalibrationPlayer.cpp" compile="1"
+              resource="0" file="Source/ElevationCalibrationPlayer.cpp"/>
+        <FILE id="JmBK6A" name="ElevationCalibrationPlayer.h" compile="0" resource="0"
+              file="Source/ElevationCalibrationPlayer.h"/>
+        <FILE id="COGuES" name="RowPlayer.cpp" compile="1" resource="0" file="Source/RowPlayer.cpp"/>
+        <FILE id="EpqckB" name="RowPlayer.h" compile="0" resource="0" file="Source/RowPlayer.h"/>
         <FILE id="xNPdA4" name="CheckerboardPlayer.cpp" compile="1" resource="0"
               file="Source/CheckerboardPlayer.cpp"/>
         <FILE id="bEctto" name="CheckerboardPlayer.h" compile="0" resource="0"
