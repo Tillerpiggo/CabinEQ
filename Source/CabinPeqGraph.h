@@ -55,6 +55,7 @@ public:
     
 private:
     void initializeLabels();
+    void setFreqAmplLabelsBounds();
     void clearSelection(); // clears the current selection and all related variables
     
     CabinPeqGraphListener* listener;
@@ -145,8 +146,8 @@ private:
     std::unordered_map<int, Band> selectedIdToStartingValue; // the starting value for each selected band
     
     // Dragging/zooming constants
-    float minFreqShowing = 20.0f;
-    float maxFreqShowing = 20000.0f;
+    float minFreqShowing = 16.0f;
+    float maxFreqShowing = 22000.0f;
     float zoom = 5.0f;
     float lastDistanceFromDragStartX = 0;
     std::pair<float, float> dragOffsetWhileAdjustingBandwidth { 0.0f, 0.0f };
@@ -157,8 +158,8 @@ private:
     std::vector<Band> startDraggingBands;
     
     // Constants
-    static constexpr float MIN_FREQ = 20.0f;
-    static constexpr float MAX_FREQ = 20000.0f;
+    static constexpr float MIN_FREQ = 16.0f;
+    static constexpr float MAX_FREQ = 22000.0f;
     static constexpr float DIST_TO_ADD_DB = 1.0f;
     static constexpr float HOVER_MIN_DIST = 0.5f;
     float MAX_DB = 36.0f;

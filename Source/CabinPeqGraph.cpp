@@ -108,33 +108,7 @@ void CabinPeqGraph::resized()
     }
 
     // Set bounds of freq/ampl labels
-
-     // Distribute freq labels accordingly, based on the freqs
-     std::vector<float> freqLabelsX;
-     std::vector<float> freqs = { 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000 };
-     float offset = 0;
-     for (int i = 0; i < freqs.size(); i++)
-     {
-        freqLabelsX.push_back (xForFreq (freqs[i]) + offset);
-     }
-     for (int i = 0; i < freqLabelsX.size(); i++)
-     {
-         float freqLabelWidth = freqLabels[i].getFont().getStringWidth (freqLabels[i].getText());
-         freqLabels[i].setBounds (freqLabelsX[i] - freqLabelWidth / 2, getHeight() - 40, freqLabelWidth, 20);
-     }
-
-//    // Distribute ampl labels accordingly, matching with the horizontal lines
-//    std::vector<float> amplLabelsY;
-//    std::vector<float> amplitudes = { -30, -24, -18, -12, -6, 0, 6, 12, 18, 24, 30 };
-//    for (int i = 0; i < lineFreqs.size(); i++)
-//    {
-//        amplLabelsY.push_back (yForAmpl (amplitudes[i]) + offset);
-//    }
-//    for (int i = 0; i < amplLabelsY.size(); i++)
-//    {
-//        float amplLabelWidth = amplLabels[i].getFont().getStringWidth (amplLabels[i].getText());
-//        amplLabels[i].setBounds (0, amplLabelsY[i] - amplLabelWidth / 2, 20, amplLabelWidth);
-//    }
+    setFreqAmplLabelsBounds();
 }
 
 void CabinPeqGraph::mouseMove (const juce::MouseEvent &event)
@@ -426,7 +400,7 @@ void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::M
     
     instructionLabel.setText (scrollInstructions, juce::NotificationType::dontSendNotification);
     
-    repaint();
+    resized();
 }
 
 bool CabinPeqGraph::keyPressed (const juce::KeyPress& key)
@@ -1100,20 +1074,60 @@ void CabinPeqGraph::setVolume (float volume)
 
 void CabinPeqGraph::initializeLabels()
 {
-    // // Logarithmically distribute frequency labels w/ 20, 50, 100, 200, 500, 1k, 2k, 5k, 10k, 20k
-    // std::vector<std::string> freqLabelsText = { "20", "50", "100", "200", "500", "1k", "2k", "5k", "10k", "20k" };
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     freqLabels[i].setText (freqLabelsText[i], juce::NotificationType::dontSendNotification);
-    //     addAndMakeVisible (freqLabels[i]);
-    // }
+    // Logarithmically distribute frequency labels w/ 20, 50, 100, 200, 500, 1k, 2k, 5k, 10k, 20k
+    std::vector<std::string> freqLabelsText = { "20", "50", "100", "200", "500", "1k", "2k", "5k", "10k", "20k" };
+    for (int i = 0; i < 10; i++)
+    {
+        freqLabels[i].setText (freqLabelsText[i], juce::NotificationType::dontSendNotification);
+        freqLabels[i].setFont (juce::Font (10.0f));
+        freqLabels[i].setJustificationType (juce::Justification::centred);
+        freqLabels[i].setColour (juce::Label::textColourId, juce::Colours::lightgrey);
+        freqLabels[i].setInterceptsMouseClicks (false, false);
+        addAndMakeVisible (freqLabels[i]);
+    }
 
-    // // Linearly distribute amplitude labels w/ -30, -24, -18, -12, -6, 0, 6, 12, 18, 24, 30
-    // for (int i = -5; i <= 5; i++)
-    // {
-    //     amplLabels[i + 5].setText (std::to_string (i * 6), juce::NotificationType::dontSendNotification);
-    //     addAndMakeVisible (amplLabels[i + 5]);
-    // }
+    // Linearly distribute amplitude labels w/ -30, -24, -18, -12, -6, 0, 6, 12, 18, 24, 30
+    for (int i = -5; i <= 5; i++)
+    {
+        amplLabels[i + 5].setText (std::to_string (i * 6), juce::NotificationType::dontSendNotification);
+        amplLabels[i + 5].setFont (juce::Font (10.0f));
+        amplLabels[i + 5].setJustificationType (juce::Justification::right);
+        amplLabels[i + 5].setColour (juce::Label::textColourId, juce::Colours::lightgrey);
+        amplLabels[i + 5].setInterceptsMouseClicks (false, false);
+        addAndMakeVisible (amplLabels[i + 5]);
+    }
+}
+
+void CabinPeqGraph::setFreqAmplLabelsBounds()
+{
+    // Distribute freq labels accordingly, based on the freqs
+    std::vector<float> freqLabelsX;
+    std::vector<float> freqs = { 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000 };
+    float offset = 0;
+    for (int i = 0; i < freqs.size(); i++)
+    {
+    freqLabelsX.push_back (xForFreq (freqs[i]) + offset);
+    }
+    for (int i = 0; i < freqLabelsX.size(); i++)
+    {
+        float freqLabelWidth = freqLabels[i].getFont().getStringWidth (freqLabels[i].getText()) + 10;
+        float freqLabelHeight = 20;
+        freqLabels[i].setBounds (freqLabelsX[i] - freqLabelWidth / 2, getHeight() - freqLabelHeight, freqLabelWidth, freqLabelHeight);
+    }
+
+    // Distribute ampl labels accordingly, matching with the horizontal lines
+    std::vector<float> amplLabelsY;
+    std::vector<float> amplitudes = { -30, -24, -18, -12, -6, 0, 6, 12, 18, 24, 30 };
+    for (int i = 0; i < amplitudes.size(); i++)
+    {
+        amplLabelsY.push_back (yForAmpl (amplitudes[i]) + offset);
+    }
+    for (int i = 0; i < amplLabelsY.size(); i++)
+    {
+        float amplLabelWidth = amplLabels[i].getFont().getStringWidth (amplLabels[i].getText()) + 50;
+        float amplLabelHeight = 20;
+        amplLabels[i].setBounds (getWidth() - amplLabelWidth - 5, amplLabelsY[i] - amplLabelHeight / 2, amplLabelWidth, amplLabelHeight);
+    }
 }
 
 void CabinPeqGraph::clearSelection()
