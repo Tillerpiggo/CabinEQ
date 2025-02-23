@@ -87,6 +87,12 @@ void ProfileRow::mouseDown (const juce::MouseEvent& event)
         listener->profileRowClicked (rowNumber);
 }
 
+void ProfileRow::mouseDoubleClick (const juce::MouseEvent& event)
+{
+    if (listener != nullptr)
+        listener->tryToSetIsEditing (rowNumber);
+}
+
 void ProfileRow::setProfileName (const juce::String& profileName)
 {
     this->profileName = profileName;

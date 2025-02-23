@@ -27,6 +27,7 @@ public:
         virtual void profileRowOptionsClicked (int row) = 0;
         virtual void profileRowRenamed (int row, juce::String newProfileName) = 0;
         virtual void profileRowRenameCancelled (int row) = 0;
+        virtual void tryToSetIsEditing (int row) = 0; // tries to make this ProfileRow have isEditing = true
     };
 
     ProfileRow (int rowNumber);
@@ -37,6 +38,7 @@ public:
     void mouseEnter (const juce::MouseEvent& event) override;
     void mouseExit (const juce::MouseEvent& event) override;
     void mouseDown (const juce::MouseEvent& event) override;
+    void mouseDoubleClick (const juce::MouseEvent& event) override;
 
     void setProfileName (const juce::String& profileName);
     void setIsSelected (bool isSelected);

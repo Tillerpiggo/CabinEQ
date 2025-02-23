@@ -38,6 +38,7 @@ public:
     void profileRowOptionsClicked (int row) override;
     void profileRowRenamed (int row, juce::String newProfileName) override;
     void profileRowRenameCancelled (int row) override;
+    void tryToSetIsEditing (int row) override;
 
     void updateContent(); // triggers an update of the list box content
     void scrollToBottom();

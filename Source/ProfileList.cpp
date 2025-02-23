@@ -213,6 +213,16 @@ void ProfileList::profileRowRenameCancelled (int row)
     updateContent();
 }
 
+void ProfileList::tryToSetIsEditing (int row)
+{
+    if (row == dataSource->getProfileNames().size() && isAddingProfile)
+    {
+        return;
+    }
+    editingRowNumber = row;
+    updateContent();
+}
+
 void ProfileList::updateContent()
 {
     listBox.updateContent();
