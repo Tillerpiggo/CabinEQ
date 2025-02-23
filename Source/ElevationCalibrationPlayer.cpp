@@ -46,11 +46,22 @@ void ElevationCalibrationPlayer::processBlock(juce::AudioBuffer<float>& buffer, 
 
     for (int sample = 0; sample < copyBuffer.getNumSamples(); ++sample)
     {
-        auto nextSample = getNextSample();
-        leftChannel[sample] += nextSample.first * 0.15 * 0.5 * gain;
+        std::pair<float, float> nextSample = { random.nextFloat() * 2.0f - 1.0f, random.nextFloat() * 2.0f - 1.0f }; //getNextSample();
+        leftChannel[sample] += nextSample.first * 0.15 * gain;
 
         if (rightChannel)
-            rightChannel[sample] += nextSample.second * 0.15 * 0.5 * gain;
+            rightChannel[sample] += nextSample.second * 0.15 * gain;
+    }
+    
+    // Filter buffer
+    juce::dsp::AudioBlock<float> copyBlock (copyBuffer);
+    juce::dsp::ProcessContextReplacing<float> copyContext (copyBlock);
+    tiltFilter.process (copyContext);
+    
+    // Add copy buffer contents back to main buffer
+    for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+    {
+        buffer.addFrom (channel, 0, copyBuffer, channel, 0, copyBuffer.getNumSamples());
     }
 }
 

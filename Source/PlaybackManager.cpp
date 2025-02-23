@@ -36,7 +36,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 {
     if (isPlayingNoise)
     {
-        // checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
+//         checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
         elevationCalibrationPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
     }
     

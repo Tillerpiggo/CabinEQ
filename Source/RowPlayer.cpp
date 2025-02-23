@@ -60,7 +60,7 @@ std::pair<float, float> RowPlayer::getNextSample()
         snapToZeroCounter = 0;
     }
     snapToZeroCounter++;
-//
+    
     return { leftSample, rightSample };
 }
 
