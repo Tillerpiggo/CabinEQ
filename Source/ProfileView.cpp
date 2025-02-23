@@ -17,7 +17,8 @@ ProfileView::ProfileView()
     addAndMakeVisible (titleLabel);
 
     titleLabel.setText ("Profiles", juce::dontSendNotification);
-    titleLabel.setFont (juce::Font (18.0f, juce::Font::bold));
+    titleLabel.setFont (TITLE_FONT);
+    titleLabel.setColour (juce::Label::textColourId, PRIMARY_TEXT_COLOUR);
     titleLabel.setJustificationType (juce::Justification::left);
 
     addProfileButton.onClick = [this] {
@@ -33,7 +34,7 @@ ProfileView::ProfileView()
 
 void ProfileView::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::black);
+    g.fillAll (BACKGROUND_COLOUR);
 }
 
 void ProfileView::resized()

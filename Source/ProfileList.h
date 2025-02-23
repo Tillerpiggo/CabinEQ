@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "Listeners.h"
 #include "ProfileRow.h"
+#include "UIConstants.h"
 
 class ProfileList : public juce::Component,
                     public juce::ListBoxModel,

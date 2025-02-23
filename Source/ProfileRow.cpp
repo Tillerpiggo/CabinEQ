@@ -16,9 +16,9 @@ ProfileRow::ProfileRow (int rowNumber)
     addAndMakeVisible (profileNameLabel);
     addAndMakeVisible (ellipsisButton);
 
-    profileNameLabel.setFont (juce::Font (16.0f, juce::Font::bold));
+    profileNameLabel.setFont (PROFILE_ROW_FONT);
     profileNameLabel.setJustificationType (juce::Justification::centredLeft);
-    profileNameLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    profileNameLabel.setColour (juce::Label::textColourId, PRIMARY_TEXT_COLOUR);
     profileNameLabel.setInterceptsMouseClicks (false, false);
 
     ellipsisButton.setImages (false, true, true, ellipsisImage, 1.0f, juce::Colours::white.withAlpha (0.0f), ellipsisImage, 1.0f, juce::Colours::black.withAlpha (0.1f), ellipsisImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
@@ -31,16 +31,15 @@ ProfileRow::ProfileRow (int rowNumber)
     };
 
     addAndMakeVisible (renameEditor);
-    renameEditor.setFont (juce::Font (juce::FontOptions (16.0f, juce::Font::bold)));
+    renameEditor.setFont (PROFILE_ROW_FONT);
     renameEditor.setJustification (juce::Justification::left);
-    renameEditor.setColour (juce::Label::textColourId, juce::Colours::white);
-    renameEditor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::black.withAlpha (0.0f));
-    renameEditor.setColour (juce::TextEditor::outlineColourId, juce::Colours::black.withAlpha (0.0f));
-    renameEditor.setColour (juce::TextEditor::outlineColourId, juce::Colours::white.withAlpha (0.0f));
-    renameEditor.setColour (juce::TextEditor::focusedOutlineColourId, juce::Colours::white.withAlpha (0.0f));
-    renameEditor.setColour (juce::Label::outlineWhenEditingColourId, juce::Colours::white.withAlpha (0.0f));
+    renameEditor.setColour (juce::Label::textColourId, PRIMARY_TEXT_COLOUR);
+    renameEditor.setColour (juce::TextEditor::backgroundColourId, BACKGROUND_COLOUR.withAlpha(0.0f));
+    renameEditor.setColour (juce::TextEditor::outlineColourId, BACKGROUND_COLOUR.withAlpha(0.0f));
+    renameEditor.setColour (juce::TextEditor::focusedOutlineColourId, PRIMARY_TEXT_COLOUR.withAlpha(0.0f));
+    renameEditor.setColour (juce::Label::outlineWhenEditingColourId, PRIMARY_TEXT_COLOUR.withAlpha(0.0f));
     renameEditor.setColour (juce::TextEditor::shadowColourId, juce::Colours::white.withAlpha (0.0f));
-    renameEditor.setTextToShowWhenEmpty ("Profile name...", juce::Colours::grey);
+    renameEditor.setTextToShowWhenEmpty ("Profile name...", SECONDARY_TEXT_COLOUR);
     renameEditor.setSelectAllWhenFocused (true);
 
     renameEditor.setInterceptsMouseClicks (false, false);
@@ -52,11 +51,11 @@ ProfileRow::ProfileRow (int rowNumber)
 void ProfileRow::paint (juce::Graphics& g)
 {
     if (isSelected)
-        g.fillAll (juce::Colours::lightblue);
+        g.fillAll (HOVER_COLOUR);
     else if (isHovering)
-        g.fillAll (juce::Colours::darkgrey);
+        g.fillAll (HOVER_COLOUR);
     else
-        g.fillAll (juce::Colours::black);
+        g.fillAll (BACKGROUND_COLOUR);
 
     if (isEditing)
         renameEditor.grabKeyboardFocus();
@@ -65,7 +64,7 @@ void ProfileRow::paint (juce::Graphics& g)
 void ProfileRow::resized()
 {
     Layout layout (getBounds().withX (0).withY (0), 8.0f);
-    layout.addRow ({ Space(&profileNameLabel, &renameEditor), Space (&ellipsisButton, 20.0f) }, 20.0f);
+    layout.addRow ({ Space(&profileNameLabel, &renameEditor), Space (&ellipsisButton, 20.0f) });
     layout.updateComponentBounds();
 }
 

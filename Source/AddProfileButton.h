@@ -34,8 +34,8 @@ private:
     juce::Colour currBackgroundColour = juce::Colours::white;
     
     // UI Constants
-    juce::Colour backgroundColour = juce::Colours::white;
-    juce::Colour hoverColour = juce::Colours::lightgrey;
+    juce::Colour backgroundColour = juce::Colours::lightgrey;
+    juce::Colour hoverColour = juce::Colours::grey;
     juce::Colour pressedColour = juce::Colours::darkgrey;
     juce::Colour textColour = juce::Colours::black;
 

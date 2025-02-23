@@ -14,7 +14,7 @@ ProfileList::ProfileList()
 {
     addAndMakeVisible (listBox);
     listBox.setModel (this);
-    listBox.setRowHeight (40);
+    listBox.setRowHeight (PROFILE_ROW_HEIGHT);
     listBox.addMouseListener (this, true);
 
     optionsMenu = std::make_unique<juce::PopupMenu>();
@@ -29,11 +29,13 @@ ProfileList::ProfileList()
     });
     optionsMenu->addSeparator();
     optionsMenu->addColouredItem (3, "Delete", juce::Colours::red); // handle on return
+    
+    listBox.setColour (juce::ListBox::ColourIds::backgroundColourId, BACKGROUND_COLOUR);
 }
 
 void ProfileList::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::black);
+    g.fillAll (BACKGROUND_COLOUR);
 }
 
 void ProfileList::resized()
@@ -67,8 +69,9 @@ juce::String ProfileList::getNameForRow (int rowNumber)
 
 void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
 {
-    g.fillAll (juce::Colours::lightblue);
-    g.setColour (juce::Colours::white);
+    g.fillAll (rowIsSelected ? HOVER_COLOUR : BACKGROUND_COLOUR);
+    g.setColour (PRIMARY_TEXT_COLOUR);
+    g.setFont (PROFILE_ROW_FONT);
     g.drawText (getNameForRow (rowNumber), 0, 0, width, height, juce::Justification::centred);
 }
 
@@ -244,7 +247,10 @@ void ProfileList::scrollToBottom()
 
 void ProfileList::showAlertWindow()
 {
-    alertWindow = std::make_unique<juce::AlertWindow> ("Delete Profile", "Are you sure you want to delete this profile?", juce::MessageBoxIconType::NoIcon);
+    alertWindow = std::make_unique<juce::AlertWindow> ("Delete Profile", 
+                                                      "Are you sure you want to delete this profile?", 
+                                                      juce::MessageBoxIconType::NoIcon);
+
     alertWindow->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
     alertWindow->addButton ("Delete", 1, juce::KeyPress (juce::KeyPress::returnKey));
     alertWindow->setEscapeKeyCancels (true);

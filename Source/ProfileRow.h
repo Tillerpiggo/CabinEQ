@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "BuildableComponent.h"
 #include "Layout.h"
+#include "UIConstants.h"
 
 // Displays a single profile row in the profile list, with ellipsis to show other options
 class ProfileRow :  public BuildableComponent,
