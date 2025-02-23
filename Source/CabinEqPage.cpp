@@ -108,7 +108,7 @@ void CabinEqPage::paint (juce::Graphics& g)
 void CabinEqPage::resized()
 {
     float profileViewWidth = 240.0f;
-
+    
     Layout profileViewLayout (getBounds().withTrimmedRight (getWidth() - profileViewWidth), 0.0f);
     profileViewLayout.addRow ({ Space(&profileView) });
     profileViewLayout.updateComponentBounds();

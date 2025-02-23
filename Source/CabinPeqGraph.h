@@ -54,6 +54,7 @@ public:
     void setGrayscale (bool grayscale);
     
 private:
+    void initializeLabels();
     void clearSelection(); // clears the current selection and all related variables
     
     CabinPeqGraphListener* listener;
@@ -81,6 +82,10 @@ private:
     std::string volumeInstructions { "Drag dot up/down to set volume for this profile" };
     
     juce::TextButton leftRightButton { "BOTH" };
+
+    // Number labels
+    std::array<juce::Label, 10> freqLabels;
+    std::array<juce::Label, 11> amplLabels;
     
     // Drawing/animation
     void drawLines (juce::Graphics& g);
@@ -138,7 +143,6 @@ private:
     // Selection drag
     juce::Point<float> selectionStartPos; // the initial position you select for dragging
     std::unordered_map<int, Band> selectedIdToStartingValue; // the starting value for each selected band
-    
     
     // Dragging/zooming constants
     float minFreqShowing = 20.0f;
