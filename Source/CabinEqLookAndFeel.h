@@ -27,7 +27,16 @@ public:
         setColour (juce::TextButton::textColourOnId, BUTTON_ON_TEXT_COLOR);
         setColour (juce::ComboBox::outlineColourId, BUTTON_OUTLINE_COLOR);
         setColour (juce::ComboBox::backgroundColourId, BUTTON_OFF_COLOR);
+        
+        LookAndFeel::setDefaultLookAndFeel (this);
+        setDefaultSansSerifTypeface (getCustomFont().getTypefacePtr());
     }
     
+    static const juce::Font getCustomFont()
+    {
+        static auto typeface = juce::Typeface::createSystemTypefaceFor (BinaryData::Inter_ttf,       BinaryData::Inter_ttfSize);
+        return juce::Font (typeface);
+    }
+        
 private:
 };
