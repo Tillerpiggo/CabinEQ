@@ -23,8 +23,9 @@ std::pair<float, float> ElevationCalibrationPlayer::getNextSample()
     for (int i = 0; i < rowPlayers.size(); ++i)
     {
         auto nextSample = rowPlayers[i].getNextSample();
-        leftSample += nextSample.first;
-        rightSample += nextSample.second;
+        auto rowGain = rowGains[i];
+        leftSample += nextSample.first * rowGain;
+        rightSample += nextSample.second * rowGain;
     }
 
     return { leftSample, rightSample };
@@ -33,6 +34,7 @@ std::pair<float, float> ElevationCalibrationPlayer::getNextSample()
 
 void ElevationCalibrationPlayer::processBlock(juce::AudioBuffer<float>& buffer, float gain)
 {
+    updateRowGains();
     updateRowPlayersIfNeeded();
 
     // Make copy of buffer
@@ -64,16 +66,17 @@ void ElevationCalibrationPlayer::processBlock(juce::AudioBuffer<float>& buffer, 
         buffer.addFrom (channel, 0, copyBuffer, channel, 0, copyBuffer.getNumSamples());
     }
     
+    // Update time
     currTime += 0.01f;
-    if (currTime > 1.0f)
+    if (currTime >= 1.0f)
         currTime -= 1.0f;
 }
 
 void ElevationCalibrationPlayer::prepare(const juce::dsp::ProcessSpec& spec)
 {
     this->spec = spec;
-    tiltFilter.prepare (spec);
-    tiltFilter.updateWithCurve (tiltCurve, 14);
+    tiltFilter.prepare(spec);
+    tiltFilter.updateWithCurve(tiltCurve, 14);
 }
 
 void ElevationCalibrationPlayer::setElevationCalibration(ElevationCalibration calibration)
@@ -98,12 +101,22 @@ std::vector<float> ElevationCalibrationPlayer::getCurrPlayingFreqs()
     return freqs;
 }
 
+void ElevationCalibrationPlayer::updateRowGains()
+{
+    auto playingRow = calibration.getPlayingRowAtTime(currTime);
+    for (int i = 0; i < rowGains.size(); ++i)
+    {
+        rowGains[i] = (i == playingRow) ? 1.0f : 0.0f;
+    }
+}
+
 void ElevationCalibrationPlayer::updateRowPlayersIfNeeded()
 {
     if (!shouldUpdateRowPlayers)
         return;
 
     rowPlayers.clear();
+    rowGains.clear();
 
     auto numRows = calibration.getNumRows();
     auto selectedRow = calibration.getSelectedRow();
@@ -112,6 +125,7 @@ void ElevationCalibrationPlayer::updateRowPlayersIfNeeded()
     {
         auto freq = getFrequencyForRow(row);
         rowPlayers.push_back (RowPlayer());
+        rowGains.push_back (1.0f);
         rowPlayers.back().prepare (spec);
         rowPlayers.back().setFrequency (freq);
         rowPlayers.back().setBandwidth (bandwidth);

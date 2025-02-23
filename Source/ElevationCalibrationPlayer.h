@@ -31,12 +31,14 @@ public:
     std::vector<float> getCurrPlayingFreqs();
     
 private:
+    void updateRowGains();
     void updateRowPlayersIfNeeded();
     float getFrequencyForRow(int row) const;
 
     juce::dsp::ProcessSpec spec;
     ElevationCalibration calibration;
     std::vector<RowPlayer> rowPlayers;
+    std::vector<float> rowGains;
     bool shouldUpdateRowPlayers = true;
 
     ArbitraryResponseFilter tiltFilter;
