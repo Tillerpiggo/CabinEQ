@@ -120,7 +120,8 @@ void CabinEqPage::resized()
     
     int topRowHeight = 40;
     
-    layout.addRow ({ Space (&bypassButton, 60), Space (&inputDropdown), Space (&outputDropdown), Space (&gearButton) }, (float) topRowHeight);
+    float gearButtonWidth = 120.0f;
+    layout.addRow ({ Space (&bypassButton, 60), Space(), Space (&gearButton) }, (float) topRowHeight);
     layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen) }, 0.5);
     layout.addRow ({ Space (&calibrationView) });
     layout.addRow ({ Space (&contactUsBanner) }, 40);

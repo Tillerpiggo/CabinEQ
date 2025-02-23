@@ -17,7 +17,7 @@ ProfileRow::ProfileRow (int rowNumber)
     addAndMakeVisible (ellipsisButton);
 
     profileNameLabel.setFont (juce::Font (16.0f, juce::Font::bold));
-    profileNameLabel.setJustificationType (juce::Justification::left);
+    profileNameLabel.setJustificationType (juce::Justification::centredLeft);
     profileNameLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     profileNameLabel.setInterceptsMouseClicks (false, false);
 
