@@ -36,7 +36,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 {
     if (isPlayingNoise)
     {
-        checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
+        // checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
+        elevationCalibrationPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
     }
     
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
@@ -77,6 +78,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     
     audioTransportSource.prepareToPlay (spec.maximumBlockSize, spec.sampleRate);
     checkerboardPlayer.prepare (spec);
+    elevationCalibrationPlayer.prepare (spec);
     
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
@@ -174,6 +176,11 @@ void PlaybackManager::setSoloSquareCoords (std::set<std::pair<int, int>> soloSqu
     checkerboardPlayer.setSoloSquareCoords (soloSquareCoords);
 }
 
+void PlaybackManager::setElevationCalibration (ElevationCalibration elevationCalibration)
+{
+    elevationCalibrationPlayer.setElevationCalibration (elevationCalibration);
+}
+
 void PlaybackManager::setIsAudioFilePlaying (bool isPlaying)
 {
     if (isPlaying)
@@ -219,7 +226,8 @@ float PlaybackManager::getBandwidth()
 
 std::vector<float> PlaybackManager::getCurrPlayingFreqs()
 {
-    return checkerboardPlayer.getCurrSolodFreqs();
+    return elevationCalibrationPlayer.getCurrPlayingFreqs();
+    // return checkerboardPlayer.getCurrSolodFreqs();
    // return {}; // for checkerboard player
 //    return glyphGridPlayer.getCurrPlayingFreqs();
 //    return
@@ -247,7 +255,8 @@ void PlaybackManager::changeListenerCallback (juce::ChangeBroadcaster* source)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return checkerboardPlayer.getNextSample();
+    // return checkerboardPlayer.getNextSample();
+    return elevationCalibrationPlayer.getNextSample();
 //    return glyphGridPlayer.getNextSample();
 //    return gridSequencer.getNextSample();
 }

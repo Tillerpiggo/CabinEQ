@@ -25,7 +25,7 @@ public:
     void processBlock(juce::AudioBuffer<float>& buffer, float gain = 1.0f);
     void prepare(const juce::dsp::ProcessSpec& spec);
 
-    void setCalibration(ElevationCalibration calibration);
+    void setElevationCalibration(ElevationCalibration calibration);
     void setBandwidth(float bandwidthOctaves);
 
     std::vector<float> getCurrPlayingFreqs();

@@ -61,7 +61,7 @@ void ElevationCalibrationPlayer::prepare(const juce::dsp::ProcessSpec& spec)
     tiltFilter.updateWithCurve (tiltCurve, 14);
 }
 
-void ElevationCalibrationPlayer::setCalibration(ElevationCalibration calibration)
+void ElevationCalibrationPlayer::setElevationCalibration(ElevationCalibration calibration)
 {
     this->calibration = calibration;
     shouldUpdateRowPlayers = true;

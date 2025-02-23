@@ -538,22 +538,22 @@ int CabinEqAudioProcessor::getNumRows()
 
 void CabinEqAudioProcessor::increaseNumRows()
 {
-    elevationCalibrationManager.increaseNumRows();
+    elevationCalibrationManager.incrementRows();
 }
 
 void CabinEqAudioProcessor::decreaseNumRows()
 {
-    elevationCalibrationManager.decreaseNumRows();
+    elevationCalibrationManager.decrementRows();
 }
 
 bool CabinEqAudioProcessor::canIncreaseNumRows()
 {
-    return elevationCalibrationManager.canIncreaseNumRows();
+    return elevationCalibrationManager.canIncrementRows();
 }
 
 bool CabinEqAudioProcessor::canDecreaseNumRows()
 {
-    return elevationCalibrationManager.canDecreaseNumRows();
+    return elevationCalibrationManager.canDecrementRows();
 }
 
 

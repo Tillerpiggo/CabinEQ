@@ -14,6 +14,7 @@
 #include "BandProfile.h"
 #include "FilterChain.h"
 #include "CheckerboardPlayer.h"
+#include "ElevationCalibrationPlayer.h"
 #include "ArbitraryResponseFilter.h"
 #include "BandEqCurve.h"
 #include "Checkerboard.h"
@@ -52,6 +53,9 @@ public:
     // Checkerboard
     void setCheckerboard (Checkerboard checkerboard);
     void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords);
+
+    // ElevationCalibration
+    void setElevationCalibration (ElevationCalibration elevationCalibration);
     
     // Audio file
     void setIsAudioFilePlaying (bool isPlaying);
@@ -73,6 +77,7 @@ private:
     BandEqCurve bandEqCurve;
     
     CheckerboardPlayer checkerboardPlayer;
+    ElevationCalibrationPlayer elevationCalibrationPlayer;
     
     // Audio Processing
     FilterChain filter;
