@@ -14,6 +14,7 @@
 #include "BuildableComponent.h"
 #include "Layout.h"
 #include "Listeners.h"
+#include "ElevationCalibration.h"
 
 // This class provides a UI for elevation calibration, displaying multiple rows and allowing you to select one.
 class ElevationCalibrationView  : public BuildableComponent,
@@ -35,6 +36,8 @@ public:
     void setListener (ElevationCalibrationListener* listener);
     void setDataSource (ElevationCalibrationDataSource* dataSource);
 
+    void updateElevationCalibration();
+
     void timerCallback() override;
     
 private:
@@ -47,6 +50,8 @@ private:
     juce::Rectangle<float> getRowRect (int rowIdx);
     std::optional<int> rowIdxForMouseEvent (const juce::MouseEvent& event);
 
+    ElevationCalibration elevationCalibration;
+
     ElevationCalibrationListener* listener = nullptr;
     ElevationCalibrationDataSource* dataSource = nullptr;
 
@@ -55,7 +60,7 @@ private:
 
     bool isPlaying = false;
 
-    // Gestures
+    // Gesture (TODO)
     
 
     // Visual constants

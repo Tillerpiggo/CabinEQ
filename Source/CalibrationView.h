@@ -15,7 +15,7 @@
 #include "Layout.h"
 #include "Listeners.h"
 #include "CheckerboardView.h"
-#include "MusicList2.h"
+#include "ElevationCalibrationView.h"
 
 // This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
 class CalibrationView  : public BuildableComponent,
@@ -30,10 +30,10 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     
-    void setListener (CheckerboardViewListener* listener);
+    void setListener (ElevationCalibrationListener* listener);
     void setCalibrationListener (CalibrationListener* calibrationListener);
     //    void setDataSource (GlyphViewDataSource* dataSource);
-    void setDataSource (CheckerboardViewDataSource* dataSource);
+    void setDataSource (ElevationCalibrationDataSource* dataSource);
     
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     
@@ -44,18 +44,13 @@ public:
 private:
     void updateSpeakerButton();
     void updatePlayPauseButton(); // updates the images of playPauseButton based on isPlaying
-    void updatePlayer(); // updates prev next buttons based on availability of prev and next
     
     CalibrationListener* calibrationListener = nullptr;
-    CheckerboardViewDataSource* dataSource = nullptr;
+    ElevationCalibrationDataSource* elevationCalibrationDataSource = nullptr;
     
-    // Music list
-    MusicList musicList;
-    
-    // Glyph View
-    //    GlyphGridView glyphGridView;
-    CheckerboardView checkerboardView;
-    
+    // Elevation Calibration
+    ElevationCalibrationView elevationCalibrationView;
+
     // Play button stuff
     juce::Image playImage = juce::ImageFileFormat::loadFrom (BinaryData::PlayButtonIcon_png, BinaryData::PlayButtonIcon_pngSize);
     juce::Image pauseImage = juce::ImageFileFormat::loadFrom (BinaryData::PauseButtonIcon_png, BinaryData::PauseButtonIcon_pngSize);

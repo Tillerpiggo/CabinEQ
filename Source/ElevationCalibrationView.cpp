@@ -102,6 +102,16 @@ void ElevationCalibrationView::setListener(ElevationCalibrationListener* listene
 void ElevationCalibrationView::setDataSource(ElevationCalibrationDataSource* dataSource)
 {
     this->dataSource = dataSource;
+    updateElevationCalibration();
+}
+
+void ElevationCalibrationView::updateElevationCalibration()
+{
+    if (dataSource == nullptr)
+        return;
+        
+    elevationCalibration = dataSource->getElevationCalibration();
+    repaint();
 }
 
 void ElevationCalibrationView::timerCallback()
