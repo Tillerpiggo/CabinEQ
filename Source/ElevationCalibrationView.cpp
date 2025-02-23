@@ -167,7 +167,7 @@ void ElevationCalibrationView::drawRow(int rowIdx, juce::Graphics& g)
     auto rowBounds = getRowRect(rowIdx);
     bool isSelected = (rowIdx == dataSource->getSelectedElevationRow());
     juce::Colour rowColour = isSelected ? ON_COLOUR : ROW_COLOUR;
-    if (isPlaying && rowIdx == dataSource->getPlayingElevationRow())
+    if (dataSource->getIsPlaying() && rowIdx == dataSource->getPlayingElevationRow())
     {
         rowColour = PLAYING_ROW_COLOUR;
     }

@@ -55,8 +55,6 @@ private:
     juce::TextButton plusButton;
     juce::TextButton minusButton;
 
-    bool isPlaying = false;
-
     // Gestures
     int numRows = 3;
     int selectedRow = 1; // 0-indexed, 0 = lower frequency
