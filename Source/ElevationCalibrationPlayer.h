@@ -46,6 +46,8 @@ private:
     float MIN_FREQ = 20.0f;
     float MAX_FREQ = 16000.0f;
     
+    float currTime = 0.0f;
+    
     juce::Random random;
 };
 

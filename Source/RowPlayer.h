@@ -41,7 +41,7 @@ private:
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersRight;
     int order = 4;
     int snapToZeroCounter = 0;
-    int density = 12; // noise sources per row
+    int density = 5; // noise sources per row
 
     float MIN_FREQ = 20.0f;
     float MAX_FREQ = 20000.0f;

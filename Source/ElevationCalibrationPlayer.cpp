@@ -63,6 +63,10 @@ void ElevationCalibrationPlayer::processBlock(juce::AudioBuffer<float>& buffer, 
     {
         buffer.addFrom (channel, 0, copyBuffer, channel, 0, copyBuffer.getNumSamples());
     }
+    
+    currTime += 0.01f;
+    if (currTime > 1.0f)
+        currTime -= 1.0f;
 }
 
 void ElevationCalibrationPlayer::prepare(const juce::dsp::ProcessSpec& spec)
