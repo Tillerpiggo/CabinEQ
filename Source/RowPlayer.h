@@ -40,9 +40,9 @@ private:
     std::vector<juce::dsp::IIR::Filter<float>> lowPassFiltersRight;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersLeft;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFiltersRight;
-    int order = 1;
+    int order = 8;
     int snapToZeroCounter = 0;
-    int density = 5; // noise sources per row
+    int density = 3; // noise sources per row
 
     int playingIdx = -1;
 

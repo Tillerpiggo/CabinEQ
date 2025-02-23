@@ -140,6 +140,8 @@ void ElevationCalibrationPlayer::updateRowPlayersIfNeeded()
     auto numRows = calibration.getNumRows();
     auto selectedRow = calibration.getSelectedRow();
 
+    bandwidth = 3.0f / static_cast<float>(numRows - 1);
+
     for (int row = 0; row < numRows; ++row)
     {
         auto freq = getFrequencyForRow(row);
