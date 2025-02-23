@@ -13,10 +13,12 @@
 TutorialButton::TutorialButton()
 {
     label.setText ("Tutorial", juce::dontSendNotification);
+    label.setJustificationType (juce::Justification::centred);
     label.setFont (juce::Font (16.0f));
     label.setColour (juce::Label::textColourId, textColour);
-
     label.setInterceptsMouseClicks (false, false);
+
+    icon.setImage (iconImage);
     icon.setInterceptsMouseClicks (false, false);
 
     addAndMakeVisible (label);
@@ -31,8 +33,8 @@ void TutorialButton::paint (juce::Graphics& g)
 
 void TutorialButton::resized()
 {
-    Layout layout (getBounds().withX (0).withY (0));
-    layout.addRow ({ Space (&icon, 10), Space (&label) });
+    Layout layout (getBounds().withX (0).withY (0), 4.0f);
+    layout.addRow ({ Space (&icon, 20), Space (&label) });
     layout.updateComponentBounds();
 }
 
