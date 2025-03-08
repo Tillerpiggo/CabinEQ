@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "BandProfile.h"
 #include "Checkerboard.h"
+#include "Glyph.h"
 
 class PlaybackManagerListener
 {
@@ -147,6 +148,8 @@ public:
     virtual void setIsPlaying (bool isPlaying) = 0;
     virtual void setIsCabinNoise (bool isCabinNoise) = 0;
     virtual void setMinFreq (float newMinFreq) = 0;
+    virtual void setSpeedFactor (float speedFactor) = 0;
+    virtual void setBandwidth (float bandwidth) = 0;
     
     // This section might all be outdated now
     virtual void setIIR (bool isIIR) = 0;
@@ -195,4 +198,29 @@ public:
     virtual bool canDecreaseNumRows() = 0;
 };
 
+// Glyphs
+class GlyphViewListener
+{
+public:
+    virtual ~GlyphViewListener() = default;
+        
+    virtual void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) = 0;
+    virtual void moveGlyph (int glyphId, juce::Point<float> centerPos) = 0; // tries to move the glyph, although bounds will be applied
+    virtual void removeGlyph (int glyphId) = 0; // removes the glyph if the glyph is in the list of glyphs. If there are multiple with this id, only removes the first one, although this should never happen
+    virtual void incrementGlyphVolume (int glyphId, float increment) = 0; // changes the volume of the glyph by this increment, with range 0 to 1.5
+    virtual void incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement) = 0; // changes the size factor of the glyph by this increment, with upper and lower bounds on size factor
+    virtual void moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions) = 0;
+    virtual void scaleGlyphs (std::unordered_set<int> glyphIds, float increment) = 0;
+};
 
+class GlyphViewDataSource
+{
+public:
+    virtual ~GlyphViewDataSource() = default;
+    
+    virtual const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() = 0;
+    virtual const std::vector<Glyph>& getGlyphs() = 0;
+    virtual float getCurrPlayingTime() = 0;
+    virtual bool getIsPlaying() = 0;
+    virtual float getBandwidth() = 0;
+};

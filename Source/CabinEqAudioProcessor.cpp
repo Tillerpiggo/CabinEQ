@@ -289,6 +289,16 @@ void CabinEqAudioProcessor::setPinkNoise (bool pinkNoiseEnabled)
     playbackManager.setPinkNoise (pinkNoiseEnabled);
 }
 
+void CabinEqAudioProcessor::setSpeedFactor (float speedFactor)
+{
+    playbackManager.setSpeedFactor (speedFactor);
+}
+
+void CabinEqAudioProcessor::setBandwidth (float bandwidth)
+{
+    playbackManager.setBandwidth (bandwidth);
+}
+
 void CabinEqAudioProcessor::goToNext()
 {
     checkerboardManager.goToNext();

@@ -103,6 +103,8 @@ public:
     void updateFIRFilter() override;
     void setFIRQuality (int fftSize) override;
     void setPinkNoise (bool pinkNoiseEnabled) override;
+    void setSpeedFactor (float speedFactor) override;
+    void setBandwidth (float bandwidth) override;
     
     void goToNext() override;
     void goToPrev() override;

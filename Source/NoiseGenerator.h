@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PinkNoise.h"
+// #include "PinkNoise.h"
 #include "BandProfile.h"
 
 // This class generates pink noise with a certain center frequency and bandwidth ( or starting frequency and ending frequency )
@@ -33,7 +33,7 @@ private:
     float sampleRate;
     
     // Pink noise generation
-    PinkNoise pinkNoise;
+    // PinkNoise pinkNoise;
     juce::dsp::IIR::Filter<float> bandpass;
     juce::dsp::IIR::Filter<float> bandpass2;
     juce::dsp::IIR::Filter<float> bandpass3;
@@ -57,4 +57,6 @@ private:
     bool isMuted = false;
     bool shouldUpdateGenerators = true;
     bool shouldUpdatePan = true;
+
+    juce::Random random;
 };

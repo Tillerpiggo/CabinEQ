@@ -36,6 +36,44 @@
       <FILE id="AQoyPD" name="CabinEqProcessorEditor.h" compile="0" resource="0"
             file="Source/CabinEqProcessorEditor.h"/>
       <FILE id="hcTmZx" name="Listeners.h" compile="0" resource="0" file="Source/Listeners.h"/>
+      <GROUP id="{E85E42E9-AF01-DF30-FD7E-EC1B73E1C8B8}" name="Glyph Stuff">
+        <FILE id="JxeB1R" name="AnimatedGlyph.cpp" compile="1" resource="0"
+              file="Source/AnimatedGlyph.cpp"/>
+        <FILE id="QqfxeV" name="AnimatedGlyph.h" compile="0" resource="0" file="Source/AnimatedGlyph.h"/>
+        <FILE id="Xi0qQf" name="ArchetypalGlyph.cpp" compile="1" resource="0"
+              file="Source/ArchetypalGlyph.cpp"/>
+        <FILE id="PAjzcl" name="ArchetypalGlyph.h" compile="0" resource="0"
+              file="Source/ArchetypalGlyph.h"/>
+        <FILE id="JDQhuG" name="ArchetypeBar.cpp" compile="1" resource="0"
+              file="Source/ArchetypeBar.cpp"/>
+        <FILE id="yenTGI" name="ArchetypeBar.h" compile="0" resource="0" file="Source/ArchetypeBar.h"/>
+        <FILE id="OTGPgI" name="ArchetypeView.cpp" compile="1" resource="0"
+              file="Source/ArchetypeView.cpp"/>
+        <FILE id="LGYZBm" name="ArchetypeView.h" compile="0" resource="0" file="Source/ArchetypeView.h"/>
+        <FILE id="LyeKuf" name="GainEnvelope.cpp" compile="1" resource="0"
+              file="Source/GainEnvelope.cpp"/>
+        <FILE id="PSjwNh" name="GainEnvelope.h" compile="0" resource="0" file="Source/GainEnvelope.h"/>
+        <FILE id="ZLMtbi" name="Glyph.cpp" compile="1" resource="0" file="Source/Glyph.cpp"/>
+        <FILE id="DyrvhP" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
+        <FILE id="EF9Ti6" name="GlyphGenerator.cpp" compile="1" resource="0"
+              file="Source/GlyphGenerator.cpp"/>
+        <FILE id="jVYf9H" name="GlyphGenerator.h" compile="0" resource="0"
+              file="Source/GlyphGenerator.h"/>
+        <FILE id="iXhfEk" name="GlyphGridPlayer.cpp" compile="1" resource="0"
+              file="Source/GlyphGridPlayer.cpp"/>
+        <FILE id="rK6WUg" name="GlyphGridPlayer.h" compile="0" resource="0"
+              file="Source/GlyphGridPlayer.h"/>
+        <FILE id="s7dII9" name="GlyphGridView.cpp" compile="1" resource="0"
+              file="Source/GlyphGridView.cpp"/>
+        <FILE id="bZ2b9s" name="GlyphGridView.h" compile="0" resource="0" file="Source/GlyphGridView.h"/>
+        <FILE id="NlfuFG" name="GlyphManager.cpp" compile="1" resource="0"
+              file="Source/GlyphManager.cpp"/>
+        <FILE id="opvLOP" name="GlyphManager.h" compile="0" resource="0" file="Source/GlyphManager.h"/>
+        <FILE id="AUFVyQ" name="GlyphView.cpp" compile="1" resource="0" file="Source/GlyphView.cpp"/>
+        <FILE id="wCLjYw" name="GlyphView.h" compile="0" resource="0" file="Source/GlyphView.h"/>
+        <FILE id="rCoeO0" name="Stroke.cpp" compile="1" resource="0" file="Source/Stroke.cpp"/>
+        <FILE id="tmKKFm" name="Stroke.h" compile="0" resource="0" file="Source/Stroke.h"/>
+      </GROUP>
       <GROUP id="{B009D3F6-E155-F81B-7080-A41A86F6337A}" name="App Sound">
         <FILE id="Nta5k2" name="PlaybackManager.cpp" compile="1" resource="0"
               file="Source/PlaybackManager.cpp"/>

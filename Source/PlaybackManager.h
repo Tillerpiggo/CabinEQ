@@ -18,6 +18,7 @@
 #include "BandEqCurve.h"
 #include "Checkerboard.h"
 #include "Listeners.h"
+#include "GlyphGridPlayer.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -53,6 +54,10 @@ public:
     void setCheckerboard (Checkerboard checkerboard);
     void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords);
     
+    // Glyph
+    void setSpeedFactor (float speedFactor);
+    void setBandwidth (float bandwidth);
+
     // Audio file
     void setIsAudioFilePlaying (bool isPlaying);
     void setListener (PlaybackManagerListener* listener);
@@ -73,6 +78,7 @@ private:
     BandEqCurve bandEqCurve;
     
     CheckerboardPlayer checkerboardPlayer;
+    GlyphGridPlayer glyphGridPlayer;
     
     // Audio Processing
     FilterChain filter;

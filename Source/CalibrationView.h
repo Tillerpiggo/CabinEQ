@@ -16,6 +16,8 @@
 #include "Listeners.h"
 #include "CheckerboardView.h"
 #include "MusicList2.h"
+#include "GlyphGridView.h"
+//#include "ArchetypeBar.h"
 
 // This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
 class CalibrationView  : public BuildableComponent,
@@ -32,7 +34,7 @@ public:
     
     void setListener (CheckerboardViewListener* listener);
     void setCalibrationListener (CalibrationListener* calibrationListener);
-    //    void setDataSource (GlyphViewDataSource* dataSource);
+    void setGlyphDataSource (GlyphViewDataSource* dataSource);
     void setDataSource (CheckerboardViewDataSource* dataSource);
     
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
@@ -48,12 +50,13 @@ private:
     
     CalibrationListener* calibrationListener = nullptr;
     CheckerboardViewDataSource* dataSource = nullptr;
+    GlyphViewDataSource* glyphDataSource = nullptr;
     
     // Music list
     MusicList musicList;
     
     // Glyph View
-    //    GlyphGridView glyphGridView;
+    GlyphGridView glyphGridView;
     CheckerboardView checkerboardView;
     
     // Play button stuff
@@ -72,6 +75,15 @@ private:
     juce::Slider noiseVolumeSlider;
     juce::Slider minFreqSlider;
     juce::Label minFreqLabel;
+
+    // Glyph Sliders/Labels
+    juce::Slider speedSlider;
+    juce::Label speedLabel;
+    juce::Slider bandwidthSlider;
+    juce::Label bandwidthLabel;
+    juce::Slider volumeSlider;
+    juce::Label volumeLabel;
+    juce::TextButton playButton { "Play" };
     
     bool isMuted = false;
     float currVolume = 0.0f;

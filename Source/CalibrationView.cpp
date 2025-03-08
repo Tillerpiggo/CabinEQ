@@ -14,6 +14,7 @@ CalibrationView::CalibrationView()
 {
     // Checkerboard view
     addAndMakeVisible (checkerboardView);
+    addAndMakeVisible (glyphGridView);
     
     // Setup new player component
     // Title
@@ -98,7 +99,33 @@ CalibrationView::CalibrationView()
         if (calibrationListener != nullptr)
             calibrationListener->setMinFreq (minFreqSlider.getValue());
     };
-    
+
+    // Glyph Sliders/Labels
+    addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.0f, 2.0f, 1.0f);
+    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.0f, 2.0f, 1.0f);
+    addSliderAndLabel (&volumeSlider, &volumeLabel, "Volume", 0.0f, 1.0f, 0.5f);
+    playButton.onClick = [this] {
+        if (calibrationListener != nullptr)
+        {
+            isPlaying = ! isPlaying;
+            calibrationListener->setIsPlaying (isPlaying);
+            glyphGridView.updateGlyphs();
+        }
+    };
+    speedSlider.onValueChange = [this] {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setSpeedFactor (speedSlider.getValue());
+            glyphGridView.updateGlyphs();
+        }
+    };
+    bandwidthSlider.onValueChange = [this] {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setBandwidth (bandwidthSlider.getValue());
+            glyphGridView.updateGlyphs();
+        }
+    };
     startTimer (2000);
 }
 
@@ -124,19 +151,29 @@ void CalibrationView::resized()
     musicListLayout.updateComponentBounds();
     
     // Checkerboard View
-    Layout checkerboardLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
-    checkerboardLayout.addRow ({ Space (&checkerboardView ) });
-    checkerboardLayout.updateComponentBounds();
+    // Layout checkerboardLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
+    // checkerboardLayout.addRow ({ Space (&checkerboardView ) });
+    // checkerboardLayout.updateComponentBounds();
+
+    Layout glyphGridViewLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
+    glyphGridViewLayout.addRow ({ Space (&glyphGridView) });
+    glyphGridViewLayout.updateComponentBounds();
+
+    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+    settingsLayout.addRow ({ Space(&speedSlider), Space(&speedLabel) });
+    settingsLayout.addRow ({ Space(&bandwidthSlider), Space(&bandwidthLabel) });
+    settingsLayout.addRow ({ Space(&volumeSlider), Space(&volumeLabel) });
+    settingsLayout.addRow ({ Space(&playButton) });
+    settingsLayout.updateComponentBounds();
     
-    Layout playerLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
-    playerLayout.addRow ({ Space() });
-    playerLayout.addRow ({ Space (&titleLabel) });
-    playerLayout.addRow ({ Space(), Space (&prevButton, 40.0f), Space (&playPauseButton, 80.0f), Space (&nextButton, 40.0f), Space() } );
-    playerLayout.addRow ({ Space() }, 8.0f);
-    playerLayout.addRow ({ Space(), Space (&speakerButton, 16.0f), Space (&noiseVolumeSlider), Space() }, 20.0f);
-//    playerLayout.addRow ({ Space(), Space (&minFreqSlider), Space() }, 20.0f);
-    playerLayout.addRow ({ Space() });
-    playerLayout.updateComponentBounds();
+    // Layout playerLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+    // playerLayout.addRow ({ Space() });
+    // playerLayout.addRow ({ Space (&titleLabel) });
+    // playerLayout.addRow ({ Space(), Space (&prevButton, 40.0f), Space (&playPauseButton, 80.0f), Space (&nextButton, 40.0f), Space() } );
+    // playerLayout.addRow ({ Space() }, 8.0f);
+    // playerLayout.addRow ({ Space(), Space (&speakerButton, 16.0f), Space (&noiseVolumeSlider), Space() }, 20.0f);
+    // playerLayout.addRow ({ Space() });
+    // playerLayout.updateComponentBounds();
 }
 
 void CalibrationView::setListener (CheckerboardViewListener* listener)
@@ -149,6 +186,12 @@ void CalibrationView::setCalibrationListener (CalibrationListener* calibrationLi
 {
     this->calibrationListener = calibrationListener;
     updatePlayer();
+}
+
+void CalibrationView::setGlyphDataSource (GlyphViewDataSource* dataSource)
+{
+    glyphGridView.setDataSource (dataSource);
+    this->glyphDataSource = dataSource;
 }
 
 void CalibrationView::setDataSource (CheckerboardViewDataSource* dataSource)

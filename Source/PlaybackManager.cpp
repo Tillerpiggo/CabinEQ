@@ -36,7 +36,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 {
     if (isPlayingNoise)
     {
-        checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
+        // checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
+        glyphGridPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
     }
     
     juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
@@ -172,6 +173,16 @@ void PlaybackManager::setCheckerboard (Checkerboard checkerboard)
 void PlaybackManager::setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords)
 {
     checkerboardPlayer.setSoloSquareCoords (soloSquareCoords);
+}
+
+void PlaybackManager::setSpeedFactor (float speedFactor)
+{
+    glyphGridPlayer.setSpeedFactor (speedFactor);
+}
+
+void PlaybackManager::setBandwidth (float bandwidth)
+{
+    glyphGridPlayer.setBandwidth (bandwidth);
 }
 
 void PlaybackManager::setIsAudioFilePlaying (bool isPlaying)
