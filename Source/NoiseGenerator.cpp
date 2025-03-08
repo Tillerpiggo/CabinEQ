@@ -59,6 +59,7 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     
     // float pinkNoiseSample = pinkNoise.generate() * 10.0f * totalGain;
     float pinkNoiseSample = random.nextFloat() * 2.0f - 1.0f; // will be filtered into pink noise later
+    pinkNoiseSample *= 10.0f * totalGain;
 //    pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass2.processSample (pinkNoiseSample);
 //    pinkNoiseSample = bandpass3.processSample (pinkNoiseSample);

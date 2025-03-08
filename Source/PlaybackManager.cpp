@@ -241,17 +241,17 @@ float PlaybackManager::getBandwidth()
 
 std::vector<float> PlaybackManager::getCurrPlayingFreqs()
 {
-    return checkerboardPlayer.getCurrSolodFreqs();
+//    return checkerboardPlayer.getCurrSolodFreqs();
    // return {}; // for checkerboard player
-//    return glyphGridPlayer.getCurrPlayingFreqs();
+    return glyphGridPlayer.getCurrPlayingFreqs();
 //    return
 //    return gridSequencer.getCurrPlayingFreqs();
 }
 
 std::vector<std::pair<float, float>> PlaybackManager::getCurrPlayingFreqsAndVols()
 {
-    return {}; // for checkerboard player
-//    return glyphGridPlayer.getCurrPlayingFreqsAndVols();
+//    return {}; // for checkerboard player
+    return glyphGridPlayer.getCurrPlayingFreqsAndVols();
 }
 
 void PlaybackManager::timerCallback()

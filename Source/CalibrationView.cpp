@@ -109,7 +109,7 @@ CalibrationView::CalibrationView()
 
     // Glyph Sliders/Labels
     addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.0f, 2.0f, 1.0f);
-    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.0f, 2.0f, 1.0f);
+    addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.0f, 10.0f, 1.0f);
     addSliderAndLabel (&volumeSlider, &volumeLabel, "Volume", 0.0f, 1.0f, 0.5f);
     addAndMakeVisible (playButton);
     playButton.onClick = [this] {
