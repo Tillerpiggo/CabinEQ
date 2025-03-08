@@ -18,6 +18,7 @@
 #include "FreeTrialBanner.h"
 #include "CabinEqMarketplaceStatus.h"
 #include "CabinStandaloneFilterWindow.h"
+#include "GlyphManager.h"
 
 //==============================================================================
 /**
@@ -30,7 +31,9 @@ class CabinEqAudioProcessor  : public juce::AudioProcessor,
                                public CheckerboardViewDataSource,
                                public CalibrationListener,
                                public ContactUsBannerListener,
-                                public ProfileViewDataSource,
+                               public GlyphViewListener,
+                               public GlyphViewDataSource,
+                               public ProfileViewDataSource,
                                public juce::Timer
 {
 public:
@@ -157,6 +160,20 @@ public:
     std::string getNameAtIdx (int idx) override;
     int getSelectedRow() override;
 
+    // GlyphViewListener
+    void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) override;
+    void moveGlyph (int glyphId, juce::Point<float> centerPos) override;
+    void removeGlyph (int glyphId) override;
+    void incrementGlyphVolume (int glyphId, float increment) override;
+    void incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement) override;
+    void moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions) override;
+    void scaleGlyphs (std::unordered_set<int> glyphIds, float increment) override;
+
+    // GlyphViewDataSource
+    const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
+    const std::vector<Glyph>& getGlyphs() override;
+    float getCurrPlayingTime() override;
+
     // ProfileViewListener + ProfileViewDataSource
     // void addProfile() override;
     // void duplicateProfile (int rowIdx) override;
@@ -185,6 +202,7 @@ private:
     PlaybackManager playbackManager;
     CabinEqProfileManager cabinEqProfileManager;
     CheckerboardManager checkerboardManager;
+    GlyphManager glyphManager;
     
     bool dataHasChanged = false;
     

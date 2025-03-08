@@ -25,9 +25,10 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     amplGraph->toBack();
 
     calibrationView.setListener (&processor);
+    calibrationView.setGlyphListener (&processor);
     calibrationView.setCalibrationListener (&processor);
     calibrationView.setDataSource (&processor);
-
+    calibrationView.setGlyphDataSource (&processor);
     freeTrialBanner.setListener (this);
     contactUsBanner.setListener (&processor);
 

@@ -14,7 +14,14 @@ CalibrationView::CalibrationView()
 {
     // Checkerboard view
     addAndMakeVisible (checkerboardView);
+
+    // Glyph Grid View
     addAndMakeVisible (glyphGridView);
+
+    // Archetype Bar
+    addAndMakeVisible (archetypeViewport);
+    addAndMakeVisible (archetypeBar);
+    archetypeViewport.setScrollBarsShown (true, false);
     
     // Setup new player component
     // Title
@@ -104,6 +111,7 @@ CalibrationView::CalibrationView()
     addSliderAndLabel (&speedSlider, &speedLabel, "Speed", 0.0f, 2.0f, 1.0f);
     addSliderAndLabel (&bandwidthSlider, &bandwidthLabel, "Bandwidth", 0.0f, 2.0f, 1.0f);
     addSliderAndLabel (&volumeSlider, &volumeLabel, "Volume", 0.0f, 1.0f, 0.5f);
+    addAndMakeVisible (playButton);
     playButton.onClick = [this] {
         if (calibrationListener != nullptr)
         {
@@ -155,11 +163,26 @@ void CalibrationView::resized()
     // checkerboardLayout.addRow ({ Space (&checkerboardView ) });
     // checkerboardLayout.updateComponentBounds();
 
-    Layout glyphGridViewLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
-    glyphGridViewLayout.addRow ({ Space (&glyphGridView) });
-    glyphGridViewLayout.updateComponentBounds();
+    // Layout glyphGridViewLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
+    // glyphGridViewLayout.addRow ({ Space (&glyphGridView) });
+    // glyphGridViewLayout.updateComponentBounds();
+//
+//    float sidebarWidth = 300.0f;
+//    float archetypeBarWidth = 100.0f;
+//    auto localBounds = getBounds().withX (0).withY (0);
+    
+    // Glyph View
+    Layout glyphLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth), 8.0f);
+    glyphLayout.addRow ({ Space (&glyphGridView) });
+    glyphLayout.updateComponentBounds();
+    
+    // Archetype sidebar
+    Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+    archetypeBarLayout.addRow ({ Space (&archetypeBar) });
+    archetypeBarLayout.updateComponentBounds();
 
-    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+    // Settings sidebar - use only the sidebarWidth portion on the right
+    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
     settingsLayout.addRow ({ Space(&speedSlider), Space(&speedLabel) });
     settingsLayout.addRow ({ Space(&bandwidthSlider), Space(&bandwidthLabel) });
     settingsLayout.addRow ({ Space(&volumeSlider), Space(&volumeLabel) });
@@ -182,6 +205,11 @@ void CalibrationView::setListener (CheckerboardViewListener* listener)
 //    this->checkerboardViewListener = listener;
 }
 
+void CalibrationView::setGlyphListener (GlyphViewListener* listener)
+{
+    glyphGridView.setListener (listener);
+}
+
 void CalibrationView::setCalibrationListener (CalibrationListener* calibrationListener)
 {
     this->calibrationListener = calibrationListener;
@@ -191,6 +219,7 @@ void CalibrationView::setCalibrationListener (CalibrationListener* calibrationLi
 void CalibrationView::setGlyphDataSource (GlyphViewDataSource* dataSource)
 {
     glyphGridView.setDataSource (dataSource);
+    archetypeBar.setDataSource (dataSource);
     this->glyphDataSource = dataSource;
 }
 

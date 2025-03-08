@@ -78,6 +78,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     
     audioTransportSource.prepareToPlay (spec.maximumBlockSize, spec.sampleRate);
     checkerboardPlayer.prepare (spec);
+    glyphGridPlayer.prepare (spec);
     
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
@@ -185,6 +186,16 @@ void PlaybackManager::setBandwidth (float bandwidth)
     glyphGridPlayer.setBandwidth (bandwidth);
 }
 
+void PlaybackManager::setGlyphs (std::vector<Glyph> glyphs)
+{
+    glyphGridPlayer.setGlyphs (glyphs);
+}
+
+float PlaybackManager::getCurrPlayingTime()
+{
+    return glyphGridPlayer.getCurrPlayingTime();
+}
+
 void PlaybackManager::setIsAudioFilePlaying (bool isPlaying)
 {
     if (isPlaying)
@@ -258,7 +269,10 @@ void PlaybackManager::changeListenerCallback (juce::ChangeBroadcaster* source)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    return checkerboardPlayer.getNextSample();
-//    return glyphGridPlayer.getNextSample();
+    // return checkerboardPlayer.getNextSample();
+    auto sample = glyphGridPlayer.getNextSample();
+    std::cout << "sample: " << sample.first << ", " << sample.second << std::endl;
+    
+    return sample;
 //    return gridSequencer.getNextSample();
 }

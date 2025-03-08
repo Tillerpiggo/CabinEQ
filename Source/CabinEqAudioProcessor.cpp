@@ -529,6 +529,63 @@ int CabinEqAudioProcessor::getSelectedRow()
     return checkerboardManager.getSelectedRow();
 }
 
+void CabinEqAudioProcessor::addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
+{
+    glyphManager.addGlyph (archetype, centerPos, sizeFactor);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
+}
+
+void CabinEqAudioProcessor::moveGlyph (int glyphId, juce::Point<float> centerPos)
+{
+    glyphManager.moveGlyph (glyphId, centerPos);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
+}
+
+void CabinEqAudioProcessor::removeGlyph (int glyphId)
+{
+    glyphManager.removeGlyph (glyphId);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
+}
+
+void CabinEqAudioProcessor::incrementGlyphVolume (int glyphId, float increment)
+{
+    glyphManager.incrementGlyphVolume (glyphId, increment);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
+}
+
+void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement)   
+{
+    glyphManager.incrementSizeFactor (glyphId, horizontalIncrement, verticalIncrement);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
+}
+
+void CabinEqAudioProcessor::moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions)
+{
+    glyphManager.moveGlyphs (idsToPositions);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
+}
+
+void CabinEqAudioProcessor::scaleGlyphs (std::unordered_set<int> glyphIds, float increment)
+{
+    glyphManager.scaleGlyphs (glyphIds, increment);
+    playbackManager.setGlyphs (glyphManager.getGlyphs());
+}
+
+const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
+{
+    return glyphManager.getArchetypalGlyphs();
+}
+
+const std::vector<Glyph>& CabinEqAudioProcessor::getGlyphs()
+{
+    return glyphManager.getGlyphs();
+}
+
+float CabinEqAudioProcessor::getCurrPlayingTime()
+{
+    return playbackManager.getCurrPlayingTime();
+}
+
 std::vector<juce::String> CabinEqAudioProcessor::getProfileNames()
 {
     return cabinEqProfileManager.getProfileNames();

@@ -17,7 +17,7 @@
 #include "CheckerboardView.h"
 #include "MusicList2.h"
 #include "GlyphGridView.h"
-//#include "ArchetypeBar.h"
+#include "ArchetypeBar.h"
 
 // This provides a UI for glyph calibration. It includes  a view that lets you drag and move around glyphs, a view that lets you add glyphs from a list, and a view with settings that impact playback.
 class CalibrationView  : public BuildableComponent,
@@ -33,6 +33,7 @@ public:
     void resized() override;
     
     void setListener (CheckerboardViewListener* listener);
+    void setGlyphListener (GlyphViewListener* listener);
     void setCalibrationListener (CalibrationListener* calibrationListener);
     void setGlyphDataSource (GlyphViewDataSource* dataSource);
     void setDataSource (CheckerboardViewDataSource* dataSource);
@@ -58,6 +59,9 @@ private:
     // Glyph View
     GlyphGridView glyphGridView;
     CheckerboardView checkerboardView;
+    
+    juce::Viewport archetypeViewport;
+    ArchetypeBar archetypeBar;
     
     // Play button stuff
     juce::Image playImage = juce::ImageFileFormat::loadFrom (BinaryData::PlayButtonIcon_png, BinaryData::PlayButtonIcon_pngSize);

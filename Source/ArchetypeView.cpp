@@ -66,7 +66,7 @@ void ArchetypeView::mouseDrag (const juce::MouseEvent &event)
             juce::DragAndDropContainer::findParentDragContainerFor (this);
     if (! dragC->isDragAndDropActive())
     {
-        dragC->startDragging("TargetSouce", this);
+        dragC->startDragging("TargetSource", this);
     }
 }
 

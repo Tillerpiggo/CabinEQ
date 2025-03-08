@@ -57,6 +57,8 @@ public:
     // Glyph
     void setSpeedFactor (float speedFactor);
     void setBandwidth (float bandwidth);
+    void setGlyphs (std::vector<Glyph> glyphs);
+    float getCurrPlayingTime();
 
     // Audio file
     void setIsAudioFilePlaying (bool isPlaying);
