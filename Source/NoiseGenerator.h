@@ -32,9 +32,10 @@ public:
 private:
     float sampleRate;
     
-    // Pink noise generation
-    // PinkNoise pinkNoise;
+    // Main bandpass filter
     juce::dsp::IIR::Filter<float> bandpass;
+    
+    // Existing filters (now commented out in the implementation)
     juce::dsp::IIR::Filter<float> bandpass2;
     juce::dsp::IIR::Filter<float> bandpass3;
     juce::dsp::IIR::Filter<float> bandpass4;

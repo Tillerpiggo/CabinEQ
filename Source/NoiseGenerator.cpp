@@ -26,8 +26,12 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     
     if (shouldUpdateGenerators)
     {
-        float lowFreq = std::min (std::max (centerFreq * std::pow (2.0f, -bandwidth), 20.0f), sampleRate * 0.49f);
-        float highFreq = std::min (std::max (centerFreq * std::pow (2.0f, bandwidth), 20.0f), sampleRate * 0.49f);
+        float lowFreq = std::min(std::max(centerFreq * std::pow(2.0f, -bandwidth), 20.0f), sampleRate * 0.49f);
+        float highFreq = std::min(std::max(centerFreq * std::pow(2.0f, bandwidth), 20.0f), sampleRate * 0.49f);
+        
+        // Configure bandpass filter
+        float Q = 1.0f / (2.0f * std::sinh(std::log(2.0f) * bandwidth / 2.0f));
+        *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, centerFreq, Q);
         
         // Add notch filter at center frequency
         *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(
@@ -37,46 +41,39 @@ std::pair<float, float> NoiseGenerator::getNextSample()
             juce::Decibels::decibelsToGain(notchDepth)
         );
         
+        // Comment out the existing low/high pass filter configuration
+        /*
         for (int i = 0; i < order; ++i)
         {
-            *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
-            *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
+            *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, highFreq);
+            *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, lowFreq);
         }
+        */
         shouldUpdateGenerators = false;
     }
     
     if (shouldUpdatePan)
     {
         float angle = (pan + 1.0f) * M_PI / 4.0f; // Map pan from [-1, 1] to angle [0, π/2]
-        leftGain = std::cos (angle);
-        rightGain = std::sin (angle);
-        
-//        // This is reversed... but it works really well??
-//        leftDelayLine.setDelay (abs (fmin (pan, 0)) * 29);
-//        rightDelayLine.setDelay (abs (fmax (pan, 0)) * 29);
-        
-//        // "Correct" order"
-//        leftDelayLine.setDelay (abs (fmax (pan, 0)) * 29);
-//        rightDelayLine.setDelay (abs (fmin (pan, 0)) * 29);
-//        leftGain = 1.0f;
-//        rightGain = 1.0f;
-//        float slopeGain = juce::Decibels::decibelsToGain (-1.5 * std::log2 (centerFreq / 1000.0f));
-//        leftGain *= slopeGain;
-//        rightGain *= slopeGain;
+        leftGain = std::cos(angle);
+        rightGain = std::sin(angle);
+        shouldUpdatePan = false;
     }
     
-    // float pinkNoiseSample = pinkNoise.generate() * 10.0f * totalGain;
-    float pinkNoiseSample = random.nextFloat() * 2.0f - 1.0f; // will be filtered into pink noise later
+    float pinkNoiseSample = random.nextFloat() * 2.0f - 1.0f;
     pinkNoiseSample *= 10.0f * totalGain;
-//    pinkNoiseSample = bandpass.processSample (pinkNoiseSample);
-//    pinkNoiseSample = bandpass2.processSample (pinkNoiseSample);
-//    pinkNoiseSample = bandpass3.processSample (pinkNoiseSample);
-//    pinkNoiseSample = bandpass4.processSample (pinkNoiseSample);
+    
+    // Use bandpass filter instead of separate high/low pass filters
+    pinkNoiseSample = bandpass.processSample(pinkNoiseSample);
+    
+    // Comment out the existing filter processing
+    /*
     for (int i = 0; i < order; ++i)
     {
-        pinkNoiseSample = lowPassFilters[i].processSample (pinkNoiseSample);
-        pinkNoiseSample = highPassFilters[i].processSample (pinkNoiseSample);
+        pinkNoiseSample = lowPassFilters[i].processSample(pinkNoiseSample);
+        pinkNoiseSample = highPassFilters[i].processSample(pinkNoiseSample);
     }
+    */
     
     // Apply the notch filter after the bandpass filtering
     pinkNoiseSample = notchFilter.processSample(pinkNoiseSample);
@@ -84,48 +81,36 @@ std::pair<float, float> NoiseGenerator::getNextSample()
     if (snapToZeroCounter >= 1000)
     {
         bandpass.snapToZero();
-        bandpass2.snapToZero();
-        bandpass3.snapToZero();
-        bandpass4.snapToZero();
+        notchFilter.snapToZero();
+        // Comment out snapToZero for unused filters
+        /*
         for (int i = 0; i < order; ++i)
         {
             lowPassFilters[i].snapToZero();
             highPassFilters[i].snapToZero();
         }
-        notchFilter.snapToZero();
+        */
         snapToZeroCounter = 0;
     }
     snapToZeroCounter++;
     
-    // Delay appropriately
-//    leftDelayLine.pushSample (0, pinkNoiseSample * leftGain);
-//    rightDelayLine.pushSample (0, pinkNoiseSample * rightGain);
-//    float leftSample = leftDelayLine.popSample (0);
-//    float rightSample = rightDelayLine.popSample (0);
-    
-//    return { leftSample, rightSample };
     return { pinkNoiseSample * leftGain, pinkNoiseSample * rightGain };
 }
 
-void NoiseGenerator::prepare (const juce::dsp::ProcessSpec& spec)
+void NoiseGenerator::prepare(const juce::dsp::ProcessSpec& spec)
 {
     this->sampleRate = spec.sampleRate;
-    bandpass.prepare (spec);
-    bandpass2.prepare (spec);
-    bandpass3.prepare (spec);
-    bandpass4.prepare (spec);
-    notchFilter.prepare(spec); // Prepare the notch filter
+    bandpass.prepare(spec);
+    notchFilter.prepare(spec);
     
+    // Still prepare the old filters but they won't be used
+    /*
     for (int i = 0; i < order; ++i)
     {
-        lowPassFilters[i].prepare (spec);
-        highPassFilters[i].prepare (spec);
+        lowPassFilters[i].prepare(spec);
+        highPassFilters[i].prepare(spec);
     }
-    
-//    leftDelayLine.reset();
-//    rightDelayLine.reset();
-//    leftDelayLine.prepare (spec);
-//    rightDelayLine.prepare (spec);
+    */
 }
 
 void NoiseGenerator::setBandwidth (float bandwidth)
@@ -194,7 +179,7 @@ void NoiseGenerator::mute()
 //    rightGain = 0.5f * (1.0f + pan);
 //}
 
-void NoiseGenerator::setBandpass (float centerFreq)
+void NoiseGenerator::setBandpass(float centerFreq)
 {
     if (this->centerFreq != centerFreq)
     {
@@ -204,9 +189,11 @@ void NoiseGenerator::setBandpass (float centerFreq)
         isMuted = false;
     }
     
-    float freq = std::min (std::max (centerFreq, 20.0f), sampleRate * 0.49f);
-    float lowFreq = std::min (std::max (centerFreq * std::pow (2.0f, -bandwidth), 20.0f), sampleRate * 0.49f);
-    float highFreq = std::min (std::max (centerFreq * std::pow (2.0f, bandwidth), 20.0f), sampleRate * 0.49f);
+    float freq = std::min(std::max(centerFreq, 20.0f), sampleRate * 0.49f);
+    
+    // Configure bandpass filter
+    float Q = 1.0f / (2.0f * std::sinh(std::log(2.0f) * bandwidth / 2.0f));
+    *bandpass.coefficients = *juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, freq, Q);
     
     // Add notch filter at center frequency
     *notchFilter.coefficients = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(
@@ -216,9 +203,15 @@ void NoiseGenerator::setBandpass (float centerFreq)
         juce::Decibels::decibelsToGain(notchDepth)
     );
     
+    // Comment out the old filter configuration
+    /*
+    float lowFreq = std::min(std::max(centerFreq * std::pow(2.0f, -bandwidth), 20.0f), sampleRate * 0.49f);
+    float highFreq = std::min(std::max(centerFreq * std::pow(2.0f, bandwidth), 20.0f), sampleRate * 0.49f);
+    
     for (int i = 0; i < order; ++i)
     {
-        *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass (sampleRate, highFreq);
-        *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, lowFreq);
+        *lowPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, highFreq);
+        *highPassFilters[i].coefficients = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, lowFreq);
     }
+    */
 }
