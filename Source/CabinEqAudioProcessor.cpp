@@ -599,7 +599,11 @@ bool CabinEqAudioProcessor::getIsProfileLocked (int rowIdx)
 
 void CabinEqAudioProcessor::saveData()
 {
-    juce::StandalonePluginHolder::getInstance()->savePluginState();
+    // Add protection against null pointers
+    if (juce::StandalonePluginHolder::getInstance() != nullptr)
+    {
+        juce::StandalonePluginHolder::getInstance()->savePluginState();
+    }
 }
 
 void CabinEqAudioProcessor::restartAudio()
