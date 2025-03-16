@@ -17,6 +17,10 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
     });
     
+    ArchetypalGlyph verticalGlyphBackwards (1, {
+        Stroke ({{ 0, 1 }, { 0, -1 }, { 0, 1 }})
+    });
+    
     ArchetypalGlyph diagonalLeft (2, {
         Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }})
     });
@@ -26,6 +30,7 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     });
     
     archetypalGlyphs.push_back (verticalGlyph);
+    archetypalGlyphs.push_back (verticalGlyphBackwards);
     archetypalGlyphs.push_back (diagonalLeft);
     archetypalGlyphs.push_back (diagonalRight);
 }

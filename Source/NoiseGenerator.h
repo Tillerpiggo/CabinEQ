@@ -40,7 +40,7 @@ private:
     juce::dsp::IIR::Filter<float> bandpass4;
     std::vector<juce::dsp::IIR::Filter<float>> lowPassFilters;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFilters;
-    int order = 1;
+    int order = 4;
     int snapToZeroCounter = 0;
     
     // Constants
@@ -59,4 +59,8 @@ private:
     bool shouldUpdatePan = true;
 
     juce::Random random;
+
+    juce::dsp::IIR::Filter<float> notchFilter;
+    float notchDepth = -20.0f; // dB, negative for a cut
+    float notchQ = 1.0f;
 };

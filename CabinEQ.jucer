@@ -254,8 +254,8 @@
                customPList="&lt;key&gt;com.apple.security.get-task-allow&lt;/key&gt;&#10;&lt;false/&gt;"
                iosDevelopmentTeamID="E88BK26E9L" bigIcon="RQqeWn" smallIcon="RQqeWn">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ" customXcodeFlags="OTHER_CODE_SIGN_FLAGS=--deep"
-                       codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="CabinEQ" codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"
+                       customXcodeFlags="OTHER_CODE_SIGN_FLAGS=--deep"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="CabinEQ" codeSigningIdentity="Developer ID Application: Tyler Gee (E88BK26E9L)"
                        fastMath="1"/>
       </CONFIGURATIONS>
