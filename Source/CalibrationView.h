@@ -47,7 +47,6 @@ public:
 private:
     void updateSpeakerButton();
     void updatePlayPauseButton(); // updates the images of playPauseButton based on isPlaying
-    void updatePlayer(); // updates prev next buttons based on availability of prev and next
     
     CalibrationListener* calibrationListener = nullptr;
     CheckerboardViewDataSource* dataSource = nullptr;

@@ -46,23 +46,18 @@ CalibrationView::CalibrationView()
     addAndMakeVisible (nextButton);
     prevButton.setImages (false, true, true, prevImage, 1.0f, juce::Colours::white.withAlpha (0.0f), prevImage, 1.0f, juce::Colours::black.withAlpha (0.1f), prevImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
     nextButton.setImages (false, true, true, nextImage, 1.0f, juce::Colours::white.withAlpha (0.0f), nextImage, 1.0f, juce::Colours::black.withAlpha (0.1f), nextImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
-    updatePlayer();
     prevButton.onClick = [this] {
         if (calibrationListener != nullptr)
         {
             calibrationListener->goToPrev();
-            checkerboardView.updateCheckerboard();
-            musicList.updateSelectedRow();
-            updatePlayer();
+            elevationCalibrationView.updateElevationCalibration();
         }
     };
     nextButton.onClick = [this] {
         if (calibrationListener != nullptr)
         {
             calibrationListener->goToNext();
-            checkerboardView.updateCheckerboard();
-            musicList.updateSelectedRow();
-            updatePlayer();
+            elevationCalibrationView.updateElevationCalibration();
         }
     };
     
@@ -199,7 +194,7 @@ void CalibrationView::resized()
     // playerLayout.updateComponentBounds();
 }
 
-void CalibrationView::setListener (CheckerboardViewListener* listener)
+void CalibrationView::setListener (ElevationCalibrationListener* listener)
 {
     checkerboardView.setListener (listener);
 //    this->checkerboardViewListener = listener;
@@ -225,10 +220,8 @@ void CalibrationView::setGlyphDataSource (GlyphViewDataSource* dataSource)
 
 void CalibrationView::setDataSource (CheckerboardViewDataSource* dataSource)
 {
-    checkerboardView.setDataSource (dataSource);
-    musicList.setDataSource (dataSource);
+    elevationCalibrationView.setDataSource (dataSource);
     this->dataSource = dataSource;
-    updatePlayer();
 }
 
 void CalibrationView::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
@@ -244,7 +237,7 @@ void CalibrationView::selectedRow (int rowIdx)
     if (calibrationListener != nullptr)
     {
         calibrationListener->selectCheckerboardAtIdx (rowIdx);
-        checkerboardView.updateCheckerboard();
+        // checkerboardView.updateCheckerboard();
         updatePlayer();
     }
 }
@@ -255,7 +248,7 @@ void CalibrationView::timerCallback()
     if (calibrationListener != nullptr && isPlaying)
     {
         calibrationListener->toggleCheckerboardPolarity();
-        checkerboardView.updateCheckerboard();
+        // checkerboardView.updateCheckerboard();
     }
 }
 
@@ -269,23 +262,4 @@ void CalibrationView::updatePlayPauseButton()
 {
     juce::Image buttonImage = isPlaying ? pauseImage : playImage;
     playPauseButton.setImages (false, true, true, buttonImage, 1.0f, juce::Colours::white.withAlpha (0.0f), buttonImage, 1.0f, juce::Colours::black.withAlpha (0.1f), buttonImage, 1.0f, juce::Colours::black.withAlpha (0.2f));
-}
-
-void CalibrationView::updatePlayer()
-{
-    if (calibrationListener == nullptr || dataSource == nullptr)
-    {
-        prevButton.setEnabled (false);
-        nextButton.setEnabled (false);
-        titleLabel.setText ("No Audio Selected", juce::NotificationType::dontSendNotification);
-        return;
-    }
-    bool hasPrev = calibrationListener->hasPrev();
-    bool hasNext = calibrationListener->hasNext();
-    prevButton.setEnabled (calibrationListener->hasPrev());
-    prevButton.setAlpha (hasPrev ? 1.0f : 0.8f);
-    nextButton.setEnabled (calibrationListener->hasNext());
-    nextButton.setAlpha (hasNext ? 1.0f : 0.8f);
-    titleLabel.setText (dataSource->getCheckerboard().getTitle(), juce::NotificationType::dontSendNotification);
-    
 }
