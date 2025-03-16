@@ -134,6 +134,13 @@ CalibrationView::CalibrationView()
             glyphGridView.updateGlyphs();
         }
     };
+    volumeSlider.onValueChange = [this] {
+        if (calibrationListener != nullptr)
+        {
+            calibrationListener->setGlyphVolume(volumeSlider.getValue());
+            glyphGridView.updateGlyphs();
+        }
+    };
     startTimer (2000);
 }
 

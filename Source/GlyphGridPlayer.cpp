@@ -373,21 +373,25 @@ void GlyphGridPlayer::processBlock(juce::AudioBuffer<float>& buffer, float gain)
     for (int sample = 0; sample < copyBuffer.getNumSamples(); ++sample)
     {
         auto nextSample = getNextSample();
-        leftChannel[sample] += nextSample.first * 0.15 * 0.5 * gain;
+        leftChannel[sample] += nextSample.first * 0.15 * 0.5 * gain * volume;
         
         if (rightChannel)
-            rightChannel[sample] += nextSample.second * 0.15 * 0.5 * gain;
+            rightChannel[sample] += nextSample.second * 0.15 * 0.5 * gain * volume;
     }
 
     // Filter buffer
     juce::dsp::AudioBlock<float> copyBlock (copyBuffer);
     juce::dsp::ProcessContextReplacing<float> copyContext (copyBlock);
     tiltFilter.process (copyContext);
-    // systemVolumeProcessor.process (copyContext);
     
     // Add copy buffer contents back to main buffer
     for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
     {
         buffer.addFrom(channel, 0, copyBuffer, channel, 0, copyBuffer.getNumSamples());
     }
+}
+
+void GlyphGridPlayer::setVolume(float volume)
+{
+    this->volume = volume;
 }

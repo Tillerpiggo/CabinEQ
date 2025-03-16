@@ -191,6 +191,11 @@ void PlaybackManager::setGlyphs (std::vector<Glyph> glyphs)
     glyphGridPlayer.setGlyphs (glyphs);
 }
 
+void PlaybackManager::setGlyphVolume(float volume)
+{
+    glyphGridPlayer.setVolume(volume);
+}
+
 float PlaybackManager::getCurrPlayingTime()
 {
     return glyphGridPlayer.getCurrPlayingTime();

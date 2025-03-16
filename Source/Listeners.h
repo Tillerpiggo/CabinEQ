@@ -148,24 +148,21 @@ public:
     virtual void setIsPlaying (bool isPlaying) = 0;
     virtual void setIsCabinNoise (bool isCabinNoise) = 0;
     virtual void setMinFreq (float newMinFreq) = 0;
-    virtual void setSpeedFactor (float speedFactor) = 0;
-    virtual void setBandwidth (float bandwidth) = 0;
-    
-    // This section might all be outdated now
     virtual void setIIR (bool isIIR) = 0;
     virtual void updateFIRFilter() = 0;
     virtual void setFIRQuality (int fftSize) = 0;
-    
     virtual void setPinkNoise (bool pinkNoiseEnabled) = 0;
+    virtual void setSpeedFactor (float speedFactor) = 0;
+    virtual void setBandwidth (float bandwidth) = 0;
+    virtual void setGlyphVolume(float volume) = 0;
     
-    // Checkerboard stuff
     virtual void goToNext() = 0;
     virtual void goToPrev() = 0;
     virtual bool hasNext() = 0;
     virtual bool hasPrev() = 0;
     virtual void toggleCheckerboardPolarity() = 0;
-    
     virtual void selectCheckerboardAtIdx (int idx) = 0;
+    virtual void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) = 0;
 };
 
 class ContactUsBannerListener

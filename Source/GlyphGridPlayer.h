@@ -34,6 +34,7 @@ public:
     void setPanRange (float leftmostPan, float rightmostPan); // max leftmostPan is -1 and max rightmostPan is 1
     void setBarkScaling (bool barkScalingEnabled);
     void setERBScaling (bool erbScalingEnabled);
+    void setVolume(float volume);
     
     void setIsCascading (bool isCascading);
     void setDensity (int density);
@@ -73,6 +74,7 @@ private:
     float maxFreq = 20000.0f;
     float leftmostPan = -1.0f;
     float rightmostPan = 1.0f;
+    float volume = 0.5f; // Default volume level
     
     // Counters
     int updateBandpassCounter = 0;

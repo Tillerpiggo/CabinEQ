@@ -108,6 +108,7 @@ public:
     void setPinkNoise (bool pinkNoiseEnabled) override;
     void setSpeedFactor (float speedFactor) override;
     void setBandwidth (float bandwidth) override;
+    void setGlyphVolume(float volume) override;
     
     void goToNext() override;
     void goToPrev() override;

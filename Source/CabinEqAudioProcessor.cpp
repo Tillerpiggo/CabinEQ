@@ -299,6 +299,11 @@ void CabinEqAudioProcessor::setBandwidth (float bandwidth)
     playbackManager.setBandwidth (bandwidth);
 }
 
+void CabinEqAudioProcessor::setGlyphVolume(float volume)
+{
+    playbackManager.setGlyphVolume(volume);
+}
+
 void CabinEqAudioProcessor::goToNext()
 {
     checkerboardManager.goToNext();
