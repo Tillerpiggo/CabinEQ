@@ -122,6 +122,10 @@
         <FILE id="b0RjiP" name="AddProfileButton.h" compile="0" resource="0"
               file="Source/AddProfileButton.h"/>
         <GROUP id="{3B5A2BE2-E6B6-3B7A-F6E4-7F90726FB230}" name="Layout">
+          <FILE id="E1YpqN" name="CrossfeedControl.cpp" compile="1" resource="0"
+                file="Source/CrossfeedControl.cpp"/>
+          <FILE id="I6bQWy" name="CrossfeedControl.h" compile="0" resource="0"
+                file="Source/CrossfeedControl.h"/>
           <FILE id="AatRfE" name="Layout.cpp" compile="1" resource="0" file="Source/Layout.cpp"/>
           <FILE id="IvB2LP" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
           <FILE id="w4qCSS" name="Row.cpp" compile="1" resource="0" file="Source/Row.cpp"/>
@@ -221,6 +225,10 @@
               file="Source/ArbitraryResponseFilter.cpp"/>
         <FILE id="ItRFbf" name="ArbitraryResponseFilter.h" compile="0" resource="0"
               file="Source/ArbitraryResponseFilter.h"/>
+        <FILE id="fZoq3m" name="CrossfeedProcessor.cpp" compile="1" resource="0"
+              file="Source/CrossfeedProcessor.cpp"/>
+        <FILE id="s8bPqy" name="CrossfeedProcessor.h" compile="0" resource="0"
+              file="Source/CrossfeedProcessor.h"/>
         <FILE id="Ix4Abh" name="FilterChain.h" compile="0" resource="0" file="Source/FilterChain.h"/>
         <FILE id="Uo9gHR" name="SIMDIIRFilter.h" compile="0" resource="0" file="Source/SIMDIIRFilter.h"/>
       </GROUP>

@@ -41,7 +41,7 @@ private:
     juce::dsp::IIR::Filter<float> bandpass4;
     std::vector<juce::dsp::IIR::Filter<float>> lowPassFilters;
     std::vector<juce::dsp::IIR::Filter<float>> highPassFilters;
-    int order = 4;
+    int order = 16;
     int snapToZeroCounter = 0;
     
     // Constants

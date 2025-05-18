@@ -40,7 +40,7 @@ void CheckerboardPlayer::processBlock (juce::AudioBuffer<float>& buffer, float g
     // Filter buffer
     juce::dsp::AudioBlock<float> copyBlock (copyBuffer);
     juce::dsp::ProcessContextReplacing<float> copyContext (copyBlock);
-    tiltFilter.process (copyContext);
+//    tiltFilter.process (copyContext);
     systemVolumeProcessor.process (copyContext);
     
     // Add copy buffer contents back to main buffer

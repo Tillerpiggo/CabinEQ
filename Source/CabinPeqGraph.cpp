@@ -74,6 +74,9 @@ void CabinPeqGraph::resized()
     // Hide instruction label for now
     // instructionLabel.setBounds (0.0f, getBounds().getHeight() - 50.0f, getWidth(), 40.0f);
     
+    // LeftRight buttons
+    leftRightButton.setBounds(0.0f, getBounds().getHeight() - 50.0f, getWidth(), 40.0f);
+    
     // Recalculate needed vars
     
     // horizontalLinePaths

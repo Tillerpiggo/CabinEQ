@@ -304,6 +304,21 @@ void CabinEqAudioProcessor::setGlyphVolume(float volume)
     playbackManager.setGlyphVolume(volume);
 }
 
+void CabinEqAudioProcessor::setCrossfeedDelaySamples (int samples)
+{
+    playbackManager.setCrossfeedDelaySamples(samples);
+}
+
+void CabinEqAudioProcessor::setCrossfeedVolume (float volume)
+{
+    playbackManager.setCrossfeedVolume(volume);
+}
+
+void CabinEqAudioProcessor::setCrossfeedEnabled (bool enabled)
+{
+    playbackManager.setCrossfeedEnabled(enabled);
+}
+
 void CabinEqAudioProcessor::goToNext()
 {
     checkerboardManager.goToNext();

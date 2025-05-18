@@ -54,6 +54,7 @@ private:
     void updateNoiseGeneratorsIfNeeded();
     float scaleToBarkBandwidth (float bandwidth, float centerFrequency);
     float barkToHz (float hz);
+    float getBandwidthForGlyph(const Glyph& glyph); // Get the appropriate bandwidth for a specific glyph
     
     std::pair<std::pair<float, float>, float> getFreqPanVolFromGlyphAtTime (const Glyph& glyph, float currTime);
     std::vector<std::pair<std::pair<float, float>, float>> getFreqPanVolsFromGlyphAtTime (const Glyph& glyph, float currTime);
@@ -61,6 +62,7 @@ private:
     
     juce::dsp::ProcessSpec spec;
     std::vector<Glyph> glyphs;
+    std::unordered_map<int, float> glyphBandwidthMultipliers; // Maps glyph ID to bandwidth multiplier
     
     std::vector<NoiseGenerator> noiseGenerators;
     GainEnvelope gainEnvelope { 1000 };

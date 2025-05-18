@@ -13,8 +13,20 @@
 GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
     : glyphs (glyphs)
 {
-    ArchetypalGlyph verticalGlyph (1, {
+    // Vertical fast - one oscillation
+    ArchetypalGlyph verticalFast (1, {
         Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }})
+    });
+    
+    // Medium speed vertical - three complete oscillations
+    ArchetypalGlyph verticalMedium (11, {
+        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }, { 0, 1 }, { 0, -1 }, { 0, 1 }, { 0, -1 }})
+    });
+    
+    // Slow vertical - six complete oscillations
+    ArchetypalGlyph verticalSlow (12, {
+        Stroke ({{ 0, -1 }, { 0, 1 }, { 0, -1 }, { 0, 1 }, { 0, -1 }, { 0, 1 },
+                 { 0, -1 }, { 0, 1 }, { 0, -1 }, { 0, 1 }, { 0, -1 }, { 0, 1 }, { 0, -1 }})
     });
     
     ArchetypalGlyph verticalGlyphBackwards (1, {
@@ -29,10 +41,64 @@ GlyphManager::GlyphManager (std::vector<Glyph> glyphs)
         Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
     });
     
-    archetypalGlyphs.push_back (verticalGlyph);
-    archetypalGlyphs.push_back (verticalGlyphBackwards);
-    archetypalGlyphs.push_back (diagonalLeft);
-    archetypalGlyphs.push_back (diagonalRight);
+    // Original diagonal lines with one oscillation
+    ArchetypalGlyph diagonalLeftFast (2, {
+        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }})
+    });
+    
+    ArchetypalGlyph diagonalRightFast (3, {
+        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }})
+    });
+    
+    // Add diagonal lines with medium oscillation (three complete back-and-forths)
+    ArchetypalGlyph diagonalLeftMedium (7, {
+        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }, { 1, 1 }, { -1, -1 }, { 1, 1 }, { -1, -1 }})
+    });
+    
+    ArchetypalGlyph diagonalRightMedium (8, {
+        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }, { -1, 1 }, { 1, -1 }, { -1, 1 }, { 1, -1 }})
+    });
+    
+    // Add diagonal lines with slow oscillation (six complete back-and-forths)
+    ArchetypalGlyph diagonalLeftSlow (9, {
+        Stroke ({{ -1, -1 }, { 1, 1 }, { -1, -1 }, { 1, 1 }, { -1, -1 }, { 1, 1 },
+                 { -1, -1 }, { 1, 1 }, { -1, -1 }, { 1, 1 }, { -1, -1 }, { 1, 1 }, { -1, -1 }})
+    });
+    
+    ArchetypalGlyph diagonalRightSlow (10, {
+        Stroke ({{ 1, -1 }, { -1, 1 }, { 1, -1 }, { -1, 1 }, { 1, -1 }, { -1, 1 },
+                 { 1, -1 }, { -1, 1 }, { 1, -1 }, { -1, 1 }, { 1, -1 }, { -1, 1 }, { 1, -1 }})
+    });
+    
+    // Add three horizontal lines with different numbers of complete cycles
+    // Fast horizontal line - just one back and forth
+    ArchetypalGlyph horizontalFast (4, {
+        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }})
+    });
+    
+    // Medium speed horizontal line - does three complete back-and-forths
+    ArchetypalGlyph horizontalMedium (5, {
+        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }})
+    });
+    
+    // Slow horizontal line - does six complete back-and-forths
+    ArchetypalGlyph horizontalSlow (6, {
+        Stroke ({{ -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 },
+                 { -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }, { 1, 0 }, { -1, 0 }})
+    });
+    
+    archetypalGlyphs.push_back (verticalFast);
+    archetypalGlyphs.push_back (horizontalFast);
+    archetypalGlyphs.push_back (diagonalLeftFast);
+    archetypalGlyphs.push_back (diagonalRightFast);
+    archetypalGlyphs.push_back (horizontalMedium);
+    archetypalGlyphs.push_back (horizontalSlow);
+    archetypalGlyphs.push_back (diagonalLeftMedium);
+    archetypalGlyphs.push_back (diagonalRightMedium);
+    archetypalGlyphs.push_back (diagonalLeftSlow);
+    archetypalGlyphs.push_back (diagonalRightSlow);
+    archetypalGlyphs.push_back (verticalMedium);
+    archetypalGlyphs.push_back (verticalSlow);
 }
 
 void GlyphManager::addGlyph (int archetypeId, juce::Point<float> centerPos)

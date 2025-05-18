@@ -16,13 +16,16 @@ CalibrationView::CalibrationView()
     addAndMakeVisible (checkerboardView);
 
     // Glyph Grid View
-    addAndMakeVisible (glyphGridView);
+    // addAndMakeVisible (glyphGridView); // Commented out
 
     // Archetype Bar
-    addAndMakeVisible (archetypeViewport);
-    addAndMakeVisible (archetypeBar);
-    archetypeViewport.setScrollBarsShown (true, false);
+    // addAndMakeVisible (archetypeViewport); // Commented out
+    // addAndMakeVisible (archetypeBar); // Commented out
+    // archetypeViewport.setScrollBarsShown (true, false); // Commented out
     
+    // Crossfeed Control
+    addAndMakeVisible (crossfeedControl);
+
     // Setup new player component
     // Title
     addAndMakeVisible (titleLabel);
@@ -160,15 +163,15 @@ void CalibrationView::resized()
     float archetypeBarWidth = 100.0f;
     auto localBounds = getBounds().withX (0).withY (0);
     
-    // Music List
-    Layout musicListLayout (localBounds.withTrimmedRight (getWidth() - musicListWidth), 4.0f);
-    musicListLayout.addRow ({ Space (&musicList) });
-    musicListLayout.updateComponentBounds();
+    // // Music List
+    // Layout musicListLayout (localBounds.withTrimmedRight (getWidth() - musicListWidth), 4.0f);
+    // musicListLayout.addRow ({ Space (&musicList) });
+    // musicListLayout.updateComponentBounds();
     
-    // Checkerboard View
-    // Layout checkerboardLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
-    // checkerboardLayout.addRow ({ Space (&checkerboardView ) });
-    // checkerboardLayout.updateComponentBounds();
+     // Checkerboard View
+//     Layout checkerboardLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
+//     checkerboardLayout.addRow ({ Space (&checkerboardView ) });
+//     checkerboardLayout.updateComponentBounds();
 
     // Layout glyphGridViewLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth).withTrimmedLeft (musicListWidth), 8.0f);
     // glyphGridViewLayout.addRow ({ Space (&glyphGridView) });
@@ -178,32 +181,36 @@ void CalibrationView::resized()
 //    float archetypeBarWidth = 100.0f;
 //    auto localBounds = getBounds().withX (0).withY (0);
     
-    // Glyph View
-    Layout glyphLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth), 8.0f);
-    glyphLayout.addRow ({ Space (&glyphGridView) });
-    glyphLayout.updateComponentBounds();
-    
-    // Archetype sidebar
-    Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
-    archetypeBarLayout.addRow ({ Space (&archetypeBar) });
-    archetypeBarLayout.updateComponentBounds();
+// //    // Glyph View
+//     Layout glyphLayout (localBounds.withTrimmedRight (sidebarWidth + archetypeBarWidth), 8.0f);
+//     glyphLayout.addRow ({ Space (&glyphGridView) });
+//     glyphLayout.updateComponentBounds();
+// //    
+//     // Archetype sidebar
+//     Layout archetypeBarLayout (localBounds.withTrimmedRight (sidebarWidth).withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+//     archetypeBarLayout.addRow ({ Space (&archetypeBar) });
+//     archetypeBarLayout.updateComponentBounds();
 
-    // Settings sidebar - use only the sidebarWidth portion on the right
-    Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
-    settingsLayout.addRow ({ Space(&speedSlider), Space(&speedLabel) });
-    settingsLayout.addRow ({ Space(&bandwidthSlider), Space(&bandwidthLabel) });
-    settingsLayout.addRow ({ Space(&volumeSlider), Space(&volumeLabel) });
-    settingsLayout.addRow ({ Space(&playButton) });
-    settingsLayout.updateComponentBounds();
+//     // Settings sidebar - use only the sidebarWidth portion on the right
+//     Layout settingsLayout (localBounds.withTrimmedLeft (getWidth() - sidebarWidth), 8.0f);
+//     settingsLayout.addRow ({ Space(&speedSlider), Space(&speedLabel) });
+//     settingsLayout.addRow ({ Space(&bandwidthSlider), Space(&bandwidthLabel) });
+//     settingsLayout.addRow ({ Space(&volumeSlider), Space(&volumeLabel) });
+//     settingsLayout.addRow ({ Space(&playButton) });
+//     settingsLayout.updateComponentBounds();
+
+    Layout crossfeedLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+    crossfeedLayout.addRow ({ Space(&crossfeedControl) });
+    crossfeedLayout.updateComponentBounds();
     
-    // Layout playerLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
-    // playerLayout.addRow ({ Space() });
-    // playerLayout.addRow ({ Space (&titleLabel) });
-    // playerLayout.addRow ({ Space(), Space (&prevButton, 40.0f), Space (&playPauseButton, 80.0f), Space (&nextButton, 40.0f), Space() } );
-    // playerLayout.addRow ({ Space() }, 8.0f);
-    // playerLayout.addRow ({ Space(), Space (&speakerButton, 16.0f), Space (&noiseVolumeSlider), Space() }, 20.0f);
-    // playerLayout.addRow ({ Space() });
-    // playerLayout.updateComponentBounds();
+//     Layout playerLayout (localBounds.withTrimmedLeft (getWidth() - (sidebarWidth + archetypeBarWidth)), 8.0f);
+//     playerLayout.addRow ({ Space() });
+//     playerLayout.addRow ({ Space (&titleLabel) });
+//     playerLayout.addRow ({ Space(), Space (&prevButton, 40.0f), Space (&playPauseButton, 80.0f), Space (&nextButton, 40.0f), Space() } );
+//     playerLayout.addRow ({ Space() }, 8.0f);
+//     playerLayout.addRow ({ Space(), Space (&speakerButton, 16.0f), Space (&noiseVolumeSlider), Space() }, 20.0f);
+//     playerLayout.addRow ({ Space() });
+//     playerLayout.updateComponentBounds();
 }
 
 void CalibrationView::setListener (CheckerboardViewListener* listener)
@@ -220,6 +227,7 @@ void CalibrationView::setGlyphListener (GlyphViewListener* listener)
 void CalibrationView::setCalibrationListener (CalibrationListener* calibrationListener)
 {
     this->calibrationListener = calibrationListener;
+    crossfeedControl.setListener(calibrationListener); // Set listener for crossfeed control
     updatePlayer();
 }
 

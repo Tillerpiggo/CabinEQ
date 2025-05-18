@@ -57,6 +57,23 @@ void GlyphGridPlayer::prepare (const juce::dsp::ProcessSpec& spec)
 void GlyphGridPlayer::setGlyphs (std::vector<Glyph> glyphs)
 {
     this->glyphs = glyphs;
+    
+//    // Set bandwidth multipliers based on order: 2x, 1x, 0.5x
+//    glyphBandwidthMultipliers.clear();
+//    for (size_t i = 0; i < glyphs.size(); ++i) {
+//        float multiplier = 1.0f; // Default multiplier
+//        
+//        if (i == 0) {
+//            multiplier = 2.0f; // First glyph: 2x bandwidth
+//        } else if (i == 1) {
+//            multiplier = 1.0f; // Second glyph: 1x bandwidth
+//        } else if (i == 2) {
+//            multiplier = 0.5f; // Third glyph: 0.5x bandwidth
+//        }
+//        
+//        glyphBandwidthMultipliers[glyphs[i].getId()] = multiplier;
+//    }
+    
     shouldAddRemoveNoiseGenerators = true;
     shouldUpdateNoiseGenerators = true;
 }
@@ -140,6 +157,9 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
     int noiseGenIdx = 0;
     for (int i = 0; i < glyphs.size(); ++i)
     {
+        // Get the custom bandwidth for this specific glyph
+        float glyphBandwidth = getBandwidthForGlyph(glyphs[i]);
+        
         // Set the appropriate bandpass filter for each noise generator, and implement helper function
 //        auto [freqPan, vol] = getFreqPanVolFromGlyphAtTime (glyphs[i], currTime);
         auto noisePoints = getFreqPanVolsFromGlyphAtTime (glyphs[i], fmod (currTime, 1.0f));
@@ -148,7 +168,7 @@ void GlyphGridPlayer::updateNoiseGeneratorsIfNeeded()
         {
             auto [freqPan, vol] = noisePoint;
             auto [freq, pan] = freqPan;
-            noiseGenerators[noiseGenIdx].setBandwidth (bandwidth);
+            noiseGenerators[noiseGenIdx].setBandwidth (glyphBandwidth);
             noiseGenerators[noiseGenIdx].setBandpass (freq);
             noiseGenerators[noiseGenIdx].setPan (pan);
             noiseGenerators[noiseGenIdx].setVolumeGain (vol);// * patternEnvelope.volumeAtTime (fmod (currTime * 2.0f, 1.0f), i));
@@ -265,6 +285,9 @@ std::vector<std::pair<std::pair<float, float>, float>> GlyphGridPlayer::getFreqP
 
     // Calculate coords
     auto [horizontalSizeFactor, verticalSizeFactor] = glyph.getSizeFactor();
+    
+    // Get the custom bandwidth for this specific glyph
+    float glyphBandwidth = getBandwidthForGlyph(glyph);
     
     for (const auto& noisePoint : noisePoints)
     {
@@ -394,4 +417,16 @@ void GlyphGridPlayer::processBlock(juce::AudioBuffer<float>& buffer, float gain)
 void GlyphGridPlayer::setVolume(float volume)
 {
     this->volume = volume;
+}
+
+float GlyphGridPlayer::getBandwidthForGlyph(const Glyph& glyph)
+{
+    // Get the custom bandwidth multiplier for this glyph, or use default (1.0) if not found
+    float multiplier = 1.0f;
+    auto it = glyphBandwidthMultipliers.find(glyph.getId());
+    if (it != glyphBandwidthMultipliers.end()) {
+        multiplier = it->second;
+    }
+    
+    return bandwidth * multiplier;
 }

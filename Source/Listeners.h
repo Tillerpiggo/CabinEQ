@@ -156,6 +156,10 @@ public:
     virtual void setBandwidth (float bandwidth) = 0;
     virtual void setGlyphVolume(float volume) = 0;
     
+    virtual void setCrossfeedDelaySamples (int samples) = 0;
+    virtual void setCrossfeedVolume (float volume) = 0;
+    virtual void setCrossfeedEnabled (bool enabled) = 0;
+    
     virtual void goToNext() = 0;
     virtual void goToPrev() = 0;
     virtual bool hasNext() = 0;

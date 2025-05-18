@@ -110,6 +110,10 @@ public:
     void setBandwidth (float bandwidth) override;
     void setGlyphVolume(float volume) override;
     
+    void setCrossfeedDelaySamples (int samples) override;
+    void setCrossfeedVolume (float volume) override;
+    void setCrossfeedEnabled (bool enabled) override;
+    
     void goToNext() override;
     void goToPrev() override;
     bool hasNext() override;

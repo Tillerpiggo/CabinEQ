@@ -19,6 +19,7 @@
 #include "Checkerboard.h"
 #include "Listeners.h"
 #include "GlyphGridPlayer.h"
+#include "CrossfeedProcessor.h"
 #include <random>
 
 /// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
@@ -73,6 +74,11 @@ public:
     std::vector<float> getCurrPlayingFreqs();
     std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols();
     
+    // Crossfeed
+    void setCrossfeedDelaySamples (int samples);
+    void setCrossfeedVolume (float volume);
+    void setCrossfeedEnabled (bool enabled);
+    
     void timerCallback() override;
     
 private:
@@ -89,6 +95,7 @@ private:
     ArbitraryResponseFilter firFilter;
 //    ArbitraryResponseFilter tiltFilter;
     Curve firCurve;
+    CrossfeedProcessor crossfeedProcessor;
 //    TiltCurve tiltCurve;
     juce::dsp::ProcessSpec spec;
     juce::dsp::Gain<float> profileVolumeProcessor;

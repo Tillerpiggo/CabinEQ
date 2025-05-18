@@ -28,6 +28,8 @@ PlaybackManager::PlaybackManager()
     
     audioFormatManager.registerBasicFormats();
     audioTransportSource.addChangeListener (this);
+    crossfeedProcessor.setEnabled(false); // Default to off
+    crossfeedProcessor.setCrossfeedVolume(0.0f); // Default to off
     
     startTimer (50);
 }
@@ -36,7 +38,7 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
 {
     if (isPlayingNoise)
     {
-        // checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
+//         checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
         glyphGridPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
     }
     
@@ -53,6 +55,8 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
         {
             firFilter.process (ioContext);
         }
+
+        crossfeedProcessor.process(ioBlock);
         
         profileVolumeProcessor.process (ioContext);
         
@@ -83,6 +87,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     filter.prepare (spec);
     provisionalFilter.prepare (spec);
     firFilter.prepare (spec);
+    crossfeedProcessor.prepare(spec);
 //    tiltFilter.prepare (spec);
 //    tiltFilter.updateWithCurve (tiltCurve, 12);
 //    firFilter.updateWithCurve (firCurve);
@@ -274,10 +279,25 @@ void PlaybackManager::changeListenerCallback (juce::ChangeBroadcaster* source)
 
 std::pair<float, float> PlaybackManager::getNextSample()
 {
-    // return checkerboardPlayer.getNextSample();
+//     return checkerboardPlayer.getNextSample();
     auto sample = glyphGridPlayer.getNextSample();
-    std::cout << "sample: " << sample.first << ", " << sample.second << std::endl;
+//    std::cout << "sample: " << sample.first << ", " << sample.second << std::endl;
     
-    return sample;
+//    return sample;
 //    return gridSequencer.getNextSample();
+}
+
+void PlaybackManager::setCrossfeedDelaySamples (int samples)
+{
+    crossfeedProcessor.setDelaySamples(samples);
+}
+
+void PlaybackManager::setCrossfeedVolume (float volume)
+{
+    crossfeedProcessor.setCrossfeedVolume(volume);
+}
+
+void PlaybackManager::setCrossfeedEnabled (bool enabled)
+{
+    crossfeedProcessor.setEnabled(enabled);
 }
