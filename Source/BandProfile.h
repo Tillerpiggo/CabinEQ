@@ -21,10 +21,17 @@ public:
         left = 1,
         right = 2
     };
+
+    
+    enum class FilterType : int
+    {
+        bell = 0,
+        shelf = 1
+    };
     
     Band();
-    Band (int id, float freq, float ampl, float bandwidth, Type type);
-    static Band withQ (int id, float freq, float ampl, float qFactor, Type type);
+    Band (int id, float freq, float ampl, float bandwidth, Type type, FilterType filterType = FilterType::bell);
+    static Band withQ (int id, float freq, float ampl, float qFactor, Type type, FilterType filterType = FilterType::bell);
     static float bandwidthToQFactor (float bandwidth);
     static float qFactorToBandwidth (float qFactor);
     
@@ -34,6 +41,7 @@ public:
     float bandwidth;
     float qFactor;
     Type type;
+    FilterType filterType;
 };
 
 class MultiBandStep

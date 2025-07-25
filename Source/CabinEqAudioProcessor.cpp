@@ -486,12 +486,12 @@ void CabinEqAudioProcessor::setStepEnabled (int stepId, bool isEnabled)
         profile->get().setStepEnabled (stepId, isEnabled);
 }
 
-int CabinEqAudioProcessor::addBand (float freq, float ampl, float bandwidth, Band::Type type, int stepId)
+int CabinEqAudioProcessor::addBand (float freq, float ampl, float bandwidth, Band::Type type, Band::FilterType filterType, int stepId)
 {
     auto profile = profileNamed (profileId);
     if (profile.has_value())
     {
-        int bandId = profile->get().addBand (freq, ampl, bandwidth, type, stepId);
+        int bandId = profile->get().addBand (freq, ampl, bandwidth, type, filterType, stepId);
         updateFilter();
         return bandId;
     }

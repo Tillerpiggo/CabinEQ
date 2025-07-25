@@ -25,7 +25,7 @@ public:
     int addMultiBandStep (const bool isEnabled = true);
     void removeMultiBandStep (const int stepId);
     void setStepEnabled (const int stepId, const bool isEnabled);
-    int addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId); // returns the id of the added band
+    int addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const Band::FilterType filterType, const int stepId); // returns the id of the added band
     void removeBand (const int bandId, const int stepId);
     void updateBand (const int bandId, const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId);
     
@@ -44,7 +44,7 @@ public:
     void setNoiseVolume (float noiseVolume);
     
 private:
-    void addBandToMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree multiBandStep);
+    void addBandToMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, Band::FilterType filterType, juce::ValueTree multiBandStep);
     void updateBandInMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree multiBandStep);
     int getNextIdInValueTree (juce::ValueTree valueTree); // returns the next id, i.e. the id the next added band would have, assuming the children of this node have sequential ids (deletions may cause id gaps, but this is fine)
     void printMultiBandStep (juce::ValueTree multiBandStep) const; // prints a ValueTree, assuming the ValueTree's children are Bands
@@ -66,6 +66,7 @@ private:
     juce::Identifier idAmpl { "ampl" };
     juce::Identifier idBandwidth { "bandwidth" };
     juce::Identifier idBandType { "bandtype" };
+    juce::Identifier idFilterType { "filtertype" };
     juce::Identifier idAmplTree { "AmplTree" };
     juce::ValueTree valueTree;
     juce::String profileName;

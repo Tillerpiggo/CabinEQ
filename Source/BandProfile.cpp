@@ -12,18 +12,18 @@
 
 //==============================================
 Band::Band()
-  : id (0), freq (0), ampl (0), bandwidth (1), type (Band::Type::both)
+  : id (0), freq (0), ampl (0), bandwidth (1), type (Band::Type::both), filterType (Band::FilterType::bell)
 {}
 
-Band::Band (int id, float freq, float ampl, float bandwidth, Type type)
-: id (id), freq (freq), ampl (ampl), bandwidth (bandwidth), type (type)
+Band::Band (int id, float freq, float ampl, float bandwidth, Type type, FilterType filterType)
+: id (id), freq (freq), ampl (ampl), bandwidth (bandwidth), type (type), filterType (filterType)
 {
     this->qFactor = bandwidthToQFactor (bandwidth);
 }
 
-Band Band::withQ (int id, float freq, float ampl, float qFactor, Band::Type type)
+Band Band::withQ (int id, float freq, float ampl, float qFactor, Band::Type type, Band::FilterType filterType)
 {
-    return Band (id, freq, ampl, Band::qFactorToBandwidth (qFactor), type);
+    return Band (id, freq, ampl, Band::qFactorToBandwidth (qFactor), type, filterType);
 }
 
 float Band::bandwidthToQFactor (float bandwidth)

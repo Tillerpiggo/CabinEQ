@@ -72,8 +72,8 @@ public:
         }
         
         // Autogain Processing
-//        autoGainFilter.process (leftContext);
-//        autoGainFilter.process (rightContext);
+       autoGainFilter.process (leftContext);
+       autoGainFilter.process (rightContext);
     }
     
     void setPitch (float pitch)
@@ -99,8 +99,8 @@ private:
                 if (i >= leftFilters.size())
                 {
                     Band band = bands[i];
-                    addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
-                    addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
+                    addParametricBand (leftFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::right ? band.ampl : 0, band.filterType);
+                    addParametricBand (rightFilters, sampleRate, band.freq, band.qFactor, band.type != Band::Type::left ? band.ampl : 0, band.filterType);
                 }
             }
         }
@@ -121,8 +121,8 @@ private:
                 float shuffleFactor = 1.0f - shuffle * 0.1f;
                 if (i % 2 == 0)
                     shuffleFactor = 1.0f - shuffle * 0.7f;
-                updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::right ? band.ampl : 0);
-                updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::left ? band.ampl : 0);
+                updateParametricBand (leftFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::right ? band.ampl : 0, band.filterType);
+                updateParametricBand (rightFilters, i, sampleRate, band.freq * pitch * shuffleFactor, band.qFactor, band.type != Band::Type::left ? band.ampl : 0, band.filterType);
             }
         }
         
@@ -149,22 +149,53 @@ private:
     float shuffle = 0.0f;
 
     void addParametricBand (std::vector<std::unique_ptr<Filter>>& filters,
-                            double sampleRate, double centerFreq, double qFactor, float amplInDB)
+                            double sampleRate, double centerFreq, double qFactor, float amplInDB, Band::FilterType filterType)
     {
         auto filter = std::make_unique<Filter>();
-        *filter->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
-                                                              juce::Decibels::decibelsToGain (amplInDB));
-//        filter->setCoefficients (sampleRate, centerFreq, qFactor, amplInDB);
+        
+        // Choose filter type based on Band::FilterType
+        switch (filterType)
+        {
+            case Band::FilterType::bell:
+                *filter->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
+                                                                      juce::Decibels::decibelsToGain (amplInDB));
+                break;
+            case Band::FilterType::shelf:
+                // For shelf filters, we'll use high shelf for positive gains and low shelf for negative gains
+                if (amplInDB >= 0)
+                    *filter->coefficients = *Coefficients::makeHighShelf(sampleRate, centerFreq, qFactor,
+                                                                         juce::Decibels::decibelsToGain (amplInDB));
+                else
+                    *filter->coefficients = *Coefficients::makeLowShelf(sampleRate, centerFreq, qFactor,
+                                                                        juce::Decibels::decibelsToGain (amplInDB));
+                break;
+        }
+        
         filter->prepare (spec);
         filters.push_back (std::move(filter));
     }
     
     
     void updateParametricBand (std::vector<std::unique_ptr<Filter>>& filters, int idx,
-                            double sampleRate, double centerFreq, double qFactor, float amplInDB)
+                            double sampleRate, double centerFreq, double qFactor, float amplInDB, Band::FilterType filterType)
     {
-        *filters[idx]->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
-                                                                    juce::Decibels::decibelsToGain (amplInDB));
+        // Choose filter type based on Band::FilterType
+        switch (filterType)
+        {
+            case Band::FilterType::bell:
+                *filters[idx]->coefficients = *Coefficients::makePeakFilter(sampleRate, centerFreq, qFactor,
+                                                                            juce::Decibels::decibelsToGain (amplInDB));
+                break;
+            case Band::FilterType::shelf:
+                // For shelf filters, we'll use high shelf for positive gains and low shelf for negative gains
+                if (amplInDB >= 0)
+                    *filters[idx]->coefficients = *Coefficients::makeHighShelf(sampleRate, centerFreq, qFactor,
+                                                                               juce::Decibels::decibelsToGain (amplInDB));
+                else
+                    *filters[idx]->coefficients = *Coefficients::makeLowShelf(sampleRate, centerFreq, qFactor,
+                                                                              juce::Decibels::decibelsToGain (amplInDB));
+                break;
+        }
     }
     
     juce::dsp::Gain<float> autoGainFilter;

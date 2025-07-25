@@ -100,7 +100,7 @@ void CabinEqProfile::setStepEnabled (const int stepId, const bool isEnabled)
     }
 }
 
-int CabinEqProfile::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const int stepId)
+int CabinEqProfile::addBand (const float freq, const float ampl, const float bandwidth, const Band::Type type, const Band::FilterType filterType, const int stepId)
 {
     if (! hasBeenInitialized)
         initValueTreeFromAPVTS();
@@ -115,7 +115,7 @@ int CabinEqProfile::addBand (const float freq, const float ampl, const float ban
     }
     
     int id = getNextIdInValueTree (multiBandStep);
-    addBandToMultiBandStep (id, freq, ampl, bandwidth, type, multiBandStep);
+    addBandToMultiBandStep (id, freq, ampl, bandwidth, type, filterType, multiBandStep);
     
     return id;
 }
@@ -259,7 +259,7 @@ void CabinEqProfile::setNoiseVolume (float noiseVolume)
     valueTree.setProperty (idNoiseVolume, noiseVolume, nullptr);
 }
 
-void CabinEqProfile::addBandToMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, juce::ValueTree multiBandStep)
+void CabinEqProfile::addBandToMultiBandStep (int id, float freq, float ampl, float bandwidth, Band::Type type, Band::FilterType filterType, juce::ValueTree multiBandStep)
 {
     juce::ValueTree band (idBand);
     band.setProperty (idId, id, nullptr);
@@ -267,6 +267,7 @@ void CabinEqProfile::addBandToMultiBandStep (int id, float freq, float ampl, flo
     band.setProperty (idAmpl, ampl, nullptr);
     band.setProperty (idBandwidth, bandwidth, nullptr);
     band.setProperty (idBandType, static_cast<int> (type), nullptr);
+    band.setProperty (idFilterType, static_cast<int> (filterType), nullptr);
     multiBandStep.appendChild (band, nullptr);
 }
 

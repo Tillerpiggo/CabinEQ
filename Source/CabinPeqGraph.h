@@ -83,6 +83,7 @@ private:
     std::string volumeInstructions { "Drag dot up/down to set volume for this profile" };
     
     juce::TextButton leftRightButton { "BOTH" };
+    juce::TextButton filterTypeButton { "BELL" };
 
     // Number labels
     std::array<juce::Label, 10> freqLabels;
@@ -121,7 +122,7 @@ private:
     std::optional<Band> getClosestBandToMouseEvent (const juce::MouseEvent& event) const; // which band's node is the closest to the mouse
     
     // Utils to handle calls to the listener if listener is nullptr
-    int addBand (float freq, float ampl, float bandwidth, Band::Type type);
+    int addBand (float freq, float ampl, float bandwidth, Band::Type type, Band::FilterType filterType);
     void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type);
     void updateBandFromDrag (const juce::MouseEvent& event);
     void removeBand (int id);
@@ -172,6 +173,7 @@ private:
     // BandEqCurve
     BandEqCurve curve;
     Band::Type bandType = Band::Type::both;
+    Band::FilterType filterType = Band::FilterType::bell;
     
     // Variables for faster painting
     

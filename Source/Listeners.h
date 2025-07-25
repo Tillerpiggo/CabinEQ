@@ -41,7 +41,7 @@ public:
     virtual int addMultiBandStep() = 0;
     virtual void removeMultiBandStep (int id) = 0;
     virtual void setStepEnabled (int id, bool isEnabled) = 0;
-    virtual int addBand (float freq, float ampl, float bandwidth, Band::Type type, int stepId) = 0;
+    virtual int addBand (float freq, float ampl, float bandwidth, Band::Type type, Band::FilterType filterType, int stepId) = 0;
     virtual void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type, int stepId) = 0;
     virtual void removeBand (int id, int stepId) = 0;
     virtual void setProfileVolume (float volume) = 0;

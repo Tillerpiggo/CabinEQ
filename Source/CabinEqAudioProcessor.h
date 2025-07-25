@@ -148,7 +148,7 @@ public:
     int addMultiBandStep() override;
     void removeMultiBandStep (int stepId) override;
     void setStepEnabled (int stepId, bool isEnabled) override;
-    int addBand (float freq, float ampl, float bandwidth, Band::Type type, int stepId) override;
+    int addBand (float freq, float ampl, float bandwidth, Band::Type type, Band::FilterType filterType, int stepId) override;
     void updateBand (int bandId, float freq, float ampl, float bandwidth, Band::Type type, int stepId) override;
     void removeBand (int bandId, int stepId) override;
     

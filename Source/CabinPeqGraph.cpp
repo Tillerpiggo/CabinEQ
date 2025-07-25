@@ -15,6 +15,7 @@ CabinPeqGraph::CabinPeqGraph()
     startTimer (5);
     
     addAndMakeVisible (leftRightButton);
+    addAndMakeVisible (filterTypeButton);
     addAndMakeVisible (instructionLabel);
     
     instructionLabel.setJustificationType (juce::Justification::bottomRight);
@@ -35,6 +36,22 @@ CabinPeqGraph::CabinPeqGraph()
                 break;
             case Band::Type::right:
                 leftRightButton.setButtonText ("RIGHT");
+                break;
+        }
+    });
+    
+    addButton (&filterTypeButton);
+    addButtonAction (&filterTypeButton, [this](juce::Button*) {
+        int filterTypeInt = static_cast<int> (filterType);
+        filterTypeInt = (filterTypeInt + 1) % 2; // Only 2 filter types for now
+        filterType = static_cast<Band::FilterType> (filterTypeInt);
+        switch (filterType)
+        {
+            case Band::FilterType::bell:
+                filterTypeButton.setButtonText ("BELL");
+                break;
+            case Band::FilterType::shelf:
+                filterTypeButton.setButtonText ("SHELF");
                 break;
         }
     });
@@ -74,8 +91,13 @@ void CabinPeqGraph::resized()
     // Hide instruction label for now
     // instructionLabel.setBounds (0.0f, getBounds().getHeight() - 50.0f, getWidth(), 40.0f);
     
-    // LeftRight buttons
-    leftRightButton.setBounds(0.0f, getBounds().getHeight() - 50.0f, getWidth(), 40.0f);
+    // Buttons at bottom - split width between left/right and filter type buttons
+    float buttonHeight = 40.0f;
+    float buttonY = getBounds().getHeight() - 50.0f;
+    float buttonWidth = getWidth() / 2.0f;
+    
+    leftRightButton.setBounds(0.0f, buttonY, buttonWidth, buttonHeight);
+    filterTypeButton.setBounds(buttonWidth, buttonY, buttonWidth, buttonHeight);
     
     // Recalculate needed vars
     
@@ -233,7 +255,7 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent &event)
     else if (addingFreq.has_value() && ! event.mods.isRightButtonDown() && ! isHoveringOverDotControl)
     {
         // Add the band where we click
-        draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH, bandType);
+        draggingId = addBand (freq, ampl, DEFAULT_BANDWIDTH, bandType, filterType);
         
         selectedDotSize = DOT_SIZE_DRAGGING;
         startDragPosition = coords;
@@ -982,12 +1004,12 @@ std::optional<Band> CabinPeqGraph::getClosestBandToMouseEvent (const juce::Mouse
     return closestBand;
 }
 
-int CabinPeqGraph::addBand (float freq, float ampl, float bandwidth, Band::Type type)
+int CabinPeqGraph::addBand (float freq, float ampl, float bandwidth, Band::Type type, Band::FilterType filterType)
 {
     if (listener == nullptr || dataSource == nullptr) // don't add a band unless we can reflect that change
         return -1;
     
-    int newBandId = listener->addBand (freq, ampl, bandwidth, type, currStepId);
+    int newBandId = listener->addBand (freq, ampl, bandwidth, type, filterType, currStepId);
     updateBands();
     
     return newBandId;
