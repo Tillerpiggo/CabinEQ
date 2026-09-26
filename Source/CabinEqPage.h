@@ -72,6 +72,8 @@ protected:
     
     void lockIfNecessary();
     
+    void setCalibrationExpanded (bool shouldBeExpanded); // shows or hides calibrationView, giving the graph the space when hidden
+    
     void addProfile();
     void duplicateProfile();
     void renameProfile();
@@ -88,6 +90,8 @@ protected:
     ContactUsBanner contactUsBanner;
     FreeTrialLockScreen freeTrialLockScreen;
     CalibrationView calibrationView;
+    juce::TextButton calibrationToggleButton;
+    bool isCalibrationExpanded = false; // calibration sounds start collapsed
     juce::Label cabinEQLabel;
     CabinEqAudioProcessor& processor;
     juce::String profileId;

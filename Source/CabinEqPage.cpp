@@ -71,6 +71,12 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 
     unlockForm.setVisible (false);
     
+    addAndMakeVisible (calibrationToggleButton);
+    calibrationToggleButton.onClick = [this] {
+        setCalibrationExpanded (! isCalibrationExpanded);
+    };
+    setCalibrationExpanded (isCalibrationExpanded);
+    
     didLoadData();
     startTimer (100);
     
@@ -119,8 +125,10 @@ void CabinEqPage::resized()
     
     float gearButtonWidth = 120.0f;
     layout.addRow ({ Space (&bypassButton, 60), Space(), Space (&gearButton) }, (float) topRowHeight);
-    layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen) }, 0.5);
-    layout.addRow ({ Space (&calibrationView) });
+    layout.addRow ({ Space (amplGraph.get(), &freeTrialLockScreen) }, isCalibrationExpanded ? 0.5f : -1.0f);
+    layout.addRow ({ Space (&calibrationToggleButton, 200), Space() }, 30);
+    if (isCalibrationExpanded)
+        layout.addRow ({ Space (&calibrationView) });
     layout.addRow ({ Space (&contactUsBanner) }, 40);
     layout.updateComponentBounds();
     
@@ -325,6 +333,14 @@ void CabinEqPage::timerCallback()
         lockApp();
         isUnlocked = false;
     }
+}
+
+void CabinEqPage::setCalibrationExpanded (bool shouldBeExpanded)
+{
+    isCalibrationExpanded = shouldBeExpanded;
+    calibrationToggleButton.setButtonText (isCalibrationExpanded ? "Hide calibration sounds" : "Show calibration sounds");
+    calibrationView.setVisible (isCalibrationExpanded);
+    resized();
 }
 
 void CabinEqPage::lockIfNecessary()
