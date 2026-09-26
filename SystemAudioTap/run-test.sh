@@ -18,7 +18,7 @@ rm -rf "$out" && mkdir -p "$out"
 
 # Launch through LaunchServices rather than as a child of this shell, so macOS treats
 # TapTest as its own app when it asks for the System Audio Recording permission.
-open -W -n --stdout "$out/log.txt" --stderr "$out/log.txt" "$app" --args --out "$out" "$@"
+open -W -n --stdout "$out/log.txt" --stderr "$out/log.txt" "$app" --args --test --out "$out" "$@"
 
 cat "$out/report.txt"
 [[ " $* " == *" --listen "* ]] || grep -q '^RESULT: PASS' "$out/report.txt"
