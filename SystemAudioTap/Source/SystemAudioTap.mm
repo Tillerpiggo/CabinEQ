@@ -238,7 +238,7 @@ bool SystemAudioTap::open (std::string& error)
         //    those processes are muted, so only the processed version is heard. If this app
         //    quits or crashes, nothing's reading it any more and normal audio comes back.
         s.tapDescription = [[CATapDescription alloc] initStereoGlobalTapButExcludeProcesses:@[ @(thisProcess) ]];
-        s.tapDescription.name = @"TapTest";
+        s.tapDescription.name = @"CabinEQ System";
         s.tapDescription.privateTap = YES;
         s.tapDescription.muteBehavior = CATapMutedWhenTapped;
 
@@ -266,7 +266,7 @@ bool SystemAudioTap::open (std::string& error)
 
         NSString* outputUIDString = @(outputUID.c_str());
         NSDictionary* aggregate = @{
-            @kAudioAggregateDeviceNameKey:          @"TapTest",
+            @kAudioAggregateDeviceNameKey:          @"CabinEQ System",
             @kAudioAggregateDeviceUIDKey:           NSUUID.UUID.UUIDString,
             @kAudioAggregateDeviceIsPrivateKey:     @YES,
             @kAudioAggregateDeviceMainSubDeviceKey: outputUIDString,

@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-// TapTest: routes all system audio through a plugin, using a Core Audio process tap.
+// CabinEQ System: routes all system audio through CabinEQ (or another plugin), using a Core Audio process tap.
 //
 //   (default)   opens the plugin's editor with all system audio going through it;
 //               closing the window stops it
@@ -26,7 +26,7 @@ struct Options
 {
     juce::File pluginFile = juce::File::getSpecialLocation (juce::File::userHomeDirectory)
                                 .getChildFile ("Library/Audio/Plug-Ins/VST3/CabinEQ.vst3");
-    juce::File outputDir = juce::File::getSpecialLocation (juce::File::tempDirectory).getChildFile ("TapTest");
+    juce::File outputDir = juce::File::getSpecialLocation (juce::File::tempDirectory).getChildFile ("CabinEQ System");
     bool test = false;
 
     static Options parse (const juce::StringArray& args)
@@ -230,16 +230,16 @@ public:
 };
 
 //==============================================================================
-class TapTest : private juce::Thread
+class Session : private juce::Thread
 {
 public:
-    explicit TapTest (Options optionsToUse) : juce::Thread ("TapTest"), options (std::move (optionsToUse))
+    explicit Session (Options optionsToUse) : juce::Thread ("CabinEQ System"), options (std::move (optionsToUse))
     {
         formats.addDefaultFormats();
         startThread();
     }
 
-    ~TapTest() override
+    ~Session() override
     {
         stopThread (10000);
         tap.close();
@@ -316,7 +316,7 @@ private:
 
             case SystemAudioTap::Permission::denied:
                 report.check (false, "System audio recording permission",
-                              "denied. Turn TapTest on in System Settings > Privacy & Security > Screen & System Audio Recording, then rerun");
+                              "denied. Turn CabinEQ System on in System Settings > Privacy & Security > Screen & System Audio Recording, then rerun");
                 return false;
 
             case SystemAudioTap::Permission::unknown:
@@ -570,25 +570,25 @@ private:
 }
 
 //==============================================================================
-class TapTestApplication : public juce::JUCEApplication
+class CabinEQSystemApplication : public juce::JUCEApplication
 {
 public:
-    const juce::String getApplicationName() override    { return "TapTest"; }
+    const juce::String getApplicationName() override    { return "CabinEQ System"; }
     const juce::String getApplicationVersion() override { return "0.1.0"; }
     bool moreThanOneInstanceAllowed() override           { return false; }
 
     void initialise (const juce::String&) override
     {
-        test = std::make_unique<TapTest> (Options::parse (getCommandLineParameterArray()));
+        session = std::make_unique<Session> (Options::parse (getCommandLineParameterArray()));
     }
 
     void shutdown() override
     {
-        test = nullptr;
+        session = nullptr;
     }
 
 private:
-    std::unique_ptr<TapTest> test;
+    std::unique_ptr<Session> session;
 };
 
-START_JUCE_APPLICATION (TapTestApplication)
+START_JUCE_APPLICATION (CabinEQSystemApplication)

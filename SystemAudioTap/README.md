@@ -1,6 +1,6 @@
-# SystemAudioTap
+# CabinEQ System
 
-Runs CabinEQ (or any VST3/AU) on **all system audio on macOS, with no virtual audio device**.
+A Mac app that runs CabinEQ (or any VST3/AU) on **all system audio, with no virtual audio device**.
 
 It uses Core Audio process taps (macOS 14.2+): a tap captures every other app's output and mutes the original while it's being read, then a private aggregate device clocks the tap together with the real output device. Each audio callback sends the tapped audio through the plugin and out to the speakers. Nothing gets installed, and if the app quits or crashes, normal audio comes straight back.
 
@@ -17,7 +17,7 @@ This builds the app and runs its automated test. The test plays 4 s of pink nois
 To use it for real, double-click the app in Finder (you can drag it to Applications), or:
 
 ```bash
-open build/TapTest_artefacts/Release/TapTest.app
+open "build/CabinEQSystem_artefacts/Release/CabinEQ System.app"
 ```
 
 It opens the plugin's editor with all system audio going through it. Close the window to stop. If it can't start, for example because the plugin isn't installed, it says why.

@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Builds TapTest and runs its automated test.
+# Builds CabinEQ System and runs its automated test.
 #   ./run-test.sh                           test against CabinEQ.vst3
 #   ./run-test.sh --plugin /abs/path/X.vst3 use a different plugin
 # To actually use it, open the app itself (see README.md).
@@ -9,7 +9,7 @@ cd "${0:A:h}"
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release > /dev/null
 cmake --build build -j 8
 
-app=build/TapTest_artefacts/Release/TapTest.app
+app="build/CabinEQSystem_artefacts/Release/CabinEQ System.app"
 # Sign the whole bundle (the linker only signs the binary), so macOS can remember the permission.
 codesign --force --sign - "$app"
 
@@ -17,7 +17,7 @@ out="$PWD/results"
 rm -rf "$out" && mkdir -p "$out"
 
 # Launch through LaunchServices rather than as a child of this shell, so macOS treats
-# TapTest as its own app when it asks for the System Audio Recording permission.
+# CabinEQ System as its own app when it asks for the System Audio Recording permission.
 open -W -n --stdout "$out/log.txt" --stderr "$out/log.txt" "$app" --args --test --out "$out" "$@"
 
 cat "$out/report.txt"
