@@ -1,8 +1,8 @@
 #!/bin/zsh
-# Builds TapTest and runs it.
-#   ./run-test.sh                           automated test against CabinEQ.vst3
-#   ./run-test.sh --listen                  route all system audio through the plugin until you close its window
+# Builds TapTest and runs its automated test.
+#   ./run-test.sh                           test against CabinEQ.vst3
 #   ./run-test.sh --plugin /abs/path/X.vst3 use a different plugin
+# To actually use it, open the app itself (see README.md).
 set -euo pipefail
 cd "${0:A:h}"
 
@@ -21,4 +21,4 @@ rm -rf "$out" && mkdir -p "$out"
 open -W -n --stdout "$out/log.txt" --stderr "$out/log.txt" "$app" --args --test --out "$out" "$@"
 
 cat "$out/report.txt"
-[[ " $* " == *" --listen "* ]] || grep -q '^RESULT: PASS' "$out/report.txt"
+grep -q '^RESULT: PASS' "$out/report.txt"

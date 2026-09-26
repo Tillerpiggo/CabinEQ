@@ -9,10 +9,10 @@
 
 // TapTest: routes all system audio through a plugin, using a Core Audio process tap.
 //
-//   (default)   automated test: plays pink noise from another process (afplay) and checks
+//   (default)   opens the plugin's editor with all system audio going through it;
+//               closing the window stops it
+//   --test      automated test: plays pink noise from another process (afplay) and checks
 //               that it went tap -> plugin -> speakers, then writes report.txt, dry.wav, wet.wav
-//   --listen    leaves it running with the plugin's editor open, so you can hear it on your
-//               own music; closing the window stops it
 //   --plugin P  the .vst3 or .component to load (default: CabinEQ.vst3)
 //   --out D     where to write the report and recordings
 
@@ -27,7 +27,7 @@ struct Options
     juce::File pluginFile = juce::File::getSpecialLocation (juce::File::userHomeDirectory)
                                 .getChildFile ("Library/Audio/Plug-Ins/VST3/CabinEQ.vst3");
     juce::File outputDir = juce::File::getSpecialLocation (juce::File::tempDirectory).getChildFile ("TapTest");
-    bool listen = false;
+    bool test = false;
 
     static Options parse (const juce::StringArray& args)
     {
@@ -39,8 +39,8 @@ struct Options
                 options.pluginFile = juce::File (args[++i]);
             else if (args[i] == "--out" && i + 1 < args.size())
                 options.outputDir = juce::File (args[++i]);
-            else if (args[i] == "--listen")
-                options.listen = true;
+            else if (args[i] == "--test")
+                options.test = true;
         }
 
         return options;
@@ -52,8 +52,14 @@ class Report
 public:
     bool check (bool ok, const juce::String& what, const juce::String& whyNot = {})
     {
-        add (ok ? "PASS" : "FAIL", ok || whyNot.isEmpty() ? what : what + ": " + whyNot);
-        ++(ok ? passed : failed);
+        const auto line = ok || whyNot.isEmpty() ? what : what + ": " + whyNot;
+        add (ok ? "PASS" : "FAIL", line);
+
+        if (ok)
+            ++passed;
+        else
+            failures.add (line);
+
         return ok;
     }
 
@@ -62,6 +68,7 @@ public:
 
     void addResult()
     {
+        const int failed = failures.size();
         const auto result = failed == 0 ? "RESULT: PASS (" + juce::String (passed) + " checks passed)"
                                         : "RESULT: FAIL (" + juce::String (failed) + " of " + juce::String (passed + failed) + " checks failed)";
         text << result << "\n";
@@ -69,7 +76,8 @@ public:
     }
 
     juce::String text;
-    int passed = 0, failed = 0;
+    juce::StringArray failures;
+    int passed = 0;
 
 private:
     void add (const juce::String& tag, const juce::String& line)
@@ -247,7 +255,7 @@ private:
         options.outputDir.createDirectory();
         const bool ready = setUp();
 
-        if (ready && options.listen)
+        if (ready && ! options.test)
         {
             report.info ("Listening: all system audio now goes through the plugin. Close its window to stop.");
             saveReport();
@@ -269,10 +277,24 @@ private:
         report.addResult();
         saveReport();
 
-        juce::MessageManager::callAsync ([failed = report.failed > 0]
+        juce::MessageManager::callAsync ([failures = report.failures, test = options.test]
         {
-            juce::JUCEApplication::getInstance()->setApplicationReturnValue (failed ? 1 : 0);
-            juce::JUCEApplication::quit();
+            juce::JUCEApplication::getInstance()->setApplicationReturnValue (failures.isEmpty() ? 0 : 1);
+
+            if (test || failures.isEmpty())
+            {
+                juce::JUCEApplication::quit();
+                return;
+            }
+
+            // Opened by double-click, there's no terminal to read, so say what went wrong.
+            juce::Process::makeForegroundProcess();
+            juce::NativeMessageBox::showAsync (juce::MessageBoxOptions()
+                                                   .withIconType (juce::MessageBoxIconType::WarningIcon)
+                                                   .withTitle ("Couldn't start")
+                                                   .withMessage (failures.joinIntoString ("\n\n"))
+                                                   .withButton ("Quit"),
+                                               [] (int) { juce::JUCEApplication::quit(); });
         });
     }
 
