@@ -28,6 +28,18 @@ It opens the plugin's editor with all system audio going through it. Close the w
 
 This tests a different plugin (the default is `~/Library/Audio/Plug-Ins/VST3/CabinEQ.vst3`).
 
+## Updating CabinEQ
+
+CabinEQ System loads whichever `CabinEQ.vst3` is installed in `~/Library/Audio/Plug-Ins/VST3` each time it opens, so you never rebuild it to get CabinEQ changes. From the repo root, run:
+
+```bash
+./update.sh
+```
+
+It pulls the latest from GitHub, builds the plugin with CMake (no Xcode needed), installs it, and restarts CabinEQ System if it's running. The previous install is kept in `build/previous/`. Add `--no-pull` to build your local changes as they are.
+
+The build needs CabinEQ's icons and font in `Resources/` at the repo root. If any are missing, it stops and lists them.
+
 ## Notes
 
 - The first run shows a "System Audio Recording" permission prompt. Without the permission, the tap only delivers silence. The app is signed ad hoc, so a rebuild can make macOS ask again.
