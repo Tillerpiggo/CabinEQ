@@ -92,7 +92,6 @@ target_sources(CabinEQ PRIVATE
     Source/CrossfeedControl.cpp
     Source/CrossfeedProcessor.cpp
     Source/Curve.cpp
-    Source/CutoffFilter.cpp
     Source/ElevationCalibration.cpp
     Source/ElevationCalibrationManager.cpp
     Source/ElevationCalibrationPlayer.cpp
