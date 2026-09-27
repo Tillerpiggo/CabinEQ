@@ -66,6 +66,7 @@ target_sources(CabinEQ PRIVATE
     Source/CabinEqProfileManager.cpp
     Source/CabinStandalone.cpp
     Source/CrossfeedProcessor.cpp
+    Source/EqPresetFile.cpp
     Source/PlaybackManager.cpp)
 
 # The jucer's project defines and JUCE module options
@@ -97,3 +98,16 @@ target_link_libraries(CabinEQ
         juce::juce_gui_extra
     PUBLIC
         juce::juce_recommended_config_flags)
+
+# Headless tests for the DSP and saved state. They link against the plugin's shared code.
+#   cmake --build build --target CabinEQ_Tests && build/CabinEQ_Tests_artefacts/Release/CabinEQ_Tests
+juce_add_console_app(CabinEQ_Tests PRODUCT_NAME "CabinEQ_Tests")
+target_sources(CabinEQ_Tests PRIVATE Tests/CabinEqTests.cpp)
+# Compile against the same headers and settings as the plugin, without building JUCE a second time
+target_include_directories(CabinEQ_Tests PRIVATE $<TARGET_PROPERTY:CabinEQ,INCLUDE_DIRECTORIES>)
+target_compile_definitions(CabinEQ_Tests PRIVATE $<TARGET_PROPERTY:CabinEQ,COMPILE_DEFINITIONS>)
+target_compile_features(CabinEQ_Tests PRIVATE cxx_std_17)
+add_dependencies(CabinEQ_Tests CabinEQ)
+target_compile_definitions(CabinEQ_Tests PRIVATE JUCE_UNIT_TESTS=1)
+set_target_properties(CabinEQ_Tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_link_libraries(CabinEQ_Tests PRIVATE CabinEQ juce::juce_recommended_config_flags)
