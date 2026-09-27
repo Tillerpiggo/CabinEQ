@@ -450,6 +450,19 @@ public:
             expect (std::isfinite (buffer.getMagnitude (0, 4096)));
         }
 
+        beginTest ("The editor opens at its remembered size");
+        {
+            CabinEqAudioProcessor processor;
+            {
+                std::unique_ptr<juce::AudioProcessorEditor> editor (processor.createEditor());
+                expectEquals (editor->getWidth(), 1080);
+                expectEquals (editor->getHeight(), 680);
+                editor->setSize (900, 600);
+            }
+            std::unique_ptr<juce::AudioProcessorEditor> editor (processor.createEditor());
+            expectEquals (editor->getWidth(), 900);
+        }
+
         beginTest ("Auto gain cancels a boost");
         {
             CabinEqAudioProcessor processor;

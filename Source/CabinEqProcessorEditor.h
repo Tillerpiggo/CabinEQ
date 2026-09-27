@@ -29,6 +29,7 @@ private:
 
     CabinEqLookAndFeel lookAndFeel; // must outlive the page
     std::unique_ptr<CabinEqPage> cabinEqPage;
+    bool isRememberingSize = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEqProcessorEditor)
 };

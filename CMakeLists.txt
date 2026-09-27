@@ -118,3 +118,13 @@ add_dependencies(CabinEQ_Tests CabinEQ)
 target_compile_definitions(CabinEQ_Tests PRIVATE JUCE_UNIT_TESTS=1)
 set_target_properties(CabinEQ_Tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 target_link_libraries(CabinEQ_Tests PRIVATE CabinEQ juce::juce_recommended_config_flags)
+
+# Loads the built VST3 the way a DAW would, as a stand-in for pluginval.
+#   cmake --build build --target CabinEQ_HostCheck
+#   build/CabinEQ_HostCheck_artefacts/Release/CabinEQ_HostCheck build/CabinEQ_artefacts/Release/VST3/CabinEQ.vst3
+juce_add_console_app(CabinEQ_HostCheck PRODUCT_NAME "CabinEQ_HostCheck")
+target_sources(CabinEQ_HostCheck PRIVATE Tests/HostCheck.cpp)
+target_compile_definitions(CabinEQ_HostCheck PRIVATE JUCE_PLUGINHOST_VST3=1 JUCE_MODAL_LOOPS_PERMITTED=1 JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+set_target_properties(CabinEQ_HostCheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_link_libraries(CabinEQ_HostCheck PRIVATE
+    juce::juce_audio_processors juce::juce_gui_basics juce::juce_recommended_config_flags)

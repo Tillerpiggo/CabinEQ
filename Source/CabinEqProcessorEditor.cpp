@@ -15,13 +15,16 @@ CabinEqProcessorEditor::CabinEqProcessorEditor (CabinEqAudioProcessor& p)
     juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
     setLookAndFeel (&lookAndFeel);
 
+    // Read the saved size first: setting the limits resizes the editor, which would overwrite it
+    const auto size = audioProcessor.getEditorSize();
+
     cabinEqPage = std::make_unique<CabinEqPage> (p);
     addAndMakeVisible (*cabinEqPage);
 
     setResizable (true, true);
     setResizeLimits (760, 460, 4000, 3000);
-    const auto size = audioProcessor.getEditorSize();
     setSize (size.x, size.y);
+    isRememberingSize = true;
 }
 
 CabinEqProcessorEditor::~CabinEqProcessorEditor()
@@ -42,6 +45,7 @@ void CabinEqProcessorEditor::resized()
     if (cabinEqPage != nullptr)
     {
         cabinEqPage->setBounds (getLocalBounds());
-        audioProcessor.setEditorSize ({ getWidth(), getHeight() });
+        if (isRememberingSize)
+            audioProcessor.setEditorSize ({ getWidth(), getHeight() });
     }
 }
