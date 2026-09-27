@@ -122,8 +122,22 @@ int main (int argc, char** argv)
         juce::MemoryBlock oldState;
         juce::AudioProcessor::copyXmlToBinary (wrapper, oldState);
 
+        // Loading old state makes the plugin back it up; don't leave the test's backup lying around
+        const auto backups = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                                 .getChildFile ("Application Support/CabinEQ/Backups");
+        const auto backupsBefore = backups.findChildFiles (juce::File::findFiles, false, "*.xml");
+
         auto plugin = load (format, description, 48000.0, 512);
         plugin->setStateInformation (oldState.getData(), (int) oldState.getSize());
+
+        for (const auto& file : backups.findChildFiles (juce::File::findFiles, false, "*.xml"))
+            if (! backupsBefore.contains (file))
+                file.deleteFile();
+        if (backupsBefore.isEmpty() && backups.getNumberOfChildFiles (juce::File::findFilesAndDirectories) == 0)
+        {
+            backups.deleteFile();
+            backups.getParentDirectory().deleteFile(); // only removes it if it's empty
+        }
         juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
 
         juce::MemoryBlock saved;

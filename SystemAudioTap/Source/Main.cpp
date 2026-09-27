@@ -235,7 +235,7 @@ class Session : private juce::Thread
 public:
     explicit Session (Options optionsToUse) : juce::Thread ("CabinEQ System"), options (std::move (optionsToUse))
     {
-        formats.addDefaultFormats();
+        juce::addDefaultFormatsToManager (formats);
         startThread();
     }
 
