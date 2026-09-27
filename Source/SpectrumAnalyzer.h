@@ -104,6 +104,20 @@ public:
         return juce::jmap (frac, magnitudesDb[(size_t) bin], magnitudesDb[(size_t) bin + 1]);
     }
 
+    /// The loudest smoothed bin between two frequencies, so drawing one point per pixel doesn't skip peaks.
+    float getMaxMagnitudeDb (float lowFrequency, float highFrequency, double sampleRate) const
+    {
+        const int low = (int) (lowFrequency * fftSize / sampleRate);
+        const int high = (int) (highFrequency * fftSize / sampleRate);
+        if (high <= low + 1)
+            return getMagnitudeDb (0.5f * (lowFrequency + highFrequency), sampleRate);
+
+        float loudest = minDb;
+        for (int bin = std::max (1, low); bin <= std::min (numBins - 1, high); ++bin)
+            loudest = std::max (loudest, magnitudesDb[(size_t) bin]);
+        return loudest;
+    }
+
     static constexpr float minDb = -100.0f;
 
 private:

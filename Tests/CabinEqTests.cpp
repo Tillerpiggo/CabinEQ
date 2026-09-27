@@ -15,6 +15,7 @@
 #include "../Source/FilterChain.h"
 #include "../Source/BandEqCurve.h"
 #include "../Source/EqPresetFile.h"
+#include "../Source/CabinPeqGraph.h"
 
 namespace
 {
@@ -515,16 +516,139 @@ public:
     }
 };
 
+//==============================================================================
+class GraphInteractionTests : public juce::UnitTest
+{
+public:
+    GraphInteractionTests() : juce::UnitTest ("Graph interaction", "CabinEQ") {}
+
+    void runTest() override
+    {
+        CabinEqAudioProcessor processor;
+        CabinPeqGraph graph (processor);
+        graph.setBounds (0, 0, 1000, 500);
+        auto& profile = processor.getProfiles();
+
+        beginTest ("Clicking the line adds a band, and dragging shapes it");
+        {
+            // With no bands the line is at 0 dB, halfway down the plot
+            const juce::Point<float> onLine { 500.0f, (500.0f - 22.0f) * 0.5f };
+            press (graph, onLine);
+            drag (graph, onLine, onLine.translated (0.0f, -60.0f));
+            release (graph, onLine.translated (0.0f, -60.0f));
+
+            auto bands = profile.getSelectedProfile().getBandProfile().getBands();
+            expectEquals ((int) bands.size(), 1);
+            if (! bands.empty())
+            {
+                expectGreaterThan (bands[0].ampl, 2.0f);
+                expectWithinAbsoluteError (bands[0].freq, 632.0f, 40.0f); // the middle of 20 Hz to 20 kHz
+            }
+            expectEquals (graph.getFocusedBandId(), bands.empty() ? -2 : bands[0].id);
+
+            processor.undo();
+            expectEquals (profile.getSelectedProfile().getNumBands(), 0, "adding and dragging undo as one step");
+            processor.redo();
+            graph.refresh();
+        }
+
+        beginTest ("Dragging empty space selects, and Delete removes");
+        {
+            profile.getSelectedProfile().addBand (Band::withQ (0, 100.0f, 3.0f, 1.0f, Band::Type::both));
+            graph.refresh();
+
+            press (graph, { 5.0f, 5.0f });
+            drag (graph, { 5.0f, 5.0f }, { 995.0f, 470.0f });
+            release (graph, { 995.0f, 470.0f });
+            expectEquals (graph.getNumSelected(), 2);
+
+            graph.keyPressed (juce::KeyPress (juce::KeyPress::deleteKey));
+            expectEquals (profile.getSelectedProfile().getNumBands(), 0);
+        }
+    }
+
+private:
+    static juce::MouseEvent event (juce::Component& c, juce::Point<float> position, juce::Point<float> downPosition, juce::ModifierKeys mods, int clicks = 1)
+    {
+        return juce::MouseEvent (juce::Desktop::getInstance().getMainMouseSource(), position, mods, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                                 &c, &c, juce::Time::getCurrentTime(), downPosition, juce::Time::getCurrentTime(), clicks, false);
+    }
+
+    static void press (CabinPeqGraph& graph, juce::Point<float> at)
+    {
+        graph.mouseMove (event (graph, at, at, {}));
+        graph.mouseDown (event (graph, at, at, juce::ModifierKeys::leftButtonModifier));
+    }
+
+    static void drag (CabinPeqGraph& graph, juce::Point<float> from, juce::Point<float> to)
+    {
+        for (int step = 1; step <= 10; ++step)
+            graph.mouseDrag (event (graph, from + (to - from) * (float) step / 10.0f, from, juce::ModifierKeys::leftButtonModifier));
+    }
+
+    static void release (CabinPeqGraph& graph, juce::Point<float> at)
+    {
+        graph.mouseUp (event (graph, at, at, {}));
+    }
+};
+
 static FilterResponseTests filterResponseTests;
+static GraphInteractionTests graphInteractionTests;
 static SmoothingTests smoothingTests;
 static ProcessorStateTests processorStateTests;
 static ProcessorAudioTests processorAudioTests;
 static PresetFileTests presetFileTests;
 
 //==============================================================================
-int main()
+/// Renders the editor with a demo profile to a PNG, to check the UI without clicking around.
+static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific)
+{
+    CabinEqAudioProcessor processor;
+    auto profile = processor.getSelectedProfile();
+    profile.setBands ({ Band::withQ (0, 32.0f, 0.0f, 0.71f, Band::Type::both, Band::Shape::lowCut),
+                        Band::withQ (0, 105.0f, 5.5f, 0.7f, Band::Type::both, Band::Shape::lowShelf),
+                        Band::withQ (0, 2300.0f, -3.2f, 1.9f, channelSpecific ? Band::Type::left : Band::Type::both),
+                        Band::withQ (0, 5400.0f, 4.0f, 3.0f, Band::Type::both),
+                        Band::withQ (0, 9800.0f, -2.5f, 0.7f, Band::Type::both, Band::Shape::highShelf) });
+    profile.setVolume (-6.0f);
+    processor.getProfiles().addProfile ("HD 600 (AutoEQ)");
+    processor.getProfiles().addProfile ("Studio monitors");
+    juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
+
+    std::unique_ptr<juce::AudioProcessorEditor> editor (processor.createEditor());
+    editor->setSize (width, height);
+    juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
+
+    // Select the third band so the inspector has something to show
+    std::function<juce::Component* (juce::Component&)> findGraph = [&] (juce::Component& parent) -> juce::Component*
+    {
+        for (auto* child : parent.getChildren())
+        {
+            if (child->getComponentID() == "graph")
+                return child;
+            if (auto* found = findGraph (*child))
+                return found;
+        }
+        return nullptr;
+    };
+    if (auto* graph = dynamic_cast<CabinPeqGraph*> (findGraph (*editor)))
+        graph->focusBand (2);
+    juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
+
+    auto image = editor->createComponentSnapshot (editor->getLocalBounds(), true, 2.0f);
+    juce::PNGImageFormat png;
+    file.deleteFile();
+    juce::FileOutputStream stream (file);
+    return png.writeImageToStream (image, stream) ? 0 : 1;
+}
+
+int main (int argc, char** argv)
 {
     juce::ScopedJuceInitialiser_GUI juce;
+
+    if (argc >= 3 && juce::String (argv[1]) == "--snapshot")
+        return writeSnapshot (juce::File (argv[2]), argc >= 5 ? juce::String (argv[3]).getIntValue() : 1080,
+                              argc >= 5 ? juce::String (argv[4]).getIntValue() : 680, argc >= 6);
 
     juce::UnitTestRunner runner;
     runner.setAssertOnFailure (false);

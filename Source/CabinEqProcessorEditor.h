@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
+#include "CabinEqLookAndFeel.h"
+#include "CabinEqPage.h"
 
 //==============================================================================
 class CabinEqProcessorEditor   : public juce::AudioProcessorEditor
@@ -24,7 +26,9 @@ public:
 
 private:
     CabinEqAudioProcessor& audioProcessor;
-    juce::GenericAudioProcessorEditor genericEditor { audioProcessor };
+
+    CabinEqLookAndFeel lookAndFeel; // must outlive the page
+    std::unique_ptr<CabinEqPage> cabinEqPage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEqProcessorEditor)
 };

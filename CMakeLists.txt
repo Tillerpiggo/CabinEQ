@@ -59,15 +59,22 @@ juce_generate_juce_header(CabinEQ)
 
 target_sources(CabinEQ PRIVATE
     Source/BandEqCurve.cpp
+    Source/BandInspector.cpp
     Source/BandProfile.cpp
     Source/CabinEqAudioProcessor.cpp
+    Source/CabinEqLookAndFeel.cpp
+    Source/CabinEqPage.cpp
     Source/CabinEqProcessorEditor.cpp
     Source/CabinEqProfile.cpp
     Source/CabinEqProfileManager.cpp
+    Source/CabinPeqGraph.cpp
     Source/CabinStandalone.cpp
+    Source/CrossfeedControl.cpp
     Source/CrossfeedProcessor.cpp
     Source/EqPresetFile.cpp
-    Source/PlaybackManager.cpp)
+    Source/PlaybackManager.cpp
+    Source/ProfileList.cpp
+    Source/ValueField.cpp)
 
 # The jucer's project defines and JUCE module options
 target_compile_definitions(CabinEQ PUBLIC
