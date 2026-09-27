@@ -11,6 +11,8 @@ add_subdirectory(${JUCE_DIR} JUCE)
 juce_add_gui_app(CabinEQSystem
     PRODUCT_NAME "CabinEQ System"
     BUNDLE_ID "com.julianmcomie.cabineqsystem"
+    # Resources/make-icon.py draws this
+    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/CabinEQSystemIcon.png"
     # Without this usage string macOS never asks for the permission, and the tap just delivers silence.
     PLIST_TO_MERGE [[
         <plist><dict>
