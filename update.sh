@@ -11,7 +11,12 @@ if [[ "${1:-}" != "--no-pull" ]]; then
 fi
 
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release > /dev/null
-cmake --build build --target CabinEQ_VST3 -j 8
+cmake --build build --target CabinEQ_VST3 CabinEQ_Tests CabinEQ_HostCheck -j 8
+
+# Don't replace a working plugin with one that fails its checks
+build/CabinEQ_Tests_artefacts/Release/CabinEQ_Tests > build/tests.log 2>&1 || { tail -20 build/tests.log; echo "Tests failed, so nothing was installed. See build/tests.log"; exit 1; }
+build/CabinEQ_HostCheck_artefacts/Release/CabinEQ_HostCheck build/CabinEQ_artefacts/Release/VST3/CabinEQ.vst3 > build/hostcheck.log 2>&1 || { cat build/hostcheck.log; echo "Host check failed, so nothing was installed."; exit 1; }
+echo "Tests and host check passed"
 
 built=build/CabinEQ_artefacts/Release/VST3/CabinEQ.vst3
 installed="$HOME/Library/Audio/Plug-Ins/VST3/CabinEQ.vst3"
