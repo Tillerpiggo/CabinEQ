@@ -122,6 +122,11 @@ public:
         addAndMakeVisible (setupButton);
     }
 
+    void setSetupShowing (bool isShowing)
+    {
+        setupButton.setButtonText (isShowing ? "Show EQ" : "Setup");
+    }
+
     void refresh()
     {
         testButton.setEnabled (engine.isConnected() && engine.getTestState() != Engine::TestState::playing);
@@ -181,7 +186,7 @@ public:
     void resized() override
     {
         auto area = getLocalBounds().reduced (12, 10);
-        setupButton.setBounds (area.removeFromRight (72));
+        setupButton.setBounds (area.removeFromRight (84));
         area.removeFromRight (8);
         testButton.setBounds (area.removeFromRight (60));
         area.removeFromRight (8);
@@ -498,8 +503,16 @@ AppView::~AppView()
 
 void AppView::showSetup (bool shouldShow)
 {
-    setupPanel->setVisible (shouldShow || engine.getPlugin() == nullptr);
-    if (setupPanel->isVisible())
+    const bool show = shouldShow || engine.getPlugin() == nullptr;
+    setupPanel->setVisible (show);
+
+    // A plugin's editor is a native view, which always draws on top of anything JUCE draws,
+    // so the checklist can only be seen with the editor out of the way
+    if (editor != nullptr)
+        editor->setVisible (! show);
+    statusBar->setSetupShowing (show && engine.getPlugin() != nullptr);
+
+    if (show)
     {
         setupPanel->refresh();
         setupPanel->toFront (false);
@@ -543,7 +556,8 @@ void AppView::updateEditor()
         editor.reset (processor->hasEditor() ? processor->createEditorIfNeeded() : new juce::GenericAudioProcessorEditor (*processor));
         if (editor != nullptr)
         {
-            addAndMakeVisible (*editor);
+            addChildComponent (*editor);
+            editor->setVisible (! setupPanel->isVisible());
             editor->addComponentListener (this);
             setSize (editor->getWidth(), editor->getHeight() + statusBarHeight);
         }
