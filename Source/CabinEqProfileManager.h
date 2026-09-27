@@ -26,8 +26,12 @@ public:
     static juce::File getBackupFolder(); // ~/Library/Application Support/CabinEQ/Backups on a Mac
     static inline bool shouldBackUpOldState = true; // the tests turn this off
 
-    /// Makes sure there's at least one profile, and that one of them is selected. Not undoable.
-    void ensureValidState();
+    /// Makes sure there's at least one profile, and that one of them is selected (fallback if it
+    /// exists, otherwise the first). Not undoable.
+    void ensureValidState (const juce::String& fallback = {});
+
+    /// The selected profile's bands in a state that isn't loaded, or the first profile's.
+    static BandProfile getSelectedBandProfile (const juce::ValueTree& state);
 
     std::vector<juce::String> getProfileNames() const;
     std::optional<CabinEqProfile> getProfileNamed (const juce::String& profileName) const;

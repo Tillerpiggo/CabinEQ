@@ -81,6 +81,7 @@ private:
     // Finding things under the mouse
     std::optional<Band> bandAt (juce::Point<float> position) const;
     bool isNearCurve (juce::Point<float> position) const;
+    float curveDbNear (juce::Point<float> position) const; // of whichever curve (left or right) is nearer
     std::vector<Band> getSelectedBands() const;
     int indexOfBand (int bandId) const;
 

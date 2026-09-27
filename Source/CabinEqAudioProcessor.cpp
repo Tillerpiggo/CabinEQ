@@ -31,16 +31,19 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
     crossfeedDelayParameter = parameters.getRawParameterValue (ParamIDs::crossfeedDelay);
 
     profiles.ensureValidState();
+    currentSelection = profiles.getSelectedProfileName();
     parameters.state.addListener (this);
     refresh();
+    updateStateSnapshot();
 
-    startTimer (2000); // the standalone app saves its state when it changes
+    startTimer (250); // keeps the state snapshot fresh, and saves the standalone app's state
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()
 {
-    parameters.state.removeListener (this);
+    stopTimer();
     cancelPendingUpdate();
+    parameters.state.removeListener (this);
 }
 
 //==============================================================================
@@ -127,6 +130,14 @@ juce::AudioProcessorEditor* CabinEqAudioProcessor::createEditor()
 //==============================================================================
 void CabinEqAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
+    // The UI edits the state on the message thread without locking it, so other threads get a copy
+    if (! juce::MessageManager::existsAndIsCurrentThread())
+    {
+        const juce::ScopedLock lock (snapshotLock);
+        destData = stateSnapshot;
+        return;
+    }
+
     auto state = parameters.copyState();
     if (auto xml = state.createXml())
         copyXmlToBinary (*xml, destData);
@@ -141,16 +152,51 @@ void CabinEqAudioProcessor::setStateInformation (const void* data, int sizeInByt
     auto state = juce::ValueTree::fromXml (*xml);
     CabinEqProfileManager::migrateState (state);
 
+    if (juce::MessageManager::existsAndIsCurrentThread())
+    {
+        applyState (state);
+        return;
+    }
+
+    // Off the message thread, the audio gets the new bands now (hosts rendering offline might never
+    // run the message loop), and the state itself is swapped in on the message thread
+    pushBandsToAudio (CabinEqProfileManager::getSelectedBandProfile (state));
+    {
+        const juce::ScopedLock lock (snapshotLock);
+        if (auto stateXml = state.createXml())
+            copyXmlToBinary (*stateXml, stateSnapshot);
+    }
+
+    juce::MessageManager::callAsync ([safeThis = juce::WeakReference<CabinEqAudioProcessor> (this), state]
+    {
+        if (safeThis != nullptr)
+            safeThis->applyState (state);
+    });
+}
+
+void CabinEqAudioProcessor::applyState (const juce::ValueTree& state)
+{
     {
         const juce::ScopedLock lock (refreshLock);
         parameters.replaceState (state);
         profiles.ensureValidState();
+        currentSelection = previousSelection = profiles.getSelectedProfileName();
     }
 
     undoManager.clearUndoHistory();
-
-    // Hosts that render offline might never run the message loop, so update the audio path now
     refresh();
+    updateStateSnapshot();
+}
+
+void CabinEqAudioProcessor::updateStateSnapshot()
+{
+    juce::MemoryBlock block;
+    if (auto xml = parameters.copyState().createXml())
+        copyXmlToBinary (*xml, block);
+
+    const juce::ScopedLock lock (snapshotLock);
+    stateSnapshot = std::move (block);
+    snapshotIsStale = false;
 }
 
 juce::AudioProcessorParameter* CabinEqAudioProcessor::getBypassParameter() const
@@ -245,43 +291,55 @@ void CabinEqAudioProcessor::refresh()
 {
     const juce::ScopedLock lock (refreshLock);
 
-    auto bandProfile = pushBandsToAudio();
+    auto selected = profiles.getSelectedProfile();
+    if (! selected.isValid())
+        return;
+
+    auto bandProfile = selected.getBandProfile();
+    pushBandsToAudio (bandProfile);
     curve.setSampleRate (getCurveSampleRate());
     curve.updateWithBands (bandProfile.getBands());
     autoGainDb = -curve.loudnessChangeDb();
 }
 
-BandProfile CabinEqAudioProcessor::pushBandsToAudio()
+void CabinEqAudioProcessor::pushBandsToAudio (const BandProfile& bandProfile)
 {
     const juce::ScopedLock lock (refreshLock);
-
-    auto bandProfile = profiles.getSelectedProfile().getBandProfile();
     playbackManager.setBands (bandProfile.getBands());
     preampDb = bandProfile.getVolume();
-    return bandProfile;
 }
 
 void CabinEqAudioProcessor::handleAsyncUpdate()
 {
-    profiles.ensureValidState(); // undo can take away the selected profile, or the last one
+    // Undo can take away the selected profile, or the last one. Go back to the one you had before.
+    profiles.ensureValidState (previousSelection);
     refresh();
+    updateStateSnapshot();
     stateChanged.sendSynchronousChangeMessage();
 }
 
 void CabinEqAudioProcessor::timerCallback()
 {
-    if (needsSaving && isStandalone())
+    if (snapshotIsStale)
+        updateStateSnapshot();
+
+    const auto now = juce::Time::getMillisecondCounter();
+    if (needsSaving && isStandalone() && now - lastSaveTime > 2000)
     {
         if (auto* holder = juce::StandalonePluginHolder::getInstance())
             holder->savePluginState();
         needsSaving = false;
+        lastSaveTime = now;
     }
 }
 
 void CabinEqAudioProcessor::treeChanged (const juce::ValueTree& changedTree)
 {
     if (changedTree.hasType ("PARAM"))
-        return; // parameters get to the audio thread on their own
+    {
+        snapshotIsStale = true; // parameters get to the audio thread on their own
+        return;
+    }
 
     if (isUndoingOrRedoing)
     {
@@ -294,13 +352,27 @@ void CabinEqAudioProcessor::treeChanged (const juce::ValueTree& changedTree)
 
     // Update the filters right away when it's safe, so dragging a band feels immediate.
     // Auto gain, which takes more working out, catches up once the changes settle.
+    // Mid-rename or mid-undo there may briefly be no selected profile; don't send silence.
     if (juce::MessageManager::existsAndIsCurrentThread())
-        pushBandsToAudio();
+    {
+        auto selected = profiles.getSelectedProfile();
+        if (selected.isValid())
+            pushBandsToAudio (selected.getBandProfile());
+    }
     triggerAsyncUpdate();
 }
 
-void CabinEqAudioProcessor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier&)
+void CabinEqAudioProcessor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
+    if (tree == parameters.state && property == CabinEqProfileManager::idSelectedProfile)
+    {
+        auto newSelection = profiles.getSelectedProfileName();
+        if (newSelection != currentSelection)
+        {
+            previousSelection = currentSelection;
+            currentSelection = newSelection;
+        }
+    }
     treeChanged (tree);
 }
 

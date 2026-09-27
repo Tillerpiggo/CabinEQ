@@ -12,8 +12,8 @@ CabinEqProcessorEditor::CabinEqProcessorEditor (CabinEqAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     // Pop-ups and dialogs that aren't inside the editor use the default look and feel
-    juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
-    setLookAndFeel (&lookAndFeel);
+    juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel.getObject());
+    setLookAndFeel (&lookAndFeel.getObject());
 
     // Read the saved size first: setting the limits resizes the editor, which would overwrite it
     const auto size = audioProcessor.getEditorSize();
@@ -31,7 +31,10 @@ CabinEqProcessorEditor::~CabinEqProcessorEditor()
 {
     cabinEqPage.reset();
     setLookAndFeel (nullptr);
-    juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
+
+    // Other instances' editors may still be using it
+    if (lookAndFeel.getReferenceCount() == 1)
+        juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
 }
 
 //==============================================================================

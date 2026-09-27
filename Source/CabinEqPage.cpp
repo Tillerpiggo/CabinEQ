@@ -109,6 +109,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 CabinEqPage::~CabinEqPage()
 {
     processor.stateChanged.removeChangeListener (this);
+
+    // It's a separate window with attachments to the parameters, so it mustn't outlive us
+    delete crossfeedBox.getComponent();
 }
 
 //==============================================================================
@@ -357,6 +360,7 @@ void CabinEqPage::showCrossfeed()
     content->setLookAndFeel (&getLookAndFeel());
     auto& box = juce::CallOutBox::launchAsynchronously (std::move (content), crossfeedButton->getScreenBounds(), nullptr);
     box.setLookAndFeel (&getLookAndFeel());
+    crossfeedBox = &box;
 }
 
 void CabinEqPage::showMessage (const juce::String& title, const juce::String& message)

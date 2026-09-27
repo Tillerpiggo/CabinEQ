@@ -25,6 +25,7 @@ public:
     ValueField (const juce::String& caption, double minimum, double maximum, double defaultValue, Scale scale = Scale::linear);
 
     void setValue (double newValue); // doesn't call onValueChange
+    void commitEditing() { hideEditor (true); } // applies whatever's been typed, if anything
     double getValue() const { return value; }
     void setRange (double newMinimum, double newMaximum);
 

@@ -100,7 +100,9 @@ public:
 
 private:
     void refresh(); // pushes the selected profile to the audio path, and works out auto gain
-    BandProfile pushBandsToAudio();
+    void pushBandsToAudio (const BandProfile& bandProfile);
+    void applyState (const juce::ValueTree& state); // message thread
+    void updateStateSnapshot();
     void handleAsyncUpdate() override;
     void timerCallback() override;
 
@@ -129,7 +131,16 @@ private:
 
     bool isUndoingOrRedoing = false;
     juce::String profileChangedByUndo;
+    juce::String currentSelection, previousSelection;
     bool needsSaving = false;
+    juce::uint32 lastSaveTime = 0;
+
+    // For hosts that ask for the state from other threads
+    juce::CriticalSection snapshotLock;
+    juce::MemoryBlock stateSnapshot;
+    bool snapshotIsStale = false;
+
+    JUCE_DECLARE_WEAK_REFERENCEABLE (CabinEqAudioProcessor)
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEqAudioProcessor)

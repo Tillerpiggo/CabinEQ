@@ -28,6 +28,8 @@ public:
     void setDelayMs (float delayMs);
 
 private:
+    float delayInSamples() const;
+
     std::atomic<bool> isEnabled { false };
     std::atomic<float> levelDb { -9.0f };
     std::atomic<float> delayMs { 0.3f };
@@ -37,6 +39,7 @@ private:
     double sampleRate = 44100.0;
 
     juce::SmoothedValue<float> gain; // 0 when disabled
+    juce::SmoothedValue<float> delaySamples; // glides, and is read between samples, so changing it doesn't click
     std::array<float, 2> lowpassState { 0.0f, 0.0f };
     float lowpassCoefficient = 0.0f;
 

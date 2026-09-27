@@ -30,10 +30,15 @@ void CabinEqProfileManager::migrateState (juce::ValueTree& state)
     if (shouldBackUpOldState && state.getChildWithName (CabinEqProfile::idProfile).isValid())
     {
         auto folder = getBackupFolder();
-        if (folder.createDirectory())
+        const auto text = state.toXmlString();
+        bool alreadyBackedUp = false;
+        for (const auto& existing : folder.findChildFiles (juce::File::findFiles, false, "*.xml"))
+            alreadyBackedUp |= existing.getSize() == (juce::int64) text.getNumBytesAsUTF8() && existing.loadFileAsString() == text;
+
+        if (! alreadyBackedUp && folder.createDirectory())
         {
             auto file = folder.getNonexistentChildFile ("CabinEQ state before update " + juce::Time::getCurrentTime().formatted ("%Y-%m-%d %H.%M.%S"), ".xml");
-            file.replaceWithText (state.toXmlString());
+            file.replaceWithText (text);
         }
     }
 
@@ -76,7 +81,7 @@ juce::File CabinEqProfileManager::getBackupFolder()
                .getChildFile ("Application Support").getChildFile ("CabinEQ").getChildFile ("Backups");
 }
 
-void CabinEqProfileManager::ensureValidState()
+void CabinEqProfileManager::ensureValidState (const juce::String& fallback)
 {
     auto& state = apvts.state;
     state.setProperty (idStateVersion, stateVersion, nullptr);
@@ -85,7 +90,23 @@ void CabinEqProfileManager::ensureValidState()
         state.appendChild (CabinEqProfile::createTree (defaultProfileName), nullptr);
 
     if (! getProfileNamed (getSelectedProfileName()).has_value())
-        setSelectedProfileName (getProfileNames().front());
+        setSelectedProfileName (getProfileNamed (fallback).has_value() ? fallback : getProfileNames().front());
+}
+
+BandProfile CabinEqProfileManager::getSelectedBandProfile (const juce::ValueTree& state)
+{
+    const auto selected = state.getProperty (idSelectedProfile).toString();
+    juce::ValueTree first;
+    for (const auto& child : state)
+    {
+        if (! child.hasType (CabinEqProfile::idProfile))
+            continue;
+        if (child.getProperty (CabinEqProfile::idProfileName).toString() == selected)
+            return CabinEqProfile (child, nullptr).getBandProfile();
+        if (! first.isValid())
+            first = child;
+    }
+    return first.isValid() ? CabinEqProfile (first, nullptr).getBandProfile() : BandProfile();
 }
 
 std::vector<juce::String> CabinEqProfileManager::getProfileNames() const

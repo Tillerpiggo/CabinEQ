@@ -169,6 +169,43 @@ public:
             expectLessThan (maxStep, 0.02f);
         }
 
+        beginTest ("Bands that go and come straight back keep their slots");
+        {
+            std::vector<Band> bands;
+            for (int i = 0; i < 24; ++i)
+                bands.push_back (Band::withQ (i, 30.0f * std::pow (1.3f, (float) i), 3.0f, 3.0f, Band::Type::both));
+
+            FilterChain disturbed, untouched;
+            for (auto* chain : { &disturbed, &untouched })
+            {
+                chain->prepare (sampleRate);
+                chain->setBands (bands);
+            }
+
+            juce::Random random (9);
+            float maxDifference = 0.0f;
+            for (int block = 0; block < 40; ++block)
+            {
+                if (block == 10)
+                {
+                    disturbed.setBands ({});
+                    disturbed.setBands (bands);
+                }
+
+                juce::AudioBuffer<float> a (2, blockSize), b (2, blockSize);
+                for (int i = 0; i < blockSize; ++i)
+                    a.setSample (0, i, random.nextFloat() - 0.5f);
+                a.copyFrom (1, 0, a, 0, 0, blockSize);
+                b.makeCopyOf (a);
+                juce::dsp::AudioBlock<float> blockA (a), blockB (b);
+                disturbed.process (blockA);
+                untouched.process (blockB);
+                for (int i = 0; i < blockSize; ++i)
+                    maxDifference = std::max (maxDifference, std::abs (a.getSample (0, i) - b.getSample (0, i)));
+            }
+            expectLessThan (maxDifference, 1.0e-6f);
+        }
+
         beginTest ("Random edits never blow up");
         {
             FilterChain chain;
@@ -381,6 +418,68 @@ public:
             expectEquals (profiles.getSelectedProfile().getNumBands(), 1);
         }
 
+        beginTest ("Renaming the selected profile doesn't disturb the audio");
+        {
+            // Before, renaming briefly sent no bands, and 20 bands came back in each other's slots
+            auto makeProcessor = [] (std::unique_ptr<CabinEqAudioProcessor>& processor)
+            {
+                processor = std::make_unique<CabinEqAudioProcessor>();
+                std::vector<Band> bands;
+                for (int i = 0; i < 20; ++i)
+                    bands.push_back (Band::withQ (i, 40.0f * std::pow (1.35f, (float) i), (i % 2 == 0 ? 4.0f : -4.0f), 2.0f, Band::Type::both));
+                processor->getSelectedProfile().setBands (bands);
+                processor->setPlayConfigDetails (2, 2, sampleRate, blockSize);
+                processor->prepareToPlay (sampleRate, blockSize);
+                processor->parameters.getParameter (ParamIDs::autoGain)->setValueNotifyingHost (0.0f);
+            };
+
+            std::unique_ptr<CabinEqAudioProcessor> renamed, untouched;
+            makeProcessor (renamed);
+            makeProcessor (untouched);
+
+            juce::Random random (3);
+            juce::MidiBuffer midi;
+            float maxDifference = 0.0f;
+            for (int block = 0; block < 60; ++block)
+            {
+                if (block == 20)
+                    renamed->getProfiles().renameProfile (CabinEqProfileManager::defaultProfileName, "Renamed");
+
+                juce::AudioBuffer<float> a (2, blockSize), b (2, blockSize);
+                for (int channel = 0; channel < 2; ++channel)
+                    for (int i = 0; i < blockSize; ++i)
+                        a.setSample (channel, i, random.nextFloat() * 0.5f - 0.25f);
+                b.makeCopyOf (a);
+                renamed->processBlock (a, midi);
+                untouched->processBlock (b, midi);
+
+                for (int channel = 0; channel < 2; ++channel)
+                    for (int i = 0; i < blockSize; ++i)
+                        maxDifference = std::max (maxDifference, std::abs (a.getSample (channel, i) - b.getSample (channel, i)));
+            }
+            expectEquals (renamed->getProfiles().getSelectedProfileName(), juce::String ("Renamed"));
+            expectLessThan (maxDifference, 1.0e-6f);
+        }
+
+        beginTest ("Undoing an import goes back to the profile you were on");
+        {
+            CabinEqAudioProcessor processor;
+            auto& profiles = processor.getProfiles();
+            profiles.addProfile ("A");
+            profiles.addProfile ("B");
+            processor.selectProfile ("B");
+            pumpMessages();
+
+            processor.getUndoManager().beginNewTransaction();
+            auto imported = profiles.addProfile ("Imported", BandProfile ({ Band::withQ (0, 1000.0f, 3.0f, 1.0f, Band::Type::both) }, 0.0f));
+            processor.selectProfile (imported.getName());
+            pumpMessages();
+
+            processor.undo();
+            pumpMessages();
+            expectEquals (profiles.getSelectedProfileName(), juce::String ("B"));
+        }
+
         beginTest ("Profile names stay unique");
         {
             CabinEqAudioProcessor processor;
@@ -565,9 +664,28 @@ public:
             graph.refresh();
         }
 
+        beginTest ("Double-clicking the line adds one band, and leaves it on");
+        {
+            profile.getSelectedProfile().setBands ({});
+            graph.refresh();
+            const juce::Point<float> onLine { 300.0f, (500.0f - 22.0f) * 0.5f };
+            press (graph, onLine);
+            release (graph, onLine);
+            graph.mouseDown (event (graph, onLine, onLine, juce::ModifierKeys::leftButtonModifier, 2));
+            graph.mouseUp (event (graph, onLine, onLine, {}, 2));
+            graph.mouseDoubleClick (event (graph, onLine, onLine, {}, 2));
+
+            auto bands = profile.getSelectedProfile().getBandProfile().getBands();
+            expectEquals ((int) bands.size(), 1);
+            expect (! bands.empty() && bands[0].enabled, "the band is on");
+            profile.getSelectedProfile().setBands ({});
+            graph.refresh();
+        }
+
         beginTest ("Dragging empty space selects, and Delete removes");
         {
             profile.getSelectedProfile().addBand (Band::withQ (0, 100.0f, 3.0f, 1.0f, Band::Type::both));
+            profile.getSelectedProfile().addBand (Band::withQ (0, 3000.0f, -3.0f, 1.0f, Band::Type::both));
             graph.refresh();
 
             press (graph, { 5.0f, 5.0f });

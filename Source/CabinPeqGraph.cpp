@@ -209,6 +209,16 @@ bool CabinPeqGraph::isNearCurve (juce::Point<float> position) const
     return std::abs (yForDb (curve.dbAtFrequency (frequency)) - position.y) < 8.0f;
 }
 
+float CabinPeqGraph::curveDbNear (juce::Point<float> position) const
+{
+    const float frequency = frequencyForX (position.x);
+    if (! curve.hasChannelSpecificBands())
+        return curve.dbAtFrequency (frequency);
+
+    const float left = curve.leftDbAtFrequency (frequency), right = curve.rightDbAtFrequency (frequency);
+    return std::abs (yForDb (left) - position.y) < std::abs (yForDb (right) - position.y) ? left : right;
+}
+
 std::vector<Band> CabinPeqGraph::getSelectedBands() const
 {
     std::vector<Band> bands;
@@ -601,11 +611,7 @@ void CabinPeqGraph::drawHandles (juce::Graphics& g)
     // Where a click would add a band
     if (hoverId < 0 && hoverIsNearCurve && dragMode == DragMode::none && mouseIsOver)
     {
-        const float frequency = frequencyForX (mousePosition.x);
-        const float db = curve.hasChannelSpecificBands() ? (std::abs (yForDb (curve.leftDbAtFrequency (frequency)) - mousePosition.y)
-                                                             < std::abs (yForDb (curve.rightDbAtFrequency (frequency)) - mousePosition.y)
-                                                                 ? curve.leftDbAtFrequency (frequency) : curve.rightDbAtFrequency (frequency))
-                                                          : curve.dbAtFrequency (frequency);
+        const float db = curveDbNear (mousePosition);
         auto ghost = juce::Rectangle<float> (handleRadius * 2.0f, handleRadius * 2.0f).withCentre ({ mousePosition.x, yForDb (db) });
         g.setColour (Theme::text.withAlpha (0.5f));
         g.drawEllipse (ghost, 1.2f);
@@ -693,7 +699,13 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
 {
     grabKeyboardFocus();
     mousePosition = event.position;
-    bandAddedByLastClick = -1;
+
+    // The second click of a double-click that just added a band keeps hold of that band
+    const bool isRepeatClick = event.getNumberOfClicks() > 1;
+    const bool repeatsAnAdd = isRepeatClick && bandAddedByLastClick >= 0 && bandProfile.getBandWithId (bandAddedByLastClick).has_value();
+    if (! repeatsAnAdd)
+        bandAddedByLastClick = -1;
+
     auto band = bandAt (event.position);
 
     if (event.mods.isPopupMenu())
@@ -711,7 +723,11 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
         return;
     }
 
-    if (band.has_value())
+    if (repeatsAnAdd)
+    {
+        setSelection ({ bandAddedByLastClick }, bandAddedByLastClick);
+    }
+    else if (band.has_value())
     {
         if (event.mods.isShiftDown())
         {
@@ -732,7 +748,8 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
     else if (hoverIsNearCurve || isNearCurve (event.position))
     {
         // Add a band on the curve, and keep dragging it
-        bandAddedByLastClick = addBandAt ({ event.position.x, yForDb (0.0f) + (event.position.y - yForDb (curve.dbAtFrequency (frequencyForX (event.position.x)))) }, Band::Shape::peak);
+        // Its gain is how far the click is from the curve, so the curve ends up under the mouse
+        bandAddedByLastClick = addBandAt ({ event.position.x, yForDb (0.0f) + (event.position.y - yForDb (curveDbNear (event.position))) }, Band::Shape::peak);
         if (bandAddedByLastClick < 0)
             return;
     }
@@ -820,16 +837,13 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
 
 void CabinPeqGraph::mouseDoubleClick (const juce::MouseEvent& event)
 {
-    if (event.mods.isPopupMenu())
+    // Ignore it if the first click added a band; the second click is already dragging it
+    if (event.mods.isPopupMenu() || bandAddedByLastClick >= 0)
         return;
 
     auto band = bandAt (event.position);
     if (band.has_value())
     {
-        // The first click of this double-click may have just added it
-        if (band->id == bandAddedByLastClick)
-            return;
-
         beginEdit (band->enabled ? "Turn band off" : "Turn band on");
         auto toggled = *band;
         toggled.enabled = ! toggled.enabled;

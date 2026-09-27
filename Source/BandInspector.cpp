@@ -68,6 +68,11 @@ BandInspector::BandInspector (CabinEqAudioProcessor& p)
 
 void BandInspector::showBand (int newBandId, int newBandNumber, int newNumSelected)
 {
+    // A value that's been typed but not entered belongs to the band it was typed for
+    if (newBandId != bandId)
+        for (auto* field : { &frequencyField, &gainField, &qField })
+            field->commitEditing();
+
     bandId = newBandId;
     bandNumber = newBandNumber;
     numSelected = newNumSelected;

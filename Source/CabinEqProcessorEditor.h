@@ -27,7 +27,7 @@ public:
 private:
     CabinEqAudioProcessor& audioProcessor;
 
-    CabinEqLookAndFeel lookAndFeel; // must outlive the page
+    juce::SharedResourcePointer<CabinEqLookAndFeel> lookAndFeel; // shared by open editors; must outlive the page
     std::unique_ptr<CabinEqPage> cabinEqPage;
     bool isRememberingSize = false;
 

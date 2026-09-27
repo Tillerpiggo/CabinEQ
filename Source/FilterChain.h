@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 #include <array>
-#include <map>
+#include <set>
 #include "BandProfile.h"
 #include "FilterDesign.h"
 
@@ -32,6 +32,8 @@ public:
     FilterChain()
     {
         slotReleasedAt.fill (0);
+        slotOwner.fill (-1);
+        lastSlotOwner.fill (-1);
     }
 
     /// Call while audio isn't running.
@@ -90,22 +92,19 @@ public:
     /// Message thread only. Disabled bands fade out but keep their slot, so re-enabling fades them back in.
     void setBands (const std::vector<Band>& bands)
     {
-        std::array<std::array<Target, numSlots>, maxChannels> targets {};
-        std::map<int, int> newSlotForBandId;
+        const auto newOwners = assignSlots (bands);
 
+        std::array<std::array<Target, numSlots>, maxChannels> targets {};
         for (const auto& band : bands)
         {
-            if ((int) newSlotForBandId.size() >= numSlots)
-                break;
-
-            int slot = findOrAllocateSlot (band.id, newSlotForBandId);
-            if (slot < 0)
+            const auto found = std::find (newOwners.begin(), newOwners.end(), band.id);
+            if (found == newOwners.end())
                 continue;
 
-            newSlotForBandId[band.id] = slot;
+            const auto slot = (size_t) std::distance (newOwners.begin(), found);
             for (int channel = 0; channel < maxChannels; ++channel)
             {
-                auto& target = targets[channel][slot];
+                auto& target = targets[(size_t) channel][slot];
                 target.active = band.enabled && band.appliesToChannel (channel);
                 target.shape = band.shape;
                 target.logFreq = std::log ((double) juce::jlimit (Band::minFreq, Band::maxFreq, band.freq));
@@ -114,11 +113,17 @@ public:
             }
         }
 
-        // Remember when slots were freed, so new bands take the slot that's had longest to fade out
-        for (const auto& [id, slot] : slotForBandId)
-            if (newSlotForBandId.find (id) == newSlotForBandId.end())
-                slotReleasedAt[(size_t) slot] = ++releaseCounter;
-        slotForBandId = std::move (newSlotForBandId);
+        // Remember who had each freed slot and when, so a band that comes back gets its own slot,
+        // and new bands take the slot that's had longest to fade out
+        for (size_t slot = 0; slot < numSlots; ++slot)
+        {
+            if (slotOwner[slot] >= 0 && newOwners[slot] != slotOwner[slot])
+            {
+                lastSlotOwner[slot] = slotOwner[slot];
+                slotReleasedAt[slot] = ++releaseCounter;
+            }
+        }
+        slotOwner = newOwners;
 
         const juce::SpinLock::ScopedLockType lock (pendingLock);
         pendingTargets = targets;
@@ -186,32 +191,53 @@ private:
         double s1 = 0.0, s2 = 0.0;
     };
 
-    int findOrAllocateSlot (int bandId, const std::map<int, int>& taken)
+    /// Which band id each slot should have, or -1. Bands keep their slot; others get, in order of
+    /// preference, the slot they had before, a free slot, or the slot of a band that's going away.
+    std::array<int, numSlots> assignSlots (const std::vector<Band>& bands) const
     {
-        auto isTaken = [&taken] (int slot)
+        std::array<int, numSlots> newOwners;
+        newOwners.fill (-1);
+
+        std::set<int> wantedIds;
+        for (const auto& band : bands)
+            if ((int) wantedIds.size() < numSlots)
+                wantedIds.insert (band.id);
+
+        std::vector<int> unassigned;
+        for (int id : wantedIds)
         {
-            for (const auto& entry : taken)
-                if (entry.second == slot)
-                    return true;
-            return false;
+            auto kept = std::find (slotOwner.begin(), slotOwner.end(), id);
+            if (kept != slotOwner.end())
+                newOwners[(size_t) std::distance (slotOwner.begin(), kept)] = id;
+            else
+                unassigned.push_back (id);
+        }
+
+        auto isFree = [&] (size_t slot) { return slotOwner[slot] < 0 && newOwners[slot] < 0; };
+        auto isLeaving = [&] (size_t slot) { return slotOwner[slot] >= 0 && wantedIds.count (slotOwner[slot]) == 0 && newOwners[slot] < 0; };
+        auto oldestWhere = [&] (auto predicate)
+        {
+            int best = -1;
+            for (size_t slot = 0; slot < numSlots; ++slot)
+                if (predicate (slot) && (best < 0 || slotReleasedAt[slot] < slotReleasedAt[(size_t) best]))
+                    best = (int) slot;
+            return best;
         };
 
-        auto existing = slotForBandId.find (bandId);
-        if (existing != slotForBandId.end() && ! isTaken (existing->second))
-            return existing->second;
-
-        int best = -1;
-        for (int slot = 0; slot < numSlots; ++slot)
+        for (int id : unassigned)
         {
-            bool isFree = ! isTaken (slot);
-            for (const auto& entry : slotForBandId)
-                if (entry.second == slot && entry.first != bandId)
-                    isFree = false;
-
-            if (isFree && (best < 0 || slotReleasedAt[(size_t) slot] < slotReleasedAt[(size_t) best]))
-                best = slot;
+            int slot = -1;
+            for (size_t s = 0; s < numSlots && slot < 0; ++s)
+                if (lastSlotOwner[s] == id && isFree (s))
+                    slot = (int) s;
+            if (slot < 0)
+                slot = oldestWhere (isFree);
+            if (slot < 0)
+                slot = oldestWhere (isLeaving);
+            if (slot >= 0)
+                newOwners[(size_t) slot] = id;
         }
-        return best;
+        return newOwners;
     }
 
     void takePendingTargets() noexcept
@@ -297,16 +323,23 @@ private:
     {
         double logFreq = slot.logFreq;
         double gainDb = slot.gainDb;
+        double logQ = slot.logQ;
 
-        // Fade gains towards 0 dB, and cuts towards the edge of the spectrum, where they do nothing
-        if (slot.shape == Band::Shape::lowCut)
-            logFreq = juce::jmap (slot.presence, std::log ((double) Band::minFreq), slot.logFreq);
-        else if (slot.shape == Band::Shape::highCut)
-            logFreq = juce::jmap (slot.presence, std::log (FilterDesign::maxFrequency (sampleRate)), slot.logFreq);
+        // Fade gains towards 0 dB, and cuts towards the edge of the spectrum, where they do nothing.
+        // Cuts also lose any resonance on the way, so a high-Q cut doesn't sweep a peak across the spectrum.
+        if (slot.shape == Band::Shape::lowCut || slot.shape == Band::Shape::highCut)
+        {
+            const double edge = slot.shape == Band::Shape::lowCut ? std::log ((double) Band::minFreq)
+                                                                   : std::log (FilterDesign::maxFrequency (sampleRate));
+            logFreq = juce::jmap (slot.presence, edge, slot.logFreq);
+            logQ = juce::jmap (slot.presence, std::log ((double) Band::defaultCutQ), slot.logQ);
+        }
         else
+        {
             gainDb *= slot.presence;
+        }
 
-        slot.c = FilterDesign::design (slot.shape, std::exp (logFreq), gainDb, std::exp (slot.logQ), sampleRate);
+        slot.c = FilterDesign::design (slot.shape, std::exp (logFreq), gainDb, std::exp (logQ), sampleRate);
     }
 
     static constexpr int subBlockSize = 32; // how often coefficients update while gliding
@@ -318,7 +351,8 @@ private:
     double presenceStep = 0.02;
 
     // Message thread
-    std::map<int, int> slotForBandId;
+    std::array<int, numSlots> slotOwner; // band id, or -1
+    std::array<int, numSlots> lastSlotOwner;
     std::array<juce::uint32, numSlots> slotReleasedAt;
     juce::uint32 releaseCounter = 0;
 
