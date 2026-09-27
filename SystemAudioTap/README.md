@@ -20,7 +20,28 @@ To use it for real, double-click the app in Finder (you can drag it to Applicati
 open "build/CabinEQSystem_artefacts/Release/CabinEQ System.app"
 ```
 
-It opens the plugin's editor with all system audio going through it. Close the window to stop. If it can't start, for example because the plugin isn't installed, it says why.
+It opens the plugin's editor with all system audio going through it. Close the window to stop.
+
+The bar along the top always says whether it's working, with meters for what's coming in and going out.
+It knows the difference between nothing playing, macOS blocking capture, audio going in but not coming
+out, audio stopping (it reconnects by itself), and dropouts. **Setup** opens a checklist, which also
+shows by itself on first launch and when something goes wrong:
+
+1. **CabinEQ**: found and loaded, or choose where it is.
+2. **Permission**: asks macOS for System Audio Recording, or opens the right page in System Settings
+   if it was turned off, and notices as soon as it's turned on.
+3. **Output**: it follows the Mac's output (so switching to headphones works), but never plays to a
+   virtual device like BlackHole, since nobody would hear it. If the Mac's output is one, it plays to
+   your headphones or speakers instead and offers to make them the Mac's output, so the volume keys work.
+   You can also pick a device from the menu in the bar.
+4. **Other audio processors**: eqMac, Boom, SoundSource or the old CabinEQ standalone app would EQ the
+   audio a second time. It offers to quit them.
+5. **Check it's working**: plays a short burst of quiet noise from another app and checks it went in and
+   came back out.
+
+Each status change is written to `~/Library/Logs/CabinEQ System.log`.
+`"CabinEQ System.app/Contents/MacOS/CabinEQ System" --snapshot out.png [setup]` renders the window
+without touching the audio.
 
 ```bash
 ./run-test.sh --plugin /absolute/path/Other.vst3
@@ -43,5 +64,4 @@ The build needs CabinEQ's icons and font in `Resources/` at the repo root. If an
 ## Notes
 
 - The first run shows a "System Audio Recording" permission prompt. Without the permission, the tap only delivers silence. The app is signed ad hoc, so a rebuild can make macOS ask again.
-- It follows whichever output device is the default when it starts. It doesn't yet handle switching devices mid-session.
 - `Source/SystemAudioTap.mm` has the Core Audio part. `Source/Main.cpp` hosts the plugin and runs the test.

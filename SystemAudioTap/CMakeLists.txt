@@ -22,14 +22,24 @@ juce_add_gui_app(CabinEQSystem
     ]])
 
 target_sources(CabinEQSystem PRIVATE
+    Source/AppView.cpp
+    Source/AudioDevices.mm
+    Source/Engine.cpp
     Source/Main.cpp
     Source/SystemAudioTap.mm)
 
-set_source_files_properties(Source/SystemAudioTap.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+set_source_files_properties(Source/SystemAudioTap.mm Source/AudioDevices.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+
+# Sign the whole bundle (the linker only signs the binary), so macOS remembers the
+# System Audio Recording permission between launches
+add_custom_command(TARGET CabinEQSystem POST_BUILD
+    COMMAND codesign --force --sign - "$<TARGET_BUNDLE_DIR:CabinEQSystem>"
+    VERBATIM)
 
 target_compile_definitions(CabinEQSystem PRIVATE
     JUCE_PLUGINHOST_VST3=1
     JUCE_PLUGINHOST_AU=1
+    JUCE_MODAL_LOOPS_PERMITTED=1
     JUCE_USE_CURL=0
     JUCE_WEB_BROWSER=0)
 
@@ -41,6 +51,7 @@ target_link_libraries(CabinEQSystem
         "-framework CoreAudio"
         "-framework CoreAudioKit"
         "-framework Foundation"
+        "-framework AppKit"
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)
