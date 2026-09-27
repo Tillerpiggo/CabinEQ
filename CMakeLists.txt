@@ -4,11 +4,16 @@ cmake_minimum_required(VERSION 3.22)
 # Command Line Tools (no Xcode). update.sh uses it to build and install the VST3.
 project(CabinEQ VERSION 1.0.0 LANGUAGES C CXX)
 
-set(JUCE_DIR "$ENV{HOME}/JUCE" CACHE PATH "Path to JUCE")
+set(JUCE_DIR "$ENV{HOME}/JUCE" CACHE PATH "Path to JUCE (8.0.4 or newer, for the macOS 15+ SDK)")
+if(NOT EXISTS "${JUCE_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR
+        "Couldn't find JUCE at ${JUCE_DIR}.\n"
+        "Clone it with: git clone --depth 1 --branch 8.0.15 https://github.com/juce-framework/JUCE.git ~/JUCE\n"
+        "or pass -DJUCE_DIR=<your JUCE folder>.")
+endif()
 add_subdirectory(${JUCE_DIR} JUCE)
 
-# The icons and font the UI loads. Point this somewhere else to build with files that
-# aren't in the repo yet.
+# The icons and font the UI loads.
 set(CABINEQ_RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources" CACHE PATH "Folder with CabinEQ's icons and font")
 
 set(resourceNames
