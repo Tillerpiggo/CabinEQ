@@ -26,6 +26,17 @@ void CabinEqProfileManager::migrateState (juce::ValueTree& state)
     if ((int) state.getProperty (idStateVersion, 1) >= stateVersion)
         return;
 
+    // Older CabinEQs can't read the new format, so keep a copy to go back to
+    if (shouldBackUpOldState && state.getChildWithName (CabinEqProfile::idProfile).isValid())
+    {
+        auto folder = getBackupFolder();
+        if (folder.createDirectory())
+        {
+            auto file = folder.getNonexistentChildFile ("CabinEQ state before update " + juce::Time::getCurrentTime().formatted ("%Y-%m-%d %H.%M.%S"), ".xml");
+            file.replaceWithText (state.toXmlString());
+        }
+    }
+
     // The master volume slider went away, so fold it into each profile's preamp so nothing sounds different
     const float masterVolume = state.getProperty (idMasterVolume, 0.0f);
 
@@ -57,6 +68,12 @@ void CabinEqProfileManager::migrateState (juce::ValueTree& state)
         state.appendChild (autoGain, nullptr);
     }
     state.setProperty (idStateVersion, stateVersion, nullptr);
+}
+
+juce::File CabinEqProfileManager::getBackupFolder()
+{
+    return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+               .getChildFile ("Application Support").getChildFile ("CabinEQ").getChildFile ("Backups");
 }
 
 void CabinEqProfileManager::ensureValidState()

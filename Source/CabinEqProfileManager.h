@@ -20,8 +20,11 @@ class CabinEqProfileManager
 public:
     CabinEqProfileManager (juce::AudioProcessorValueTreeState& apvts, juce::UndoManager& undoManager);
 
-    /// Brings state saved by an older CabinEQ up to date, before it's loaded.
+    /// Brings state saved by an older CabinEQ up to date, before it's loaded. Saves a copy of
+    /// the old state in getBackupFolder() first, since older versions can't read the new format.
     static void migrateState (juce::ValueTree& state);
+    static juce::File getBackupFolder(); // ~/Library/Application Support/CabinEQ/Backups on a Mac
+    static inline bool shouldBackUpOldState = true; // the tests turn this off
 
     /// Makes sure there's at least one profile, and that one of them is selected. Not undoable.
     void ensureValidState();

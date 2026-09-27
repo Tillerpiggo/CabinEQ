@@ -650,6 +650,8 @@ int main (int argc, char** argv)
         return writeSnapshot (juce::File (argv[2]), argc >= 5 ? juce::String (argv[3]).getIntValue() : 1080,
                               argc >= 5 ? juce::String (argv[4]).getIntValue() : 680, argc >= 6);
 
+    CabinEqProfileManager::shouldBackUpOldState = false;
+
     juce::UnitTestRunner runner;
     runner.setAssertOnFailure (false);
     runner.runTestsInCategory ("CabinEQ");
