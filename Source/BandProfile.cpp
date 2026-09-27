@@ -12,180 +12,100 @@
 
 //==============================================
 Band::Band()
-  : id (0), freq (0), ampl (0), bandwidth (1), type (Band::Type::both)
+    : id (0), freq (1000.0f), ampl (0.0f), bandwidth (1.0f), qFactor (bandwidthToQFactor (1.0f)),
+      type (Type::both), shape (Shape::peak), enabled (true)
 {}
 
-Band::Band (int id, float freq, float ampl, float bandwidth, Type type)
-: id (id), freq (freq), ampl (ampl), bandwidth (bandwidth), type (type)
-{
-    this->qFactor = bandwidthToQFactor (bandwidth);
-}
+Band::Band (int id, float freq, float ampl, float bandwidth, Type type, Shape shape, bool enabled)
+    : id (id), freq (freq), ampl (ampl), bandwidth (bandwidth), qFactor (bandwidthToQFactor (bandwidth)),
+      type (type), shape (shape), enabled (enabled)
+{}
 
-Band Band::withQ (int id, float freq, float ampl, float qFactor, Band::Type type)
+Band Band::withQ (int id, float freq, float ampl, float qFactor, Type type, Shape shape, bool enabled)
 {
-    return Band (id, freq, ampl, Band::qFactorToBandwidth (qFactor), type);
+    Band band (id, freq, ampl, qFactorToBandwidth (qFactor), type, shape, enabled);
+    band.qFactor = qFactor; // keep the exact Q rather than the round trip through bandwidth
+    return band;
 }
 
 float Band::bandwidthToQFactor (float bandwidth)
 {
-    return std::sqrt (std::pow (2.0, bandwidth)) / (std::pow (2.0, bandwidth) - 1);
+    return std::sqrt (std::pow (2.0f, bandwidth)) / (std::pow (2.0f, bandwidth) - 1.0f);
 }
 
-float Band::qFactorToBandwidth(float qFactor)
+float Band::qFactorToBandwidth (float qFactor)
 {
-    // Formula: Bandwidth (octaves) = log2((sqrt(4 * Q^2 + 1) + 1) / (sqrt(4 * Q^2 + 1) - 1))
-    float sqrtTerm = std::sqrt(4 * qFactor * qFactor + 1);
-    return std::log2((sqrtTerm + 1) / (sqrtTerm - 1));
+    // Bandwidth (octaves) = log2((sqrt(4 * Q^2 + 1) + 1) / (sqrt(4 * Q^2 + 1) - 1))
+    float sqrtTerm = std::sqrt (4.0f * qFactor * qFactor + 1.0f);
+    return std::log2 ((sqrtTerm + 1.0f) / (sqrtTerm - 1.0f));
+}
+
+void Band::setQ (float newQ)
+{
+    qFactor = juce::jlimit (minQ, maxQ, newQ);
+    bandwidth = qFactorToBandwidth (qFactor);
+}
+
+void Band::setBandwidth (float newBandwidth)
+{
+    setQ (bandwidthToQFactor (newBandwidth));
+}
+
+bool Band::hasGain() const
+{
+    return shape == Shape::peak || shape == Shape::lowShelf || shape == Shape::highShelf;
+}
+
+bool Band::appliesToChannel (int channel) const
+{
+    return type == Type::both
+        || (type == Type::left && channel == 0)
+        || (type == Type::right && channel == 1);
+}
+
+juce::String Band::shapeName (Shape shape)
+{
+    switch (shape)
+    {
+        case Shape::peak:      return "Bell";
+        case Shape::lowShelf:  return "Low shelf";
+        case Shape::highShelf: return "High shelf";
+        case Shape::lowCut:    return "Low cut";
+        case Shape::highCut:   return "High cut";
+    }
+    return {};
+}
+
+juce::String Band::typeName (Type type)
+{
+    switch (type)
+    {
+        case Type::both:  return "Stereo";
+        case Type::left:  return "Left";
+        case Type::right: return "Right";
+    }
+    return {};
 }
 
 //==============================================
-MultiBandStep::MultiBandStep (std::vector<Band> bands, int id, bool isEnabled)
-    : bands (bands), id (id), isEnabled (isEnabled)
+BandProfile::BandProfile (std::vector<Band> bands, float volume)
+    : bands (std::move (bands)), volume (volume)
 {}
 
-const std::vector<Band>& MultiBandStep::getBands() const
+const std::vector<Band>& BandProfile::getBands() const
 {
     return bands;
 }
 
-int MultiBandStep::getId() const
+std::optional<Band> BandProfile::getBandWithId (int id) const
 {
-    return id;
-}
-
-bool MultiBandStep::getIsEnabled() const
-{
-    return isEnabled;
-}
-
-const float MultiBandStep::dbAtFrequency (float frequency) const
-{
-    float dbAtFreq = 0;
     for (const auto& band : bands)
-    {
-        dbAtFreq += dbAtFrequencyForBand (band, frequency);
-    }
-    return dbAtFreq;
+        if (band.id == id)
+            return band;
+    return std::nullopt;
 }
 
-const float MultiBandStep::leftDbAtFrequency (float frequency) const
-{
-    float dbAtFreq = 0;
-    for (const auto& band : bands)
-    {
-        if (band.type == Band::Type::both || band.type == Band::Type::left)
-        {
-            dbAtFreq += dbAtFrequencyForBand (band, frequency);
-        }
-    }
-    return dbAtFreq;
-}
-
-const float MultiBandStep::rightDbAtFrequency (float frequency) const
-{
-    float dbAtFreq = 0;
-    for (const auto& band : bands)
-    {
-        if (band.type == Band::Type::both || band.type == Band::Type::right)
-        {
-            dbAtFreq += dbAtFrequencyForBand (band, frequency);
-        }
-    }
-    return dbAtFreq;
-}
-
-const float MultiBandStep::dbAtFrequencyForBand (Band band, float frequency) const
-{
-    float sampleRate = 44100; // just use this approximation, it should be fine, right?
-    
-    // Get parameters
-    float f0 = band.freq;       // Center frequency
-    float GdB = band.ampl;      // Gain in dB
-    float Q = band.qFactor;     // Quality factor
-
-    // Calculate normalized frequencies
-    float omega0 = 2.0f * M_PI * f0 / sampleRate;
-    float omega = 2.0f * M_PI * frequency / sampleRate;
-
-    // Compute intermediate values
-    float A = std::pow(10.0f, GdB / 40.0f);   // Amplitude (linear scale)
-    float alpha = sinf(omega0) / (2.0f * Q);
-
-    // Compute filter coefficients for peaking EQ
-    float b0 = 1.0f + alpha * A;
-    float b1 = -2.0f * cosf(omega0);
-    float b2 = 1.0f - alpha * A;
-    float a0 = 1.0f + alpha / A;
-    float a1 = -2.0f * cosf(omega0);
-    float a2 = 1.0f - alpha / A;
-
-    // Compute the normalized frequency response
-    float cos_omega = cosf(omega);
-    float sin_omega = sinf(omega);
-    float cos_2omega = cosf(2.0f * omega);
-    float sin_2omega = sinf(2.0f * omega);
-
-    // Numerator (real and imaginary parts)
-    float num_real = b0 + b1 * cos_omega + b2 * cos_2omega;
-    float num_imag = b1 * sin_omega + b2 * sin_2omega;
-
-    // Denominator (real and imaginary parts)
-    float den_real = a0 + a1 * cos_omega + a2 * cos_2omega;
-    float den_imag = a1 * sin_omega + a2 * sin_2omega;
-
-    // Compute magnitude squared of numerator and denominator
-    float num_mag_sq = num_real * num_real + num_imag * num_imag;
-    float den_mag_sq = den_real * den_real + den_imag * den_imag;
-
-    // Compute the magnitude response (linear scale)
-    float H_mag = sqrtf(num_mag_sq / den_mag_sq);
-
-    // Convert to decibels
-    float gainDB = 20.0f * log10f(H_mag);
-
-    return gainDB;
-}
-
-//==============================================
-BandProfile::BandProfile()
-    : multiBandSteps ({}), volume (0.0f), melodyVolume (0.0f), noiseVolume (0.0f)
-{}
-
-BandProfile::BandProfile (std::vector<MultiBandStep> multiBandSteps, float volume, float melodyVolume, float noiseVolume, bool isLocked)
-    : multiBandSteps (multiBandSteps), volume (volume), melodyVolume (melodyVolume), noiseVolume (noiseVolume), isLocked (isLocked)
-{}
-
-const std::vector<MultiBandStep>& BandProfile::getMultiBandSteps() const
-{
-    return multiBandSteps;
-}
-
-std::vector<Band> BandProfile::getBands()
-{
-    std::vector<Band> bands;
-    for (const auto& step : multiBandSteps)
-    {
-        bands.insert (bands.begin(), step.getBands().begin(), step.getBands().end()); // append all bands in each step
-    }
-    return bands;
-}
-
-const float BandProfile::getVolume() const
+float BandProfile::getVolume() const
 {
     return volume;
-}
-
-const float BandProfile::getMelodyVolume() const
-{
-    return melodyVolume;
-}
-
-const float BandProfile::getNoiseVolume() const
-{
-    return noiseVolume;
-}
-
-const bool BandProfile::getIsLocked() const
-{
-    return isLocked;
 }

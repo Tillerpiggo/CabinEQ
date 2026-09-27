@@ -8,38 +8,24 @@
 
 #include "CabinEqProcessorEditor.h"
 
-CabinEqProcessorEditor::CabinEqProcessorEditor(CabinEqAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), cabinEqPage (p)
+CabinEqProcessorEditor::CabinEqProcessorEditor (CabinEqAudioProcessor& p)
+    : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    setSize (1080, 720);
-    addAndMakeVisible (cabinEqPage);
-//    addAndMakeVisible (visibilityButton);
-    setResizable (true, false);
-    setResizeLimits (300, 200, 10000, 10000);
-    
-//    visibilityButton.addListener (this);
+    addAndMakeVisible (genericEditor);
+    setSize (500, 300);
 }
 
 CabinEqProcessorEditor::~CabinEqProcessorEditor()
 {
-    // The binaryClassificationPage will be automatically deleted as it is owned by the tabbedComponent
 }
 
 //==============================================================================
-void CabinEqProcessorEditor::paint(juce::Graphics& g)
+void CabinEqProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 }
 
 void CabinEqProcessorEditor::resized()
 {
-    cabinEqPage.setBounds (getLocalBounds());
-    visibilityButton.setBounds (juce::Rectangle<int> (getWidth() - 100, getHeight() - 50, 100, 50));
-}
-
-void CabinEqProcessorEditor::buttonClicked (juce::Button* button)
-{
-    isVisible = ! isVisible;
-    cabinEqPage.setVisible (isVisible);
-    visibilityButton.setButtonText (isVisible ? "VISIBLE" : "INVISIBLE");
+    genericEditor.setBounds (getLocalBounds());
 }

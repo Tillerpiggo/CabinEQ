@@ -10,110 +10,103 @@
 
 #include "BandEqCurve.h"
 
-const float BandEqCurve::dbAtFrequency (float frequency) const
+void BandEqCurve::updateWithBands (const std::vector<Band>& newBands)
 {
-    float dbAtFreq = 0;
-    for (const auto& band : bands)
+    bands = newBands;
+    recalculate();
+}
+
+void BandEqCurve::setSampleRate (double newSampleRate)
+{
+    if (newSampleRate > 0.0 && newSampleRate != sampleRate)
     {
-        dbAtFreq += dbAtFrequencyForBand (band, frequency);
+        sampleRate = newSampleRate;
+        recalculate();
     }
-    return dbAtFreq;
 }
 
-const float BandEqCurve::leftDbAtFrequency (float frequency) const
+void BandEqCurve::recalculate()
 {
-    float dbAtFreq = 0;
+    cachedBands.clear();
     for (const auto& band : bands)
+        if (band.enabled)
+            cachedBands.push_back ({ band, FilterDesign::design (band, sampleRate) });
+}
+
+float BandEqCurve::dbAtFrequency (float frequency) const
+{
+    if (! hasChannelSpecificBands())
+        return leftDbAtFrequency (frequency);
+    return 0.5f * (leftDbAtFrequency (frequency) + rightDbAtFrequency (frequency));
+}
+
+float BandEqCurve::leftDbAtFrequency (float frequency) const
+{
+    return dbAtFrequencyForChannel (frequency, 0);
+}
+
+float BandEqCurve::rightDbAtFrequency (float frequency) const
+{
+    return dbAtFrequencyForChannel (frequency, 1);
+}
+
+float BandEqCurve::dbAtFrequencyForChannel (float frequency, int channel) const
+{
+    if (frequency >= sampleRate * 0.5)
+        return 0.0f;
+
+    double db = 0.0;
+    for (const auto& cached : cachedBands)
+        if (cached.band.appliesToChannel (channel))
+            db += FilterDesign::magnitudeDb (cached.coefficients, frequency, sampleRate);
+    return (float) db;
+}
+
+float BandEqCurve::dbAtFrequencyForBand (const Band& band, float frequency) const
+{
+    if (frequency >= sampleRate * 0.5)
+        return 0.0f;
+    return (float) FilterDesign::magnitudeDb (FilterDesign::design (band, sampleRate), frequency, sampleRate);
+}
+
+bool BandEqCurve::hasChannelSpecificBands() const
+{
+    for (const auto& cached : cachedBands)
+        if (cached.band.type != Band::Type::both)
+            return true;
+    return false;
+}
+
+float BandEqCurve::loudnessChangeDb() const
+{
+    if (cachedBands.empty())
+        return 0.0f;
+
+    // Average the power gain over log-spaced frequencies, weighted towards where music has
+    // most of its perceived loudness: flat from 100 Hz to 5 kHz, fading out to 20 Hz and 16 kHz.
+    constexpr int numPoints = 256;
+    const double logLow = std::log (20.0), logHigh = std::log (16000.0);
+    const double logFullLow = std::log (100.0), logFullHigh = std::log (5000.0);
+
+    double totalPower[2] = { 0.0, 0.0 };
+    double totalWeight = 0.0;
+
+    for (int i = 0; i < numPoints; ++i)
     {
-        if (band.type == Band::Type::both || band.type == Band::Type::left)
-        {
-            dbAtFreq += dbAtFrequencyForBand (band, frequency);
-        }
+        const double logFreq = logLow + (logHigh - logLow) * (i + 0.5) / numPoints;
+        double weight = 1.0;
+        if (logFreq < logFullLow)
+            weight = (logFreq - logLow) / (logFullLow - logLow);
+        else if (logFreq > logFullHigh)
+            weight = (logHigh - logFreq) / (logHigh - logFullHigh);
+
+        const auto freq = (float) std::exp (logFreq);
+        for (int channel = 0; channel < 2; ++channel)
+            totalPower[channel] += weight * std::pow (10.0, dbAtFrequencyForChannel (freq, channel) / 10.0);
+        totalWeight += weight;
     }
-    return dbAtFreq;
-}
 
-const float BandEqCurve::rightDbAtFrequency (float frequency) const
-{
-    float dbAtFreq = 0;
-    for (const auto& band : bands)
-    {
-        if (band.type == Band::Type::both || band.type == Band::Type::right)
-        {
-            dbAtFreq += dbAtFrequencyForBand (band, frequency);
-        }
-    }
-    return dbAtFreq;
-}
-
-void BandEqCurve::updateWithBands (std::vector<Band> bands)
-{
-    this->bands = bands;
-}
-
-//const float BandEqCurve::dbAtFrequencyForBand (Band band, float frequency) const
-//{
-//    // Compute frequency difference in octaves
-//    float x = std::log2(frequency / band.freq);
-//    
-//    // Calculate exponent for the exponential function
-//    float ln2 = std::log(2.0f);
-//    float exponent = -ln2 * (4.0f * x * x) / (band.bandwidth * band.bandwidth);
-//    
-//    // Compute gain in dB directly
-//    float gainDB = band.ampl * std::exp(exponent);
-//    
-//    return gainDB;
-//}
-
-const float BandEqCurve::dbAtFrequencyForBand (Band band, float frequency) const
-{
-    float sampleRate = 44100; // just use this approximation, it should be fine, right?
-    
-    // Get parameters
-    float f0 = band.freq;       // Center frequency
-    float GdB = band.ampl;      // Gain in dB
-    float Q = band.qFactor;     // Quality factor
-
-    // Calculate normalized frequencies
-    float omega0 = 2.0f * M_PI * f0 / sampleRate;
-    float omega = 2.0f * M_PI * frequency / sampleRate;
-
-    // Compute intermediate values
-    float A = std::pow(10.0f, GdB / 40.0f);   // Amplitude (linear scale)
-    float alpha = sinf(omega0) / (2.0f * Q);
-
-    // Compute filter coefficients for peaking EQ
-    float b0 = 1.0f + alpha * A;
-    float b1 = -2.0f * cosf(omega0);
-    float b2 = 1.0f - alpha * A;
-    float a0 = 1.0f + alpha / A;
-    float a1 = -2.0f * cosf(omega0);
-    float a2 = 1.0f - alpha / A;
-
-    // Compute the normalized frequency response
-    float cos_omega = cosf(omega);
-    float sin_omega = sinf(omega);
-    float cos_2omega = cosf(2.0f * omega);
-    float sin_2omega = sinf(2.0f * omega);
-
-    // Numerator (real and imaginary parts)
-    float num_real = b0 + b1 * cos_omega + b2 * cos_2omega;
-    float num_imag = b1 * sin_omega + b2 * sin_2omega;
-
-    // Denominator (real and imaginary parts)
-    float den_real = a0 + a1 * cos_omega + a2 * cos_2omega;
-    float den_imag = a1 * sin_omega + a2 * sin_2omega;
-
-    // Compute magnitude squared of numerator and denominator
-    float num_mag_sq = num_real * num_real + num_imag * num_imag;
-    float den_mag_sq = den_real * den_real + den_imag * den_imag;
-
-    // Compute the magnitude response (linear scale)
-    float H_mag = sqrtf(num_mag_sq / den_mag_sq);
-
-    // Convert to decibels
-    float gainDB = 20.0f * log10f(H_mag);
-
-    return gainDB;
+    const double leftDb = 10.0 * std::log10 (totalPower[0] / totalWeight);
+    const double rightDb = 10.0 * std::log10 (totalPower[1] / totalWeight);
+    return (float) (0.5 * (leftDb + rightDb));
 }

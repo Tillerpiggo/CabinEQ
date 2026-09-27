@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    SliderCalibrationManager.cpp
+    PlaybackManager.cpp
     Created: 10 Jul 2024 3:39:46pm
     Author:  Tyler Gee
 
@@ -9,295 +9,104 @@
 */
 
 #include "PlaybackManager.h"
-#include "ArbitraryResponseFilter.h"
-#include <cmath>
-#include <random>
-
-PlaybackManager::PlaybackManager()
-    : firFilter (14),
-//      tiltFilter (12),
-      isFilterOn (true),
-      isPlayingNoise (false)
-{
-    profileVolumeProcessor.setRampDurationSeconds (0.05);
-    profileVolumeProcessor.setGainDecibels (0.0f);
-//    systemVolumeProcessor.setRampDurationSeconds (0.05);
-//    systemVolumeProcessor.setGain (juce::SystemAudioVolume::getGain());
-    overallVolumeProcessor.setRampDurationSeconds (0.05);
-    overallVolumeProcessor.setGainDecibels (0.0f);
-    
-    audioFormatManager.registerBasicFormats();
-    audioTransportSource.addChangeListener (this);
-    crossfeedProcessor.setEnabled(false); // Default to off
-    crossfeedProcessor.setCrossfeedVolume(0.0f); // Default to off
-    
-    startTimer (50);
-}
-
-void PlaybackManager::processBlock (juce::AudioBuffer<float>& ioBuffer)
-{
-    if (isPlayingNoise)
-    {
-//         checkerboardPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
-        glyphGridPlayer.processBlock (ioBuffer, systemVolume * juce::Decibels::decibelsToGain (calibrationVolume));
-    }
-    
-    juce::dsp::AudioBlock<float> ioBlock (ioBuffer);
-    juce::dsp::ProcessContextReplacing<float> ioContext (ioBlock);
-    
-    if (isFilterOn)
-    {
-        if (isIIR)
-        {
-            filter.process (ioBlock);
-        }
-        else
-        {
-            firFilter.process (ioContext);
-        }
-
-        crossfeedProcessor.process(ioBlock);
-        
-        profileVolumeProcessor.process (ioContext);
-        
-        if (isProvisionalOn)
-        {
-            provisionalFilter.process (ioBlock);
-        }
-    }
-    
-    overallVolumeProcessor.process (ioContext);
-}
-
-void PlaybackManager::updateFilterWithBandProfile (BandProfile bandProfile)
-{
-    this->bandEqCurve.updateWithBands (bandProfile.getBands());
-    filter.setBands (bandProfile.getBands(), spec.sampleRate);
-    profileVolumeProcessor.setGainDecibels (bandProfile.getVolume());
-}
 
 void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    this->spec = spec;
-    
-    audioTransportSource.prepareToPlay (spec.maximumBlockSize, spec.sampleRate);
-    checkerboardPlayer.prepare (spec);
-    glyphGridPlayer.prepare (spec);
-    
-    filter.prepare (spec);
-    provisionalFilter.prepare (spec);
-    firFilter.prepare (spec);
-    crossfeedProcessor.prepare(spec);
-//    tiltFilter.prepare (spec);
-//    tiltFilter.updateWithCurve (tiltCurve, 12);
-//    firFilter.updateWithCurve (firCurve);
+    maxChunkSize = (int) std::max (spec.maximumBlockSize, (juce::uint32) 512);
+    dryBuffer.setSize ((int) std::max (spec.numChannels, (juce::uint32) 2), maxChunkSize);
+    gainRamp.assign ((size_t) maxChunkSize, 1.0f);
+    mixRamp.assign ((size_t) maxChunkSize, 1.0f);
+
+    filter.prepare (spec.sampleRate);
+    crossfeed.prepare (spec);
+
+    gain.reset (spec.sampleRate, 0.05);
+    gain.setCurrentAndTargetValue (juce::Decibels::decibelsToGain (gainDb.load()));
+    wetMix.reset (spec.sampleRate, 0.03);
+    wetMix.setCurrentAndTargetValue (bypassed ? 0.0f : 1.0f);
+    isFullyBypassed = bypassed;
 }
 
-
-void PlaybackManager::setIsFilterOn (bool isFilterOn)
+void PlaybackManager::setBands (const std::vector<Band>& bands)
 {
-    this->isFilterOn = isFilterOn;
+    filter.setBands (bands);
 }
 
-void PlaybackManager::setIsPlayingNoise (bool isPlayingNoise)
+void PlaybackManager::setGainDb (float newGainDb)
 {
-    this->isPlayingNoise = isPlayingNoise;
+    gainDb = newGainDb;
 }
 
-void PlaybackManager::setIsCabinNoise (bool isCabinNoise)
+void PlaybackManager::setBypassed (bool shouldBeBypassed)
 {
-    this->isCabinNoise = isCabinNoise;
+    bypassed = shouldBeBypassed;
 }
 
-void PlaybackManager::setVolume (float volume)
+void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer) noexcept
 {
-    this->volume = volume;
-    overallVolumeProcessor.setGainDecibels (volume);
-}
+    gain.setTargetValue (juce::Decibels::decibelsToGain (gainDb.load()));
+    wetMix.setTargetValue (bypassed ? 0.0f : 1.0f);
 
-void PlaybackManager::setCalibrationVolume (float calibrationVolume)
-{
-    this->calibrationVolume = calibrationVolume;
-}
-
-void PlaybackManager::setMinFreq (float minFreq)
-{
-    checkerboardPlayer.setMinFreq (minFreq);
-}
-
-void PlaybackManager::setPinkNoise (bool pinkNoiseEnabled)
-{
-    this->isCabinNoise = ! pinkNoiseEnabled;
-}
-
-void PlaybackManager::updateFIRFilter()
-{
-    // Calculate curve pts
-    std::vector<CurvePt> leftCurvePts;
-    std::vector<CurvePt> rightCurvePts;
-    const float startFreq = 20.0f;
-    const float endFreq = 20000.0f;
-    const int numPoints = 4000;
-    for (int i = 0; i < numPoints; ++i)
+    if (maxChunkSize > 0)
     {
-        float freq = startFreq * std::pow (endFreq / startFreq, i / (numPoints - 1.0f));
-        float leftAmpl = bandEqCurve.leftDbAtFrequency (freq);
-        float rightAmpl = bandEqCurve.rightDbAtFrequency (freq);
-        leftCurvePts.push_back (CurvePt (i, freq, leftAmpl));
-        rightCurvePts.push_back (CurvePt (i, freq, rightAmpl));
+        // Hosts occasionally send more than the block size they promised, so work in chunks
+        for (int start = 0; start < buffer.getNumSamples(); start += maxChunkSize)
+            processChunk (buffer, start, std::min (maxChunkSize, buffer.getNumSamples() - start));
     }
-    
-    firCurve.updateWithCurvePts (leftCurvePts, rightCurvePts);
-    firFilter.updateWithCurve (firCurve, fftSize);
+
+    analyzer.push (buffer);
 }
 
-void PlaybackManager::setFIRQuality (int fftSize)
+void PlaybackManager::processChunk (juce::AudioBuffer<float>& buffer, int start, int length) noexcept
 {
-    this->fftSize = fftSize;
-}
+    const int numChannels = std::min (buffer.getNumChannels(), dryBuffer.getNumChannels());
 
-void PlaybackManager::setIIR (bool isIIR)
-{
-    this->isIIR = isIIR;
-}
-
-void PlaybackManager::setProvisionalBands (std::vector<Band> provisionalBands)
-{
-    provisionalFilter.setBands (provisionalBands, spec.sampleRate);
-}
-
-void PlaybackManager::setProvisionalBandsOn (bool provisionalBandsOn)
-{
-    this->isProvisionalOn = provisionalBandsOn;
-}
-
-void PlaybackManager::setCheckerboard (Checkerboard checkerboard)
-{
-    checkerboardPlayer.setCheckerboard (checkerboard);
-}
-
-void PlaybackManager::setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords)
-{
-    checkerboardPlayer.setSoloSquareCoords (soloSquareCoords);
-}
-
-void PlaybackManager::setSpeedFactor (float speedFactor)
-{
-    glyphGridPlayer.setSpeedFactor (speedFactor);
-}
-
-void PlaybackManager::setBandwidth (float bandwidth)
-{
-    glyphGridPlayer.setBandwidth (bandwidth);
-}
-
-void PlaybackManager::setGlyphs (std::vector<Glyph> glyphs)
-{
-    glyphGridPlayer.setGlyphs (glyphs);
-}
-
-void PlaybackManager::setGlyphVolume(float volume)
-{
-    glyphGridPlayer.setVolume(volume);
-}
-
-float PlaybackManager::getCurrPlayingTime()
-{
-    return glyphGridPlayer.getCurrPlayingTime();
-}
-
-void PlaybackManager::setIsAudioFilePlaying (bool isPlaying)
-{
-    if (isPlaying)
+    if (! wetMix.isSmoothing() && wetMix.getTargetValue() == 0.0f)
     {
-        audioTransportSource.start();
+        // Fully bypassed: skip the work, and start the filters clean when the EQ comes back
+        isFullyBypassed = true;
+        return;
     }
-    else
+
+    if (isFullyBypassed)
     {
-        audioTransportSource.stop();
+        filter.clearState();
+        crossfeed.reset();
+        isFullyBypassed = false;
     }
-}
 
-void PlaybackManager::setListener (PlaybackManagerListener* listener)
-{
-    this->listener = listener;
-}
+    const bool isCrossfading = wetMix.isSmoothing();
+    if (isCrossfading)
+        for (int channel = 0; channel < numChannels; ++channel)
+            dryBuffer.copyFrom (channel, 0, buffer, channel, start, length);
 
-void PlaybackManager::setAudioFile (juce::File file)
-{
-    auto* fileReader = audioFormatManager.createReaderFor (file);
-    
-    if (fileReader != nullptr)
+    juce::dsp::AudioBlock<float> block (buffer.getArrayOfWritePointers(), (size_t) numChannels, (size_t) start, (size_t) length);
+    filter.process (block);
+    crossfeed.process (block);
+
+    if (gain.isSmoothing())
     {
-        auto newAudioSource = std::make_unique<juce::AudioFormatReaderSource> (fileReader, true);
-        audioTransportSource.setSource (newAudioSource.get(), 0, nullptr, fileReader->sampleRate);
-        if (listener != nullptr)
+        for (int i = 0; i < length; ++i)
+            gainRamp[(size_t) i] = gain.getNextValue();
+        for (int channel = 0; channel < numChannels; ++channel)
+            juce::FloatVectorOperations::multiply (block.getChannelPointer ((size_t) channel), gainRamp.data(), length);
+    }
+    else if (gain.getCurrentValue() != 1.0f)
+    {
+        block.multiplyBy (gain.getCurrentValue());
+    }
+
+    if (isCrossfading)
+    {
+        for (int i = 0; i < length; ++i)
+            mixRamp[(size_t) i] = wetMix.getNextValue();
+
+        for (int channel = 0; channel < numChannels; ++channel)
         {
-//            listener->fileDidLoad();
+            auto* wet = block.getChannelPointer ((size_t) channel);
+            const auto* dry = dryBuffer.getReadPointer (channel);
+            for (int i = 0; i < length; ++i)
+                wet[i] = dry[i] + mixRamp[(size_t) i] * (wet[i] - dry[i]);
         }
-        audioReaderSource.reset (newAudioSource.release());
     }
-}
-
-bool PlaybackManager::getIsPlaying()
-{
-    return isPlayingNoise;
-}
-
-float PlaybackManager::getBandwidth()
-{
-    return bandwidth;
-}
-
-std::vector<float> PlaybackManager::getCurrPlayingFreqs()
-{
-//    return checkerboardPlayer.getCurrSolodFreqs();
-   // return {}; // for checkerboard player
-    return glyphGridPlayer.getCurrPlayingFreqs();
-//    return
-//    return gridSequencer.getCurrPlayingFreqs();
-}
-
-std::vector<std::pair<float, float>> PlaybackManager::getCurrPlayingFreqsAndVols()
-{
-//    return {}; // for checkerboard player
-    return glyphGridPlayer.getCurrPlayingFreqsAndVols();
-}
-
-void PlaybackManager::timerCallback()
-{
-    systemVolume = juce::SystemAudioVolume::isMuted() ? 0.0f : juce::SystemAudioVolume::getGain();
-}
-
-void PlaybackManager::changeListenerCallback (juce::ChangeBroadcaster* source)
-{
-    if (source == &audioTransportSource)
-    {
-        listener->audioFilePlayingChanged (audioTransportSource.isPlaying());
-    }
-}
-
-std::pair<float, float> PlaybackManager::getNextSample()
-{
-//     return checkerboardPlayer.getNextSample();
-    auto sample = glyphGridPlayer.getNextSample();
-//    std::cout << "sample: " << sample.first << ", " << sample.second << std::endl;
-    
-//    return sample;
-//    return gridSequencer.getNextSample();
-}
-
-void PlaybackManager::setCrossfeedDelaySamples (int samples)
-{
-    crossfeedProcessor.setDelaySamples(samples);
-}
-
-void PlaybackManager::setCrossfeedVolume (float volume)
-{
-    crossfeedProcessor.setCrossfeedVolume(volume);
-}
-
-void PlaybackManager::setCrossfeedEnabled (bool enabled)
-{
-    crossfeedProcessor.setEnabled(enabled);
 }

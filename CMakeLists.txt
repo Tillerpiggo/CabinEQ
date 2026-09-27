@@ -18,16 +18,7 @@ set(CABINEQ_RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources" CACHE PATH "Fo
 
 set(resourceNames
     CabinEQIconEighty.png
-    EllipsisIcon.png
-    Inter.ttf
-    MuteIcon.png
-    NextButtonIcon.png
-    PauseButtonIcon.png
-    PlayButtonIcon.png
-    PlusIcon.png
-    PrevButtonIcon.png
-    QuestionMarkIcon.png
-    SpeakerIcon.png)
+    Inter.ttf)
 
 set(resourceFiles)
 set(missingResources)
@@ -67,57 +58,15 @@ juce_add_plugin(CabinEQ
 juce_generate_juce_header(CabinEQ)
 
 target_sources(CabinEQ PRIVATE
-    Source/AddProfileButton.cpp
-    Source/AnimatedGlyph.cpp
-    Source/ArbitraryResponseFilter.cpp
-    Source/ArchetypalGlyph.cpp
-    Source/ArchetypeBar.cpp
-    Source/ArchetypeView.cpp
     Source/BandEqCurve.cpp
     Source/BandProfile.cpp
-    Source/BuildableComponent.cpp
     Source/CabinEqAudioProcessor.cpp
-    Source/CabinEqPage.cpp
     Source/CabinEqProcessorEditor.cpp
     Source/CabinEqProfile.cpp
     Source/CabinEqProfileManager.cpp
-    Source/CabinPeqGraph.cpp
     Source/CabinStandalone.cpp
-    Source/CalibrationView.cpp
-    Source/Checkerboard.cpp
-    Source/CheckerboardManager.cpp
-    Source/CheckerboardPlayer.cpp
-    Source/CheckerboardView.cpp
-    Source/ContactUsBanner.cpp
-    Source/CrossfeedControl.cpp
     Source/CrossfeedProcessor.cpp
-    Source/Curve.cpp
-    Source/ElevationCalibration.cpp
-    Source/ElevationCalibrationManager.cpp
-    Source/ElevationCalibrationPlayer.cpp
-    Source/FreeTrialBanner.cpp
-    Source/FreeTrialLockScreen.cpp
-    Source/GainEnvelope.cpp
-    Source/Glyph.cpp
-    Source/GlyphGenerator.cpp
-    Source/GlyphGridPlayer.cpp
-    Source/GlyphGridView.cpp
-    Source/GlyphManager.cpp
-    Source/GlyphView.cpp
-    Source/Layout.cpp
-    Source/MusicList2.cpp
-    Source/NoiseGenerator.cpp
-    Source/NoiseSource.cpp
-    Source/PatternEnvelope.cpp
-    Source/PlaybackManager.cpp
-    Source/ProfileList.cpp
-    Source/ProfileRow.cpp
-    Source/ProfileView.cpp
-    Source/Row.cpp
-    Source/RowPlayer.cpp
-    Source/SquareGenerator.cpp
-    Source/Stroke.cpp
-    Source/TutorialButton.cpp)
+    Source/PlaybackManager.cpp)
 
 # The jucer's project defines and JUCE module options
 target_compile_definitions(CabinEQ PUBLIC
@@ -126,9 +75,8 @@ target_compile_definitions(CabinEQ PUBLIC
     JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1
     JUCE_STRICT_REFCOUNTEDPOINTER=1
     JUCE_VST3_CAN_REPLACE_VST2=0
-    JUCE_USE_MP3AUDIOFORMAT=1
-    JUCE_USE_LAME_AUDIO_FORMAT=1
-    JUCE_USE_WINDOWS_MEDIA_FORMAT=1)
+    JUCE_WEB_BROWSER=0
+    JUCE_USE_CURL=0)
 
 # The jucer's Release configuration uses fast math
 target_compile_options(CabinEQ PRIVATE $<$<CONFIG:Release>:-ffast-math>)
@@ -138,18 +86,14 @@ target_link_libraries(CabinEQ
         CabinEQ_BinaryData
         juce::juce_audio_basics
         juce::juce_audio_devices
-        juce::juce_audio_formats
         juce::juce_audio_processors
         juce::juce_audio_utils
         juce::juce_core
-        juce::juce_cryptography
         juce::juce_data_structures
         juce::juce_dsp
         juce::juce_events
         juce::juce_graphics
         juce::juce_gui_basics
         juce::juce_gui_extra
-        juce::juce_opengl
-        juce::juce_product_unlocking
     PUBLIC
         juce::juce_recommended_config_flags)
