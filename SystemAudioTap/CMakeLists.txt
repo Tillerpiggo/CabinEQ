@@ -3,19 +3,24 @@ cmake_minimum_required(VERSION 3.22)
 # Process taps need macOS 14.2+
 set(CMAKE_OSX_DEPLOYMENT_TARGET "14.2" CACHE STRING "")
 
-project(CabinEQSystem VERSION 0.1.0 LANGUAGES C CXX)
+project(CabinEQSystem VERSION 1.0.0 LANGUAGES C CXX)
 
 set(JUCE_DIR "$ENV{HOME}/JUCE" CACHE PATH "Path to JUCE")
 add_subdirectory(${JUCE_DIR} JUCE)
 
 juce_add_gui_app(CabinEQSystem
     PRODUCT_NAME "CabinEQ System"
+    COMPANY_NAME "Cabin Audio"
+    COMPANY_WEBSITE "https://cabinaudio.com"
+    COMPANY_COPYRIGHT "Copyright 2026 Cabin Audio"
     BUNDLE_ID "com.julianmcomie.cabineqsystem"
     # Resources/make-icon.py draws this
     ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/CabinEQSystemIcon.png"
     # Without this usage string macOS never asks for the permission, and the tap just delivers silence.
     PLIST_TO_MERGE [[
         <plist><dict>
+            <key>LSMinimumSystemVersion</key>
+            <string>14.2</string>
             <key>NSAudioCaptureUsageDescription</key>
             <string>CabinEQ System runs all system audio through CabinEQ.</string>
         </dict></plist>
@@ -50,6 +55,7 @@ add_custom_command(TARGET CabinEQSystem POST_BUILD
     VERBATIM)
 
 target_compile_definitions(CabinEQSystem PRIVATE
+    CABINEQ_SYSTEM_VERSION="${PROJECT_VERSION}"
     JUCE_PLUGINHOST_VST3=1
     JUCE_PLUGINHOST_AU=1
     JUCE_MODAL_LOOPS_PERMITTED=1

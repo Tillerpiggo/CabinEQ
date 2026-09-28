@@ -44,8 +44,10 @@ juce_add_binary_data(CabinEQ_BinaryData SOURCES ${resourceFiles})
 # here replaces the installed plugin in place.
 juce_add_plugin(CabinEQ
     PRODUCT_NAME "CabinEQ"
-    COMPANY_NAME "yourcompany"
-    COMPANY_WEBSITE "www.yourcompany.com"
+    # What DAWs show as the maker. The bundle ID and codes below are what identify the plugin, and stay the same.
+    COMPANY_NAME "Cabin Audio"
+    COMPANY_WEBSITE "https://cabinaudio.com"
+    COMPANY_COPYRIGHT "Copyright 2026 Cabin Audio"
     BUNDLE_ID "com.yourcompany.CabinEQ"
     PLUGIN_MANUFACTURER_CODE Manu
     PLUGIN_CODE Tuqj

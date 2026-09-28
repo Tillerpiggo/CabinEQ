@@ -79,3 +79,28 @@ build/CabinEQ_Tests_artefacts/Release/CabinEQ_Tests --snapshot ui.png   # render
   draws exactly what you hear.
 - UI: `CabinEqPage` holds `ProfileList`, `CabinPeqGraph` and `BandInspector`, styled by
   `CabinEqLookAndFeel` and `Theme`.
+
+## Making a release
+
+```
+./package.sh
+```
+
+This makes `dist/CabinEQ-System-<version>.dmg`, which is ready to share: CabinEQ System, with CabinEQ built into it,
+for Apple silicon and Intel, on macOS 14.2 or later. It builds and tests everything, and signs the plugin and
+app with the Developer ID certificate and the hardened runtime (`packaging/CabinEQSystem.entitlements`). It
+notarizes and staples the app and the disk image, and checks them the way Gatekeeper will on a Mac that's never
+seen them. The disk image opens to a window with an arrow to drag the app into Applications.
+
+The first time, save your App Store Connect login for notarizing (it needs an app-specific password from
+account.apple.com):
+
+```
+xcrun notarytool store-credentials "CabinEQ" --apple-id <your Apple ID> --team-id E88BK26E9L
+```
+
+It also needs `dmgbuild` (`python3 -m pip install --user dmgbuild`). `./package.sh --no-notarize` does
+everything but notarizing. The version comes from `SystemAudioTap/CMakeLists.txt`.
+
+Opened from Applications, the app uses the CabinEQ inside it; its setup checklist offers to install that for
+DAWs too. A development build (from `update.sh`) uses the one in `~/Library/Audio/Plug-Ins/VST3`.

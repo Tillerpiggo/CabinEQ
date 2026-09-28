@@ -74,9 +74,58 @@ Engine::~Engine()
     deviceListener.reset();
 }
 
-juce::File Engine::getDefaultPluginFile()
+juce::File Engine::getBundledPluginFile()
+{
+    // A packaged CabinEQ System carries its own copy of CabinEQ, so it works without installing anything
+    return juce::File::getSpecialLocation (juce::File::currentApplicationFile).getChildFile ("Contents/PlugIns/CabinEQ.vst3");
+}
+
+juce::File Engine::getInstalledPluginFile()
 {
     return juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile ("Library/Audio/Plug-Ins/VST3/CabinEQ.vst3");
+}
+
+juce::File Engine::getDefaultPluginFile()
+{
+    // The copy inside the app if it has one; otherwise the installed one (what a development build uses)
+    const auto bundled = getBundledPluginFile();
+    return bundled.isDirectory() ? bundled : getInstalledPluginFile();
+}
+
+bool Engine::isUsingBundledPlugin() const
+{
+    return pluginFile == getBundledPluginFile();
+}
+
+bool Engine::canInstallPluginForDAWs() const
+{
+    return getBundledPluginFile().isDirectory();
+}
+
+bool Engine::isPluginInstalledForDAWs() const
+{
+    return getInstalledPluginFile().isDirectory();
+}
+
+bool Engine::installPluginForDAWs()
+{
+    // Copies CabinEQ into the user's VST3 folder, so DAWs find it too
+    const auto source = getBundledPluginFile(), destination = getInstalledPluginFile();
+    if (! source.isDirectory())
+        return false;
+
+    destination.getParentDirectory().createDirectory();
+    const auto temporary = destination.getSiblingFile ("CabinEQ.vst3.installing");
+    temporary.deleteRecursively();
+    if (! source.copyDirectoryTo (temporary))
+        return false;
+
+    destination.deleteRecursively();
+    const bool moved = temporary.moveFileTo (destination);
+    if (log != nullptr)
+        log->logMessage (moved ? "Installed CabinEQ for DAWs at " + destination.getFullPathName() : "Couldn't install CabinEQ for DAWs");
+    updateStatus();
+    return moved;
 }
 
 //==============================================================================

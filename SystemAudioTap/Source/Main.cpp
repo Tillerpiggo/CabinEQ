@@ -501,7 +501,7 @@ class CabinEQSystemApplication : public juce::JUCEApplication
 {
 public:
     const juce::String getApplicationName() override    { return "CabinEQ System"; }
-    const juce::String getApplicationVersion() override { return "0.1.0"; }
+    const juce::String getApplicationVersion() override { return CABINEQ_SYSTEM_VERSION; }
     bool moreThanOneInstanceAllowed() override           { return getCommandLineParameters().contains ("--snapshot"); }
 
     void initialise (const juce::String&) override
