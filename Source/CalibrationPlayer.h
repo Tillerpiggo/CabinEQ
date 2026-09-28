@@ -16,9 +16,10 @@
 
     If some positions are selected, only those play.
 
-    In spots mode it plays 2 or 3 spots instead of the grid, each with its own pan.
-    Each spot plays from its own frequency (a sharp low cut) up to 20 kHz. You place
-    them on the EQ graph.
+    In spots mode it plays 2 to 4 spots instead of the grid, which you place on the EQ
+    graph. Each spot plays from its own frequency (a sharp low cut) up to 20 kHz. They
+    share a pan range: with more than one pan step, each spot plays at that many
+    positions across it, left to right, and at each one does its whole depth run.
 
     The setters can be called from any thread; process() is for the audio thread.
 
@@ -41,7 +42,8 @@ public:
     static constexpr int defaultColumns = 5;
     static constexpr int maxDepth = 5;
     static constexpr float minRate = 0.5f, maxRate = 8.0f, defaultRate = 2.5f; // bursts per second
-    static constexpr int maxSpots = 3;
+    static constexpr int maxSpots = 4;
+    static constexpr int maxPanSteps = 5;
 
     enum class Mode { grid = 0, spots = 1 };
     static constexpr float depthStepDb = 10.0f;
@@ -65,14 +67,20 @@ public:
     Mode getMode() const                 { return (Mode) mode.load(); }
     void setSpotCount (int count)        { spotCount = juce::jlimit (1, maxSpots, count); }
 
-    /// A spot's base frequency (its low cut; 20 Hz or below means none) and pan, -1 (left) to 1 (right)
-    void setSpot (int index, float frequency, float pan)
+    /// A spot's base frequency: its low cut (20 Hz or below means none)
+    void setSpot (int index, float frequency)
     {
-        if (index < 0 || index >= maxSpots)
-            return;
-        spotFrequency[(size_t) index] = frequency;
-        spotPan[(size_t) index] = juce::jlimit (-1.0f, 1.0f, pan);
+        if (index >= 0 && index < maxSpots)
+            spotFrequency[(size_t) index] = frequency;
     }
+
+    /// The pan range the spots play across, -1 (left) to 1 (right), and in how many steps
+    void setPanRange (float low, float high)
+    {
+        panLow = juce::jlimit (-1.0f, 1.0f, std::min (low, high));
+        panHigh = juce::jlimit (-1.0f, 1.0f, std::max (low, high));
+    }
+    void setPanSteps (int steps)         { panSteps = juce::jlimit (1, maxPanSteps, steps); }
 
     void setGrid (int rows, int columns)
     {
@@ -231,7 +239,9 @@ private:
             anySelected = isSelected (p);
 
         // Play the same position again, louder, until it's played `depth` times
-        const int timesEach = depth.load();
+        const int depthRuns = depth.load();
+        const int panPositions = spots ? panSteps.load() : 1;
+        const int timesEach = depthRuns * panPositions; // a depth run at each pan position
         const bool canRepeat = position >= 0 && position < count && (! anySelected || isSelected (position));
         if (canRepeat && repeat + 1 < timesEach)
         {
@@ -258,7 +268,12 @@ private:
         double cutoff;
         if (spots)
         {
-            pan = 0.5f * (spotPan[(size_t) position].load() + 1.0f);
+            // Left to right across the range, one pan position per depth run
+            const float low = panLow.load(), high = panHigh.load();
+            const int panIndex = repeat / depthRuns;
+            const float spread = panPositions > 1 ? low + (high - low) * (float) panIndex / (float) (panPositions - 1)
+                                                  : 0.5f * (low + high);
+            pan = 0.5f * (spread + 1.0f);
             cutoff = spotFrequency[(size_t) position].load();
             if (cutoff <= 20.0)
                 cutoff = 0.0;
@@ -299,7 +314,7 @@ private:
         }
 
         // Quietest first: each repeat is 10 dB louder, ending at full level
-        voice->peak *= juce::Decibels::decibelsToGain (-depthStepDb * (float) (timesEach - 1 - repeat));
+        voice->peak *= juce::Decibels::decibelsToGain (-depthStepDb * (float) (depthRuns - 1 - repeat % depthRuns));
 
         voice->age = 0;
         voice->active = true;
@@ -328,9 +343,9 @@ private:
     std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
-    std::atomic<int> mode { (int) Mode::grid }, spotCount { 3 };
-    std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f };
-    std::array<std::atomic<float>, maxSpots> spotPan { 0.0f, 0.0f, 0.0f };
+    std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
+    std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
+    std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };
     std::atomic<bool> playing { false };
     std::atomic<int> currentPosition { -1 };
 

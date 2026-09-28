@@ -237,9 +237,22 @@ void CabinEqLookAndFeel::positionComboBoxText (juce::ComboBox& box, juce::Label&
 }
 
 //==============================================================================
-void CabinEqLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos, float,
-                                           float, juce::Slider::SliderStyle style, juce::Slider& slider)
+void CabinEqLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos, float minSliderPos,
+                                           float maxSliderPos, juce::Slider::SliderStyle style, juce::Slider& slider)
 {
+    if (style == juce::Slider::TwoValueHorizontal)
+    {
+        auto track = juce::Rectangle<float> ((float) x, (float) y + height * 0.5f - 2.0f, (float) width, 4.0f);
+        g.setColour (Theme::raised);
+        g.fillRoundedRectangle (track, 2.0f);
+        g.setColour (slider.isEnabled() ? Theme::accent : Theme::textFaint);
+        g.fillRoundedRectangle (track.withLeft (minSliderPos).withRight (std::max (minSliderPos + 4.0f, maxSliderPos)), 2.0f);
+        g.setColour (slider.isEnabled() ? Theme::text : Theme::textDim);
+        for (float position : { minSliderPos, maxSliderPos })
+            g.fillEllipse (juce::Rectangle<float> (14.0f, 14.0f).withCentre ({ position, track.getCentreY() }));
+        return;
+    }
+
     if (style == juce::Slider::LinearVertical)
     {
         auto track = juce::Rectangle<float> ((float) x + width * 0.5f - 2.0f, (float) y, 4.0f, (float) height);

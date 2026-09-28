@@ -852,7 +852,7 @@ public:
             expectWithinAbsoluteError ((float) state.getProperty ("graphHighFrequency"), 20000.0f, 0.1f);
         }
 
-        beginTest ("The end spots resize the group, the middle one moves it, and two spots have a grip");
+        beginTest ("The end spots resize the group around its middle, the middle one moves it, and two spots have a grip");
         {
             auto& state = processor.parameters.state;
             auto& player = processor.getCalibration();
@@ -865,35 +865,47 @@ public:
                 graph.mouseDrag (event (graph, to, from, juce::ModifierKeys::leftButtonModifier));
                 graph.mouseUp (event (graph, to, from, {}));
             };
-            auto frequency = [&state] (int spot) { return CalibrationSettings::getSpot (state, spot).frequency; };
+            auto frequency = [&state] (int spot) { return CalibrationSettings::getSpotFrequency (state, spot); };
+            auto place = [&] (std::vector<float> frequencies)
+            {
+                for (size_t i = 0; i < frequencies.size(); ++i)
+                    CalibrationSettings::setSpotFrequency (state, player, (int) i, frequencies[i]);
+            };
 
             expectEquals (CalibrationSettings::getSpotCount (state), 3, "three spots to start with");
-            CalibrationSettings::setSpot (state, player, 0, { 200.0f, 0.0f });
-            CalibrationSettings::setSpot (state, player, 1, { 1000.0f, 0.0f });
-            CalibrationSettings::setSpot (state, player, 2, { 5000.0f, 0.0f });
+            expect (CalibrationSettings::getMode (state) == CalibrationPlayer::Mode::spots, "on the graph to start with");
+            place ({ 200.0f, 1000.0f, 5000.0f });
             graph.setCalibrationSpotsVisible (true);
 
-            // The top spot's chip, 5 kHz to 10 kHz: the bottom stays, the middle keeps its place between them
+            // The top spot's chip, 5 kHz to 10 kHz: the middle spot stays, and the bottom spreads out to match
             dragFromTo ({ xFor (5000.0f), chipY }, { xFor (10000.0f), chipY });
             expectWithinAbsoluteError (frequency (2), 10000.0f, 150.0f);
-            expectWithinAbsoluteError (frequency (0), 200.0f, 0.01f, "the bottom stayed put");
-            expectWithinAbsoluteError (frequency (1), 1414.2f, 25.0f, "the middle stayed halfway (in octaves)");
+            expectWithinAbsoluteError (frequency (1), 1000.0f, 0.5f, "the middle stayed put");
+            expectWithinAbsoluteError (frequency (0), 100.0f, 2.0f, "the bottom went out as far (in octaves)");
 
             // The middle spot's line moves them all by the same ratio
-            dragFromTo ({ xFor (1414.2f), lineY }, { xFor (1414.2f * 1.5f), lineY });
-            expectWithinAbsoluteError (frequency (0), 300.0f, 6.0f);
+            dragFromTo ({ xFor (1000.0f), lineY }, { xFor (1500.0f), lineY });
+            expectWithinAbsoluteError (frequency (0), 150.0f, 3.0f);
             expectWithinAbsoluteError (frequency (2), 15000.0f, 300.0f);
 
-            // The bottom spot's chip: the top stays
-            dragFromTo ({ xFor (300.0f), chipY }, { xFor (150.0f), chipY });
-            expectWithinAbsoluteError (frequency (0), 150.0f, 3.0f);
-            expectWithinAbsoluteError (frequency (2), 15000.0f, 300.0f, "the top stayed put");
+            // The bottom spot's chip, dragged in: the top comes in to match, the middle stays
+            dragFromTo ({ xFor (150.0f), chipY }, { xFor (300.0f), chipY });
+            expectWithinAbsoluteError (frequency (0), 300.0f, 6.0f);
+            expectWithinAbsoluteError (frequency (1), 1500.0f, 1.0f, "the middle stayed put");
+            expectWithinAbsoluteError (frequency (2), 7500.0f, 150.0f);
             expectEquals (profile.getSelectedProfile().getNumBands(), 0, "and none of that added a band");
+
+            // Four spots spread out between the ends; the inner ones move them
+            CalibrationSettings::setSpotCount (state, player, 4);
+            expectWithinAbsoluteError (frequency (0), 300.0f, 6.0f);
+            expectWithinAbsoluteError (frequency (3), 7500.0f, 150.0f);
+            const float inner = frequency (1);
+            dragFromTo ({ xFor (inner), lineY }, { xFor (inner * 0.5f), lineY });
+            expectWithinAbsoluteError (frequency (0), 150.0f, 4.0f, "an inner spot moved them all");
 
             // Two spots: the grip between them moves both
             CalibrationSettings::setSpotCount (state, player, 2);
-            CalibrationSettings::setSpot (state, player, 0, { 200.0f, 0.0f });
-            CalibrationSettings::setSpot (state, player, 1, { 800.0f, 0.0f });
+            place ({ 200.0f, 800.0f });
             dragFromTo ({ xFor (400.0f), chipY }, { xFor (800.0f), chipY });
             expectWithinAbsoluteError (frequency (0), 400.0f, 8.0f);
             expectWithinAbsoluteError (frequency (1), 1600.0f, 32.0f, "both moved by the same ratio");
@@ -955,6 +967,7 @@ public:
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::grid);
             player.setGrid (3, 5);
             player.setLevelDb (-20.0f);
             player.setRate (1.0f / 0.3f);
@@ -986,6 +999,7 @@ public:
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::grid);
             player.setGrid (3, 5);
             player.setSelection ({ 2, 7, 12 });
             player.setRate (1.0f / 0.3f);
@@ -1014,7 +1028,8 @@ public:
             {
                 CalibrationPlayer player;
                 player.prepare (sampleRate);
-                player.setGrid (3, 1);
+                player.setMode (CalibrationPlayer::Mode::grid);
+            player.setGrid (3, 1);
                 player.setSelection ({ row });
                 player.setPlaying (true);
                 juce::AudioBuffer<float> buffer (2, (int) sampleRate);
@@ -1040,6 +1055,7 @@ public:
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::grid);
             player.setGrid (1, 2);
             player.setDepth (3);
             player.setRate (1.0f / 0.3f);
@@ -1064,6 +1080,7 @@ public:
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::grid);
             player.setGrid (1, 12);
             player.setRate (4.0f);
             player.setPlaying (true);
@@ -1073,14 +1090,15 @@ public:
             expectEquals (player.getCurrentPosition(), 7, "8 bursts in 2 s at 4 per second");
         }
 
-        beginTest ("Spots mode plays each spot in turn, at its own frequency and pan");
+        beginTest ("Spots mode plays each spot in turn, across the pan range");
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
             player.setMode (CalibrationPlayer::Mode::spots);
             player.setSpotCount (2);
-            player.setSpot (0, 500.0f, -1.0f); // hard left
-            player.setSpot (1, 3000.0f, 1.0f); // hard right
+            player.setSpot (0, 500.0f);
+            player.setSpot (1, 3000.0f);
+            player.setPanRange (-1.0f, -1.0f); // hard left
             player.setRate (1.0f / 0.3f);
             player.setPlaying (true);
 
@@ -1101,6 +1119,40 @@ public:
             expect (heard == std::vector<int> { 1, 0, 1 }, "it goes back and forth between the two");
         }
 
+        beginTest ("Pan steps sweep each spot across the range, each with its depth run");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::spots);
+            player.setSpotCount (2);
+            player.setPanRange (-1.0f, 1.0f);
+            player.setPanSteps (3);
+            player.setDepth (2);
+            player.setRate (1.0f / 0.3f);
+            player.setPlaying (true);
+
+            std::vector<int> positions;
+            std::vector<float> lefts, rights, levels;
+            for (int burst = 0; burst < 7; ++burst)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                positions.push_back (player.getCurrentPosition());
+                const int start = (int) (0.005 * sampleRate), length = (int) (0.02 * sampleRate);
+                lefts.push_back (buffer.getRMSLevel (0, start, length));
+                rights.push_back (buffer.getRMSLevel (1, start, length));
+                levels.push_back (juce::Decibels::gainToDecibels (std::max (lefts.back(), rights.back())));
+            }
+
+            expect (positions == std::vector<int> { 0, 0, 0, 0, 0, 0, 1 }, "six bursts for A (3 pans x 2 depths), then B");
+            // Look at the loud burst of each depth run (the quiet one is under the last one's tail)
+            expectGreaterThan (lefts[1], rights[1] * 10.0f, "it starts on the left");
+            expectWithinAbsoluteError (lefts[3] / rights[3], 1.0f, 0.5f, "the middle step is in the centre");
+            expectGreaterThan (rights[5], lefts[5] * 3.0f, "and ends on the right");
+            expectWithinAbsoluteError (levels[1] - levels[0], 10.0f, 3.0f, "each pan position does its depth run, quiet then loud");
+        }
+
         beginTest ("Each spot plays from its frequency all the way up");
         {
             // How much of the first burst (spot A's) gets through a steep filter at `cut`
@@ -1110,8 +1162,8 @@ public:
                 player.prepare (sampleRate);
                 player.setMode (CalibrationPlayer::Mode::spots);
                 player.setSpotCount (2);
-                player.setSpot (0, spotA, 0.0f);
-                player.setSpot (1, spotB, 0.0f);
+                player.setSpot (0, spotA);
+                player.setSpot (1, spotB);
                 player.setRate (0.5f); // just the one burst in the second we listen to
                 player.setPlaying (true);
                 juce::AudioBuffer<float> buffer (2, (int) sampleRate);
@@ -1141,6 +1193,7 @@ public:
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::grid);
             player.setGrid (3, 5);
             player.setSelection ({ 14 }); // bottom right
             player.setPlaying (true);
@@ -1186,6 +1239,7 @@ public:
     {
         beginTest ("Arrow keys move the selection, Shift+arrow grows it, and the edges stop it");
         CabinEqAudioProcessor processor;
+        processor.parameters.state.setProperty (CalibrationSettings::idMode, (int) CalibrationPlayer::Mode::grid, nullptr);
         CalibrationPanel panel (processor);
         panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
         auto& player = processor.getCalibration();

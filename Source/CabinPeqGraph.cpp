@@ -371,10 +371,10 @@ void CabinPeqGraph::setCalibrationSpotsVisible (bool shouldShow)
 
 juce::Rectangle<float> CabinPeqGraph::spotChip (int index) const
 {
-    const auto spot = CalibrationSettings::getSpot (processor.parameters.state, index);
-    const auto text = CalibrationSettings::spotName (index) + "  " + Format::frequency (spot.frequency);
+    const float frequency = CalibrationSettings::getSpotFrequency (processor.parameters.state, index);
+    const auto text = CalibrationSettings::spotName (index) + "  " + Format::frequency (frequency);
     const float width = Theme::textWidth (Theme::font (11.5f, true), text) + 18.0f;
-    return juce::Rectangle<float> (width, 20.0f).withCentre ({ xForFrequency (spot.frequency), getPlotArea().getBottom() - 16.0f });
+    return juce::Rectangle<float> (width, 20.0f).withCentre ({ xForFrequency (frequency), getPlotArea().getBottom() - 16.0f });
 }
 
 void CabinPeqGraph::beginSpotDrag (int spot, float x)
@@ -382,7 +382,7 @@ void CabinPeqGraph::beginSpotDrag (int spot, float x)
     const auto& state = processor.parameters.state;
     const int count = CalibrationSettings::getSpotCount (state);
     for (int i = 0; i < CalibrationPlayer::maxSpots; ++i)
-        spotFrequenciesAtDragStart[(size_t) i] = CalibrationSettings::getSpot (state, i).frequency;
+        spotFrequenciesAtDragStart[(size_t) i] = CalibrationSettings::getSpotFrequency (state, i);
     spotDragAnchor = frequencyForX (x);
 
     // Which end it is, if it's an end
@@ -411,7 +411,7 @@ juce::Rectangle<float> CabinPeqGraph::spotGrip() const
     const auto& state = processor.parameters.state;
     if (! showSpots || CalibrationSettings::getSpotCount (state) != 2)
         return {};
-    const float a = CalibrationSettings::getSpot (state, 0).frequency, b = CalibrationSettings::getSpot (state, 1).frequency;
+    const float a = CalibrationSettings::getSpotFrequency (state, 0), b = CalibrationSettings::getSpotFrequency (state, 1);
     return juce::Rectangle<float> (30.0f, 18.0f).withCentre ({ xForFrequency (std::sqrt (a * b)), getPlotArea().getBottom() - 16.0f });
 }
 
@@ -420,7 +420,7 @@ int CabinPeqGraph::spotLineAt (juce::Point<float> position) const
     if (! showSpots || ! getPlotArea().contains (position))
         return -1;
     for (int i = CalibrationSettings::getSpotCount (processor.parameters.state); --i >= 0;)
-        if (std::abs (xForFrequency (CalibrationSettings::getSpot (processor.parameters.state, i).frequency) - position.x) <= 5.0f)
+        if (std::abs (xForFrequency (CalibrationSettings::getSpotFrequency (processor.parameters.state, i)) - position.x) <= 5.0f)
             return i;
     return -1;
 }
@@ -466,8 +466,8 @@ void CabinPeqGraph::drawSpots (juce::Graphics& g)
 
     for (int i = 0; i < CalibrationSettings::getSpotCount (state); ++i)
     {
-        const auto spot = CalibrationSettings::getSpot (state, i);
-        const float x = xForFrequency (spot.frequency);
+        const float frequency = CalibrationSettings::getSpotFrequency (state, i);
+        const float x = xForFrequency (frequency);
         const auto colour = CalibrationSettings::spotColour (i);
         const bool isPlaying = playing && i == shownSpot;
         const bool isHot = hoverAllSpots || dragMode == DragMode::spotsTogether || dragMode == DragMode::spotsResize;
@@ -494,14 +494,15 @@ void CabinPeqGraph::drawSpots (juce::Graphics& g)
         g.fillRoundedRectangle (chip, 10.0f);
         g.setColour (Theme::graph);
         g.setFont (Theme::font (11.5f, true));
-        g.drawText (CalibrationSettings::spotName (i) + "  " + Format::frequency (spot.frequency), chip, juce::Justification::centred);
+        g.drawText (CalibrationSettings::spotName (i) + "  " + Format::frequency (frequency), chip, juce::Justification::centred);
 
-        // Where they are between the ears, if it's not the middle (they share one pan), over the first
-        if (i == 0 && std::abs (spot.pan) > 0.005f)
+        // Where they are between the ears (they share it), over the first, unless it's just the middle
+        const auto pan = CalibrationSettings::getPanRange (state);
+        if (i == 0 && (pan.getLength() > 0.005f || std::abs (pan.getStart()) > 0.005f))
         {
             g.setColour (colour.withAlpha (0.9f));
             g.setFont (Theme::font (10.5f));
-            g.drawText (CalibrationSettings::describePan (spot.pan), chip.translated (0.0f, -18.0f).withSizeKeepingCentre (60.0f, 14.0f),
+            g.drawText (CalibrationSettings::describePanRange (pan), chip.translated (0.0f, -18.0f).withSizeKeepingCentre (120.0f, 14.0f),
                         juce::Justification::centred);
         }
     }
@@ -1164,34 +1165,43 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 
         const float x = juce::jlimit (getPlotArea().getX(), getPlotArea().getRight(), event.position.x);
         const float moved = frequencyForX (x) / spotDragAnchor;
-        float newLow = low, newHigh = high;
+        const auto lowest = CalibrationSettings::minFrequency, highest = CalibrationSettings::maxFrequency;
+        std::array<float, CalibrationPlayer::maxSpots> result = spotFrequenciesAtDragStart;
 
         if (dragMode == DragMode::spotsTogether)
         {
             // All of them, by the same ratio, as far as the ends can go
-            const float ratio = juce::jlimit (20.0f / low, 16000.0f / high, moved);
-            newLow = low * ratio;
-            newHigh = high * ratio;
-        }
-        else if (spotDragResizesTop)
-        {
-            newHigh = juce::jlimit (low * 1.1f, 16000.0f, high * moved); // the bottom stays put
+            const float ratio = juce::jlimit (lowest / low, highest / high, moved);
+            for (int i = 0; i < count; ++i)
+                result[(size_t) i] = spotFrequenciesAtDragStart[(size_t) i] * ratio;
         }
         else
         {
-            newLow = juce::jlimit (20.0f, high / 1.1f, low * moved); // the top stays put
+            // Spread them out from (or in towards) the middle, which stays put: the middle spot if
+            // there's an odd number, otherwise the point halfway (in octaves) between the ends
+            std::array<float, CalibrationPlayer::maxSpots> sorted = spotFrequenciesAtDragStart;
+            std::sort (sorted.begin(), sorted.begin() + count);
+            const float centre = count % 2 == 1 ? sorted[(size_t) (count / 2)] : std::sqrt (low * high);
+
+            const float end = spotDragResizesTop ? high : low;
+            const float endDistance = std::log (end / centre);
+            if (std::abs (endDistance) > 1.0e-4f)
+            {
+                // How much further from the middle (or nearer to it) everything gets
+                float scale = std::log (end * moved / centre) / endDistance;
+                const float furthestDown = std::log (low / centre), furthestUp = std::log (high / centre);
+                float maxScale = 100.0f;
+                if (furthestUp > 1.0e-4f)   maxScale = std::min (maxScale, std::log (highest / centre) / furthestUp);
+                if (furthestDown < -1.0e-4f) maxScale = std::min (maxScale, std::log (lowest / centre) / furthestDown);
+                scale = juce::jlimit (0.05f, maxScale, scale);
+
+                for (int i = 0; i < count; ++i)
+                    result[(size_t) i] = centre * std::pow (spotFrequenciesAtDragStart[(size_t) i] / centre, scale);
+            }
         }
 
-        // Every spot keeps its place between the ends (in octaves)
-        const float span = std::log (high / low);
         for (int i = 0; i < count; ++i)
-        {
-            const float start = spotFrequenciesAtDragStart[(size_t) i];
-            const float position = span > 1.0e-4f ? std::log (start / low) / span : (start >= high ? 1.0f : 0.0f);
-            auto spot = CalibrationSettings::getSpot (processor.parameters.state, i);
-            spot.frequency = newLow * std::pow (newHigh / newLow, position);
-            CalibrationSettings::setSpot (processor.parameters.state, processor.getCalibration(), i, spot);
-        }
+            CalibrationSettings::setSpotFrequency (processor.parameters.state, processor.getCalibration(), i, result[(size_t) i]);
         repaint();
         return;
     }

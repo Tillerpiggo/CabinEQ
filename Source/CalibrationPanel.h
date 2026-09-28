@@ -10,8 +10,9 @@
     arrow keys (Shift+arrow to add the next one). It has its own volume, and a
     depth that plays each position several times, getting louder.
 
-    "On graph" plays 2 or 3 spots instead, each from its base frequency (a sharp
-    low cut) up to 20 kHz, all with the same pan. They show on the EQ graph, where you can drag
+    "On graph", the default, plays 2 to 4 spots instead, each from its base frequency
+    (a sharp low cut) up to 20 kHz. You shape them on the EQ graph. They share a pan
+    range, and pan steps (which stack with depth) sweep them across it. They show on the EQ graph, where you can drag
     them, so you can line them up with the bands exactly.
 
   ==============================================================================
@@ -65,16 +66,11 @@ private:
     juce::Rectangle<int> rowsCaption, columnsCaption;
 
     juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" };
-    juce::TextButton twoSpotsButton { "2 spots" }, threeSpotsButton { "3 spots" };
-
-    struct SpotControls
-    {
-        std::unique_ptr<ValueField> frequency;
-        juce::Rectangle<int> row;
-    };
-    std::array<SpotControls, CalibrationPlayer::maxSpots> spotControls;
-    juce::Slider spotsPan; // one pan for all of them
-    juce::Rectangle<int> spotsArea;
+    std::array<juce::TextButton, CalibrationPlayer::maxSpots - 1> spotCountButtons; // 2, 3 and 4 spots
+    juce::Slider spotsPan;       // the pan range they all share, with two thumbs
+    juce::Slider panStepsSlider; // how many positions across it
+    juce::Label panStepsLabel;
+    juce::Rectangle<int> spotsArea, spotDots;
 
     juce::Rectangle<int> gridArea;
     int hoverPosition = -1, shownPosition = -1;

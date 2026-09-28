@@ -89,57 +89,49 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     for (auto* button : { &playButton, &allButton, &closeButton })
         addAndMakeVisible (button);
 
-    // Grid, or spots on the EQ graph
-    for (auto* button : { &gridModeButton, &spotsModeButton })
+    // Spots on the EQ graph, or the grid
+    for (auto* button : { &spotsModeButton, &gridModeButton })
     {
         button->setClickingTogglesState (false);
         addAndMakeVisible (*button);
     }
     gridModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::grid); };
     spotsModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::spots); };
-    spotsModeButton.setTooltip ("Play 2 or 3 spots that you place on the EQ graph, for lining up with bands exactly");
+    spotsModeButton.setTooltip ("Play 2 to 4 spots that you place on the EQ graph, for lining up with bands exactly");
 
-    twoSpotsButton.onClick = [this] { CalibrationSettings::setSpotCount (processor.parameters.state, player, 2); refreshSpots(); };
-    threeSpotsButton.onClick = [this] { CalibrationSettings::setSpotCount (processor.parameters.state, player, 3); refreshSpots(); };
-    addChildComponent (twoSpotsButton);
-    addChildComponent (threeSpotsButton);
-
-    for (int i = 0; i < CalibrationPlayer::maxSpots; ++i)
+    for (int count = 2; count <= CalibrationPlayer::maxSpots; ++count)
     {
-        auto& controls = spotControls[(size_t) i];
-        controls.frequency = std::make_unique<ValueField> ("Base frequency", 20.0, 16000.0, 1000.0, ValueField::Scale::logarithmic);
-        controls.frequency->format = [] (double v) { return Format::frequency (v); };
-        controls.frequency->parse = Format::parseFrequency;
-        controls.frequency->setAccentColour (CalibrationSettings::spotColour (i));
-        controls.frequency->setTooltip ("Where it starts: it plays everything from here up. You can also drag it on the graph.");
-        controls.frequency->onValueChange = [this, i] (double v)
-        {
-            auto spot = CalibrationSettings::getSpot (processor.parameters.state, i);
-            spot.frequency = (float) v;
-            CalibrationSettings::setSpot (processor.parameters.state, player, i, spot);
-        };
-        addChildComponent (*controls.frequency);
-
+        auto& button = spotCountButtons[(size_t) (count - 2)];
+        button.setButtonText (juce::String (count) + " spots");
+        button.onClick = [this, count] { CalibrationSettings::setSpotCount (processor.parameters.state, player, count); refreshSpots(); };
+        addChildComponent (button);
     }
 
-    // One pan for all the spots
-    spotsPan.setSliderStyle (juce::Slider::LinearHorizontal);
+    // The pan range the spots play across (two thumbs), and in how many steps
+    spotsPan.setSliderStyle (juce::Slider::TwoValueHorizontal);
     spotsPan.setRange (-1.0, 1.0, 0.01);
-    spotsPan.setDoubleClickReturnValue (true, 0.0);
-    spotsPan.setTextBoxStyle (juce::Slider::TextBoxRight, false, 64, 20);
-    spotsPan.textFromValueFunction = [] (double v) { return CalibrationSettings::describePan ((float) v); };
-    spotsPan.setTooltip ("Where the spots are, from your left ear to your right. Double-click for the centre.");
-    spotsPan.updateText();
+    spotsPan.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+    spotsPan.setTooltip ("The range the spots play across, from your left ear to your right. With more than one pan step, they sweep across it.");
     spotsPan.onValueChange = [this]
     {
-        for (int i = 0; i < CalibrationPlayer::maxSpots; ++i)
-        {
-            auto spot = CalibrationSettings::getSpot (processor.parameters.state, i);
-            spot.pan = (float) spotsPan.getValue();
-            CalibrationSettings::setSpot (processor.parameters.state, player, i, spot);
-        }
+        CalibrationSettings::setPanRange (processor.parameters.state, player, (float) spotsPan.getMinValue(), (float) spotsPan.getMaxValue());
+        repaint();
     };
     addChildComponent (spotsPan);
+
+    panStepsSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    panStepsSlider.setRange (1, CalibrationPlayer::maxPanSteps, 1);
+    panStepsSlider.setValue (CalibrationSettings::getPanSteps (processor.parameters.state), juce::dontSendNotification);
+    panStepsSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
+    panStepsSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + ((int) v == 1 ? " step" : " steps"); };
+    panStepsSlider.updateText();
+    panStepsSlider.setTooltip ("Plays each spot at this many positions across the pan range, left to right, each with its whole depth run");
+    panStepsSlider.onValueChange = [this] { CalibrationSettings::setPanSteps (processor.parameters.state, player, (int) panStepsSlider.getValue()); };
+    addChildComponent (panStepsSlider);
+    panStepsLabel.setText ("Pan steps", juce::dontSendNotification);
+    panStepsLabel.setFont (Theme::font (12.0f));
+    panStepsLabel.setColour (juce::Label::textColourId, Theme::textDim);
+    addChildComponent (panStepsLabel);
 
     CalibrationSettings::apply (processor.parameters.state, player);
 
@@ -184,27 +176,22 @@ void CalibrationPanel::refreshSpots()
 
     gridModeButton.setToggleState (! spots, juce::dontSendNotification);
     spotsModeButton.setToggleState (spots, juce::dontSendNotification);
-    twoSpotsButton.setToggleState (count == 2, juce::dontSendNotification);
-    threeSpotsButton.setToggleState (count == 3, juce::dontSendNotification);
+    for (int i = 0; i < (int) spotCountButtons.size(); ++i)
+    {
+        spotCountButtons[(size_t) i].setToggleState (count == i + 2, juce::dontSendNotification);
+        spotCountButtons[(size_t) i].setVisible (spots);
+    }
 
     for (auto* component : std::initializer_list<juce::Component*> { &rowsSlider, &columnsSlider })
         component->setVisible (! spots);
-    twoSpotsButton.setVisible (spots);
-    threeSpotsButton.setVisible (spots);
+    for (auto* component : std::initializer_list<juce::Component*> { &spotsPan, &panStepsSlider, &panStepsLabel })
+        component->setVisible (spots);
 
-    for (int i = 0; i < CalibrationPlayer::maxSpots; ++i)
-    {
-        auto& controls = spotControls[(size_t) i];
-        const bool shown = spots && i < count;
-        controls.frequency->setVisible (shown);
-
-        // The graph may have moved it
-        controls.frequency->setValue (CalibrationSettings::getSpot (processor.parameters.state, i).frequency);
-    }
-
-    spotsPan.setVisible (spots);
+    const auto pan = CalibrationSettings::getPanRange (processor.parameters.state);
     if (! spotsPan.isMouseButtonDown())
-        spotsPan.setValue (CalibrationSettings::getSpot (processor.parameters.state, 0).pan, juce::dontSendNotification);
+    {
+        spotsPan.setMinAndMaxValues (pan.getStart(), pan.getEnd(), juce::dontSendNotification);
+    }
     updateButtons();
 }
 
@@ -413,37 +400,35 @@ void CalibrationPanel::paint (juce::Graphics& g)
 
     if (isShowingSpots())
     {
-        // A row per spot, the playing one lit up
+        // Which spot is playing, as a row of coloured dots
         const int count = CalibrationSettings::getSpotCount (processor.parameters.state);
         for (int i = 0; i < count; ++i)
         {
-            const auto& controls = spotControls[(size_t) i];
+            auto chip = spotDots.withWidth (spotDots.getHeight()).translated (i * (spotDots.getHeight() + 10), 0).toFloat();
             const auto colour = CalibrationSettings::spotColour (i);
             const bool isPlaying = player.isPlaying() && shownPosition == i;
-
             if (isPlaying)
             {
-                g.setColour (colour.withAlpha (0.10f));
-                g.fillRoundedRectangle (controls.row.toFloat().expanded (6.0f, 2.0f), Theme::cornerRadius);
+                g.setColour (colour.withAlpha (0.3f));
+                g.fillEllipse (chip.expanded (4.0f));
             }
-
-            auto chip = controls.row.withWidth (28).toFloat().withSizeKeepingCentre (26.0f, 26.0f);
-            g.setColour (colour);
+            g.setColour (isPlaying ? colour : colour.withAlpha (0.45f));
             g.fillEllipse (chip);
             g.setColour (Theme::graph);
-            g.setFont (Theme::font (13.0f, true));
+            g.setFont (Theme::font (12.0f, true));
             g.drawText (CalibrationSettings::spotName (i), chip, juce::Justification::centred);
-
         }
 
         g.setColour (Theme::textDim);
         g.setFont (Theme::font (12.0f));
         g.drawText ("Pan", spotsPan.getBounds().translated (-40, 0).withWidth (36), juce::Justification::centredRight);
+        g.drawText (CalibrationSettings::describePanRange (CalibrationSettings::getPanRange (processor.parameters.state)),
+                    spotsPan.getBounds().translated (spotsPan.getWidth() + 8, 0).withWidth (120), juce::Justification::centredLeft);
 
         g.setColour (Theme::textFaint);
         g.setFont (Theme::font (11.5f));
         auto hint = spotsArea;
-        g.drawText ("On the graph, drag the lowest or highest spot to resize them, and the middle one to move them.",
+        g.drawText ("On the graph, drag the lowest or highest spot to resize them around the middle, and the middle to move them.",
                     hint.removeFromBottom (18), juce::Justification::centredLeft, true);
         return;
     }
@@ -503,9 +488,9 @@ void CalibrationPanel::resized()
     allButton.setBounds (header.removeFromRight (78).withSizeKeepingCentre (78, 26));
 
     header.removeFromLeft (100); // the title
-    gridModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
-    header.removeFromLeft (4);
     spotsModeButton.setBounds (header.removeFromLeft (84).withSizeKeepingCentre (84, 26));
+    header.removeFromLeft (4);
+    gridModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
 
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));
@@ -517,26 +502,29 @@ void CalibrationPanel::resized()
         slider->setBounds (row.withSizeKeepingCentre (row.getWidth(), 28));
     }
 
-    // Spots mode: how many, then a row each
+    // Spots mode: how many, the pan range, and which one's playing
     spotsArea = area;
     {
         auto spots = area.withTrimmedRight (10);
         auto countRow = spots.removeFromTop (30);
-        twoSpotsButton.setBounds (countRow.removeFromLeft (72).withSizeKeepingCentre (72, 26));
-        countRow.removeFromLeft (4);
-        threeSpotsButton.setBounds (countRow.removeFromLeft (72).withSizeKeepingCentre (72, 26));
-        countRow.removeFromLeft (60); // "Pan"
-        spotsPan.setBounds (countRow.withWidth (std::min (countRow.getWidth(), 320)).withSizeKeepingCentre (std::min (countRow.getWidth(), 320), 28));
-        spots.removeFromTop (6);
-
-        // The spots side by side: A, B, C
-        const int width = std::min (190, spots.getWidth() / CalibrationPlayer::maxSpots);
-        for (auto& controls : spotControls)
+        for (auto& button : spotCountButtons)
         {
-            controls.row = spots.removeFromLeft (width).withHeight (42);
-            auto row = controls.row.withTrimmedLeft (36).withTrimmedRight (12);
-            controls.frequency->setBounds (row.withSizeKeepingCentre (row.getWidth(), 38));
+            button.setBounds (countRow.removeFromLeft (72).withSizeKeepingCentre (72, 26));
+            countRow.removeFromLeft (4);
         }
+        spots.removeFromTop (12);
+
+        auto panRow = spots.removeFromTop (30).withTrimmedLeft (40);
+        spotsPan.setBounds (panRow.withWidth (std::min (panRow.getWidth() - 130, 320)).withSizeKeepingCentre (std::min (panRow.getWidth() - 130, 320), 28));
+        spots.removeFromTop (14);
+        spotDots = spots.removeFromTop (22).withTrimmedLeft (2);
+    }
+
+    // Pan steps sits under depth, which it stacks with
+    {
+        auto row = controls.removeFromTop (36);
+        panStepsLabel.setBounds (row.removeFromLeft (64));
+        panStepsSlider.setBounds (row.withSizeKeepingCentre (row.getWidth(), 28));
     }
 
     // Rows slider up the left, then the rows' cutoffs, then the grid, with columns along the bottom
