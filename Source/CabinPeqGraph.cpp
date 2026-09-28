@@ -195,28 +195,11 @@ std::optional<Band> CabinPeqGraph::bandAt (juce::Point<float> position) const
     return found;
 }
 
-bool CabinPeqGraph::isNearCurve (juce::Point<float> position) const
+bool CabinPeqGraph::isNearZeroLine (juce::Point<float> position) const
 {
-    if (! getPlotArea().contains (position) || (int) bandProfile.getBands().size() >= FilterChain::maxBands)
-        return false;
-
-    const float frequency = frequencyForX (position.x);
-    if (curve.hasChannelSpecificBands())
-    {
-        return std::abs (yForDb (curve.leftDbAtFrequency (frequency)) - position.y) < 8.0f
-            || std::abs (yForDb (curve.rightDbAtFrequency (frequency)) - position.y) < 8.0f;
-    }
-    return std::abs (yForDb (curve.dbAtFrequency (frequency)) - position.y) < 8.0f;
-}
-
-float CabinPeqGraph::curveDbNear (juce::Point<float> position) const
-{
-    const float frequency = frequencyForX (position.x);
-    if (! curve.hasChannelSpecificBands())
-        return curve.dbAtFrequency (frequency);
-
-    const float left = curve.leftDbAtFrequency (frequency), right = curve.rightDbAtFrequency (frequency);
-    return std::abs (yForDb (left) - position.y) < std::abs (yForDb (right) - position.y) ? left : right;
+    return getPlotArea().contains (position)
+        && (int) bandProfile.getBands().size() < FilterChain::maxBands
+        && std::abs (yForDb (0.0f) - position.y) < 8.0f;
 }
 
 std::vector<Band> CabinPeqGraph::getSelectedBands() const
@@ -308,7 +291,7 @@ void CabinPeqGraph::nudge (float octaves, float db)
 //==============================================================================
 float CabinPeqGraph::getDisplayRange() const
 {
-    return juce::jlimit (6.0f, 30.0f, (float) processor.parameters.state.getProperty (idGraphRange, 12.0f));
+    return juce::jlimit (6.0f, 30.0f, (float) processor.parameters.state.getProperty (idGraphRange, 30.0f));
 }
 
 void CabinPeqGraph::setDisplayRange (float db)
@@ -362,7 +345,7 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     {
         g.setColour (Theme::textFaint);
         g.setFont (Theme::font (13.0f));
-        g.drawText ("Click the line to add a band, then drag to shape it",
+        g.drawText ("Click the 0 dB line to add a band, then drag to shape it",
                     getPlotArea().withTrimmedTop (getPlotArea().getHeight() * 0.5f + 24.0f).withHeight (20.0f),
                     juce::Justification::centred);
     }
@@ -609,9 +592,9 @@ void CabinPeqGraph::drawHandles (juce::Graphics& g)
         drawHandle (bands[(size_t) focusedIndex], focusedIndex);
 
     // Where a click would add a band
-    if (hoverId < 0 && hoverIsNearCurve && dragMode == DragMode::none && mouseIsOver)
+    if (hoverId < 0 && hoverIsNearZeroLine && dragMode == DragMode::none && mouseIsOver)
     {
-        const float db = curveDbNear (mousePosition);
+        const float db = 0.0f;
         auto ghost = juce::Rectangle<float> (handleRadius * 2.0f, handleRadius * 2.0f).withCentre ({ mousePosition.x, yForDb (db) });
         g.setColour (Theme::text.withAlpha (0.5f));
         g.drawEllipse (ghost, 1.2f);
@@ -675,14 +658,14 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent& event)
 
     auto band = bandAt (event.position);
     const int newHover = band.has_value() ? band->id : -1;
-    const bool nearCurve = ! band.has_value() && isNearCurve (event.position);
+    const bool nearLine = ! band.has_value() && isNearZeroLine (event.position);
 
-    if (newHover != hoverId || nearCurve != hoverIsNearCurve)
+    if (newHover != hoverId || nearLine != hoverIsNearZeroLine)
     {
         hoverId = newHover;
-        hoverIsNearCurve = nearCurve;
+        hoverIsNearZeroLine = nearLine;
         setMouseCursor (hoverId >= 0 ? juce::MouseCursor::DraggingHandCursor
-                                     : nearCurve ? juce::MouseCursor::CrosshairCursor : juce::MouseCursor::NormalCursor);
+                                     : nearLine ? juce::MouseCursor::CrosshairCursor : juce::MouseCursor::NormalCursor);
     }
     repaint();
 }
@@ -691,7 +674,7 @@ void CabinPeqGraph::mouseExit (const juce::MouseEvent&)
 {
     mouseIsOver = false;
     hoverId = -1;
-    hoverIsNearCurve = false;
+    hoverIsNearZeroLine = false;
     repaint();
 }
 
@@ -712,9 +695,11 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
     {
         if (band.has_value())
         {
+            // Right-click deletes: the whole selection if the band's part of one, otherwise just it
             if (selectedIds.count (band->id) == 0)
                 setSelection ({ band->id }, band->id);
-            showBandMenu (*band);
+            deleteSelectedBands();
+            hoverId = -1;
         }
         else
         {
@@ -731,12 +716,15 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
     {
         if (event.mods.isShiftDown())
         {
-            auto ids = selectedIds;
-            if (ids.count (band->id) > 0)
-                ids.erase (band->id);
-            else
-                ids.insert (band->id);
-            setSelection (ids, ids.count (band->id) > 0 ? band->id : (ids.empty() ? -1 : *ids.rbegin()));
+            // Shift-drag changes the width, of the selection if the band's in it. Shift-click without
+            // dragging adds the band to the selection or takes it out, which mouseUp does.
+            shiftClickedId = band->id;
+            dragMode = DragMode::bands;
+            isChangingWidth = true;
+            lastDragPosition = event.position;
+            dragDistance = {};
+            bandsAtDragStart = selectedIds.count (band->id) > 0 ? getSelectedBands() : std::vector<Band> { *band };
+            hasBegunDragEdit = false;
             return;
         }
 
@@ -745,11 +733,10 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
         else
             setSelection (selectedIds, band->id);
     }
-    else if (hoverIsNearCurve || isNearCurve (event.position))
+    else if (hoverIsNearZeroLine || isNearZeroLine (event.position))
     {
-        // Add a band on the curve, and keep dragging it
-        // Its gain is how far the click is from the curve, so the curve ends up under the mouse
-        bandAddedByLastClick = addBandAt ({ event.position.x, yForDb (0.0f) + (event.position.y - yForDb (curveDbNear (event.position))) }, Band::Shape::peak);
+        // Add a band on the 0 dB line, and keep dragging it
+        bandAddedByLastClick = addBandAt ({ event.position.x, yForDb (0.0f) }, Band::Shape::peak);
         if (bandAddedByLastClick < 0)
             return;
     }
@@ -768,9 +755,8 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
     lastDragPosition = event.position;
     dragDistance = {};
     bandsAtDragStart = getSelectedBands();
-    if (bandAddedByLastClick < 0)
-        beginEdit (isChangingWidth ? "Change width" : "Move bands");
-    hoverIsNearCurve = false;
+    hasBegunDragEdit = bandAddedByLastClick >= 0; // adding a band already started its undo step
+    hoverIsNearZeroLine = false;
     repaint();
 }
 
@@ -793,6 +779,17 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
     if (dragMode != DragMode::bands || bandsAtDragStart.empty())
         return;
 
+    // A shift-click only becomes a width drag once the mouse really moves
+    if (shiftClickedId >= 0 && event.getDistanceFromDragStart() < 3)
+        return;
+    shiftClickedId = -1;
+
+    if (! hasBegunDragEdit)
+    {
+        beginEdit (isChangingWidth ? "Change width" : "Move bands");
+        hasBegunDragEdit = true;
+    }
+
     // Accumulate movement, so Cmd for fine control can come and go mid-drag
     const float fineness = isCommandDown (event.mods) ? 0.15f : 1.0f;
     dragDistance += (event.position - lastDragPosition) * fineness;
@@ -800,18 +797,12 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 
     if (isChangingWidth)
     {
-        changeWidth (bandsAtDragStart, std::exp (-dragDistance.y / 120.0f));
+        // Up makes the band wider (more bandwidth, lower Q)
+        changeWidth (bandsAtDragStart, std::exp (dragDistance.y / 120.0f));
         return;
     }
 
-    auto distance = dragDistance;
-    if (event.mods.isShiftDown()) // keep to whichever axis you've moved along most
-    {
-        if (std::abs (distance.x) > std::abs (distance.y))
-            distance.y = 0.0f;
-        else
-            distance.x = 0.0f;
-    }
+    const auto distance = dragDistance;
 
     const auto plot = getPlotArea();
     const float octavesPerPixel = std::log2 (maxFrequency / minFrequency) / plot.getWidth();
@@ -830,6 +821,17 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 
 void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
 {
+    if (shiftClickedId >= 0)
+    {
+        auto ids = selectedIds;
+        if (ids.count (shiftClickedId) > 0)
+            ids.erase (shiftClickedId);
+        else
+            ids.insert (shiftClickedId);
+        setSelection (ids, ids.count (shiftClickedId) > 0 ? shiftClickedId : (ids.empty() ? -1 : *ids.rbegin()));
+        shiftClickedId = -1;
+    }
+
     dragMode = DragMode::none;
     bandsAtDragStart.clear();
     mouseMove (event);
@@ -906,80 +908,6 @@ bool CabinPeqGraph::keyPressed (const juce::KeyPress& key)
 }
 
 //==============================================================================
-void CabinPeqGraph::showBandMenu (const Band& clicked)
-{
-    auto targets = getSelectedBands();
-    if (targets.empty())
-        targets = { clicked };
-
-    auto allHave = [&targets] (auto predicate)
-    {
-        return std::all_of (targets.begin(), targets.end(), predicate);
-    };
-
-    juce::PopupMenu menu;
-    menu.addSectionHeader (targets.size() == 1 ? "Band " + juce::String (indexOfBand (clicked.id) + 1)
-                                               : juce::String ((int) targets.size()) + " bands");
-
-    juce::Component::SafePointer<CabinPeqGraph> safeThis (this);
-    auto edit = [safeThis, targets] (const juce::String& name, std::function<void (Band&)> change)
-    {
-        return [safeThis, targets, name, change]
-        {
-            if (safeThis == nullptr)
-                return;
-            safeThis->beginEdit (name);
-            std::vector<Band> changed;
-            for (auto band : targets)
-            {
-                change (band);
-                changed.push_back (band);
-            }
-            safeThis->updateBands (changed);
-        };
-    };
-
-    for (auto shape : { Band::Shape::peak, Band::Shape::lowShelf, Band::Shape::highShelf, Band::Shape::lowCut, Band::Shape::highCut })
-    {
-        menu.addItem (Band::shapeName (shape), true, allHave ([shape] (const Band& b) { return b.shape == shape; }),
-                      edit ("Change shape", [shape] (Band& b)
-                      {
-                          const bool wasCut = ! b.hasGain();
-                          b.shape = shape;
-                          if (wasCut != ! b.hasGain()) // cuts and gains want different default widths
-                              b.setQ (b.hasGain() && shape == Band::Shape::peak ? Band::defaultQ : Band::defaultCutQ);
-                      }));
-    }
-
-    menu.addSeparator();
-    for (auto type : { Band::Type::both, Band::Type::left, Band::Type::right })
-        menu.addItem (type == Band::Type::both ? "Both ears" : Band::typeName (type) + " ear only", true,
-                      allHave ([type] (const Band& b) { return b.type == type; }),
-                      edit ("Change channel", [type] (Band& b) { b.type = type; }));
-
-    menu.addSeparator();
-    const bool allOn = allHave ([] (const Band& b) { return b.enabled; });
-    menu.addItem (allOn ? "Turn off" : "Turn on", edit (allOn ? "Turn band off" : "Turn band on", [allOn] (Band& b) { b.enabled = ! allOn; }));
-    menu.addItem ("Reset gain", std::any_of (targets.begin(), targets.end(), [] (const Band& b) { return b.hasGain() && b.ampl != 0.0f; }),
-                  false, edit ("Reset gain", [] (Band& b) { b.ampl = 0.0f; }));
-    menu.addSeparator();
-    menu.addItem (juce::PopupMenu::Item (targets.size() == 1 ? "Delete band" : "Delete bands")
-                      .setColour (Theme::danger)
-                      .setAction ([safeThis, targets]
-                      {
-                          if (safeThis == nullptr)
-                              return;
-                          std::set<int> ids;
-                          for (const auto& band : targets)
-                              ids.insert (band.id);
-                          safeThis->setSelection (ids, *ids.begin());
-                          safeThis->deleteSelectedBands();
-                      }));
-
-    menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (this)
-                                                  .withTargetScreenArea ({ juce::Desktop::getMousePosition(), juce::Desktop::getMousePosition() }));
-}
-
 void CabinPeqGraph::showBackgroundMenu (juce::Point<float> position)
 {
     juce::Component::SafePointer<CabinPeqGraph> safeThis (this);

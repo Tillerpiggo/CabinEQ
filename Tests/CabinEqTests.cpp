@@ -682,6 +682,40 @@ public:
             graph.refresh();
         }
 
+        beginTest ("Shift-drag up widens a band, Shift-click selects, right-click deletes");
+        {
+            profile.getSelectedProfile().setBands ({ Band::withQ (0, 1000.0f, 6.0f, 2.0f, Band::Type::both) });
+            graph.refresh();
+            const auto bandId = profile.getSelectedProfile().getBandProfile().getBands()[0].id;
+
+            // Where the handle is: 1 kHz across 20 Hz to 20 kHz, +6 dB in a +/-30 dB plot inset by 14 px
+            const float xFor1k = std::log (1000.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
+            const float yFor6dB = 14.0f + (30.0f - 6.0f) / 60.0f * (478.0f - 28.0f);
+            const juce::Point<float> handle { xFor1k, yFor6dB };
+
+            const auto shift = juce::ModifierKeys (juce::ModifierKeys::leftButtonModifier | juce::ModifierKeys::shiftModifier);
+            graph.mouseDown (event (graph, handle, handle, shift));
+            for (int step = 1; step <= 10; ++step)
+                graph.mouseDrag (event (graph, handle.translated (0.0f, -6.0f * (float) step), handle, shift));
+            graph.mouseUp (event (graph, handle.translated (0.0f, -60.0f), handle, {}));
+
+            auto widened = profile.getSelectedProfile().getBand (bandId);
+            expect (widened.has_value() && widened->qFactor < 1.4f && widened->qFactor > 1.0f, "dragging up 60 px lowered the Q from 2 to about 1.2 (wider)");
+            expectWithinAbsoluteError (widened.has_value() ? widened->ampl : 0.0f, 6.0f, 0.01f, "the gain didn't move");
+
+            graph.refresh();
+            graph.mouseDown (event (graph, handle, handle, shift));
+            graph.mouseUp (event (graph, handle, handle, {}));
+            expectEquals (graph.getNumSelected(), 1, "shift-click without dragging selects");
+
+            graph.mouseDown (event (graph, handle, handle, juce::ModifierKeys::rightButtonModifier));
+            expectEquals (profile.getSelectedProfile().getNumBands(), 0, "right-click deletes");
+            processor.undo();
+            expectEquals (profile.getSelectedProfile().getNumBands(), 1, "and undo brings it back");
+            profile.getSelectedProfile().setBands ({});
+            graph.refresh();
+        }
+
         beginTest ("Dragging empty space selects, and Delete removes");
         {
             profile.getSelectedProfile().addBand (Band::withQ (0, 100.0f, 3.0f, 1.0f, Band::Type::both));

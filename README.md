@@ -9,11 +9,11 @@ loads the VST3 to EQ everything the Mac plays.
   double-click to rename, right-click to duplicate, export or delete. **+** makes a new one
   or imports an Equalizer APO / AutoEQ `ParametricEQ.txt` file. You can also drop those
   files on the window.
-- **Graph**: click the line to add a band and drag to shape it. Drag bands to move them
-  (Cmd for fine, Shift to keep to one axis), scroll or Alt-drag to change their width,
-  double-click to turn one off, and right-click for its shape (bell, shelves, cuts),
-  which ear it's for, and more. Drag across empty space to select several.
-  Delete, arrow keys and Cmd+A work too.
+- **Graph**: click the 0 dB line to add a band and drag to shape it. Drag bands to move them
+  (Cmd for fine), Shift-drag up and down (or scroll) to change their width, double-click to
+  turn one off, and right-click to delete it. Drag across empty space to select several.
+  Delete, arrow keys and Cmd+A work too. The band strip sets the shape (bell, shelves, cuts)
+  and which ear it's for.
 - **Band strip** (bottom): the selected band's exact values. Drag, scroll or double-click
   them to type.
 - **Top bar**: undo/redo (Cmd+Z, Cmd+Shift+Z), the profile's preamp, auto gain (keeps

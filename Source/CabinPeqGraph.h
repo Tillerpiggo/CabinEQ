@@ -18,11 +18,11 @@
 
 /// The EQ graph: the response curve over the live output spectrum, with a handle per band.
 ///
-///  - Click the curve (or double-click anywhere) to add a band, and drag to shape it
-///  - Drag a band to move it. Hold Cmd/Ctrl to move finely, Shift to keep to one axis
-///  - Alt/Option-drag up and down, or scroll over a band, to change its width (Q)
+///  - Click the 0 dB line (or double-click anywhere) to add a band, and drag to shape it
+///  - Drag a band to move it. Hold Cmd/Ctrl to move finely
+///  - Shift-drag (or Alt-drag) up and down, or scroll over a band, to change its width. Up is wider
 ///  - Drag across empty space to select several bands, and Shift-click to add or remove one
-///  - Double-click a band to turn it off and on, and right-click for everything else
+///  - Double-click a band to turn it off and on, and right-click it to delete it
 ///  - Delete removes the selected bands, arrows nudge them, and Cmd/Ctrl+A selects all
 class CabinPeqGraph  : public juce::Component,
                        private juce::Timer
@@ -80,8 +80,7 @@ private:
 
     // Finding things under the mouse
     std::optional<Band> bandAt (juce::Point<float> position) const;
-    bool isNearCurve (juce::Point<float> position) const;
-    float curveDbNear (juce::Point<float> position) const; // of whichever curve (left or right) is nearer
+    bool isNearZeroLine (juce::Point<float> position) const; // where a click adds a band
     std::vector<Band> getSelectedBands() const;
     int indexOfBand (int bandId) const;
 
@@ -95,7 +94,6 @@ private:
     void setSelection (std::set<int> ids, int newFocusedId);
 
     // Menus
-    void showBandMenu (const Band& band);
     void showBackgroundMenu (juce::Point<float> position);
 
     // Display settings, kept in the state
@@ -112,7 +110,7 @@ private:
     std::set<int> selectedIds;
     int focusedId = -1;
     int hoverId = -1;
-    bool hoverIsNearCurve = false;
+    bool hoverIsNearZeroLine = false;
     juce::Point<float> mousePosition;
     bool mouseIsOver = false;
     bool isBypassed = false;
@@ -125,6 +123,8 @@ private:
     juce::Rectangle<float> marquee;
     std::set<int> selectionBeforeMarquee;
     int bandAddedByLastClick = -1;
+    int shiftClickedId = -1;        // a shift-click on this band that hasn't turned into a drag yet
+    bool hasBegunDragEdit = false;
     juce::uint32 lastCoalescedEditTime = 0;
     juce::String lastCoalescedEditName;
 

@@ -141,7 +141,7 @@ void BandInspector::paint (juce::Graphics& g)
     {
         g.setColour (Theme::textFaint);
         g.setFont (Theme::font (13.0f));
-        g.drawText ("Click a band to edit it here. Scroll over a band to change its width, and right-click for more.",
+        g.drawText ("Click a band to edit it here. Shift-drag or scroll over a band to change its width, and right-click to delete it.",
                     area, juce::Justification::centredLeft, true);
         return;
     }
