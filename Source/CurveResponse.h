@@ -96,7 +96,12 @@ public:
     {
         if (points.empty())
             return 0.0f;
+        return loudnessChangeDb ([this] (float frequency) { return dbAtFrequency (frequency); });
+    }
 
+    /// How much louder a response makes music, weighted to where music has most of its energy
+    static float loudnessChangeDb (const std::function<float (float)>& dbAt)
+    {
         constexpr int numPoints = 256;
         const double logLow = std::log (20.0), logHigh = std::log (16000.0);
         const double logFullLow = std::log (100.0), logFullHigh = std::log (5000.0);
@@ -107,7 +112,7 @@ public:
             double weight = 1.0;
             if (logFreq < logFullLow)       weight = (logFreq - logLow) / (logFullLow - logLow);
             else if (logFreq > logFullHigh) weight = (logHigh - logFreq) / (logHigh - logFullHigh);
-            power += weight * std::pow (10.0, dbAtFrequency ((float) std::exp (logFreq)) / 10.0);
+            power += weight * std::pow (10.0, dbAt ((float) std::exp (logFreq)) / 10.0);
             weights += weight;
         }
         return (float) (10.0 * std::log10 (power / weights));

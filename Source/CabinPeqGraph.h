@@ -80,13 +80,14 @@ private:
     void updatePoints (const std::vector<CurvePoint>& points);
     void curveMouseDown (const juce::MouseEvent&);
     void drawPoints (juce::Graphics&);
-    std::array<CurveResponse, 2> curveResponses; // left and right; the same curve unless the ears are split
-    int ear() const; // which ear's points are being edited: 0 unless split
+    int layer() const; // which of the curve's layers is being edited (a BandProfile::Layer): the shared curve unless split
+    float layerBaseDb (float frequency) const; // what a layer's points are relative to: an ear's tweak sits on the shared curve
+    float pointDb (const CurvePoint& point) const; // where a point is drawn
     static juce::Colour earColour (int channel);
-    int shownEar = -1;
+    int shownLayer = -1;
 public:
-    static inline const juce::Identifier idCurveEar { "curveEar" }; // on the state root, not undoable
-    void setEditingEar (int ear); // 0 left, 1 right: whose points to edit when the curve's ears are split
+    static inline const juce::Identifier idCurveLayer { "curveLayer" }; // on the state root, not undoable
+    void setEditingLayer (int layer); // a BandProfile::Layer: both ears, or one ear's tweak, when split
 private:
     std::vector<CurvePoint> pointsAtDragStart;
     bool wasCurveMode = false;
@@ -172,7 +173,7 @@ private:
 
     // Cached paths
     bool curvePathsNeedRebuilding = true;
-    juce::Path mainCurve, leftCurve, rightCurve;
+    juce::Path mainCurve, leftCurve, rightCurve, sharedCurve;
 
     // Bands, and the widest view, go from 20 Hz to 20 kHz; the view can zoom in on part of that
     static constexpr float minFrequency = 20.0f;

@@ -40,8 +40,9 @@ public:
     ~CurveFilter() override;
 
     /// Message thread. Nothing (std::nullopt) means the curve's not in use: it fades out and stops costing anything.
-    /// With `right` as well, `points` is the left ear's curve and `right` the right's.
-    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<std::vector<CurvePoint>> right = std::nullopt);
+    using EarTweaks = std::array<std::vector<CurvePoint>, 2>; // left, right: added to the shared curve
+    /// With `tweaks`, the ears are split: each hears `points` plus its tweak.
+    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<EarTweaks> tweaks = std::nullopt);
 
     /// While audio isn't running. Designs the current curve right away, so it's there from the first block.
     void prepare (const juce::dsp::ProcessSpec& spec);
@@ -58,7 +59,8 @@ public:
     static juce::AudioBuffer<float> designLinearPhase (const std::function<float (float)>& dbAt, double sampleRate, int length);
     static int splitLengthFor (double sampleRate); // about 21 ms, so the delay is about 11 ms
     /// Stereo filters for the two ears, with matched phase. Public for the tests.
-    static juce::AudioBuffer<float> designSplit (const CurveResponse& left, const CurveResponse& right, double sampleRate);
+    static juce::AudioBuffer<float> designSplit (const std::function<float (float)>& leftDb, const std::function<float (float)>& rightDb,
+                                                 double sampleRate);
 
 private:
     void run() override;
@@ -70,8 +72,8 @@ private:
     juce::CriticalSection requestLock;
     struct Request
     {
-        std::vector<CurvePoint> left;
-        std::optional<std::vector<CurvePoint>> right;
+        std::vector<CurvePoint> points;
+        std::optional<EarTweaks> tweaks;
     };
     std::optional<Request> requested;
     bool hasNewRequest = false, hasEverBeenAsked = false;

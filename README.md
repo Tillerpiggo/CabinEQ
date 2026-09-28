@@ -27,8 +27,11 @@ loads the VST3 to EQ everything the Mac plays.
   keys to nudge. The first time you switch, the curve starts out tracing your bands. Both are kept, so
   switching back loses nothing. The curve plays as a minimum-phase FIR filter, redesigned in the
   background as you drag and crossfaded in, so there's no added delay and no clicks.
-  **Split L/R** (in the strip under the graph) gives each ear its own curve, starting as copies;
-  L | R (or the L and R keys) picks which one you're editing, and the other is drawn faintly. Both
+  **Split L/R** (in the strip under the graph) lets you tweak each ear on top of the curve both
+  ears get. Both | L | R (or the B, L and R keys) picks what you're editing: Both edits the shared
+  curve, which moves both ears; L or R shows that ear's curve with the shared one dashed underneath,
+  and you drag the ear's curve directly (what's stored is how far it is from the shared curve, so
+  later edits to Both keep each ear's tweak). Turning Split off keeps the shared curve. Both
   ears share one minimum-phase filter for their average, and each ear's difference from it is a
   short linear-phase filter, so the timing between the ears is untouched (a plain filter per ear
   would shift it where they differ, and move low sounds sideways). That costs about 11 ms of delay

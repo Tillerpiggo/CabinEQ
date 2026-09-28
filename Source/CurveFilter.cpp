@@ -118,10 +118,11 @@ juce::AudioBuffer<float> CurveFilter::designLinearPhase (const std::function<flo
     return impulse;
 }
 
-juce::AudioBuffer<float> CurveFilter::designSplit (const CurveResponse& left, const CurveResponse& right, double rate)
+juce::AudioBuffer<float> CurveFilter::designSplit (const std::function<float (float)>& leftDb, const std::function<float (float)>& rightDb,
+                                                  double rate)
 {
     // What the ears share, as one minimum-phase filter, and how far each is from it, as a linear-phase one
-    auto shared = design ([&] (float f) { return 0.5f * (left.dbAtFrequency (f) + right.dbAtFrequency (f)); }, rate, lengthFor (rate));
+    auto shared = design ([&] (float f) { return 0.5f * (leftDb (f) + rightDb (f)); }, rate, lengthFor (rate));
     const int splitLength = splitLengthFor (rate);
     const int length = shared.getNumSamples() + splitLength - 1;
 
@@ -143,7 +144,7 @@ juce::AudioBuffer<float> CurveFilter::designSplit (const CurveResponse& left, co
     for (int ear = 0; ear < 2; ++ear)
     {
         const float sign = ear == 0 ? 1.0f : -1.0f;
-        auto difference = designLinearPhase ([&] (float f) { return sign * 0.5f * (left.dbAtFrequency (f) - right.dbAtFrequency (f)); },
+        auto difference = designLinearPhase ([&] (float f) { return sign * 0.5f * (leftDb (f) - rightDb (f)); },
                                              rate, splitLength);
         auto spectrum = toSpectrum (difference);
         for (size_t k = 0; k < spectrum.size(); ++k)
@@ -183,13 +184,17 @@ juce::AudioBuffer<float> CurveFilter::designCurrent (double rate)
         return bothEars (std::move (identity));
     }
 
-    CurveResponse curve (request->left);
-    if (request->right.has_value())
-        return designSplit (curve, CurveResponse (*request->right), rate);
+    CurveResponse curve (request->points);
+    if (request->tweaks.has_value())
+    {
+        CurveResponse left ((*request->tweaks)[0]), right ((*request->tweaks)[1]);
+        return designSplit ([&] (float f) { return curve.dbAtFrequency (f) + left.dbAtFrequency (f); },
+                            [&] (float f) { return curve.dbAtFrequency (f) + right.dbAtFrequency (f); }, rate);
+    }
     return bothEars (design ([&curve] (float frequency) { return curve.dbAtFrequency (frequency); }, rate, lengthFor (rate)));
 }
 
-void CurveFilter::setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<std::vector<CurvePoint>> right)
+void CurveFilter::setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<EarTweaks> tweaks)
 {
     auto samePoints = [] (const std::vector<CurvePoint>& a, const std::vector<CurvePoint>& b)
     {
@@ -204,14 +209,15 @@ void CurveFilter::setCurve (std::optional<std::vector<CurvePoint>> points, std::
             return false;
         if (! a.has_value())
             return true;
-        if (a->right.has_value() != b->right.has_value())
+        if (a->tweaks.has_value() != b->tweaks.has_value())
             return false;
-        return samePoints (a->left, b->left) && (! a->right.has_value() || samePoints (*a->right, *b->right));
+        return samePoints (a->points, b->points)
+            && (! a->tweaks.has_value() || (samePoints ((*a->tweaks)[0], (*b->tweaks)[0]) && samePoints ((*a->tweaks)[1], (*b->tweaks)[1])));
     };
 
     std::optional<Request> request;
     if (points.has_value())
-        request = Request { std::move (*points), std::move (right) };
+        request = Request { std::move (*points), std::move (tweaks) };
 
     {
         // Everything that changes the plugin's state asks; only redesign when the curve really changed

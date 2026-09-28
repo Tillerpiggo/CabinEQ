@@ -41,10 +41,11 @@ juce::ValueTree CabinEqProfile::createTree (const juce::String& name, const Band
     }
     profileTree.appendChild (bandsTree, nullptr);
 
-    profileTree.appendChild (treeFromPoints (idCurve, bandProfile.getPoints (0)), nullptr);
+    profileTree.appendChild (treeFromPoints (idCurve, bandProfile.getPoints (BandProfile::both)), nullptr);
     if (bandProfile.isSplit())
     {
-        profileTree.appendChild (treeFromPoints (idCurveRight, bandProfile.getPoints (1)), nullptr);
+        profileTree.appendChild (treeFromPoints (idCurveLeft, bandProfile.getPoints (BandProfile::leftTweak)), nullptr);
+        profileTree.appendChild (treeFromPoints (idCurveRight, bandProfile.getPoints (BandProfile::rightTweak)), nullptr);
         profileTree.setProperty (idCurveSplit, true, nullptr);
     }
     profileTree.setProperty (idMode, bandProfile.isCurve() ? "curve" : "bands", nullptr);
@@ -137,7 +138,7 @@ BandProfile CabinEqProfile::getBandProfile() const
     BandProfile profile (std::move (bands), getVolume());
     profile.setPoints (pointsFromTree (tree.getChildWithName (idCurve)));
     if (isCurveSplit())
-        profile.setSplit (pointsFromTree (tree.getChildWithName (idCurveRight)));
+        profile.setSplit (pointsFromTree (tree.getChildWithName (idCurveLeft)), pointsFromTree (tree.getChildWithName (idCurveRight)));
     profile.setMode (getMode());
     return profile;
 }
@@ -180,14 +181,18 @@ std::vector<CurvePoint> CabinEqProfile::pointsFromTree (const juce::ValueTree& c
     return points;
 }
 
-juce::Identifier CabinEqProfile::curveNameFor (int ear) const
+juce::Identifier CabinEqProfile::curveNameFor (int layer) const
 {
-    return ear == 1 && isCurveSplit() ? idCurveRight : idCurve;
+    if (isCurveSplit() && layer == BandProfile::leftTweak)
+        return idCurveLeft;
+    if (isCurveSplit() && layer == BandProfile::rightTweak)
+        return idCurveRight;
+    return idCurve;
 }
 
-juce::ValueTree CabinEqProfile::getCurveTree (int ear)
+juce::ValueTree CabinEqProfile::getCurveTree (int layer)
 {
-    const auto name = curveNameFor (ear);
+    const auto name = curveNameFor (layer);
     auto curveTree = tree.getChildWithName (name);
     if (! curveTree.isValid())
     {
@@ -207,31 +212,34 @@ void CabinEqProfile::setCurveSplit (bool shouldSplit)
     if (shouldSplit == isCurveSplit())
         return;
 
-    // The right ear's curve lives only while split: it starts as a copy, and goes when they're joined
-    if (auto old = tree.getChildWithName (idCurveRight); old.isValid())
-        tree.removeChild (old, undoManager);
-    if (shouldSplit)
-        tree.appendChild (treeFromPoints (idCurveRight, pointsFromTree (tree.getChildWithName (idCurve))), undoManager);
+    // The ears' tweaks live only while split: they start empty, and go when the ears are joined
+    for (const auto& name : { idCurveLeft, idCurveRight })
+    {
+        if (auto old = tree.getChildWithName (name); old.isValid())
+            tree.removeChild (old, undoManager);
+        if (shouldSplit)
+            tree.appendChild (juce::ValueTree (name), undoManager);
+    }
     tree.setProperty (idCurveSplit, shouldSplit, undoManager);
 }
 
-std::optional<CurvePoint> CabinEqProfile::getPoint (int id, int ear) const
+std::optional<CurvePoint> CabinEqProfile::getPoint (int id, int layer) const
 {
-    return getBandProfile().getPointWithId (id, ear);
+    return getBandProfile().getPointWithId (id, layer);
 }
 
-int CabinEqProfile::getNumPoints (int ear) const
+int CabinEqProfile::getNumPoints (int layer) const
 {
-    return tree.getChildWithName (curveNameFor (ear)).getNumChildren();
+    return tree.getChildWithName (curveNameFor (layer)).getNumChildren();
 }
 
-int CabinEqProfile::addPoint (const CurvePoint& point, int ear)
+int CabinEqProfile::addPoint (const CurvePoint& point, int layer)
 {
-    if (getNumPoints (ear) >= maxPoints)
+    if (getNumPoints (layer) >= maxPoints)
         return -1;
 
     int id = -1;
-    for (const auto& pointTree : tree.getChildWithName (curveNameFor (ear)))
+    for (const auto& pointTree : tree.getChildWithName (curveNameFor (layer)))
         id = std::max ((int) pointTree.getProperty (idId, 0), id);
     ++id;
 
@@ -239,30 +247,30 @@ int CabinEqProfile::addPoint (const CurvePoint& point, int ear)
     pointTree.setProperty (idId, id, nullptr);
     pointTree.setProperty (idFreq, juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, point.freq), nullptr);
     pointTree.setProperty (idGain, juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, point.gain), nullptr);
-    getCurveTree (ear).appendChild (pointTree, undoManager);
+    getCurveTree (layer).appendChild (pointTree, undoManager);
     return id;
 }
 
-void CabinEqProfile::updatePoint (const CurvePoint& point, int ear)
+void CabinEqProfile::updatePoint (const CurvePoint& point, int layer)
 {
-    auto pointTree = getCurveTree (ear).getChildWithProperty (idId, point.id);
+    auto pointTree = getCurveTree (layer).getChildWithProperty (idId, point.id);
     if (! pointTree.isValid())
         return;
     pointTree.setProperty (idFreq, juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, point.freq), undoManager);
     pointTree.setProperty (idGain, juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, point.gain), undoManager);
 }
 
-void CabinEqProfile::removePoint (int id, int ear)
+void CabinEqProfile::removePoint (int id, int layer)
 {
-    auto curveTree = getCurveTree (ear);
+    auto curveTree = getCurveTree (layer);
     auto pointTree = curveTree.getChildWithProperty (idId, id);
     if (pointTree.isValid())
         curveTree.removeChild (pointTree, undoManager);
 }
 
-void CabinEqProfile::setPoints (const std::vector<CurvePoint>& points, int ear)
+void CabinEqProfile::setPoints (const std::vector<CurvePoint>& points, int layer)
 {
-    auto curveTree = getCurveTree (ear);
+    auto curveTree = getCurveTree (layer);
     curveTree.removeAllChildren (undoManager);
     for (auto pointTree : treeFromPoints (curveTree.getType(), points))
         curveTree.appendChild (pointTree.createCopy(), undoManager);

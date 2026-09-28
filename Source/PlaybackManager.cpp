@@ -38,9 +38,9 @@ void PlaybackManager::setBands (const std::vector<Band>& bands)
     filter.setBands (bands);
 }
 
-void PlaybackManager::setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<std::vector<CurvePoint>> right)
+void PlaybackManager::setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<CurveFilter::EarTweaks> tweaks)
 {
-    curveFilter.setCurve (std::move (points), std::move (right));
+    curveFilter.setCurve (std::move (points), std::move (tweaks));
 }
 
 void PlaybackManager::setGainDb (float newGainDb)

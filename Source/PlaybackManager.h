@@ -31,7 +31,7 @@ public:
 
     void setBands (const std::vector<Band>& bands);
     /// Nothing when the profile uses bands; with `right`, the ears are split
-    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<std::vector<CurvePoint>> right = std::nullopt);
+    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<CurveFilter::EarTweaks> tweaks = std::nullopt);
     void setGainDb (float gainDb); // preamp plus auto gain
     void setBypassed (bool shouldBeBypassed);
     void setVolumeDb (float volumeDb); // master volume, which can boost

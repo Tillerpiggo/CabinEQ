@@ -990,17 +990,28 @@ public:
             graph.mouseUp (event (graph, backAt, backAt, {}));
             expectEquals (p.getNumPoints(), 0);
 
-            // Split: R picks the right ear, and a click adds a point to it alone
-            p.setPoints ({});
+            // Split: R picks the right ear's tweak, and a click puts the right ear's curve where you click
+            p.setPoints ({ { 0, 1000.0f, 2.0f } }); // both ears: +2 dB
             p.setCurveSplit (true);
             graph.refresh();
             graph.keyPressed (juce::KeyPress ('r'));
             press (graph, at);
             release (graph, at);
-            expectEquals (p.getNumPoints (1), 1, "the right ear got the point");
-            expectEquals (p.getNumPoints (0), 0, "the left didn't");
-            graph.keyPressed (juce::KeyPress ('l'));
-            expectEquals (graph.getNumSelected(), 0, "switching ears starts with nothing selected");
+            expectEquals (p.getNumPoints (BandProfile::rightTweak), 1, "the right ear got the point");
+            expectEquals (p.getNumPoints (BandProfile::leftTweak), 0, "the left didn't");
+            expectEquals (p.getNumPoints(), 1, "nor did both");
+            auto tweak = p.getBandProfile().getPoints (BandProfile::rightTweak);
+            expect (! tweak.empty() && std::abs (tweak[0].gain - 4.0f) < 0.2f, "clicking at +6 dB over a +2 dB curve tweaks by +4");
+            expectWithinAbsoluteError (p.getBandProfile().curveDbAt (1000.0f, 1), 6.0f, 0.2f);
+
+            // Dragging it down to 0 dB on screen takes the right ear there
+            press (graph, at);
+            drag (graph, at, { xFor1k, yFor0dB });
+            release (graph, { xFor1k, yFor0dB });
+            expectWithinAbsoluteError (p.getBandProfile().curveDbAt (1000.0f, 1), 0.0f, 0.3f);
+
+            graph.keyPressed (juce::KeyPress ('b'));
+            expectEquals (graph.getNumSelected(), 0, "switching layers starts with nothing selected");
             p.setCurveSplit (false);
 
             p.setMode (BandProfile::Mode::bands);
@@ -1424,7 +1435,8 @@ public:
         {
             CurveResponse left ({ { 0, 100.0f, 0.0f }, { 1, 1000.0f, 6.0f }, { 2, 10000.0f, 0.0f } });
             CurveResponse right ({ { 0, 100.0f, 0.0f }, { 1, 1500.0f, -4.0f }, { 2, 10000.0f, 2.0f } });
-            auto impulse = CurveFilter::designSplit (left, right, sampleRate);
+            auto impulse = CurveFilter::designSplit ([&] (float f) { return left.dbAtFrequency (f); },
+                                                     [&] (float f) { return right.dbAtFrequency (f); }, sampleRate);
             expectEquals (impulse.getNumChannels(), 2);
 
             const int order = 16, size = 1 << order;
@@ -1456,29 +1468,39 @@ public:
             expectWithinAbsoluteError (expectedDelay, 512, 0);
         }
 
-        beginTest ("Splitting a curve copies it to the right ear; the ears then edit separately, and joining keeps the left");
+        beginTest ("Splitting a curve adds a tweak for each ear on top of the shared curve; joining keeps the shared curve");
         {
             CabinEqAudioProcessor processor;
             auto profile = processor.getSelectedProfile();
             profile.setPoints ({ { 0, 200.0f, 3.0f }, { 1, 4000.0f, -2.0f } });
             profile.setCurveSplit (true);
-            expect (profile.getBandProfile().isSplit());
-            expectEquals (profile.getNumPoints (1), 2, "the right ear starts as a copy");
+            auto split = profile.getBandProfile();
+            expect (split.isSplit());
+            expectEquals (profile.getNumPoints (BandProfile::leftTweak), 0, "the ears start with no tweaks");
+            expectWithinAbsoluteError (split.curveDbAt (200.0f, 0), 3.0f, 0.01f, "so they both hear the shared curve");
 
-            profile.addPoint ({ 0, 8000.0f, 5.0f }, 1);
-            expectEquals (profile.getNumPoints (0), 2);
-            expectEquals (profile.getNumPoints (1), 3);
+            profile.addPoint ({ 0, 4000.0f, 5.0f }, BandProfile::rightTweak);
+            split = profile.getBandProfile();
+            expectWithinAbsoluteError (split.curveDbAt (4000.0f, 1), 3.0f, 0.01f, "the right ear hears both plus its tweak");
+            expectWithinAbsoluteError (split.curveDbAt (4000.0f, 0), -2.0f, 0.01f, "the left doesn't");
+
+            // Editing the shared curve moves both ears, keeping the tweak
+            profile.updatePoint ({ 1, 4000.0f, 0.0f });
+            split = profile.getBandProfile();
+            expectWithinAbsoluteError (split.curveDbAt (4000.0f, 1), 5.0f, 0.01f);
+            expectWithinAbsoluteError (split.curveDbAt (4000.0f, 0), 0.0f, 0.01f);
 
             // It round-trips through saved state
             auto copy = CabinEqProfile::createTree ("Copy", profile.getBandProfile());
-            expectEquals (CabinEqProfile (copy, nullptr).getNumPoints (1), 3);
+            expectEquals (CabinEqProfile (copy, nullptr).getNumPoints (BandProfile::rightTweak), 1);
 
             processor.getUndoManager().beginNewTransaction();
             profile.setCurveSplit (false);
             expect (! profile.getBandProfile().isSplit());
-            expectEquals ((int) profile.getBandProfile().getPoints (1).size(), 2, "joined: both ears play the left curve");
+            expectEquals (profile.getNumPoints(), 2, "joined: the shared curve stays");
+            expectWithinAbsoluteError (profile.getBandProfile().curveDbAt (4000.0f, 1), 0.0f, 0.01f, "and the tweaks go");
             processor.undo();
-            expectEquals (profile.getNumPoints (1), 3, "undo brings the right ear back");
+            expectEquals (profile.getNumPoints (BandProfile::rightTweak), 1, "undo brings the tweak back");
         }
 
         beginTest ("A split curve plays each ear its own gain through the processor");
@@ -1490,9 +1512,10 @@ public:
 
             auto profile = processor.getSelectedProfile();
             profile.setMode (BandProfile::Mode::curve);
-            profile.setPoints ({ { 0, 1000.0f, 6.0f } });
+            profile.setPoints ({ { 0, 1000.0f, 1.0f } });
             profile.setCurveSplit (true);
-            profile.setPoints ({ { 0, 1000.0f, -4.0f } }, 1);
+            profile.setPoints ({ { 0, 1000.0f, 5.0f } }, BandProfile::leftTweak);
+            profile.setPoints ({ { 0, 1000.0f, -5.0f } }, BandProfile::rightTweak);
 
             auto gains = [&processor] (int blocks)
             {
@@ -1646,12 +1669,9 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         if (split)
         {
             profile.setCurveSplit (true);
-            auto right = profile.getBandProfile().getPoints (1);
-            for (auto& point : right)
-                if (point.freq > 1500.0f)
-                    point.gain -= 2.5f;
-            profile.setPoints (right, 1);
-            processor.parameters.state.setProperty (CabinPeqGraph::idCurveEar, 1, nullptr);
+            profile.setPoints ({ { 0, 1500.0f, 0.0f }, { 1, 3000.0f, -2.5f }, { 2, 12000.0f, -2.0f } }, BandProfile::rightTweak);
+            profile.setPoints ({ { 0, 4000.0f, 0.0f }, { 1, 6500.0f, 1.5f }, { 2, 9000.0f, 0.0f } }, BandProfile::leftTweak);
+            processor.parameters.state.setProperty (CabinPeqGraph::idCurveLayer, (int) BandProfile::rightTweak, nullptr);
         }
     }
     processor.getProfiles().addProfile ("HD 600 (AutoEQ)");

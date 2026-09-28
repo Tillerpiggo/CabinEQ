@@ -34,10 +34,11 @@ private:
     std::optional<CurvePoint> currentPoint() const; // in curve mode, bandId is a point's id
     bool isCurveMode() const;
     void editPoint (std::function<void (CurvePoint&)> change);
-    int ear() const; // whose curve is being edited, when the ears are split
+    int layer() const; // what's being edited, a BandProfile::Layer: the shared curve, or (when split) an ear's tweak
+    float layerBaseDb (float frequency) const; // what that layer's points sit on
     bool isSplit() const;
     juce::Rectangle<int> curveControlsArea() const; // the split switch and the ear buttons
-    void setEar (int ear);
+    void setLayer (int layer);
     void edit (const juce::String& name, std::function<void (Band&)> change);
     void updateControls();
 
@@ -51,7 +52,7 @@ private:
     juce::ToggleButton enabledToggle { "On" };
     juce::TextButton deleteButton { "Delete" };
     juce::ToggleButton splitToggle { "Split L/R" };
-    juce::TextButton leftEarButton { "L" }, rightEarButton { "R" };
+    juce::TextButton bothLayerButton { "Both" }, leftEarButton { "L" }, rightEarButton { "R" };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BandInspector)
 };

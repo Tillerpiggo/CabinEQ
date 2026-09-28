@@ -76,12 +76,12 @@ void CabinPeqGraph::refresh()
     bandProfile = selected.getBandProfile();
 
     // A different profile, switching between bands and curve, or between ears, starts with nothing selected
-    const int newEar = bandProfile.isSplit() ? (int) processor.parameters.state.getProperty (idCurveEar, 0) : -1;
-    if (selected.getName() != profileName || bandProfile.isCurve() != wasCurveMode || newEar != shownEar)
+    const int newLayer = bandProfile.isSplit() ? (int) processor.parameters.state.getProperty (idCurveLayer, 0) : -1;
+    if (selected.getName() != profileName || bandProfile.isCurve() != wasCurveMode || newLayer != shownLayer)
     {
         profileName = selected.getName();
         wasCurveMode = bandProfile.isCurve();
-        shownEar = newEar;
+        shownLayer = newLayer;
         selectedIds.clear();
         focusedId = -1;
         hoverId = -1;
@@ -97,8 +97,6 @@ void CabinPeqGraph::refresh()
 
     curve.setSampleRate (processor.getCurveSampleRate());
     curve.updateWithBands (bandProfile.getBands());
-    curveResponses[0].setPoints (bandProfile.getPoints (0));
-    curveResponses[1].setPoints (bandProfile.getPoints (1));
     curvePathsNeedRebuilding = true;
     repaint();
 
@@ -123,18 +121,28 @@ void CabinPeqGraph::focusBand (int bandId)
 
 bool CabinPeqGraph::exists (int id) const
 {
-    return isCurveMode() ? bandProfile.getPointWithId (id, ear()).has_value() : bandProfile.getBandWithId (id).has_value();
+    return isCurveMode() ? bandProfile.getPointWithId (id, layer()).has_value() : bandProfile.getBandWithId (id).has_value();
 }
 
-void CabinPeqGraph::setEditingEar (int newEar)
+void CabinPeqGraph::setEditingLayer (int newLayer)
 {
-    processor.parameters.state.setProperty (idCurveEar, juce::jlimit (0, 1, newEar), nullptr);
+    processor.parameters.state.setProperty (idCurveLayer, juce::jlimit (0, 2, newLayer), nullptr);
     refresh();
 }
 
-int CabinPeqGraph::ear() const
+int CabinPeqGraph::layer() const
 {
-    return bandProfile.isSplit() ? juce::jlimit (0, 1, shownEar) : 0;
+    return bandProfile.isSplit() ? juce::jlimit (0, 2, shownLayer) : (int) BandProfile::both;
+}
+
+float CabinPeqGraph::layerBaseDb (float frequency) const
+{
+    return layer() == BandProfile::both ? 0.0f : bandProfile.curveDbAt (frequency, -2);
+}
+
+float CabinPeqGraph::pointDb (const CurvePoint& point) const
+{
+    return point.gain + layerBaseDb (point.freq);
 }
 
 juce::Colour CabinPeqGraph::earColour (int channel)
@@ -146,23 +154,21 @@ float CabinPeqGraph::responseDb (float frequency, int channel) const
 {
     if (isCurveMode())
     {
-        if (! bandProfile.isSplit() || channel < 0)
-            return 0.5f * (curveResponses[0].dbAtFrequency (frequency) + curveResponses[1].dbAtFrequency (frequency));
-        return curveResponses[(size_t) juce::jlimit (0, 1, channel)].dbAtFrequency (frequency);
+        return bandProfile.curveDbAt (frequency, channel); // -2 is the shared curve alone
     }
     return channel < 0 ? curve.dbAtFrequency (frequency) : curve.dbAtFrequencyForChannel (frequency, channel);
 }
 
 juce::Point<float> CabinPeqGraph::pointPosition (const CurvePoint& point) const
 {
-    return { xForFrequency (point.freq), yForDb (point.gain) };
+    return { xForFrequency (point.freq), yForDb (pointDb (point)) };
 }
 
 std::optional<CurvePoint> CabinPeqGraph::pointAt (juce::Point<float> position) const
 {
     std::optional<CurvePoint> found;
     float bestDistance = handleRadius + 5.0f;
-    for (const auto& point : bandProfile.getPoints (ear()))
+    for (const auto& point : bandProfile.getPoints (layer()))
     {
         const auto centre = pointPosition (point);
         if (! getPlotArea().contains (centre))
@@ -180,7 +186,7 @@ std::optional<CurvePoint> CabinPeqGraph::pointAt (juce::Point<float> position) c
 std::vector<CurvePoint> CabinPeqGraph::getSelectedPoints() const
 {
     std::vector<CurvePoint> points;
-    for (const auto& point : bandProfile.getPoints (ear()))
+    for (const auto& point : bandProfile.getPoints (layer()))
         if (selectedIds.count (point.id) > 0)
             points.push_back (point);
     return points;
@@ -190,10 +196,11 @@ int CabinPeqGraph::addPointAt (juce::Point<float> position)
 {
     CurvePoint point;
     point.freq = juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, frequencyForX (position.x));
-    point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, std::round (dbForY (position.y) * 10.0f) / 10.0f);
+    // An ear's tweak is how far that ear is from the shared curve: the click puts the ear's curve here
+    point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, std::round ((dbForY (position.y) - layerBaseDb (point.freq)) * 10.0f) / 10.0f);
 
     beginEdit ("Add point");
-    const int id = profile().addPoint (point, ear());
+    const int id = profile().addPoint (point, layer());
     refresh();
     if (id >= 0)
         setSelection ({ id }, id);
@@ -204,7 +211,7 @@ void CabinPeqGraph::updatePoints (const std::vector<CurvePoint>& points)
 {
     auto p = profile();
     for (const auto& point : points)
-        p.updatePoint (point, ear());
+        p.updatePoint (point, layer());
     refresh();
 }
 
@@ -230,7 +237,7 @@ void CabinPeqGraph::deleteSelectedBands()
     for (auto id : selectedIds)
     {
         if (isCurveMode())
-            p.removePoint (id, ear());
+            p.removePoint (id, layer());
         else
             p.removeBand (id);
     }
@@ -678,7 +685,7 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     drawReadout (g);
     drawZoomControl (g);
 
-    if (isCurveMode() ? bandProfile.getPoints (ear()).empty() : bandProfile.getBands().empty())
+    if (isCurveMode() ? bandProfile.getPoints (layer()).empty() : bandProfile.getBands().empty())
     {
         g.setColour (Theme::textFaint);
         g.setFont (Theme::font (13.0f));
@@ -897,6 +904,7 @@ void CabinPeqGraph::rebuildCurvePaths()
     {
         leftCurve = curvePathForChannel (0);
         rightCurve = curvePathForChannel (1);
+        sharedCurve = isCurveMode() ? curvePathForChannel (-2) : juce::Path();
         mainCurve.clear();
     }
     else
@@ -904,6 +912,7 @@ void CabinPeqGraph::rebuildCurvePaths()
         mainCurve = curvePathForChannel (-1);
         leftCurve.clear();
         rightCurve.clear();
+        sharedCurve.clear();
     }
 }
 
@@ -959,8 +968,32 @@ void CabinPeqGraph::drawCurves (juce::Graphics& g)
         auto key = plot.withTrimmedLeft (plot.getWidth() - 120.0f).withHeight (22.0f)
                        .withY (getZoomControl().bounds.getBottom() + 6.0f).translated (-10.0f, 0.0f);
         g.setFont (Theme::font (11.0f));
-        // In curve mode, the ear being edited is on top and bright, and the other one faint
-        const int editing = isCurveMode() ? ear() : -1;
+        // In curve mode: editing both, the shared curve is bright and the ears faint; editing an ear, it's
+        // bright, the other ear faint, and the shared curve it sits on dashed
+        const int editing = isCurveMode() && layer() != BandProfile::both ? layer() - 1 : -1;
+        if (isCurveMode() && ! sharedCurve.isEmpty())
+        {
+            const auto colour = isBypassed ? Theme::textFaint : Theme::accentBright;
+            if (editing < 0)
+            {
+                juce::Path fill (sharedCurve);
+                fill.lineTo (plot.getRight(), zeroY);
+                fill.lineTo (plot.getX(), zeroY);
+                fill.closeSubPath();
+                g.setColour (colour.withAlpha (isBypassed ? 0.05f : 0.10f));
+                g.fillPath (fill);
+                g.setColour (colour);
+                g.strokePath (sharedCurve, juce::PathStrokeType (thickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+            }
+            else
+            {
+                juce::Path dashed;
+                const float dashes[] { 5.0f, 5.0f };
+                juce::PathStrokeType (1.4f).createDashedStroke (dashed, sharedCurve, dashes, 2);
+                g.setColour (colour.withAlpha (0.5f));
+                g.fillPath (dashed);
+            }
+        }
         if (editing >= 0)
         {
             juce::Path fill (editing == 0 ? leftCurve : rightCurve);
@@ -974,7 +1007,7 @@ void CabinPeqGraph::drawCurves (juce::Graphics& g)
         for (int channel : { editing == 0 ? 1 : 0, editing == 0 ? 0 : 1 })
         {
             const auto* path = channel == 0 ? &leftCurve : &rightCurve;
-            const bool faint = editing >= 0 && channel != editing;
+            const bool faint = (editing >= 0 && channel != editing) || (isCurveMode() && editing < 0);
             const auto shown = (isBypassed ? Theme::textFaint : earColour (channel)).withMultipliedAlpha (faint ? 0.45f : 1.0f);
             g.setColour (shown);
             g.strokePath (*path, juce::PathStrokeType (faint ? 1.6f : thickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
@@ -1076,8 +1109,8 @@ void CabinPeqGraph::drawPoints (juce::Graphics& g)
     juce::Graphics::ScopedSaveState clip (g);
     g.reduceClipRegion (getPlotArea().toNearestInt());
 
-    const auto colour = isBypassed ? Theme::textFaint : bandProfile.isSplit() ? earColour (ear()) : Theme::accentBright;
-    for (const auto& point : bandProfile.getPoints (ear()))
+    const auto colour = isBypassed ? Theme::textFaint : layer() == BandProfile::both ? Theme::accentBright : earColour (layer() - 1);
+    for (const auto& point : bandProfile.getPoints (layer()))
     {
         const auto centre = pointPosition (point);
         const bool isSelected = selectedIds.count (point.id) > 0;
@@ -1113,9 +1146,11 @@ void CabinPeqGraph::drawReadout (juce::Graphics& g)
     if (isCurveMode())
     {
         const int shownPoint = dragMode == DragMode::points ? focusedId : hoverId;
-        if (auto point = bandProfile.getPointWithId (shownPoint, ear()))
+        if (auto point = bandProfile.getPointWithId (shownPoint, layer()))
         {
-            const auto text = Format::frequency (point->freq) + "  " + Format::gain (point->gain);
+            auto text = Format::frequency (point->freq) + "  " + Format::gain (pointDb (*point));
+            if (layer() != BandProfile::both)
+                text << "  (" << Format::gain (point->gain) << " vs both)";
             const auto font = Theme::font (12.0f);
             const auto centre = pointPosition (*point);
             auto tag = juce::Rectangle<float> (Theme::textWidth (font, text) + 16.0f, 22.0f)
@@ -1437,8 +1472,10 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
         std::vector<CurvePoint> moved;
         for (auto point : pointsAtDragStart)
         {
+            // Follow the mouse on screen: where it was drawn, moved, less what it sits on at its new frequency
+            const float startDb = point.gain + layerBaseDb (point.freq);
             point.freq = juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, point.freq * std::pow (2.0f, dragDistance.x * octavesPerPixel));
-            point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, point.gain - dragDistance.y * dbPerPixel);
+            point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, startDb - dragDistance.y * dbPerPixel - layerBaseDb (point.freq));
             moved.push_back (point);
         }
         updatePoints (moved);
@@ -1521,7 +1558,7 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
         for (const auto& band : bandProfile.getBands())
             if (! isCurveMode() && marquee.contains (handlePosition (band)))
                 ids.insert (band.id);
-        for (const auto& point : bandProfile.getPoints (ear()))
+        for (const auto& point : bandProfile.getPoints (layer()))
             if (isCurveMode() && marquee.contains (pointPosition (point)))
                 ids.insert (point.id);
         setSelection (ids, ids.empty() ? -1 : (ids.count (focusedId) > 0 ? focusedId : *ids.rbegin()));
@@ -1688,11 +1725,13 @@ bool CabinPeqGraph::keyPressed (const juce::KeyPress& key)
         deleteSelectedBands();
         return true;
     }
-    // L and R pick which ear's curve to edit, when they're split
+    // B, L and R pick what to edit when the ears are split: both, or one ear's tweak
     if (isCurveMode() && bandProfile.isSplit() && ! isCommandDown (mods)
-        && (key.getKeyCode() == 'L' || key.getKeyCode() == 'l' || key.getKeyCode() == 'R' || key.getKeyCode() == 'r'))
+        && (key.getKeyCode() == 'L' || key.getKeyCode() == 'l' || key.getKeyCode() == 'R' || key.getKeyCode() == 'r'
+            || key.getKeyCode() == 'B' || key.getKeyCode() == 'b'))
     {
-        setEditingEar (key.getKeyCode() == 'R' || key.getKeyCode() == 'r' ? 1 : 0);
+        setEditingLayer (key.getKeyCode() == 'R' || key.getKeyCode() == 'r' ? BandProfile::rightTweak
+                         : key.getKeyCode() == 'L' || key.getKeyCode() == 'l' ? BandProfile::leftTweak : BandProfile::both);
         return true;
     }
     if ((key.getKeyCode() == 'A' || key.getKeyCode() == 'a') && isCommandDown (mods) && ! mods.isShiftDown())
@@ -1701,7 +1740,7 @@ bool CabinPeqGraph::keyPressed (const juce::KeyPress& key)
         for (const auto& band : bandProfile.getBands())
             if (! isCurveMode())
                 all.insert (band.id);
-        for (const auto& point : bandProfile.getPoints (ear()))
+        for (const auto& point : bandProfile.getPoints (layer()))
             if (isCurveMode())
                 all.insert (point.id);
         setSelection (all, focusedId >= 0 ? focusedId : (all.empty() ? -1 : *all.begin()));
@@ -1730,7 +1769,7 @@ void CabinPeqGraph::showBackgroundMenu (juce::Point<float> position)
 
     if (isCurveMode())
     {
-        const bool canAdd = bandProfile.getPoints (ear()).size() < (size_t) CabinEqProfile::maxPoints && getPlotArea().contains (position);
+        const bool canAdd = bandProfile.getPoints (layer()).size() < (size_t) CabinEqProfile::maxPoints && getPlotArea().contains (position);
         menu.addItem ("Add point at " + Format::frequency (frequencyForX (position.x)), canAdd, false,
                       [safeThis, position] { if (safeThis != nullptr) safeThis->addPointAt (position); });
         menu.addSeparator();
@@ -1739,13 +1778,13 @@ void CabinPeqGraph::showBackgroundMenu (juce::Point<float> position)
         menu.addItem ("Show output spectrum", true, getShowSpectrum(),
                       [safeThis] { if (safeThis != nullptr) safeThis->setShowSpectrum (! safeThis->getShowSpectrum()); });
         menu.addSeparator();
-        const bool hasPoints = ! bandProfile.getPoints (ear()).empty();
+        const bool hasPoints = ! bandProfile.getPoints (layer()).empty();
         menu.addItem (juce::PopupMenu::Item ("Delete all points").setEnabled (hasPoints).setColour (Theme::danger).setAction ([safeThis]
         {
             if (safeThis == nullptr)
                 return;
             safeThis->beginEdit ("Delete all points");
-            safeThis->profile().setPoints ({}, safeThis->ear());
+            safeThis->profile().setPoints ({}, safeThis->layer());
             safeThis->refresh();
         }));
         menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (this)

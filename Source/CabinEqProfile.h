@@ -22,11 +22,12 @@
 ///       <Curve>
 ///         <Point id="0" freq="100" gain="4"/>
 ///       </Curve>
+///       <CurveLeft> ... </CurveLeft>
 ///       <CurveRight> ... </CurveRight>
 ///     </Profile>
 ///
-/// "mode" says which of the two is playing; both are kept, so switching loses nothing. With
-/// curveSplit="1", <Curve> is the left ear's curve and <CurveRight> the right's.
+/// "mode" says which of the two is playing; both are kept, so switching loses nothing. <Curve> is
+/// what both ears get. With curveSplit="1", <CurveLeft> and <CurveRight> are each ear's tweak on top.
 ///
 /// Copies share the same tree. Edits go through the UndoManager, if there is one.
 class CabinEqProfile
@@ -59,17 +60,17 @@ public:
     void setVolume (float volume);
     void renameTo (const juce::String& newName);
 
-    // Curve mode. `ear` is 0 (left) or 1 (right) when the ears are split; otherwise both mean the one curve.
+    // Curve mode. `layer` is a BandProfile::Layer: the shared curve, or (when split) an ear's tweak.
     BandProfile::Mode getMode() const;
     void setMode (BandProfile::Mode mode);
-    std::optional<CurvePoint> getPoint (int id, int ear = 0) const;
-    int getNumPoints (int ear = 0) const;
-    int addPoint (const CurvePoint& point, int ear = 0); // returns its new id, or -1 if the curve is full
-    void updatePoint (const CurvePoint& point, int ear = 0); // matches on id
-    void removePoint (int id, int ear = 0);
-    void setPoints (const std::vector<CurvePoint>& points, int ear = 0); // replaces them all, giving them new ids
+    std::optional<CurvePoint> getPoint (int id, int layer = BandProfile::both) const;
+    int getNumPoints (int layer = BandProfile::both) const;
+    int addPoint (const CurvePoint& point, int layer = BandProfile::both); // returns its new id, or -1 if the curve is full
+    void updatePoint (const CurvePoint& point, int layer = BandProfile::both); // matches on id
+    void removePoint (int id, int layer = BandProfile::both);
+    void setPoints (const std::vector<CurvePoint>& points, int layer = BandProfile::both); // replaces them all, giving them new ids
 
-    /// Splitting starts the right ear as a copy of the curve; joining keeps the left ear's.
+    /// Splitting starts both ears with no tweaks; joining drops the tweaks and keeps the shared curve.
     bool isCurveSplit() const;
     void setCurveSplit (bool shouldSplit);
     static constexpr int maxPoints = 64;
@@ -80,6 +81,7 @@ public:
     static inline const juce::Identifier idBands { "Bands" };
     static inline const juce::Identifier idMode { "mode" };
     static inline const juce::Identifier idCurve { "Curve" };
+    static inline const juce::Identifier idCurveLeft { "CurveLeft" };
     static inline const juce::Identifier idCurveRight { "CurveRight" };
     static inline const juce::Identifier idCurveSplit { "curveSplit" };
     static inline const juce::Identifier idPoint { "Point" };
@@ -97,8 +99,8 @@ private:
     static Band bandFromTree (const juce::ValueTree& bandTree);
     static juce::ValueTree treeFromBand (const Band& band);
     juce::ValueTree getBandsTree();
-    juce::ValueTree getCurveTree (int ear);
-    juce::Identifier curveNameFor (int ear) const;
+    juce::ValueTree getCurveTree (int layer);
+    juce::Identifier curveNameFor (int layer) const;
     static juce::ValueTree treeFromPoints (const juce::Identifier& name, const std::vector<CurvePoint>& points);
     static std::vector<CurvePoint> pointsFromTree (const juce::ValueTree& curveTree);
     int getNextBandId() const;

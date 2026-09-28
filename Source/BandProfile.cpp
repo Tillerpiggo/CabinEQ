@@ -94,11 +94,40 @@ BandProfile::BandProfile (std::vector<Band> bands, float volume)
 
 BandProfile::BandProfile (std::vector<CurvePoint> points, float volume)
     : mode (Mode::curve), points (std::move (points)), volume (volume)
-{}
-
-std::optional<CurvePoint> BandProfile::getPointWithId (int id, int ear) const
 {
-    for (const auto& point : getPoints (ear))
+    shared.setPoints (this->points);
+}
+
+const std::vector<CurvePoint>& BandProfile::getPoints (int layer) const
+{
+    if (split && layer == leftTweak)
+        return leftTweakPoints;
+    if (split && layer == rightTweak)
+        return rightTweakPoints;
+    return points;
+}
+
+void BandProfile::setSplit (std::vector<CurvePoint> newLeftTweak, std::vector<CurvePoint> newRightTweak)
+{
+    split = true;
+    leftTweakPoints = std::move (newLeftTweak);
+    rightTweakPoints = std::move (newRightTweak);
+    leftResponse.setPoints (leftTweakPoints);
+    rightResponse.setPoints (rightTweakPoints);
+}
+
+float BandProfile::curveDbAt (float frequency, int ear) const
+{
+    const float base = shared.dbAtFrequency (frequency);
+    if (! split || ear == -2)
+        return base;
+    const float left = leftResponse.dbAtFrequency (frequency), right = rightResponse.dbAtFrequency (frequency);
+    return base + (ear == 0 ? left : ear == 1 ? right : 0.5f * (left + right));
+}
+
+std::optional<CurvePoint> BandProfile::getPointWithId (int id, int layer) const
+{
+    for (const auto& point : getPoints (layer))
         if (point.id == id)
             return point;
     return std::nullopt;
