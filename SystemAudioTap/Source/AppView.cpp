@@ -258,7 +258,16 @@ public:
         auto& [plugin, permission, output, others, test] = rows;
 
         // 1. The plugin
-        if (auto* p = engine.getPlugin())
+        if (engine.getPlugin() != nullptr && engine.isUsingBundledPlugin())
+        {
+            // Built in. Offer to put it where DAWs look, too
+            if (engine.isPluginInstalledForDAWs())
+                plugin.set (State::done, "CabinEQ", "Built in, and installed for your DAWs too.", {});
+            else
+                plugin.set (State::done, "CabinEQ", "Built in. To use CabinEQ in a DAW (Logic, Ableton...) as well, add it to your plug-ins.",
+                            { "Add to DAWs", [this] { engine.installPluginForDAWs(); refresh(); } });
+        }
+        else if (auto* p = engine.getPlugin())
             plugin.set (State::done, "CabinEQ", "Loaded from " + engine.getPluginFile().getFullPathName().replace (juce::File::getSpecialLocation (juce::File::userHomeDirectory).getFullPathName(), "~")
                         + juce::String (p->getName() != "CabinEQ" ? " (" + p->getName() + ")" : ""),
                         { "Change...", [this] { choosePlugin(); } });

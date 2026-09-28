@@ -19,6 +19,7 @@
 #include "../Source/CabinPeqGraph.h"
 #include "../Source/CalibrationPanel.h"
 #include "../Source/CalibrationSettings.h"
+#include "../Source/CurveFilter.h"
 
 namespace
 {
@@ -928,6 +929,52 @@ public:
             graph.keyPressed (juce::KeyPress (juce::KeyPress::deleteKey));
             expectEquals (profile.getSelectedProfile().getNumBands(), 0);
         }
+
+        beginTest ("In curve mode, clicking anywhere adds a point, dragging moves it, and right-click deletes it");
+        {
+            auto p = profile.getSelectedProfile();
+            p.setMode (BandProfile::Mode::curve);
+            graph.refresh();
+
+            // Where the plot puts 1 kHz and +6 dB, as in the band tests
+            const float xFor1k = std::log (1000.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
+            const float yFor6dB = 14.0f + (30.0f - 6.0f) / 60.0f * (478.0f - 28.0f);
+            const float yFor0dB = 14.0f + 0.5f * (478.0f - 28.0f);
+            const juce::Point<float> at { xFor1k, yFor6dB };
+            press (graph, at);
+            release (graph, at);
+            expectEquals (p.getNumPoints(), 1);
+            expectEquals (p.getNumBands(), 0, "no band was added");
+            auto points = p.getBandProfile().getPoints();
+            if (! points.empty())
+            {
+                expectWithinAbsoluteError (points[0].freq, 1000.0f, 15.0f);
+                expectWithinAbsoluteError (points[0].gain, 6.0f, 0.2f);
+            }
+
+            // Drag it down to 0 dB
+            press (graph, at);
+            drag (graph, at, { xFor1k, yFor0dB });
+            release (graph, { xFor1k, yFor0dB });
+            points = p.getBandProfile().getPoints();
+            expect (! points.empty() && std::abs (points[0].gain) < 0.3f, "dragged down to 0 dB");
+            expectEquals (p.getNumPoints(), 1, "dragging a point doesn't add one");
+
+            processor.undo();
+            graph.refresh();
+            points = p.getBandProfile().getPoints();
+            expect (! points.empty() && std::abs (points[0].gain - 6.0f) < 0.3f, "undo puts it back");
+
+            // Right-click deletes it
+            const juce::Point<float> backAt { xFor1k, yFor6dB };
+            graph.mouseMove (event (graph, backAt, backAt, {}));
+            graph.mouseDown (event (graph, backAt, backAt, juce::ModifierKeys::rightButtonModifier));
+            graph.mouseUp (event (graph, backAt, backAt, {}));
+            expectEquals (p.getNumPoints(), 0);
+
+            p.setMode (BandProfile::Mode::bands);
+            graph.refresh();
+        }
     }
 
 private:
@@ -1262,7 +1309,175 @@ public:
     }
 };
 
+//==============================================================================
+class CurveTests : public juce::UnitTest
+{
+public:
+    CurveTests() : juce::UnitTest ("Curve EQ (FIR)", "CabinEQ") {}
+
+    void runTest() override
+    {
+        beginTest ("The curve goes through every point, never overshoots, and is flat beyond them");
+        {
+            CurveResponse curve ({ { 0, 100.0f, 6.0f }, { 1, 1000.0f, -3.0f }, { 2, 5000.0f, -3.0f }, { 3, 10000.0f, 4.0f } });
+            expectWithinAbsoluteError (curve.dbAtFrequency (100.0f), 6.0f, 1.0e-4f);
+            expectWithinAbsoluteError (curve.dbAtFrequency (1000.0f), -3.0f, 1.0e-4f);
+            expectWithinAbsoluteError (curve.dbAtFrequency (10000.0f), 4.0f, 1.0e-4f);
+            expectWithinAbsoluteError (curve.dbAtFrequency (20.0f), 6.0f, 1.0e-4f, "flat below the first point");
+            expectWithinAbsoluteError (curve.dbAtFrequency (20000.0f), 4.0f, 1.0e-4f, "flat above the last");
+
+            float lowest = 100.0f, highest = -100.0f;
+            for (float f = 1000.0f; f <= 5000.0f; f *= 1.01f)
+            {
+                lowest = std::min (lowest, curve.dbAtFrequency (f));
+                highest = std::max (highest, curve.dbAtFrequency (f));
+            }
+            expectWithinAbsoluteError (lowest, -3.0f, 1.0e-3f, "no dip between two equal points");
+            expectWithinAbsoluteError (highest, -3.0f, 1.0e-3f, "and no bump");
+
+            for (float f = 100.0f; f <= 1000.0f; f *= 1.01f)
+                expect (curve.dbAtFrequency (f) <= 6.0f + 1.0e-3f && curve.dbAtFrequency (f) >= -3.0f - 1.0e-3f, "stays between its neighbours");
+        }
+
+        beginTest ("Tracing some bands gives a curve within 0.3 dB of them, with few points");
+        {
+            BandEqCurve bands;
+            bands.updateWithBands ({ Band::withQ (0, 120.0f, 5.0f, 0.7f, Band::Type::both, Band::Shape::lowShelf),
+                                     Band::withQ (1, 3000.0f, -4.0f, 2.0f, Band::Type::both) });
+            auto points = CurveResponse::tracing ([&bands] (float f) { return bands.dbAtFrequency (f); });
+            CurveResponse curve (points);
+            float worst = 0.0f;
+            for (float f = 20.0f; f <= 20000.0f; f *= 1.02f)
+                worst = std::max (worst, std::abs (curve.dbAtFrequency (f) - bands.dbAtFrequency (f)));
+            expectLessThan (worst, 0.35f);
+            expectLessThan ((int) points.size(), 25, "it didn't need many points");
+            expect (CurveResponse::tracing ([] (float) { return 0.0f; }).empty(), "a flat response needs none");
+        }
+
+        beginTest ("The FIR filter's response matches the curve");
+        {
+            CurveResponse curve ({ { 0, 60.0f, 8.0f }, { 1, 300.0f, 0.0f }, { 2, 2500.0f, -6.0f }, { 3, 8000.0f, 3.0f } });
+            const int length = CurveFilter::lengthFor (sampleRate);
+            auto impulse = CurveFilter::design ([&curve] (float f) { return curve.dbAtFrequency (f); }, sampleRate, length);
+            expectEquals (impulse.getNumSamples(), 16384);
+
+            // Its spectrum, from a zero-padded FFT
+            const int order = 16, size = 1 << order;
+            juce::dsp::FFT fft (order);
+            std::vector<float> data ((size_t) size * 2, 0.0f);
+            std::copy_n (impulse.getReadPointer (0), length, data.begin());
+            fft.performFrequencyOnlyForwardTransform (data.data());
+
+            float worst = 0.0f;
+            for (float f = 30.0f; f <= 16000.0f; f *= 1.05f)
+            {
+                const int bin = juce::roundToInt (f * size / sampleRate);
+                const float measured = juce::Decibels::gainToDecibels (data[(size_t) bin]);
+                worst = std::max (worst, std::abs (measured - curve.dbAtFrequency ((float) bin * (float) sampleRate / (float) size)));
+            }
+            expectLessThan (worst, 0.5f);
+
+            // Minimum phase: nearly all its energy comes right at the start, so it adds hardly any delay
+            double total = 0.0, early = 0.0;
+            for (int n = 0; n < length; ++n)
+            {
+                const double energy = impulse.getSample (0, n) * impulse.getSample (0, n);
+                total += energy;
+                if (n < (int) (0.005 * sampleRate))
+                    early += energy;
+            }
+            expectGreaterThan (early / total, 0.95, "95% of it is in the first 5 ms");
+        }
+
+        beginTest ("A curve profile plays through the processor, and switching back to bands undoes it");
+        {
+            CabinEqAudioProcessor processor;
+            processor.parameters.getParameter (ParamIDs::autoGain)->setValueNotifyingHost (0.0f);
+            processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+            processor.prepareToPlay (sampleRate, blockSize);
+
+            auto profile = processor.getSelectedProfile();
+            profile.setPoints ({ { 0, 1000.0f, 6.0f } }); // one point: +6 dB everywhere
+            profile.setMode (BandProfile::Mode::curve);
+
+            auto gainAt1k = [&processor] (int blocks)
+            {
+                juce::AudioBuffer<float> buffer (2, blockSize);
+                juce::MidiBuffer midi;
+                double phase = 0.0, in = 0.0, out = 0.0;
+                for (int block = 0; block < blocks; ++block)
+                {
+                    for (int i = 0; i < blockSize; ++i)
+                    {
+                        const auto sample = (float) (0.1 * std::sin (phase));
+                        phase += juce::MathConstants<double>::twoPi * 1000.0 / sampleRate;
+                        buffer.setSample (0, i, sample);
+                        buffer.setSample (1, i, sample);
+                        if (block >= blocks / 2) in += sample * sample;
+                    }
+                    processor.processBlock (buffer, midi);
+                    if (block >= blocks / 2)
+                        for (int i = 0; i < blockSize; ++i)
+                            out += buffer.getSample (0, i) * buffer.getSample (0, i);
+                }
+                return (float) (10.0 * std::log10 (out / in));
+            };
+
+            // The design happens in the background; give it a moment
+            juce::Thread::sleep (300);
+            gainAt1k (40);
+            juce::Thread::sleep (300);
+            expectWithinAbsoluteError (gainAt1k (200), 6.0f, 0.3f);
+
+            profile.setMode (BandProfile::Mode::bands);
+            juce::Thread::sleep (300);
+            gainAt1k (40);
+            juce::Thread::sleep (300);
+            expectWithinAbsoluteError (gainAt1k (200), 0.0f, 0.1f, "back to bands (there are none)");
+        }
+
+        beginTest ("Dragging a point changes the sound smoothly, without clicks");
+        {
+            CurveFilter filter;
+            filter.setCurve (std::vector<CurvePoint> { { 0, 100.0f, 0.0f } });
+            filter.prepare ({ sampleRate, (juce::uint32) blockSize, 2 });
+
+            juce::AudioBuffer<float> buffer (2, blockSize);
+            double phase = 0.0;
+            float last = 0.0f, maxStep = 0.0f;
+            for (int block = 0; block < 400; ++block)
+            {
+                // Drag a point from 0 to +12 dB over about a second, a new position every other block
+                if (block % 2 == 0 && block < 200)
+                    filter.setCurve (std::vector<CurvePoint> { { 0, 100.0f, 12.0f * (float) block / 200.0f } });
+
+                for (int i = 0; i < blockSize; ++i)
+                {
+                    const auto sample = (float) (0.05 * std::sin (phase));
+                    phase += juce::MathConstants<double>::twoPi * 60.0 / sampleRate;
+                    buffer.setSample (0, i, sample);
+                    buffer.setSample (1, i, sample);
+                }
+                juce::dsp::AudioBlock<float> block2 (buffer);
+                filter.process (block2);
+                juce::Thread::sleep (1); // let the designer keep up, as it would in real time
+
+                for (int i = 0; i < blockSize; ++i)
+                {
+                    const float sample = buffer.getSample (0, i);
+                    if (block > 4)
+                        maxStep = std::max (maxStep, std::abs (sample - last));
+                    last = sample;
+                }
+            }
+            // A 60 Hz sine at up to about 0.2 moves at most ~0.0016 a sample; a click would be far more
+            expectLessThan (maxStep, 0.01f);
+        }
+    }
+};
+
 static FilterResponseTests filterResponseTests;
+static CurveTests curveTests;
 static CalibrationPanelTests calibrationPanelTests;
 static CalibrationTests calibrationTests;
 static GraphInteractionTests graphInteractionTests;
@@ -1273,7 +1488,7 @@ static PresetFileTests presetFileTests;
 
 //==============================================================================
 /// Renders the editor with a demo profile to a PNG, to check the UI without clicking around.
-static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed)
+static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed, bool curveMode)
 {
     CabinEqAudioProcessor processor;
     auto profile = processor.getSelectedProfile();
@@ -1283,6 +1498,13 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
                         Band::withQ (0, 5400.0f, 4.0f, 3.0f, Band::Type::both),
                         Band::withQ (0, 9800.0f, -2.5f, 0.7f, Band::Type::both, Band::Shape::highShelf) });
     profile.setVolume (-6.0f);
+    if (curveMode)
+    {
+        BandEqCurve bands;
+        bands.updateWithBands (profile.getBandProfile().getBands());
+        profile.setPoints (CurveResponse::tracing ([&bands] (float f) { return bands.dbAtFrequency (f); }));
+        profile.setMode (BandProfile::Mode::curve);
+    }
     processor.getProfiles().addProfile ("HD 600 (AutoEQ)");
     processor.parameters.state.setProperty ("showCalibration", showCalibration, nullptr);
     if (zoomed)
@@ -1392,7 +1614,8 @@ int main (int argc, char** argv)
                               argc >= 5 ? juce::String (argv[4]).getIntValue() : 680,
                               argc >= 6 && juce::String (argv[5]).contains ("lr"), argc >= 6 && juce::String (argv[5]).contains ("calibration"),
                               argc >= 6 && juce::String (argv[5]).contains ("spots"),
-                              argc >= 6 && juce::String (argv[5]).contains ("zoom"));
+                              argc >= 6 && juce::String (argv[5]).contains ("zoom"),
+                              argc >= 6 && juce::String (argv[5]).contains ("curve"));
 
     CabinEqProfileManager::shouldBackUpOldState = false;
 

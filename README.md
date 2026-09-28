@@ -20,6 +20,13 @@ loads the VST3 to EQ everything the Mac plays.
   (+/-3 to +/-60 dB), and so does dragging or scrolling on the dB axis; double-click the axis for
   +/-30 dB. It only changes what's shown, not how far bands can go. The band strip sets the shape (bell, shelves, cuts)
   and which ear it's for.
+- **Curve mode** (Bands / Curve in the top bar): instead of bands that add up, click anywhere on
+  the graph to put a point there, and the EQ follows a smooth curve through every point (a monotone
+  cubic, so it never overshoots between them, and flat past the first and last). Drag points to move
+  them (Cmd for fine), right-click to delete, Shift-click or Shift-drag to select several, and arrow
+  keys to nudge. The first time you switch, the curve starts out tracing your bands. Both are kept, so
+  switching back loses nothing. The curve plays as a minimum-phase FIR filter, redesigned in the
+  background as you drag and crossfaded in, so there's no added delay and no clicks.
 - **Band strip** (bottom): the selected band's exact values. Drag, scroll or double-click
   them to type.
 - **Calibration** (the grid button in the top bar): a grid of positions that play pink noise
@@ -74,8 +81,37 @@ build/CabinEQ_Tests_artefacts/Release/CabinEQ_Tests --snapshot ui.png   # render
   migrate state from older versions (a backup of the old state is saved to
   `~/Library/Application Support/CabinEQ/Backups` first).
 - `PlaybackManager`: the audio path, which is `FilterChain` (a preallocated, smoothed pool of
-  biquads), then `CrossfeedProcessor`, then gain, with a crossfaded bypass.
+  biquads), then `CurveFilter`, then `CrossfeedProcessor`, then gain, with a crossfaded bypass.
+- `CurveResponse` / `CurveFilter`: curve mode. `CurveResponse` interpolates the points;
+  `CurveFilter` designs a minimum-phase FIR from it (cepstral method, about 0.3 s long) on its own
+  thread whenever the curve changes, and the audio thread swaps it into a zero-latency
+  `juce::dsp::Convolution`, which crossfades from the old one. With no curve it's a no-op.
 - `FilterDesign`: the biquad coefficients, shared by the audio and `BandEqCurve`, so the graph
   draws exactly what you hear.
 - UI: `CabinEqPage` holds `ProfileList`, `CabinPeqGraph` and `BandInspector`, styled by
   `CabinEqLookAndFeel` and `Theme`.
+
+## Making a release
+
+```
+./package.sh
+```
+
+This makes `dist/CabinEQ-System-<version>.dmg`, which is ready to share: CabinEQ System, with CabinEQ built into it,
+for Apple silicon and Intel, on macOS 14.2 or later. It builds and tests everything, and signs the plugin and
+app with the Developer ID certificate and the hardened runtime (`packaging/CabinEQSystem.entitlements`). It
+notarizes and staples the app and the disk image, and checks them the way Gatekeeper will on a Mac that's never
+seen them. The disk image opens to a window with an arrow to drag the app into Applications.
+
+The first time, save your App Store Connect login for notarizing (it needs an app-specific password from
+account.apple.com):
+
+```
+xcrun notarytool store-credentials "CabinEQ" --apple-id <your Apple ID> --team-id E88BK26E9L
+```
+
+It also needs `dmgbuild` (`python3 -m pip install --user dmgbuild`). `./package.sh --no-notarize` does
+everything but notarizing. The version comes from `SystemAudioTap/CMakeLists.txt`.
+
+Opened from Applications, the app uses the CabinEQ inside it; its setup checklist offers to install that for
+DAWs too. A development build (from `update.sh`) uses the one in `~/Library/Audio/Plug-Ins/VST3`.

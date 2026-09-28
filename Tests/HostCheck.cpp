@@ -70,7 +70,7 @@ int main (int argc, char** argv)
         return 1;
     const auto description = *found[0];
     check (description.name == "CabinEQ", "it's called CabinEQ (" + description.name + ")");
-    check (description.manufacturerName == "yourcompany", "manufacturer unchanged (" + description.manufacturerName + ")");
+    check (description.manufacturerName == "Cabin Audio", "made by Cabin Audio (" + description.manufacturerName + ")");
 
     for (double sampleRate : { 44100.0, 48000.0, 96000.0 })
     {

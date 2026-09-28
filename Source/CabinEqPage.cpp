@@ -114,6 +114,21 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     };
     addAndMakeVisible (volumeField);
 
+    // Bands (filters that add up) or a curve through points (one smooth FIR filter)
+    bandsModeButton.setTooltip ("Bands: bells, shelves and cuts that add up. Light on the CPU, no delay.");
+    curveModeButton.setTooltip ("Curve: click points and the EQ follows a smooth curve through them, played by a FIR filter. Starts from your bands.");
+    bandsModeButton.setConnectedEdges (juce::Button::ConnectedOnRight);
+    curveModeButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
+    for (auto* button : { &bandsModeButton, &curveModeButton })
+    {
+        button->setClickingTogglesState (false);
+        button->setColour (juce::TextButton::buttonOnColourId, Theme::accent);
+        button->setColour (juce::TextButton::textColourOnId, Theme::graph);
+        addAndMakeVisible (*button);
+    }
+    bandsModeButton.onClick = [this] { setMode (BandProfile::Mode::bands); };
+    curveModeButton.onClick = [this] { setMode (BandProfile::Mode::curve); };
+
     autoGainToggle.setTooltip ("Turns the output down by as much as the EQ makes music louder, so switching the EQ on and off is a fair comparison.");
     autoGainToggle.onStateChange = [this] { updateTopBar(); };
     addAndMakeVisible (autoGainToggle);
@@ -167,8 +182,32 @@ void CabinEqPage::updateInspector()
     inspector.showBand (id, number, graph.getNumSelected());
 }
 
+void CabinEqPage::setMode (BandProfile::Mode mode)
+{
+    auto profile = processor.getSelectedProfile();
+    if (profile.getMode() == mode)
+        return;
+
+    processor.getUndoManager().beginNewTransaction (mode == BandProfile::Mode::curve ? "Switch to curve" : "Switch to bands");
+
+    // A first curve starts out sounding the same as the bands
+    if (mode == BandProfile::Mode::curve && profile.getNumPoints() == 0)
+    {
+        BandEqCurve bands;
+        bands.setSampleRate (processor.getCurveSampleRate());
+        bands.updateWithBands (profile.getBandProfile().getBands());
+        profile.setPoints (CurveResponse::tracing ([&bands] (float frequency) { return bands.dbAtFrequency (frequency); }));
+    }
+    profile.setMode (mode);
+    refreshAll();
+}
+
 void CabinEqPage::updateTopBar()
 {
+    const bool curveMode = processor.getSelectedProfile().getMode() == BandProfile::Mode::curve;
+    bandsModeButton.setToggleState (! curveMode, juce::dontSendNotification);
+    curveModeButton.setToggleState (curveMode, juce::dontSendNotification);
+
     const bool bypassed = processor.parameters.getParameter (ParamIDs::bypass)->getValue() >= 0.5f;
     powerButton->setToggleState (! bypassed, juce::dontSendNotification);
     powerButton->setTooltip (bypassed ? "The EQ is off. Click to turn it on." : "The EQ is on. Click to turn it off and compare.");
@@ -203,7 +242,7 @@ void CabinEqPage::paint (juce::Graphics& g)
     g.drawHorizontalLine (topBar.getBottom() - 1, (float) topBar.getX(), (float) topBar.getRight());
 
     // The profile's name
-    auto title = topBar.reduced (20, 0).withWidth (std::max (0, undoButton->getX() - topBar.getX() - 32));
+    auto title = topBar.reduced (20, 0).withWidth (std::max (0, bandsModeButton.getX() - topBar.getX() - 32));
     g.setColour (Theme::text);
     g.setFont (Theme::font (17.0f, true));
     g.drawText (processor.getProfiles().getSelectedProfileName(), title, juce::Justification::centredLeft, true);
@@ -244,7 +283,9 @@ void CabinEqPage::resized()
     placeRight (autoGainToggle, 148, 30, 10);
     placeRight (preampField, 92, 38, 18);
     placeRight (*redoButton, 32, 32, 2);
-    placeRight (*undoButton, 32, 32, 0);
+    placeRight (*undoButton, 32, 32, 14);
+    placeRight (curveModeButton, 58, 28, 0);
+    placeRight (bandsModeButton, 58, 28, 0);
 
     if (calibrationPanel.isVisible())
         calibrationPanel.setBounds (area.removeFromBottom (CalibrationPanel::preferredHeight));

@@ -56,6 +56,7 @@ private:
     void showCrossfeed();
     void showMessage (const juce::String& title, const juce::String& message);
     void setCalibrationShown (bool shouldShow);
+    void setMode (BandProfile::Mode mode);
 
     CabinEqAudioProcessor& processor;
 
@@ -68,6 +69,7 @@ private:
     ValueField preampField { "Preamp", -30.0, 30.0, 0.0 };
     ValueField volumeField { "Volume", -30.0, 24.0, 0.0 };
     juce::ToggleButton autoGainToggle { "Auto gain" };
+    juce::TextButton bandsModeButton { "Bands" }, curveModeButton { "Curve" };
     juce::AudioProcessorValueTreeState::ButtonAttachment autoGainAttachment;
 
     juce::TooltipWindow tooltipWindow { this, 600 };

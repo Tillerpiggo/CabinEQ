@@ -25,7 +25,13 @@ public:
     juce::File getPluginFile() const { return pluginFile; }
     juce::String getPluginError() const { return pluginError; }
     void setPluginFile (const juce::File& file);   // loads it and reconnects
-    static juce::File getDefaultPluginFile();
+    static juce::File getDefaultPluginFile();  // the copy inside the app, if there is one, otherwise the installed one
+    static juce::File getBundledPluginFile();
+    static juce::File getInstalledPluginFile(); // ~/Library/Audio/Plug-Ins/VST3/CabinEQ.vst3
+    bool isUsingBundledPlugin() const;
+    bool canInstallPluginForDAWs() const;
+    bool isPluginInstalledForDAWs() const;
+    bool installPluginForDAWs();
 
     // Permission to hear other apps' audio
     SystemAudioTap::Permission getPermission() const { return permission; }
@@ -120,7 +126,7 @@ private:
 
     // What the timer has seen
     double lastCallbackTime = 0, lastInputTime = 0, lastOutputTime = 0, lastReconnectTime = 0;
-    double otherAppPlayingSince = 0, lastDropoutTime = 0, lastSlowCheck = 0, lastPoll = 0;
+    double otherAppPlayingSince = 0, lastDropoutTime = 0, lastPoll = 0;
     bool otherAppPlaying = false;
     float inputLevel = -100, outputLevel = -100;
     Status status;

@@ -31,6 +31,9 @@ public:
 
 private:
     std::optional<Band> currentBand() const;
+    std::optional<CurvePoint> currentPoint() const; // in curve mode, bandId is a point's id
+    bool isCurveMode() const;
+    void editPoint (std::function<void (CurvePoint&)> change);
     void edit (const juce::String& name, std::function<void (Band&)> change);
     void updateControls();
 

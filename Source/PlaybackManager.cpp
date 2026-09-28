@@ -18,6 +18,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     mixRamp.assign ((size_t) maxChunkSize, 1.0f);
 
     filter.prepare (spec.sampleRate);
+    curveFilter.prepare ({ spec.sampleRate, (juce::uint32) maxChunkSize, (juce::uint32) std::min (spec.numChannels, (juce::uint32) 2) });
     crossfeed.prepare (spec);
     calibration.prepare (spec.sampleRate);
 
@@ -35,6 +36,11 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 void PlaybackManager::setBands (const std::vector<Band>& bands)
 {
     filter.setBands (bands);
+}
+
+void PlaybackManager::setCurve (std::optional<std::vector<CurvePoint>> points)
+{
+    curveFilter.setCurve (std::move (points));
 }
 
 void PlaybackManager::setGainDb (float newGainDb)
@@ -89,6 +95,7 @@ void PlaybackManager::processChunk (juce::AudioBuffer<float>& buffer, int start,
     if (isFullyBypassed)
     {
         filter.clearState();
+        curveFilter.reset();
         crossfeed.reset();
         isFullyBypassed = false;
     }
@@ -100,6 +107,7 @@ void PlaybackManager::processChunk (juce::AudioBuffer<float>& buffer, int start,
 
     juce::dsp::AudioBlock<float> block (buffer.getArrayOfWritePointers(), (size_t) numChannels, (size_t) start, (size_t) length);
     filter.process (block);
+    curveFilter.process (block);
     crossfeed.process (block);
 
     if (gain.isSmoothing())
