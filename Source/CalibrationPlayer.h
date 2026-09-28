@@ -17,8 +17,9 @@
     If some positions are selected, only those play.
 
     In spots mode it plays 2 or 3 spots instead of the grid, each with its own pan.
-    Each spot plays from its own frequency up to the next spot's (the highest one up
-    to 20 kHz), so the spots stack into bands you place on the EQ graph.
+    Each spot plays from its own frequency up to the highest spot's (the highest one
+    itself plays up to 20 kHz), so the spots are bands with a shared top that you place
+    on the EQ graph.
 
     The setters can be called from any thread; process() is for the audio thread.
 
@@ -266,11 +267,11 @@ private:
             pan = 0.5f * (spotPan[(size_t) position].load() + 1.0f);
             cutoff = spotFrequency[(size_t) position].load();
 
-            // It plays up to the next spot above it
+            // It plays up to the highest spot (unless it is the highest)
             for (int other = 0; other < count; ++other)
             {
                 const double frequency = spotFrequency[(size_t) other].load();
-                if (other != position && frequency > cutoff * 1.001 && (top == 0.0 || frequency < top))
+                if (other != position && frequency > cutoff * 1.001 && frequency > top)
                     top = frequency;
             }
             if (cutoff <= 20.0)

@@ -414,16 +414,18 @@ void CabinPeqGraph::drawSpots (juce::Graphics& g)
         const bool isPlaying = playing && i == shownSpot;
         const bool isHot = i == draggingSpot || i == hoverSpot || hoverAllSpots || dragMode == DragMode::spotsTogether;
 
-        // What it plays: from here up to the next spot above it (or to the top)
+        // What it plays: from here up to the highest spot (or, for the highest, to the top)
         if (isPlaying)
         {
-            float end = plot.getRight();
+            float end = -1.0f;
             for (int other = 0; other < CalibrationSettings::getSpotCount (state); ++other)
             {
                 const float otherX = xForFrequency (CalibrationSettings::getSpot (state, other).frequency);
                 if (other != i && otherX > x + 0.5f)
-                    end = std::min (end, otherX);
+                    end = std::max (end, otherX);
             }
+            if (end < 0.0f)
+                end = plot.getRight();
             g.setColour (colour.withAlpha (0.08f));
             g.fillRect (juce::Rectangle<float> (x, plot.getY(), end - x, plot.getHeight()).getIntersection (plot));
         }

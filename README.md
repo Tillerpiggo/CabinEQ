@@ -33,8 +33,8 @@ loads the VST3 to EQ everything the Mac plays.
   right are its own volume, a speed (0.5 to 8 bursts a second, 2.5 to start), and a depth: each position plays that many times, quietest first,
   10 dB louder each time. Hiding it stops the sound.
 - **Calibration on the graph** (the panel's "On graph" mode): 2 or 3 spots, A, B and C, each with its
-  own pan. Each plays from its frequency up to the next spot's (the highest up to 20 kHz), with sharp
-  edges. They show on the EQ graph as dashed lines: drag a line to move them all together, keeping
+  own pan. Each plays from its frequency up to the highest spot's (the highest itself up to 20 kHz),
+  with sharp edges. They show on the EQ graph as dashed lines: drag a line to move them all together, keeping
   their spacing, or a chip along the bottom to move one. The one playing lights up. Zoom in on the
   graph to place them, and the bands, precisely.
 - **Top bar**: undo/redo (Cmd+Z, Cmd+Shift+Z), the profile's preamp, auto gain (keeps

@@ -1082,7 +1082,7 @@ public:
             expect (heard == std::vector<int> { 1, 0, 1 }, "it goes back and forth between the two");
         }
 
-        beginTest ("Each spot plays up to the next one");
+        beginTest ("Each spot plays up to the highest one");
         {
             // With spots at 500 Hz and 3 kHz, the 500 Hz one should have almost nothing above 3 kHz,
             // unlike the 3 kHz one, which goes up to the top. Measure the first burst, which is spot A's.
@@ -1113,6 +1113,39 @@ public:
                 return buffer.getRMSLevel (0, 0, buffer.getNumSamples());
             };
             expectLessThan (highEnergyOfSpot (true) * 50.0f, highEnergyOfSpot (false), "the lower spot stops at the higher one");
+
+            // With three, the lowest goes past the middle one, up to the top one
+            auto energyBetweenOfLowest = [] ()
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::spots);
+                player.setSpotCount (3);
+                player.setSpot (0, 200.0f, 0.0f);
+                player.setSpot (1, 1000.0f, 0.0f);
+                player.setSpot (2, 8000.0f, 0.0f);
+                player.setRate (0.5f);
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) sampleRate);
+                buffer.clear();
+                player.process (buffer);
+
+                // What's between the middle and top spots (2-5 kHz)
+                FilterChain band;
+                band.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                {
+                    cuts.push_back (Band::withQ (i, 2000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::lowCut));
+                    cuts.push_back (Band::withQ (10 + i, 5000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::highCut));
+                }
+                band.setBands (cuts);
+                band.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                band.process (block);
+                return buffer.getRMSLevel (0, 0, buffer.getNumSamples());
+            };
+            expectGreaterThan (energyBetweenOfLowest(), 1.0e-3f, "the lowest spot has sound above the middle spot");
         }
 
         beginTest ("Clicking a position repeats just it");
