@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include <set>
+#include <array>
 #include "CabinEqAudioProcessor.h"
 #include "BandEqCurve.h"
 #include "Theme.h"
@@ -20,14 +21,14 @@
 ///
 ///  - Click the 0 dB line (or double-click anywhere) to add a band, and drag to shape it
 ///  - Drag a band to move it. Hold Cmd/Ctrl to move finely
-///  - Shift-drag (or Alt-drag) up and down, or scroll over a band, to change its width. Up is wider.
+///  - Shift-drag (or Alt-drag) up and down to change a band's width. Up is wider.
 ///    Shift can be pressed or let go mid-drag to switch between moving and widening
 ///  - Drag across empty space to select several bands, and Shift-click to add or remove one
 ///  - Double-click a band to turn it off and on, and right-click it to delete it
 ///  - Delete removes the selected bands, arrows nudge them, and Cmd/Ctrl+A selects all
 ///  - The -/+ in the top right, or dragging or scrolling on the dB axis, zooms the view (not the
 ///    bands' limits); double-click the axis to go back to +/-30 dB
-///  - Scrolling (or pinching) anywhere else zooms in on frequencies around the mouse; scrolling
+///  - Scrolling (or pinching) anywhere else zooms in on the frequency under the mouse; scrolling
 ///    sideways, Shift-scrolling or dragging the frequency axis moves along them. Double-click the
 ///    frequency axis to see 20 Hz to 20 kHz again
 class CabinPeqGraph  : public juce::Component,
@@ -66,7 +67,7 @@ public:
     bool keyPressed (const juce::KeyPress&) override;
 
 private:
-    enum class DragMode { none, bands, marquee, zoom, spot, pan };
+    enum class DragMode { none, bands, marquee, zoom, spot, spotsTogether, pan };
 
     // The -/+ dB range control in the top right
     struct ZoomControl { juce::Rectangle<float> bounds, minus, plus, label; };
@@ -94,6 +95,7 @@ private:
     float yForDb (float db) const;
     float dbForY (float y) const;
     juce::Point<float> handlePosition (const Band& band) const;
+    bool isHandleVisible (const Band& band) const;
 
     // Finding things under the mouse
     std::optional<Band> bandAt (juce::Point<float> position) const;
@@ -163,6 +165,9 @@ private:
     int draggingSpot = -1, hoverSpot = -1, shownSpot = -1;
     juce::Rectangle<float> spotChip (int index) const;
     int spotChipAt (juce::Point<float> position) const;
+    int spotLineAt (juce::Point<float> position) const;
+    float spotDragAnchor = 1000.0f;
+    std::array<float, CalibrationPlayer::maxSpots> spotFrequenciesAtDragStart {};
     void drawSpots (juce::Graphics&);
     static constexpr float handleRadius = 7.5f;
     static constexpr float axisHeight = 22.0f;

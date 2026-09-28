@@ -111,7 +111,7 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         controls.frequency->format = [] (double v) { return Format::frequency (v); };
         controls.frequency->parse = Format::parseFrequency;
         controls.frequency->setAccentColour (CalibrationSettings::spotColour (i));
-        controls.frequency->setTooltip ("Its low cut: it plays everything above this. You can also drag it on the graph.");
+        controls.frequency->setTooltip ("Where it starts: it plays from here up to the next spot. You can also drag it on the graph.");
         controls.frequency->onValueChange = [this, i] (double v)
         {
             auto spot = CalibrationSettings::getSpot (processor.parameters.state, i);
@@ -437,7 +437,7 @@ void CalibrationPanel::paint (juce::Graphics& g)
         g.setColour (Theme::textFaint);
         g.setFont (Theme::font (11.5f));
         auto hint = spotsArea;
-        g.drawText ("Drag the spots along the bottom of the graph, or type their frequency here.",
+        g.drawText ("Each spot plays up to the next one. Drag a line on the graph to move them all, or a chip to move one.",
                     hint.removeFromBottom (18), juce::Justification::centredLeft, true);
         return;
     }

@@ -10,9 +10,9 @@
     arrow keys (Shift+arrow to add the next one). It has its own volume, and a
     depth that plays each position several times, getting louder.
 
-    "On graph" plays 2 or 3 spots instead, each with a base frequency (its low cut)
-    and a pan. They show on the EQ graph, where you can drag them, so you can line
-    them up with the bands exactly.
+    "On graph" plays 2 or 3 spots instead, each from its base frequency up to the
+    next spot's, with its own pan. They show on the EQ graph, where you can drag
+    them, so you can line them up with the bands exactly.
 
   ==============================================================================
 */

@@ -16,8 +16,9 @@
 
     If some positions are selected, only those play.
 
-    In spots mode it plays 2 or 3 spots instead of the grid, each with its own base
-    frequency (the low cut) and pan, which you place on the EQ graph.
+    In spots mode it plays 2 or 3 spots instead of the grid, each with its own pan.
+    Each spot plays from its own frequency up to the next spot's (the highest one up
+    to 20 kHz), so the spots stack into bands you place on the EQ graph.
 
     The setters can be called from any thread; process() is for the audio thread.
 
@@ -209,12 +210,17 @@ private:
         bool active = false, bandLimited = false;
         int age = 0;
         float peak = 0, leftGain = 0, rightGain = 0;
-        std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
+        std::array<Biquad, 4> stages;    // an 8th-order Butterworth high-pass, for a sharp cut
+        std::array<Biquad, 4> topStages; // and a low-pass like it, for spots with one above them
+        bool hasTop = false;
 
         float filter (float x) noexcept
         {
             for (auto& stage : stages)
                 x = stage.process (x);
+            if (hasTop)
+                for (auto& stage : topStages)
+                    x = stage.process (x);
             return x;
         }
     };
@@ -252,13 +258,21 @@ private:
         }
         currentPosition = position;
 
-        // Where it is between the ears (0 = left, 1 = right), and where its low cut is
+        // Where it is between the ears (0 = left, 1 = right), and where its low (and high) cut is
         float pan;
-        double cutoff;
+        double cutoff, top = 0.0;
         if (spots)
         {
             pan = 0.5f * (spotPan[(size_t) position].load() + 1.0f);
             cutoff = spotFrequency[(size_t) position].load();
+
+            // It plays up to the next spot above it
+            for (int other = 0; other < count; ++other)
+            {
+                const double frequency = spotFrequency[(size_t) other].load();
+                if (other != position && frequency > cutoff * 1.001 && (top == 0.0 || frequency < top))
+                    top = frequency;
+            }
             if (cutoff <= 20.0)
                 cutoff = 0.0;
         }
@@ -284,18 +298,25 @@ private:
         // Pink noise has the same power in every octave, so cutting some octaves off makes it
         // quieter; make up for that so every row (or spot) is as loud.
         cutoff = std::min (cutoff, FilterDesign::maxFrequency (sampleRate) * 0.9);
-        voice->bandLimited = cutoff > 0.0;
+        voice->hasTop = top > 0.0 && top < FilterDesign::maxFrequency (sampleRate) * 0.9;
+        voice->bandLimited = cutoff > 0.0 || voice->hasTop;
         voice->peak = 1.0f;
+
+        // Butterworth: four biquads with these Qs make a flat 8th-order filter
+        const double qs[] { 0.5098, 0.6013, 0.9000, 2.5629 };
         if (voice->bandLimited)
         {
-            const double octavesLeft = std::log2 (20000.0 / cutoff), octavesAll = std::log2 (20000.0 / 20.0);
-            voice->peak = (float) std::sqrt (octavesAll / std::max (0.5, octavesLeft));
+            const double bottom = std::max (20.0, cutoff), upper = voice->hasTop ? top : 20000.0;
+            const double octavesLeft = std::log2 (upper / bottom), octavesAll = std::log2 (20000.0 / 20.0);
+            voice->peak = (float) std::sqrt (octavesAll / std::max (0.25, octavesLeft));
 
-            // Butterworth: four biquads with these Qs make a flat 8th-order high-pass
-            const double qs[] { 0.5098, 0.6013, 0.9000, 2.5629 };
             for (size_t i = 0; i < voice->stages.size(); ++i)
-                voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
+                voice->stages[i] = Biquad { cutoff > 0.0 ? FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate)
+                                                         : FilterDesign::Biquad {} };
         }
+        if (voice->hasTop)
+            for (size_t i = 0; i < voice->topStages.size(); ++i)
+                voice->topStages[i] = Biquad { FilterDesign::design (Band::Shape::highCut, top, 0.0, qs[i], sampleRate) };
 
         // Quietest first: each repeat is 10 dB louder, ending at full level
         voice->peak *= juce::Decibels::decibelsToGain (-depthStepDb * (float) (timesEach - 1 - repeat));

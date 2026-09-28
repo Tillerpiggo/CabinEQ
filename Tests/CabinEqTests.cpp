@@ -810,6 +810,24 @@ public:
             graph.refresh();
         }
 
+        beginTest ("Scrolling over a band zooms, and leaves its width alone");
+        {
+            profile.getSelectedProfile().setBands ({ Band::withQ (0, 632.0f, 0.0f, 2.0f, Band::Type::both) });
+            graph.refresh();
+            const juce::Point<float> onBand { 500.0f, (500.0f - 22.0f) * 0.5f };
+            juce::MouseWheelDetails wheel {};
+            wheel.deltaY = 0.5f;
+            wheel.deltaX = 0.05f; // a little sideways, as trackpads do
+            graph.mouseWheelMove (event (graph, onBand, onBand, {}), wheel);
+            expectWithinAbsoluteError (profile.getSelectedProfile().getBandProfile().getBands()[0].qFactor, 2.0f, 0.001f);
+
+            auto& state = processor.parameters.state;
+            const float low = state.getProperty ("graphLowFrequency"), high = state.getProperty ("graphHighFrequency");
+            expectWithinAbsoluteError (low * std::pow (high / low, 0.5f), 632.5f, 3.0f, "zoomed in on the frequency under the mouse");
+            profile.getSelectedProfile().setBands ({});
+            graph.mouseDoubleClick (event (graph, { 500.0f, 490.0f }, { 500.0f, 490.0f }, {}, 2));
+        }
+
         beginTest ("Scrolling zooms in on frequencies around the mouse, and double-clicking the axis resets");
         {
             auto& state = processor.parameters.state;
@@ -850,6 +868,18 @@ public:
 
             expectWithinAbsoluteError (CalibrationSettings::getSpot (state, 0).frequency, 2000.0f, 40.0f);
             expectEquals (profile.getSelectedProfile().getNumBands(), 0, "and dragging it didn't add a band");
+
+            // Dragging a spot's line (up in the graph, away from the chips) moves them all, keeping their spacing
+            CalibrationSettings::setSpotCount (state, processor.getCalibration(), 2);
+            CalibrationSettings::setSpot (state, processor.getCalibration(), 0, { 200.0f, 0.0f });
+            CalibrationSettings::setSpot (state, processor.getCalibration(), 1, { 800.0f, 0.0f });
+            const juce::Point<float> onLine { x200, 100.0f };
+            const float x400 = std::log (400.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
+            graph.mouseDown (event (graph, onLine, onLine, juce::ModifierKeys::leftButtonModifier));
+            graph.mouseDrag (event (graph, { x400, onLine.y }, onLine, juce::ModifierKeys::leftButtonModifier));
+            graph.mouseUp (event (graph, { x400, onLine.y }, onLine, {}));
+            expectWithinAbsoluteError (CalibrationSettings::getSpot (state, 0).frequency, 400.0f, 8.0f);
+            expectWithinAbsoluteError (CalibrationSettings::getSpot (state, 1).frequency, 1600.0f, 32.0f, "B moved by the same ratio");
             graph.setCalibrationSpotsVisible (false);
         }
 
@@ -1050,6 +1080,39 @@ public:
                 heard.push_back (player.getCurrentPosition());
             }
             expect (heard == std::vector<int> { 1, 0, 1 }, "it goes back and forth between the two");
+        }
+
+        beginTest ("Each spot plays up to the next one");
+        {
+            // With spots at 500 Hz and 3 kHz, the 500 Hz one should have almost nothing above 3 kHz,
+            // unlike the 3 kHz one, which goes up to the top. Measure the first burst, which is spot A's.
+            auto highEnergyOfSpot = [] (bool lower)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::spots);
+                player.setSpotCount (2);
+                player.setSpot (0, lower ? 500.0f : 3000.0f, 0.0f);
+                player.setSpot (1, lower ? 3000.0f : 500.0f, 0.0f);
+                player.setRate (0.5f); // just the one burst in the second we listen to
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) sampleRate);
+                buffer.clear();
+                player.process (buffer);
+
+                // Steeply high-pass what came out at 6 kHz and see how much is left
+                FilterChain highPass;
+                highPass.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, 6000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::lowCut));
+                highPass.setBands (cuts);
+                highPass.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                highPass.process (block);
+                return buffer.getRMSLevel (0, 0, buffer.getNumSamples());
+            };
+            expectLessThan (highEnergyOfSpot (true) * 50.0f, highEnergyOfSpot (false), "the lower spot stops at the higher one");
         }
 
         beginTest ("Clicking a position repeats just it");

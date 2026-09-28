@@ -207,10 +207,14 @@ float CabinPeqGraph::dbForY (float y) const
 
 juce::Point<float> CabinPeqGraph::handlePosition (const Band& band) const
 {
-    const float range = getDisplayRange();
+    // Where the band really is, even if that's outside the view: it's clipped, not piled up at the edge
     const float db = band.hasGain() ? band.ampl : curve.dbAtFrequencyForBand (band, band.freq);
-    const float x = juce::jlimit (0.0f, (float) getWidth(), xForFrequency (band.freq));
-    return { x, yForDb (juce::jlimit (-range, range, db)) };
+    return { xForFrequency (band.freq), yForDb (db) };
+}
+
+bool CabinPeqGraph::isHandleVisible (const Band& band) const
+{
+    return getPlotArea().contains (handlePosition (band));
 }
 
 //==============================================================================
@@ -221,6 +225,9 @@ std::optional<Band> CabinPeqGraph::bandAt (juce::Point<float> position) const
     float bestDistance = handleRadius + 5.0f;
     for (const auto& band : bandProfile.getBands())
     {
+        if (! isHandleVisible (band)) // you can't grab what you can't see
+            continue;
+
         const float distance = handlePosition (band).getDistanceFrom (position);
         if (distance <= bestDistance || (band.id == focusedId && distance <= handleRadius + 5.0f))
         {
@@ -370,6 +377,16 @@ juce::Rectangle<float> CabinPeqGraph::spotChip (int index) const
     return juce::Rectangle<float> (width, 20.0f).withCentre ({ xForFrequency (spot.frequency), getPlotArea().getBottom() - 16.0f });
 }
 
+int CabinPeqGraph::spotLineAt (juce::Point<float> position) const
+{
+    if (! showSpots || ! getPlotArea().contains (position))
+        return -1;
+    for (int i = CalibrationSettings::getSpotCount (processor.parameters.state); --i >= 0;)
+        if (std::abs (xForFrequency (CalibrationSettings::getSpot (processor.parameters.state, i).frequency) - position.x) <= 5.0f)
+            return i;
+    return -1;
+}
+
 int CabinPeqGraph::spotChipAt (juce::Point<float> position) const
 {
     if (! showSpots)
@@ -397,11 +414,18 @@ void CabinPeqGraph::drawSpots (juce::Graphics& g)
         const bool isPlaying = playing && i == shownSpot;
         const bool isHot = i == draggingSpot || i == hoverSpot;
 
-        // What it plays: everything above its low cut
+        // What it plays: from here up to the next spot above it (or to the top)
         if (isPlaying)
         {
-            g.setColour (colour.withAlpha (0.07f));
-            g.fillRect (juce::Rectangle<float> (x, plot.getY(), plot.getRight() - x, plot.getHeight()).getIntersection (plot));
+            float end = plot.getRight();
+            for (int other = 0; other < CalibrationSettings::getSpotCount (state); ++other)
+            {
+                const float otherX = xForFrequency (CalibrationSettings::getSpot (state, other).frequency);
+                if (other != i && otherX > x + 0.5f)
+                    end = std::min (end, otherX);
+            }
+            g.setColour (colour.withAlpha (0.08f));
+            g.fillRect (juce::Rectangle<float> (x, plot.getY(), end - x, plot.getHeight()).getIntersection (plot));
         }
 
         juce::Path line;
@@ -783,6 +807,10 @@ void CabinPeqGraph::drawHandles (juce::Graphics& g)
 {
     const auto& bands = bandProfile.getBands();
 
+    // Handles past the edge of the view are cut off there, not squashed against it
+    juce::Graphics::ScopedSaveState clip (g);
+    g.reduceClipRegion (getPlotArea().toNearestInt());
+
     auto drawHandle = [&] (const Band& band, int index)
     {
         const auto centre = handlePosition (band);
@@ -916,7 +944,8 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent& event)
         hoverIsNearZeroLine = nearLine;
     }
 
-    const int spot = spotChipAt (event.position);
+    const int spot = spotChipAt (event.position) >= 0 ? spotChipAt (event.position)
+                   : (band.has_value() ? -1 : spotLineAt (event.position));
     if (spot != hoverSpot)
         hoverSpot = spot;
 
@@ -978,6 +1007,16 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
         {
             dragMode = DragMode::zoom;
             rangeAtDragStart = getDisplayRange();
+            return;
+        }
+
+        // A spot's line (away from any band) moves all the spots together, keeping their spacing
+        if (const int line = spotLineAt (event.position); line >= 0 && ! bandAt (event.position).has_value())
+        {
+            dragMode = DragMode::spotsTogether;
+            spotDragAnchor = frequencyForX (event.position.x);
+            for (int i = 0; i < CalibrationPlayer::maxSpots; ++i)
+                spotFrequenciesAtDragStart[(size_t) i] = CalibrationSettings::getSpot (processor.parameters.state, i).frequency;
             return;
         }
     }
@@ -1063,6 +1102,29 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
         auto spot = CalibrationSettings::getSpot (processor.parameters.state, draggingSpot);
         spot.frequency = frequencyForX (juce::jlimit (getPlotArea().getX(), getPlotArea().getRight(), event.position.x));
         CalibrationSettings::setSpot (processor.parameters.state, processor.getCalibration(), draggingSpot, spot);
+        repaint();
+        return;
+    }
+
+    if (dragMode == DragMode::spotsTogether)
+    {
+        // Shift them all by the same ratio, as far as the lowest and highest can go
+        const int count = CalibrationSettings::getSpotCount (processor.parameters.state);
+        float lowest = 20000.0f, highest = 0.0f;
+        for (int i = 0; i < count; ++i)
+        {
+            lowest = std::min (lowest, spotFrequenciesAtDragStart[(size_t) i]);
+            highest = std::max (highest, spotFrequenciesAtDragStart[(size_t) i]);
+        }
+        const float x = juce::jlimit (getPlotArea().getX(), getPlotArea().getRight(), event.position.x);
+        const float ratio = juce::jlimit (20.0f / lowest, 16000.0f / highest, frequencyForX (x) / spotDragAnchor);
+
+        for (int i = 0; i < count; ++i)
+        {
+            auto spot = CalibrationSettings::getSpot (processor.parameters.state, i);
+            spot.frequency = spotFrequenciesAtDragStart[(size_t) i] * ratio;
+            CalibrationSettings::setSpot (processor.parameters.state, processor.getCalibration(), i, spot);
+        }
         repaint();
         return;
     }
@@ -1219,25 +1281,22 @@ void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::M
         return;
     }
 
-    // Scrolling over a band changes its width (and the selection's, if it's part of it)
-    if (auto band = bandAt (event.position))
-    {
-        const float delta = (std::abs (wheel.deltaY) > std::abs (wheel.deltaX) ? wheel.deltaY : wheel.deltaX) * sign;
-        if (delta == 0.0f)
-            return;
-        beginEdit ("Change width", true);
-        changeWidth (selectedIds.count (band->id) > 0 ? getSelectedBands() : std::vector<Band> { *band },
-                     std::exp (delta * (event.mods.isShiftDown() ? 0.15f : 0.8f)));
-        return;
-    }
-
-    // Anywhere else: scroll to zoom in on frequencies around the mouse, sideways (or with Shift) to move along
+    // Anywhere else, scrolling zooms in on the frequency under the mouse, which stays where it is.
+    // Scrolling mostly sideways (or with Shift) moves along instead. Trackpads send a little sideways
+    // movement with every scroll, so only move along when it's clearly what you're doing.
     const float octavesShown = std::log2 (viewHigh / viewLow);
-    const float sideways = event.mods.isShiftDown() ? wheel.deltaY + wheel.deltaX : wheel.deltaX;
-    if (sideways != 0.0f)
-        panFrequencies (-sideways * sign * octavesShown * 0.5f);
-    if (! event.mods.isShiftDown() && wheel.deltaY != 0.0f)
+    if (event.mods.isShiftDown())
+    {
+        panFrequencies (-(wheel.deltaY + wheel.deltaX) * sign * octavesShown * 0.5f);
+    }
+    else if (std::abs (wheel.deltaX) > 2.0f * std::abs (wheel.deltaY))
+    {
+        panFrequencies (-wheel.deltaX * sign * octavesShown * 0.5f);
+    }
+    else if (wheel.deltaY != 0.0f)
+    {
         zoomFrequencies (std::exp (-wheel.deltaY * sign * 0.8f), event.position.x);
+    }
 }
 
 void CabinPeqGraph::mouseMagnify (const juce::MouseEvent& event, float scaleFactor)
