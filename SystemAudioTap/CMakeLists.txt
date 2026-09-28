@@ -30,10 +30,23 @@ target_sources(CabinEQSystem PRIVATE
 
 set_source_files_properties(Source/SystemAudioTap.mm Source/AudioDevices.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
 
-# Sign the whole bundle (the linker only signs the binary), so macOS remembers the
-# System Audio Recording permission between launches
+# Sign the whole bundle (the linker only signs the binary), so macOS remembers the System Audio
+# Recording permission. A real identity keeps it across rebuilds; an ad hoc signature ("-")
+# changes every build, so macOS asks again. Uses your Apple Development identity if there is one.
+if(NOT DEFINED CABINEQ_SYSTEM_SIGNING_IDENTITY)
+    execute_process(COMMAND security find-identity -v -p codesigning
+                    OUTPUT_VARIABLE identities ERROR_QUIET)
+    string(REGEX MATCH "\"Apple Development: [^\"]+\"" identity "${identities}")
+    string(REPLACE "\"" "" identity "${identity}")
+    if(identity STREQUAL "")
+        set(identity "-")
+    endif()
+    set(CABINEQ_SYSTEM_SIGNING_IDENTITY "${identity}" CACHE STRING "Code signing identity for CabinEQ System (- for ad hoc)")
+endif()
+message(STATUS "Signing CabinEQ System with: ${CABINEQ_SYSTEM_SIGNING_IDENTITY}")
+
 add_custom_command(TARGET CabinEQSystem POST_BUILD
-    COMMAND codesign --force --sign - "$<TARGET_BUNDLE_DIR:CabinEQSystem>"
+    COMMAND codesign --force --timestamp=none --sign "${CABINEQ_SYSTEM_SIGNING_IDENTITY}" "$<TARGET_BUNDLE_DIR:CabinEQSystem>"
     VERBATIM)
 
 target_compile_definitions(CabinEQSystem PRIVATE

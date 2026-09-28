@@ -11,6 +11,7 @@ constexpr double testSeconds = 1.5;
 const juce::String keyOutput { "outputUID" };
 const juce::String keyPlugin { "pluginPath" };
 const juce::String keySeenSetup { "seenSetup" };
+const juce::String keyImported { "importedStandaloneProfiles" };
 
 double now() { return juce::Time::getMillisecondCounterHiRes() / 1000.0; }
 
@@ -128,15 +129,20 @@ void Engine::restorePluginState()
     const auto file = getStateFile();
     juce::MemoryBlock state;
 
+    auto& stored = *settings.getUserSettings();
+
     if (file.existsAsFile() && file.loadFileAsData (state) && state.getSize() > 0)
     {
         plugin->setStateInformation (state.getData(), (int) state.getSize());
+        stored.setValue (keyImported, true); // it has settings of its own now
         if (log != nullptr)
             log->logMessage ("Restored " + plugin->getName() + "'s settings from " + file.getFullPathName());
     }
-    else if (audioAllowed && importFromStandaloneApp())
+    else if (audioAllowed && ! stored.getBoolValue (keyImported, false) && importFromStandaloneApp())
     {
-        savePluginState(); // so the import only happens once
+        // Only ever import once, so clearing the settings later doesn't bring the old profiles back
+        stored.setValue (keyImported, true);
+        savePluginState();
     }
 
     lastSavedState.reset();
