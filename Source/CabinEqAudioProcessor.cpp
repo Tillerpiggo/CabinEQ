@@ -302,15 +302,33 @@ void CabinEqAudioProcessor::refresh()
 
     auto bandProfile = selected.getBandProfile();
     pushBandsToAudio (bandProfile);
-    curve.setSampleRate (getCurveSampleRate());
-    curve.updateWithBands (bandProfile.getBands());
-    autoGainDb = -curve.loudnessChangeDb();
+    if (bandProfile.isCurve())
+    {
+        autoGainDb = -CurveResponse (bandProfile.getPoints()).loudnessChangeDb();
+    }
+    else
+    {
+        curve.setSampleRate (getCurveSampleRate());
+        curve.updateWithBands (bandProfile.getBands());
+        autoGainDb = -curve.loudnessChangeDb();
+    }
 }
 
 void CabinEqAudioProcessor::pushBandsToAudio (const BandProfile& bandProfile)
 {
     const juce::ScopedLock lock (refreshLock);
-    playbackManager.setBands (bandProfile.getBands());
+
+    // Only one kind plays: the other fades out
+    if (bandProfile.isCurve())
+    {
+        playbackManager.setBands ({});
+        playbackManager.setCurve (bandProfile.getPoints());
+    }
+    else
+    {
+        playbackManager.setBands (bandProfile.getBands());
+        playbackManager.setCurve (std::nullopt);
+    }
     preampDb = bandProfile.getVolume();
 }
 

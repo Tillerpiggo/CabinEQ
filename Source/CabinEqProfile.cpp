@@ -40,6 +40,19 @@ juce::ValueTree CabinEqProfile::createTree (const juce::String& name, const Band
         bandsTree.appendChild (treeFromBand (band), nullptr);
     }
     profileTree.appendChild (bandsTree, nullptr);
+
+    juce::ValueTree curveTree (idCurve);
+    int nextPointId = 0;
+    for (const auto& point : bandProfile.getPoints())
+    {
+        juce::ValueTree pointTree (idPoint);
+        pointTree.setProperty (idId, nextPointId++, nullptr);
+        pointTree.setProperty (idFreq, point.freq, nullptr);
+        pointTree.setProperty (idGain, point.gain, nullptr);
+        curveTree.appendChild (pointTree, nullptr);
+    }
+    profileTree.appendChild (curveTree, nullptr);
+    profileTree.setProperty (idMode, bandProfile.isCurve() ? "curve" : "bands", nullptr);
     return profileTree;
 }
 
@@ -125,7 +138,101 @@ BandProfile CabinEqProfile::getBandProfile() const
     for (const auto& bandTree : tree.getChildWithName (idBands))
         if (bandTree.hasType (idBand))
             bands.push_back (bandFromTree (bandTree));
-    return BandProfile (std::move (bands), getVolume());
+
+    std::vector<CurvePoint> points;
+    for (const auto& pointTree : tree.getChildWithName (idCurve))
+        if (pointTree.hasType (idPoint))
+            points.push_back ({ (int) pointTree.getProperty (idId, 0),
+                                juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, (float) pointTree.getProperty (idFreq, 1000.0f)),
+                                juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, (float) pointTree.getProperty (idGain, 0.0f)) });
+
+    BandProfile profile (std::move (bands), getVolume());
+    profile.setPoints (std::move (points));
+    profile.setMode (getMode());
+    return profile;
+}
+
+BandProfile::Mode CabinEqProfile::getMode() const
+{
+    return tree.getProperty (idMode).toString() == "curve" ? BandProfile::Mode::curve : BandProfile::Mode::bands;
+}
+
+void CabinEqProfile::setMode (BandProfile::Mode mode)
+{
+    tree.setProperty (idMode, mode == BandProfile::Mode::curve ? "curve" : "bands", undoManager);
+}
+
+juce::ValueTree CabinEqProfile::getCurveTree()
+{
+    auto curveTree = tree.getChildWithName (idCurve);
+    if (! curveTree.isValid())
+    {
+        curveTree = juce::ValueTree (idCurve);
+        tree.appendChild (curveTree, undoManager);
+    }
+    return curveTree;
+}
+
+std::optional<CurvePoint> CabinEqProfile::getPoint (int id) const
+{
+    return getBandProfile().getPointWithId (id);
+}
+
+int CabinEqProfile::getNumPoints() const
+{
+    return tree.getChildWithName (idCurve).getNumChildren();
+}
+
+int CabinEqProfile::addPoint (const CurvePoint& point)
+{
+    if (getNumPoints() >= maxPoints)
+        return -1;
+
+    int id = -1;
+    for (const auto& pointTree : tree.getChildWithName (idCurve))
+        id = std::max ((int) pointTree.getProperty (idId, 0), id);
+    ++id;
+
+    juce::ValueTree pointTree (idPoint);
+    pointTree.setProperty (idId, id, nullptr);
+    pointTree.setProperty (idFreq, juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, point.freq), nullptr);
+    pointTree.setProperty (idGain, juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, point.gain), nullptr);
+    getCurveTree().appendChild (pointTree, undoManager);
+    return id;
+}
+
+void CabinEqProfile::updatePoint (const CurvePoint& point)
+{
+    auto pointTree = getCurveTree().getChildWithProperty (idId, point.id);
+    if (! pointTree.isValid())
+        return;
+    pointTree.setProperty (idFreq, juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, point.freq), undoManager);
+    pointTree.setProperty (idGain, juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, point.gain), undoManager);
+}
+
+void CabinEqProfile::removePoint (int id)
+{
+    auto curveTree = getCurveTree();
+    auto pointTree = curveTree.getChildWithProperty (idId, id);
+    if (pointTree.isValid())
+        curveTree.removeChild (pointTree, undoManager);
+}
+
+void CabinEqProfile::setPoints (const std::vector<CurvePoint>& points)
+{
+    auto curveTree = getCurveTree();
+    curveTree.removeAllChildren (undoManager);
+    int id = 0;
+    for (const auto& point : points)
+    {
+        if (id >= maxPoints)
+            break;
+        juce::ValueTree pointTree (idPoint);
+        pointTree.setProperty (idId, id++, nullptr);
+        pointTree.setProperty (idFreq, juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, point.freq), nullptr);
+        pointTree.setProperty (idGain, juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, point.gain), nullptr);
+        curveTree.appendChild (pointTree, undoManager);
+    }
 }
 
 std::optional<Band> CabinEqProfile::getBand (int id) const

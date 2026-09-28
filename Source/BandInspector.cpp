@@ -45,8 +45,20 @@ BandInspector::BandInspector (CabinEqAudioProcessor& p)
     {
         field->onGestureStart = [this] { processor.getUndoManager().beginNewTransaction ("Edit band"); };
     }
-    frequencyField.onValueChange = [this] (double v) { edit ({}, [v] (Band& band) { band.freq = (float) v; }); };
-    gainField.onValueChange = [this] (double v) { edit ({}, [v] (Band& band) { band.ampl = (float) v; }); };
+    frequencyField.onValueChange = [this] (double v)
+    {
+        if (isCurveMode())
+            editPoint ([v] (CurvePoint& point) { point.freq = juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, (float) v); });
+        else
+            edit ({}, [v] (Band& band) { band.freq = (float) v; });
+    };
+    gainField.onValueChange = [this] (double v)
+    {
+        if (isCurveMode())
+            editPoint ([v] (CurvePoint& point) { point.gain = (float) v; });
+        else
+            edit ({}, [v] (Band& band) { band.ampl = (float) v; });
+    };
     qField.onValueChange = [this] (double v) { edit ({}, [v] (Band& band) { band.setQ ((float) v); }); };
 
     frequencyField.setTooltip ("Drag, scroll or double-click to type. Shift for fine control.");
@@ -83,9 +95,34 @@ void BandInspector::showBand (int newBandId, int newBandNumber, int newNumSelect
 
 std::optional<Band> BandInspector::currentBand() const
 {
-    if (bandId < 0)
+    if (bandId < 0 || isCurveMode())
         return std::nullopt;
     return processor.getSelectedProfile().getBand (bandId);
+}
+
+bool BandInspector::isCurveMode() const
+{
+    return processor.getSelectedProfile().getMode() == BandProfile::Mode::curve;
+}
+
+std::optional<CurvePoint> BandInspector::currentPoint() const
+{
+    if (bandId < 0 || ! isCurveMode())
+        return std::nullopt;
+    return processor.getSelectedProfile().getPoint (bandId);
+}
+
+void BandInspector::editPoint (std::function<void (CurvePoint&)> change)
+{
+    auto point = currentPoint();
+    if (! point.has_value())
+        return;
+
+    change (*point);
+    processor.getSelectedProfile().updatePoint (*point);
+    updateControls();
+    if (onEdited)
+        onEdited();
 }
 
 void BandInspector::edit (const juce::String& name, std::function<void (Band&)> change)
@@ -106,6 +143,20 @@ void BandInspector::edit (const juce::String& name, std::function<void (Band&)> 
 
 void BandInspector::updateControls()
 {
+    // A curve's point has just a frequency and a gain
+    if (auto point = currentPoint())
+    {
+        for (auto* child : getChildren())
+            child->setVisible (child == &frequencyField || child == &gainField || child == &deleteButton);
+        frequencyField.setValue (point->freq);
+        gainField.setValue (point->gain);
+        gainField.setEnabled (true);
+        deleteButton.setButtonText (numSelected > 1 ? "Delete " + juce::String (numSelected) : "Delete");
+        for (auto* field : { &frequencyField, &gainField })
+            field->setAccentColour (Theme::accentBright);
+        return;
+    }
+
     auto band = currentBand();
     const bool hasBand = band.has_value();
 
@@ -137,6 +188,20 @@ void BandInspector::paint (juce::Graphics& g)
 
     auto area = getLocalBounds().reduced (16, 0);
 
+    if (isCurveMode())
+    {
+        const auto point = currentPoint();
+        g.setColour (point.has_value() ? Theme::textDim : Theme::textFaint);
+        g.setFont (Theme::font (point.has_value() ? 11.0f : 13.0f));
+        if (! point.has_value())
+            g.drawText ("Curve mode: click to add a point, drag to move it, right-click to delete it. The curve plays as one smooth filter.",
+                        area, juce::Justification::centredLeft, true);
+        else
+            g.drawText (numSelected > 1 ? juce::String (numSelected) + " points" : "Point",
+                        area.removeFromLeft (110), juce::Justification::centredLeft);
+        return;
+    }
+
     if (! currentBand().has_value())
     {
         g.setColour (Theme::textFaint);
@@ -165,6 +230,16 @@ void BandInspector::paint (juce::Graphics& g)
 void BandInspector::resized()
 {
     auto area = getLocalBounds().reduced (16, 12);
+    if (isCurveMode())
+    {
+        area.removeFromLeft (110);
+        deleteButton.setBounds (area.removeFromRight (84).withSizeKeepingCentre (84, 30));
+        frequencyField.setBounds (area.removeFromLeft (116).withSizeKeepingCentre (116, 40));
+        area.removeFromLeft (8);
+        gainField.setBounds (area.removeFromLeft (104).withSizeKeepingCentre (104, 40));
+        return;
+    }
+
     area.removeFromLeft (numSelected > 1 ? 36 + 80 : 36);
     deleteButton.setBounds (area.removeFromRight (84).withSizeKeepingCentre (84, 30));
     area.removeFromRight (12);

@@ -48,7 +48,7 @@ public:
     void focusBand (int bandId);
     std::function<void()> onSelectionChanged;
 
-    void deleteSelectedBands();
+    void deleteSelectedBands(); // or points, in curve mode
 
     /// Shows the calibration spots, which can be dragged along the frequency axis
     void setCalibrationSpotsVisible (bool shouldShow);
@@ -67,7 +67,22 @@ public:
     bool keyPressed (const juce::KeyPress&) override;
 
 private:
-    enum class DragMode { none, bands, marquee, zoom, spotsTogether, spotsResize, pan };
+    enum class DragMode { none, bands, points, marquee, zoom, spotsTogether, spotsResize, pan };
+
+    // Curve mode: points the curve goes through, instead of bands
+    bool isCurveMode() const { return bandProfile.isCurve(); }
+    float responseDb (float frequency, int channel = -1) const; // of whichever the profile uses
+    juce::Point<float> pointPosition (const CurvePoint& point) const;
+    std::optional<CurvePoint> pointAt (juce::Point<float> position) const;
+    std::vector<CurvePoint> getSelectedPoints() const;
+    bool exists (int id) const; // a band or point with this id, whichever the mode
+    int addPointAt (juce::Point<float> position);
+    void updatePoints (const std::vector<CurvePoint>& points);
+    void curveMouseDown (const juce::MouseEvent&);
+    void drawPoints (juce::Graphics&);
+    CurveResponse curveResponse;
+    std::vector<CurvePoint> pointsAtDragStart;
+    bool wasCurveMode = false;
 
     // The -/+ dB range control in the top right
     struct ZoomControl { juce::Rectangle<float> bounds, minus, plus, label; };

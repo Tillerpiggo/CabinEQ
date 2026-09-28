@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "CurveResponse.h"
 
 /// One parametric EQ band.
 class Band
@@ -70,18 +71,34 @@ public:
     bool enabled;
 };
 
-/// A profile's bands and its preamp, as a plain value for the DSP and the UI.
+/// A profile's EQ as a plain value for the DSP and the UI: either bands (IIR filters that add up), or a curve
+/// through points (played by a FIR filter), and a preamp.
 class BandProfile
 {
 public:
+    enum class Mode { bands, curve };
+
     BandProfile() = default;
     BandProfile (std::vector<Band> bands, float volume);
+    BandProfile (std::vector<CurvePoint> points, float volume); // a curve profile
+
+    Mode getMode() const { return mode; }
+    bool isCurve() const { return mode == Mode::curve; }
 
     const std::vector<Band>& getBands() const;
     std::optional<Band> getBandWithId (int id) const;
+    const std::vector<CurvePoint>& getPoints() const { return points; }
+    std::optional<CurvePoint> getPointWithId (int id) const;
     float getVolume() const; // preamp, in dB
 
+    // Both kinds are kept, so switching back and forth loses nothing
+    void setMode (Mode newMode) { mode = newMode; }
+    void setPoints (std::vector<CurvePoint> newPoints) { points = std::move (newPoints); }
+    void setBands (std::vector<Band> newBands) { bands = std::move (newBands); }
+
 private:
+    Mode mode = Mode::bands;
     std::vector<Band> bands;
+    std::vector<CurvePoint> points;
     float volume = 0.0f;
 };

@@ -71,6 +71,7 @@ target_sources(CabinEQ PRIVATE
     Source/CabinEqProfileManager.cpp
     Source/CabinPeqGraph.cpp
     Source/CalibrationPanel.cpp
+    Source/CurveFilter.cpp
     Source/CabinStandalone.cpp
     Source/CrossfeedControl.cpp
     Source/CrossfeedProcessor.cpp

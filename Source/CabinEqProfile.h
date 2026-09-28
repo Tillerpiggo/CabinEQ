@@ -13,13 +13,18 @@
 #include <JuceHeader.h>
 #include "BandProfile.h"
 
-/// A handle to one profile's ValueTree, which is where its bands and preamp are saved:
+/// A handle to one profile's ValueTree, which is where its EQ and preamp are saved:
 ///
-///     <Profile ProfileName="..." ProfileVolume="0.0">
+///     <Profile ProfileName="..." ProfileVolume="0.0" mode="bands">
 ///       <Bands>
 ///         <Band id="0" freq="1000" ampl="3" bandwidth="1" bandtype="0" shape="0" enabled="1"/>
 ///       </Bands>
+///       <Curve>
+///         <Point id="0" freq="100" gain="4"/>
+///       </Curve>
 ///     </Profile>
+///
+/// "mode" says which of the two is playing; both are kept, so switching loses nothing.
 ///
 /// Copies share the same tree. Edits go through the UndoManager, if there is one.
 class CabinEqProfile
@@ -52,10 +57,25 @@ public:
     void setVolume (float volume);
     void renameTo (const juce::String& newName);
 
+    // Curve mode
+    BandProfile::Mode getMode() const;
+    void setMode (BandProfile::Mode mode);
+    std::optional<CurvePoint> getPoint (int id) const;
+    int getNumPoints() const;
+    int addPoint (const CurvePoint& point); // returns its new id, or -1 if the curve is full
+    void updatePoint (const CurvePoint& point); // matches on id
+    void removePoint (int id);
+    void setPoints (const std::vector<CurvePoint>& points); // replaces them all, giving them new ids
+    static constexpr int maxPoints = 64;
+
     static inline const juce::Identifier idProfile { "Profile" };
     static inline const juce::Identifier idProfileName { "ProfileName" };
     static inline const juce::Identifier idProfileVolume { "ProfileVolume" };
     static inline const juce::Identifier idBands { "Bands" };
+    static inline const juce::Identifier idMode { "mode" };
+    static inline const juce::Identifier idCurve { "Curve" };
+    static inline const juce::Identifier idPoint { "Point" };
+    static inline const juce::Identifier idGain { "gain" };
     static inline const juce::Identifier idBand { "Band" };
     static inline const juce::Identifier idId { "id" };
     static inline const juce::Identifier idFreq { "freq" };
@@ -69,6 +89,7 @@ private:
     static Band bandFromTree (const juce::ValueTree& bandTree);
     static juce::ValueTree treeFromBand (const Band& band);
     juce::ValueTree getBandsTree();
+    juce::ValueTree getCurveTree();
     int getNextBandId() const;
 
     juce::ValueTree tree;

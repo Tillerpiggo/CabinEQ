@@ -16,8 +16,10 @@
 #include "CrossfeedProcessor.h"
 #include "SpectrumAnalyzer.h"
 #include "CalibrationPlayer.h"
+#include "CurveFilter.h"
 
-/// The audio path: calibration sounds (when they're playing), then EQ bands, then crossfeed, then gain,
+/// The audio path: calibration sounds (when they're playing), then the EQ (bands, or a curve's FIR filter),
+/// then crossfeed, then gain,
 /// with a click-free bypass. Last comes the master volume, which applies whether the EQ is on or off,
 /// and a limiter that catches peaks a boost would push past full scale.
 /// setBands() is for the message thread; the other setters are safe from any thread.
@@ -28,6 +30,7 @@ public:
     void processBlock (juce::AudioBuffer<float>& buffer) noexcept;
 
     void setBands (const std::vector<Band>& bands);
+    void setCurve (std::optional<std::vector<CurvePoint>> points); // nothing when the profile uses bands
     void setGainDb (float gainDb); // preamp plus auto gain
     void setBypassed (bool shouldBeBypassed);
     void setVolumeDb (float volumeDb); // master volume, which can boost
@@ -41,6 +44,7 @@ private:
     void applyVolume (juce::AudioBuffer<float>& buffer, int start, int length) noexcept;
 
     FilterChain filter;
+    CurveFilter curveFilter;
     CrossfeedProcessor crossfeed;
     CalibrationPlayer calibration;
     SpectrumAnalyzer analyzer;
