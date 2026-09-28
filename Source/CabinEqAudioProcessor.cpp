@@ -26,6 +26,7 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
 {
     bypassParameter = dynamic_cast<juce::AudioParameterBool*> (parameters.getParameter (ParamIDs::bypass));
     autoGainParameter = parameters.getRawParameterValue (ParamIDs::autoGain);
+    volumeParameter = parameters.getRawParameterValue (ParamIDs::volume);
     crossfeedParameter = parameters.getRawParameterValue (ParamIDs::crossfeed);
     crossfeedLevelParameter = parameters.getRawParameterValue (ParamIDs::crossfeedLevel);
     crossfeedDelayParameter = parameters.getRawParameterValue (ParamIDs::crossfeedDelay);
@@ -112,6 +113,7 @@ void CabinEqAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     const bool autoGainOn = autoGainParameter->load() >= 0.5f;
     playbackManager.setGainDb (preampDb.load() + (autoGainOn ? autoGainDb.load() : 0.0f));
     playbackManager.setBypassed (bypassParameter->get());
+    playbackManager.setVolumeDb (volumeParameter->load());
 
     playbackManager.processBlock (buffer);
 }
@@ -218,6 +220,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout CabinEqAudioProcessor::creat
 
     layout.add (std::make_unique<AudioParameterBool> (ParameterID (ParamIDs::bypass, 1), "Bypass", false));
     layout.add (std::make_unique<AudioParameterBool> (ParameterID (ParamIDs::autoGain, 1), "Auto Gain", true));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID (ParamIDs::volume, 1), "Volume",
+                                                       NormalisableRange<float> (-30.0f, 24.0f, 0.1f), 0.0f,
+                                                       AudioParameterFloatAttributes().withLabel ("dB")));
     layout.add (std::make_unique<AudioParameterBool> (ParameterID (ParamIDs::crossfeed, 1), "Crossfeed", false));
     layout.add (std::make_unique<AudioParameterFloat> (ParameterID (ParamIDs::crossfeedLevel, 1), "Crossfeed Level",
                                                        NormalisableRange<float> (-24.0f, -3.0f, 0.1f), -9.0f,

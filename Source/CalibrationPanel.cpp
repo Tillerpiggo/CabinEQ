@@ -14,6 +14,7 @@ namespace
     const juce::Identifier idRows { "calibrationRows" };
     const juce::Identifier idColumns { "calibrationColumns" };
     const juce::Identifier idLevel { "calibrationLevel" };
+    const juce::Identifier idDepth { "calibrationDepth" };
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -21,24 +22,42 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
 {
     auto& state = processor.parameters.state;
 
-    auto setUp = [this] (juce::Slider& slider, juce::Label& label, const juce::String& text, double min, double max, double step, double value)
+    auto setUpSlider = [this] (juce::Slider& slider, juce::Slider::SliderStyle style, double min, double max, double step, double value)
     {
-        slider.setSliderStyle (juce::Slider::LinearHorizontal);
-        slider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 52, 20);
+        slider.setSliderStyle (style);
         slider.setRange (min, max, step);
         slider.setValue (value, juce::dontSendNotification);
         slider.onValueChange = [this] { applySettings(); };
         addAndMakeVisible (slider);
-
+    };
+    auto setUpLabel = [this] (juce::Label& label, const juce::String& text)
+    {
         label.setText (text, juce::dontSendNotification);
         label.setFont (Theme::font (12.0f));
         label.setColour (juce::Label::textColourId, Theme::textDim);
         addAndMakeVisible (label);
     };
 
-    setUp (rowsSlider, rowsLabel, "Rows", 1, CalibrationPlayer::maxRows, 1, (int) state.getProperty (idRows, CalibrationPlayer::defaultRows));
-    setUp (columnsSlider, columnsLabel, "Columns", 1, CalibrationPlayer::maxColumns, 1, (int) state.getProperty (idColumns, CalibrationPlayer::defaultColumns));
-    setUp (volumeSlider, volumeLabel, "Volume", -60, 0, 0.5, (double) state.getProperty (idLevel, -20.0));
+    // Rows up the side of the grid, columns along the bottom: the grid's own size, not a number to read
+    setUpSlider (rowsSlider, juce::Slider::LinearVertical, 1, CalibrationPlayer::maxRows, 1, (int) state.getProperty (idRows, CalibrationPlayer::defaultRows));
+    setUpSlider (columnsSlider, juce::Slider::LinearHorizontal, 1, CalibrationPlayer::maxColumns, 1, (int) state.getProperty (idColumns, CalibrationPlayer::defaultColumns));
+    for (auto* slider : { &rowsSlider, &columnsSlider })
+    {
+        slider->setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+        slider->setPopupDisplayEnabled (true, true, this);
+    }
+    rowsSlider.setTooltip ("Rows: how many low cuts to step through");
+    columnsSlider.setTooltip ("Columns: how many positions from your left ear to your right");
+
+    setUpSlider (volumeSlider, juce::Slider::LinearHorizontal, -60, 0, 0.5, (double) state.getProperty (idLevel, -20.0));
+    setUpSlider (depthSlider, juce::Slider::LinearHorizontal, 1, CalibrationPlayer::maxDepth, 1, (int) state.getProperty (idDepth, 1));
+    for (auto* slider : { &volumeSlider, &depthSlider })
+        slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
+    setUpLabel (volumeLabel, "Volume");
+    setUpLabel (depthLabel, "Depth");
+    depthSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + (v > 1 ? " times" : " time"); };
+    depthSlider.updateText();
+    depthSlider.setTooltip ("Plays each position this many times, quietest first, 10 dB louder each time");
     volumeSlider.textFromValueFunction = [] (double v) { return juce::String (v, 1) + " dB"; };
     volumeSlider.updateText();
     volumeSlider.setTooltip ("How loud the calibration sounds are, separately from everything else");
@@ -82,6 +101,7 @@ void CalibrationPanel::applySettings()
 {
     player.setGrid (rows(), columns());
     player.setLevelDb ((float) volumeSlider.getValue());
+    player.setDepth ((int) depthSlider.getValue());
 
     // Forget selected positions that aren't on the grid any more
     auto selection = player.getSelection();
@@ -94,6 +114,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idRows, rows(), nullptr);
     state.setProperty (idColumns, columns(), nullptr);
     state.setProperty (idLevel, volumeSlider.getValue(), nullptr);
+    state.setProperty (idDepth, (int) depthSlider.getValue(), nullptr);
 
     updateButtons();
     repaint();
@@ -268,10 +289,12 @@ void CalibrationPanel::paint (juce::Graphics& g)
     g.setFont (Theme::font (11.0f, true));
     g.drawText ("CALIBRATION", getLocalBounds().reduced (16, 0).removeFromTop (36), juce::Justification::centredLeft);
 
-    // Which way is which
+    // Which way is which, and what the axis sliders are
     g.setFont (Theme::font (10.5f));
     g.drawText ("Left", gridArea.getX(), gridArea.getBottom() + 4, 60, 14, juce::Justification::centredLeft);
     g.drawText ("Right", gridArea.getRight() - 60, gridArea.getBottom() + 4, 60, 14, juce::Justification::centredRight);
+    g.drawText (juce::String (rows()) + (rows() == 1 ? " row" : " rows"), rowsCaption, juce::Justification::centred);
+    g.drawText (juce::String (columns()) + (columns() == 1 ? " column" : " columns"), columnsCaption, juce::Justification::centredRight);
     // Each row's low cut
     for (int row = 0; row < rows(); ++row)
     {
@@ -320,15 +343,27 @@ void CalibrationPanel::resized()
     header.removeFromRight (8);
     allButton.setBounds (header.removeFromRight (78).withSizeKeepingCentre (78, 26));
 
-    area.removeFromBottom (12);
+    area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));
     controls.removeFromLeft (20);
-    for (auto [slider, label] : { std::pair { &rowsSlider, &rowsLabel }, std::pair { &columnsSlider, &columnsLabel }, std::pair { &volumeSlider, &volumeLabel } })
+    for (auto [slider, label] : { std::pair { &volumeSlider, &volumeLabel }, std::pair { &depthSlider, &depthLabel } })
     {
         auto row = controls.removeFromTop (36);
         label->setBounds (row.removeFromLeft (64));
         slider->setBounds (row.withSizeKeepingCentre (row.getWidth(), 28));
     }
 
-    gridArea = area.withTrimmedLeft (44).withTrimmedBottom (20).reduced (6);
+    // Rows slider up the left, then the rows' cutoffs, then the grid, with columns along the bottom
+    auto rowsStrip = area.removeFromLeft (56);
+    auto columnsStrip = area.removeFromBottom (28);
+    area.removeFromBottom (20); // Left / Right
+    area.removeFromLeft (46);   // the cutoff labels
+    gridArea = area.reduced (6);
+
+    rowsSlider.setBounds (juce::Rectangle<int> (rowsStrip.getCentreX() - 14, gridArea.getY() - 6, 28, gridArea.getHeight() + 12));
+    columnsSlider.setBounds (juce::Rectangle<int> (gridArea.getX() - 6, columnsStrip.getY(), gridArea.getWidth() + 12, 28));
+
+    // Captions in the corner the two sliders leave free
+    rowsCaption = juce::Rectangle<int> (rowsStrip.getX(), gridArea.getBottom() + 4, rowsStrip.getWidth(), 14);
+    columnsCaption = juce::Rectangle<int> (rowsStrip.getX(), columnsStrip.getY(), gridArea.getX() - 12 - rowsStrip.getX(), 28);
 }

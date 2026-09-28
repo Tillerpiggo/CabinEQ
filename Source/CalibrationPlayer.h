@@ -11,6 +11,9 @@
     are at about 112 Hz, 632 Hz and 3.6 kHz. Each burst starts fast and dies away
     slowly, so its tail overlaps the next one.
 
+    With a depth above 1, each position plays that many times before moving on, getting
+    louder by 10 dB each time: depth 3 plays it at -20, -10, then 0 dB.
+
     If some positions are selected, only those play.
 
     The setters can be called from any thread; process() is for the audio thread.
@@ -32,17 +35,22 @@ public:
     static constexpr int maxColumns = 12;
     static constexpr int defaultRows = 3;
     static constexpr int defaultColumns = 5;
+    static constexpr int maxDepth = 5;
+    static constexpr float depthStepDb = 10.0f;
 
     void prepare (double newSampleRate)
     {
         sampleRate = newSampleRate;
         attackSamples = std::max (1, (int) (0.004 * sampleRate));
-        releaseCoefficient = (float) std::exp (-1.0 / (0.16 * sampleRate)); // ~1 s to fade out fully
+        releaseCoefficient = (float) std::exp (-1.0 / (0.22 * sampleRate)); // ~1.4 s to fade out fully
         for (auto& voice : voices)
             voice.active = false;
         samplesUntilNext = 0;
         position = -1;
+        repeat = 0;
     }
+
+    void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
 
     void setGrid (int rows, int columns)
     {
@@ -105,6 +113,7 @@ public:
         {
             samplesUntilNext = 0;
             position = -1;
+            repeat = 0;
             return;
         }
 
@@ -190,17 +199,29 @@ private:
         const int rows = numRows.load(), columns = numColumns.load();
         const int count = rows * columns;
 
-        // The next position in reading order, of the selected ones if any are
         bool anySelected = false;
         for (int p = 0; p < count && ! anySelected; ++p)
             anySelected = isSelected (p);
-        for (int step = 1; step <= count; ++step)
+
+        // Play the same position again, louder, until it's played `depth` times
+        const int timesEach = depth.load();
+        const bool canRepeat = position >= 0 && position < count && (! anySelected || isSelected (position));
+        if (canRepeat && repeat + 1 < timesEach)
         {
-            const int candidate = (std::max (position, -1) + step) % count;
-            if (! anySelected || isSelected (candidate))
+            ++repeat;
+        }
+        else
+        {
+            // Otherwise the next position in reading order, of the selected ones if any are
+            repeat = 0;
+            for (int step = 1; step <= count; ++step)
             {
-                position = candidate;
-                break;
+                const int candidate = (std::max (position, -1) + step) % count;
+                if (! anySelected || isSelected (candidate))
+                {
+                    position = candidate;
+                    break;
+                }
             }
         }
         currentPosition = position;
@@ -236,6 +257,9 @@ private:
                 voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
         }
 
+        // Quietest first: each repeat is 10 dB louder, ending at full level
+        voice->peak *= juce::Decibels::decibelsToGain (-depthStepDb * (float) (timesEach - 1 - repeat));
+
         voice->age = 0;
         voice->active = true;
     }
@@ -261,15 +285,15 @@ private:
     int attackSamples = 192;
     float releaseCoefficient = 0.9999f;
 
-    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns };
+    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 };
     std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<bool> playing { false };
     std::atomic<int> currentPosition { -1 };
 
     // Audio thread
-    std::array<Voice, 6> voices {};
-    int samplesUntilNext = 0, position = -1;
+    std::array<Voice, 10> voices {};
+    int samplesUntilNext = 0, position = -1, repeat = 0;
     juce::Random random { 42 };
     float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
 };

@@ -24,9 +24,12 @@ loads the VST3 to EQ everything the Mac plays.
   about 112 Hz, 632 Hz and 3.6 kHz). Click positions to play just
   those: Shift- or Cmd-click, or drag across them, to pick several, and move them with the
   arrow keys (Shift+arrow adds the next one); Play all goes back to every
-  one. Rows, columns and its own volume are on the right. Hiding it stops the sound.
+  one. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
+  right are its own volume and a depth: each position plays that many times, quietest first,
+  10 dB louder each time. Hiding it stops the sound.
 - **Top bar**: undo/redo (Cmd+Z, Cmd+Shift+Z), the profile's preamp, auto gain (keeps
-  loudness the same when you switch the EQ on and off), crossfeed, and the EQ's on/off.
+  loudness the same when you switch the EQ on and off), master volume (-30 to +24 dB, with the EQ
+  on or off, and a limiter that stops a boost clipping), calibration, crossfeed, and the EQ's on/off.
 
 ## Building
 

@@ -17,6 +17,7 @@
 namespace ParamIDs
 {
     inline const juce::String bypass { "bypass" };
+    inline const juce::String volume { "volume" };
     inline const juce::String autoGain { "autoGain" };
     inline const juce::String crossfeed { "crossfeed" };
     inline const juce::String crossfeedLevel { "crossfeedLevel" };
@@ -126,6 +127,7 @@ private:
 
     juce::AudioParameterBool* bypassParameter = nullptr;
     std::atomic<float>* autoGainParameter = nullptr;
+    std::atomic<float>* volumeParameter = nullptr;
     std::atomic<float>* crossfeedParameter = nullptr;
     std::atomic<float>* crossfeedLevelParameter = nullptr;
     std::atomic<float>* crossfeedDelayParameter = nullptr;

@@ -564,6 +564,43 @@ public:
             expectEquals (editor->getWidth(), 900);
         }
 
+        beginTest ("Master volume boosts, even bypassed, and the limiter stops it clipping");
+        {
+            CabinEqAudioProcessor processor;
+            processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+            processor.prepareToPlay (sampleRate, blockSize);
+            auto* volume = processor.parameters.getParameter (ParamIDs::volume);
+            volume->setValueNotifyingHost (volume->convertTo0to1 (12.0f));
+
+            auto run = [&processor] (float amplitude)
+            {
+                juce::MidiBuffer midi;
+                juce::AudioBuffer<float> buffer (2, blockSize);
+                double phase = 0.0;
+                float peak = 0.0f;
+                for (int block = 0; block < 100; ++block)
+                {
+                    for (int i = 0; i < blockSize; ++i)
+                    {
+                        const auto sample = (float) (amplitude * std::sin (phase));
+                        phase += juce::MathConstants<double>::twoPi * 1000.0 / sampleRate;
+                        buffer.setSample (0, i, sample);
+                        buffer.setSample (1, i, sample);
+                    }
+                    processor.processBlock (buffer, midi);
+                    if (block > 20)
+                        peak = std::max (peak, buffer.getMagnitude (0, blockSize));
+                }
+                return peak;
+            };
+
+            expectWithinAbsoluteError (juce::Decibels::gainToDecibels (run (0.01f) / 0.01f), 12.0f, 0.2f, "a quiet signal gets 12 dB louder");
+            expectLessThan (run (0.8f), 0.98f, "a loud one is held under full scale");
+
+            processor.parameters.getParameter (ParamIDs::bypass)->setValueNotifyingHost (1.0f);
+            expectWithinAbsoluteError (juce::Decibels::gainToDecibels (run (0.01f) / 0.01f), 12.0f, 0.2f, "and it still applies with the EQ off");
+        }
+
         beginTest ("Auto gain cancels a boost");
         {
             CabinEqAudioProcessor processor;
@@ -869,6 +906,29 @@ public:
                 return buffer.getRMSLevel (0, 0, buffer.getNumSamples());
             };
             expectLessThan (lowEnergyOfRow (0) * 50.0f, lowEnergyOfRow (2), "the top row has far less bass than the bottom one");
+        }
+
+        beginTest ("Depth plays each position several times, 10 dB louder each time");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setGrid (1, 2);
+            player.setDepth (3);
+            player.setPlaying (true);
+
+            std::vector<int> positions;
+            std::vector<float> levels;
+            for (int burst = 0; burst < 4; ++burst)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                positions.push_back (player.getCurrentPosition());
+                levels.push_back (juce::Decibels::gainToDecibels (buffer.getMagnitude (0, (int) (0.02 * sampleRate))));
+            }
+            expect (positions == std::vector<int> { 0, 0, 0, 1 });
+            expectWithinAbsoluteError (levels[1] - levels[0], 10.0f, 3.0f, "the second is about 10 dB louder");
+            expectWithinAbsoluteError (levels[2] - levels[1], 10.0f, 3.0f, "and the third another 10 dB");
         }
 
         beginTest ("Clicking a position repeats just it");

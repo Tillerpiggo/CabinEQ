@@ -101,6 +101,18 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     preampField.onValueChange = [this] (double v) { processor.getSelectedProfile().setVolume ((float) v); };
     addAndMakeVisible (preampField);
 
+    // Master volume: a parameter, so hosts can automate it. It applies with the EQ on or off.
+    volumeField.format = [] (double v) { return Format::gain (v); };
+    volumeField.setTooltip ("Master volume, for everything. It can boost, and a limiter stops the boost from clipping.");
+    volumeField.onGestureStart = [this] { processor.parameters.getParameter (ParamIDs::volume)->beginChangeGesture(); };
+    volumeField.onGestureEnd = [this] { processor.parameters.getParameter (ParamIDs::volume)->endChangeGesture(); };
+    volumeField.onValueChange = [this] (double v)
+    {
+        auto* parameter = processor.parameters.getParameter (ParamIDs::volume);
+        parameter->setValueNotifyingHost (parameter->convertTo0to1 ((float) v));
+    };
+    addAndMakeVisible (volumeField);
+
     autoGainToggle.setTooltip ("Turns the output down by as much as the EQ makes music louder, so switching the EQ on and off is a fair comparison.");
     autoGainToggle.onStateChange = [this] { updateTopBar(); };
     addAndMakeVisible (autoGainToggle);
@@ -170,6 +182,7 @@ void CabinEqPage::updateTopBar()
     crossfeedButton->setToggleState (crossfeedOn, juce::dontSendNotification);
 
     preampField.setValue (processor.getSelectedProfile().getVolume());
+    volumeField.setValue (processor.parameters.getRawParameterValue (ParamIDs::volume)->load());
 
     auto autoGainText = processor.isAutoGainOn() ? "Auto gain  " + Format::gain (processor.getAutoGainDb()) : juce::String ("Auto gain");
     if (autoGainToggle.getButtonText() != autoGainText)
@@ -225,6 +238,7 @@ void CabinEqPage::resized()
         placeRight (*settingsButton, 36, 36, 4);
     placeRight (*crossfeedButton, 36, 36, 4);
     placeRight (*calibrationButton, 36, 36, 14);
+    placeRight (volumeField, 92, 38, 12);
     placeRight (autoGainToggle, 148, 30, 10);
     placeRight (preampField, 92, 38, 18);
     placeRight (*redoButton, 32, 32, 2);

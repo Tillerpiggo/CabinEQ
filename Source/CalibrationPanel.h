@@ -7,7 +7,8 @@
     EQ by ear. Columns go from your left ear to your right, rows from high (top)
     to low: each row up cuts off more of the lows. Click positions to play just
     those (Shift- or Cmd-click, or drag, to pick several), and move them with the
-    arrow keys (Shift+arrow to add the next one). It has its own volume.
+    arrow keys (Shift+arrow to add the next one). It has its own volume, and a
+    depth that plays each position several times, getting louder.
 
   ==============================================================================
 */
@@ -35,7 +36,7 @@ public:
     void mouseMove (const juce::MouseEvent&) override;
     void mouseExit (const juce::MouseEvent&) override;
 
-    static constexpr int preferredHeight = 230;
+    static constexpr int preferredHeight = 260;
 
 private:
     void timerCallback() override;
@@ -50,8 +51,9 @@ private:
     CalibrationPlayer& player;
 
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
-    juce::Slider rowsSlider, columnsSlider, volumeSlider;
-    juce::Label rowsLabel, columnsLabel, volumeLabel;
+    juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider;
+    juce::Label volumeLabel, depthLabel;
+    juce::Rectangle<int> rowsCaption, columnsCaption;
 
     juce::Rectangle<int> gridArea;
     int hoverPosition = -1, shownPosition = -1;
