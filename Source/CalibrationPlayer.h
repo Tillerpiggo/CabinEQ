@@ -4,9 +4,13 @@
     CalibrationPlayer.h
 
     Plays pink noise bursts at each position of a grid, in reading order: left to
-    right, top to bottom. Columns are where the sound is between the ears, rows are
-    how high it is (the top row is the highest band of the spectrum). Each burst
-    starts fast and dies away slowly, so its tail overlaps the next one.
+    right, top to bottom. Columns are where the sound is between the ears. Rows set
+    where the sound starts: the bottom row is full-range pink noise, and each row up
+    cuts off more of the lows with a steep high-pass, evenly spaced (in octaves) from
+    20 Hz to 20 kHz. So with 3 rows: no cut, 200 Hz, 2 kHz. Each burst starts fast and
+    dies away slowly, so its tail overlaps the next one.
+
+    If some positions are selected, only those play.
 
     The setters can be called from any thread; process() is for the audio thread.
 
@@ -17,6 +21,7 @@
 
 #include <JuceHeader.h>
 #include <array>
+#include <set>
 #include "FilterDesign.h"
 
 class CalibrationPlayer
@@ -46,9 +51,44 @@ public:
 
     void setLevelDb (float db)          { level = juce::Decibels::decibelsToGain (db); }
     void setPlaying (bool shouldPlay)   { playing = shouldPlay; }
-    void setSolo (int index)            { solo = index; } // a position to repeat, or -1 for all of them
     bool isPlaying() const              { return playing; }
-    int getSolo() const                 { return solo; }
+
+    /// The positions to play; none selected means all of them.
+    void setSelection (const std::set<int>& positions)
+    {
+        juce::uint64 low = 0, high = 0;
+        for (int position : positions)
+        {
+            if (position >= 0 && position < 64)        low |= (juce::uint64) 1 << position;
+            else if (position >= 64 && position < 128) high |= (juce::uint64) 1 << (position - 64);
+        }
+        selectedLow = low;
+        selectedHigh = high;
+    }
+
+    std::set<int> getSelection() const
+    {
+        std::set<int> positions;
+        for (int position = 0; position < maxRows * maxColumns; ++position)
+            if (isSelected (position))
+                positions.insert (position);
+        return positions;
+    }
+
+    bool isSelected (int position) const noexcept
+    {
+        if (position < 0 || position >= 128)
+            return false;
+        const auto bits = position < 64 ? selectedLow.load() : selectedHigh.load();
+        return ((bits >> (position % 64)) & 1) != 0;
+    }
+
+    /// The high-pass cutoff for a row (0 is the top), or 0 for none.
+    static double cutoffForRow (int row, int rows)
+    {
+        const int step = rows - 1 - row; // the bottom row has no cut
+        return step <= 0 ? 0.0 : 20.0 * std::pow (1000.0, (double) step / (double) rows);
+    }
 
     /// The position that played most recently, or -1 when stopped.
     int getCurrentPosition() const      { return playing ? currentPosition.load() : -1; }
@@ -134,7 +174,7 @@ private:
         bool active = false, bandLimited = false;
         int age = 0;
         float peak = 0, leftGain = 0, rightGain = 0;
-        std::array<Biquad, 4> stages; // two high-passes and two low-passes, for steeper band edges
+        std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
 
         float filter (float x) noexcept
         {
@@ -148,8 +188,20 @@ private:
     {
         const int rows = numRows.load(), columns = numColumns.load();
         const int count = rows * columns;
-        const int soloIndex = solo.load();
-        position = (soloIndex >= 0 && soloIndex < count) ? soloIndex : (position + 1) % count;
+
+        // The next position in reading order, of the selected ones if any are
+        bool anySelected = false;
+        for (int p = 0; p < count && ! anySelected; ++p)
+            anySelected = isSelected (p);
+        for (int step = 1; step <= count; ++step)
+        {
+            const int candidate = (std::max (position, -1) + step) % count;
+            if (! anySelected || isSelected (candidate))
+            {
+                position = candidate;
+                break;
+            }
+        }
         currentPosition = position;
 
         const int row = position / columns, column = position % columns;
@@ -167,19 +219,20 @@ private:
         voice->leftGain = std::cos (pan * juce::MathConstants<float>::halfPi);
         voice->rightGain = std::sin (pan * juce::MathConstants<float>::halfPi);
 
-        // Split 60 Hz to 16 kHz into equal-octave bands, highest at the top.
-        // Narrower bands carry less of the noise's power, so make up for it.
-        voice->bandLimited = rows > 1;
-        voice->peak = rows > 1 ? std::sqrt ((float) rows) : 1.0f;
-        if (rows > 1)
+        // Each row up cuts off more of the lows. Pink noise has the same power in every octave,
+        // so cutting some octaves off makes it quieter; make up for that so every row is as loud.
+        const double cutoff = cutoffForRow (row, rows);
+        voice->bandLimited = cutoff > 0.0;
+        voice->peak = 1.0f;
+        if (voice->bandLimited)
         {
-            const double logLow = std::log (60.0), logHigh = std::log (16000.0);
-            const int band = rows - 1 - row;
-            const double low = std::exp (logLow + (logHigh - logLow) * band / rows);
-            const double high = std::exp (logLow + (logHigh - logLow) * (band + 1) / rows);
-            const auto highPass = FilterDesign::design (Band::Shape::lowCut, low, 0.0, 0.7071, sampleRate);
-            const auto lowPass = FilterDesign::design (Band::Shape::highCut, std::min (high, FilterDesign::maxFrequency (sampleRate)), 0.0, 0.7071, sampleRate);
-            voice->stages = { Biquad { highPass }, Biquad { highPass }, Biquad { lowPass }, Biquad { lowPass } };
+            const double octavesLeft = std::log2 (20000.0 / cutoff), octavesAll = std::log2 (20000.0 / 20.0);
+            voice->peak = (float) std::sqrt (octavesAll / std::max (0.5, octavesLeft));
+
+            // Butterworth: four biquads with these Qs make a flat 8th-order high-pass
+            const double qs[] { 0.5098, 0.6013, 0.9000, 2.5629 };
+            for (size_t i = 0; i < voice->stages.size(); ++i)
+                voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
         }
 
         voice->age = 0;
@@ -207,7 +260,8 @@ private:
     int attackSamples = 192;
     float releaseCoefficient = 0.9999f;
 
-    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, solo { -1 };
+    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns };
+    std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<bool> playing { false };
     std::atomic<int> currentPosition { -1 };

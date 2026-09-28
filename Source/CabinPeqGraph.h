@@ -20,7 +20,8 @@
 ///
 ///  - Click the 0 dB line (or double-click anywhere) to add a band, and drag to shape it
 ///  - Drag a band to move it. Hold Cmd/Ctrl to move finely
-///  - Shift-drag (or Alt-drag) up and down, or scroll over a band, to change its width. Up is wider
+///  - Shift-drag (or Alt-drag) up and down, or scroll over a band, to change its width. Up is wider.
+///    Shift can be pressed or let go mid-drag to switch between moving and widening
 ///  - Drag across empty space to select several bands, and Shift-click to add or remove one
 ///  - Double-click a band to turn it off and on, and right-click it to delete it
 ///  - Delete removes the selected bands, arrows nudge them, and Cmd/Ctrl+A selects all

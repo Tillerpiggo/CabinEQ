@@ -5,7 +5,8 @@
 
     A grid of positions that play pink noise bursts in reading order, to check the
     EQ by ear. Columns go from your left ear to your right, rows from high (top)
-    to low. Click a position to repeat just that one. It has its own volume.
+    to low: each row up cuts off more of the lows. Click positions to play just
+    those (Shift- or Cmd-click, or drag, to pick several). It has its own volume.
 
   ==============================================================================
 */
@@ -28,6 +29,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     void mouseDown (const juce::MouseEvent&) override;
+    void mouseDrag (const juce::MouseEvent&) override;
     void mouseMove (const juce::MouseEvent&) override;
     void mouseExit (const juce::MouseEvent&) override;
 
@@ -51,6 +53,7 @@ private:
 
     juce::Rectangle<int> gridArea;
     int hoverPosition = -1, shownPosition = -1;
+    bool dragAdds = true; // whether dragging across positions selects them or unselects them
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CalibrationPanel)
 };

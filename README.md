@@ -10,16 +10,19 @@ loads the VST3 to EQ everything the Mac plays.
   or imports an Equalizer APO / AutoEQ `ParametricEQ.txt` file. You can also drop those
   files on the window.
 - **Graph**: click the 0 dB line to add a band and drag to shape it. Drag bands to move them
-  (Cmd for fine), Shift-drag up and down (or scroll) to change their width, double-click to
+  (Cmd for fine), Shift-drag up and down (or scroll) to change their width (Shift works
+  mid-drag too, to stop moving and start widening), double-click to
   turn one off, and right-click to delete it. Drag across empty space to select several.
   Delete, arrow keys and Cmd+A work too. The band strip sets the shape (bell, shelves, cuts)
   and which ear it's for.
 - **Band strip** (bottom): the selected band's exact values. Drag, scroll or double-click
   them to type.
 - **Calibration** (the grid button in the top bar): a grid of positions that play pink noise
-  bursts in reading order, through the EQ. Columns go from your left ear to your right, rows
-  from high to low. Click a position to repeat just it. Rows, columns and its own volume are
-  on the right. Hiding it stops the sound.
+  bursts in reading order, through the EQ. Columns go from your left ear to your right. Rows set
+  a sharp low cut: the bottom row is full-range, and each row up cuts more of the lows, evenly in
+  octaves from 20 Hz to 20 kHz (with 3 rows: none, 200 Hz, 2 kHz). Click positions to play just
+  those: Shift- or Cmd-click, or drag across them, to pick several; Play all goes back to every
+  one. Rows, columns and its own volume are on the right. Hiding it stops the sound.
 - **Top bar**: undo/redo (Cmd+Z, Cmd+Shift+Z), the profile's preamp, auto gain (keeps
   loudness the same when you switch the EQ on and off), crossfeed, and the EQ's on/off.
 

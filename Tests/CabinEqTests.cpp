@@ -708,7 +708,28 @@ public:
             graph.mouseUp (event (graph, handle, handle, {}));
             expectEquals (graph.getNumSelected(), 1, "shift-click without dragging selects");
 
-            graph.mouseDown (event (graph, handle, handle, juce::ModifierKeys::rightButtonModifier));
+            // Drag to move it, then hold Shift partway: it stops moving and gets wider instead
+            const auto left = juce::ModifierKeys (juce::ModifierKeys::leftButtonModifier);
+            const auto before = *profile.getSelectedProfile().getBand (bandId);
+            graph.mouseDown (event (graph, handle, handle, left));
+            graph.mouseDrag (event (graph, handle.translated (0.0f, -20.0f), handle, left));
+            const auto moved = *profile.getSelectedProfile().getBand (bandId);
+            for (int step = 1; step <= 5; ++step)
+                graph.mouseDrag (event (graph, handle.translated (0.0f, -20.0f - 10.0f * (float) step), handle, shift));
+            graph.mouseUp (event (graph, handle.translated (0.0f, -70.0f), handle, {}));
+            const auto after = *profile.getSelectedProfile().getBand (bandId);
+            expectGreaterThan (moved.ampl, before.ampl, "the plain drag moved it up");
+            expectWithinAbsoluteError (after.ampl, moved.ampl, 0.01f, "holding Shift stopped it moving");
+            expectLessThan (after.qFactor, moved.qFactor, "and made it wider");
+
+            graph.refresh();
+            graph.mouseDown (event (graph, handle, handle, shift));
+            graph.mouseUp (event (graph, handle, handle, {}));
+
+            // The band moved up 20 px in that drag, so find it again
+            const auto now = *profile.getSelectedProfile().getBand (bandId);
+            const juce::Point<float> movedHandle { handle.x, 14.0f + (30.0f - now.ampl) / 60.0f * (478.0f - 28.0f) };
+            graph.mouseDown (event (graph, movedHandle, movedHandle, juce::ModifierKeys::rightButtonModifier));
             expectEquals (profile.getSelectedProfile().getNumBands(), 0, "right-click deletes");
             processor.undo();
             expectEquals (profile.getSelectedProfile().getNumBands(), 1, "and undo brings it back");
@@ -795,12 +816,64 @@ public:
             expectLessThan (tail.getMagnitude (tail.getNumSamples() - 4800, 4800), 1.0e-4f);
         }
 
+        beginTest ("Only selected positions play, in reading order");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setGrid (3, 5);
+            player.setSelection ({ 2, 7, 12 });
+            player.setPlaying (true);
+
+            std::vector<int> heard;
+            juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+            for (int burst = 0; burst < 6; ++burst)
+            {
+                buffer.clear();
+                player.process (buffer);
+                heard.push_back (player.getCurrentPosition());
+            }
+            expect (heard == std::vector<int> { 2, 7, 12, 2, 7, 12 });
+        }
+
+        beginTest ("Rows set a low cut: none at the bottom, then evenly up in octaves");
+        {
+            expectEquals (CalibrationPlayer::cutoffForRow (2, 3), 0.0);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (1, 3), 200.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (0, 3), 2000.0, 0.01);
+
+            // The top row of three has almost nothing below its 2 kHz cut
+            auto lowEnergyOfRow = [] (int row)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setGrid (3, 1);
+                player.setSelection ({ row });
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) sampleRate);
+                buffer.clear();
+                player.process (buffer);
+
+                // Steeply low-pass what came out at 200 Hz (48 dB/octave) and see how much is left
+                FilterChain lowPass;
+                lowPass.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, 200.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::highCut));
+                lowPass.setBands (cuts);
+                lowPass.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                lowPass.process (block);
+                return buffer.getRMSLevel (0, 0, buffer.getNumSamples());
+            };
+            expectLessThan (lowEnergyOfRow (0) * 50.0f, lowEnergyOfRow (2), "the top row has far less bass than the bottom one");
+        }
+
         beginTest ("Clicking a position repeats just it");
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
             player.setGrid (3, 5);
-            player.setSolo (14); // bottom right
+            player.setSelection ({ 14 }); // bottom right
             player.setPlaying (true);
             juce::AudioBuffer<float> buffer (2, (int) (1.0 * sampleRate));
             buffer.clear();

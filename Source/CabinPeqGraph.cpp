@@ -790,6 +790,20 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
         hasBegunDragEdit = true;
     }
 
+    // Shift (or Alt) changes the width instead, and can be pressed or let go mid-drag. Carry on
+    // from wherever the bands are when it changes, so they don't jump.
+    const bool wantsWidth = event.mods.isShiftDown() || event.mods.isAltDown();
+    if (wantsWidth != isChangingWidth)
+    {
+        isChangingWidth = wantsWidth;
+        std::vector<Band> current;
+        for (const auto& band : bandsAtDragStart)
+            if (auto now = bandProfile.getBandWithId (band.id))
+                current.push_back (*now);
+        bandsAtDragStart = current;
+        dragDistance = {};
+    }
+
     // Accumulate movement, so Cmd for fine control can come and go mid-drag
     const float fineness = isCommandDown (event.mods) ? 0.15f : 1.0f;
     dragDistance += (event.position - lastDragPosition) * fineness;

@@ -51,7 +51,7 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     };
     allButton.onClick = [this]
     {
-        player.setSolo (-1);
+        player.setSelection ({});
         updateButtons();
     };
     allButton.setTooltip ("Go back to playing every position in turn");
@@ -82,8 +82,11 @@ void CalibrationPanel::applySettings()
     player.setGrid (rows(), columns());
     player.setLevelDb ((float) volumeSlider.getValue());
 
-    if (player.getSolo() >= rows() * columns())
-        player.setSolo (-1);
+    // Forget selected positions that aren't on the grid any more
+    auto selection = player.getSelection();
+    for (auto it = selection.begin(); it != selection.end();)
+        it = *it >= rows() * columns() ? selection.erase (it) : std::next (it);
+    player.setSelection (selection);
 
     // Not undoable: it's how you like to calibrate, not part of the EQ
     auto& state = processor.parameters.state;
@@ -98,7 +101,7 @@ void CalibrationPanel::applySettings()
 void CalibrationPanel::updateButtons()
 {
     playButton.setButtonText (player.isPlaying() ? "Stop" : "Play");
-    allButton.setVisible (player.getSolo() >= 0);
+    allButton.setVisible (! player.getSelection().empty());
     repaint();
 }
 
@@ -137,14 +140,41 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
     if (position < 0)
         return;
 
-    // Click a position to repeat just it; click it again to go back to all of them
-    player.setSolo (player.getSolo() == position ? -1 : position);
+    // Click selects just this position, Shift- or Cmd-click adds or removes it,
+    // and dragging across positions adds each one
+    auto selection = player.getSelection();
+    const bool adding = event.mods.isShiftDown() || event.mods.isCommandDown();
+    if (! adding)
+        selection = { position };
+    else if (selection.count (position) > 0)
+        selection.erase (position);
+    else
+        selection.insert (position);
+
+    dragAdds = ! adding || selection.count (position) > 0;
+    player.setSelection (selection);
+
     if (! player.isPlaying())
     {
         player.setPlaying (true);
         playButton.setToggleState (true, juce::dontSendNotification);
     }
     updateButtons();
+}
+
+void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
+{
+    const int position = positionAt (event.position);
+    if (position < 0)
+        return;
+
+    auto selection = player.getSelection();
+    const bool changed = dragAdds ? selection.insert (position).second : selection.erase (position) > 0;
+    if (changed)
+    {
+        player.setSelection (selection);
+        updateButtons();
+    }
 }
 
 void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
@@ -179,17 +209,20 @@ void CalibrationPanel::paint (juce::Graphics& g)
     g.setFont (Theme::font (10.5f));
     g.drawText ("Left", gridArea.getX(), gridArea.getBottom() + 4, 60, 14, juce::Justification::centredLeft);
     g.drawText ("Right", gridArea.getRight() - 60, gridArea.getBottom() + 4, 60, 14, juce::Justification::centredRight);
-    if (rows() > 1)
+    // Each row's low cut
+    for (int row = 0; row < rows(); ++row)
     {
-        g.drawText ("High", gridArea.getX() - 40, gridArea.getY(), 34, 14, juce::Justification::centredRight);
-        g.drawText ("Low", gridArea.getX() - 40, gridArea.getBottom() - 14, 34, 14, juce::Justification::centredRight);
+        const double cutoff = CalibrationPlayer::cutoffForRow (row, rows());
+        const auto text = cutoff <= 0.0 ? juce::String ("Full")
+                        : cutoff >= 1000.0 ? juce::String (cutoff / 1000.0, cutoff >= 10000.0 ? 0 : 1) + "k"
+                                           : juce::String (juce::roundToInt (cutoff));
+        g.drawText (text, gridArea.getX() - 46, (int) centreOf (row * columns()).y - 7, 38, 14, juce::Justification::centredRight);
     }
 
     g.setColour (Theme::panel);
     g.fillRoundedRectangle (gridArea.toFloat().expanded (6.0f), Theme::cornerRadius);
 
     const int count = rows() * columns();
-    const int solo = player.getSolo();
     const float radius = juce::jlimit (4.0f, 9.0f, std::min ((float) gridArea.getWidth() / (float) columns(), (float) gridArea.getHeight() / (float) rows()) * 0.22f);
 
     for (int position = 0; position < count; ++position)
@@ -207,7 +240,7 @@ void CalibrationPanel::paint (juce::Graphics& g)
         g.setColour (isCurrent ? Theme::accentBright : position == hoverPosition ? Theme::textDim : Theme::raisedHover);
         g.fillEllipse (dot);
 
-        if (position == solo)
+        if (player.isSelected (position))
         {
             g.setColour (Theme::text);
             g.drawEllipse (dot.expanded (3.0f), 1.5f);
