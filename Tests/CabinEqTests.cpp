@@ -852,34 +852,53 @@ public:
             expectWithinAbsoluteError ((float) state.getProperty ("graphHighFrequency"), 20000.0f, 0.1f);
         }
 
-        beginTest ("Calibration spots can be dragged along the graph");
+        beginTest ("The end spots resize the group, the middle one moves it, and two spots have a grip");
         {
             auto& state = processor.parameters.state;
-            CalibrationSettings::setSpot (state, processor.getCalibration(), 0, { 200.0f, 0.0f });
+            auto& player = processor.getCalibration();
+            auto xFor = [] (float hz) { return std::log (hz / 20.0f) / std::log (1000.0f) * 1000.0f; };
+            const float chipY = 478.0f - 16.0f, lineY = 100.0f;
+            auto dragFromTo = [&] (juce::Point<float> from, juce::Point<float> to)
+            {
+                graph.mouseMove (event (graph, from, from, {}));
+                graph.mouseDown (event (graph, from, from, juce::ModifierKeys::leftButtonModifier));
+                graph.mouseDrag (event (graph, to, from, juce::ModifierKeys::leftButtonModifier));
+                graph.mouseUp (event (graph, to, from, {}));
+            };
+            auto frequency = [&state] (int spot) { return CalibrationSettings::getSpot (state, spot).frequency; };
+
+            expectEquals (CalibrationSettings::getSpotCount (state), 3, "three spots to start with");
+            CalibrationSettings::setSpot (state, player, 0, { 200.0f, 0.0f });
+            CalibrationSettings::setSpot (state, player, 1, { 1000.0f, 0.0f });
+            CalibrationSettings::setSpot (state, player, 2, { 5000.0f, 0.0f });
             graph.setCalibrationSpotsVisible (true);
 
-            // Spot A's chip sits just above the frequency axis, at 200 Hz
-            const float x200 = std::log (200.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
-            const juce::Point<float> chip { x200, 478.0f - 16.0f };
-            const float x2k = std::log (2000.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
-            graph.mouseDown (event (graph, chip, chip, juce::ModifierKeys::leftButtonModifier));
-            graph.mouseDrag (event (graph, { x2k, chip.y }, chip, juce::ModifierKeys::leftButtonModifier));
-            graph.mouseUp (event (graph, { x2k, chip.y }, chip, {}));
+            // The top spot's chip, 5 kHz to 10 kHz: the bottom stays, the middle keeps its place between them
+            dragFromTo ({ xFor (5000.0f), chipY }, { xFor (10000.0f), chipY });
+            expectWithinAbsoluteError (frequency (2), 10000.0f, 150.0f);
+            expectWithinAbsoluteError (frequency (0), 200.0f, 0.01f, "the bottom stayed put");
+            expectWithinAbsoluteError (frequency (1), 1414.2f, 25.0f, "the middle stayed halfway (in octaves)");
 
-            expectWithinAbsoluteError (CalibrationSettings::getSpot (state, 0).frequency, 2000.0f, 40.0f);
-            expectEquals (profile.getSelectedProfile().getNumBands(), 0, "and dragging it didn't add a band");
+            // The middle spot's line moves them all by the same ratio
+            dragFromTo ({ xFor (1414.2f), lineY }, { xFor (1414.2f * 1.5f), lineY });
+            expectWithinAbsoluteError (frequency (0), 300.0f, 6.0f);
+            expectWithinAbsoluteError (frequency (2), 15000.0f, 300.0f);
 
-            // Dragging a spot's line (up in the graph, away from the chips) moves them all, keeping their spacing
-            CalibrationSettings::setSpotCount (state, processor.getCalibration(), 2);
-            CalibrationSettings::setSpot (state, processor.getCalibration(), 0, { 200.0f, 0.0f });
-            CalibrationSettings::setSpot (state, processor.getCalibration(), 1, { 800.0f, 0.0f });
-            const juce::Point<float> onLine { x200, 100.0f };
-            const float x400 = std::log (400.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
-            graph.mouseDown (event (graph, onLine, onLine, juce::ModifierKeys::leftButtonModifier));
-            graph.mouseDrag (event (graph, { x400, onLine.y }, onLine, juce::ModifierKeys::leftButtonModifier));
-            graph.mouseUp (event (graph, { x400, onLine.y }, onLine, {}));
-            expectWithinAbsoluteError (CalibrationSettings::getSpot (state, 0).frequency, 400.0f, 8.0f);
-            expectWithinAbsoluteError (CalibrationSettings::getSpot (state, 1).frequency, 1600.0f, 32.0f, "B moved by the same ratio");
+            // The bottom spot's chip: the top stays
+            dragFromTo ({ xFor (300.0f), chipY }, { xFor (150.0f), chipY });
+            expectWithinAbsoluteError (frequency (0), 150.0f, 3.0f);
+            expectWithinAbsoluteError (frequency (2), 15000.0f, 300.0f, "the top stayed put");
+            expectEquals (profile.getSelectedProfile().getNumBands(), 0, "and none of that added a band");
+
+            // Two spots: the grip between them moves both
+            CalibrationSettings::setSpotCount (state, player, 2);
+            CalibrationSettings::setSpot (state, player, 0, { 200.0f, 0.0f });
+            CalibrationSettings::setSpot (state, player, 1, { 800.0f, 0.0f });
+            dragFromTo ({ xFor (400.0f), chipY }, { xFor (800.0f), chipY });
+            expectWithinAbsoluteError (frequency (0), 400.0f, 8.0f);
+            expectWithinAbsoluteError (frequency (1), 1600.0f, 32.0f, "both moved by the same ratio");
+
+            CalibrationSettings::setSpotCount (state, player, 3);
             graph.setCalibrationSpotsVisible (false);
         }
 

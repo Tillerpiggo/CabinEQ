@@ -377,6 +377,44 @@ juce::Rectangle<float> CabinPeqGraph::spotChip (int index) const
     return juce::Rectangle<float> (width, 20.0f).withCentre ({ xForFrequency (spot.frequency), getPlotArea().getBottom() - 16.0f });
 }
 
+void CabinPeqGraph::beginSpotDrag (int spot, float x)
+{
+    const auto& state = processor.parameters.state;
+    const int count = CalibrationSettings::getSpotCount (state);
+    for (int i = 0; i < CalibrationPlayer::maxSpots; ++i)
+        spotFrequenciesAtDragStart[(size_t) i] = CalibrationSettings::getSpot (state, i).frequency;
+    spotDragAnchor = frequencyForX (x);
+
+    // Which end it is, if it's an end
+    int lowest = 0, highest = 0;
+    for (int i = 1; i < count; ++i)
+    {
+        if (spotFrequenciesAtDragStart[(size_t) i] < spotFrequenciesAtDragStart[(size_t) lowest]) lowest = i;
+        if (spotFrequenciesAtDragStart[(size_t) i] >= spotFrequenciesAtDragStart[(size_t) highest]) highest = i;
+    }
+
+    if (spot < 0 || (spot != lowest && spot != highest))
+    {
+        dragMode = DragMode::spotsTogether; // the middle one, or the grip between two
+    }
+    else
+    {
+        dragMode = DragMode::spotsResize;
+        spotDragResizesTop = spot == highest;
+    }
+    draggingSpot = spot;
+}
+
+juce::Rectangle<float> CabinPeqGraph::spotGrip() const
+{
+    // Two spots have no middle one to move them by, so they get a grip between their chips
+    const auto& state = processor.parameters.state;
+    if (! showSpots || CalibrationSettings::getSpotCount (state) != 2)
+        return {};
+    const float a = CalibrationSettings::getSpot (state, 0).frequency, b = CalibrationSettings::getSpot (state, 1).frequency;
+    return juce::Rectangle<float> (30.0f, 18.0f).withCentre ({ xForFrequency (std::sqrt (a * b)), getPlotArea().getBottom() - 16.0f });
+}
+
 int CabinPeqGraph::spotLineAt (juce::Point<float> position) const
 {
     if (! showSpots || ! getPlotArea().contains (position))
@@ -402,6 +440,26 @@ void CabinPeqGraph::drawSpots (juce::Graphics& g)
     if (! showSpots)
         return;
 
+    // The grip between two spots
+    if (auto grip = spotGrip(); ! grip.isEmpty())
+    {
+        const bool hot = hoverAllSpots || dragMode == DragMode::spotsTogether;
+        g.setColour (Theme::raisedHover.withAlpha (hot ? 1.0f : 0.8f));
+        g.fillRoundedRectangle (grip, 9.0f);
+        g.setColour (hot ? Theme::text : Theme::textDim);
+        const auto c = grip.getCentre();
+        juce::Path arrows;
+        arrows.startNewSubPath (c.x - 8.0f, c.y);
+        arrows.lineTo (c.x + 8.0f, c.y);
+        for (float side : { -1.0f, 1.0f })
+        {
+            arrows.startNewSubPath (c.x + side * 5.0f, c.y - 3.0f);
+            arrows.lineTo (c.x + side * 8.0f, c.y);
+            arrows.lineTo (c.x + side * 5.0f, c.y + 3.0f);
+        }
+        g.strokePath (arrows, juce::PathStrokeType (1.4f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    }
+
     auto plot = getPlotArea();
     const auto& state = processor.parameters.state;
     const bool playing = processor.getCalibration().isPlaying();
@@ -412,7 +470,7 @@ void CabinPeqGraph::drawSpots (juce::Graphics& g)
         const float x = xForFrequency (spot.frequency);
         const auto colour = CalibrationSettings::spotColour (i);
         const bool isPlaying = playing && i == shownSpot;
-        const bool isHot = i == draggingSpot || i == hoverSpot || hoverAllSpots || dragMode == DragMode::spotsTogether;
+        const bool isHot = hoverAllSpots || dragMode == DragMode::spotsTogether || dragMode == DragMode::spotsResize;
 
         // What it plays: everything from here up
         if (isPlaying)
@@ -438,8 +496,8 @@ void CabinPeqGraph::drawSpots (juce::Graphics& g)
         g.setFont (Theme::font (11.5f, true));
         g.drawText (CalibrationSettings::spotName (i) + "  " + Format::frequency (spot.frequency), chip, juce::Justification::centred);
 
-        // Where it is between the ears, if it's not in the middle
-        if (std::abs (spot.pan) > 0.005f)
+        // Where they are between the ears, if it's not the middle (they share one pan), over the first
+        if (i == 0 && std::abs (spot.pan) > 0.005f)
         {
             g.setColour (colour.withAlpha (0.9f));
             g.setFont (Theme::font (10.5f));
@@ -938,13 +996,13 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent& event)
         hoverIsNearZeroLine = nearLine;
     }
 
-    // A chip moves its own spot; a line moves them all, so hovering one lights them all up
+    // Dragging any spot changes the group, so hovering one lights them all up
     const int chip = spotChipAt (event.position);
     const int spot = chip >= 0 ? chip : (band.has_value() ? -1 : spotLineAt (event.position));
     hoverSpot = spot;
-    hoverAllSpots = chip < 0 && spot >= 0;
+    hoverAllSpots = spot >= 0 || spotGrip().contains (event.position);
 
-    setMouseCursor (spot >= 0 ? juce::MouseCursor::LeftRightResizeCursor
+    setMouseCursor (hoverAllSpots ? juce::MouseCursor::LeftRightResizeCursor
                     : event.position.y > getPlotArea().getBottom() ? juce::MouseCursor::LeftRightResizeCursor
                     : hoverId >= 0 ? juce::MouseCursor::DraggingHandCursor
                     : getZoomControl().bounds.contains (event.position) ? juce::MouseCursor::PointingHandCursor
@@ -977,10 +1035,15 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
     // Calibration spots' chips, and the frequency axis along the bottom
     if (! event.mods.isPopupMenu())
     {
+        // The lowest and highest spots resize the group; the middle one (or the grip between two) moves it
         if (const int spot = spotChipAt (event.position); spot >= 0)
         {
-            dragMode = DragMode::spot;
-            draggingSpot = spot;
+            beginSpotDrag (spot, event.position.x);
+            return;
+        }
+        if (spotGrip().contains (event.position))
+        {
+            beginSpotDrag (-1, event.position.x);
             return;
         }
         if (event.position.y > getPlotArea().getBottom())
@@ -1006,13 +1069,10 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
             return;
         }
 
-        // A spot's line (away from any band) moves all the spots together, keeping their spacing
+        // A spot's line (away from any band) does the same as its chip
         if (const int line = spotLineAt (event.position); line >= 0 && ! bandAt (event.position).has_value())
         {
-            dragMode = DragMode::spotsTogether;
-            spotDragAnchor = frequencyForX (event.position.x);
-            for (int i = 0; i < CalibrationPlayer::maxSpots; ++i)
-                spotFrequenciesAtDragStart[(size_t) i] = CalibrationSettings::getSpot (processor.parameters.state, i).frequency;
+            beginSpotDrag (line, event.position.x);
             return;
         }
     }
@@ -1092,33 +1152,44 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 {
     mousePosition = event.position;
 
-    if (dragMode == DragMode::spot)
+    if (dragMode == DragMode::spotsTogether || dragMode == DragMode::spotsResize)
     {
-        // Slide the spot along the frequencies, keeping its pan
-        auto spot = CalibrationSettings::getSpot (processor.parameters.state, draggingSpot);
-        spot.frequency = frequencyForX (juce::jlimit (getPlotArea().getX(), getPlotArea().getRight(), event.position.x));
-        CalibrationSettings::setSpot (processor.parameters.state, processor.getCalibration(), draggingSpot, spot);
-        repaint();
-        return;
-    }
-
-    if (dragMode == DragMode::spotsTogether)
-    {
-        // Shift them all by the same ratio, as far as the lowest and highest can go
         const int count = CalibrationSettings::getSpotCount (processor.parameters.state);
-        float lowest = 20000.0f, highest = 0.0f;
+        float low = 20000.0f, high = 0.0f;
         for (int i = 0; i < count; ++i)
         {
-            lowest = std::min (lowest, spotFrequenciesAtDragStart[(size_t) i]);
-            highest = std::max (highest, spotFrequenciesAtDragStart[(size_t) i]);
+            low = std::min (low, spotFrequenciesAtDragStart[(size_t) i]);
+            high = std::max (high, spotFrequenciesAtDragStart[(size_t) i]);
         }
-        const float x = juce::jlimit (getPlotArea().getX(), getPlotArea().getRight(), event.position.x);
-        const float ratio = juce::jlimit (20.0f / lowest, 16000.0f / highest, frequencyForX (x) / spotDragAnchor);
 
+        const float x = juce::jlimit (getPlotArea().getX(), getPlotArea().getRight(), event.position.x);
+        const float moved = frequencyForX (x) / spotDragAnchor;
+        float newLow = low, newHigh = high;
+
+        if (dragMode == DragMode::spotsTogether)
+        {
+            // All of them, by the same ratio, as far as the ends can go
+            const float ratio = juce::jlimit (20.0f / low, 16000.0f / high, moved);
+            newLow = low * ratio;
+            newHigh = high * ratio;
+        }
+        else if (spotDragResizesTop)
+        {
+            newHigh = juce::jlimit (low * 1.1f, 16000.0f, high * moved); // the bottom stays put
+        }
+        else
+        {
+            newLow = juce::jlimit (20.0f, high / 1.1f, low * moved); // the top stays put
+        }
+
+        // Every spot keeps its place between the ends (in octaves)
+        const float span = std::log (high / low);
         for (int i = 0; i < count; ++i)
         {
+            const float start = spotFrequenciesAtDragStart[(size_t) i];
+            const float position = span > 1.0e-4f ? std::log (start / low) / span : (start >= high ? 1.0f : 0.0f);
             auto spot = CalibrationSettings::getSpot (processor.parameters.state, i);
-            spot.frequency = spotFrequenciesAtDragStart[(size_t) i] * ratio;
+            spot.frequency = newLow * std::pow (newHigh / newLow, position);
             CalibrationSettings::setSpot (processor.parameters.state, processor.getCalibration(), i, spot);
         }
         repaint();
@@ -1247,7 +1318,7 @@ void CabinPeqGraph::mouseDoubleClick (const juce::MouseEvent& event)
         setFrequencyView (minFrequency, maxFrequency);
         return;
     }
-    if (spotChipAt (event.position) >= 0)
+    if (spotChipAt (event.position) >= 0 || spotGrip().contains (event.position))
         return;
 
     auto band = bandAt (event.position);

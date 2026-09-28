@@ -44,7 +44,7 @@ namespace CalibrationSettings
 
     inline int getSpotCount (const juce::ValueTree& state)
     {
-        return juce::jlimit (2, CalibrationPlayer::maxSpots, (int) state.getProperty (idSpotCount, 2));
+        return juce::jlimit (2, CalibrationPlayer::maxSpots, (int) state.getProperty (idSpotCount, 3));
     }
 
     inline Spot getSpot (const juce::ValueTree& state, int index)

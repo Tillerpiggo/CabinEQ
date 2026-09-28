@@ -67,7 +67,7 @@ public:
     bool keyPressed (const juce::KeyPress&) override;
 
 private:
-    enum class DragMode { none, bands, marquee, zoom, spot, spotsTogether, pan };
+    enum class DragMode { none, bands, marquee, zoom, spotsTogether, spotsResize, pan };
 
     // The -/+ dB range control in the top right
     struct ZoomControl { juce::Rectangle<float> bounds, minus, plus, label; };
@@ -167,6 +167,9 @@ private:
     juce::Rectangle<float> spotChip (int index) const;
     int spotChipAt (juce::Point<float> position) const;
     int spotLineAt (juce::Point<float> position) const;
+    juce::Rectangle<float> spotGrip() const;          // between two spots, to move them both
+    void beginSpotDrag (int spot, float x);           // -1 for the grip
+    bool spotDragResizesTop = false;
     float spotDragAnchor = 1000.0f;
     std::array<float, CalibrationPlayer::maxSpots> spotFrequenciesAtDragStart {};
     void drawSpots (juce::Graphics&);

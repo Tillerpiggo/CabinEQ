@@ -328,7 +328,7 @@ private:
     std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
-    std::atomic<int> mode { (int) Mode::grid }, spotCount { 2 };
+    std::atomic<int> mode { (int) Mode::grid }, spotCount { 3 };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f };
     std::array<std::atomic<float>, maxSpots> spotPan { 0.0f, 0.0f, 0.0f };
     std::atomic<bool> playing { false };

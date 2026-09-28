@@ -11,7 +11,7 @@
     depth that plays each position several times, getting louder.
 
     "On graph" plays 2 or 3 spots instead, each from its base frequency (a sharp
-    low cut) up to 20 kHz, with its own pan. They show on the EQ graph, where you can drag
+    low cut) up to 20 kHz, all with the same pan. They show on the EQ graph, where you can drag
     them, so you can line them up with the bands exactly.
 
   ==============================================================================
@@ -70,10 +70,10 @@ private:
     struct SpotControls
     {
         std::unique_ptr<ValueField> frequency;
-        juce::Slider pan;
         juce::Rectangle<int> row;
     };
     std::array<SpotControls, CalibrationPlayer::maxSpots> spotControls;
+    juce::Slider spotsPan; // one pan for all of them
     juce::Rectangle<int> spotsArea;
 
     juce::Rectangle<int> gridArea;
