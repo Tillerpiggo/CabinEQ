@@ -11,121 +11,70 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "BuildableComponent.h"
 #include "CabinEqAudioProcessor.h"
 #include "CabinPeqGraph.h"
-#include "CabinEqLookAndFeel.h"
-#include "CalibrationView.h"
-#include "FreeTrialBanner.h"
-#include "FreeTrialLockScreen.h"
-#include "ContactUsBanner.h"
-#include "Listeners.h"
-#include "CabinEqMarketplaceStatus.h"
-#include "CabinEqUnlockForm.h"
-#include "ProfileView.h"
+#include "BandInspector.h"
+#include "ProfileList.h"
+#include "ValueField.h"
+#include "CalibrationPanel.h"
 
-class CabinEqPage   : public BuildableComponent,
-                      public juce::TextEditor::Listener,
-                      public CabinEqAudioProcessor::Listener,
-                      public ProfileViewListener,
-                      public FreeTrialListener,
-                      public juce::Timer
+/// The whole window: profiles down the left, the top bar, the graph, and the band inspector.
+class CabinEqPage   : public juce::Component,
+                      public juce::FileDragAndDropTarget,
+                      private juce::ChangeListener,
+                      private juce::Timer
 {
 public:
-    CabinEqPage (CabinEqAudioProcessor& p);
+    explicit CabinEqPage (CabinEqAudioProcessor& p);
     ~CabinEqPage() override;
-    
+
     void paint (juce::Graphics&) override;
+    void paintOverChildren (juce::Graphics&) override;
     void resized() override;
-    
-    // Text editor stuff
-    void textEditorTextChanged (juce::TextEditor& textEditor) override;
-    void textEditorReturnKeyPressed (juce::TextEditor& textEditor) override;
-    void textEditorEscapeKeyPressed (juce::TextEditor& textEditor) override;
-    void textEditorFocusLost (juce::TextEditor& textEditor) override;
-    void inputAttemptWhenModal() override;
-    
-    void freeTrialDidReset() override;
-    void showActivateLicenseForm() override;
+    bool keyPressed (const juce::KeyPress&) override;
 
-    // ProfileViewListener methods
-    void addProfile (juce::String profileName) override;
-    void addDuplicateProfile (juce::String profileName, juce::String oldProfileName) override;
-    void renameProfile (juce::String profileName, juce::String newProfileName) override;
-    void deleteProfile (juce::String profileName) override;
-    void selectProfile (juce::String profileName) override;
-    
-//    void setBands (std::vector<Band> bands) override;
+    bool isInterestedInFileDrag (const juce::StringArray& files) override;
+    void fileDragEnter (const juce::StringArray&, int, int) override;
+    void fileDragExit (const juce::StringArray&) override;
+    void filesDropped (const juce::StringArray& files, int, int) override;
+
+private:
+    class IconButton;
+
+    void changeListenerCallback (juce::ChangeBroadcaster*) override;
     void timerCallback() override;
-    
-    void didLoadData() override;
-    
-protected:
-    void toggleBypass();
-    // void loadDropdownOptions();
-    void dismissAlertWindow();
-    void updateButtonText();
-    
-    void showForm();
-    void unlockApp(); // unlocks the app, hiding the free trial banner and free trial lock screen
-    void lockApp(); // locks the app, showing the free trial banner and free trial lock screen
-    
-    void lockIfNecessary();
-    
-    void setCalibrationExpanded (bool shouldBeExpanded); // shows or hides calibrationView, giving the graph the space when hidden
-    
-    void addProfile();
-    void duplicateProfile();
-    void renameProfile();
-    
-    void goToProfileWithId (juce::String profileIdToGoTo);
-    bool isDuplicateProfileName (juce::String profileName);
-    
-    void submitAlertWindowText(); // tries to add, rename, or duplicate the profile based on the text in the textEditor
-    
-    CabinEqLookAndFeel cabinEqLookAndFeel;
-    
-    // JUCE Labels
-    FreeTrialBanner freeTrialBanner;
-    ContactUsBanner contactUsBanner;
-    FreeTrialLockScreen freeTrialLockScreen;
-    CalibrationView calibrationView;
-    juce::TextButton calibrationToggleButton;
-    bool isCalibrationExpanded = false; // calibration sounds start collapsed
-    juce::Label cabinEQLabel;
-    CabinEqAudioProcessor& processor;
-    juce::String profileId;
-    juce::TextButton bypassButton { "ON" };
-    
-    bool isBypassed = false;
-    
-    // Free Trial Unlock
-    CabinEqUnlockForm unlockForm;
-    
-    bool creatingDuplicate = false;
-    bool renamingProfile = false;
-    int fftSize = 16;
-    
-    std::unique_ptr<CabinPeqGraph> amplGraph;
-    juce::ComboBox inputDropdown;
-    juce::ComboBox outputDropdown;
-    juce::TextButton gearButton;
+    void refreshAll();
+    void updateInspector();
+    void updateTopBar();
 
-    ProfileView profileView;
-    
-    std::unique_ptr<juce::AlertWindow> alertWindow;
-    
-    const juce::Colour backgroundColor = juce::Colour::fromRGB (0.4, 0.4, 0.4);
-    const juce::String textEditorName = "ProfileEditor";
-    
-    int lastSelectedId = 1;
-    int lastSelectedNodeIdForCalibration = 0;
-    
-    juce::Slider masterVolumeSlider; // controls master volume for all sound, whether processing or not, including calibration volume
-    juce::Label masterVolumeSliderLabel;
-    
-    bool playingNoisePattern = false;
-    
-    bool isUnlocked = false;
-    bool addingFirstProfile = false;
+    void importFile();
+    void importFiles (const juce::Array<juce::File>& files);
+    void importText (const juce::String& text, const juce::String& profileName);
+    void exportProfile (const juce::String& profileName);
+    void copyProfile (const juce::String& profileName);
+    void pasteProfile();
+    void showCrossfeed();
+    void showMessage (const juce::String& title, const juce::String& message);
+    void setCalibrationShown (bool shouldShow);
+
+    CabinEqAudioProcessor& processor;
+
+    ProfileList profileList;
+    CabinPeqGraph graph;
+    BandInspector inspector;
+    CalibrationPanel calibrationPanel;
+
+    std::unique_ptr<IconButton> undoButton, redoButton, calibrationButton, crossfeedButton, settingsButton, powerButton;
+    ValueField preampField { "Preamp", -30.0, 30.0, 0.0 };
+    ValueField volumeField { "Volume", -30.0, 24.0, 0.0 };
+    juce::ToggleButton autoGainToggle { "Auto gain" };
+    juce::AudioProcessorValueTreeState::ButtonAttachment autoGainAttachment;
+
+    juce::TooltipWindow tooltipWindow { this, 600 };
+    std::unique_ptr<juce::FileChooser> fileChooser;
+    juce::Component::SafePointer<juce::CallOutBox> crossfeedBox;
+    bool isDraggingFiles = false;
+    bool grewForCalibration = false;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEqPage)
 };

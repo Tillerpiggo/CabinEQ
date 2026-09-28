@@ -10,270 +10,323 @@
 
 #include "ProfileList.h"
 
-ProfileList::ProfileList()
+//==============================================================================
+class ProfileList::Row : public juce::Component,
+                         private juce::TextEditor::Listener
 {
-    addAndMakeVisible (listBox);
-    listBox.setModel (this);
-    listBox.setRowHeight (PROFILE_ROW_HEIGHT);
-    listBox.addMouseListener (this, true);
+public:
+    Row (ProfileList& owner, const juce::String& name, bool isSelected, int numBands)
+        : owner (owner), name (name), isSelected (isSelected), numBands (numBands)
+    {
+        setRepaintsOnMouseActivity (true);
+    }
 
-    optionsMenu = std::make_unique<juce::PopupMenu>();
-    optionsMenu->addItem ("Duplicate", [this] {
-        if (listener != nullptr)
-            listener->duplicateProfile (optionsMenuRow);
-        optionsMenuRow = -1;
-    });
-    optionsMenu->addItem ("Rename", [this] {
-        editingRowNumber = optionsMenuRow;
-        updateContent();
-    });
-    optionsMenu->addSeparator();
-    optionsMenu->addColouredItem (3, "Delete", juce::Colours::red); // handle on return
-    
-    listBox.setColour (juce::ListBox::ColourIds::backgroundColourId, BACKGROUND_COLOUR);
+    const juce::String& getName() const { return name; }
+
+    void update (bool nowSelected, int nowNumBands)
+    {
+        if (nowSelected != isSelected || nowNumBands != numBands)
+        {
+            isSelected = nowSelected;
+            numBands = nowNumBands;
+            repaint();
+        }
+    }
+
+    void paint (juce::Graphics& g) override
+    {
+        auto bounds = getLocalBounds().toFloat().reduced (8.0f, 2.0f);
+        const bool hot = isMouseOver (true);
+
+        if (isSelected || hot)
+        {
+            g.setColour (isSelected ? Theme::raised : Theme::panel);
+            g.fillRoundedRectangle (bounds, Theme::cornerRadius);
+        }
+        if (isSelected)
+        {
+            g.setColour (Theme::accent);
+            g.fillRoundedRectangle (bounds.withWidth (3.0f).reduced (0.0f, 8.0f), 1.5f);
+        }
+
+        if (editor != nullptr)
+            return;
+
+        auto text = bounds.reduced (14.0f, 0.0f);
+        auto more = text.removeFromRight (hot ? 24.0f : 0.0f);
+
+        g.setColour (isSelected ? Theme::text : Theme::textDim);
+        g.setFont (Theme::font (13.5f, isSelected));
+        g.drawText (name, text, juce::Justification::centredLeft, true);
+
+        if (hot)
+            Icons::draw (g, Icons::ellipsis(), more.withSizeKeepingCentre (18.0f, 18.0f), Theme::textDim, 1.4f);
+        else if (numBands > 0)
+        {
+            g.setColour (Theme::textFaint);
+            g.setFont (Theme::font (11.0f));
+            g.drawText (juce::String (numBands), text, juce::Justification::centredRight);
+        }
+    }
+
+    void mouseDown (const juce::MouseEvent& event) override
+    {
+        if (editor != nullptr)
+            return;
+
+        const bool onMoreButton = event.x > getWidth() - 40;
+        if (event.mods.isPopupMenu() || onMoreButton)
+        {
+            owner.showRowMenu (name, *this);
+            return;
+        }
+        owner.processor.selectProfile (name);
+    }
+
+    void mouseDoubleClick (const juce::MouseEvent& event) override
+    {
+        if (! event.mods.isPopupMenu() && event.x <= getWidth() - 40)
+            startRenaming();
+    }
+
+    void startRenaming()
+    {
+        editor = std::make_unique<juce::TextEditor>();
+        editor->setFont (Theme::font (13.5f));
+        editor->setText (name, false);
+        editor->setIndents (8, 0);
+        editor->setJustification (juce::Justification::centredLeft);
+        editor->addListener (this);
+        addAndMakeVisible (*editor);
+        editor->setBounds (getLocalBounds().reduced (12, 5));
+        editor->grabKeyboardFocus();
+        editor->selectAll();
+        repaint();
+    }
+
+private:
+    void finishRenaming (bool apply)
+    {
+        if (editor == nullptr)
+            return;
+
+        const auto newName = editor->getText();
+        editor->removeListener (this);
+        editor->setVisible (false);
+
+        // The editor's the one calling, so delete it later
+        juce::MessageManager::callAsync ([old = editor.release()] { delete old; });
+
+        if (apply && newName.trim().isNotEmpty() && newName.trim() != name)
+        {
+            owner.processor.getUndoManager().beginNewTransaction ("Rename profile");
+            owner.processor.getProfiles().renameProfile (name, newName);
+        }
+        repaint();
+    }
+
+    void textEditorReturnKeyPressed (juce::TextEditor&) override { finishRenaming (true); }
+    void textEditorEscapeKeyPressed (juce::TextEditor&) override { finishRenaming (false); }
+    void textEditorFocusLost (juce::TextEditor&) override { finishRenaming (true); }
+
+    ProfileList& owner;
+    juce::String name;
+    bool isSelected;
+    int numBands;
+    std::unique_ptr<juce::TextEditor> editor;
+};
+
+//==============================================================================
+class ProfileList::AddButton : public juce::Button
+{
+public:
+    AddButton() : juce::Button ("New profile")
+    {
+        setTooltip ("New profile, or import one");
+    }
+
+    void paintButton (juce::Graphics& g, bool isHighlighted, bool isDown) override
+    {
+        auto bounds = getLocalBounds().toFloat();
+        if (isHighlighted || isDown)
+        {
+            g.setColour (isDown ? Theme::raisedHover : Theme::raised);
+            g.fillRoundedRectangle (bounds, Theme::cornerRadius);
+        }
+        Icons::draw (g, Icons::plus(), bounds.withSizeKeepingCentre (18.0f, 18.0f), isHighlighted ? Theme::text : Theme::textDim, 1.6f);
+    }
+};
+
+//==============================================================================
+ProfileList::ProfileList (CabinEqAudioProcessor& p)
+    : processor (p)
+{
+    addButton = std::make_unique<AddButton>();
+    addButton->onClick = [this] { showAddMenu(); };
+    addAndMakeVisible (*addButton);
+
+    viewport.setViewedComponent (&rowHolder, false);
+    viewport.setScrollBarsShown (true, false);
+    viewport.setScrollBarThickness (8);
+    addAndMakeVisible (viewport);
+
+    refresh();
+}
+
+ProfileList::~ProfileList() = default;
+
+void ProfileList::refresh()
+{
+    auto& profiles = processor.getProfiles();
+    const auto selected = profiles.getSelectedProfileName();
+    const auto names = profiles.getProfileNames();
+    auto numBandsIn = [&profiles] (const juce::String& name)
+    {
+        auto profile = profiles.getProfileNamed (name);
+        return profile.has_value() ? profile->getNumBands() : 0;
+    };
+
+    // Keep the rows if the names haven't changed, so a double-click can land on the same row
+    bool sameNames = (int) names.size() == rows.size();
+    for (int i = 0; sameNames && i < rows.size(); ++i)
+        sameNames = rows[i]->getName() == names[(size_t) i];
+
+    if (sameNames)
+    {
+        for (auto* row : rows)
+            row->update (row->getName() == selected, numBandsIn (row->getName()));
+    }
+    else
+    {
+        rows.clear();
+        for (const auto& name : names)
+            rowHolder.addAndMakeVisible (rows.add (new Row (*this, name, name == selected, numBandsIn (name))));
+        resized();
+    }
+
+    if (pendingRename.isNotEmpty())
+    {
+        auto name = pendingRename;
+        pendingRename = {};
+        startRenaming (name);
+    }
 }
 
 void ProfileList::paint (juce::Graphics& g)
 {
-    g.fillAll (BACKGROUND_COLOUR);
+    g.fillAll (Theme::sidebar);
+
+    auto header = getLocalBounds().removeFromTop (headerHeight).reduced (22, 0);
+    g.setColour (Theme::textFaint);
+    g.setFont (Theme::font (11.0f, true));
+    g.drawText ("PROFILES", header, juce::Justification::centredLeft);
+
+    g.setColour (Theme::border);
+    g.drawVerticalLine (getWidth() - 1, 0.0f, (float) getHeight());
 }
 
 void ProfileList::resized()
 {
-    listBox.setBounds (getLocalBounds());
+    auto area = getLocalBounds().withTrimmedRight (1);
+    auto header = area.removeFromTop (headerHeight);
+    addButton->setBounds (header.removeFromRight (44).withSizeKeepingCentre (28, 28));
+
+    viewport.setBounds (area);
+    rowHolder.setSize (viewport.getMaximumVisibleWidth(), rows.size() * rowHeight + 8);
+    for (int i = 0; i < rows.size(); ++i)
+        rows[i]->setBounds (0, i * rowHeight, rowHolder.getWidth(), rowHeight);
 }
 
-int ProfileList::getNumRows()
+//==============================================================================
+void ProfileList::startRenaming (const juce::String& profileName)
 {
-    if (dataSource == nullptr)
-        return 0;
-    int numRows = static_cast<int> (dataSource->getProfileNames().size());
-    numRows += isAddingProfile ? 1 : 0;
-    return numRows;
-}
-
-juce::String ProfileList::getNameForRow (int rowNumber)
-{
-    if (dataSource == nullptr)
-        return juce::String();
-    if (rowNumber < 0 || rowNumber >= dataSource->getProfileNames().size())
+    for (auto* row : rows)
     {
-        return "";
-    }
-    if (isAddingProfile && rowNumber == dataSource->getProfileNames().size())
-    {
-        return "Adding Profile...";
-    }
-    return dataSource->getProfileNames()[rowNumber];
-}
-
-void ProfileList::paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected)
-{
-    g.fillAll (rowIsSelected ? HOVER_COLOUR : BACKGROUND_COLOUR);
-    g.setColour (PRIMARY_TEXT_COLOUR);
-    g.setFont (PROFILE_ROW_FONT);
-    g.drawText (getNameForRow (rowNumber), 0, 0, width, height, juce::Justification::centred);
-}
-
-void ProfileList::listBoxItemClicked (int row, const juce::MouseEvent& event)
-{
-    if (listener != nullptr)
-        listener->selectedRow (row);
-    listBox.selectRow (row);
-    std::cout << "list box item clicked, row: " << row << std::endl;
-}
-
-void ProfileList::selectedRowsChanged (int lastRowSelected)
-{
-    if (listener != nullptr)
-        listener->selectedRow (lastRowSelected);
-    selectedRowNumber = lastRowSelected;
-    updateContent();
-    listBox.scrollToEnsureRowIsOnscreen (lastRowSelected);
-}
-
-juce::Component* ProfileList::refreshComponentForRow (int rowNumber, bool isRowSelected, juce::Component* existingComponentToUpdate)
-{
-    ProfileRow* row = nullptr;
-    
-    if (existingComponentToUpdate == nullptr)
-    {
-        row = new ProfileRow (rowNumber);
-        row->setListener (this);
-    }
-    else
-    {
-        row = dynamic_cast<ProfileRow*>(existingComponentToUpdate);
-        if (row == nullptr)
+        if (row->getName() == profileName)
         {
-            delete existingComponentToUpdate;
-            row = new ProfileRow (rowNumber);
-            row->setListener (this);
+            viewport.setViewPosition (0, std::max (0, row->getY() - viewport.getHeight() / 2));
+            row->startRenaming();
+            return;
         }
     }
-    
-    row->setProfileName (getNameForRow (rowNumber));
-    row->setRowNumber (rowNumber);
-    row->setIsSelected (rowNumber == selectedRowNumber);
-    row->setIsEditing (rowNumber == editingRowNumber);
+}
 
-    // Make the adding profile row editable
-    if (isAddingProfile && rowNumber == dataSource->getProfileNames().size())
+void ProfileList::addProfile()
+{
+    processor.getUndoManager().beginNewTransaction ("New profile");
+    auto profile = processor.getProfiles().addProfile ("New Profile");
+    processor.selectProfile (profile.getName());
+    pendingRename = profile.getName(); // rename it once its row exists
+}
+
+void ProfileList::showAddMenu()
+{
+    juce::Component::SafePointer<ProfileList> safeThis (this);
+    juce::PopupMenu menu;
+    menu.addItem ("New profile", [safeThis] { if (safeThis != nullptr) safeThis->addProfile(); });
+    menu.addSeparator();
+    menu.addItem ("Import from file...", [safeThis] { if (safeThis != nullptr && safeThis->onImportFile) safeThis->onImportFile(); });
+    menu.addItem ("Paste from clipboard", [safeThis] { if (safeThis != nullptr && safeThis->onPaste) safeThis->onPaste(); });
+    menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (addButton.get()));
+}
+
+void ProfileList::showRowMenu (const juce::String& profileName, juce::Component& target)
+{
+    juce::Component::SafePointer<ProfileList> safeThis (this);
+    auto& profiles = processor.getProfiles();
+    const bool canDelete = profiles.getProfileNames().size() > 1;
+
+    juce::PopupMenu menu;
+    menu.addItem ("Rename", [safeThis, profileName] { if (safeThis != nullptr) safeThis->startRenaming (profileName); });
+    menu.addItem ("Duplicate", [safeThis, profileName]
     {
-        row->setIsEditing (true);
-    }
-
-    return row;
-}
-
-void ProfileList::backgroundClicked (const juce::MouseEvent& event)
-{
-    isAddingProfile = false;
-    updateContent();
-}
-
-void ProfileList::profileRowClicked (int row)
-{
-    // Don't do anything if we click on the adding profile row
-    if (row == dataSource->getProfileNames().size() && isAddingProfile)
+        if (safeThis == nullptr)
+            return;
+        safeThis->processor.getUndoManager().beginNewTransaction ("Duplicate profile");
+        auto copy = safeThis->processor.getProfiles().duplicateProfile (profileName);
+        safeThis->processor.selectProfile (copy.getName());
+    });
+    menu.addSeparator();
+    menu.addItem ("Export to file...", [safeThis, profileName] { if (safeThis != nullptr && safeThis->onExportFile) safeThis->onExportFile (profileName); });
+    menu.addItem ("Copy as text", [safeThis, profileName] { if (safeThis != nullptr && safeThis->onCopy) safeThis->onCopy (profileName); });
+    menu.addSeparator();
+    menu.addItem (juce::PopupMenu::Item ("Delete").setEnabled (canDelete).setColour (Theme::danger).setAction ([safeThis, profileName]
     {
-        return;
-    }
+        if (safeThis != nullptr)
+            safeThis->confirmDelete (profileName);
+    }));
 
-    if (listener != nullptr)
-        listener->selectedRow (row);
-    selectedRowNumber = row;
-    optionsMenuRow = -1;
-    editingRowNumber = -1;
-    isAddingProfile = false;
-    updateContent();
+    menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (&target)
+                                                  .withTargetScreenArea ({ juce::Desktop::getMousePosition(), juce::Desktop::getMousePosition() }));
 }
 
-void ProfileList::profileRowOptionsClicked (int row)
+void ProfileList::confirmDelete (const juce::String& profileName)
 {
-    // If we're adding a profile, don't respond to the options menu changing... we should probably just hide it for now anyways
-    if (isAddingProfile && row == dataSource->getProfileNames().size())
+    juce::Component::SafePointer<ProfileList> safeThis (this);
+    auto options = juce::MessageBoxOptions()
+                       .withIconType (juce::MessageBoxIconType::NoIcon)
+                       .withTitle ("Delete \"" + profileName + "\"?")
+                       .withMessage ("You can get it back with Undo.")
+                       .withButton ("Delete")
+                       .withButton ("Cancel")
+                       .withAssociatedComponent (this);
+
+    juce::AlertWindow::showAsync (options, [safeThis, profileName] (int result)
     {
-        return;
-    }
+        if (safeThis == nullptr || result != 1)
+            return;
 
-    optionsMenuRow = row; // must be before - showAt del
-    editingRowNumber = -1;
-    int selectedItem = optionsMenu->showAt (listBox.getComponentForRowNumber (row));
-    if (selectedItem == 3)
-    {
-        showAlertWindow();
-    }
+        auto& profiles = safeThis->processor.getProfiles();
+        auto names = profiles.getProfileNames();
+        auto position = std::find (names.begin(), names.end(), profileName);
+        if (position == names.end() || names.size() <= 1)
+            return;
 
-    isAddingProfile = false;
+        // Select a neighbour before the profile goes
+        if (profiles.getSelectedProfileName() == profileName)
+            safeThis->processor.selectProfile (position + 1 != names.end() ? *(position + 1) : *(position - 1));
+
+        safeThis->processor.getUndoManager().beginNewTransaction ("Delete profile");
+        profiles.removeProfile (profileName);
+    });
 }
-
-void ProfileList::setListener (ProfileListListener* listener)
-{
-    this->listener = listener;
-}
-
-void ProfileList::setDataSource (ProfileListDataSource* dataSource)
-{
-    this->dataSource = dataSource;
-    updateContent();
-}
-
-void ProfileList::setIsAddingProfile (bool isAddingProfile)
-{
-    this->isAddingProfile = isAddingProfile;
-    updateContent();
-    scrollToBottom();
-}
-
-void ProfileList::setSelectedRow (int row)
-{
-    selectedRowNumber = row;
-    updateContent();
-    listBox.scrollToEnsureRowIsOnscreen (row);
-}
-
-void ProfileList::profileRowRenamed (int row, juce::String newProfileName)
-{
-    if (listener != nullptr)
-    {
-        // If we're adding a profile, then rename should add the profile
-        if (isAddingProfile && row == dataSource->getProfileNames().size())
-        {
-            listener->addProfile (newProfileName);
-            isAddingProfile = false;
-            selectedRowNumber = dataSource->getProfileNames().size() - 1;
-            listBox.scrollToEnsureRowIsOnscreen (selectedRowNumber);
-            listener->selectedRow (selectedRowNumber);
-        }
-
-        // Otherwise, just rename the profile
-        else
-        {
-            listener->renameProfile (row, newProfileName);
-        }
-    }
-    editingRowNumber = -1;
-    isAddingProfile = false;
-    updateContent();
-}
-
-void ProfileList::profileRowRenameCancelled (int row)
-{
-    editingRowNumber = -1;
-    isAddingProfile = false;
-    updateContent();
-}
-
-void ProfileList::tryToSetIsEditing (int row)
-{
-    if (row == dataSource->getProfileNames().size() && isAddingProfile)
-    {
-        return;
-    }
-    editingRowNumber = row;
-    updateContent();
-}
-
-void ProfileList::updateContent()
-{
-    listBox.updateContent();
-}
-
-void ProfileList::scrollToBottom()
-{
-    listBox.scrollToEnsureRowIsOnscreen (getNumRows() - 1);
-}
-
-void ProfileList::showAlertWindow()
-{
-    alertWindow = std::make_unique<juce::AlertWindow> ("Delete Profile", 
-                                                      "Are you sure you want to delete this profile?", 
-                                                      juce::MessageBoxIconType::NoIcon);
-
-    alertWindow->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
-    alertWindow->addButton ("Delete", 1, juce::KeyPress (juce::KeyPress::returnKey));
-    alertWindow->setEscapeKeyCancels (true);
-
-    alertWindow->getButton (0)->onClick = [this] {
-        dismissAlertWindow();
-    };
-    alertWindow->getButton (1)->onClick = [this] {
-        if (listener != nullptr)
-        {
-            listener->deleteProfile (optionsMenuRow);
-            dismissAlertWindow();
-            updateContent();
-        }
-    };
-
-    alertWindow->enterModalState();
-}
-
-void ProfileList::dismissAlertWindow()
-{
-    alertWindow.reset();
-}
-
-
-

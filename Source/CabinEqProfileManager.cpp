@@ -10,129 +10,201 @@
 
 #include "CabinEqProfileManager.h"
 
-CabinEqProfileManager::CabinEqProfileManager (juce::AudioProcessorValueTreeState& apvts)
-    : apvts (apvts)
+namespace
+{
+    // Properties older versions kept on the root of the state
+    const juce::Identifier idMasterVolume { "masterVolumeId" };
+    const juce::Identifier idHasLicense { "hasLicenseId" };
+}
+
+CabinEqProfileManager::CabinEqProfileManager (juce::AudioProcessorValueTreeState& apvts, juce::UndoManager& undoManager)
+    : apvts (apvts), undoManager (undoManager)
 {}
 
-void CabinEqProfileManager::addProfile (juce::String profileName)
+void CabinEqProfileManager::migrateState (juce::ValueTree& state)
 {
-    // Create the profile
-    if (getProfileNamed (profileName) == std::nullopt)
+    if ((int) state.getProperty (idStateVersion, 1) >= stateVersion)
+        return;
+
+    // Older CabinEQs can't read the new format, so keep a copy to go back to
+    if (shouldBackUpOldState && state.getChildWithName (CabinEqProfile::idProfile).isValid())
     {
-        auto newProfile = std::make_unique<CabinEqProfile> (apvts, profileName);
-        profiles.push_back (std::move (newProfile));
-    }
-}
+        auto folder = getBackupFolder();
+        const auto text = state.toXmlString();
+        bool alreadyBackedUp = false;
+        for (const auto& existing : folder.findChildFiles (juce::File::findFiles, false, "*.xml"))
+            alreadyBackedUp |= existing.getSize() == (juce::int64) text.getNumBytesAsUTF8() && existing.loadFileAsString() == text;
 
-void CabinEqProfileManager::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
-{
-    addProfile (profileName);
-    
-    // Copy over old profile to new profile
-    getProfileNamed (profileName)->get().copyFrom (getProfileNamed (oldProfileName)->get());
-}
-
-void CabinEqProfileManager::removeProfile (juce::String profileName)
-{
-    for (int i = 0; i < profiles.size(); ++i)
-        if (profiles[i]->getName() == profileName)
-            profiles.erase (profiles.begin() + i);
-}
-
-void CabinEqProfileManager::renameProfile (juce::String profileName, juce::String newProfileName)
-{
-    getProfileNamed (profileName)->get().renameTo (newProfileName);
-}
-
-void CabinEqProfileManager::setProfileVolume (juce::String profileName, float profileVolume)
-{
-    getProfileNamed (profileName)->get().setVolume (profileVolume);
-}
-
-void CabinEqProfileManager::setProfileMelodyVolume (juce::String profileName, float melodyVolume)
-{
-    getProfileNamed (profileName)->get().setMelodyVolume (melodyVolume);
-}
-
-void CabinEqProfileManager::setProfileNoiseVolume (juce::String profileName, float noiseVolume)
-{
-    getProfileNamed (profileName)->get().setNoiseVolume (noiseVolume);
-}
-
-void CabinEqProfileManager::initProfiles()
-{
-    for (const auto& node: apvts.state)
-    {
-        if (node.getType().toString() == "Profile")
+        if (! alreadyBackedUp && folder.createDirectory())
         {
-            profiles.push_back (std::make_unique<CabinEqProfile> (apvts, node.getProperty ("ProfileName")));
+            auto file = folder.getNonexistentChildFile ("CabinEQ state before update " + juce::Time::getCurrentTime().formatted ("%Y-%m-%d %H.%M.%S"), ".xml");
+            file.replaceWithText (text);
         }
     }
-    
-    for (auto& profile : profiles)
-        profile->initValueTreeFromAPVTS();
+
+    // The master volume slider went away, so fold it into each profile's preamp so nothing sounds different
+    const float masterVolume = state.getProperty (idMasterVolume, 0.0f);
+
+    for (auto child : state)
+    {
+        if (! child.hasType (CabinEqProfile::idProfile))
+            continue;
+
+        CabinEqProfile::migrate (child);
+        if (masterVolume != 0.0f)
+            child.setProperty (CabinEqProfile::idProfileVolume,
+                               juce::jlimit (-30.0f, 30.0f, (float) child.getProperty (CabinEqProfile::idProfileVolume, 0.0f) + masterVolume),
+                               nullptr);
+    }
+
+    state.removeProperty (idMasterVolume, nullptr);
+    state.removeProperty (idHasLicense, nullptr);
+
+    // Drop the old placeholder parameter, and keep auto gain off so existing profiles sound the same
+    for (int i = state.getNumChildren(); --i >= 0;)
+        if (state.getChild (i).hasType ("PARAM") && state.getChild (i).getProperty ("id") == "dummyParam")
+            state.removeChild (i, nullptr);
+
+    if (! state.getChildWithProperty ("id", "autoGain").isValid())
+    {
+        juce::ValueTree autoGain ("PARAM");
+        autoGain.setProperty ("id", "autoGain", nullptr);
+        autoGain.setProperty ("value", 0.0f, nullptr);
+        state.appendChild (autoGain, nullptr);
+    }
+    state.setProperty (idStateVersion, stateVersion, nullptr);
 }
 
-void CabinEqProfileManager::lockAllProfiles()
+juce::File CabinEqProfileManager::getBackupFolder()
 {
-    for (auto& profile : profiles)
-        profile->setLocked (true);
+    return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+               .getChildFile ("Application Support").getChildFile ("CabinEQ").getChildFile ("Backups");
 }
 
-const std::vector<juce::String> CabinEqProfileManager::getProfileNames() const
+void CabinEqProfileManager::ensureValidState (const juce::String& fallback)
 {
-    std::vector<juce::String> profileNames;
-    for (const auto& profile : profiles)
-        profileNames.push_back (profile->getName());
-    return profileNames;
+    auto& state = apvts.state;
+    state.setProperty (idStateVersion, stateVersion, nullptr);
+
+    if (getProfileNames().empty())
+        state.appendChild (CabinEqProfile::createTree (defaultProfileName), nullptr);
+
+    if (! getProfileNamed (getSelectedProfileName()).has_value())
+        setSelectedProfileName (getProfileNamed (fallback).has_value() ? fallback : getProfileNames().front());
 }
 
-std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqProfileManager::getProfileNamed (juce::String profileName) const
+BandProfile CabinEqProfileManager::getSelectedBandProfile (const juce::ValueTree& state)
 {
-    for (int i = 0; i < profiles.size(); ++i)
-        if (profiles[i]->getName() == profileName)
-            return std::ref (*profiles[i]);
+    const auto selected = state.getProperty (idSelectedProfile).toString();
+    juce::ValueTree first;
+    for (const auto& child : state)
+    {
+        if (! child.hasType (CabinEqProfile::idProfile))
+            continue;
+        if (child.getProperty (CabinEqProfile::idProfileName).toString() == selected)
+            return CabinEqProfile (child, nullptr).getBandProfile();
+        if (! first.isValid())
+            first = child;
+    }
+    return first.isValid() ? CabinEqProfile (first, nullptr).getBandProfile() : BandProfile();
+}
+
+std::vector<juce::String> CabinEqProfileManager::getProfileNames() const
+{
+    std::vector<juce::String> names;
+    for (const auto& child : apvts.state)
+        if (child.hasType (CabinEqProfile::idProfile))
+            names.push_back (child.getProperty (CabinEqProfile::idProfileName).toString());
+    return names;
+}
+
+std::optional<CabinEqProfile> CabinEqProfileManager::getProfileNamed (const juce::String& profileName) const
+{
+    for (const auto& child : apvts.state)
+        if (child.hasType (CabinEqProfile::idProfile) && child.getProperty (CabinEqProfile::idProfileName).toString() == profileName)
+            return CabinEqProfile (child, &undoManager);
     return std::nullopt;
 }
 
-std::optional<juce::String> CabinEqProfileManager::getLastSelectedProfileName() const
+CabinEqProfile CabinEqProfileManager::getSelectedProfile() const
 {
-    if (apvts.state.hasProperty (lastSelectedProfileId))
+    return getProfileNamed (getSelectedProfileName()).value_or (CabinEqProfile ({}, &undoManager));
+}
+
+juce::String CabinEqProfileManager::getSelectedProfileName() const
+{
+    return apvts.state.getProperty (idSelectedProfile).toString();
+}
+
+void CabinEqProfileManager::setSelectedProfileName (const juce::String& profileName)
+{
+    // Which profile you're looking at isn't something to undo
+    apvts.state.setProperty (idSelectedProfile, profileName, nullptr);
+}
+
+CabinEqProfile CabinEqProfileManager::addProfile (const juce::String& profileName, const BandProfile& bandProfile)
+{
+    auto profileTree = CabinEqProfile::createTree (makeUniqueName (profileName), bandProfile);
+    apvts.state.appendChild (profileTree, &undoManager);
+    return CabinEqProfile (profileTree, &undoManager);
+}
+
+CabinEqProfile CabinEqProfileManager::duplicateProfile (const juce::String& profileName)
+{
+    auto original = getProfileNamed (profileName);
+    if (! original.has_value())
+        return CabinEqProfile ({}, &undoManager);
+
+    auto copy = original->getTree().createCopy();
+    copy.setProperty (CabinEqProfile::idProfileName, makeUniqueName (profileName + " copy"), nullptr);
+
+    // Put the copy right after the original
+    const int index = apvts.state.indexOf (original->getTree());
+    apvts.state.addChild (copy, index + 1, &undoManager);
+    return CabinEqProfile (copy, &undoManager);
+}
+
+void CabinEqProfileManager::removeProfile (const juce::String& profileName)
+{
+    if (auto profile = getProfileNamed (profileName))
+        apvts.state.removeChild (profile->getTree(), &undoManager);
+}
+
+void CabinEqProfileManager::renameProfile (const juce::String& profileName, const juce::String& newProfileName)
+{
+    auto profile = getProfileNamed (profileName);
+    auto trimmed = newProfileName.trim();
+    if (! profile.has_value() || trimmed.isEmpty() || trimmed == profileName)
+        return;
+
+    const bool wasSelected = getSelectedProfileName() == profileName;
+    profile->renameTo (makeUniqueName (trimmed, profileName));
+    if (wasSelected)
+        setSelectedProfileName (profile->getName());
+}
+
+juce::String CabinEqProfileManager::makeUniqueName (const juce::String& wantedName, const juce::String& ignoring) const
+{
+    auto base = wantedName.trim();
+    if (base.isEmpty())
+        base = "Profile";
+
+    auto names = getProfileNames();
+    auto isTaken = [&] (const juce::String& name)
     {
-        return apvts.state.getProperty (lastSelectedProfileId);
-    }
-    return std::nullopt;
+        return name != ignoring && std::find (names.begin(), names.end(), name) != names.end();
+    };
+
+    auto name = base;
+    for (int number = 2; isTaken (name); ++number)
+        name = base + " " + juce::String (number);
+    return name;
 }
 
-float CabinEqProfileManager::getMasterVolume() const
+juce::String CabinEqProfileManager::getProfileNameContaining (const juce::ValueTree& tree) const
 {
-    if (! apvts.state.hasProperty (masterVolumeId))
-    {
-        apvts.state.setProperty (masterVolumeId, 0, nullptr);
-    }
-    return apvts.state.getProperty (masterVolumeId);
-}
-
-bool CabinEqProfileManager::getHasLicense() const
-{
-    if (! apvts.state.hasProperty (hasLicenseId))
-    {
-        apvts.state.setProperty (hasLicenseId, false, nullptr);
-    }
-    return apvts.state.getProperty (hasLicenseId);
-}
-
-void CabinEqProfileManager::setLastSelectedProfileName (juce::String lastSelectedProfileName)
-{
-    apvts.state.setProperty (lastSelectedProfileId, lastSelectedProfileName, nullptr);
-}
-
-void CabinEqProfileManager::setMasterVolume (float masterVolume)
-{
-    apvts.state.setProperty (masterVolumeId, masterVolume, nullptr);
-}
-
-void CabinEqProfileManager::setHasLicense (bool hasLicense)
-{
-    apvts.state.setProperty (hasLicenseId, hasLicense, nullptr);
+    for (auto node = tree; node.isValid(); node = node.getParent())
+        if (node.hasType (CabinEqProfile::idProfile))
+            return node.getProperty (CabinEqProfile::idProfileName).toString();
+    return {};
 }

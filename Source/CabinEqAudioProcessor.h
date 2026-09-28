@@ -12,38 +12,28 @@
 
 #include "PlaybackManager.h"
 #include "CabinEqProfileManager.h"
-#include "CheckerboardManager.h"
-#include "CabinPeqGraph.h"
-#include "Listeners.h"
-#include "FreeTrialBanner.h"
-#include "CabinEqMarketplaceStatus.h"
-#include "CabinStandaloneFilterWindow.h"
-#include "GlyphManager.h"
+#include "BandEqCurve.h"
+
+namespace ParamIDs
+{
+    inline const juce::String bypass { "bypass" };
+    inline const juce::String volume { "volume" };
+    inline const juce::String autoGain { "autoGain" };
+    inline const juce::String crossfeed { "crossfeed" };
+    inline const juce::String crossfeedLevel { "crossfeedLevel" };
+    inline const juce::String crossfeedDelay { "crossfeedDelay" };
+}
 
 //==============================================================================
-/**
-*/
+/// A parametric EQ with named profiles. The profiles live in the parameters' ValueTree,
+/// which is the one source of truth: anything that edits it (the UI, undo, loading state)
+/// ends up in refresh(), which hands the selected profile to the audio path.
 class CabinEqAudioProcessor  : public juce::AudioProcessor,
-                               public AudioPlayerComponentListener,
-                               public CabinPeqGraphListener,
-                               public CabinPeqGraphDataSource,
-                               public CheckerboardViewListener,
-                               public CheckerboardViewDataSource,
-                               public CalibrationListener,
-                               public ContactUsBannerListener,
-                               public GlyphViewListener,
-                               public GlyphViewDataSource,
-                               public ProfileViewDataSource,
-                               public juce::Timer
+                               private juce::ValueTree::Listener,
+                               private juce::AsyncUpdater,
+                               private juce::Timer
 {
 public:
-    class Listener
-    {
-    public:
-        virtual ~Listener() = default;
-        virtual void didLoadData() = 0;
-    };
-    
     //==============================================================================
     CabinEqAudioProcessor();
     ~CabinEqAudioProcessor() override;
@@ -51,11 +41,7 @@ public:
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
-
-   #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
-
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
     //==============================================================================
@@ -64,7 +50,6 @@ public:
 
     //==============================================================================
     const juce::String getName() const override;
-
     bool acceptsMidi() const override;
     bool producesMidi() const override;
     bool isMidiEffect() const override;
@@ -80,146 +65,86 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    
-    const std::pair<juce::String, double>& getNoteData(int index) const;
-    int getNoteDataSize() const;
-    
+
+    juce::AudioProcessorParameter* getBypassParameter() const override;
+
     //==============================================================================
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState parameters;
-    
-    void freeTrialDidReset();
-    
-    // AudioPlayerComponentListener
-    void setIsAudioFilePlaying (bool isPlaying) override;
-    void setFile (juce::File file) override;
-    void addAsListener (PlaybackManagerListener* listener) override;
-    
-    // Calibration listener methods
-    void setVolume (float volume) override;
-    void setCalibrationVolume (float calibrationVolume) override;
-    void setIsFilterOn (bool isFilterOn) override;
-    void setIsPlaying (bool isPlaying) override;
-    void setIsCabinNoise (bool isCabinNoise) override;
-    void setMinFreq (float newMinFreq) override;
-    void setIIR (bool isIIR) override;
-    void updateFIRFilter() override;
-    void setFIRQuality (int fftSize) override;
-    void setPinkNoise (bool pinkNoiseEnabled) override;
-    void setSpeedFactor (float speedFactor) override;
-    void setBandwidth (float bandwidth) override;
-    void setGlyphVolume(float volume) override;
-    
-    void setCrossfeedDelaySamples (int samples) override;
-    void setCrossfeedVolume (float volume) override;
-    void setCrossfeedEnabled (bool enabled) override;
-    
-    void goToNext() override;
-    void goToPrev() override;
-    bool hasNext() override;
-    bool hasPrev() override;
-    void toggleCheckerboardPolarity() override;
-    void selectCheckerboardAtIdx (int idx) override;
-    void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords) override;
-    
-    // Provisional bands
-    void setProvisionalBands (std::vector<Band> provisionalBands);
-    void setProvisionalBandsOn (bool provisionalBandsOn);
-    
-    // Profiles
-    void addProfile (juce::String profileName);
-    void addDuplicateProfile (juce::String profileName, juce::String oldProfileName);
-    void removeProfile (juce::String profileName);
-    void renameProfile (juce::String profileName, juce::String newProfileName);
-    void setProfileVolume (float masterVolume) override;
-    bool isProfileLocked();
-    std::optional<std::reference_wrapper<CabinEqProfile>> getProfileNamed (juce::String profileName) const;
-    BandProfile getBandProfile() override;
-    
-    std::optional<juce::String> getLastSelectedProfileName();
-    float getMasterVolume();
-    bool getHasLicense();
-    void setLastSelectedProfileName (juce::String profileName);
-    void setMasterVolume (float masterVolume);
-    void setHasLicense (bool hasLicense);
-    
-    // Setting bands
-    void updateFilter(); // updates the filter to match whatever bands are associated with profileName
-    int addMultiBandStep() override;
-    void removeMultiBandStep (int stepId) override;
-    void setStepEnabled (int stepId, bool isEnabled) override;
-    int addBand (float freq, float ampl, float bandwidth, Band::Type type, int stepId) override;
-    void updateBand (int bandId, float freq, float ampl, float bandwidth, Band::Type type, int stepId) override;
-    void removeBand (int bandId, int stepId) override;
-    
-    
-    std::vector<float> getCurrPlayingFreqs() override;
-    std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols() override;
-    
-    float getBandwidth() override;
-    
-    // CheckerboardViewDataSource
-    const Checkerboard getCheckerboard() override;
-    bool getIsPlaying() override;
-    int getNumCheckerboards() override;
-    std::string getNameAtIdx (int idx) override;
-    int getSelectedRow() override;
 
-    // GlyphViewListener
-    void addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor) override;
-    void moveGlyph (int glyphId, juce::Point<float> centerPos) override;
-    void removeGlyph (int glyphId) override;
-    void incrementGlyphVolume (int glyphId, float increment) override;
-    void incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement) override;
-    void moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions) override;
-    void scaleGlyphs (std::unordered_set<int> glyphIds, float increment) override;
+    // Message thread only, from here down
+    CabinEqProfileManager& getProfiles() { return profiles; }
+    CabinEqProfile getSelectedProfile() const { return profiles.getSelectedProfile(); }
+    BandProfile getSelectedBandProfile() const { return profiles.getSelectedProfile().getBandProfile(); }
+    void selectProfile (const juce::String& profileName);
 
-    // GlyphViewDataSource
-    const std::vector<ArchetypalGlyph>& getArchetypalGlyphs() override;
-    const std::vector<Glyph>& getGlyphs() override;
-    float getCurrPlayingTime() override;
+    juce::UndoManager& getUndoManager() { return undoManager; }
+    /// Undo and redo also select the profile they changed, so you can see what happened.
+    void undo();
+    void redo();
 
-    // ProfileViewListener + ProfileViewDataSource
-    // void addProfile() override;
-    // void duplicateProfile (int rowIdx) override;
-    // void renameProfile (int rowIdx) override;
-    // void deleteProfile (int rowIdx) override;
-    std::vector<juce::String> getProfileNames() override;
-    bool getIsProfileLocked (int rowIdx) override;
-    
-    // StandalonePlugin/AudioDeviceManager methods
-    void saveData();
-    void restartAudio() override;
+    /// Auto gain's current correction in dB, whether or not it's switched on.
+    float getAutoGainDb() const { return autoGainDb; }
+    bool isAutoGainOn() const;
+    double getCurveSampleRate() const;
+
+    SpectrumAnalyzer& getAnalyzer() { return playbackManager.getAnalyzer(); }
+    CalibrationPlayer& getCalibration() { return playbackManager.getCalibration(); }
+    bool isStandalone() const { return wrapperType == wrapperType_Standalone; }
     void showAudioSettingsDialog();
-    
-    CabinEqMarketplaceStatus& getMarketplaceStatus();
-    
-    // Listener
-    void addListener (Listener* listener);
-    void removeListener();
-    
-    // Timer
-    void timerCallback() override; // used to autosave
+
+    /// Tells the UI that the profiles changed. Always on the message thread.
+    juce::ChangeBroadcaster stateChanged;
+
+    // Editor size, remembered in the state
+    juce::Point<int> getEditorSize() const;
+    void setEditorSize (juce::Point<int> size);
 
 private:
-    std::optional<std::reference_wrapper<CabinEqProfile>> profileNamed (juce::String profileName) const; // returns the current profile. Crashes if currentProfileId doesn't match an existing profile.
+    void refresh(); // pushes the selected profile to the audio path, and works out auto gain
+    void pushBandsToAudio (const BandProfile& bandProfile);
+    void applyState (const juce::ValueTree& state); // message thread
+    void updateStateSnapshot();
+    void handleAsyncUpdate() override;
+    void timerCallback() override;
 
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+    void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
+    void valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueTree& child, int index) override;
+    void valueTreeChildOrderChanged (juce::ValueTree& parent, int oldIndex, int newIndex) override;
+    void valueTreeRedirected (juce::ValueTree& tree) override;
+    void treeChanged (const juce::ValueTree& changedTree);
+
+    juce::UndoManager undoManager;
+    CabinEqProfileManager profiles;
     PlaybackManager playbackManager;
-    CabinEqProfileManager cabinEqProfileManager;
-    CheckerboardManager checkerboardManager;
-    GlyphManager glyphManager;
-    
-    bool dataHasChanged = false;
-    
-    CabinEqMarketplaceStatus marketplaceStatus;
-    
-    juce::dsp::ProcessSpec spec;
-    
-    std::vector<Listener*> listeners;
-    bool hasLoadedData = false;
-    juce::String currProfileName { "" };
-    juce::String profileId { "NO_PROFILE" };
-    
+    BandEqCurve curve;
+
+    juce::CriticalSection refreshLock; // setStateInformation can come from any thread
+    std::atomic<float> preampDb { 0.0f };
+    std::atomic<float> autoGainDb { 0.0f };
+    std::atomic<double> currentSampleRate { 0.0 };
+
+    juce::AudioParameterBool* bypassParameter = nullptr;
+    std::atomic<float>* autoGainParameter = nullptr;
+    std::atomic<float>* volumeParameter = nullptr;
+    std::atomic<float>* crossfeedParameter = nullptr;
+    std::atomic<float>* crossfeedLevelParameter = nullptr;
+    std::atomic<float>* crossfeedDelayParameter = nullptr;
+
+    bool isUndoingOrRedoing = false;
+    juce::String profileChangedByUndo;
+    juce::String currentSelection, previousSelection;
+    bool needsSaving = false;
+    juce::uint32 lastSaveTime = 0;
+
+    // For hosts that ask for the state from other threads
+    juce::CriticalSection snapshotLock;
+    juce::MemoryBlock stateSnapshot;
+    bool snapshotIsStale = false;
+
+    JUCE_DECLARE_WEAK_REFERENCEABLE (CabinEqAudioProcessor)
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEqAudioProcessor)
 };

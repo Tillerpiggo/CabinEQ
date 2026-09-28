@@ -11,31 +11,26 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Layout.h"
-#include "Listeners.h"
+#include "CabinEqAudioProcessor.h"
 
+/// Crossfeed's settings, shown in a pop-over from the top bar.
 class CrossfeedControl  : public juce::Component
 {
 public:
-    CrossfeedControl();
-    ~CrossfeedControl() override;
+    explicit CrossfeedControl (juce::AudioProcessorValueTreeState& parameters);
 
     void paint (juce::Graphics& g) override;
     void resized() override;
 
-    void setListener (CalibrationListener* listener);
-
 private:
-    void updateEnableButtonText();
+    void updateEnablement();
 
-    CalibrationListener* calibrationListener = nullptr;
+    juce::ToggleButton enableButton { "Crossfeed" };
+    juce::Slider levelSlider, delaySlider;
+    juce::Label levelLabel, delayLabel;
 
-    juce::Slider delaySlider;
-    juce::Label  delayLabel;
+    juce::AudioProcessorValueTreeState::ButtonAttachment enableAttachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment levelAttachment, delayAttachment;
 
-    juce::Slider volumeSlider;
-    juce::Label  volumeLabel;
-
-    juce::TextButton enableButton;
-    bool isCrossfeedEnabled = false;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CrossfeedControl)
 };

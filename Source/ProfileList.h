@@ -11,67 +11,46 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Listeners.h"
-#include "ProfileRow.h"
-#include "UIConstants.h"
+#include "CabinEqAudioProcessor.h"
+#include "Theme.h"
 
-class ProfileList : public juce::Component,
-                    public juce::ListBoxModel,
-                    public ProfileRow::ProfileRowListener
+/// The sidebar of profiles. Click one to use it, double-click to rename it, and
+/// right-click (or use its "..." button) to duplicate, export or delete it.
+class ProfileList : public juce::Component
 {
 public:
-    ProfileList();
+    explicit ProfileList (CabinEqAudioProcessor& processor);
+    ~ProfileList() override;
 
-    void paint (juce::Graphics& g) override;
+    /// Rebuilds the rows. Call whenever the profiles change.
+    void refresh();
+
+    // The page does the file and clipboard work
+    std::function<void()> onImportFile, onPaste;
+    std::function<void (const juce::String& profileName)> onExportFile, onCopy;
+
+    void paint (juce::Graphics&) override;
     void resized() override;
 
-    // ListBoxModel methods
-    int getNumRows() override;
-    juce::String getNameForRow (int rowNumber) override;
-    void paintListBoxItem (int rowNumber, juce::Graphics &g, int width, int height, bool rowIsSelected) override;
-    void listBoxItemClicked (int row, const juce::MouseEvent& event) override;
-    void selectedRowsChanged (int lastRowSelected) override;
-    juce::Component* refreshComponentForRow (int rowNumber, bool isRowSelected, juce::Component* existingComponentToUpdate) override;
-    void backgroundClicked (const juce::MouseEvent& event) override;
-
-    // ProfileRowListener methods
-    void profileRowClicked (int row) override;
-    void profileRowOptionsClicked (int row) override;
-    void profileRowRenamed (int row, juce::String newProfileName) override;
-    void profileRowRenameCancelled (int row) override;
-    void tryToSetIsEditing (int row) override;
-
-    void updateContent(); // triggers an update of the list box content
-    void scrollToBottom();
-
-    // ProfileListListener methods
-    void setListener (ProfileListListener* listener);
-    void setDataSource (ProfileListDataSource* dataSource);
-
-    // Adding profile
-    void setIsAddingProfile (bool isAddingProfile);
-
-    // Programmatically select a row
-    void setSelectedRow (int row);
-
 private:
-    void showAlertWindow();
-    void dismissAlertWindow();
+    class Row;
+    class AddButton;
 
-    ProfileListListener* listener = nullptr;
-    ProfileListDataSource* dataSource = nullptr;
+    void showRowMenu (const juce::String& profileName, juce::Component& target);
+    void showAddMenu();
+    void addProfile();
+    void confirmDelete (const juce::String& profileName);
+    void startRenaming (const juce::String& profileName);
 
-    std::unique_ptr<juce::PopupMenu> optionsMenu;
-    std::unique_ptr<juce::AlertWindow> alertWindow;
+    CabinEqAudioProcessor& processor;
+    juce::Viewport viewport;
+    juce::Component rowHolder;
+    juce::OwnedArray<Row> rows;
+    std::unique_ptr<AddButton> addButton;
+    juce::String pendingRename;
 
-    juce::ListBox listBox;
+    static constexpr int rowHeight = 36;
+    static constexpr int headerHeight = 52;
 
-    int selectedRowNumber = -1;
-    int optionsMenuRow = -1;
-    int editingRowNumber = -1;
-
-    // Adding profile state
-    bool isAddingProfile = false;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProfileList)
 };
-    
-    

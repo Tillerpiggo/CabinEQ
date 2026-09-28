@@ -1,4 +1,3 @@
-
 /*
   ==============================================================================
 
@@ -11,39 +10,28 @@
 
 #include "CrossfeedProcessor.h"
 
-CrossfeedProcessor::CrossfeedProcessor()
-{
-    // Default values are set in the header
-}
-
 void CrossfeedProcessor::prepare (const juce::dsp::ProcessSpec& spec)
 {
     sampleRate = spec.sampleRate;
-    // Max delay of 1 second, plus a little buffer for block processing.
-    // This could be made configurable if needed.
-    maxBufferSamples = (int)std::ceil(sampleRate * 1.0) + spec.maximumBlockSize; 
+    delayBuffer.setSize (2, (int) std::ceil (sampleRate * maxDelayMs / 1000.0) + 2);
+    lowpassCoefficient = (float) std::exp (-juce::MathConstants<double>::twoPi * lowpassHz / sampleRate);
+    gain.reset (sampleRate, 0.05);
+    delaySamples.reset (sampleRate, 0.05);
+    reset();
+}
 
-    leftDelayBuffer.setSize (1, maxBufferSamples);
-    rightDelayBuffer.setSize (1, maxBufferSamples);
-    leftDelayBuffer.clear();
-    rightDelayBuffer.clear();
-    
+void CrossfeedProcessor::reset()
+{
+    delayBuffer.clear();
     writePosition = 0;
+    lowpassState = { 0.0f, 0.0f };
+    gain.setCurrentAndTargetValue (isEnabled ? juce::Decibels::decibelsToGain (levelDb.load()) : 0.0f);
+    delaySamples.setCurrentAndTargetValue (delayInSamples());
 }
 
-void CrossfeedProcessor::setDelaySamples (int samples)
+float CrossfeedProcessor::delayInSamples() const
 {
-    // Ensure delaySamples is not negative and not greater than what buffer can hold minus block size
-    // to prevent reading unwritten data or writing out of bounds.
-    // The max usable delay is maxBufferSamples - spec.maximumBlockSize (from prepare context)
-    // However, spec is not available here. For simplicity, we cap it at maxBufferSamples - 1.
-    // A more robust solution might involve checking against a stored maximumBlockSize.
-    delaySamples = juce::jmax (0, juce::jmin (samples, maxBufferSamples - 1));
-}
-
-void CrossfeedProcessor::setCrossfeedVolume (float volume)
-{
-    crossfeedVolume = juce::jlimit (0.0f, 1.0f, volume);
+    return juce::jlimit (0.0f, (float) delayBuffer.getNumSamples() - 2.0f, (float) (delayMs.load() * sampleRate / 1000.0));
 }
 
 void CrossfeedProcessor::setEnabled (bool enabled)
@@ -51,51 +39,53 @@ void CrossfeedProcessor::setEnabled (bool enabled)
     isEnabled = enabled;
 }
 
-void CrossfeedProcessor::process (juce::dsp::AudioBlock<float>& block)
+void CrossfeedProcessor::setLevelDb (float newLevelDb)
 {
-    if (!isEnabled)
-    {
+    levelDb = newLevelDb;
+}
+
+void CrossfeedProcessor::setDelayMs (float newDelayMs)
+{
+    delayMs = juce::jlimit (0.0f, maxDelayMs, newDelayMs);
+}
+
+void CrossfeedProcessor::process (juce::dsp::AudioBlock<float>& block) noexcept
+{
+    const int bufferSize = delayBuffer.getNumSamples();
+    if (block.getNumChannels() < 2 || bufferSize == 0)
         return;
-    }
 
-    const int numChannels = block.getNumChannels();
-    const int numSamples = block.getNumSamples();
-
-    // This processor is intended for stereo signals
-    if (numChannels < 2 || maxBufferSamples == 0)
-    {
+    gain.setTargetValue (isEnabled ? juce::Decibels::decibelsToGain (levelDb.load()) : 0.0f);
+    if (! gain.isSmoothing() && gain.getTargetValue() == 0.0f)
         return;
-    }
 
-    auto* leftChannelData = block.getChannelPointer (0);
-    auto* rightChannelData = block.getChannelPointer (1);
+    delaySamples.setTargetValue (delayInSamples());
+    auto* left = block.getChannelPointer (0);
+    auto* right = block.getChannelPointer (1);
+    auto* leftDelay = delayBuffer.getWritePointer (0);
+    auto* rightDelay = delayBuffer.getWritePointer (1);
+    const float a = lowpassCoefficient;
 
-    auto* leftDelayData = leftDelayBuffer.getWritePointer (0);
-    auto* rightDelayData = rightDelayBuffer.getWritePointer (0);
-
-    for (int i = 0; i < numSamples; ++i)
+    for (size_t i = 0; i < block.getNumSamples(); ++i)
     {
-        // Store current samples into delay buffers before processing
-        // to use this sample for the other channel's delay in the future
-        leftDelayData[writePosition] = leftChannelData[i];
-        rightDelayData[writePosition] = rightChannelData[i];
+        // Low-pass what crosses over, since the head shadows the high frequencies from the far speaker
+        lowpassState[0] = left[i] + a * (lowpassState[0] - left[i]);
+        lowpassState[1] = right[i] + a * (lowpassState[1] - right[i]);
+        leftDelay[writePosition] = lowpassState[0];
+        rightDelay[writePosition] = lowpassState[1];
 
-        // Calculate read position for the delay
-        int readPosition = (writePosition - delaySamples + maxBufferSamples) % maxBufferSamples;
+        // Read between samples, since the delay can be fractional
+        const float readPosition = (float) writePosition - delaySamples.getNextValue() + (float) bufferSize;
+        const int before = (int) readPosition;
+        const float fraction = readPosition - (float) before;
+        const int i0 = before % bufferSize, i1 = (before + 1) % bufferSize;
 
-        // Get delayed samples
-        float delayedLeftSample = leftDelayData[readPosition];
-        float delayedRightSample = rightDelayData[readPosition];
+        const float g = gain.getNextValue();
+        const float fromRight = (rightDelay[i0] + fraction * (rightDelay[i1] - rightDelay[i0])) * g;
+        const float fromLeft = (leftDelay[i0] + fraction * (leftDelay[i1] - leftDelay[i0])) * g;
+        left[i] += fromRight;
+        right[i] += fromLeft;
 
-        // Apply crossfeed
-        // Left channel gets a bit of the delayed right channel
-        float originalLeft = leftChannelData[i];
-        leftChannelData[i] = originalLeft + (delayedRightSample * crossfeedVolume);
-
-        // Right channel gets a bit of the delayed left channel
-        float originalRight = rightChannelData[i];
-        rightChannelData[i] = originalRight + (delayedLeftSample * crossfeedVolume);
-
-        writePosition = (writePosition + 1) % maxBufferSamples;
+        writePosition = (writePosition + 1) % bufferSize;
     }
-} 
+}

@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    SliderCalibrationManager.h
+    PlaybackManager.h
     Created: 10 Jul 2024 3:39:46pm
     Author:  Tyler Gee
 
@@ -13,119 +13,50 @@
 #include <JuceHeader.h>
 #include "BandProfile.h"
 #include "FilterChain.h"
-#include "CheckerboardPlayer.h"
-#include "ArbitraryResponseFilter.h"
-#include "BandEqCurve.h"
-#include "Checkerboard.h"
-#include "Listeners.h"
-#include "GlyphGridPlayer.h"
 #include "CrossfeedProcessor.h"
-#include <random>
+#include "SpectrumAnalyzer.h"
+#include "CalibrationPlayer.h"
 
-/// This class manages the playback of audio in the app, providing an interface for the PluginProcessor to easily
-/// process audio or play sine tones as needed.
-class PlaybackManager  : public juce::ChangeListener,
-                         public juce::Timer
+/// The audio path: calibration sounds (when they're playing), then EQ bands, then crossfeed, then gain,
+/// with a click-free bypass. Last comes the master volume, which applies whether the EQ is on or off,
+/// and a limiter that catches peaks a boost would push past full scale.
+/// setBands() is for the message thread; the other setters are safe from any thread.
+class PlaybackManager
 {
 public:
-    PlaybackManager();
-
-    void processBlock (juce::AudioBuffer<float>& buffer);
-    
-    void updateFilterWithBandProfile (BandProfile bandProfile);
     void prepare (const juce::dsp::ProcessSpec& spec);
-    
-    void setIsFilterOn (bool isFilterOn);
-    void setIsPlayingNoise (bool isPlayingNoise);
-    void setIsCabinNoise (bool isCabinNoise);
-    void setVolume (float volume);
-    void setCalibrationVolume (float calibrationVolume);
-    void setMinFreq (float minFreq);
-    void setPinkNoise (bool pinkNoiseEnabled);
-    
-    void updateFIRFilter();
-    void setIIR (bool isIIR);
-    void setFIRQuality (int fftSize); // sets fftSize. DOESN'T UPDATE FIR FILTER AUTOMATICALLY!
-    
-    // Provisional bands
-    void setProvisionalBands (std::vector<Band> provisionalBands);
-    void setProvisionalBandsOn (bool isProvisionalOn);
-    
-    // Checkerboard
-    void setCheckerboard (Checkerboard checkerboard);
-    void setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords);
-    
-    // Glyph
-    void setSpeedFactor (float speedFactor);
-    void setBandwidth (float bandwidth);
-    void setGlyphs (std::vector<Glyph> glyphs);
-    void setGlyphVolume(float volume);
-    float getCurrPlayingTime();
+    void processBlock (juce::AudioBuffer<float>& buffer) noexcept;
 
-    // Audio file
-    void setIsAudioFilePlaying (bool isPlaying);
-    void setListener (PlaybackManagerListener* listener);
-    void setAudioFile (juce::File file);
-    
-    // Change Listener (for audio file)
-    void changeListenerCallback (juce::ChangeBroadcaster* source) override;
-    bool getIsPlaying();
-    float getBandwidth();
-    std::vector<float> getCurrPlayingFreqs();
-    std::vector<std::pair<float, float>> getCurrPlayingFreqsAndVols();
-    
-    // Crossfeed
-    void setCrossfeedDelaySamples (int samples);
-    void setCrossfeedVolume (float volume);
-    void setCrossfeedEnabled (bool enabled);
-    
-    void timerCallback() override;
-    
+    void setBands (const std::vector<Band>& bands);
+    void setGainDb (float gainDb); // preamp plus auto gain
+    void setBypassed (bool shouldBeBypassed);
+    void setVolumeDb (float volumeDb); // master volume, which can boost
+
+    CrossfeedProcessor& getCrossfeed() { return crossfeed; }
+    SpectrumAnalyzer& getAnalyzer() { return analyzer; }
+    CalibrationPlayer& getCalibration() { return calibration; }
+
 private:
-    std::pair<float, float> getNextSample();
-    
-    BandEqCurve bandEqCurve;
-    
-    CheckerboardPlayer checkerboardPlayer;
-    GlyphGridPlayer glyphGridPlayer;
-    
-    // Audio Processing
+    void processChunk (juce::AudioBuffer<float>& buffer, int start, int length) noexcept;
+    void applyVolume (juce::AudioBuffer<float>& buffer, int start, int length) noexcept;
+
     FilterChain filter;
-    FilterChain provisionalFilter;
-    ArbitraryResponseFilter firFilter;
-//    ArbitraryResponseFilter tiltFilter;
-    Curve firCurve;
-    CrossfeedProcessor crossfeedProcessor;
-//    TiltCurve tiltCurve;
-    juce::dsp::ProcessSpec spec;
-    juce::dsp::Gain<float> profileVolumeProcessor;
-    juce::dsp::Gain<float> overallVolumeProcessor;
-    float volume = 0.0f; // in dB
-    float calibrationVolume = 0.0f; // in dB
-    float systemVolume = 1.0f;
-    int blockCount = 0; // for debug
-    
-    // State
-    bool isFilterOn = true; // if the EQ curve is being applied
-    bool isPlayingNoise = false; // if calibration audio is being played rather than system audio
-    bool isPlayingAudioFile = false; // whether it's playing the user-loaded audio file
-    bool isCabinNoise = true; // if it is, turn on the tilt filter
-    bool isProvisionalOn = false; // if provisional bands are being applied to audio output
-    bool isIIR = true; // if it is, use filterChain. Otherwise, use firFilter.
-    
-    int sampleCount = 0;
-    int cycleTimeInSamples = 40000;
-    float centerFreq = 1000.0f;
-    float referenceFreq = 500.0f;
-    float bandwidth = 2.5f;
-    
-    int fftSize = 14;
-    
-    // Audio file stuff
-    juce::AudioFormatManager audioFormatManager;
-    std::unique_ptr<juce::AudioFormatReaderSource> audioReaderSource;
-    juce::AudioTransportSource audioTransportSource;
-    PlaybackManagerListener* listener;
-    
-    juce::Random random;
+    CrossfeedProcessor crossfeed;
+    CalibrationPlayer calibration;
+    SpectrumAnalyzer analyzer;
+
+    std::atomic<float> gainDb { 0.0f };
+    std::atomic<bool> bypassed { false };
+    std::atomic<float> volumeDb { 0.0f };
+    juce::SmoothedValue<float> volume { 1.0f };
+    float limiterGain = 1.0f, limiterRelease = 0.9995f;
+    static constexpr float limiterCeiling = 0.97f; // about -0.3 dBFS
+
+    juce::SmoothedValue<float> gain { 1.0f };
+    juce::SmoothedValue<float> wetMix { 1.0f }; // 1 = EQ on, 0 = bypassed
+    bool isFullyBypassed = false;
+
+    juce::AudioBuffer<float> dryBuffer; // the input, for crossfading in and out of bypass
+    std::vector<float> gainRamp, mixRamp;
+    int maxChunkSize = 0;
 };

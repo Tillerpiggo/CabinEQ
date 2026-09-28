@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <string>
@@ -18,16 +19,20 @@ public:
 
     enum class Permission { granted, denied, unknown };
 
-    // Asks for the "System Audio Recording" permission, showing the system prompt if the
-    // user hasn't answered it yet. Blocks until they do.
+    // Whether the "System Audio Recording" permission has been given, without asking.
+    // `unknown` means it hasn't been asked yet (or macOS won't say).
+    static Permission checkPermission();
+
+    // Asks for the permission, showing the system prompt if the user hasn't answered it yet.
+    // Blocks until they do, so call it off the main thread.
     static Permission requestPermission();
 
     SystemAudioTap();
     ~SystemAudioTap();
 
     // Creates the tap, plus a private aggregate device with the tap as its input and the
-    // current default output device as its output.
-    bool open (std::string& error);
+    // given output device (or the default one, if it's empty) as its output.
+    bool open (std::string& error, const std::string& outputUID = {});
     bool start (ProcessFn process, std::string& error);
     void stop();
     void close();
@@ -35,6 +40,14 @@ public:
     double getSampleRate() const;
     int getBufferSize() const;
     std::string getDescription() const;
+    std::string getOutputName() const;
+    std::string getOutputUID() const;
+    bool isRunning() const;
+
+    // What's gone through since the last call: the loudest sample in and out, and how many
+    // audio callbacks ran. Safe from any thread.
+    struct Activity { float inPeak = 0, outPeak = 0; int callbacks = 0; };
+    Activity takeActivity();
 
 private:
     struct Impl;

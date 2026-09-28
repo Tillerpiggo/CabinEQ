@@ -9,84 +9,64 @@
 */
 
 #include "CrossfeedControl.h"
+#include "Theme.h"
 
-CrossfeedControl::CrossfeedControl()
+CrossfeedControl::CrossfeedControl (juce::AudioProcessorValueTreeState& parameters)
+    : enableAttachment (parameters, ParamIDs::crossfeed, enableButton),
+      levelAttachment (parameters, ParamIDs::crossfeedLevel, levelSlider),
+      delayAttachment (parameters, ParamIDs::crossfeedDelay, delaySlider)
 {
-    addAndMakeVisible (delayLabel);
-    delayLabel.setText ("Delay (samples)", juce::dontSendNotification);
-    delayLabel.setJustificationType (juce::Justification::centredLeft);
-
-    addAndMakeVisible (delaySlider);
-    delaySlider.setRange (0, 2000, 1); // 0 to 2000 samples, integer steps
-    delaySlider.setValue (0);
-    delaySlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    delaySlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 80, 20);
-    delaySlider.onValueChange = [this]
-    {
-        if (calibrationListener != nullptr)
-            calibrationListener->setCrossfeedDelaySamples (static_cast<int>(delaySlider.getValue()));
-    };
-
-    addAndMakeVisible (volumeLabel);
-    volumeLabel.setText ("Volume (0-1)", juce::dontSendNotification);
-    volumeLabel.setJustificationType (juce::Justification::centredLeft);
-
-    addAndMakeVisible (volumeSlider);
-    volumeSlider.setRange (0.0, 1.0, 0.01); // 0.0 to 1.0, 0.01 steps
-    volumeSlider.setValue (0.0);
-    volumeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    volumeSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 80, 20);
-    volumeSlider.onValueChange = [this]
-    {
-        if (calibrationListener != nullptr)
-            calibrationListener->setCrossfeedVolume (static_cast<float>(volumeSlider.getValue()));
-    };
-    
     addAndMakeVisible (enableButton);
-    updateEnableButtonText();
-    enableButton.onClick = [this]
+    enableButton.onStateChange = [this] { updateEnablement(); };
+
+    for (auto [slider, label, text] : { std::tuple { &levelSlider, &levelLabel, "Amount" }, std::tuple { &delaySlider, &delayLabel, "Delay" } })
     {
-        isCrossfeedEnabled = !isCrossfeedEnabled;
-        if (calibrationListener != nullptr)
-            calibrationListener->setCrossfeedEnabled (isCrossfeedEnabled);
-        updateEnableButtonText();
-    };
+        slider->setSliderStyle (juce::Slider::LinearHorizontal);
+        slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 64, 20);
+        addAndMakeVisible (*slider);
+
+        label->setText (text, juce::dontSendNotification);
+        label->setFont (Theme::font (12.0f));
+        label->setColour (juce::Label::textColourId, Theme::textDim);
+        addAndMakeVisible (*label);
+    }
+
+    levelSlider.textFromValueFunction = [] (double v) { return juce::String (v, 1) + " dB"; };
+    delaySlider.textFromValueFunction = [] (double v) { return juce::String (v, 2) + " ms"; };
+    levelSlider.updateText();
+    delaySlider.updateText();
+
+    updateEnablement();
+    setSize (320, 170);
 }
 
-CrossfeedControl::~CrossfeedControl()
+void CrossfeedControl::updateEnablement()
 {
+    const bool on = enableButton.getToggleState();
+    levelSlider.setEnabled (on);
+    delaySlider.setEnabled (on);
 }
 
 void CrossfeedControl::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId).darker(0.1f));
+    auto text = getLocalBounds().reduced (4, 0).withTrimmedTop (34).removeFromTop (34);
+    g.setColour (Theme::textFaint);
+    g.setFont (Theme::font (12.0f));
+    g.drawFittedText ("Blends a little of each side into the other, like listening to speakers. Makes hard-panned mixes easier on headphones.",
+                      text, juce::Justification::topLeft, 2);
 }
 
 void CrossfeedControl::resized()
 {
-    auto bounds = getLocalBounds().reduced (10);
-    Layout layout (bounds, 8.0f); // 8.0f padding between rows
+    auto area = getLocalBounds().reduced (4, 0);
+    enableButton.setBounds (area.removeFromTop (28));
+    area.removeFromTop (44);
 
-    // Row for Delay Slider and Label
-    layout.addRow ({ Space(&delayLabel, 100.0f), Space(&delaySlider) }, 30.0f);
-    layout.addRow ( {Space()}, 10.0f); // Spacer row
-    
-    // Row for Volume Slider and Label
-    layout.addRow ({ Space(&volumeLabel, 100.0f), Space(&volumeSlider) }, 30.0f);
-    layout.addRow ( {Space()}, 10.0f); // Spacer row
-
-    // Row for Enable Button
-    layout.addRow ({ Space(), Space(&enableButton, 150.0f), Space() }, 30.0f);
-    
-    layout.updateComponentBounds();
-}
-
-void CrossfeedControl::setListener (CalibrationListener* listener)
-{
-    calibrationListener = listener;
-}
-
-void CrossfeedControl::updateEnableButtonText()
-{
-    enableButton.setButtonText (isCrossfeedEnabled ? "Crossfeed: ON" : "Crossfeed: OFF");
+    for (auto [slider, label] : { std::pair { &levelSlider, &levelLabel }, std::pair { &delaySlider, &delayLabel } })
+    {
+        auto row = area.removeFromTop (30);
+        label->setBounds (row.removeFromLeft (64));
+        slider->setBounds (row);
+        area.removeFromTop (4);
+    }
 }

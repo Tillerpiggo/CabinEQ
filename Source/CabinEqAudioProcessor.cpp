@@ -8,30 +8,43 @@
 
 #include "CabinEqAudioProcessor.h"
 #include "CabinEqProcessorEditor.h"
-#include <chrono>
+#include "CabinStandaloneFilterWindow.h"
 
+namespace
+{
+    const juce::Identifier idEditorWidth { "editorWidth" };
+    const juce::Identifier idEditorHeight { "editorHeight" };
+}
 
 //==============================================================================
 CabinEqAudioProcessor::CabinEqAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       ), parameters (*this, nullptr, "Params", createParameterLayout()),
-                          cabinEqProfileManager (parameters)
-
-#endif
+                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+       parameters (*this, nullptr, "Params", createParameterLayout()),
+       profiles (parameters, undoManager)
 {
-    std::cout << "initialized processor" << std::endl;
-    startTimer (5000); // autosave every 5 seconds if data has changed
+    bypassParameter = dynamic_cast<juce::AudioParameterBool*> (parameters.getParameter (ParamIDs::bypass));
+    autoGainParameter = parameters.getRawParameterValue (ParamIDs::autoGain);
+    volumeParameter = parameters.getRawParameterValue (ParamIDs::volume);
+    crossfeedParameter = parameters.getRawParameterValue (ParamIDs::crossfeed);
+    crossfeedLevelParameter = parameters.getRawParameterValue (ParamIDs::crossfeedLevel);
+    crossfeedDelayParameter = parameters.getRawParameterValue (ParamIDs::crossfeedDelay);
+
+    profiles.ensureValidState();
+    currentSelection = profiles.getSelectedProfileName();
+    parameters.state.addListener (this);
+    refresh();
+    updateStateSnapshot();
+
+    startTimer (250); // keeps the state snapshot fresh, and saves the standalone app's state
 }
 
 CabinEqAudioProcessor::~CabinEqAudioProcessor()
 {
+    stopTimer();
+    cancelPendingUpdate();
+    parameters.state.removeListener (this);
 }
 
 //==============================================================================
@@ -40,32 +53,9 @@ const juce::String CabinEqAudioProcessor::getName() const
     return JucePlugin_Name;
 }
 
-bool CabinEqAudioProcessor::acceptsMidi() const
-{
-   #if JucePlugin_WantsMidiInput
-    return true;
-   #else
-    return false;
-   #endif
-}
-
-bool CabinEqAudioProcessor::producesMidi() const
-{
-   #if JucePlugin_ProducesMidiOutput
-    return true;
-   #else
-    return false;
-   #endif
-}
-
-bool CabinEqAudioProcessor::isMidiEffect() const
-{
-   #if JucePlugin_IsMidiEffect
-    return true;
-   #else
-    return false;
-   #endif
-}
+bool CabinEqAudioProcessor::acceptsMidi() const   { return false; }
+bool CabinEqAudioProcessor::producesMidi() const  { return false; }
+bool CabinEqAudioProcessor::isMidiEffect() const  { return false; }
 
 double CabinEqAudioProcessor::getTailLengthSeconds() const
 {
@@ -78,84 +68,60 @@ int CabinEqAudioProcessor::getNumPrograms()
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int CabinEqAudioProcessor::getCurrentProgram()
-{
-    return 0;
-}
-
-void CabinEqAudioProcessor::setCurrentProgram (int index)
-{
-}
-
-const juce::String CabinEqAudioProcessor::getProgramName (int index)
-{
-    return {};
-}
-
-void CabinEqAudioProcessor::changeProgramName (int index, const juce::String& newName)
-{
-}
+int CabinEqAudioProcessor::getCurrentProgram()                           { return 0; }
+void CabinEqAudioProcessor::setCurrentProgram (int)                      {}
+const juce::String CabinEqAudioProcessor::getProgramName (int)           { return {}; }
+void CabinEqAudioProcessor::changeProgramName (int, const juce::String&) {}
 
 //==============================================================================
 void CabinEqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    std::cout << "num input channels: " << getTotalNumInputChannels() << std::endl;
-    spec.numChannels = getTotalNumInputChannels();
+    spec.maximumBlockSize = (juce::uint32) samplesPerBlock;
+    spec.numChannels = (juce::uint32) std::max (getTotalNumInputChannels(), getTotalNumOutputChannels());
+
+    currentSampleRate = sampleRate;
+    refresh(); // the curve, and so auto gain, depend on the sample rate
     playbackManager.prepare (spec);
-//    playbackManager.setGlyph (getCurrGlyph());
 }
 
 void CabinEqAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
 }
 
-#ifndef JucePlugin_PreferredChannelConfigurations
 bool CabinEqAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
-    return true;
-  #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    const auto& output = layouts.getMainOutputChannelSet();
+    if (output != juce::AudioChannelSet::mono() && output != juce::AudioChannelSet::stereo())
         return false;
-
-    // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-        return false;
-   #endif
-
-    return true;
-  #endif
+    return output == layouts.getMainInputChannelSet();
 }
-#endif
 
-void CabinEqAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void CabinEqAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
-    // Clear buffer before handing it off to playbackManager
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    for (auto i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-    
+
+    auto& crossfeed = playbackManager.getCrossfeed();
+    crossfeed.setEnabled (crossfeedParameter->load() >= 0.5f);
+    crossfeed.setLevelDb (crossfeedLevelParameter->load());
+    crossfeed.setDelayMs (crossfeedDelayParameter->load());
+
+    const bool autoGainOn = autoGainParameter->load() >= 0.5f;
+    playbackManager.setGainDb (preampDb.load() + (autoGainOn ? autoGainDb.load() : 0.0f));
+    playbackManager.setBypassed (bypassParameter->get());
+    playbackManager.setVolumeDb (volumeParameter->load());
+
     playbackManager.processBlock (buffer);
 }
 
 //==============================================================================
 bool CabinEqAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor* CabinEqAudioProcessor::createEditor()
@@ -166,36 +132,78 @@ juce::AudioProcessorEditor* CabinEqAudioProcessor::createEditor()
 //==============================================================================
 void CabinEqAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    // The UI edits the state on the message thread without locking it, so other threads get a copy
+    if (! juce::MessageManager::existsAndIsCurrentThread())
+    {
+        const juce::ScopedLock lock (snapshotLock);
+        destData = stateSnapshot;
+        return;
+    }
+
     auto state = parameters.copyState();
-    std::unique_ptr <juce::XmlElement> xml (state.createXml());
-    copyXmlToBinary(*xml, destData);
+    if (auto xml = state.createXml())
+        copyXmlToBinary (*xml, destData);
 }
 
 void CabinEqAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-    std::unique_ptr <juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
-    if (xmlState.get())
+    auto xml = getXmlFromBinary (data, sizeInBytes);
+    if (xml == nullptr || ! xml->hasTagName (parameters.state.getType()))
+        return;
+
+    auto state = juce::ValueTree::fromXml (*xml);
+    CabinEqProfileManager::migrateState (state);
+
+    if (juce::MessageManager::existsAndIsCurrentThread())
     {
-        if (xmlState->hasTagName(parameters.state.getType()))
-        {
-            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-            cabinEqProfileManager.initProfiles();
-            
-            if (! hasLoadedData)
-            {
-                for (auto listener : listeners)
-                    if (listener != nullptr)
-                        listener->didLoadData();
-                profileId = getLastSelectedProfileName().value_or ("NO_PROFILE");
-                hasLoadedData = true;
-            }
-        }
+        applyState (state);
+        return;
     }
+
+    // Off the message thread, the audio gets the new bands now (hosts rendering offline might never
+    // run the message loop), and the state itself is swapped in on the message thread
+    pushBandsToAudio (CabinEqProfileManager::getSelectedBandProfile (state));
+    {
+        const juce::ScopedLock lock (snapshotLock);
+        if (auto stateXml = state.createXml())
+            copyXmlToBinary (*stateXml, stateSnapshot);
+    }
+
+    juce::MessageManager::callAsync ([safeThis = juce::WeakReference<CabinEqAudioProcessor> (this), state]
+    {
+        if (safeThis != nullptr)
+            safeThis->applyState (state);
+    });
+}
+
+void CabinEqAudioProcessor::applyState (const juce::ValueTree& state)
+{
+    {
+        const juce::ScopedLock lock (refreshLock);
+        parameters.replaceState (state);
+        profiles.ensureValidState();
+        currentSelection = previousSelection = profiles.getSelectedProfileName();
+    }
+
+    undoManager.clearUndoHistory();
+    refresh();
+    updateStateSnapshot();
+}
+
+void CabinEqAudioProcessor::updateStateSnapshot()
+{
+    juce::MemoryBlock block;
+    if (auto xml = parameters.copyState().createXml())
+        copyXmlToBinary (*xml, block);
+
+    const juce::ScopedLock lock (snapshotLock);
+    stateSnapshot = std::move (block);
+    snapshotIsStale = false;
+}
+
+juce::AudioProcessorParameter* CabinEqAudioProcessor::getBypassParameter() const
+{
+    return bypassParameter;
 }
 
 //==============================================================================
@@ -207,470 +215,192 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 juce::AudioProcessorValueTreeState::ParameterLayout CabinEqAudioProcessor::createParameterLayout()
 {
-    juce::AudioProcessorValueTreeState::ParameterLayout layout;
-    juce::NormalisableRange<float> range (-1.0f, 1.0f, 0.01f);
-    
-    juce::String paramID = "dummyParam";
-    return { std::make_unique<juce::AudioParameterFloat> (juce::ParameterID (paramID, 1), paramID, range, 0.0f) };
+    using namespace juce;
+    AudioProcessorValueTreeState::ParameterLayout layout;
+
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID (ParamIDs::bypass, 1), "Bypass", false));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID (ParamIDs::autoGain, 1), "Auto Gain", true));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID (ParamIDs::volume, 1), "Volume",
+                                                       NormalisableRange<float> (-30.0f, 24.0f, 0.1f), 0.0f,
+                                                       AudioParameterFloatAttributes().withLabel ("dB")));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID (ParamIDs::crossfeed, 1), "Crossfeed", false));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID (ParamIDs::crossfeedLevel, 1), "Crossfeed Level",
+                                                       NormalisableRange<float> (-24.0f, -3.0f, 0.1f), -9.0f,
+                                                       AudioParameterFloatAttributes().withLabel ("dB")));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID (ParamIDs::crossfeedDelay, 1), "Crossfeed Delay",
+                                                       NormalisableRange<float> (0.0f, CrossfeedProcessor::maxDelayMs, 0.01f), 0.3f,
+                                                       AudioParameterFloatAttributes().withLabel ("ms")));
+    return layout;
 }
 
 //==============================================================================
-void CabinEqAudioProcessor::freeTrialDidReset()
+void CabinEqAudioProcessor::selectProfile (const juce::String& profileName)
 {
-    cabinEqProfileManager.lockAllProfiles();
-    dataHasChanged = true;
+    if (profiles.getProfileNamed (profileName).has_value())
+        profiles.setSelectedProfileName (profileName);
 }
 
-void CabinEqAudioProcessor::setIsAudioFilePlaying (bool isPlaying)
+void CabinEqAudioProcessor::undo()
 {
-    playbackManager.setIsAudioFilePlaying (isPlaying);
-}
-
-void CabinEqAudioProcessor::setFile (juce::File file)
-{
-    playbackManager.setAudioFile (file);
-}
-
-void CabinEqAudioProcessor::addAsListener (PlaybackManagerListener* listener)
-{
-    playbackManager.setListener (listener);
-}
-
-void CabinEqAudioProcessor::setVolume (float volume)
-{
-    playbackManager.setVolume (volume);
-    updateFilter();
-    setMasterVolume (volume);
-}
-
-void CabinEqAudioProcessor::setCalibrationVolume (float calibrationVolume)
-{
-    playbackManager.setCalibrationVolume (calibrationVolume);
-    updateFilter();
-}
-
-void CabinEqAudioProcessor::setIsFilterOn (bool isFilterOn)
-{
-    playbackManager.setIsFilterOn (isFilterOn);
-}
-
-void CabinEqAudioProcessor::setIsPlaying (bool isPlaying)
-{
-    playbackManager.setIsPlayingNoise (isPlaying);
-}
-
-void CabinEqAudioProcessor::setIsCabinNoise (bool isCabinNoise)
-{
-    playbackManager.setIsCabinNoise (isCabinNoise);
-}
-
-void CabinEqAudioProcessor::setMinFreq (float newMinFreq)
-{
-    playbackManager.setMinFreq (newMinFreq);
-}
-
-void CabinEqAudioProcessor::setIIR (bool isIIR)
-{
-    playbackManager.setIIR (isIIR);
-}
-
-void CabinEqAudioProcessor::updateFIRFilter()
-{
-    playbackManager.updateFIRFilter();
-}
-
-void CabinEqAudioProcessor::setFIRQuality (int fftSize)
-{
-    playbackManager.setFIRQuality (fftSize);
-}
-
-void CabinEqAudioProcessor::setPinkNoise (bool pinkNoiseEnabled)
-{
-    playbackManager.setPinkNoise (pinkNoiseEnabled);
-}
-
-void CabinEqAudioProcessor::setSpeedFactor (float speedFactor)
-{
-    playbackManager.setSpeedFactor (speedFactor);
-}
-
-void CabinEqAudioProcessor::setBandwidth (float bandwidth)
-{
-    playbackManager.setBandwidth (bandwidth);
-}
-
-void CabinEqAudioProcessor::setGlyphVolume(float volume)
-{
-    playbackManager.setGlyphVolume(volume);
-}
-
-void CabinEqAudioProcessor::setCrossfeedDelaySamples (int samples)
-{
-    playbackManager.setCrossfeedDelaySamples(samples);
-}
-
-void CabinEqAudioProcessor::setCrossfeedVolume (float volume)
-{
-    playbackManager.setCrossfeedVolume(volume);
-}
-
-void CabinEqAudioProcessor::setCrossfeedEnabled (bool enabled)
-{
-    playbackManager.setCrossfeedEnabled(enabled);
-}
-
-void CabinEqAudioProcessor::goToNext()
-{
-    checkerboardManager.goToNext();
-    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
-}
-
-void CabinEqAudioProcessor::goToPrev()
-{
-    checkerboardManager.goToPrev();
-    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
-}
-
-bool CabinEqAudioProcessor::hasNext()
-{
-    return checkerboardManager.hasNext();
-}
-
-bool CabinEqAudioProcessor::hasPrev()
-{
-    return checkerboardManager.hasPrev();
-}
-
-void CabinEqAudioProcessor::toggleCheckerboardPolarity()
-{
-    checkerboardManager.togglePolarity();
-    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
-}
-
-void CabinEqAudioProcessor::selectCheckerboardAtIdx (int idx)
-{
-    checkerboardManager.selectIdx (idx);
-    playbackManager.setCheckerboard (checkerboardManager.getCurrCheckerboard());
-}
-
-void CabinEqAudioProcessor::setSoloSquareCoords (std::set<std::pair<int, int>> soloSquareCoords)
-{
-    playbackManager.setSoloSquareCoords (soloSquareCoords);
-}
-
-void CabinEqAudioProcessor::setProvisionalBands (std::vector<Band> provisionalBands)
-{
-    playbackManager.setProvisionalBands (provisionalBands);
-}
-
-void CabinEqAudioProcessor::setProvisionalBandsOn (bool provisionalBandsOn)
-{
-    playbackManager.setProvisionalBandsOn (provisionalBandsOn);
-}
-
-void CabinEqAudioProcessor::addProfile (juce::String profileName)
-{
-    cabinEqProfileManager.addProfile (profileName);
-    dataHasChanged = true;
-}
-
-void CabinEqAudioProcessor::addDuplicateProfile (juce::String profileName, juce::String oldProfileName)
-{
-    cabinEqProfileManager.addDuplicateProfile (profileName, oldProfileName);
-    dataHasChanged = true;
-}
-
-void CabinEqAudioProcessor::removeProfile (juce::String profileName)
-{
-    cabinEqProfileManager.removeProfile (profileName);
-    dataHasChanged = true;
-}
-
-void CabinEqAudioProcessor::renameProfile (juce::String profileName, juce::String newProfileName)
-{
-    cabinEqProfileManager.renameProfile (profileName, newProfileName);
-    dataHasChanged = true;
-}
-
-void CabinEqAudioProcessor::setProfileVolume (float masterVolume)
-{
-    cabinEqProfileManager.setProfileVolume (profileId, masterVolume);
-    updateFilter();
-}
+    isUndoingOrRedoing = true;
+    profileChangedByUndo = {};
+    undoManager.undo();
+    isUndoingOrRedoing = false;
 
-bool CabinEqAudioProcessor::isProfileLocked()
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-        return ! getHasLicense() && profile->get().getIsLocked();
-    return ! getHasLicense();
-}
-
-std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::getProfileNamed (juce::String profileName) const
-{
-    return cabinEqProfileManager.getProfileNamed (profileName);
-}
-
-BandProfile CabinEqAudioProcessor::getBandProfile()
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-        return profile->get().getBandProfile();
-    return BandProfile ({}, 0.0f, 0.0f, 0.0f, false);
-}
-
-std::optional<juce::String> CabinEqAudioProcessor::getLastSelectedProfileName()
-{
-    return cabinEqProfileManager.getLastSelectedProfileName();
-}
-
-float CabinEqAudioProcessor::getMasterVolume()
-{
-    return cabinEqProfileManager.getMasterVolume();
-}
-
-bool CabinEqAudioProcessor::getHasLicense()
-{
-    return marketplaceStatus.isUnlocked();
-//    return cabinEqProfileManager.getHasLicense();
-}
-
-void CabinEqAudioProcessor::setLastSelectedProfileName (juce::String profileName)
-{
-    cabinEqProfileManager.setLastSelectedProfileName (profileName);
-    profileId = profileName;
-    dataHasChanged = true;
-}
-
-void CabinEqAudioProcessor::setMasterVolume (float masterVolume)
-{
-    cabinEqProfileManager.setMasterVolume (masterVolume);
-}
-
-void CabinEqAudioProcessor::setHasLicense (bool hasLicense)
-{
-    cabinEqProfileManager.setHasLicense (hasLicense);
-    dataHasChanged = true;
-}
-
-void CabinEqAudioProcessor::updateFilter()
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-        playbackManager.updateFilterWithBandProfile (profile->get().getBandProfile());
-    dataHasChanged = true;
-}
-
-int CabinEqAudioProcessor::addMultiBandStep()
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-    {
-        int stepId = profile->get().addMultiBandStep();
-        return stepId;
-    }
-    return -1;
-}
-
-void CabinEqAudioProcessor::removeMultiBandStep (int stepId)
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-        profile->get().removeMultiBandStep (stepId);
-}
-
-void CabinEqAudioProcessor::setStepEnabled (int stepId, bool isEnabled)
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-        profile->get().setStepEnabled (stepId, isEnabled);
-}
-
-int CabinEqAudioProcessor::addBand (float freq, float ampl, float bandwidth, Band::Type type, int stepId)
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-    {
-        int bandId = profile->get().addBand (freq, ampl, bandwidth, type, stepId);
-        updateFilter();
-        return bandId;
-    }
-        
-    return -1;
-}
-
-void CabinEqAudioProcessor::updateBand (int bandId, float freq, float ampl, float bandwidth, Band::Type type, int stepId)
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-    {
-        profile->get().updateBand (bandId, freq, ampl, bandwidth, type, stepId);
-        updateFilter();
-    }
-}
-
-void CabinEqAudioProcessor::removeBand (int bandId, int stepId)
-{
-    auto profile = profileNamed (profileId);
-    if (profile.has_value())
-    {
-        profile->get().removeBand (bandId, stepId);
-        updateFilter();
-    }
-}
-
-float CabinEqAudioProcessor::getBandwidth()
-{
-    return playbackManager.getBandwidth();
-}
-
-const Checkerboard CabinEqAudioProcessor::getCheckerboard()
-{
-    return checkerboardManager.getCurrCheckerboard();
-}
-
-bool CabinEqAudioProcessor::getIsPlaying()
-{
-    return playbackManager.getIsPlaying();
-}
-
-int CabinEqAudioProcessor::getNumCheckerboards()
-{
-    return checkerboardManager.getNumCheckerboards();
-}
-
-std::string CabinEqAudioProcessor::getNameAtIdx (int idx)
-{
-    return checkerboardManager.getNameAtIdx (idx);
-}
-
-int CabinEqAudioProcessor::getSelectedRow()
-{
-    return checkerboardManager.getSelectedRow();
-}
-
-void CabinEqAudioProcessor::addGlyph (ArchetypalGlyph archetype, juce::Point<float> centerPos, float sizeFactor)
-{
-    glyphManager.addGlyph (archetype, centerPos, sizeFactor);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::moveGlyph (int glyphId, juce::Point<float> centerPos)
-{
-    glyphManager.moveGlyph (glyphId, centerPos);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::removeGlyph (int glyphId)
-{
-    glyphManager.removeGlyph (glyphId);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::incrementGlyphVolume (int glyphId, float increment)
-{
-    glyphManager.incrementGlyphVolume (glyphId, increment);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::incrementSizeFactor (int glyphId, float horizontalIncrement, float verticalIncrement)   
-{
-    glyphManager.incrementSizeFactor (glyphId, horizontalIncrement, verticalIncrement);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::moveGlyphs (std::unordered_map<int, juce::Point<float>> idsToPositions)
-{
-    glyphManager.moveGlyphs (idsToPositions);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-void CabinEqAudioProcessor::scaleGlyphs (std::unordered_set<int> glyphIds, float increment)
-{
-    glyphManager.scaleGlyphs (glyphIds, increment);
-    playbackManager.setGlyphs (glyphManager.getGlyphs());
-}
-
-const std::vector<ArchetypalGlyph>& CabinEqAudioProcessor::getArchetypalGlyphs()
-{
-    return glyphManager.getArchetypalGlyphs();
-}
-
-const std::vector<Glyph>& CabinEqAudioProcessor::getGlyphs()
-{
-    return glyphManager.getGlyphs();
-}
-
-float CabinEqAudioProcessor::getCurrPlayingTime()
-{
-    return playbackManager.getCurrPlayingTime();
+    if (profileChangedByUndo.isNotEmpty())
+        selectProfile (profileChangedByUndo);
 }
 
-std::vector<juce::String> CabinEqAudioProcessor::getProfileNames()
+void CabinEqAudioProcessor::redo()
 {
-    return cabinEqProfileManager.getProfileNames();
-}
+    isUndoingOrRedoing = true;
+    profileChangedByUndo = {};
+    undoManager.redo();
+    isUndoingOrRedoing = false;
 
-bool CabinEqAudioProcessor::getIsProfileLocked (int rowIdx)
-{
-    return false; // for now
+    if (profileChangedByUndo.isNotEmpty())
+        selectProfile (profileChangedByUndo);
 }
-
 
-void CabinEqAudioProcessor::saveData()
+bool CabinEqAudioProcessor::isAutoGainOn() const
 {
-    // Add protection against null pointers
-    if (juce::StandalonePluginHolder::getInstance() != nullptr)
-    {
-        juce::StandalonePluginHolder::getInstance()->savePluginState();
-    }
+    return autoGainParameter->load() >= 0.5f;
 }
 
-void CabinEqAudioProcessor::restartAudio()
+double CabinEqAudioProcessor::getCurveSampleRate() const
 {
-    juce::StandalonePluginHolder::getInstance()->restartAudio();
+    const double sampleRate = currentSampleRate.load();
+    return sampleRate > 0.0 ? sampleRate : 48000.0;
 }
 
 void CabinEqAudioProcessor::showAudioSettingsDialog()
 {
-    juce::StandalonePluginHolder::getInstance()->showAudioSettingsDialog();
+    if (auto* holder = juce::StandalonePluginHolder::getInstance())
+        holder->showAudioSettingsDialog();
 }
 
-CabinEqMarketplaceStatus& CabinEqAudioProcessor::getMarketplaceStatus()
+juce::Point<int> CabinEqAudioProcessor::getEditorSize() const
 {
-    return marketplaceStatus;
+    return { (int) parameters.state.getProperty (idEditorWidth, 1080),
+             (int) parameters.state.getProperty (idEditorHeight, 680) };
 }
 
-std::vector<float> CabinEqAudioProcessor::getCurrPlayingFreqs()
+void CabinEqAudioProcessor::setEditorSize (juce::Point<int> size)
 {
-    return playbackManager.getCurrPlayingFreqs();
+    parameters.state.setProperty (idEditorWidth, size.x, nullptr);
+    parameters.state.setProperty (idEditorHeight, size.y, nullptr);
 }
 
-std::vector<std::pair<float, float>> CabinEqAudioProcessor::getCurrPlayingFreqsAndVols()
+//==============================================================================
+void CabinEqAudioProcessor::refresh()
 {
-    return playbackManager.getCurrPlayingFreqsAndVols();
+    const juce::ScopedLock lock (refreshLock);
+
+    auto selected = profiles.getSelectedProfile();
+    if (! selected.isValid())
+        return;
+
+    auto bandProfile = selected.getBandProfile();
+    pushBandsToAudio (bandProfile);
+    curve.setSampleRate (getCurveSampleRate());
+    curve.updateWithBands (bandProfile.getBands());
+    autoGainDb = -curve.loudnessChangeDb();
 }
 
-void CabinEqAudioProcessor::addListener (Listener* listener)
+void CabinEqAudioProcessor::pushBandsToAudio (const BandProfile& bandProfile)
 {
-    this->listeners.push_back (listener);
+    const juce::ScopedLock lock (refreshLock);
+    playbackManager.setBands (bandProfile.getBands());
+    preampDb = bandProfile.getVolume();
 }
 
-void CabinEqAudioProcessor::removeListener()
+void CabinEqAudioProcessor::handleAsyncUpdate()
 {
-    // VERY BAD FIX THIS: eh whatever 
+    // Undo can take away the selected profile, or the last one. Go back to the one you had before.
+    profiles.ensureValidState (previousSelection);
+    refresh();
+    updateStateSnapshot();
+    stateChanged.sendSynchronousChangeMessage();
 }
 
 void CabinEqAudioProcessor::timerCallback()
 {
-    if (dataHasChanged)
+    if (snapshotIsStale)
+        updateStateSnapshot();
+
+    const auto now = juce::Time::getMillisecondCounter();
+    if (needsSaving && isStandalone() && now - lastSaveTime > 2000)
     {
-        saveData();
-        dataHasChanged = false;
+        if (auto* holder = juce::StandalonePluginHolder::getInstance())
+            holder->savePluginState();
+        needsSaving = false;
+        lastSaveTime = now;
     }
 }
 
-std::optional<std::reference_wrapper<CabinEqProfile>> CabinEqAudioProcessor::profileNamed (juce::String profileName) const
+void CabinEqAudioProcessor::treeChanged (const juce::ValueTree& changedTree)
 {
-    return cabinEqProfileManager.getProfileNamed (profileName);
+    if (changedTree.hasType ("PARAM"))
+    {
+        snapshotIsStale = true; // parameters get to the audio thread on their own
+        return;
+    }
+
+    if (isUndoingOrRedoing)
+    {
+        auto name = profiles.getProfileNameContaining (changedTree);
+        if (name.isNotEmpty())
+            profileChangedByUndo = name;
+    }
+
+    needsSaving = true;
+
+    // Update the filters right away when it's safe, so dragging a band feels immediate.
+    // Auto gain, which takes more working out, catches up once the changes settle.
+    // Mid-rename or mid-undo there may briefly be no selected profile; don't send silence.
+    if (juce::MessageManager::existsAndIsCurrentThread())
+    {
+        auto selected = profiles.getSelectedProfile();
+        if (selected.isValid())
+            pushBandsToAudio (selected.getBandProfile());
+    }
+    triggerAsyncUpdate();
+}
+
+void CabinEqAudioProcessor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    if (tree == parameters.state && property == CabinEqProfileManager::idSelectedProfile)
+    {
+        auto newSelection = profiles.getSelectedProfileName();
+        if (newSelection != currentSelection)
+        {
+            previousSelection = currentSelection;
+            currentSelection = newSelection;
+        }
+    }
+    treeChanged (tree);
+}
+
+void CabinEqAudioProcessor::valueTreeChildAdded (juce::ValueTree&, juce::ValueTree& child)
+{
+    treeChanged (child);
+}
+
+void CabinEqAudioProcessor::valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueTree& child, int)
+{
+    // The child is detached now, so look at where it was
+    if (isUndoingOrRedoing && child.hasType (CabinEqProfile::idProfile))
+        profileChangedByUndo = {}; // a profile was removed; there's nothing of it to show
+    treeChanged (child.hasType (CabinEqProfile::idProfile) ? juce::ValueTree() : parent);
+}
+
+void CabinEqAudioProcessor::valueTreeChildOrderChanged (juce::ValueTree& parent, int, int)
+{
+    treeChanged (parent);
+}
+
+void CabinEqAudioProcessor::valueTreeRedirected (juce::ValueTree&)
+{
+    needsSaving = true;
+    triggerAsyncUpdate();
 }

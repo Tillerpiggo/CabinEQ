@@ -1,0 +1,357 @@
+/*
+  ==============================================================================
+
+    CalibrationPlayer.h
+
+    Plays pink noise bursts at each position of a grid, in reading order: left to
+    right, top to bottom. Columns are where the sound is between the ears. Rows set
+    where the sound starts: n rows draw n lines across 20 Hz to 20 kHz, evenly in
+    octaves, cutting it into n + 1 sections, and each row's steep high-pass sits on
+    one of those lines, the lowest line for the bottom row. So with 3 rows the cuts
+    are at about 112 Hz, 632 Hz and 3.6 kHz. Each burst starts fast and dies away
+    slowly, so its tail overlaps the next one.
+
+    With a depth above 1, each position plays that many times before moving on, getting
+    louder by 10 dB each time: depth 3 plays it at -20, -10, then 0 dB.
+
+    If some positions are selected, only those play.
+
+    In spots mode it plays 2 to 4 spots instead of the grid, which you place on the EQ
+    graph. Each spot plays from its own frequency (a sharp low cut) up to 20 kHz. They
+    share a pan range: with more than one pan step, each spot plays at that many
+    positions across it, left to right, and at each one does its whole depth run.
+
+    The setters can be called from any thread; process() is for the audio thread.
+
+  ==============================================================================
+*/
+
+#pragma once
+
+#include <JuceHeader.h>
+#include <array>
+#include <set>
+#include "FilterDesign.h"
+
+class CalibrationPlayer
+{
+public:
+    static constexpr int maxRows = 8;
+    static constexpr int maxColumns = 12;
+    static constexpr int defaultRows = 3;
+    static constexpr int defaultColumns = 5;
+    static constexpr int maxDepth = 5;
+    static constexpr float minRate = 0.5f, maxRate = 8.0f, defaultRate = 2.5f; // bursts per second
+    static constexpr int maxSpots = 4;
+    static constexpr int maxPanSteps = 5;
+
+    enum class Mode { grid = 0, spots = 1 };
+    static constexpr float depthStepDb = 10.0f;
+
+    void prepare (double newSampleRate)
+    {
+        sampleRate = newSampleRate;
+        attackSamples = std::max (1, (int) (0.004 * sampleRate));
+        releaseCoefficient = (float) std::exp (-1.0 / (0.22 * sampleRate)); // ~1.4 s to fade out fully
+        for (auto& voice : voices)
+            voice.active = false;
+        samplesUntilNext = 0;
+        position = -1;
+        repeat = 0;
+    }
+
+    void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
+    void setRate (float burstsPerSecond) { rate = juce::jlimit (minRate, maxRate, burstsPerSecond); }
+
+    void setMode (Mode newMode)          { mode = (int) newMode; }
+    Mode getMode() const                 { return (Mode) mode.load(); }
+    void setSpotCount (int count)        { spotCount = juce::jlimit (1, maxSpots, count); }
+
+    /// A spot's base frequency: its low cut (20 Hz or below means none)
+    void setSpot (int index, float frequency)
+    {
+        if (index >= 0 && index < maxSpots)
+            spotFrequency[(size_t) index] = frequency;
+    }
+
+    /// The pan range the spots play across, -1 (left) to 1 (right), and in how many steps
+    void setPanRange (float low, float high)
+    {
+        panLow = juce::jlimit (-1.0f, 1.0f, std::min (low, high));
+        panHigh = juce::jlimit (-1.0f, 1.0f, std::max (low, high));
+    }
+    void setPanSteps (int steps)         { panSteps = juce::jlimit (1, maxPanSteps, steps); }
+
+    void setGrid (int rows, int columns)
+    {
+        numRows = juce::jlimit (1, maxRows, rows);
+        numColumns = juce::jlimit (1, maxColumns, columns);
+    }
+
+    void setLevelDb (float db)          { level = juce::Decibels::decibelsToGain (db); }
+    void setPlaying (bool shouldPlay)   { playing = shouldPlay; }
+    bool isPlaying() const              { return playing; }
+
+    /// The positions to play; none selected means all of them.
+    void setSelection (const std::set<int>& positions)
+    {
+        juce::uint64 low = 0, high = 0;
+        for (int position : positions)
+        {
+            if (position >= 0 && position < 64)        low |= (juce::uint64) 1 << position;
+            else if (position >= 64 && position < 128) high |= (juce::uint64) 1 << (position - 64);
+        }
+        selectedLow = low;
+        selectedHigh = high;
+    }
+
+    std::set<int> getSelection() const
+    {
+        std::set<int> positions;
+        for (int position = 0; position < maxRows * maxColumns; ++position)
+            if (isSelected (position))
+                positions.insert (position);
+        return positions;
+    }
+
+    bool isSelected (int position) const noexcept
+    {
+        if (position < 0 || position >= 128)
+            return false;
+        const auto bits = position < 64 ? selectedLow.load() : selectedHigh.load();
+        return ((bits >> (position % 64)) & 1) != 0;
+    }
+
+    /// The high-pass cutoff for a row (0 is the top): the rows' lines cut 20 Hz to 20 kHz into rows + 1 sections.
+    static double cutoffForRow (int row, int rows)
+    {
+        const int line = rows - row; // 1 for the bottom row, up to rows for the top
+        return 20.0 * std::pow (1000.0, (double) line / (double) (rows + 1));
+    }
+
+    /// The position that played most recently, or -1 when stopped.
+    int getCurrentPosition() const      { return playing ? currentPosition.load() : -1; }
+
+    /// Audio thread. Adds the bursts to whatever's in the buffer, before the EQ.
+    void process (juce::AudioBuffer<float>& buffer) noexcept
+    {
+        const bool isPlaying = playing.load();
+        bool anyVoice = false;
+        for (const auto& voice : voices)
+            anyVoice |= voice.active;
+        if (! isPlaying && ! anyVoice)
+        {
+            samplesUntilNext = 0;
+            position = -1;
+            repeat = 0;
+            return;
+        }
+
+        const int numChannels = buffer.getNumChannels();
+        auto* left = buffer.getWritePointer (0);
+        auto* right = buffer.getWritePointer (numChannels > 1 ? 1 : 0);
+        const float gain = level.load();
+        const int interval = std::max (1, (int) (sampleRate / rate.load()));
+
+        for (int i = 0; i < buffer.getNumSamples(); ++i)
+        {
+            if (isPlaying && --samplesUntilNext <= 0)
+            {
+                trigger();
+                samplesUntilNext = interval;
+            }
+            else if (samplesUntilNext > interval)
+            {
+                samplesUntilNext = interval; // sped up mid-wait
+            }
+
+            const float noise = nextPink();
+            float l = 0.0f, r = 0.0f;
+            for (auto& voice : voices)
+            {
+                if (! voice.active)
+                    continue;
+
+                // Quick linear attack, then an exponential release
+                float envelope;
+                if (voice.age < attackSamples)
+                    envelope = voice.peak * (float) voice.age / (float) attackSamples;
+                else
+                    envelope = (voice.peak *= releaseCoefficient);
+                ++voice.age;
+
+                if (voice.age > attackSamples && voice.peak < 1.0e-4f)
+                {
+                    voice.active = false;
+                    continue;
+                }
+
+                const float sample = voice.bandLimited ? voice.filter (noise) : noise;
+                l += sample * envelope * voice.leftGain;
+                r += sample * envelope * voice.rightGain;
+            }
+
+            left[i] += l * gain;
+            if (numChannels > 1)
+                right[i] += r * gain;
+            else
+                left[i] += r * gain;
+        }
+    }
+
+private:
+    struct Biquad
+    {
+        FilterDesign::Biquad c;
+        double s1 = 0, s2 = 0;
+        float process (float x) noexcept
+        {
+            const double y = c.b0 * x + s1;
+            s1 = c.b1 * x - c.a1 * y + s2;
+            s2 = c.b2 * x - c.a2 * y;
+            return (float) y;
+        }
+    };
+
+    struct Voice
+    {
+        bool active = false, bandLimited = false;
+        int age = 0;
+        float peak = 0, leftGain = 0, rightGain = 0;
+        std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
+
+        float filter (float x) noexcept
+        {
+            for (auto& stage : stages)
+                x = stage.process (x);
+            return x;
+        }
+    };
+
+    void trigger() noexcept
+    {
+        const bool spots = mode.load() == (int) Mode::spots;
+        const int rows = numRows.load(), columns = numColumns.load();
+        const int count = spots ? spotCount.load() : rows * columns;
+
+        bool anySelected = false;
+        for (int p = 0; ! spots && p < count && ! anySelected; ++p)
+            anySelected = isSelected (p);
+
+        // Play the same position again, louder, until it's played `depth` times
+        const int depthRuns = depth.load();
+        const int panPositions = spots ? panSteps.load() : 1;
+        const int timesEach = depthRuns * panPositions; // a depth run at each pan position
+        const bool canRepeat = position >= 0 && position < count && (! anySelected || isSelected (position));
+        if (canRepeat && repeat + 1 < timesEach)
+        {
+            ++repeat;
+        }
+        else
+        {
+            // Otherwise the next position in reading order, of the selected ones if any are
+            repeat = 0;
+            for (int step = 1; step <= count; ++step)
+            {
+                const int candidate = (std::max (position, -1) + step) % count;
+                if (! anySelected || isSelected (candidate))
+                {
+                    position = candidate;
+                    break;
+                }
+            }
+        }
+        currentPosition = position;
+
+        // Where it is between the ears (0 = left, 1 = right), and where its low cut is
+        float pan;
+        double cutoff;
+        if (spots)
+        {
+            // Left to right across the range, one pan position per depth run
+            const float low = panLow.load(), high = panHigh.load();
+            const int panIndex = repeat / depthRuns;
+            const float spread = panPositions > 1 ? low + (high - low) * (float) panIndex / (float) (panPositions - 1)
+                                                  : 0.5f * (low + high);
+            pan = 0.5f * (spread + 1.0f);
+            cutoff = spotFrequency[(size_t) position].load();
+            if (cutoff <= 20.0)
+                cutoff = 0.0;
+        }
+        else
+        {
+            const int row = position / columns, column = position % columns;
+            pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
+            cutoff = cutoffForRow (row, rows);
+        }
+
+        // Take a free voice, or the quietest one
+        Voice* voice = &voices[0];
+        for (auto& candidate : voices)
+        {
+            if (! candidate.active) { voice = &candidate; break; }
+            if (candidate.peak < voice->peak) voice = &candidate;
+        }
+
+        // Equal-power pan
+        voice->leftGain = std::cos (pan * juce::MathConstants<float>::halfPi);
+        voice->rightGain = std::sin (pan * juce::MathConstants<float>::halfPi);
+
+        // Pink noise has the same power in every octave, so cutting some octaves off makes it
+        // quieter; make up for that so every row (or spot) is as loud.
+        cutoff = std::min (cutoff, FilterDesign::maxFrequency (sampleRate) * 0.9);
+        voice->bandLimited = cutoff > 0.0;
+        voice->peak = 1.0f;
+        if (voice->bandLimited)
+        {
+            const double octavesLeft = std::log2 (20000.0 / cutoff), octavesAll = std::log2 (20000.0 / 20.0);
+            voice->peak = (float) std::sqrt (octavesAll / std::max (0.5, octavesLeft));
+
+            // Butterworth: four biquads with these Qs make a flat 8th-order high-pass
+            const double qs[] { 0.5098, 0.6013, 0.9000, 2.5629 };
+            for (size_t i = 0; i < voice->stages.size(); ++i)
+                voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
+        }
+
+        // Quietest first: each repeat is 10 dB louder, ending at full level
+        voice->peak *= juce::Decibels::decibelsToGain (-depthStepDb * (float) (depthRuns - 1 - repeat % depthRuns));
+
+        voice->age = 0;
+        voice->active = true;
+    }
+
+    /// Paul Kellet's pink noise, scaled to 0 dB RMS (its raw RMS is about 1.74), so the level is the burst's RMS
+    float nextPink() noexcept
+    {
+        const float white = random.nextFloat() * 2.0f - 1.0f;
+        b0 = 0.99886f * b0 + white * 0.0555179f;
+        b1 = 0.99332f * b1 + white * 0.0750759f;
+        b2 = 0.96900f * b2 + white * 0.1538520f;
+        b3 = 0.86650f * b3 + white * 0.3104856f;
+        b4 = 0.55000f * b4 + white * 0.5329522f;
+        b5 = -0.7616f * b5 - white * 0.0168980f;
+        const float pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362f;
+        b6 = white * 0.115926f;
+        return pink * (1.0f / 1.745f);
+    }
+
+    double sampleRate = 48000.0;
+    int attackSamples = 192;
+    float releaseCoefficient = 0.9999f;
+
+    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 };
+    std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
+    std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
+    std::atomic<float> rate { defaultRate };
+    std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
+    std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
+    std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };
+    std::atomic<bool> playing { false };
+    std::atomic<int> currentPosition { -1 };
+
+    // Audio thread
+    std::array<Voice, 10> voices {};
+    int samplesUntilNext = 0, position = -1, repeat = 0;
+    juce::Random random { 42 };
+    float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+};

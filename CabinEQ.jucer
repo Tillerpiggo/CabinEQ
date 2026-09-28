@@ -4,234 +4,50 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
               defines="JUCE_MODAL_LOOPS_PERMITTED=1&#10;JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1">
   <MAINGROUP id="tB8nJa" name="CabinEQ">
-    <FILE id="RQqeWn" name="CabinEQIconEighty.png" compile="0" resource="1"
-          file="../../../Downloads/CabinEQIconEighty.png"/>
-    <FILE id="xgG489" name="PauseButtonIcon.png" compile="0" resource="1"
-          file="../../../Downloads/PauseButtonIcon.png"/>
-    <FILE id="pE0gsw" name="PlayButtonIcon.png" compile="0" resource="1"
-          file="../../../Downloads/PlayButtonIcon.png"/>
-    <FILE id="X2mn55" name="NextButtonIcon.png" compile="0" resource="1"
-          file="../../../Downloads/NextButtonIcon.png"/>
-    <FILE id="USMEoa" name="QuestionMarkIcon.png" compile="0" resource="1"
-          file="../../../Downloads/QuestionMarkIcon.png"/>
-    <FILE id="leouzo" name="PlusIcon.png" compile="0" resource="1" file="../../../Downloads/PlusIcon.png"/>
-    <FILE id="LjDH1h" name="Inter.ttf" compile="0" resource="1" file="../../../Downloads/Gantari,Inter/Inter/Inter.ttf"/>
-    <FILE id="jnVZcE" name="PrevButtonIcon.png" compile="0" resource="1"
-          file="../../../Downloads/PrevButtonIcon.png"/>
-    <FILE id="GJYOoB" name="SpeakerIcon.png" compile="0" resource="1" file="../../../Downloads/SpeakerIcon.png"/>
-    <FILE id="CJ6B6z" name="MuteIcon.png" compile="0" resource="1" file="../../../Downloads/MuteIcon.png"/>
-    <FILE id="wcEaFQ" name="EllipsisIcon.png" compile="0" resource="1"
-          file="../../../Downloads/EllipsisIcon.png"/>
+    <GROUP id="{7A1C2E90-3B4D-4F5E-8A6B-9C0D1E2F3A4B}" name="Resources">
+      <FILE id="RQqeWn" name="CabinEQIconEighty.png" compile="0" resource="1" file="Resources/CabinEQIconEighty.png"/>
+      <FILE id="LjDH1h" name="Inter.ttf" compile="0" resource="1" file="Resources/Inter.ttf"/>
+    </GROUP>
     <GROUP id="{D5852898-DE7B-5C6E-E48D-63245A8A54E9}" name="Source">
-      <FILE id="x7mh4S" name="CabinStandalone.cpp" compile="1" resource="0"
-            file="Source/CabinStandalone.cpp"/>
-      <FILE id="GJyWix" name="CabinStandaloneFilterWindow.h" compile="0"
-            resource="0" file="Source/CabinStandaloneFilterWindow.h"/>
-      <FILE id="T3Y0LW" name="CabinEqAudioProcessor.cpp" compile="1" resource="0"
-            file="Source/CabinEqAudioProcessor.cpp"/>
-      <FILE id="ZcW2ES" name="CabinEqAudioProcessor.h" compile="0" resource="0"
-            file="Source/CabinEqAudioProcessor.h"/>
-      <FILE id="RaTQso" name="CabinEqProcessorEditor.cpp" compile="1" resource="0"
-            file="Source/CabinEqProcessorEditor.cpp"/>
-      <FILE id="AQoyPD" name="CabinEqProcessorEditor.h" compile="0" resource="0"
-            file="Source/CabinEqProcessorEditor.h"/>
-      <FILE id="hcTmZx" name="Listeners.h" compile="0" resource="0" file="Source/Listeners.h"/>
-      <GROUP id="{E85E42E9-AF01-DF30-FD7E-EC1B73E1C8B8}" name="Glyph Stuff">
-        <FILE id="JxeB1R" name="AnimatedGlyph.cpp" compile="1" resource="0"
-              file="Source/AnimatedGlyph.cpp"/>
-        <FILE id="QqfxeV" name="AnimatedGlyph.h" compile="0" resource="0" file="Source/AnimatedGlyph.h"/>
-        <FILE id="Xi0qQf" name="ArchetypalGlyph.cpp" compile="1" resource="0"
-              file="Source/ArchetypalGlyph.cpp"/>
-        <FILE id="PAjzcl" name="ArchetypalGlyph.h" compile="0" resource="0"
-              file="Source/ArchetypalGlyph.h"/>
-        <FILE id="JDQhuG" name="ArchetypeBar.cpp" compile="1" resource="0"
-              file="Source/ArchetypeBar.cpp"/>
-        <FILE id="yenTGI" name="ArchetypeBar.h" compile="0" resource="0" file="Source/ArchetypeBar.h"/>
-        <FILE id="OTGPgI" name="ArchetypeView.cpp" compile="1" resource="0"
-              file="Source/ArchetypeView.cpp"/>
-        <FILE id="LGYZBm" name="ArchetypeView.h" compile="0" resource="0" file="Source/ArchetypeView.h"/>
-        <FILE id="LyeKuf" name="GainEnvelope.cpp" compile="1" resource="0"
-              file="Source/GainEnvelope.cpp"/>
-        <FILE id="PSjwNh" name="GainEnvelope.h" compile="0" resource="0" file="Source/GainEnvelope.h"/>
-        <FILE id="ZLMtbi" name="Glyph.cpp" compile="1" resource="0" file="Source/Glyph.cpp"/>
-        <FILE id="DyrvhP" name="Glyph.h" compile="0" resource="0" file="Source/Glyph.h"/>
-        <FILE id="EF9Ti6" name="GlyphGenerator.cpp" compile="1" resource="0"
-              file="Source/GlyphGenerator.cpp"/>
-        <FILE id="jVYf9H" name="GlyphGenerator.h" compile="0" resource="0"
-              file="Source/GlyphGenerator.h"/>
-        <FILE id="iXhfEk" name="GlyphGridPlayer.cpp" compile="1" resource="0"
-              file="Source/GlyphGridPlayer.cpp"/>
-        <FILE id="rK6WUg" name="GlyphGridPlayer.h" compile="0" resource="0"
-              file="Source/GlyphGridPlayer.h"/>
-        <FILE id="s7dII9" name="GlyphGridView.cpp" compile="1" resource="0"
-              file="Source/GlyphGridView.cpp"/>
-        <FILE id="bZ2b9s" name="GlyphGridView.h" compile="0" resource="0" file="Source/GlyphGridView.h"/>
-        <FILE id="NlfuFG" name="GlyphManager.cpp" compile="1" resource="0"
-              file="Source/GlyphManager.cpp"/>
-        <FILE id="opvLOP" name="GlyphManager.h" compile="0" resource="0" file="Source/GlyphManager.h"/>
-        <FILE id="AUFVyQ" name="GlyphView.cpp" compile="1" resource="0" file="Source/GlyphView.cpp"/>
-        <FILE id="wCLjYw" name="GlyphView.h" compile="0" resource="0" file="Source/GlyphView.h"/>
-        <FILE id="rCoeO0" name="Stroke.cpp" compile="1" resource="0" file="Source/Stroke.cpp"/>
-        <FILE id="tmKKFm" name="Stroke.h" compile="0" resource="0" file="Source/Stroke.h"/>
-      </GROUP>
-      <GROUP id="{B009D3F6-E155-F81B-7080-A41A86F6337A}" name="App Sound">
-        <FILE id="Nta5k2" name="PlaybackManager.cpp" compile="1" resource="0"
-              file="Source/PlaybackManager.cpp"/>
-        <FILE id="amZ4ZY" name="PlaybackManager.h" compile="0" resource="0"
-              file="Source/PlaybackManager.h"/>
-      </GROUP>
-      <GROUP id="{204139DF-76FC-2970-75AF-CB82419D64E9}" name="Backend/Persistence">
-        <FILE id="aawKTU" name="CabinEqProfile.cpp" compile="1" resource="0"
-              file="Source/CabinEqProfile.cpp"/>
-        <FILE id="v46Yap" name="CabinEqProfile.h" compile="0" resource="0"
-              file="Source/CabinEqProfile.h"/>
-        <FILE id="aRkkmn" name="CabinEqProfileManager.cpp" compile="1" resource="0"
-              file="Source/CabinEqProfileManager.cpp"/>
-        <FILE id="LJWMjo" name="CabinEqProfileManager.h" compile="0" resource="0"
-              file="Source/CabinEqProfileManager.h"/>
-        <FILE id="to8YPW" name="CheckerboardManager.cpp" compile="1" resource="0"
-              file="Source/CheckerboardManager.cpp"/>
-        <FILE id="XPNplm" name="CheckerboardManager.h" compile="0" resource="0"
-              file="Source/CheckerboardManager.h"/>
-        <FILE id="hqETSI" name="ElevationCalibrationManager.cpp" compile="1"
-              resource="0" file="Source/ElevationCalibrationManager.cpp"/>
-        <FILE id="piCdim" name="ElevationCalibrationManager.h" compile="0"
-              resource="0" file="Source/ElevationCalibrationManager.h"/>
-      </GROUP>
-      <GROUP id="{689EFF58-731A-7FCF-F4EB-1B6DFAB236E6}" name="Data">
-        <FILE id="oYYUcZ" name="ElevationCalibration.cpp" compile="1" resource="0"
-              file="Source/ElevationCalibration.cpp"/>
-        <FILE id="YXrRBM" name="ElevationCalibration.h" compile="0" resource="0"
-              file="Source/ElevationCalibration.h"/>
-        <FILE id="WsEXIM" name="Checkerboard.cpp" compile="1" resource="0"
-              file="Source/Checkerboard.cpp"/>
-        <FILE id="qmoxTe" name="Checkerboard.h" compile="0" resource="0" file="Source/Checkerboard.h"/>
-        <FILE id="qjtM6M" name="NoiseSource.cpp" compile="1" resource="0" file="Source/NoiseSource.cpp"/>
-        <FILE id="xPX2iH" name="NoiseSource.h" compile="0" resource="0" file="Source/NoiseSource.h"/>
-        <FILE id="VL1zLi" name="BandProfile.cpp" compile="1" resource="0" file="Source/BandProfile.cpp"/>
-        <FILE id="IsbkTz" name="BandProfile.h" compile="0" resource="0" file="Source/BandProfile.h"/>
-        <FILE id="AynBKb" name="CurvePt.h" compile="0" resource="0" file="Source/CurvePt.h"/>
-      </GROUP>
-      <GROUP id="{CB7F87AE-4989-6814-5FD9-3A25EE13334D}" name="UI Components">
-        <FILE id="AEGQoG" name="TutorialButton.cpp" compile="1" resource="0"
-              file="Source/TutorialButton.cpp"/>
-        <FILE id="USTlCZ" name="TutorialButton.h" compile="0" resource="0"
-              file="Source/TutorialButton.h"/>
-        <FILE id="vms39t" name="AddProfileButton.cpp" compile="1" resource="0"
-              file="Source/AddProfileButton.cpp"/>
-        <FILE id="b0RjiP" name="AddProfileButton.h" compile="0" resource="0"
-              file="Source/AddProfileButton.h"/>
-        <GROUP id="{3B5A2BE2-E6B6-3B7A-F6E4-7F90726FB230}" name="Layout">
-          <FILE id="E1YpqN" name="CrossfeedControl.cpp" compile="1" resource="0"
-                file="Source/CrossfeedControl.cpp"/>
-          <FILE id="I6bQWy" name="CrossfeedControl.h" compile="0" resource="0"
-                file="Source/CrossfeedControl.h"/>
-          <FILE id="AatRfE" name="Layout.cpp" compile="1" resource="0" file="Source/Layout.cpp"/>
-          <FILE id="IvB2LP" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
-          <FILE id="w4qCSS" name="Row.cpp" compile="1" resource="0" file="Source/Row.cpp"/>
-          <FILE id="MGDFgI" name="Row.h" compile="0" resource="0" file="Source/Row.h"/>
-          <FILE id="opxwON" name="FlexibleLayoutDimension.h" compile="0" resource="0"
-                file="Source/FlexibleLayoutDimension.h"/>
-        </GROUP>
-        <GROUP id="{B048BDD0-58B8-CA2D-450B-C2F061BCB7DA}" name="Helper">
-          <FILE id="YJa9TJ" name="BuildableComponent.cpp" compile="1" resource="0"
-                file="Source/BuildableComponent.cpp"/>
-          <FILE id="ZVJieY" name="BuildableComponent.h" compile="0" resource="0"
-                file="Source/BuildableComponent.h"/>
-        </GROUP>
-        <FILE id="EQKRso" name="ProfileRow.cpp" compile="1" resource="0" file="Source/ProfileRow.cpp"/>
-        <FILE id="D8ZuY3" name="ProfileRow.h" compile="0" resource="0" file="Source/ProfileRow.h"/>
-        <FILE id="nowByd" name="ProfileView.cpp" compile="1" resource="0" file="Source/ProfileView.cpp"/>
-        <FILE id="lBKBF0" name="ProfileView.h" compile="0" resource="0" file="Source/ProfileView.h"/>
-        <FILE id="W90tjd" name="ProfileList.cpp" compile="1" resource="0" file="Source/ProfileList.cpp"/>
-        <FILE id="DkNEsi" name="ProfileList.h" compile="0" resource="0" file="Source/ProfileList.h"/>
-        <FILE id="vGo9Jr" name="MusicList2.cpp" compile="1" resource="0" file="Source/MusicList2.cpp"/>
-        <FILE id="lYo6qe" name="MusicList2.h" compile="0" resource="0" file="Source/MusicList2.h"/>
-        <FILE id="GYQxO0" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
-        <FILE id="ss4ShX" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
-        <FILE id="XTfbD5" name="CabinPeqGraph.cpp" compile="1" resource="0"
-              file="Source/CabinPeqGraph.cpp"/>
-        <FILE id="VOfEsn" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
-        <FILE id="mr8n38" name="CheckerboardView.cpp" compile="1" resource="0"
-              file="Source/CheckerboardView.cpp"/>
-        <FILE id="oGsdbg" name="CheckerboardView.h" compile="0" resource="0"
-              file="Source/CheckerboardView.h"/>
-        <FILE id="auxb98" name="CalibrationView.cpp" compile="1" resource="0"
-              file="Source/CalibrationView.cpp"/>
-        <FILE id="HZSDMv" name="CalibrationView.h" compile="0" resource="0"
-              file="Source/CalibrationView.h"/>
-        <FILE id="Oarkv3" name="UIConstants.h" compile="0" resource="0" file="Source/UIConstants.h"/>
-        <FILE id="uEJ18I" name="CabinEqLookAndFeel.h" compile="0" resource="0"
-              file="Source/CabinEqLookAndFeel.h"/>
-        <FILE id="MYp5ig" name="FreeTrialBanner.cpp" compile="1" resource="0"
-              file="Source/FreeTrialBanner.cpp"/>
-        <FILE id="GKrweQ" name="FreeTrialBanner.h" compile="0" resource="0"
-              file="Source/FreeTrialBanner.h"/>
-        <FILE id="t1BovB" name="FreeTrialLockScreen.cpp" compile="1" resource="0"
-              file="Source/FreeTrialLockScreen.cpp"/>
-        <FILE id="aktXXy" name="FreeTrialLockScreen.h" compile="0" resource="0"
-              file="Source/FreeTrialLockScreen.h"/>
-        <FILE id="y3z4F0" name="ContactUsBanner.cpp" compile="1" resource="0"
-              file="Source/ContactUsBanner.cpp"/>
-        <FILE id="dngMSN" name="ContactUsBanner.h" compile="0" resource="0"
-              file="Source/ContactUsBanner.h"/>
-        <FILE id="IW8ccL" name="CabinEqMarketplaceStatus.h" compile="0" resource="0"
-              file="Source/CabinEqMarketplaceStatus.h"/>
-        <FILE id="rtRuIB" name="CabinEqUnlockForm.h" compile="0" resource="0"
-              file="Source/CabinEqUnlockForm.h"/>
-      </GROUP>
-      <GROUP id="{81E01C34-90FA-1BAC-08B9-861ED8BD43F4}" name="Sequencers">
-        <FILE id="tGW8Ds" name="ElevationCalibrationPlayer.cpp" compile="1"
-              resource="0" file="Source/ElevationCalibrationPlayer.cpp"/>
-        <FILE id="JmBK6A" name="ElevationCalibrationPlayer.h" compile="0" resource="0"
-              file="Source/ElevationCalibrationPlayer.h"/>
-        <FILE id="COGuES" name="RowPlayer.cpp" compile="1" resource="0" file="Source/RowPlayer.cpp"/>
-        <FILE id="EpqckB" name="RowPlayer.h" compile="0" resource="0" file="Source/RowPlayer.h"/>
-        <FILE id="xNPdA4" name="CheckerboardPlayer.cpp" compile="1" resource="0"
-              file="Source/CheckerboardPlayer.cpp"/>
-        <FILE id="bEctto" name="CheckerboardPlayer.h" compile="0" resource="0"
-              file="Source/CheckerboardPlayer.h"/>
-        <FILE id="nBY8qQ" name="SquareGenerator.cpp" compile="1" resource="0"
-              file="Source/SquareGenerator.cpp"/>
-        <FILE id="oY9BZb" name="SquareGenerator.h" compile="0" resource="0"
-              file="Source/SquareGenerator.h"/>
-        <FILE id="t0hEBL" name="PatternEnvelope.cpp" compile="1" resource="0"
-              file="Source/PatternEnvelope.cpp"/>
-        <FILE id="tAQLFT" name="PatternEnvelope.h" compile="0" resource="0"
-              file="Source/PatternEnvelope.h"/>
-      </GROUP>
-      <GROUP id="{45167AE1-710E-FB38-0755-1AD4C4B801E5}" name="Sound Generation">
-        <GROUP id="{F6096DA6-34F0-3CE6-E2DD-77C9A668712F}" name="Sound Generation Helpers">
-          <FILE id="tNnueT" name="CutoffFilter.cpp" compile="1" resource="0"
-                file="Source/CutoffFilter.cpp"/>
-          <FILE id="BRZUUe" name="CutoffFilter.h" compile="0" resource="0" file="Source/CutoffFilter.h"/>
-          <FILE id="K8VCnE" name="PitchedGenerator.h" compile="0" resource="0"
-                file="Source/PitchedGenerator.h"/>
-        </GROUP>
-        <FILE id="GRxmzC" name="NoiseGenerator.cpp" compile="1" resource="0"
-              file="Source/NoiseGenerator.cpp"/>
-        <FILE id="CIoINj" name="NoiseGenerator.h" compile="0" resource="0"
-              file="Source/NoiseGenerator.h"/>
-        <FILE id="HRJ5VK" name="PinkNoise.h" compile="0" resource="0" file="Source/PinkNoise.h"/>
-      </GROUP>
-      <GROUP id="{BBD4AE00-CC92-9DE7-D5E8-A037D1509C11}" name="Audio Processing">
-        <GROUP id="{8EE23ECF-BB0B-9994-199E-274F51ECAF32}" name="Audio Processing Helpers">
-          <FILE id="s3hCoT" name="BandEqCurve.cpp" compile="1" resource="0" file="Source/BandEqCurve.cpp"/>
-          <FILE id="ZovMg5" name="BandEqCurve.h" compile="0" resource="0" file="Source/BandEqCurve.h"/>
-          <FILE id="gFxyQy" name="Curve.cpp" compile="1" resource="0" file="Source/Curve.cpp"/>
-          <FILE id="gAPfh6" name="Curve.h" compile="0" resource="0" file="Source/Curve.h"/>
-        </GROUP>
-        <FILE id="J24ett" name="ArbitraryResponseFilter.cpp" compile="1" resource="0"
-              file="Source/ArbitraryResponseFilter.cpp"/>
-        <FILE id="ItRFbf" name="ArbitraryResponseFilter.h" compile="0" resource="0"
-              file="Source/ArbitraryResponseFilter.h"/>
-        <FILE id="fZoq3m" name="CrossfeedProcessor.cpp" compile="1" resource="0"
-              file="Source/CrossfeedProcessor.cpp"/>
-        <FILE id="s8bPqy" name="CrossfeedProcessor.h" compile="0" resource="0"
-              file="Source/CrossfeedProcessor.h"/>
-        <FILE id="Ix4Abh" name="FilterChain.h" compile="0" resource="0" file="Source/FilterChain.h"/>
-        <FILE id="Uo9gHR" name="SIMDIIRFilter.h" compile="0" resource="0" file="Source/SIMDIIRFilter.h"/>
-      </GROUP>
+      <FILE id="OhbVrp" name="BandEqCurve.cpp" compile="1" resource="0" file="Source/BandEqCurve.cpp"/>
+      <FILE id="oiVgRV" name="BandEqCurve.h" compile="0" resource="0" file="Source/BandEqCurve.h"/>
+      <FILE id="5IfLBc" name="BandInspector.cpp" compile="1" resource="0" file="Source/BandInspector.cpp"/>
+      <FILE id="bfnoGM" name="BandInspector.h" compile="0" resource="0" file="Source/BandInspector.h"/>
+      <FILE id="bJmTPS" name="BandProfile.cpp" compile="1" resource="0" file="Source/BandProfile.cpp"/>
+      <FILE id="IAoCLr" name="BandProfile.h" compile="0" resource="0" file="Source/BandProfile.h"/>
+      <FILE id="Z3aWZk" name="CabinEqAudioProcessor.cpp" compile="1" resource="0" file="Source/CabinEqAudioProcessor.cpp"/>
+      <FILE id="SBvrjn" name="CabinEqAudioProcessor.h" compile="0" resource="0" file="Source/CabinEqAudioProcessor.h"/>
+      <FILE id="9Wvgfy" name="CabinEqLookAndFeel.cpp" compile="1" resource="0" file="Source/CabinEqLookAndFeel.cpp"/>
+      <FILE id="gw2wMq" name="CabinEqLookAndFeel.h" compile="0" resource="0" file="Source/CabinEqLookAndFeel.h"/>
+      <FILE id="ZcUDIh" name="CabinEqPage.cpp" compile="1" resource="0" file="Source/CabinEqPage.cpp"/>
+      <FILE id="7yfJs1" name="CabinEqPage.h" compile="0" resource="0" file="Source/CabinEqPage.h"/>
+      <FILE id="ON43xK" name="CabinEqProcessorEditor.cpp" compile="1" resource="0" file="Source/CabinEqProcessorEditor.cpp"/>
+      <FILE id="mTecQo" name="CabinEqProcessorEditor.h" compile="0" resource="0" file="Source/CabinEqProcessorEditor.h"/>
+      <FILE id="Xsf2o3" name="CabinEqProfile.cpp" compile="1" resource="0" file="Source/CabinEqProfile.cpp"/>
+      <FILE id="gyrDO1" name="CabinEqProfile.h" compile="0" resource="0" file="Source/CabinEqProfile.h"/>
+      <FILE id="xkxwnQ" name="CabinEqProfileManager.cpp" compile="1" resource="0" file="Source/CabinEqProfileManager.cpp"/>
+      <FILE id="rS7RPe" name="CabinEqProfileManager.h" compile="0" resource="0" file="Source/CabinEqProfileManager.h"/>
+      <FILE id="MOkIUp" name="CabinPeqGraph.cpp" compile="1" resource="0" file="Source/CabinPeqGraph.cpp"/>
+      <FILE id="kDyr7O" name="CabinPeqGraph.h" compile="0" resource="0" file="Source/CabinPeqGraph.h"/>
+      <FILE id="SJoRu1" name="CabinStandalone.cpp" compile="1" resource="0" file="Source/CabinStandalone.cpp"/>
+      <FILE id="XXdo0c" name="CabinStandaloneFilterWindow.h" compile="0" resource="0" file="Source/CabinStandaloneFilterWindow.h"/>
+      <FILE id="Zuzren" name="CrossfeedControl.cpp" compile="1" resource="0" file="Source/CrossfeedControl.cpp"/>
+      <FILE id="68K4Tu" name="CrossfeedControl.h" compile="0" resource="0" file="Source/CrossfeedControl.h"/>
+      <FILE id="nPFz46" name="CrossfeedProcessor.cpp" compile="1" resource="0" file="Source/CrossfeedProcessor.cpp"/>
+      <FILE id="PDjqip" name="CrossfeedProcessor.h" compile="0" resource="0" file="Source/CrossfeedProcessor.h"/>
+      <FILE id="VJIqVL" name="EqPresetFile.cpp" compile="1" resource="0" file="Source/EqPresetFile.cpp"/>
+      <FILE id="B5Lzxo" name="EqPresetFile.h" compile="0" resource="0" file="Source/EqPresetFile.h"/>
+      <FILE id="iGFfWd" name="FilterChain.h" compile="0" resource="0" file="Source/FilterChain.h"/>
+      <FILE id="3hjOkY" name="FilterDesign.h" compile="0" resource="0" file="Source/FilterDesign.h"/>
+      <FILE id="RBMeyy" name="Format.h" compile="0" resource="0" file="Source/Format.h"/>
+      <FILE id="MDHqJ3" name="PlaybackManager.cpp" compile="1" resource="0" file="Source/PlaybackManager.cpp"/>
+      <FILE id="8aRUhR" name="PlaybackManager.h" compile="0" resource="0" file="Source/PlaybackManager.h"/>
+      <FILE id="4IWrXP" name="ProfileList.cpp" compile="1" resource="0" file="Source/ProfileList.cpp"/>
+      <FILE id="vhsBkD" name="ProfileList.h" compile="0" resource="0" file="Source/ProfileList.h"/>
+      <FILE id="a9U4Uq" name="SpectrumAnalyzer.h" compile="0" resource="0" file="Source/SpectrumAnalyzer.h"/>
+      <FILE id="GWlG6g" name="Theme.h" compile="0" resource="0" file="Source/Theme.h"/>
+      <FILE id="3Ot1OG" name="ValueField.cpp" compile="1" resource="0" file="Source/ValueField.cpp"/>
+      <FILE id="MmjxWk" name="ValueField.h" compile="0" resource="0" file="Source/ValueField.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
@@ -243,19 +59,15 @@
     <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_product_unlocking" showAllCode="1" useLocalCopy="0"
-            useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
-               JUCE_USE_MP3AUDIOFORMAT="1" JUCE_USE_LAME_AUDIO_FORMAT="1" JUCE_USE_WINDOWS_MEDIA_FORMAT="1"/>
+              />
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" microphonePermissionNeeded="1" microphonePermissionsText="This app requires microphone input to route system audio."
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
@@ -281,9 +93,6 @@
         <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_product_unlocking" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>

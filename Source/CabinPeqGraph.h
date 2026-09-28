@@ -11,176 +11,170 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <set>
+#include <array>
 #include "CabinEqAudioProcessor.h"
-#include "BandProfile.h"
 #include "BandEqCurve.h"
-#include "UIConstants.h"
-#include "Listeners.h"
-#include "BuildableComponent.h"
+#include "Theme.h"
 
-class CabinPeqGraph  : public BuildableComponent,
-                       public juce::Timer
+/// The EQ graph: the response curve over the live output spectrum, with a handle per band.
+///
+///  - Click the 0 dB line (or double-click anywhere) to add a band, and drag to shape it
+///  - Drag a band to move it. Hold Cmd/Ctrl to move finely
+///  - Shift-drag (or Alt-drag) up and down to change a band's width. Up is wider.
+///    Shift can be pressed or let go mid-drag to switch between moving and widening
+///  - Drag across empty space to select several bands, and Shift-click to add or remove one
+///  - Double-click a band to turn it off and on, and right-click it to delete it
+///  - Delete removes the selected bands, arrows nudge them, and Cmd/Ctrl+A selects all
+///  - The -/+ in the top right, or dragging or scrolling on the dB axis, zooms the view (not the
+///    bands' limits); double-click the axis to go back to +/-30 dB
+///  - Scrolling (or pinching) anywhere else zooms in on the frequency under the mouse; scrolling
+///    sideways, Shift-scrolling or dragging the frequency axis moves along them. Double-click the
+///    frequency axis to see 20 Hz to 20 kHz again
+class CabinPeqGraph  : public juce::Component,
+                       private juce::Timer
 {
 public:
-    
-    
-    CabinPeqGraph();
+    explicit CabinPeqGraph (CabinEqAudioProcessor& processor);
     ~CabinPeqGraph() override;
-    
-    void setBandProfile (BandProfile bandProfile);
-    void setProvisionalBands (std::vector<Band> provisionalBands);
-    void setProvisionalBandsVisible (bool provisionalBandsVisible);
-    void updateBands();
-    
-    void paint (juce::Graphics& g) override;
-    void resized() override;
-    
-    void mouseMove (const juce::MouseEvent &event) override;
-    void mouseDown (const juce::MouseEvent &event) override;
-    void mouseDrag (const juce::MouseEvent &event) override;
-    void mouseUp (const juce::MouseEvent &event) override;
-    void mouseWheelMove (const juce::MouseEvent &event, const juce::MouseWheelDetails &wheel) override;
-    
-    bool keyPressed(const juce::KeyPress& key) override;
-    
-    void timerCallback() override;
-    
-    void setListener (CabinPeqGraphListener* listener);
-    void removeListener();
-    
-    void addDataSource (CabinPeqGraphDataSource* dataSource);
-    void removeDataSource();
-    
-    void setGrayscale (bool grayscale);
-    
-private:
-    void initializeLabels();
-    void setFreqAmplLabelsBounds();
-    void clearSelection(); // clears the current selection and all related variables
-    
-    CabinPeqGraphListener* listener;
-    CabinPeqGraphDataSource* dataSource;
-    
-    BandProfile bandProfile;
-    std::vector<Band> provisionalBands;
-    std::vector<int> selectedBandIds;
-    bool provisionalBandsVisible = false;
-    
-    juce::Label instructionLabel;
-    std::string contactLong { "Contact us if anything breaks! julian@cabinaudio.com | tyler@cabinaudio.com" };
-    std::string contactMid { "Contact us if anything breaks! julian@cabinaudio.com" };
-    std::string contactShort { "Contact: julian@cabinaudio.com" };
-    std::string addBandInstructions { "Click + drag on the center line to add a band" };
-    std::string removeBandInstructions { "Right click to remove band" };
-    std::string groupRemoveBandInstructions { "Right click to remove selected bands" };
-    std::string shiftClickBandInstructions { "Shift click band to add it to group" };
-    std::string shiftClickRemoveBandInstructions { "Shift click band to remove it from group" };
-    std::string adjustBandwidthInstructions { "Shift + drag to change bandwidth" };
-    std::string groupAdjustBandwidthInstructions { "Shift + drag to change bandwidth(s) of group" };
-    std::string selectInstructions { "Drag to select multiple bands" };
-    std::string groupDragInstructions { "Drag highlighted band to move or scale group" };
-    std::string scrollInstructions { "Scroll vertically to zoom in/out" };
-    std::string volumeInstructions { "Drag dot up/down to set volume for this profile" };
-    
-    juce::TextButton leftRightButton { "BOTH" };
 
-    // Number labels
-    std::array<juce::Label, 10> freqLabels;
-    std::array<juce::Label, 11> amplLabels;
-    
-    // Drawing/animation
-    void drawLines (juce::Graphics& g);
-    void drawNoise (juce::Graphics& g);
-    void drawBands (juce::Graphics& g);
-    void drawCurve (juce::Graphics& g);
-    void drawDots (juce::Graphics& g);
-    void drawSelection (juce::Graphics& g);
-    
-    void drawBand (juce::Graphics& g, const Band& band, juce::Colour colour);
-    
-    std::vector<float> getLogLines();
-    void drawDot (juce::Graphics& g, juce::Point<float> point, float radius, juce::Colour color, bool isSelected);
-    void updateHoveringStatus (const juce::MouseEvent& event); // updates what is being hovered over - whether it's a node or the center line
-    
-    // Colours
-    juce::Colour getColourForFrequency (float frequency);
-    juce::ColourGradient getCurveGradient();
-    
+    /// Re-reads the selected profile's bands. Call whenever the profiles change.
+    void refresh();
+    void setBypassed (bool isBypassed);
+
+    /// The band the inspector shows: the last one clicked, or -1.
+    int getFocusedBandId() const { return focusedId; }
+    int getNumSelected() const { return (int) selectedIds.size(); }
+    void focusBand (int bandId);
+    std::function<void()> onSelectionChanged;
+
+    void deleteSelectedBands();
+
+    /// Shows the calibration spots, which can be dragged along the frequency axis
+    void setCalibrationSpotsVisible (bool shouldShow);
+
+    void paint (juce::Graphics&) override;
+    void resized() override;
+
+    void mouseMove (const juce::MouseEvent&) override;
+    void mouseExit (const juce::MouseEvent&) override;
+    void mouseDown (const juce::MouseEvent&) override;
+    void mouseDrag (const juce::MouseEvent&) override;
+    void mouseUp (const juce::MouseEvent&) override;
+    void mouseDoubleClick (const juce::MouseEvent&) override;
+    void mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails&) override;
+    void mouseMagnify (const juce::MouseEvent&, float scaleFactor) override;
+    bool keyPressed (const juce::KeyPress&) override;
+
+private:
+    enum class DragMode { none, bands, marquee, zoom, spotsTogether, spotsResize, pan };
+
+    // The -/+ dB range control in the top right
+    struct ZoomControl { juce::Rectangle<float> bounds, minus, plus, label; };
+    ZoomControl getZoomControl() const;
+    void stepDisplayRange (int direction); // +1 zooms in, -1 zooms out
+    bool isOnAxis (juce::Point<float> position) const;
+    void drawZoomControl (juce::Graphics&);
+
+    void timerCallback() override;
+    void updateSpectrumTimer();
+
+    // Drawing
+    void drawGrid (juce::Graphics&);
+    void drawSpectrum (juce::Graphics&);
+    void drawCurves (juce::Graphics&);
+    void drawHandles (juce::Graphics&);
+    void drawReadout (juce::Graphics&);
+    void rebuildCurvePaths();
+    juce::Path curvePathForChannel (int channel) const;
+
     // Coordinates
-    std::pair<float, float> getEventCoords (const juce::MouseEvent& event) const;
-    juce::Point<float> getLocalCoordsForBand (const Band band);
-    juce::Point<float> coordsForFrequencyAndAmplitude (float freq, float ampl);
-    float xForFreq (float freq);
-    float yForAmpl (float ampl);
-    std::pair<float, float> frequencyAndAmplitudeForCoords (float x, float y) const;
-    float frequencyAtTime (float t) const;
-    float timeAtFrequency (float freq) const;
-    std::pair<float, float> frequencyAndAmplitudeForMouseEvent (const juce::MouseEvent& event) const;
-    float mouseEventDistanceFromBand (const juce::MouseEvent& event, Band band) const; // distance from the node of the band
-    float mouseEventDistanceFromFrequencyAndAmplitude (const juce::MouseEvent& event, float freq, float ampl) const;
-    std::optional<Band> getClosestBandToMouseEvent (const juce::MouseEvent& event) const; // which band's node is the closest to the mouse
-    
-    // Utils to handle calls to the listener if listener is nullptr
-    int addBand (float freq, float ampl, float bandwidth, Band::Type type);
-    void updateBand (int id, float freq, float ampl, float bandwidth, Band::Type type);
-    void updateBandFromDrag (const juce::MouseEvent& event);
-    void removeBand (int id);
-    void setVolume (float volume);
-    
-    // Interaction variables
-    int draggingId = -1; // not currently dragging any point
-    int hoveringId = -1; // not hovering over any point
-    std::optional<float> addingFreq; // the frequency you are hovering over, if you're going to add a point. std::nullopt if you're not hovering in a place where you can add a node
-    bool isHoveringOverDotControl; // if the mouse is hovering over the dot to control the volume of this profile
-    bool isPlayingNoisePattern = false;
-    float selectedDotSize = DOT_SIZE_DEFAULT;
-    
-    // Selection
-    std::optional<juce::Point<float>> selectionStart;
-    std::optional<juce::Point<float>> selectionEnd;
-    std::optional<juce::Rectangle<float>> selectionRect;
-    std::unordered_set<int> selectedIds;
-    
-    // Selection drag
-    juce::Point<float> selectionStartPos; // the initial position you select for dragging
-    std::unordered_map<int, Band> selectedIdToStartingValue; // the starting value for each selected band
-    
-    // Dragging/zooming constants
-    float minFreqShowing = 16.0f;
-    float maxFreqShowing = 22000.0f;
-    float zoom = 5.0f;
-    float lastDistanceFromDragStartX = 0;
-    std::pair<float, float> dragOffsetWhileAdjustingBandwidth { 0.0f, 0.0f };
-    std::pair<float, float> dragOffsetWhileAdjustingPosition { 0.0f, 0.0f };
-    std::pair<float, float> lastDragPosition { 0.0f, 0.0f };
-    std::pair<float, float> startDragPosition { 0.0f, 0.0f };
-    float startDragBandwidth = 0.0f;
-    std::vector<Band> startDraggingBands;
-    
-    // Constants
-    static constexpr float MIN_FREQ = 16.0f;
-    static constexpr float MAX_FREQ = 22000.0f;
-    static constexpr float DIST_TO_ADD_DB = 1.0f;
-    static constexpr float HOVER_MIN_DIST = 0.5f;
-    float MAX_DB = 36.0f;
-    float MIN_DB = -36.0f;
-    float DEFAULT_BANDWIDTH = 1.0f;
-    
-    // Visual flags
-    bool isGrayscale = false;
-    
-    // BandEqCurve
+    juce::Rectangle<float> getPlotArea() const;
+    float xForFrequency (float frequency) const;
+    float frequencyForX (float x) const;
+    float yForDb (float db) const;
+    float dbForY (float y) const;
+    juce::Point<float> handlePosition (const Band& band) const;
+    bool isHandleVisible (const Band& band) const;
+
+    // Finding things under the mouse
+    std::optional<Band> bandAt (juce::Point<float> position) const;
+    bool isNearZeroLine (juce::Point<float> position) const; // where a click adds a band
+    std::vector<Band> getSelectedBands() const;
+    int indexOfBand (int bandId) const;
+
+    // Editing
+    CabinEqProfile profile() const { return processor.getSelectedProfile(); }
+    void beginEdit (const juce::String& name, bool coalesce = false);
+    int addBandAt (juce::Point<float> position, Band::Shape shape);
+    void updateBands (const std::vector<Band>& bands);
+    void changeWidth (const std::vector<Band>& bands, float factor);
+    void nudge (float octaves, float db);
+    void setSelection (std::set<int> ids, int newFocusedId);
+
+    // Menus
+    void showBackgroundMenu (juce::Point<float> position);
+
+    // Display settings, kept in the state
+    float getDisplayRange() const;
+    void setDisplayRange (float db);
+    bool getShowSpectrum() const;
+    void setShowSpectrum (bool shouldShow);
+
+    CabinEqAudioProcessor& processor;
+    BandProfile bandProfile;
     BandEqCurve curve;
-    Band::Type bandType = Band::Type::both;
-    
-    // Variables for faster painting
-    
-    // drawLines
-    juce::PathStrokeType lineStrokeType { CURVE_THICKNESS / 2.0f};
-    
-    juce::Path centerPath;
-    std::vector<juce::Path> horizontalLinePaths;
-    std::vector<float> lineFreqs;
-    
-    int currStepId = 0; // for multi band steps
+    juce::String profileName;
+
+    std::set<int> selectedIds;
+    int focusedId = -1;
+    int hoverId = -1;
+    bool hoverIsNearZeroLine = false;
+    juce::Point<float> mousePosition;
+    bool mouseIsOver = false;
+    bool isBypassed = false;
+
+    // Dragging
+    DragMode dragMode = DragMode::none;
+    bool isChangingWidth = false;
+    juce::Point<float> lastDragPosition, dragDistance;
+    std::vector<Band> bandsAtDragStart;
+    juce::Rectangle<float> marquee;
+    std::set<int> selectionBeforeMarquee;
+    int bandAddedByLastClick = -1;
+    float rangeAtDragStart = 30.0f;
+    int shiftClickedId = -1;        // a shift-click on this band that hasn't turned into a drag yet
+    bool hasBegunDragEdit = false;
+    juce::uint32 lastCoalescedEditTime = 0;
+    juce::String lastCoalescedEditName;
+
+    // Cached paths
+    bool curvePathsNeedRebuilding = true;
+    juce::Path mainCurve, leftCurve, rightCurve;
+
+    // Bands, and the widest view, go from 20 Hz to 20 kHz; the view can zoom in on part of that
+    static constexpr float minFrequency = 20.0f;
+    static constexpr float maxFrequency = 20000.0f;
+    float viewLow = minFrequency, viewHigh = maxFrequency;
+    void setFrequencyView (float low, float high);
+    void zoomFrequencies (float factor, float aroundX); // factor < 1 zooms in
+    void panFrequencies (float octaves);
+
+    // Calibration spots shown on the graph
+    bool showSpots = false;
+    int draggingSpot = -1, hoverSpot = -1, shownSpot = -1;
+    bool hoverAllSpots = false; // the mouse is on a spot's line, which moves them all
+    juce::Rectangle<float> spotChip (int index) const;
+    int spotChipAt (juce::Point<float> position) const;
+    int spotLineAt (juce::Point<float> position) const;
+    juce::Rectangle<float> spotGrip() const;          // between two spots, to move them both
+    void beginSpotDrag (int spot, float x);           // -1 for the grip
+    bool spotDragResizesTop = false;
+    float spotDragAnchor = 1000.0f;
+    std::array<float, CalibrationPlayer::maxSpots> spotFrequenciesAtDragStart {};
+    void drawSpots (juce::Graphics&);
+    static constexpr float handleRadius = 7.5f;
+    static constexpr float axisHeight = 22.0f;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinPeqGraph)
 };

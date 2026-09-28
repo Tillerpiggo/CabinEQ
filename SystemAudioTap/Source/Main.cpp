@@ -3,14 +3,17 @@
 #include <juce_dsp/juce_dsp.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include "AppView.h"
+#include "Engine.h"
 #include "SystemAudioTap.h"
+#include "TestSignal.h"
 
 #include <iostream>
 
 // CabinEQ System: routes all system audio through CabinEQ (or another plugin), using a Core Audio process tap.
 //
-//   (default)   opens the plugin's editor with all system audio going through it;
-//               closing the window stops it
+//   (default)   opens a window with the plugin's editor, a status bar that says whether it's
+//               working, and a setup checklist; closing the window stops it
 //   --test      automated test: plays pink noise from another process (afplay) and checks
 //               that it went tap -> plugin -> speakers, then writes report.txt, dry.wav, wet.wav
 //   --plugin P  the .vst3 or .component to load (default: CabinEQ.vst3)
@@ -155,54 +158,6 @@ std::vector<double> averagePowerSpectrum (const juce::AudioBuffer<float>& buffer
     return power;
 }
 
-bool writeWav (const juce::File& file, const juce::AudioBuffer<float>& buffer, double sampleRate, int numSamples)
-{
-    file.deleteFile();
-    std::unique_ptr<juce::OutputStream> stream (file.createOutputStream());
-
-    if (stream == nullptr)
-        return false;
-
-    juce::WavAudioFormat wav;
-    std::unique_ptr<juce::AudioFormatWriter> writer (wav.createWriterFor (stream.get(), sampleRate, (unsigned) buffer.getNumChannels(), 24, {}, 0));
-
-    if (writer == nullptr)
-        return false;
-
-    stream.release();   // the writer owns it now
-    return writer->writeFromAudioSampleBuffer (buffer, 0, numSamples);
-}
-
-bool writePinkNoise (const juce::File& file)
-{
-    const int numSamples = (int) (stimulusSeconds * stimulusSampleRate);
-    juce::AudioBuffer<float> buffer (2, numSamples);
-    juce::Random random (1234);
-    float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-
-    for (int i = 0; i < numSamples; ++i)
-    {
-        // Paul Kellet's pink noise filter
-        const float white = random.nextFloat() * 2.0f - 1.0f;
-        b0 = 0.99886f * b0 + white * 0.0555179f;
-        b1 = 0.99332f * b1 + white * 0.0750759f;
-        b2 = 0.96900f * b2 + white * 0.1538520f;
-        b3 = 0.86650f * b3 + white * 0.3104856f;
-        b4 = 0.55000f * b4 + white * 0.5329522f;
-        b5 = -0.7616f * b5 - white * 0.0168980f;
-        buffer.setSample (0, i, b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362f);
-        b6 = white * 0.115926f;
-    }
-
-    const int fade = (int) (0.05 * stimulusSampleRate);
-    buffer.applyGain (0, 0, numSamples, juce::Decibels::decibelsToGain (-20.0f) / buffer.getRMSLevel (0, 0, numSamples));
-    buffer.applyGainRamp (0, 0, fade, 0.0f, 1.0f);
-    buffer.applyGainRamp (0, numSamples - fade, fade, 1.0f, 0.0f);
-    buffer.copyFrom (1, 0, buffer, 0, 0, numSamples);
-
-    return writeWav (file, buffer, stimulusSampleRate, numSamples);
-}
-
 // Plugins expect to be created, prepared and released on the message thread.
 void onMessageThread (std::function<void()> fn)
 {
@@ -212,30 +167,12 @@ void onMessageThread (std::function<void()> fn)
 }
 
 //==============================================================================
-class PluginWindow : public juce::DocumentWindow
-{
-public:
-    explicit PluginWindow (juce::AudioProcessor& processor)
-        : DocumentWindow (processor.getName() + " on all system audio", juce::Colours::darkgrey, closeButton)
-    {
-        auto* editor = processor.hasEditor() ? processor.createEditorIfNeeded() : nullptr;
-        setUsingNativeTitleBar (true);
-        setContentOwned (editor != nullptr ? editor : new juce::GenericAudioProcessorEditor (processor), true);
-        centreWithSize (getWidth(), getHeight());
-        setVisible (true);
-        juce::Process::makeForegroundProcess();
-    }
-
-    void closeButtonPressed() override { juce::JUCEApplication::quit(); }
-};
-
-//==============================================================================
 class Session : private juce::Thread
 {
 public:
     explicit Session (Options optionsToUse) : juce::Thread ("CabinEQ System"), options (std::move (optionsToUse))
     {
-        formats.addDefaultFormats();
+        juce::addDefaultFormatsToManager (formats);
         startThread();
     }
 
@@ -243,7 +180,6 @@ public:
     {
         stopThread (10000);
         tap.close();
-        window.reset();
 
         if (prepared)
             plugin->releaseResources();
@@ -254,14 +190,6 @@ private:
     {
         options.outputDir.createDirectory();
         const bool ready = setUp();
-
-        if (ready && ! options.test)
-        {
-            report.info ("Listening: all system audio now goes through the plugin. Close its window to stop.");
-            saveReport();
-            juce::MessageManager::callAsync ([this] { window = std::make_unique<PluginWindow> (*plugin); });
-            return;   // the tap keeps running until the app quits
-        }
 
         if (ready)
             measure();
@@ -439,7 +367,7 @@ private:
     {
         const auto stimulus = options.outputDir.getChildFile ("stimulus.wav");
 
-        if (! report.check (writePinkNoise (stimulus), "Wrote the test signal (4 s of pink noise at -20 dBFS)"))
+        if (! report.check (TestSignal::writePinkNoise (stimulus, stimulusSeconds, -20.0f, stimulusSampleRate), "Wrote the test signal (4 s of pink noise at -20 dBFS)"))
             return;
 
         // Record a little silence, the noise played by another process, then a tail.
@@ -459,8 +387,8 @@ private:
         const int recorded = recordPos;
         tap.stop();
 
-        writeWav (options.outputDir.getChildFile ("dry.wav"), dry, sampleRate, recorded);
-        writeWav (options.outputDir.getChildFile ("wet.wav"), wet, sampleRate, recorded);
+        TestSignal::writeWav (options.outputDir.getChildFile ("dry.wav"), dry, sampleRate, recorded);
+        TestSignal::writeWav (options.outputDir.getChildFile ("wet.wav"), wet, sampleRate, recorded);
         report.info ("Recordings: dry.wav (what the tap heard) and wet.wav (what the plugin sent to the speakers)");
 
         analyse (launchedAt, stoppedAt, recorded);
@@ -554,7 +482,6 @@ private:
 
     juce::AudioPluginFormatManager formats;   // declared before `plugin` so it outlives it
     std::unique_ptr<juce::AudioPluginInstance> plugin;
-    std::unique_ptr<PluginWindow> window;
     bool prepared = false;
 
     double sampleRate = 0.0;
@@ -575,20 +502,68 @@ class CabinEQSystemApplication : public juce::JUCEApplication
 public:
     const juce::String getApplicationName() override    { return "CabinEQ System"; }
     const juce::String getApplicationVersion() override { return "0.1.0"; }
-    bool moreThanOneInstanceAllowed() override           { return false; }
+    bool moreThanOneInstanceAllowed() override           { return getCommandLineParameters().contains ("--snapshot"); }
 
     void initialise (const juce::String&) override
     {
-        session = std::make_unique<Session> (Options::parse (getCommandLineParameterArray()));
+        const auto args = getCommandLineParameterArray();
+        if (const int index = args.indexOf ("--snapshot"); index >= 0 && index + 1 < args.size())
+        {
+            // Renders the window to a PNG without touching the audio: --snapshot out.png [setup]
+            Engine looker (false);
+            AppView view (looker);
+            view.showSetup (args.contains ("setup"));
+            juce::MessageManager::getInstance()->runDispatchLoopUntil (200);
+            auto image = view.createComponentSnapshot (view.getLocalBounds(), true, 2.0f);
+            juce::File file (args[index + 1]);
+            file.deleteFile();
+            juce::FileOutputStream stream (file);
+            juce::PNGImageFormat().writeImageToStream (image, stream);
+            setApplicationReturnValue (0);
+            quit();
+            return;
+        }
+
+        const auto options = Options::parse (args);
+        if (options.test)
+        {
+            session = std::make_unique<Session> (options);
+            return;
+        }
+
+        engine = std::make_unique<Engine>();
+        window = std::make_unique<MainWindow> (*engine);
     }
 
     void shutdown() override
     {
+        window = nullptr;
+        engine = nullptr;
         session = nullptr;
     }
 
 private:
-    std::unique_ptr<Session> session;
+    class MainWindow : public juce::DocumentWindow
+    {
+    public:
+        explicit MainWindow (Engine& engine)
+            : DocumentWindow ("CabinEQ System", juce::Colour (0xff0e0f12), closeButton)
+        {
+            setUsingNativeTitleBar (true);
+            setContentOwned (new AppView (engine), true);
+            setResizable (true, false);
+            setResizeLimits (720, 460 + AppView::statusBarHeight, 4000, 3000);
+            centreWithSize (getWidth(), getHeight());
+            setVisible (true);
+            juce::Process::makeForegroundProcess();
+        }
+
+        void closeButtonPressed() override { juce::JUCEApplication::quit(); }
+    };
+
+    std::unique_ptr<Session> session;     // the automated test
+    std::unique_ptr<Engine> engine;       // normal use
+    std::unique_ptr<MainWindow> window;
 };
 
 START_JUCE_APPLICATION (CabinEQSystemApplication)

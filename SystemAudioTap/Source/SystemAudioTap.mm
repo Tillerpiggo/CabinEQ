@@ -118,6 +118,20 @@ struct SystemAudioTap::Impl
     ProcessFn process;
     std::vector<float> inL, inR, outL, outR;   // sized before starting, so the audio thread never allocates
 
+    std::string outputName, outputUID;
+    std::atomic<float> inPeak { 0 }, outPeak { 0 };
+    std::atomic<int> callbacks { 0 };
+
+    static void raise (std::atomic<float>& peak, const float* data, int n)
+    {
+        float loudest = 0;
+        for (int i = 0; i < n; ++i)
+            loudest = std::max (loudest, std::abs (data[i]));
+
+        auto current = peak.load();
+        while (loudest > current && ! peak.compare_exchange_weak (current, loudest)) {}
+    }
+
     void render (const AudioBufferList* input, AudioBufferList* output)
     {
         if (output == nullptr || output->mNumberBuffers == 0 || output->mBuffers[0].mNumberChannels == 0)
@@ -147,6 +161,13 @@ struct SystemAudioTap::Impl
 
         process (in, out, numFrames);
 
+        for (int ch = 0; ch < 2; ++ch)
+        {
+            raise (inPeak, in[ch], numFrames);
+            raise (outPeak, out[ch], numFrames);
+        }
+        callbacks.fetch_add (1);
+
         // The stereo result goes to the first two output channels, silence to any others.
         int channel = 0;
 
@@ -172,17 +193,43 @@ SystemAudioTap::~SystemAudioTap()
     close();
 }
 
+namespace
+{
+using PreflightFn = long (*) (CFStringRef, CFDictionaryRef);
+using RequestFn = void (*) (CFStringRef, CFDictionaryRef, void (^) (BOOL));
+
+// There's no public API to ask about this permission up front (without it, the tap just
+// delivers silence), so this uses the private TCC calls, as the AudioCap sample does.
+void* openTCC()
+{
+    static void* tcc = dlopen ("/System/Library/PrivateFrameworks/TCC.framework/Versions/A/TCC", RTLD_NOW);
+    return tcc;
+}
+}
+
+SystemAudioTap::Permission SystemAudioTap::checkPermission()
+{
+    auto* tcc = openTCC();
+    const auto preflight = tcc != nullptr ? reinterpret_cast<PreflightFn> (dlsym (tcc, "TCCAccessPreflight")) : nullptr;
+
+    if (preflight == nullptr)
+        return Permission::unknown;
+
+    switch (preflight (CFSTR ("kTCCServiceAudioCapture"), nullptr))
+    {
+        case 0:  return Permission::granted;
+        case 1:  return Permission::denied;
+        default: return Permission::unknown;
+    }
+}
+
 SystemAudioTap::Permission SystemAudioTap::requestPermission()
 {
-    // There's no public API to ask for this permission up front (without it, the tap just
-    // delivers silence), so this uses the private TCC calls, as the AudioCap sample does.
-    void* tcc = dlopen ("/System/Library/PrivateFrameworks/TCC.framework/Versions/A/TCC", RTLD_NOW);
+    auto* tcc = openTCC();
 
     if (tcc == nullptr)
         return Permission::unknown;
 
-    using PreflightFn = long (*) (CFStringRef, CFDictionaryRef);
-    using RequestFn = void (*) (CFStringRef, CFDictionaryRef, void (^) (BOOL));
     const auto preflight = reinterpret_cast<PreflightFn> (dlsym (tcc, "TCCAccessPreflight"));
     const auto request = reinterpret_cast<RequestFn> (dlsym (tcc, "TCCAccessRequest"));
 
@@ -212,7 +259,7 @@ SystemAudioTap::Permission SystemAudioTap::requestPermission()
     return granted ? Permission::granted : Permission::denied;
 }
 
-bool SystemAudioTap::open (std::string& error)
+bool SystemAudioTap::open (std::string& error, const std::string& requestedOutputUID)
 {
     @autoreleasepool
     {
@@ -256,13 +303,32 @@ bool SystemAudioTap::open (std::string& error)
         //    the current output device on one clock: tap in, speakers out.
         AudioObjectID outputDevice = kAudioObjectUnknown;
         getProperty (kAudioObjectSystemObject, kAudioHardwarePropertyDefaultOutputDevice, outputDevice);
-        const auto outputUID = getStringProperty (outputDevice, kAudioDevicePropertyDeviceUID);
+        auto outputUID = getStringProperty (outputDevice, kAudioDevicePropertyDeviceUID);
 
-        if (outputUID.empty())
+        if (! requestedOutputUID.empty() && requestedOutputUID != outputUID)
         {
-            error = "couldn't find the default output device";
+            outputUID = requestedOutputUID;
+            outputDevice = kAudioObjectUnknown;
+
+            const AudioObjectPropertyAddress devices { kAudioHardwarePropertyDevices, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
+            UInt32 devicesSize = 0;
+            AudioObjectGetPropertyDataSize (kAudioObjectSystemObject, &devices, 0, nullptr, &devicesSize);
+            std::vector<AudioObjectID> ids (devicesSize / sizeof (AudioObjectID));
+            AudioObjectGetPropertyData (kAudioObjectSystemObject, &devices, 0, nullptr, &devicesSize, ids.data());
+
+            for (auto id : ids)
+                if (getStringProperty (id, kAudioDevicePropertyDeviceUID) == outputUID)
+                    outputDevice = id;
+        }
+
+        if (outputUID.empty() || outputDevice == kAudioObjectUnknown)
+        {
+            error = "couldn't find the output device";
             return false;
         }
+
+        s.outputUID = outputUID;
+        s.outputName = getStringProperty (outputDevice, kAudioObjectPropertyName);
 
         NSString* outputUIDString = @(outputUID.c_str());
         NSDictionary* aggregate = @{
@@ -385,6 +451,15 @@ void SystemAudioTap::close()
     }
 
     s.tapDescription = nil;
+}
+
+std::string SystemAudioTap::getOutputName() const  { return impl->outputName; }
+std::string SystemAudioTap::getOutputUID() const   { return impl->outputUID; }
+bool SystemAudioTap::isRunning() const              { return impl->ioProcID != nullptr; }
+
+SystemAudioTap::Activity SystemAudioTap::takeActivity()
+{
+    return { impl->inPeak.exchange (0.0f), impl->outPeak.exchange (0.0f), impl->callbacks.exchange (0) };
 }
 
 double SystemAudioTap::getSampleRate() const       { return impl->sampleRate; }

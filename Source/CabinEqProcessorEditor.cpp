@@ -8,38 +8,47 @@
 
 #include "CabinEqProcessorEditor.h"
 
-CabinEqProcessorEditor::CabinEqProcessorEditor(CabinEqAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), cabinEqPage (p)
+CabinEqProcessorEditor::CabinEqProcessorEditor (CabinEqAudioProcessor& p)
+    : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    setSize (1080, 720);
-    addAndMakeVisible (cabinEqPage);
-//    addAndMakeVisible (visibilityButton);
-    setResizable (true, false);
-    setResizeLimits (300, 200, 10000, 10000);
-    
-//    visibilityButton.addListener (this);
+    // Pop-ups and dialogs that aren't inside the editor use the default look and feel
+    juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel.getObject());
+    setLookAndFeel (&lookAndFeel.getObject());
+
+    // Read the saved size first: setting the limits resizes the editor, which would overwrite it
+    const auto size = audioProcessor.getEditorSize();
+
+    cabinEqPage = std::make_unique<CabinEqPage> (p);
+    addAndMakeVisible (*cabinEqPage);
+
+    setResizable (true, true);
+    setResizeLimits (760, 460, 4000, 3000);
+    setSize (size.x, size.y);
+    isRememberingSize = true;
 }
 
 CabinEqProcessorEditor::~CabinEqProcessorEditor()
 {
-    // The binaryClassificationPage will be automatically deleted as it is owned by the tabbedComponent
+    cabinEqPage.reset();
+    setLookAndFeel (nullptr);
+
+    // Other instances' editors may still be using it
+    if (lookAndFeel.getReferenceCount() == 1)
+        juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
 }
 
 //==============================================================================
-void CabinEqProcessorEditor::paint(juce::Graphics& g)
+void CabinEqProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    g.fillAll (Theme::background);
 }
 
 void CabinEqProcessorEditor::resized()
 {
-    cabinEqPage.setBounds (getLocalBounds());
-    visibilityButton.setBounds (juce::Rectangle<int> (getWidth() - 100, getHeight() - 50, 100, 50));
-}
-
-void CabinEqProcessorEditor::buttonClicked (juce::Button* button)
-{
-    isVisible = ! isVisible;
-    cabinEqPage.setVisible (isVisible);
-    visibilityButton.setButtonText (isVisible ? "VISIBLE" : "INVISIBLE");
+    if (cabinEqPage != nullptr)
+    {
+        cabinEqPage->setBounds (getLocalBounds());
+        if (isRememberingSize)
+            audioProcessor.setEditorSize ({ getWidth(), getHeight() });
+    }
 }
