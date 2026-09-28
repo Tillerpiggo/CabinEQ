@@ -1082,70 +1082,40 @@ public:
             expect (heard == std::vector<int> { 1, 0, 1 }, "it goes back and forth between the two");
         }
 
-        beginTest ("Each spot plays up to the highest one");
+        beginTest ("Each spot plays from its frequency all the way up");
         {
-            // With spots at 500 Hz and 3 kHz, the 500 Hz one should have almost nothing above 3 kHz,
-            // unlike the 3 kHz one, which goes up to the top. Measure the first burst, which is spot A's.
-            auto highEnergyOfSpot = [] (bool lower)
+            // How much of the first burst (spot A's) gets through a steep filter at `cut`
+            auto measure = [] (float spotA, float spotB, Band::Shape shape, float cut)
             {
                 CalibrationPlayer player;
                 player.prepare (sampleRate);
                 player.setMode (CalibrationPlayer::Mode::spots);
                 player.setSpotCount (2);
-                player.setSpot (0, lower ? 500.0f : 3000.0f, 0.0f);
-                player.setSpot (1, lower ? 3000.0f : 500.0f, 0.0f);
+                player.setSpot (0, spotA, 0.0f);
+                player.setSpot (1, spotB, 0.0f);
                 player.setRate (0.5f); // just the one burst in the second we listen to
                 player.setPlaying (true);
                 juce::AudioBuffer<float> buffer (2, (int) sampleRate);
                 buffer.clear();
                 player.process (buffer);
 
-                // Steeply high-pass what came out at 6 kHz and see how much is left
-                FilterChain highPass;
-                highPass.prepare (sampleRate);
+                FilterChain filter;
+                filter.prepare (sampleRate);
                 std::vector<Band> cuts;
                 for (int i = 0; i < 4; ++i)
-                    cuts.push_back (Band::withQ (i, 6000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::lowCut));
-                highPass.setBands (cuts);
-                highPass.reset();
+                    cuts.push_back (Band::withQ (i, cut, 0.0f, 0.7071f, Band::Type::both, shape));
+                filter.setBands (cuts);
+                filter.reset();
                 juce::dsp::AudioBlock<float> block (buffer);
-                highPass.process (block);
+                filter.process (block);
                 return buffer.getRMSLevel (0, 0, buffer.getNumSamples());
             };
-            expectLessThan (highEnergyOfSpot (true) * 50.0f, highEnergyOfSpot (false), "the lower spot stops at the higher one");
 
-            // With three, the lowest goes past the middle one, up to the top one
-            auto energyBetweenOfLowest = [] ()
-            {
-                CalibrationPlayer player;
-                player.prepare (sampleRate);
-                player.setMode (CalibrationPlayer::Mode::spots);
-                player.setSpotCount (3);
-                player.setSpot (0, 200.0f, 0.0f);
-                player.setSpot (1, 1000.0f, 0.0f);
-                player.setSpot (2, 8000.0f, 0.0f);
-                player.setRate (0.5f);
-                player.setPlaying (true);
-                juce::AudioBuffer<float> buffer (2, (int) sampleRate);
-                buffer.clear();
-                player.process (buffer);
-
-                // What's between the middle and top spots (2-5 kHz)
-                FilterChain band;
-                band.prepare (sampleRate);
-                std::vector<Band> cuts;
-                for (int i = 0; i < 4; ++i)
-                {
-                    cuts.push_back (Band::withQ (i, 2000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::lowCut));
-                    cuts.push_back (Band::withQ (10 + i, 5000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::highCut));
-                }
-                band.setBands (cuts);
-                band.reset();
-                juce::dsp::AudioBlock<float> block (buffer);
-                band.process (block);
-                return buffer.getRMSLevel (0, 0, buffer.getNumSamples());
-            };
-            expectGreaterThan (energyBetweenOfLowest(), 1.0e-3f, "the lowest spot has sound above the middle spot");
+            // A at 500 Hz, with B at 3 kHz above it, still has plenty above 6 kHz...
+            const float above = measure (500.0f, 3000.0f, Band::Shape::lowCut, 6000.0f);
+            expectGreaterThan (above, 1.0e-3f, "it goes past the spot above it");
+            // ...and next to nothing below 150 Hz
+            expectLessThan (measure (500.0f, 3000.0f, Band::Shape::highCut, 150.0f) * 50.0f, above, "and its low cut still works");
         }
 
         beginTest ("Clicking a position repeats just it");
