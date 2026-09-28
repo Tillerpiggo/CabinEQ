@@ -67,6 +67,7 @@ Engine::~Engine()
 {
     *alive = false;
     stopTimer();
+    savePluginState();
     testPlayer.reset();
     disconnect();
     deviceListener.reset();
@@ -80,6 +81,7 @@ juce::File Engine::getDefaultPluginFile()
 //==============================================================================
 void Engine::loadPlugin()
 {
+    savePluginState(); // the plugin that's going away
     disconnect();
     if (prepared && plugin != nullptr)
         plugin->releaseResources();
@@ -103,11 +105,87 @@ void Engine::loadPlugin()
         if (! found.isEmpty())
         {
             plugin = formats.createPluginInstance (*found[0], 48000.0, 512, pluginError);
+            if (plugin != nullptr)
+                restorePluginState();
             return;
         }
     }
 
     pluginError = "That isn't a VST3 or Audio Unit plugin";
+}
+
+//==============================================================================
+// Hosts are what remember a plugin's settings, so CabinEQ System has to: your profiles live in here
+juce::File Engine::getStateFile() const
+{
+    return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+               .getChildFile ("Application Support/CabinEQ System")
+               .getChildFile (pluginFile.getFileNameWithoutExtension() + " state.bin");
+}
+
+void Engine::restorePluginState()
+{
+    const auto file = getStateFile();
+    juce::MemoryBlock state;
+
+    if (file.existsAsFile() && file.loadFileAsData (state) && state.getSize() > 0)
+    {
+        plugin->setStateInformation (state.getData(), (int) state.getSize());
+        if (log != nullptr)
+            log->logMessage ("Restored " + plugin->getName() + "'s settings from " + file.getFullPathName());
+    }
+    else if (audioAllowed && importFromStandaloneApp())
+    {
+        savePluginState(); // so the import only happens once
+    }
+
+    lastSavedState.reset();
+    plugin->getStateInformation (lastSavedState);
+}
+
+bool Engine::importFromStandaloneApp()
+{
+    // The first time, bring over the profiles from the CabinEQ standalone app, which keeps its
+    // plugin state in ~/Library/Application Support/CabinEQ.settings. CabinEQ migrates old ones.
+    if (pluginFile.getFileNameWithoutExtension() != "CabinEQ" || plugin->getPluginDescription().pluginFormatName != "VST3")
+        return false;
+
+    const auto settingsFile = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                                  .getChildFile ("Application Support/CabinEQ.settings");
+    if (! settingsFile.existsAsFile())
+        return false;
+
+    juce::PropertiesFile standaloneSettings (settingsFile, {});
+    juce::MemoryBlock pluginState;
+    if (! pluginState.fromBase64Encoding (standaloneSettings.getValue ("filterState")) || pluginState.getSize() == 0)
+        return false;
+
+    // A VST3 host hands the plugin's own state over as the component's state
+    juce::XmlElement wrapper ("VST3PluginState");
+    wrapper.createNewChildElement ("IComponent")->addTextElement (pluginState.toBase64Encoding());
+    juce::MemoryBlock wrapped;
+    juce::AudioProcessor::copyXmlToBinary (wrapper, wrapped);
+    plugin->setStateInformation (wrapped.getData(), (int) wrapped.getSize());
+
+    if (log != nullptr)
+        log->logMessage ("Imported the CabinEQ app's profiles from " + settingsFile.getFullPathName());
+    return true;
+}
+
+void Engine::savePluginState()
+{
+    if (plugin == nullptr || ! audioAllowed) // --snapshot only looks
+        return;
+
+    juce::MemoryBlock state;
+    plugin->getStateInformation (state);
+    if (state.getSize() == 0 || state == lastSavedState)
+        return;
+
+    const auto file = getStateFile();
+    file.getParentDirectory().createDirectory();
+    if (file.replaceWithData (state.getData(), state.getSize())) // writes a temporary file, then swaps it in
+        lastSavedState = std::move (state);
 }
 
 void Engine::setPluginFile (const juce::File& file)
@@ -349,6 +427,13 @@ void Engine::timerCallback()
 
     if (slowCallbacks.exchange (0) > 0)
         lastDropoutTime = t;
+
+    // Save any changes to the plugin's settings every couple of seconds
+    if (t - lastStateCheck > 2.0)
+    {
+        lastStateCheck = t;
+        savePluginState();
+    }
 
     // Slower checks, twice a second
     if (t - lastPoll > 0.5)

@@ -11,6 +11,7 @@
 */
 
 #include <JuceHeader.h>
+#include <map>
 #include "../Source/CabinEqAudioProcessor.h"
 #include "../Source/FilterChain.h"
 #include "../Source/BandEqCurve.h"
@@ -994,9 +995,66 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
     return png.writeImageToStream (image, stream) ? 0 : 1;
 }
 
+/// Loads a real CabinEQ.settings (from the standalone app) and reports what came through.
+static int checkImport (const juce::File& settingsFile)
+{
+    CabinEqProfileManager::shouldBackUpOldState = false;
+    juce::PropertiesFile settings (settingsFile, {});
+    juce::MemoryBlock state;
+    if (! state.fromBase64Encoding (settings.getValue ("filterState")))
+    {
+        std::cout << "No filterState in " << settingsFile.getFullPathName() << std::endl;
+        return 1;
+    }
+
+    // How many bands each old profile had, counting every step
+    auto oldXml = juce::AudioProcessor::getXmlFromBinary (state.getData(), (int) state.getSize());
+    std::map<juce::String, int> oldCounts;
+    for (auto* profile : oldXml->getChildWithTagNameIterator ("Profile"))
+    {
+        int count = 0;
+        for (auto* amplTree : profile->getChildWithTagNameIterator ("AmplTree"))
+            for (auto* step : amplTree->getChildWithTagNameIterator ("MultiBandStep"))
+                count += step->getNumChildElements();
+        oldCounts[profile->getStringAttribute ("ProfileName")] = count;
+    }
+
+    CabinEqAudioProcessor processor;
+    const auto start = juce::Time::getMillisecondCounterHiRes();
+    processor.setStateInformation (state.getData(), (int) state.getSize());
+    const auto loadMs = juce::Time::getMillisecondCounterHiRes() - start;
+
+    auto& profiles = processor.getProfiles();
+    int mismatches = 0;
+    for (const auto& [name, count] : oldCounts)
+    {
+        auto profile = profiles.getProfileNamed (name);
+        if (! profile.has_value() || profile->getNumBands() != count)
+        {
+            std::cout << "  MISMATCH " << name << ": had " << count << ", now "
+                      << (profile.has_value() ? juce::String (profile->getNumBands()) : juce::String ("missing")) << std::endl;
+            ++mismatches;
+        }
+    }
+
+    juce::MemoryBlock saved;
+    const auto saveStart = juce::Time::getMillisecondCounterHiRes();
+    processor.getStateInformation (saved);
+    const auto saveMs = juce::Time::getMillisecondCounterHiRes() - saveStart;
+
+    std::cout << oldCounts.size() << " old profiles, " << profiles.getProfileNames().size() << " after loading, "
+              << mismatches << " with a different number of bands. Selected: " << profiles.getSelectedProfileName() << "\n"
+              << "Loading took " << juce::String (loadMs, 1) << " ms, saving " << juce::String (saveMs, 1) << " ms ("
+              << (int) saved.getSize() / 1024 << " KB)" << std::endl;
+    return mismatches == 0 ? 0 : 1;
+}
+
 int main (int argc, char** argv)
 {
     juce::ScopedJuceInitialiser_GUI juce;
+
+    if (argc >= 3 && juce::String (argv[1]) == "--check-import")
+        return checkImport (juce::File (juce::String (argv[2])));
 
     if (argc >= 3 && juce::String (argv[1]) == "--snapshot")
         return writeSnapshot (juce::File (argv[2]), argc >= 5 ? juce::String (argv[3]).getIntValue() : 1080,

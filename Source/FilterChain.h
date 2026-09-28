@@ -25,8 +25,8 @@
 class FilterChain
 {
 public:
-    static constexpr int maxBands = 24; // how many bands a profile can have
-    static constexpr int numSlots = 32; // extra slots let removed bands fade out while new ones fade in
+    static constexpr int maxBands = 64; // how many bands a profile can have (older profiles have up to ~50)
+    static constexpr int numSlots = 80; // extra slots let removed bands fade out while new ones fade in
     static constexpr int maxChannels = 2;
 
     FilterChain()

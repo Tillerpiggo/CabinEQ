@@ -77,6 +77,10 @@ public:
 
 private:
     void loadPlugin();
+    juce::File getStateFile() const;
+    void restorePluginState();
+    bool importFromStandaloneApp();
+    void savePluginState();
     bool canConnect() const;
     void connect();
     void disconnect();
@@ -92,6 +96,8 @@ private:
     std::unique_ptr<juce::AudioPluginInstance> plugin;
     juce::File pluginFile;
     juce::String pluginError;
+    juce::MemoryBlock lastSavedState;
+    double lastStateCheck = 0;
 
     SystemAudioTap tap;
     bool prepared = false;

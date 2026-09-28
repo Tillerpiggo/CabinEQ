@@ -39,6 +39,11 @@ shows by itself on first launch and when something goes wrong:
 5. **Check it's working**: plays a short burst of quiet noise from another app and checks it went in and
    came back out.
 
+CabinEQ System saves the plugin's settings (your profiles) to
+`~/Library/Application Support/CabinEQ System/CabinEQ state.bin` every couple of seconds and when
+it quits, and loads them when it opens. The first time, with no saved settings yet, it brings over
+the profiles from the CabinEQ standalone app (`~/Library/Application Support/CabinEQ.settings`).
+
 Each status change is written to `~/Library/Logs/CabinEQ System.log`.
 `"CabinEQ System.app/Contents/MacOS/CabinEQ System" --snapshot out.png [setup]` renders the window
 without touching the audio.
