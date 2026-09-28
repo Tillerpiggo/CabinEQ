@@ -16,6 +16,7 @@
 #include "BandInspector.h"
 #include "ProfileList.h"
 #include "ValueField.h"
+#include "CalibrationPanel.h"
 
 /// The whole window: profiles down the left, the top bar, the graph, and the band inspector.
 class CabinEqPage   : public juce::Component,
@@ -54,14 +55,16 @@ private:
     void pasteProfile();
     void showCrossfeed();
     void showMessage (const juce::String& title, const juce::String& message);
+    void setCalibrationShown (bool shouldShow);
 
     CabinEqAudioProcessor& processor;
 
     ProfileList profileList;
     CabinPeqGraph graph;
     BandInspector inspector;
+    CalibrationPanel calibrationPanel;
 
-    std::unique_ptr<IconButton> undoButton, redoButton, crossfeedButton, settingsButton, powerButton;
+    std::unique_ptr<IconButton> undoButton, redoButton, calibrationButton, crossfeedButton, settingsButton, powerButton;
     ValueField preampField { "Preamp", -30.0, 30.0, 0.0 };
     juce::ToggleButton autoGainToggle { "Auto gain" };
     juce::AudioProcessorValueTreeState::ButtonAttachment autoGainAttachment;
@@ -70,6 +73,7 @@ private:
     std::unique_ptr<juce::FileChooser> fileChooser;
     juce::Component::SafePointer<juce::CallOutBox> crossfeedBox;
     bool isDraggingFiles = false;
+    bool grewForCalibration = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CabinEqPage)
 };

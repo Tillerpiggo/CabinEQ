@@ -141,6 +141,16 @@ namespace Icons
         return p;
     }
 
+    inline juce::Path grid()
+    {
+        // A 3 x 3 grid of dots, for the calibration panel
+        juce::Path p;
+        for (float y : { 6.0f, 12.0f, 18.0f })
+            for (float x : { 6.0f, 12.0f, 18.0f })
+                p.addEllipse (x - 1.6f, y - 1.6f, 3.2f, 3.2f);
+        return p;
+    }
+
     inline juce::Path ellipsis()
     {
         juce::Path p;

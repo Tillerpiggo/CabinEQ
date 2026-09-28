@@ -88,6 +88,7 @@ public:
     double getCurveSampleRate() const;
 
     SpectrumAnalyzer& getAnalyzer() { return playbackManager.getAnalyzer(); }
+    CalibrationPlayer& getCalibration() { return playbackManager.getCalibration(); }
     bool isStandalone() const { return wrapperType == wrapperType_Standalone; }
     void showAudioSettingsDialog();
 

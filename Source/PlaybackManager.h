@@ -15,8 +15,10 @@
 #include "FilterChain.h"
 #include "CrossfeedProcessor.h"
 #include "SpectrumAnalyzer.h"
+#include "CalibrationPlayer.h"
 
-/// The audio path: EQ bands, then crossfeed, then gain, with a click-free bypass.
+/// The audio path: calibration sounds (when they're playing), then EQ bands, then crossfeed, then gain,
+/// with a click-free bypass.
 /// setBands() is for the message thread; the other setters are safe from any thread.
 class PlaybackManager
 {
@@ -30,12 +32,14 @@ public:
 
     CrossfeedProcessor& getCrossfeed() { return crossfeed; }
     SpectrumAnalyzer& getAnalyzer() { return analyzer; }
+    CalibrationPlayer& getCalibration() { return calibration; }
 
 private:
     void processChunk (juce::AudioBuffer<float>& buffer, int start, int length) noexcept;
 
     FilterChain filter;
     CrossfeedProcessor crossfeed;
+    CalibrationPlayer calibration;
     SpectrumAnalyzer analyzer;
 
     std::atomic<float> gainDb { 0.0f };

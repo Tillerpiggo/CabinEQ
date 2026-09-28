@@ -757,7 +757,85 @@ private:
     }
 };
 
+//==============================================================================
+class CalibrationTests : public juce::UnitTest
+{
+public:
+    CalibrationTests() : juce::UnitTest ("Calibration sounds", "CabinEQ") {}
+
+    void runTest() override
+    {
+        beginTest ("Plays each position in reading order, left to right");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setGrid (3, 5);
+            player.setLevelDb (-20.0f);
+            player.setPlaying (true);
+
+            // The first burst is the top-left position: all in the left ear
+            juce::AudioBuffer<float> buffer (2, (int) (0.25 * sampleRate));
+            buffer.clear();
+            player.process (buffer);
+            expectEquals (player.getCurrentPosition(), 0);
+            expectGreaterThan (buffer.getRMSLevel (0, 0, buffer.getNumSamples()), 0.01f);
+            expectLessThan (buffer.getRMSLevel (1, 0, buffer.getNumSamples()), 1.0e-4f);
+
+            // A burst every 0.3 s
+            juce::AudioBuffer<float> more (2, (int) (0.3 * sampleRate));
+            more.clear();
+            player.process (more);
+            expectEquals (player.getCurrentPosition(), 1);
+
+            // Stopping lets the tails die away, then it's silent
+            player.setPlaying (false);
+            juce::AudioBuffer<float> tail (2, (int) (2.0 * sampleRate));
+            tail.clear();
+            player.process (tail);
+            expectLessThan (tail.getMagnitude (tail.getNumSamples() - 4800, 4800), 1.0e-4f);
+        }
+
+        beginTest ("Clicking a position repeats just it");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setGrid (3, 5);
+            player.setSolo (14); // bottom right
+            player.setPlaying (true);
+            juce::AudioBuffer<float> buffer (2, (int) (1.0 * sampleRate));
+            buffer.clear();
+            player.process (buffer);
+            expectEquals (player.getCurrentPosition(), 14);
+            expectLessThan (buffer.getRMSLevel (0, 0, buffer.getNumSamples()), 1.0e-4f, "the right column is all in the right ear");
+        }
+
+        beginTest ("Nothing plays until it's started");
+        {
+            CabinEqAudioProcessor processor;
+            processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+            processor.prepareToPlay (sampleRate, blockSize);
+            juce::AudioBuffer<float> buffer (2, blockSize);
+            juce::MidiBuffer midi;
+            float peak = 0.0f;
+            for (int block = 0; block < 20; ++block)
+            {
+                buffer.clear();
+                processor.processBlock (buffer, midi);
+                peak = std::max (peak, buffer.getMagnitude (0, blockSize));
+            }
+            expectEquals (peak, 0.0f);
+
+            processor.getCalibration().setPlaying (true);
+            buffer.clear();
+            processor.processBlock (buffer, midi);
+            processor.processBlock (buffer, midi);
+            expectGreaterThan (buffer.getMagnitude (0, blockSize), 0.0f, "and then it plays, through the processor");
+        }
+    }
+};
+
 static FilterResponseTests filterResponseTests;
+static CalibrationTests calibrationTests;
 static GraphInteractionTests graphInteractionTests;
 static SmoothingTests smoothingTests;
 static ProcessorStateTests processorStateTests;
@@ -766,7 +844,7 @@ static PresetFileTests presetFileTests;
 
 //==============================================================================
 /// Renders the editor with a demo profile to a PNG, to check the UI without clicking around.
-static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific)
+static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration)
 {
     CabinEqAudioProcessor processor;
     auto profile = processor.getSelectedProfile();
@@ -777,6 +855,7 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
                         Band::withQ (0, 9800.0f, -2.5f, 0.7f, Band::Type::both, Band::Shape::highShelf) });
     profile.setVolume (-6.0f);
     processor.getProfiles().addProfile ("HD 600 (AutoEQ)");
+    processor.parameters.state.setProperty ("showCalibration", showCalibration, nullptr);
     processor.getProfiles().addProfile ("Studio monitors");
     juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
 
@@ -813,7 +892,8 @@ int main (int argc, char** argv)
 
     if (argc >= 3 && juce::String (argv[1]) == "--snapshot")
         return writeSnapshot (juce::File (argv[2]), argc >= 5 ? juce::String (argv[3]).getIntValue() : 1080,
-                              argc >= 5 ? juce::String (argv[4]).getIntValue() : 680, argc >= 6);
+                              argc >= 5 ? juce::String (argv[4]).getIntValue() : 680,
+                              argc >= 6 && juce::String (argv[5]).contains ("lr"), argc >= 6 && juce::String (argv[5]).contains ("calibration"));
 
     CabinEqProfileManager::shouldBackUpOldState = false;
 

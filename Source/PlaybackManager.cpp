@@ -19,6 +19,7 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
 
     filter.prepare (spec.sampleRate);
     crossfeed.prepare (spec);
+    calibration.prepare (spec.sampleRate);
 
     gain.reset (spec.sampleRate, 0.05);
     gain.setCurrentAndTargetValue (juce::Decibels::decibelsToGain (gainDb.load()));
@@ -46,6 +47,9 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer) noexcept
 {
     gain.setTargetValue (juce::Decibels::decibelsToGain (gainDb.load()));
     wetMix.setTargetValue (bypassed ? 0.0f : 1.0f);
+
+    // The calibration sounds go through the EQ, so you hear what it does to them
+    calibration.process (buffer);
 
     if (maxChunkSize > 0)
     {

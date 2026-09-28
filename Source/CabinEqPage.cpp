@@ -50,7 +50,7 @@ private:
 
 //==============================================================================
 CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
-    : processor (p), profileList (p), graph (p), inspector (p),
+    : processor (p), profileList (p), graph (p), inspector (p), calibrationPanel (p),
       autoGainAttachment (p.parameters, ParamIDs::autoGain, autoGainToggle)
 {
     addAndMakeVisible (profileList);
@@ -70,6 +70,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     // Top bar
     undoButton = std::make_unique<IconButton> ("Undo", Icons::undo(), "Undo");
     redoButton = std::make_unique<IconButton> ("Redo", Icons::redo(), "Redo");
+    calibrationButton = std::make_unique<IconButton> ("Calibration", Icons::grid(), "Calibration sounds: a grid of noise bursts to check the EQ by ear");
     crossfeedButton = std::make_unique<IconButton> ("Crossfeed", Icons::crossfeed(), "Crossfeed");
     settingsButton = std::make_unique<IconButton> ("Audio settings", Icons::settings(), "Audio devices");
     powerButton = std::make_unique<IconButton> ("EQ on", Icons::power(), "Turn the EQ off to compare");
@@ -77,6 +78,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     undoButton->onClick = [this] { processor.undo(); };
     redoButton->onClick = [this] { processor.redo(); };
     crossfeedButton->onClick = [this] { showCrossfeed(); };
+    calibrationButton->onClick = [this] { setCalibrationShown (! calibrationPanel.isVisible()); };
+    calibrationPanel.onCloseClicked = [this] { setCalibrationShown (false); };
+    addChildComponent (calibrationPanel);
     settingsButton->onClick = [this] { processor.showAudioSettingsDialog(); };
     powerButton->onClick = [this]
     {
@@ -87,7 +91,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
         updateTopBar();
     };
 
-    for (auto* button : { undoButton.get(), redoButton.get(), crossfeedButton.get(), settingsButton.get(), powerButton.get() })
+    for (auto* button : { undoButton.get(), redoButton.get(), calibrationButton.get(), crossfeedButton.get(), settingsButton.get(), powerButton.get() })
         addAndMakeVisible (button);
     settingsButton->setVisible (processor.isStandalone());
 
@@ -100,6 +104,9 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     autoGainToggle.setTooltip ("Turns the output down by as much as the EQ makes music louder, so switching the EQ on and off is a fair comparison.");
     autoGainToggle.onStateChange = [this] { updateTopBar(); };
     addAndMakeVisible (autoGainToggle);
+
+    calibrationPanel.setVisible (processor.parameters.state.getProperty ("showCalibration", false));
+    calibrationButton->setToggleState (calibrationPanel.isVisible(), juce::dontSendNotification);
 
     processor.stateChanged.addChangeListener (this);
     refreshAll();
@@ -216,12 +223,15 @@ void CabinEqPage::resized()
     placeRight (*powerButton, 36, 36, 4);
     if (settingsButton->isVisible())
         placeRight (*settingsButton, 36, 36, 4);
-    placeRight (*crossfeedButton, 36, 36, 14);
+    placeRight (*crossfeedButton, 36, 36, 4);
+    placeRight (*calibrationButton, 36, 36, 14);
     placeRight (autoGainToggle, 148, 30, 10);
     placeRight (preampField, 92, 38, 18);
     placeRight (*redoButton, 32, 32, 2);
     placeRight (*undoButton, 32, 32, 0);
 
+    if (calibrationPanel.isVisible())
+        calibrationPanel.setBounds (area.removeFromBottom (CalibrationPanel::preferredHeight));
     inspector.setBounds (area.removeFromBottom (Theme::inspectorHeight));
     graph.setBounds (area);
 }
@@ -361,6 +371,36 @@ void CabinEqPage::showCrossfeed()
     auto& box = juce::CallOutBox::launchAsynchronously (std::move (content), crossfeedButton->getScreenBounds(), nullptr);
     box.setLookAndFeel (&getLookAndFeel());
     crossfeedBox = &box;
+}
+
+void CabinEqPage::setCalibrationShown (bool shouldShow)
+{
+    if (shouldShow == calibrationPanel.isVisible())
+        return;
+
+    if (! shouldShow)
+        calibrationPanel.stop(); // hidden sounds would just be confusing
+
+    calibrationPanel.setVisible (shouldShow);
+    calibrationButton->setToggleState (shouldShow, juce::dontSendNotification);
+    processor.parameters.state.setProperty ("showCalibration", shouldShow, nullptr);
+
+    // Make room, so the graph doesn't get squashed, and give it back afterwards
+    if (auto* editor = findParentComponentOfClass<juce::AudioProcessorEditor>())
+    {
+        const int change = CalibrationPanel::preferredHeight;
+        if (shouldShow && getHeight() - change < 560)
+        {
+            editor->setSize (editor->getWidth(), editor->getHeight() + change);
+            grewForCalibration = true;
+        }
+        else if (! shouldShow && grewForCalibration)
+        {
+            editor->setSize (editor->getWidth(), editor->getHeight() - change);
+            grewForCalibration = false;
+        }
+    }
+    resized();
 }
 
 void CabinEqPage::showMessage (const juce::String& title, const juce::String& message)
