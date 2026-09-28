@@ -22,9 +22,11 @@
 ///       <Curve>
 ///         <Point id="0" freq="100" gain="4"/>
 ///       </Curve>
+///       <CurveRight> ... </CurveRight>
 ///     </Profile>
 ///
-/// "mode" says which of the two is playing; both are kept, so switching loses nothing.
+/// "mode" says which of the two is playing; both are kept, so switching loses nothing. With
+/// curveSplit="1", <Curve> is the left ear's curve and <CurveRight> the right's.
 ///
 /// Copies share the same tree. Edits go through the UndoManager, if there is one.
 class CabinEqProfile
@@ -57,15 +59,19 @@ public:
     void setVolume (float volume);
     void renameTo (const juce::String& newName);
 
-    // Curve mode
+    // Curve mode. `ear` is 0 (left) or 1 (right) when the ears are split; otherwise both mean the one curve.
     BandProfile::Mode getMode() const;
     void setMode (BandProfile::Mode mode);
-    std::optional<CurvePoint> getPoint (int id) const;
-    int getNumPoints() const;
-    int addPoint (const CurvePoint& point); // returns its new id, or -1 if the curve is full
-    void updatePoint (const CurvePoint& point); // matches on id
-    void removePoint (int id);
-    void setPoints (const std::vector<CurvePoint>& points); // replaces them all, giving them new ids
+    std::optional<CurvePoint> getPoint (int id, int ear = 0) const;
+    int getNumPoints (int ear = 0) const;
+    int addPoint (const CurvePoint& point, int ear = 0); // returns its new id, or -1 if the curve is full
+    void updatePoint (const CurvePoint& point, int ear = 0); // matches on id
+    void removePoint (int id, int ear = 0);
+    void setPoints (const std::vector<CurvePoint>& points, int ear = 0); // replaces them all, giving them new ids
+
+    /// Splitting starts the right ear as a copy of the curve; joining keeps the left ear's.
+    bool isCurveSplit() const;
+    void setCurveSplit (bool shouldSplit);
     static constexpr int maxPoints = 64;
 
     static inline const juce::Identifier idProfile { "Profile" };
@@ -74,6 +80,8 @@ public:
     static inline const juce::Identifier idBands { "Bands" };
     static inline const juce::Identifier idMode { "mode" };
     static inline const juce::Identifier idCurve { "Curve" };
+    static inline const juce::Identifier idCurveRight { "CurveRight" };
+    static inline const juce::Identifier idCurveSplit { "curveSplit" };
     static inline const juce::Identifier idPoint { "Point" };
     static inline const juce::Identifier idGain { "gain" };
     static inline const juce::Identifier idBand { "Band" };
@@ -89,7 +97,10 @@ private:
     static Band bandFromTree (const juce::ValueTree& bandTree);
     static juce::ValueTree treeFromBand (const Band& band);
     juce::ValueTree getBandsTree();
-    juce::ValueTree getCurveTree();
+    juce::ValueTree getCurveTree (int ear);
+    juce::Identifier curveNameFor (int ear) const;
+    static juce::ValueTree treeFromPoints (const juce::Identifier& name, const std::vector<CurvePoint>& points);
+    static std::vector<CurvePoint> pointsFromTree (const juce::ValueTree& curveTree);
     int getNextBandId() const;
 
     juce::ValueTree tree;

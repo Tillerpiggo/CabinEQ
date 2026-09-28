@@ -304,7 +304,10 @@ void CabinEqAudioProcessor::refresh()
     pushBandsToAudio (bandProfile);
     if (bandProfile.isCurve())
     {
-        autoGainDb = -CurveResponse (bandProfile.getPoints()).loudnessChangeDb();
+        // Split ears: as loud as the two on average
+        autoGainDb = -CurveResponse (bandProfile.getPoints (0)).loudnessChangeDb();
+        if (bandProfile.isSplit())
+            autoGainDb = 0.5f * (autoGainDb - CurveResponse (bandProfile.getPoints (1)).loudnessChangeDb());
     }
     else
     {
@@ -322,7 +325,8 @@ void CabinEqAudioProcessor::pushBandsToAudio (const BandProfile& bandProfile)
     if (bandProfile.isCurve())
     {
         playbackManager.setBands ({});
-        playbackManager.setCurve (bandProfile.getPoints());
+        playbackManager.setCurve (bandProfile.getPoints (0),
+                                  bandProfile.isSplit() ? std::optional (bandProfile.getPoints (1)) : std::nullopt);
     }
     else
     {

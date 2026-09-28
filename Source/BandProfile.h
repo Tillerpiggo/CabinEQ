@@ -87,18 +87,22 @@ public:
 
     const std::vector<Band>& getBands() const;
     std::optional<Band> getBandWithId (int id) const;
-    const std::vector<CurvePoint>& getPoints() const { return points; }
-    std::optional<CurvePoint> getPointWithId (int id) const;
+    /// A curve's points. When the ears are split, ear 0 is the left curve and ear 1 the right; otherwise both are the one curve.
+    const std::vector<CurvePoint>& getPoints (int ear = 0) const { return ear == 1 && split ? rightPoints : points; }
+    std::optional<CurvePoint> getPointWithId (int id, int ear = 0) const;
+    bool isSplit() const { return split; }
     float getVolume() const; // preamp, in dB
 
     // Both kinds are kept, so switching back and forth loses nothing
     void setMode (Mode newMode) { mode = newMode; }
     void setPoints (std::vector<CurvePoint> newPoints) { points = std::move (newPoints); }
+    void setSplit (std::vector<CurvePoint> newRightPoints) { split = true; rightPoints = std::move (newRightPoints); }
     void setBands (std::vector<Band> newBands) { bands = std::move (newBands); }
 
 private:
     Mode mode = Mode::curve; // a new, empty profile starts as a curve; one made from bands is bands
     std::vector<Band> bands;
-    std::vector<CurvePoint> points;
+    std::vector<CurvePoint> points, rightPoints;
+    bool split = false;
     float volume = 0.0f;
 };

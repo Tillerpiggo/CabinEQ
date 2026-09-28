@@ -87,48 +87,139 @@ juce::AudioBuffer<float> CurveFilter::design (const std::function<float (float)>
     return impulse;
 }
 
+int CurveFilter::splitLengthFor (double rate)
+{
+    return juce::nextPowerOfTwo ((int) (rate * 0.02)); // 1024 at 44.1 and 48 kHz
+}
+
+juce::AudioBuffer<float> CurveFilter::designLinearPhase (const std::function<float (float)>& dbAt, double rate, int length)
+{
+    juce::dsp::FFT fft (juce::roundToInt (std::log2 ((double) length)));
+    const float scale = inverseScale (fft);
+
+    // The magnitude with no phase at all, which is symmetric around time zero...
+    std::vector<Complex> spectrum ((size_t) length), response ((size_t) length);
+    for (int k = 0; k <= length / 2; ++k)
+    {
+        const double frequency = juce::jlimit (10.0, rate * 0.5, (double) k * rate / length);
+        spectrum[(size_t) k] = Complex (juce::Decibels::decibelsToGain (dbAt ((float) frequency), -200.0f), 0.0f);
+        if (k > 0 && k < length / 2)
+            spectrum[(size_t) (length - k)] = spectrum[(size_t) k];
+    }
+    fft.perform (spectrum.data(), response.data(), true);
+
+    // ...moved to the middle, and windowed so it ends smoothly: symmetric around length / 2, so linear phase
+    juce::AudioBuffer<float> impulse (1, length);
+    for (int n = 0; n < length; ++n)
+    {
+        const float window = 0.5f - 0.5f * std::cos (juce::MathConstants<float>::twoPi * (float) n / (float) length);
+        impulse.setSample (0, n, response[(size_t) ((n + length / 2) % length)].real() * scale * window);
+    }
+    return impulse;
+}
+
+juce::AudioBuffer<float> CurveFilter::designSplit (const CurveResponse& left, const CurveResponse& right, double rate)
+{
+    // What the ears share, as one minimum-phase filter, and how far each is from it, as a linear-phase one
+    auto shared = design ([&] (float f) { return 0.5f * (left.dbAtFrequency (f) + right.dbAtFrequency (f)); }, rate, lengthFor (rate));
+    const int splitLength = splitLengthFor (rate);
+    const int length = shared.getNumSamples() + splitLength - 1;
+
+    const int size = juce::nextPowerOfTwo (length);
+    juce::dsp::FFT fft (juce::roundToInt (std::log2 ((double) size)));
+    const float scale = inverseScale (fft);
+
+    auto toSpectrum = [&] (const juce::AudioBuffer<float>& impulse)
+    {
+        std::vector<Complex> time ((size_t) size), spectrum ((size_t) size);
+        for (int n = 0; n < impulse.getNumSamples(); ++n)
+            time[(size_t) n] = Complex (impulse.getSample (0, n), 0.0f);
+        fft.perform (time.data(), spectrum.data(), false);
+        return spectrum;
+    };
+    const auto sharedSpectrum = toSpectrum (shared);
+
+    juce::AudioBuffer<float> result (2, length);
+    for (int ear = 0; ear < 2; ++ear)
+    {
+        const float sign = ear == 0 ? 1.0f : -1.0f;
+        auto difference = designLinearPhase ([&] (float f) { return sign * 0.5f * (left.dbAtFrequency (f) - right.dbAtFrequency (f)); },
+                                             rate, splitLength);
+        auto spectrum = toSpectrum (difference);
+        for (size_t k = 0; k < spectrum.size(); ++k)
+            spectrum[k] *= sharedSpectrum[k];
+
+        std::vector<Complex> time ((size_t) size);
+        fft.perform (spectrum.data(), time.data(), true);
+        for (int n = 0; n < length; ++n)
+            result.setSample (ear, n, time[(size_t) n].real() * scale);
+    }
+    return result;
+}
+
 juce::AudioBuffer<float> CurveFilter::designCurrent (double rate)
 {
-    std::optional<std::vector<CurvePoint>> points;
+    std::optional<Request> request;
     {
         const juce::ScopedLock lock (requestLock);
-        points = requested;
+        request = requested;
         hasNewRequest = false;
     }
 
-    if (! points.has_value())
+    // Always two channels, one per ear, so switching between split and not is just another filter
+    auto bothEars = [] (juce::AudioBuffer<float> mono)
+    {
+        juce::AudioBuffer<float> stereo (2, mono.getNumSamples());
+        stereo.copyFrom (0, 0, mono, 0, 0, mono.getNumSamples());
+        stereo.copyFrom (1, 0, mono, 0, 0, mono.getNumSamples());
+        return stereo;
+    };
+
+    if (! request.has_value())
     {
         // Not in use: a filter that does nothing, to fade to
         juce::AudioBuffer<float> identity (1, 1);
         identity.setSample (0, 0, 1.0f);
-        return identity;
+        return bothEars (std::move (identity));
     }
 
-    CurveResponse curve (*points);
-    return design ([&curve] (float frequency) { return curve.dbAtFrequency (frequency); }, rate, lengthFor (rate));
+    CurveResponse curve (request->left);
+    if (request->right.has_value())
+        return designSplit (curve, CurveResponse (*request->right), rate);
+    return bothEars (design ([&curve] (float frequency) { return curve.dbAtFrequency (frequency); }, rate, lengthFor (rate)));
 }
 
-void CurveFilter::setCurve (std::optional<std::vector<CurvePoint>> points)
+void CurveFilter::setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<std::vector<CurvePoint>> right)
 {
-    auto same = [] (const std::optional<std::vector<CurvePoint>>& a, const std::optional<std::vector<CurvePoint>>& b)
+    auto samePoints = [] (const std::vector<CurvePoint>& a, const std::vector<CurvePoint>& b)
+    {
+        return std::equal (a.begin(), a.end(), b.begin(), b.end(), [] (const CurvePoint& x, const CurvePoint& y)
+        {
+            return x.freq == y.freq && x.gain == y.gain;
+        });
+    };
+    auto same = [&] (const std::optional<Request>& a, const std::optional<Request>& b)
     {
         if (a.has_value() != b.has_value())
             return false;
         if (! a.has_value())
             return true;
-        return std::equal (a->begin(), a->end(), b->begin(), b->end(), [] (const CurvePoint& x, const CurvePoint& y)
-        {
-            return x.freq == y.freq && x.gain == y.gain;
-        });
+        if (a->right.has_value() != b->right.has_value())
+            return false;
+        return samePoints (a->left, b->left) && (! a->right.has_value() || samePoints (*a->right, *b->right));
     };
+
+    std::optional<Request> request;
+    if (points.has_value())
+        request = Request { std::move (*points), std::move (right) };
 
     {
         // Everything that changes the plugin's state asks; only redesign when the curve really changed
         const juce::ScopedLock lock (requestLock);
-        if (hasEverBeenAsked && same (requested, points))
+        if (hasEverBeenAsked && same (requested, request))
             return;
         hasEverBeenAsked = true;
-        requested = std::move (points);
+        requested = std::move (request);
         hasNewRequest = true;
     }
     notify();
@@ -174,7 +265,7 @@ void CurveFilter::prepare (const juce::dsp::ProcessSpec& spec)
         active = requested.has_value();
     }
     auto impulse = designCurrent (spec.sampleRate);
-    convolution.loadImpulseResponse (std::move (impulse), spec.sampleRate, juce::dsp::Convolution::Stereo::no,
+    convolution.loadImpulseResponse (std::move (impulse), spec.sampleRate, juce::dsp::Convolution::Stereo::yes,
                                      juce::dsp::Convolution::Trim::no, juce::dsp::Convolution::Normalise::no);
     convolution.prepare (spec);
 
@@ -204,7 +295,7 @@ void CurveFilter::process (juce::dsp::AudioBlock<float>& block) noexcept
                 convolution.reset(); // it's been idle; start from silence rather than stale history
 
             // Wait-free: the Convolution takes ownership, and does its own preparing in the background
-            convolution.loadImpulseResponse (std::move (ready), sampleRate.load(), juce::dsp::Convolution::Stereo::no,
+            convolution.loadImpulseResponse (std::move (ready), sampleRate.load(), juce::dsp::Convolution::Stereo::yes,
                                              juce::dsp::Convolution::Trim::no, juce::dsp::Convolution::Normalise::no);
             hasReady = false;
         }

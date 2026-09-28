@@ -96,9 +96,9 @@ BandProfile::BandProfile (std::vector<CurvePoint> points, float volume)
     : mode (Mode::curve), points (std::move (points)), volume (volume)
 {}
 
-std::optional<CurvePoint> BandProfile::getPointWithId (int id) const
+std::optional<CurvePoint> BandProfile::getPointWithId (int id, int ear) const
 {
-    for (const auto& point : points)
+    for (const auto& point : getPoints (ear))
         if (point.id == id)
             return point;
     return std::nullopt;

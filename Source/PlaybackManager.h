@@ -30,7 +30,8 @@ public:
     void processBlock (juce::AudioBuffer<float>& buffer) noexcept;
 
     void setBands (const std::vector<Band>& bands);
-    void setCurve (std::optional<std::vector<CurvePoint>> points); // nothing when the profile uses bands
+    /// Nothing when the profile uses bands; with `right`, the ears are split
+    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<std::vector<CurvePoint>> right = std::nullopt);
     void setGainDb (float gainDb); // preamp plus auto gain
     void setBypassed (bool shouldBeBypassed);
     void setVolumeDb (float volumeDb); // master volume, which can boost

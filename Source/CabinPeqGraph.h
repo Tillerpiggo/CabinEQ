@@ -80,7 +80,14 @@ private:
     void updatePoints (const std::vector<CurvePoint>& points);
     void curveMouseDown (const juce::MouseEvent&);
     void drawPoints (juce::Graphics&);
-    CurveResponse curveResponse;
+    std::array<CurveResponse, 2> curveResponses; // left and right; the same curve unless the ears are split
+    int ear() const; // which ear's points are being edited: 0 unless split
+    static juce::Colour earColour (int channel);
+    int shownEar = -1;
+public:
+    static inline const juce::Identifier idCurveEar { "curveEar" }; // on the state root, not undoable
+    void setEditingEar (int ear); // 0 left, 1 right: whose points to edit when the curve's ears are split
+private:
     std::vector<CurvePoint> pointsAtDragStart;
     bool wasCurveMode = false;
 

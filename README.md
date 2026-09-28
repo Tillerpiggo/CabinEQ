@@ -27,6 +27,12 @@ loads the VST3 to EQ everything the Mac plays.
   keys to nudge. The first time you switch, the curve starts out tracing your bands. Both are kept, so
   switching back loses nothing. The curve plays as a minimum-phase FIR filter, redesigned in the
   background as you drag and crossfaded in, so there's no added delay and no clicks.
+  **Split L/R** (in the strip under the graph) gives each ear its own curve, starting as copies;
+  L | R (or the L and R keys) picks which one you're editing, and the other is drawn faintly. Both
+  ears share one minimum-phase filter for their average, and each ear's difference from it is a
+  short linear-phase filter, so the timing between the ears is untouched (a plain filter per ear
+  would shift it where they differ, and move low sounds sideways). That costs about 11 ms of delay
+  while split, and differences between the ears are smoothed below about 200 Hz.
 - **Band strip** (bottom): the selected band's exact values. Drag, scroll or double-click
   them to type.
 - **Calibration** (the grid button in the top bar): a grid of positions that play pink noise
@@ -85,7 +91,8 @@ build/CabinEQ_Tests_artefacts/Release/CabinEQ_Tests --snapshot ui.png   # render
 - `CurveResponse` / `CurveFilter`: curve mode. `CurveResponse` interpolates the points;
   `CurveFilter` designs a minimum-phase FIR from it (cepstral method, about 0.3 s long) on its own
   thread whenever the curve changes, and the audio thread swaps it into a zero-latency
-  `juce::dsp::Convolution`, which crossfades from the old one. With no curve it's a no-op.
+  `juce::dsp::Convolution`, which crossfades from the old one. With no curve it's a no-op. Split
+  ears get stereo filters with matched phase (`CurveFilter::designSplit`).
 - `FilterDesign`: the biquad coefficients, shared by the audio and `BandEqCurve`, so the graph
   draws exactly what you hear.
 - UI: `CabinEqPage` holds `ProfileList`, `CabinPeqGraph` and `BandInspector`, styled by

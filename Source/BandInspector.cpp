@@ -8,6 +8,7 @@
 
 #include "BandInspector.h"
 #include "Format.h"
+#include "CabinPeqGraph.h"
 
 BandInspector::BandInspector (CabinEqAudioProcessor& p)
     : processor (p)
@@ -71,10 +72,35 @@ BandInspector::BandInspector (CabinEqAudioProcessor& p)
         edit (on ? "Turn band on" : "Turn band off", [on] (Band& band) { band.enabled = on; });
     };
 
+    // Curve mode: a curve for each ear
+    splitToggle.setTooltip ("Give each ear its own curve. Both ears keep the same timing (matched phase), for about 11 ms of delay while split.");
+    splitToggle.onClick = [this]
+    {
+        const bool split = splitToggle.getToggleState();
+        processor.getUndoManager().beginNewTransaction (split ? "Split ears" : "Join ears");
+        processor.getSelectedProfile().setCurveSplit (split);
+        if (split)
+            processor.parameters.state.setProperty (CabinPeqGraph::idCurveEar, 0, nullptr);
+        updateControls();
+        if (onEdited)
+            onEdited();
+    };
+    leftEarButton.setTooltip ("Edit the left ear's curve (L)");
+    rightEarButton.setTooltip ("Edit the right ear's curve (R)");
+    leftEarButton.setConnectedEdges (juce::Button::ConnectedOnRight);
+    rightEarButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
+    leftEarButton.setColour (juce::TextButton::buttonOnColourId, Theme::leftChannel);
+    rightEarButton.setColour (juce::TextButton::buttonOnColourId, Theme::rightChannel);
+    for (auto* button : { &leftEarButton, &rightEarButton })
+        button->setColour (juce::TextButton::textColourOnId, Theme::graph);
+    leftEarButton.onClick = [this] { setEar (0); };
+    rightEarButton.onClick = [this] { setEar (1); };
+
     deleteButton.setColour (juce::TextButton::textColourOffId, Theme::danger);
     deleteButton.onClick = [this] { if (onDeleteClicked) onDeleteClicked(); };
 
-    for (auto* child : std::initializer_list<juce::Component*> { &shapeBox, &frequencyField, &gainField, &qField, &channelBox, &enabledToggle, &deleteButton })
+    for (auto* child : std::initializer_list<juce::Component*> { &shapeBox, &frequencyField, &gainField, &qField, &channelBox, &enabledToggle, &deleteButton,
+                                                                 &splitToggle, &leftEarButton, &rightEarButton })
         addChildComponent (child);
 }
 
@@ -109,7 +135,30 @@ std::optional<CurvePoint> BandInspector::currentPoint() const
 {
     if (bandId < 0 || ! isCurveMode())
         return std::nullopt;
-    return processor.getSelectedProfile().getPoint (bandId);
+    return processor.getSelectedProfile().getPoint (bandId, ear());
+}
+
+bool BandInspector::isSplit() const
+{
+    return isCurveMode() && processor.getSelectedProfile().isCurveSplit();
+}
+
+int BandInspector::ear() const
+{
+    return isSplit() ? juce::jlimit (0, 1, (int) processor.parameters.state.getProperty (CabinPeqGraph::idCurveEar, 0)) : 0;
+}
+
+void BandInspector::setEar (int newEar)
+{
+    processor.parameters.state.setProperty (CabinPeqGraph::idCurveEar, newEar, nullptr);
+    updateControls();
+    if (onEdited)
+        onEdited();
+}
+
+juce::Rectangle<int> BandInspector::curveControlsArea() const
+{
+    return getLocalBounds().reduced (16, 0).removeFromLeft (isSplit() ? 104 + 2 * 36 + 20 : 104 + 20);
 }
 
 void BandInspector::editPoint (std::function<void (CurvePoint&)> change)
@@ -119,7 +168,7 @@ void BandInspector::editPoint (std::function<void (CurvePoint&)> change)
         return;
 
     change (*point);
-    processor.getSelectedProfile().updatePoint (*point);
+    processor.getSelectedProfile().updatePoint (*point, ear());
     updateControls();
     if (onEdited)
         onEdited();
@@ -143,17 +192,29 @@ void BandInspector::edit (const juce::String& name, std::function<void (Band&)> 
 
 void BandInspector::updateControls()
 {
-    // A curve's point has just a frequency and a gain
-    if (auto point = currentPoint())
+    // A curve's point has just a frequency and a gain, and the curve can be split between the ears
+    if (isCurveMode())
     {
+        const auto point = currentPoint();
+        const bool split = isSplit();
         for (auto* child : getChildren())
-            child->setVisible (child == &frequencyField || child == &gainField || child == &deleteButton);
-        frequencyField.setValue (point->freq);
-        gainField.setValue (point->gain);
-        gainField.setEnabled (true);
-        deleteButton.setButtonText (numSelected > 1 ? "Delete " + juce::String (numSelected) : "Delete");
-        for (auto* field : { &frequencyField, &gainField })
-            field->setAccentColour (Theme::accentBright);
+            child->setVisible (child == &splitToggle
+                               || ((child == &leftEarButton || child == &rightEarButton) && split)
+                               || ((child == &frequencyField || child == &gainField || child == &deleteButton) && point.has_value()));
+        splitToggle.setToggleState (split, juce::dontSendNotification);
+        leftEarButton.setToggleState (ear() == 0, juce::dontSendNotification);
+        rightEarButton.setToggleState (ear() == 1, juce::dontSendNotification);
+        if (point.has_value())
+        {
+            frequencyField.setValue (point->freq);
+            gainField.setValue (point->gain);
+            gainField.setEnabled (true);
+            deleteButton.setButtonText (numSelected > 1 ? "Delete " + juce::String (numSelected) : "Delete");
+            for (auto* field : { &frequencyField, &gainField })
+                field->setAccentColour (split ? (ear() == 0 ? Theme::leftChannel : Theme::rightChannel) : Theme::accentBright);
+        }
+        resized();
+        repaint();
         return;
     }
 
@@ -161,7 +222,7 @@ void BandInspector::updateControls()
     const bool hasBand = band.has_value();
 
     for (auto* child : getChildren())
-        child->setVisible (hasBand);
+        child->setVisible (hasBand && child != &splitToggle && child != &leftEarButton && child != &rightEarButton);
 
     if (! hasBand)
         return;
@@ -190,15 +251,17 @@ void BandInspector::paint (juce::Graphics& g)
 
     if (isCurveMode())
     {
+        area.setLeft (curveControlsArea().getRight());
         const auto point = currentPoint();
         g.setColour (point.has_value() ? Theme::textDim : Theme::textFaint);
         g.setFont (Theme::font (point.has_value() ? 11.0f : 13.0f));
         if (! point.has_value())
-            g.drawText ("Curve mode: click to add a point, drag to move it, right-click to delete it. The curve plays as one smooth filter.",
+            g.drawText (isSplit() ? juce::String ("Editing the ") + (ear() == 0 ? "left" : "right") + " ear's curve (L and R switch). The other ear's is drawn faintly."
+                                  : juce::String ("Click the graph to add a point, drag to move it, right-click to delete it. The curve plays as one smooth filter."),
                         area, juce::Justification::centredLeft, true);
         else
             g.drawText (numSelected > 1 ? juce::String (numSelected) + " points" : "Point",
-                        area.removeFromLeft (110), juce::Justification::centredLeft);
+                        area.removeFromLeft (70), juce::Justification::centredLeft);
         return;
     }
 
@@ -232,7 +295,12 @@ void BandInspector::resized()
     auto area = getLocalBounds().reduced (16, 12);
     if (isCurveMode())
     {
-        area.removeFromLeft (110);
+        auto controls = curveControlsArea().reduced (0, 12);
+        splitToggle.setBounds (controls.removeFromLeft (104).withSizeKeepingCentre (104, 30));
+        leftEarButton.setBounds (controls.removeFromLeft (36).withSizeKeepingCentre (36, 28));
+        rightEarButton.setBounds (controls.removeFromLeft (36).withSizeKeepingCentre (36, 28));
+        area.setLeft (curveControlsArea().getRight());
+        area.removeFromLeft (70);
         deleteButton.setBounds (area.removeFromRight (84).withSizeKeepingCentre (84, 30));
         frequencyField.setBounds (area.removeFromLeft (116).withSizeKeepingCentre (116, 40));
         area.removeFromLeft (8);

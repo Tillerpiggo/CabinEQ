@@ -990,6 +990,19 @@ public:
             graph.mouseUp (event (graph, backAt, backAt, {}));
             expectEquals (p.getNumPoints(), 0);
 
+            // Split: R picks the right ear, and a click adds a point to it alone
+            p.setPoints ({});
+            p.setCurveSplit (true);
+            graph.refresh();
+            graph.keyPressed (juce::KeyPress ('r'));
+            press (graph, at);
+            release (graph, at);
+            expectEquals (p.getNumPoints (1), 1, "the right ear got the point");
+            expectEquals (p.getNumPoints (0), 0, "the left didn't");
+            graph.keyPressed (juce::KeyPress ('l'));
+            expectEquals (graph.getNumSelected(), 0, "switching ears starts with nothing selected");
+            p.setCurveSplit (false);
+
             p.setMode (BandProfile::Mode::bands);
             graph.refresh();
         }
@@ -1407,6 +1420,114 @@ public:
             expectGreaterThan (early / total, 0.95, "95% of it is in the first 5 ms");
         }
 
+        beginTest ("Split ears: each ear gets its own curve, with the same timing in both");
+        {
+            CurveResponse left ({ { 0, 100.0f, 0.0f }, { 1, 1000.0f, 6.0f }, { 2, 10000.0f, 0.0f } });
+            CurveResponse right ({ { 0, 100.0f, 0.0f }, { 1, 1500.0f, -4.0f }, { 2, 10000.0f, 2.0f } });
+            auto impulse = CurveFilter::designSplit (left, right, sampleRate);
+            expectEquals (impulse.getNumChannels(), 2);
+
+            const int order = 16, size = 1 << order;
+            juce::dsp::FFT fft (order);
+            auto spectrum = [&] (int channel)
+            {
+                std::vector<std::complex<float>> time ((size_t) size), frequency ((size_t) size);
+                for (int n = 0; n < impulse.getNumSamples(); ++n)
+                    time[(size_t) n] = impulse.getSample (channel, n);
+                fft.perform (time.data(), frequency.data(), false);
+                return frequency;
+            };
+            const auto l = spectrum (0), r = spectrum (1);
+
+            float worstLevel = 0.0f, worstPhase = 0.0f;
+            for (float f = 300.0f; f <= 16000.0f; f *= 1.05f)
+            {
+                const int bin = juce::roundToInt (f * size / sampleRate);
+                const float at = (float) bin * (float) sampleRate / (float) size;
+                worstLevel = std::max (worstLevel, std::abs (juce::Decibels::gainToDecibels (std::abs (l[(size_t) bin])) - left.dbAtFrequency (at)));
+                worstLevel = std::max (worstLevel, std::abs (juce::Decibels::gainToDecibels (std::abs (r[(size_t) bin])) - right.dbAtFrequency (at)));
+                worstPhase = std::max (worstPhase, std::abs (std::arg (l[(size_t) bin] * std::conj (r[(size_t) bin]))));
+            }
+            expectLessThan (worstLevel, 0.5f, "each ear matches its curve");
+            expectLessThan (worstPhase, 0.02f, "and the two ears' phase is the same, so the timing between them is untouched");
+
+            // A delay of about 11 ms, the same for both ears
+            const int expectedDelay = CurveFilter::splitLengthFor (sampleRate) / 2;
+            expectWithinAbsoluteError (expectedDelay, 512, 0);
+        }
+
+        beginTest ("Splitting a curve copies it to the right ear; the ears then edit separately, and joining keeps the left");
+        {
+            CabinEqAudioProcessor processor;
+            auto profile = processor.getSelectedProfile();
+            profile.setPoints ({ { 0, 200.0f, 3.0f }, { 1, 4000.0f, -2.0f } });
+            profile.setCurveSplit (true);
+            expect (profile.getBandProfile().isSplit());
+            expectEquals (profile.getNumPoints (1), 2, "the right ear starts as a copy");
+
+            profile.addPoint ({ 0, 8000.0f, 5.0f }, 1);
+            expectEquals (profile.getNumPoints (0), 2);
+            expectEquals (profile.getNumPoints (1), 3);
+
+            // It round-trips through saved state
+            auto copy = CabinEqProfile::createTree ("Copy", profile.getBandProfile());
+            expectEquals (CabinEqProfile (copy, nullptr).getNumPoints (1), 3);
+
+            processor.getUndoManager().beginNewTransaction();
+            profile.setCurveSplit (false);
+            expect (! profile.getBandProfile().isSplit());
+            expectEquals ((int) profile.getBandProfile().getPoints (1).size(), 2, "joined: both ears play the left curve");
+            processor.undo();
+            expectEquals (profile.getNumPoints (1), 3, "undo brings the right ear back");
+        }
+
+        beginTest ("A split curve plays each ear its own gain through the processor");
+        {
+            CabinEqAudioProcessor processor;
+            processor.parameters.getParameter (ParamIDs::autoGain)->setValueNotifyingHost (0.0f);
+            processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+            processor.prepareToPlay (sampleRate, blockSize);
+
+            auto profile = processor.getSelectedProfile();
+            profile.setMode (BandProfile::Mode::curve);
+            profile.setPoints ({ { 0, 1000.0f, 6.0f } });
+            profile.setCurveSplit (true);
+            profile.setPoints ({ { 0, 1000.0f, -4.0f } }, 1);
+
+            auto gains = [&processor] (int blocks)
+            {
+                juce::AudioBuffer<float> buffer (2, blockSize);
+                juce::MidiBuffer midi;
+                double phase = 0.0, in = 0.0, outL = 0.0, outR = 0.0;
+                for (int block = 0; block < blocks; ++block)
+                {
+                    for (int i = 0; i < blockSize; ++i)
+                    {
+                        const auto sample = (float) (0.1 * std::sin (phase));
+                        phase += juce::MathConstants<double>::twoPi * 1000.0 / sampleRate;
+                        buffer.setSample (0, i, sample);
+                        buffer.setSample (1, i, sample);
+                        if (block >= blocks / 2) in += sample * sample;
+                    }
+                    processor.processBlock (buffer, midi);
+                    if (block >= blocks / 2)
+                        for (int i = 0; i < blockSize; ++i)
+                        {
+                            outL += buffer.getSample (0, i) * buffer.getSample (0, i);
+                            outR += buffer.getSample (1, i) * buffer.getSample (1, i);
+                        }
+                }
+                return std::pair { (float) (10.0 * std::log10 (outL / in)), (float) (10.0 * std::log10 (outR / in)) };
+            };
+
+            juce::Thread::sleep (300);
+            gains (40);
+            juce::Thread::sleep (300);
+            auto [leftGain, rightGain] = gains (200);
+            expectWithinAbsoluteError (leftGain, 6.0f, 0.3f);
+            expectWithinAbsoluteError (rightGain, -4.0f, 0.3f);
+        }
+
         beginTest ("A curve profile plays through the processor, and switching back to bands undoes it");
         {
             CabinEqAudioProcessor processor;
@@ -1506,7 +1627,7 @@ static PresetFileTests presetFileTests;
 
 //==============================================================================
 /// Renders the editor with a demo profile to a PNG, to check the UI without clicking around.
-static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed, bool curveMode)
+static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed, bool curveMode, bool split)
 {
     CabinEqAudioProcessor processor;
     auto profile = processor.getSelectedProfile();
@@ -1522,6 +1643,16 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         bands.updateWithBands (profile.getBandProfile().getBands());
         profile.setPoints (CurveResponse::tracing ([&bands] (float f) { return bands.dbAtFrequency (f); }));
         profile.setMode (BandProfile::Mode::curve);
+        if (split)
+        {
+            profile.setCurveSplit (true);
+            auto right = profile.getBandProfile().getPoints (1);
+            for (auto& point : right)
+                if (point.freq > 1500.0f)
+                    point.gain -= 2.5f;
+            profile.setPoints (right, 1);
+            processor.parameters.state.setProperty (CabinPeqGraph::idCurveEar, 1, nullptr);
+        }
     }
     processor.getProfiles().addProfile ("HD 600 (AutoEQ)");
     processor.parameters.state.setProperty ("showCalibration", showCalibration, nullptr);
@@ -1633,7 +1764,8 @@ int main (int argc, char** argv)
                               argc >= 6 && juce::String (argv[5]).contains ("lr"), argc >= 6 && juce::String (argv[5]).contains ("calibration"),
                               argc >= 6 && juce::String (argv[5]).contains ("spots"),
                               argc >= 6 && juce::String (argv[5]).contains ("zoom"),
-                              argc >= 6 && juce::String (argv[5]).contains ("curve"));
+                              argc >= 6 && juce::String (argv[5]).contains ("curve"),
+                              argc >= 6 && juce::String (argv[5]).contains ("split"));
 
     CabinEqProfileManager::shouldBackUpOldState = false;
 
