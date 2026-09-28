@@ -18,6 +18,7 @@
 #include "../Source/EqPresetFile.h"
 #include "../Source/CabinPeqGraph.h"
 #include "../Source/CalibrationPanel.h"
+#include "../Source/CalibrationSettings.h"
 
 namespace
 {
@@ -809,6 +810,49 @@ public:
             graph.refresh();
         }
 
+        beginTest ("Scrolling zooms in on frequencies around the mouse, and double-clicking the axis resets");
+        {
+            auto& state = processor.parameters.state;
+            auto frequencyAt = [] (float x, float low, float high) { return low * std::pow (high / low, x / 1000.0f); };
+
+            const juce::Point<float> mouse { 700.0f, 300.0f };
+            const float before = frequencyAt (mouse.x, 20.0f, 20000.0f);
+            juce::MouseWheelDetails wheel {};
+            wheel.deltaY = 0.5f;
+            graph.mouseWheelMove (event (graph, mouse, mouse, {}), wheel);
+
+            const float low = state.getProperty ("graphLowFrequency"), high = state.getProperty ("graphHighFrequency");
+            expectLessThan (high / low, 1000.0f * 0.75f, "the view got narrower");
+            expectWithinAbsoluteError (frequencyAt (mouse.x, low, high) / before, 1.0f, 0.01f, "the frequency under the mouse stayed put");
+
+            // Double-click the frequency axis along the bottom
+            const juce::Point<float> axis { 500.0f, 490.0f };
+            graph.mouseDown (event (graph, axis, axis, juce::ModifierKeys::leftButtonModifier));
+            graph.mouseUp (event (graph, axis, axis, {}));
+            graph.mouseDoubleClick (event (graph, axis, axis, {}, 2));
+            expectWithinAbsoluteError ((float) state.getProperty ("graphLowFrequency"), 20.0f, 0.01f);
+            expectWithinAbsoluteError ((float) state.getProperty ("graphHighFrequency"), 20000.0f, 0.1f);
+        }
+
+        beginTest ("Calibration spots can be dragged along the graph");
+        {
+            auto& state = processor.parameters.state;
+            CalibrationSettings::setSpot (state, processor.getCalibration(), 0, { 200.0f, 0.0f });
+            graph.setCalibrationSpotsVisible (true);
+
+            // Spot A's chip sits just above the frequency axis, at 200 Hz
+            const float x200 = std::log (200.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
+            const juce::Point<float> chip { x200, 478.0f - 16.0f };
+            const float x2k = std::log (2000.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
+            graph.mouseDown (event (graph, chip, chip, juce::ModifierKeys::leftButtonModifier));
+            graph.mouseDrag (event (graph, { x2k, chip.y }, chip, juce::ModifierKeys::leftButtonModifier));
+            graph.mouseUp (event (graph, { x2k, chip.y }, chip, {}));
+
+            expectWithinAbsoluteError (CalibrationSettings::getSpot (state, 0).frequency, 2000.0f, 40.0f);
+            expectEquals (profile.getSelectedProfile().getNumBands(), 0, "and dragging it didn't add a band");
+            graph.setCalibrationSpotsVisible (false);
+        }
+
         beginTest ("Dragging empty space selects, and Delete removes");
         {
             profile.getSelectedProfile().addBand (Band::withQ (0, 100.0f, 3.0f, 1.0f, Band::Type::both));
@@ -980,6 +1024,34 @@ public:
             expectEquals (player.getCurrentPosition(), 7, "8 bursts in 2 s at 4 per second");
         }
 
+        beginTest ("Spots mode plays each spot in turn, at its own frequency and pan");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::spots);
+            player.setSpotCount (2);
+            player.setSpot (0, 500.0f, -1.0f); // hard left
+            player.setSpot (1, 3000.0f, 1.0f); // hard right
+            player.setRate (1.0f / 0.3f);
+            player.setPlaying (true);
+
+            juce::AudioBuffer<float> buffer (2, (int) (0.25 * sampleRate));
+            buffer.clear();
+            player.process (buffer);
+            expectEquals (player.getCurrentPosition(), 0);
+            expectLessThan (buffer.getRMSLevel (1, 0, buffer.getNumSamples()), 1.0e-4f, "spot A is all in the left ear");
+
+            std::vector<int> heard;
+            for (int burst = 0; burst < 3; ++burst)
+            {
+                juce::AudioBuffer<float> more (2, (int) (0.3 * sampleRate));
+                more.clear();
+                player.process (more);
+                heard.push_back (player.getCurrentPosition());
+            }
+            expect (heard == std::vector<int> { 1, 0, 1 }, "it goes back and forth between the two");
+        }
+
         beginTest ("Clicking a position repeats just it");
         {
             CalibrationPlayer player;
@@ -1062,7 +1134,7 @@ static PresetFileTests presetFileTests;
 
 //==============================================================================
 /// Renders the editor with a demo profile to a PNG, to check the UI without clicking around.
-static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration)
+static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed)
 {
     CabinEqAudioProcessor processor;
     auto profile = processor.getSelectedProfile();
@@ -1074,6 +1146,17 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
     profile.setVolume (-6.0f);
     processor.getProfiles().addProfile ("HD 600 (AutoEQ)");
     processor.parameters.state.setProperty ("showCalibration", showCalibration, nullptr);
+    if (zoomed)
+    {
+        processor.parameters.state.setProperty ("graphLowFrequency", 800.0f, nullptr);
+        processor.parameters.state.setProperty ("graphHighFrequency", 1500.0f, nullptr);
+    }
+    if (spotsMode)
+    {
+        processor.parameters.state.setProperty ("calibrationMode", 1, nullptr);
+        processor.parameters.state.setProperty ("calibrationSpots", 3, nullptr);
+        processor.parameters.state.setProperty ("calibrationSpot0Pan", -0.6f, nullptr);
+    }
     processor.getProfiles().addProfile ("Studio monitors");
     juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
 
@@ -1168,7 +1251,9 @@ int main (int argc, char** argv)
     if (argc >= 3 && juce::String (argv[1]) == "--snapshot")
         return writeSnapshot (juce::File (argv[2]), argc >= 5 ? juce::String (argv[3]).getIntValue() : 1080,
                               argc >= 5 ? juce::String (argv[4]).getIntValue() : 680,
-                              argc >= 6 && juce::String (argv[5]).contains ("lr"), argc >= 6 && juce::String (argv[5]).contains ("calibration"));
+                              argc >= 6 && juce::String (argv[5]).contains ("lr"), argc >= 6 && juce::String (argv[5]).contains ("calibration"),
+                              argc >= 6 && juce::String (argv[5]).contains ("spots"),
+                              argc >= 6 && juce::String (argv[5]).contains ("zoom"));
 
     CabinEqProfileManager::shouldBackUpOldState = false;
 

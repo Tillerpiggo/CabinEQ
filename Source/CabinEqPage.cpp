@@ -80,6 +80,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     crossfeedButton->onClick = [this] { showCrossfeed(); };
     calibrationButton->onClick = [this] { setCalibrationShown (! calibrationPanel.isVisible()); };
     calibrationPanel.onCloseClicked = [this] { setCalibrationShown (false); };
+    calibrationPanel.onModeChanged = [this] { graph.setCalibrationSpotsVisible (calibrationPanel.isVisible() && calibrationPanel.isShowingSpots()); };
     addChildComponent (calibrationPanel);
     settingsButton->onClick = [this] { processor.showAudioSettingsDialog(); };
     powerButton->onClick = [this]
@@ -119,6 +120,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 
     calibrationPanel.setVisible (processor.parameters.state.getProperty ("showCalibration", false));
     calibrationButton->setToggleState (calibrationPanel.isVisible(), juce::dontSendNotification);
+    graph.setCalibrationSpotsVisible (calibrationPanel.isVisible() && calibrationPanel.isShowingSpots());
 
     processor.stateChanged.addChangeListener (this);
     refreshAll();
@@ -397,6 +399,7 @@ void CabinEqPage::setCalibrationShown (bool shouldShow)
 
     calibrationPanel.setVisible (shouldShow);
     calibrationButton->setToggleState (shouldShow, juce::dontSendNotification);
+    graph.setCalibrationSpotsVisible (shouldShow && calibrationPanel.isShowingSpots());
     processor.parameters.state.setProperty ("showCalibration", shouldShow, nullptr);
 
     // Make room, so the graph doesn't get squashed, and give it back afterwards

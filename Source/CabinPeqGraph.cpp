@@ -10,11 +10,27 @@
 
 #include "CabinPeqGraph.h"
 #include "Format.h"
+#include "CalibrationSettings.h"
 
 namespace
 {
     const juce::Identifier idGraphRange { "graphRange" };
     const juce::Identifier idShowSpectrum { "showSpectrum" };
+    const juce::Identifier idViewLow { "graphLowFrequency" };
+    const juce::Identifier idViewHigh { "graphHighFrequency" };
+    constexpr float narrowestView = 1.15f; // about a quarter of an octave, from edge to edge
+
+    // A frequency label with just the digits it needs, for zoomed-in views: 1.05k, 1.1k, 250, 62.5
+    juce::String frequencyLabel (double hz)
+    {
+        auto trimmed = [] (double value, int decimals)
+        {
+            return juce::String (value, decimals).trimCharactersAtEnd ("0").trimCharactersAtEnd (".");
+        };
+        if (hz >= 1000.0)
+            return trimmed (hz / 1000.0, 2) + "k";
+        return trimmed (hz, 1);
+    }
 
     // What the zoom buttons step through. Dragging or scrolling on the dB axis goes anywhere in between.
     const float displayRanges[] { 3.0f, 6.0f, 12.0f, 18.0f, 24.0f, 30.0f, 36.0f, 48.0f, 60.0f };
@@ -41,6 +57,9 @@ CabinPeqGraph::CabinPeqGraph (CabinEqAudioProcessor& p)
 {
     setWantsKeyboardFocus (true);
     setOpaque (true);
+    viewLow = processor.parameters.state.getProperty (idViewLow, minFrequency);
+    viewHigh = processor.parameters.state.getProperty (idViewHigh, maxFrequency);
+    setFrequencyView (viewLow, viewHigh);
     refresh();
     updateSpectrumTimer();
 }
@@ -126,7 +145,20 @@ void CabinPeqGraph::deleteSelectedBands()
 //==============================================================================
 void CabinPeqGraph::timerCallback()
 {
-    if (processor.getAnalyzer().update())
+    bool changed = getShowSpectrum() && processor.getAnalyzer().update();
+
+    // Light up the calibration spot that's playing
+    if (showSpots)
+    {
+        const int current = processor.getCalibration().isPlaying() ? processor.getCalibration().getCurrentPosition() : -1;
+        if (current != shownSpot)
+        {
+            shownSpot = current;
+            changed = true;
+        }
+    }
+
+    if (changed)
         repaint (getPlotArea().toNearestInt());
 }
 
@@ -134,7 +166,7 @@ void CabinPeqGraph::updateSpectrumTimer()
 {
     const bool show = getShowSpectrum();
     processor.getAnalyzer().setActive (show);
-    if (show)
+    if (show || showSpots)
         startTimerHz (30);
     else
         stopTimer();
@@ -150,13 +182,13 @@ juce::Rectangle<float> CabinPeqGraph::getPlotArea() const
 float CabinPeqGraph::xForFrequency (float frequency) const
 {
     auto plot = getPlotArea();
-    return plot.getX() + plot.getWidth() * std::log (frequency / minFrequency) / std::log (maxFrequency / minFrequency);
+    return plot.getX() + plot.getWidth() * std::log (frequency / viewLow) / std::log (viewHigh / viewLow);
 }
 
 float CabinPeqGraph::frequencyForX (float x) const
 {
     auto plot = getPlotArea();
-    return minFrequency * std::pow (maxFrequency / minFrequency, (x - plot.getX()) / plot.getWidth());
+    return viewLow * std::pow (viewHigh / viewLow, (x - plot.getX()) / plot.getWidth());
 }
 
 float CabinPeqGraph::yForDb (float db) const
@@ -293,6 +325,113 @@ void CabinPeqGraph::nudge (float octaves, float db)
 }
 
 //==============================================================================
+void CabinPeqGraph::setFrequencyView (float low, float high)
+{
+    // Keep it inside 20 Hz to 20 kHz, and no narrower than about a quarter of an octave
+    const float span = juce::jlimit (narrowestView, maxFrequency / minFrequency, high / low);
+    low = juce::jlimit (minFrequency, maxFrequency / span, low);
+    viewLow = low;
+    viewHigh = low * span;
+
+    processor.parameters.state.setProperty (idViewLow, viewLow, nullptr);
+    processor.parameters.state.setProperty (idViewHigh, viewHigh, nullptr);
+    curvePathsNeedRebuilding = true;
+    repaint();
+}
+
+void CabinPeqGraph::zoomFrequencies (float factor, float aroundX)
+{
+    // The frequency under the mouse stays where it is
+    const float anchor = frequencyForX (aroundX);
+    const float below = std::log (anchor / viewLow) * factor, above = std::log (viewHigh / anchor) * factor;
+    setFrequencyView (anchor * std::exp (-below), anchor * std::exp (above));
+}
+
+void CabinPeqGraph::panFrequencies (float octaves)
+{
+    const float ratio = std::pow (2.0f, octaves);
+    setFrequencyView (viewLow * ratio, viewHigh * ratio);
+}
+
+void CabinPeqGraph::setCalibrationSpotsVisible (bool shouldShow)
+{
+    if (showSpots == shouldShow)
+        return;
+    showSpots = shouldShow;
+    updateSpectrumTimer();
+    repaint();
+}
+
+juce::Rectangle<float> CabinPeqGraph::spotChip (int index) const
+{
+    const auto spot = CalibrationSettings::getSpot (processor.parameters.state, index);
+    const auto text = CalibrationSettings::spotName (index) + "  " + Format::frequency (spot.frequency);
+    const float width = Theme::textWidth (Theme::font (11.5f, true), text) + 18.0f;
+    return juce::Rectangle<float> (width, 20.0f).withCentre ({ xForFrequency (spot.frequency), getPlotArea().getBottom() - 16.0f });
+}
+
+int CabinPeqGraph::spotChipAt (juce::Point<float> position) const
+{
+    if (! showSpots)
+        return -1;
+    for (int i = CalibrationSettings::getSpotCount (processor.parameters.state); --i >= 0;)
+        if (spotChip (i).expanded (3.0f).contains (position))
+            return i;
+    return -1;
+}
+
+void CabinPeqGraph::drawSpots (juce::Graphics& g)
+{
+    if (! showSpots)
+        return;
+
+    auto plot = getPlotArea();
+    const auto& state = processor.parameters.state;
+    const bool playing = processor.getCalibration().isPlaying();
+
+    for (int i = 0; i < CalibrationSettings::getSpotCount (state); ++i)
+    {
+        const auto spot = CalibrationSettings::getSpot (state, i);
+        const float x = xForFrequency (spot.frequency);
+        const auto colour = CalibrationSettings::spotColour (i);
+        const bool isPlaying = playing && i == shownSpot;
+        const bool isHot = i == draggingSpot || i == hoverSpot;
+
+        // What it plays: everything above its low cut
+        if (isPlaying)
+        {
+            g.setColour (colour.withAlpha (0.07f));
+            g.fillRect (juce::Rectangle<float> (x, plot.getY(), plot.getRight() - x, plot.getHeight()).getIntersection (plot));
+        }
+
+        juce::Path line;
+        line.startNewSubPath (x, plot.getY());
+        line.lineTo (x, plot.getBottom());
+        juce::Path dashed;
+        const float dashes[] { 5.0f, 4.0f };
+        juce::PathStrokeType (1.2f).createDashedStroke (dashed, line, dashes, 2);
+        g.setColour (colour.withAlpha (isPlaying || isHot ? 0.95f : 0.5f));
+        g.fillPath (dashed);
+
+        auto chip = spotChip (i);
+        g.setColour (isPlaying ? colour : colour.withAlpha (isHot ? 0.85f : 0.6f));
+        g.fillRoundedRectangle (chip, 10.0f);
+        g.setColour (Theme::graph);
+        g.setFont (Theme::font (11.5f, true));
+        g.drawText (CalibrationSettings::spotName (i) + "  " + Format::frequency (spot.frequency), chip, juce::Justification::centred);
+
+        // Where it is between the ears, if it's not in the middle
+        if (std::abs (spot.pan) > 0.005f)
+        {
+            g.setColour (colour.withAlpha (0.9f));
+            g.setFont (Theme::font (10.5f));
+            g.drawText (CalibrationSettings::describePan (spot.pan), chip.translated (0.0f, -18.0f).withSizeKeepingCentre (60.0f, 14.0f),
+                        juce::Justification::centred);
+        }
+    }
+}
+
+//==============================================================================
 float CabinPeqGraph::getDisplayRange() const
 {
     return juce::jlimit (minDisplayRange, maxDisplayRange, (float) processor.parameters.state.getProperty (idGraphRange, defaultDisplayRange));
@@ -344,6 +483,7 @@ void CabinPeqGraph::paint (juce::Graphics& g)
         g.drawRect (marquee, 1.0f);
     }
 
+    drawSpots (g);
     drawReadout (g);
     drawZoomControl (g);
 
@@ -422,31 +562,73 @@ void CabinPeqGraph::drawGrid (juce::Graphics& g)
 {
     auto plot = getPlotArea();
 
-    // Frequencies: a line at every 1-9 of each decade, and labels at the usual spots
-    for (float decade = 10.0f; decade <= 10000.0f; decade *= 10.0f)
+    // Frequencies. Lines at 1-9 of each decade, and finer ones (1.1, 1.2...) as you zoom in
+    const double pixelsPerDecade = plot.getWidth() / std::log10 (viewHigh / viewLow);
+
+    struct Line { double frequency; int importance; }; // 0 is the most important
+    std::vector<Line> lines;
+    for (double decade = std::pow (10.0, std::floor (std::log10 (viewLow))); decade < viewHigh; decade *= 10.0)
     {
-        for (int multiple = 1; multiple <= 9; ++multiple)
+        // Lines are closest together at the top of the decade, so use the finest steps that
+        // still leave room there, for the part of the decade that's showing
+        const double top = std::min (decade * 10.0, (double) viewHigh);
+        double fineness = 1.0;
+        for (double candidate : { 0.01, 0.1 })
         {
-            const float frequency = decade * (float) multiple;
-            if (frequency < minFrequency || frequency > maxFrequency)
+            if (pixelsPerDecade * std::log10 (top / (top - candidate * decade)) >= 8.0)
+            {
+                fineness = candidate;
+                break;
+            }
+        }
+
+        const int steps = (int) std::round (9.0 / fineness);
+        for (int i = 0; i <= steps; ++i)
+        {
+            const double multiple = 1.0 + i * fineness;
+            const double frequency = decade * multiple;
+            if (frequency < viewLow * 0.999 || frequency > viewHigh * 1.001)
                 continue;
-            g.setColour (multiple == 1 ? Theme::gridLineMajor : Theme::gridLine);
-            g.drawVerticalLine (juce::roundToInt (xForFrequency (frequency)), plot.getY(), plot.getBottom());
+
+            const bool whole = std::abs (multiple - std::round (multiple)) < 1.0e-6;
+            const bool tenth = std::abs (multiple * 10.0 - std::round (multiple * 10.0)) < 1.0e-6;
+            const int importance = std::abs (multiple - 1.0) < 1.0e-6 ? 0
+                                 : whole && (std::round (multiple) == 2.0 || std::round (multiple) == 5.0) ? 1
+                                 : whole ? 2 : tenth ? 3 : 4;
+            lines.push_back ({ frequency, importance });
         }
     }
 
+    for (const auto& line : lines)
+    {
+        g.setColour (line.importance == 0 ? Theme::gridLineMajor : Theme::gridLine);
+        g.drawVerticalLine (juce::roundToInt (xForFrequency ((float) line.frequency)), plot.getY(), plot.getBottom());
+    }
+
+    // Label the most important lines first, then whatever else fits
     g.setFont (Theme::font (11.0f));
     g.setColour (Theme::textFaint);
-    for (float frequency : { 20.0f, 50.0f, 100.0f, 200.0f, 500.0f, 1000.0f, 2000.0f, 5000.0f, 10000.0f, 20000.0f })
+    std::vector<float> labelled;
+    for (int importance = 0; importance <= 4; ++importance)
     {
-        const float x = xForFrequency (frequency);
-        auto label = Format::frequencyShort (frequency);
-        auto area = juce::Rectangle<float> (x - 20.0f, plot.getBottom() + 3.0f, 40.0f, axisHeight - 6.0f);
-        if (frequency == minFrequency) area.setX (x + 3.0f);
-        if (frequency == maxFrequency) area.setX (x - 43.0f);
-        g.drawText (label, area, frequency == minFrequency ? juce::Justification::centredLeft
-                                : frequency == maxFrequency ? juce::Justification::centredRight
-                                                            : juce::Justification::centred);
+        for (const auto& line : lines)
+        {
+            if (line.importance != importance)
+                continue;
+
+            const float x = xForFrequency ((float) line.frequency);
+            const bool fits = std::none_of (labelled.begin(), labelled.end(), [x] (float other) { return std::abs (other - x) < 44.0f; });
+            if (! fits || x < plot.getX() - 0.5f || x > plot.getRight() + 0.5f)
+                continue;
+
+            // Labels at the very ends sit inside the edge
+            labelled.push_back (x);
+            auto area = juce::Rectangle<float> (x - 22.0f, plot.getBottom() + 3.0f, 44.0f, axisHeight - 6.0f);
+            auto justification = juce::Justification::centred;
+            if (x < plot.getX() + 22.0f)        { area.setX (plot.getX() + 3.0f); justification = juce::Justification::centredLeft; }
+            else if (x > plot.getRight() - 22.0f) { area.setX (plot.getRight() - 47.0f); justification = juce::Justification::centredRight; }
+            g.drawText (frequencyLabel (line.frequency), area, justification);
+        }
     }
 
     // Gains
@@ -734,7 +916,13 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent& event)
         hoverIsNearZeroLine = nearLine;
     }
 
-    setMouseCursor (hoverId >= 0 ? juce::MouseCursor::DraggingHandCursor
+    const int spot = spotChipAt (event.position);
+    if (spot != hoverSpot)
+        hoverSpot = spot;
+
+    setMouseCursor (spot >= 0 ? juce::MouseCursor::LeftRightResizeCursor
+                    : event.position.y > getPlotArea().getBottom() ? juce::MouseCursor::LeftRightResizeCursor
+                    : hoverId >= 0 ? juce::MouseCursor::DraggingHandCursor
                     : getZoomControl().bounds.contains (event.position) ? juce::MouseCursor::PointingHandCursor
                     : isOnAxis (event.position) ? juce::MouseCursor::UpDownResizeCursor
                     : nearLine ? juce::MouseCursor::CrosshairCursor : juce::MouseCursor::NormalCursor);
@@ -745,6 +933,7 @@ void CabinPeqGraph::mouseExit (const juce::MouseEvent&)
 {
     mouseIsOver = false;
     hoverId = -1;
+    hoverSpot = -1;
     hoverIsNearZeroLine = false;
     repaint();
 }
@@ -759,6 +948,23 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
     const bool repeatsAnAdd = isRepeatClick && bandAddedByLastClick >= 0 && bandProfile.getBandWithId (bandAddedByLastClick).has_value();
     if (! repeatsAnAdd)
         bandAddedByLastClick = -1;
+
+    // Calibration spots' chips, and the frequency axis along the bottom
+    if (! event.mods.isPopupMenu())
+    {
+        if (const int spot = spotChipAt (event.position); spot >= 0)
+        {
+            dragMode = DragMode::spot;
+            draggingSpot = spot;
+            return;
+        }
+        if (event.position.y > getPlotArea().getBottom())
+        {
+            dragMode = DragMode::pan;
+            lastDragPosition = event.position;
+            return;
+        }
+    }
 
     // The zoom buttons, and dragging the dB axis to zoom
     if (! event.mods.isPopupMenu())
@@ -851,6 +1057,25 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 {
     mousePosition = event.position;
 
+    if (dragMode == DragMode::spot)
+    {
+        // Slide the spot along the frequencies, keeping its pan
+        auto spot = CalibrationSettings::getSpot (processor.parameters.state, draggingSpot);
+        spot.frequency = frequencyForX (juce::jlimit (getPlotArea().getX(), getPlotArea().getRight(), event.position.x));
+        CalibrationSettings::setSpot (processor.parameters.state, processor.getCalibration(), draggingSpot, spot);
+        repaint();
+        return;
+    }
+
+    if (dragMode == DragMode::pan)
+    {
+        // Drag the frequency axis to move along it
+        const float octavesPerPixel = std::log2 (viewHigh / viewLow) / getPlotArea().getWidth();
+        panFrequencies (-(event.position.x - lastDragPosition.x) * octavesPerPixel);
+        lastDragPosition = event.position;
+        return;
+    }
+
     if (dragMode == DragMode::zoom)
     {
         // Drag up to zoom in (fewer dB), down to zoom out
@@ -913,7 +1138,7 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
     const auto distance = dragDistance;
 
     const auto plot = getPlotArea();
-    const float octavesPerPixel = std::log2 (maxFrequency / minFrequency) / plot.getWidth();
+    const float octavesPerPixel = std::log2 (viewHigh / viewLow) / plot.getWidth();
     const float dbPerPixel = (dbForY (0.0f) - dbForY (1.0f));
 
     std::vector<Band> moved;
@@ -929,6 +1154,7 @@ void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 
 void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
 {
+    draggingSpot = -1;
     if (shiftClickedId >= 0)
     {
         auto ids = selectedIds;
@@ -957,6 +1183,15 @@ void CabinPeqGraph::mouseDoubleClick (const juce::MouseEvent& event)
         return;
     }
 
+    // Double-click the frequency axis to see everything again
+    if (event.position.y > getPlotArea().getBottom())
+    {
+        setFrequencyView (minFrequency, maxFrequency);
+        return;
+    }
+    if (spotChipAt (event.position) >= 0)
+        return;
+
     auto band = bandAt (event.position);
     if (band.has_value())
     {
@@ -974,27 +1209,41 @@ void CabinPeqGraph::mouseDoubleClick (const juce::MouseEvent& event)
 
 void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
-    // Scrolling on the dB axis zooms
+    const float sign = wheel.isReversed ? -1.0f : 1.0f;
+
+    // Scrolling on the dB axis zooms the dB range
     if (isOnAxis (event.position) || getZoomControl().bounds.contains (event.position))
     {
-        const float scroll = wheel.deltaY * (wheel.isReversed ? -1.0f : 1.0f);
-        if (scroll != 0.0f)
-            setDisplayRange (getDisplayRange() * std::exp (-scroll * 0.6f));
+        if (wheel.deltaY != 0.0f)
+            setDisplayRange (getDisplayRange() * std::exp (-wheel.deltaY * sign * 0.6f));
         return;
     }
 
-    std::vector<Band> targets;
+    // Scrolling over a band changes its width (and the selection's, if it's part of it)
     if (auto band = bandAt (event.position))
-        targets = selectedIds.count (band->id) > 0 ? getSelectedBands() : std::vector<Band> { *band };
-    else if (! selectedIds.empty())
-        targets = getSelectedBands();
-
-    const float delta = (std::abs (wheel.deltaY) > std::abs (wheel.deltaX) ? wheel.deltaY : wheel.deltaX) * (wheel.isReversed ? -1.0f : 1.0f);
-    if (targets.empty() || delta == 0.0f)
+    {
+        const float delta = (std::abs (wheel.deltaY) > std::abs (wheel.deltaX) ? wheel.deltaY : wheel.deltaX) * sign;
+        if (delta == 0.0f)
+            return;
+        beginEdit ("Change width", true);
+        changeWidth (selectedIds.count (band->id) > 0 ? getSelectedBands() : std::vector<Band> { *band },
+                     std::exp (delta * (event.mods.isShiftDown() ? 0.15f : 0.8f)));
         return;
+    }
 
-    beginEdit ("Change width", true);
-    changeWidth (targets, std::exp (delta * (event.mods.isShiftDown() ? 0.15f : 0.8f)));
+    // Anywhere else: scroll to zoom in on frequencies around the mouse, sideways (or with Shift) to move along
+    const float octavesShown = std::log2 (viewHigh / viewLow);
+    const float sideways = event.mods.isShiftDown() ? wheel.deltaY + wheel.deltaX : wheel.deltaX;
+    if (sideways != 0.0f)
+        panFrequencies (-sideways * sign * octavesShown * 0.5f);
+    if (! event.mods.isShiftDown() && wheel.deltaY != 0.0f)
+        zoomFrequencies (std::exp (-wheel.deltaY * sign * 0.8f), event.position.x);
+}
+
+void CabinPeqGraph::mouseMagnify (const juce::MouseEvent& event, float scaleFactor)
+{
+    if (scaleFactor > 0.0f)
+        zoomFrequencies (1.0f / scaleFactor, event.position.x);
 }
 
 bool CabinPeqGraph::keyPressed (const juce::KeyPress& key)
@@ -1052,6 +1301,8 @@ void CabinPeqGraph::showBackgroundMenu (juce::Point<float> position)
         rangeMenu.addItem ("+/- " + juce::String ((int) range) + " dB", true, std::abs (range - getDisplayRange()) < 0.1f,
                            [safeThis, range] { if (safeThis != nullptr) safeThis->setDisplayRange (range); });
     menu.addSubMenu ("Display range", rangeMenu);
+    menu.addItem ("Show 20 Hz to 20 kHz", viewLow > minFrequency * 1.01f || viewHigh < maxFrequency * 0.99f, false,
+                  [safeThis] { if (safeThis != nullptr) safeThis->setFrequencyView (minFrequency, maxFrequency); });
     menu.addItem ("Show output spectrum", true, getShowSpectrum(),
                   [safeThis] { if (safeThis != nullptr) safeThis->setShowSpectrum (! safeThis->getShowSpectrum()); });
 

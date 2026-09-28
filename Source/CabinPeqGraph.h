@@ -27,6 +27,9 @@
 ///  - Delete removes the selected bands, arrows nudge them, and Cmd/Ctrl+A selects all
 ///  - The -/+ in the top right, or dragging or scrolling on the dB axis, zooms the view (not the
 ///    bands' limits); double-click the axis to go back to +/-30 dB
+///  - Scrolling (or pinching) anywhere else zooms in on frequencies around the mouse; scrolling
+///    sideways, Shift-scrolling or dragging the frequency axis moves along them. Double-click the
+///    frequency axis to see 20 Hz to 20 kHz again
 class CabinPeqGraph  : public juce::Component,
                        private juce::Timer
 {
@@ -46,6 +49,9 @@ public:
 
     void deleteSelectedBands();
 
+    /// Shows the calibration spots, which can be dragged along the frequency axis
+    void setCalibrationSpotsVisible (bool shouldShow);
+
     void paint (juce::Graphics&) override;
     void resized() override;
 
@@ -56,10 +62,11 @@ public:
     void mouseUp (const juce::MouseEvent&) override;
     void mouseDoubleClick (const juce::MouseEvent&) override;
     void mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails&) override;
+    void mouseMagnify (const juce::MouseEvent&, float scaleFactor) override;
     bool keyPressed (const juce::KeyPress&) override;
 
 private:
-    enum class DragMode { none, bands, marquee, zoom };
+    enum class DragMode { none, bands, marquee, zoom, spot, pan };
 
     // The -/+ dB range control in the top right
     struct ZoomControl { juce::Rectangle<float> bounds, minus, plus, label; };
@@ -143,8 +150,20 @@ private:
     bool curvePathsNeedRebuilding = true;
     juce::Path mainCurve, leftCurve, rightCurve;
 
+    // Bands, and the widest view, go from 20 Hz to 20 kHz; the view can zoom in on part of that
     static constexpr float minFrequency = 20.0f;
     static constexpr float maxFrequency = 20000.0f;
+    float viewLow = minFrequency, viewHigh = maxFrequency;
+    void setFrequencyView (float low, float high);
+    void zoomFrequencies (float factor, float aroundX); // factor < 1 zooms in
+    void panFrequencies (float octaves);
+
+    // Calibration spots shown on the graph
+    bool showSpots = false;
+    int draggingSpot = -1, hoverSpot = -1, shownSpot = -1;
+    juce::Rectangle<float> spotChip (int index) const;
+    int spotChipAt (juce::Point<float> position) const;
+    void drawSpots (juce::Graphics&);
     static constexpr float handleRadius = 7.5f;
     static constexpr float axisHeight = 22.0f;
 

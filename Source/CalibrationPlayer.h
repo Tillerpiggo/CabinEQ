@@ -16,6 +16,9 @@
 
     If some positions are selected, only those play.
 
+    In spots mode it plays 2 or 3 spots instead of the grid, each with its own base
+    frequency (the low cut) and pan, which you place on the EQ graph.
+
     The setters can be called from any thread; process() is for the audio thread.
 
   ==============================================================================
@@ -37,6 +40,9 @@ public:
     static constexpr int defaultColumns = 5;
     static constexpr int maxDepth = 5;
     static constexpr float minRate = 0.5f, maxRate = 8.0f, defaultRate = 2.5f; // bursts per second
+    static constexpr int maxSpots = 3;
+
+    enum class Mode { grid = 0, spots = 1 };
     static constexpr float depthStepDb = 10.0f;
 
     void prepare (double newSampleRate)
@@ -53,6 +59,19 @@ public:
 
     void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
     void setRate (float burstsPerSecond) { rate = juce::jlimit (minRate, maxRate, burstsPerSecond); }
+
+    void setMode (Mode newMode)          { mode = (int) newMode; }
+    Mode getMode() const                 { return (Mode) mode.load(); }
+    void setSpotCount (int count)        { spotCount = juce::jlimit (1, maxSpots, count); }
+
+    /// A spot's base frequency (its low cut; 20 Hz or below means none) and pan, -1 (left) to 1 (right)
+    void setSpot (int index, float frequency, float pan)
+    {
+        if (index < 0 || index >= maxSpots)
+            return;
+        spotFrequency[(size_t) index] = frequency;
+        spotPan[(size_t) index] = juce::jlimit (-1.0f, 1.0f, pan);
+    }
 
     void setGrid (int rows, int columns)
     {
@@ -202,11 +221,12 @@ private:
 
     void trigger() noexcept
     {
+        const bool spots = mode.load() == (int) Mode::spots;
         const int rows = numRows.load(), columns = numColumns.load();
-        const int count = rows * columns;
+        const int count = spots ? spotCount.load() : rows * columns;
 
         bool anySelected = false;
-        for (int p = 0; p < count && ! anySelected; ++p)
+        for (int p = 0; ! spots && p < count && ! anySelected; ++p)
             anySelected = isSelected (p);
 
         // Play the same position again, louder, until it's played `depth` times
@@ -232,7 +252,22 @@ private:
         }
         currentPosition = position;
 
-        const int row = position / columns, column = position % columns;
+        // Where it is between the ears (0 = left, 1 = right), and where its low cut is
+        float pan;
+        double cutoff;
+        if (spots)
+        {
+            pan = 0.5f * (spotPan[(size_t) position].load() + 1.0f);
+            cutoff = spotFrequency[(size_t) position].load();
+            if (cutoff <= 20.0)
+                cutoff = 0.0;
+        }
+        else
+        {
+            const int row = position / columns, column = position % columns;
+            pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
+            cutoff = cutoffForRow (row, rows);
+        }
 
         // Take a free voice, or the quietest one
         Voice* voice = &voices[0];
@@ -242,14 +277,13 @@ private:
             if (candidate.peak < voice->peak) voice = &candidate;
         }
 
-        // Equal-power pan: left column fully left, right column fully right
-        const float pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
+        // Equal-power pan
         voice->leftGain = std::cos (pan * juce::MathConstants<float>::halfPi);
         voice->rightGain = std::sin (pan * juce::MathConstants<float>::halfPi);
 
-        // Each row up cuts off more of the lows. Pink noise has the same power in every octave,
-        // so cutting some octaves off makes it quieter; make up for that so every row is as loud.
-        const double cutoff = cutoffForRow (row, rows);
+        // Pink noise has the same power in every octave, so cutting some octaves off makes it
+        // quieter; make up for that so every row (or spot) is as loud.
+        cutoff = std::min (cutoff, FilterDesign::maxFrequency (sampleRate) * 0.9);
         voice->bandLimited = cutoff > 0.0;
         voice->peak = 1.0f;
         if (voice->bandLimited)
@@ -293,6 +327,9 @@ private:
     std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
+    std::atomic<int> mode { (int) Mode::grid }, spotCount { 2 };
+    std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f };
+    std::array<std::atomic<float>, maxSpots> spotPan { 0.0f, 0.0f, 0.0f };
     std::atomic<bool> playing { false };
     std::atomic<int> currentPosition { -1 };
 

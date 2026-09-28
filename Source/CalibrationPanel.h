@@ -10,6 +10,10 @@
     arrow keys (Shift+arrow to add the next one). It has its own volume, and a
     depth that plays each position several times, getting louder.
 
+    "On graph" plays 2 or 3 spots instead, each with a base frequency (its low cut)
+    and a pan. They show on the EQ graph, where you can drag them, so you can line
+    them up with the bands exactly.
+
   ==============================================================================
 */
 
@@ -17,6 +21,7 @@
 
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
+#include "ValueField.h"
 
 class CalibrationPanel : public juce::Component,
                          private juce::Timer
@@ -26,7 +31,9 @@ public:
     ~CalibrationPanel() override;
 
     std::function<void()> onCloseClicked;
+    std::function<void()> onModeChanged; // the graph shows the spots in "On graph" mode
     void stop();
+    bool isShowingSpots() const;
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -41,6 +48,8 @@ public:
 private:
     void timerCallback() override;
     void applySettings();
+    void setMode (CalibrationPlayer::Mode mode);
+    void refreshSpots();
     void updateButtons();
     int positionAt (juce::Point<float> point) const;
     juce::Point<float> centreOf (int position) const;
@@ -54,6 +63,18 @@ private:
     juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider;
     juce::Label volumeLabel, depthLabel, speedLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;
+
+    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" };
+    juce::TextButton twoSpotsButton { "2 spots" }, threeSpotsButton { "3 spots" };
+
+    struct SpotControls
+    {
+        std::unique_ptr<ValueField> frequency;
+        juce::Slider pan;
+        juce::Rectangle<int> row;
+    };
+    std::array<SpotControls, CalibrationPlayer::maxSpots> spotControls;
+    juce::Rectangle<int> spotsArea;
 
     juce::Rectangle<int> gridArea;
     int hoverPosition = -1, shownPosition = -1;
