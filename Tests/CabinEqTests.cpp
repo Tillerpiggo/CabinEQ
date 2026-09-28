@@ -16,6 +16,7 @@
 #include "../Source/BandEqCurve.h"
 #include "../Source/EqPresetFile.h"
 #include "../Source/CabinPeqGraph.h"
+#include "../Source/CalibrationPanel.h"
 
 namespace
 {
@@ -908,7 +909,40 @@ public:
     }
 };
 
+//==============================================================================
+class CalibrationPanelTests : public juce::UnitTest
+{
+public:
+    CalibrationPanelTests() : juce::UnitTest ("Calibration grid", "CabinEQ") {}
+
+    void runTest() override
+    {
+        beginTest ("Arrow keys move the selection, Shift+arrow grows it, and the edges stop it");
+        CabinEqAudioProcessor processor;
+        CalibrationPanel panel (processor);
+        panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+        auto& player = processor.getCalibration();
+        player.setGrid (3, 5);
+
+        auto press = [&panel] (int key, juce::ModifierKeys mods = {}) { panel.keyPressed (juce::KeyPress (key, mods, 0)); };
+
+        press (juce::KeyPress::rightKey); // nothing selected: starts at the top left
+        expect (player.getSelection() == std::set<int> { 0 });
+        press (juce::KeyPress::rightKey);
+        press (juce::KeyPress::downKey);
+        expect (player.getSelection() == std::set<int> { 6 }, "moved right then down");
+        press (juce::KeyPress::rightKey, juce::ModifierKeys::shiftModifier);
+        expect (player.getSelection() == std::set<int> { 6, 7 }, "shift+right added the next one");
+        for (int i = 0; i < 5; ++i)
+            press (juce::KeyPress::rightKey);
+        expect (player.getSelection() == std::set<int> { 8, 9 }, "the pair moved right until it hit the edge");
+        expect (player.isPlaying(), "and it started playing");
+        panel.stop();
+    }
+};
+
 static FilterResponseTests filterResponseTests;
+static CalibrationPanelTests calibrationPanelTests;
 static CalibrationTests calibrationTests;
 static GraphInteractionTests graphInteractionTests;
 static SmoothingTests smoothingTests;

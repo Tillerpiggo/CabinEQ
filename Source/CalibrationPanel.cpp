@@ -60,6 +60,7 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     for (auto* button : { &playButton, &allButton, &closeButton })
         addAndMakeVisible (button);
 
+    setWantsKeyboardFocus (true);
     applySettings();
     updateButtons();
     startTimerHz (30);
@@ -140,6 +141,9 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
     if (position < 0)
         return;
 
+    grabKeyboardFocus(); // so the arrow keys move the selection
+    cursor = position;
+
     // Click selects just this position, Shift- or Cmd-click adds or removes it,
     // and dragging across positions adds each one
     auto selection = player.getSelection();
@@ -168,6 +172,7 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
     if (position < 0)
         return;
 
+    cursor = position;
     auto selection = player.getSelection();
     const bool changed = dragAdds ? selection.insert (position).second : selection.erase (position) > 0;
     if (changed)
@@ -175,6 +180,64 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
         player.setSelection (selection);
         updateButtons();
     }
+}
+
+bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
+{
+    int rowStep = 0, columnStep = 0;
+    if (key.getKeyCode() == juce::KeyPress::upKey)         rowStep = -1;
+    else if (key.getKeyCode() == juce::KeyPress::downKey)  rowStep = 1;
+    else if (key.getKeyCode() == juce::KeyPress::leftKey)  columnStep = -1;
+    else if (key.getKeyCode() == juce::KeyPress::rightKey) columnStep = 1;
+    else return false;
+
+    auto selection = player.getSelection();
+    if (cursor < 0 || cursor >= rows() * columns())
+        cursor = selection.empty() ? 0 : *selection.begin();
+
+    auto moved = [this, rowStep, columnStep] (int position) -> int
+    {
+        const int row = position / columns() + rowStep, column = position % columns() + columnStep;
+        return (row < 0 || row >= rows() || column < 0 || column >= columns()) ? -1 : row * columns() + column;
+    };
+
+    if (selection.empty())
+    {
+        // Nothing selected yet: start where the cursor is
+        selection = { cursor };
+    }
+    else if (key.getModifiers().isShiftDown())
+    {
+        // Shift+arrow grows the selection one position that way
+        if (const int next = moved (cursor); next >= 0)
+        {
+            selection.insert (next);
+            cursor = next;
+        }
+    }
+    else
+    {
+        // Arrows move the whole selection, as long as all of it stays on the grid
+        std::set<int> shifted;
+        for (int position : selection)
+        {
+            const int next = moved (position);
+            if (next < 0)
+                return true;
+            shifted.insert (next);
+        }
+        selection = shifted;
+        cursor = moved (cursor) >= 0 ? moved (cursor) : cursor;
+    }
+
+    player.setSelection (selection);
+    if (! player.isPlaying())
+    {
+        player.setPlaying (true);
+        playButton.setToggleState (true, juce::dontSendNotification);
+    }
+    updateButtons();
+    return true;
 }
 
 void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
