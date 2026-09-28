@@ -776,14 +776,47 @@ public:
             graph.refresh();
         }
 
+        beginTest ("The view's dB range zooms from the -/+ and the axis, without limiting bands");
+        {
+            auto range = [&processor] { return (float) processor.parameters.state.getProperty ("graphRange", 30.0f); };
+            processor.parameters.state.setProperty ("graphRange", 30.0f, nullptr);
+
+            // The control sits in the top right: - on its left, + on its right
+            const juce::Point<float> minus { 1000.0f - 8.0f - 120.0f + 13.0f, 17.0f }, plus { 1000.0f - 8.0f - 13.0f, 17.0f };
+            press (graph, minus);
+            release (graph, minus);
+            expectEquals (range(), 24.0f, "- zooms in a step");
+            press (graph, plus);
+            release (graph, plus);
+            press (graph, plus);
+            release (graph, plus);
+            expectEquals (range(), 36.0f, "+ zooms out, past the old +/-30 dB");
+
+            // Drag up on the axis to zoom in
+            const juce::Point<float> onAxis { 20.0f, 240.0f };
+            press (graph, onAxis);
+            drag (graph, onAxis, onAxis.translated (0.0f, -150.0f));
+            release (graph, onAxis.translated (0.0f, -150.0f));
+            expectWithinAbsoluteError (range(), 36.0f / std::exp (1.0f), 0.5f);
+
+            // A band can still be bigger than what's shown
+            processor.parameters.state.setProperty ("graphRange", 6.0f, nullptr);
+            profile.getSelectedProfile().setBands ({ Band::withQ (0, 1000.0f, 20.0f, 1.0f, Band::Type::both) });
+            graph.refresh();
+            expectWithinAbsoluteError (profile.getSelectedProfile().getBandProfile().getBands()[0].ampl, 20.0f, 0.01f);
+            profile.getSelectedProfile().setBands ({});
+            processor.parameters.state.setProperty ("graphRange", 30.0f, nullptr);
+            graph.refresh();
+        }
+
         beginTest ("Dragging empty space selects, and Delete removes");
         {
             profile.getSelectedProfile().addBand (Band::withQ (0, 100.0f, 3.0f, 1.0f, Band::Type::both));
             profile.getSelectedProfile().addBand (Band::withQ (0, 3000.0f, -3.0f, 1.0f, Band::Type::both));
             graph.refresh();
 
-            press (graph, { 5.0f, 5.0f });
-            drag (graph, { 5.0f, 5.0f }, { 995.0f, 470.0f });
+            press (graph, { 50.0f, 40.0f }); // just right of the dB axis, which zooms
+            drag (graph, { 50.0f, 40.0f }, { 995.0f, 470.0f });
             release (graph, { 995.0f, 470.0f });
             expectEquals (graph.getNumSelected(), 2);
 
@@ -831,6 +864,7 @@ public:
             player.prepare (sampleRate);
             player.setGrid (3, 5);
             player.setLevelDb (-20.0f);
+            player.setRate (1.0f / 0.3f);
             player.setPlaying (true);
 
             // The first burst is the top-left position: all in the left ear
@@ -841,7 +875,7 @@ public:
             expectGreaterThan (buffer.getRMSLevel (0, 0, buffer.getNumSamples()), 0.01f);
             expectLessThan (buffer.getRMSLevel (1, 0, buffer.getNumSamples()), 1.0e-4f);
 
-            // A burst every 0.3 s
+            // A burst every 0.3 s, at that rate
             juce::AudioBuffer<float> more (2, (int) (0.3 * sampleRate));
             more.clear();
             player.process (more);
@@ -861,6 +895,7 @@ public:
             player.prepare (sampleRate);
             player.setGrid (3, 5);
             player.setSelection ({ 2, 7, 12 });
+            player.setRate (1.0f / 0.3f);
             player.setPlaying (true);
 
             std::vector<int> heard;
@@ -914,6 +949,7 @@ public:
             player.prepare (sampleRate);
             player.setGrid (1, 2);
             player.setDepth (3);
+            player.setRate (1.0f / 0.3f);
             player.setPlaying (true);
 
             std::vector<int> positions;
@@ -929,6 +965,19 @@ public:
             expect (positions == std::vector<int> { 0, 0, 0, 1 });
             expectWithinAbsoluteError (levels[1] - levels[0], 10.0f, 3.0f, "the second is about 10 dB louder");
             expectWithinAbsoluteError (levels[2] - levels[1], 10.0f, 3.0f, "and the third another 10 dB");
+        }
+
+        beginTest ("Speed sets how often bursts come");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setGrid (1, 12);
+            player.setRate (4.0f);
+            player.setPlaying (true);
+            juce::AudioBuffer<float> buffer (2, (int) (2.0 * sampleRate) - 10);
+            buffer.clear();
+            player.process (buffer);
+            expectEquals (player.getCurrentPosition(), 7, "8 bursts in 2 s at 4 per second");
         }
 
         beginTest ("Clicking a position repeats just it");

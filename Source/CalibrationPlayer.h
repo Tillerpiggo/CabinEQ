@@ -36,6 +36,7 @@ public:
     static constexpr int defaultRows = 3;
     static constexpr int defaultColumns = 5;
     static constexpr int maxDepth = 5;
+    static constexpr float minRate = 0.5f, maxRate = 8.0f, defaultRate = 2.5f; // bursts per second
     static constexpr float depthStepDb = 10.0f;
 
     void prepare (double newSampleRate)
@@ -51,6 +52,7 @@ public:
     }
 
     void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
+    void setRate (float burstsPerSecond) { rate = juce::jlimit (minRate, maxRate, burstsPerSecond); }
 
     void setGrid (int rows, int columns)
     {
@@ -121,7 +123,7 @@ public:
         auto* left = buffer.getWritePointer (0);
         auto* right = buffer.getWritePointer (numChannels > 1 ? 1 : 0);
         const float gain = level.load();
-        const int interval = (int) (burstSeconds * sampleRate);
+        const int interval = std::max (1, (int) (sampleRate / rate.load()));
 
         for (int i = 0; i < buffer.getNumSamples(); ++i)
         {
@@ -129,6 +131,10 @@ public:
             {
                 trigger();
                 samplesUntilNext = interval;
+            }
+            else if (samplesUntilNext > interval)
+            {
+                samplesUntilNext = interval; // sped up mid-wait
             }
 
             const float noise = nextPink();
@@ -279,8 +285,6 @@ private:
         return pink * (1.0f / 1.745f);
     }
 
-    static constexpr double burstSeconds = 0.3; // time between bursts
-
     double sampleRate = 48000.0;
     int attackSamples = 192;
     float releaseCoefficient = 0.9999f;
@@ -288,6 +292,7 @@ private:
     std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 };
     std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
+    std::atomic<float> rate { defaultRate };
     std::atomic<bool> playing { false };
     std::atomic<int> currentPosition { -1 };
 

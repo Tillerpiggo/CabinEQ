@@ -13,7 +13,9 @@ loads the VST3 to EQ everything the Mac plays.
   (Cmd for fine), Shift-drag up and down (or scroll) to change their width (Shift works
   mid-drag too, to stop moving and start widening), double-click to
   turn one off, and right-click to delete it. Drag across empty space to select several.
-  Delete, arrow keys and Cmd+A work too. The band strip sets the shape (bell, shelves, cuts)
+  Delete, arrow keys and Cmd+A work too. The - / + in the top right zooms the view's dB range
+  (+/-3 to +/-60 dB), and so does dragging or scrolling on the dB axis; double-click the axis for
+  +/-30 dB. It only changes what's shown, not how far bands can go. The band strip sets the shape (bell, shelves, cuts)
   and which ear it's for.
 - **Band strip** (bottom): the selected band's exact values. Drag, scroll or double-click
   them to type.
@@ -25,7 +27,7 @@ loads the VST3 to EQ everything the Mac plays.
   those: Shift- or Cmd-click, or drag across them, to pick several, and move them with the
   arrow keys (Shift+arrow adds the next one); Play all goes back to every
   one. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
-  right are its own volume and a depth: each position plays that many times, quietest first,
+  right are its own volume, a speed (0.5 to 8 bursts a second, 2.5 to start), and a depth: each position plays that many times, quietest first,
   10 dB louder each time. Hiding it stops the sound.
 - **Top bar**: undo/redo (Cmd+Z, Cmd+Shift+Z), the profile's preamp, auto gain (keeps
   loudness the same when you switch the EQ on and off), master volume (-30 to +24 dB, with the EQ

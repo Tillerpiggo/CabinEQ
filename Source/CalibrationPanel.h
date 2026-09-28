@@ -51,8 +51,8 @@ private:
     CalibrationPlayer& player;
 
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
-    juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider;
-    juce::Label volumeLabel, depthLabel;
+    juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider;
+    juce::Label volumeLabel, depthLabel, speedLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;
 
     juce::Rectangle<int> gridArea;

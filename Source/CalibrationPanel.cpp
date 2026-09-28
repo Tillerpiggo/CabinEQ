@@ -15,6 +15,7 @@ namespace
     const juce::Identifier idColumns { "calibrationColumns" };
     const juce::Identifier idLevel { "calibrationLevel" };
     const juce::Identifier idDepth { "calibrationDepth" };
+    const juce::Identifier idSpeed { "calibrationSpeed" };
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -51,10 +52,17 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
 
     setUpSlider (volumeSlider, juce::Slider::LinearHorizontal, -60, 0, 0.5, (double) state.getProperty (idLevel, -20.0));
     setUpSlider (depthSlider, juce::Slider::LinearHorizontal, 1, CalibrationPlayer::maxDepth, 1, (int) state.getProperty (idDepth, 1));
-    for (auto* slider : { &volumeSlider, &depthSlider })
+    setUpSlider (speedSlider, juce::Slider::LinearHorizontal, CalibrationPlayer::minRate, CalibrationPlayer::maxRate, 0.1,
+                 (double) state.getProperty (idSpeed, CalibrationPlayer::defaultRate));
+    speedSlider.setSkewFactorFromMidPoint (2.5);
+    speedSlider.textFromValueFunction = [] (double v) { return juce::String (v, 1) + " / s"; };
+    speedSlider.setTooltip ("How many bursts play each second");
+    for (auto* slider : { &volumeSlider, &depthSlider, &speedSlider })
         slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
+    speedSlider.updateText();
     setUpLabel (volumeLabel, "Volume");
     setUpLabel (depthLabel, "Depth");
+    setUpLabel (speedLabel, "Speed");
     depthSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + (v > 1 ? " times" : " time"); };
     depthSlider.updateText();
     depthSlider.setTooltip ("Plays each position this many times, quietest first, 10 dB louder each time");
@@ -102,6 +110,7 @@ void CalibrationPanel::applySettings()
     player.setGrid (rows(), columns());
     player.setLevelDb ((float) volumeSlider.getValue());
     player.setDepth ((int) depthSlider.getValue());
+    player.setRate ((float) speedSlider.getValue());
 
     // Forget selected positions that aren't on the grid any more
     auto selection = player.getSelection();
@@ -115,6 +124,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idColumns, columns(), nullptr);
     state.setProperty (idLevel, volumeSlider.getValue(), nullptr);
     state.setProperty (idDepth, (int) depthSlider.getValue(), nullptr);
+    state.setProperty (idSpeed, speedSlider.getValue(), nullptr);
 
     updateButtons();
     repaint();
@@ -346,7 +356,7 @@ void CalibrationPanel::resized()
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));
     controls.removeFromLeft (20);
-    for (auto [slider, label] : { std::pair { &volumeSlider, &volumeLabel }, std::pair { &depthSlider, &depthLabel } })
+    for (auto [slider, label] : { std::pair { &volumeSlider, &volumeLabel }, std::pair { &speedSlider, &speedLabel }, std::pair { &depthSlider, &depthLabel } })
     {
         auto row = controls.removeFromTop (36);
         label->setBounds (row.removeFromLeft (64));

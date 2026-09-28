@@ -25,6 +25,8 @@
 ///  - Drag across empty space to select several bands, and Shift-click to add or remove one
 ///  - Double-click a band to turn it off and on, and right-click it to delete it
 ///  - Delete removes the selected bands, arrows nudge them, and Cmd/Ctrl+A selects all
+///  - The -/+ in the top right, or dragging or scrolling on the dB axis, zooms the view (not the
+///    bands' limits); double-click the axis to go back to +/-30 dB
 class CabinPeqGraph  : public juce::Component,
                        private juce::Timer
 {
@@ -57,7 +59,14 @@ public:
     bool keyPressed (const juce::KeyPress&) override;
 
 private:
-    enum class DragMode { none, bands, marquee };
+    enum class DragMode { none, bands, marquee, zoom };
+
+    // The -/+ dB range control in the top right
+    struct ZoomControl { juce::Rectangle<float> bounds, minus, plus, label; };
+    ZoomControl getZoomControl() const;
+    void stepDisplayRange (int direction); // +1 zooms in, -1 zooms out
+    bool isOnAxis (juce::Point<float> position) const;
+    void drawZoomControl (juce::Graphics&);
 
     void timerCallback() override;
     void updateSpectrumTimer();
@@ -124,6 +133,7 @@ private:
     juce::Rectangle<float> marquee;
     std::set<int> selectionBeforeMarquee;
     int bandAddedByLastClick = -1;
+    float rangeAtDragStart = 30.0f;
     int shiftClickedId = -1;        // a shift-click on this band that hasn't turned into a drag yet
     bool hasBegunDragEdit = false;
     juce::uint32 lastCoalescedEditTime = 0;

@@ -16,14 +16,18 @@ namespace
     const juce::Identifier idGraphRange { "graphRange" };
     const juce::Identifier idShowSpectrum { "showSpectrum" };
 
-    const float displayRanges[] { 6.0f, 12.0f, 18.0f, 24.0f, 30.0f };
+    // What the zoom buttons step through. Dragging or scrolling on the dB axis goes anywhere in between.
+    const float displayRanges[] { 3.0f, 6.0f, 12.0f, 18.0f, 24.0f, 30.0f, 36.0f, 48.0f, 60.0f };
+    constexpr float minDisplayRange = 3.0f, maxDisplayRange = 60.0f, defaultDisplayRange = 30.0f;
+    constexpr float axisWidth = 44.0f; // the strip of dB labels you can drag to zoom
 
+    // The smallest round step that gives at most six grid lines above 0 dB
     float gridStepFor (float range)
     {
-        if (range <= 6.0f)  return 2.0f;
-        if (range <= 12.0f) return 3.0f;
-        if (range <= 18.0f) return 6.0f;
-        return 6.0f;
+        for (float step : { 1.0f, 2.0f, 3.0f, 6.0f, 12.0f })
+            if (range / step <= 6.0f)
+                return step;
+        return 12.0f;
     }
 
     bool isCommandDown (const juce::ModifierKeys& mods)
@@ -291,12 +295,13 @@ void CabinPeqGraph::nudge (float octaves, float db)
 //==============================================================================
 float CabinPeqGraph::getDisplayRange() const
 {
-    return juce::jlimit (6.0f, 30.0f, (float) processor.parameters.state.getProperty (idGraphRange, 30.0f));
+    return juce::jlimit (minDisplayRange, maxDisplayRange, (float) processor.parameters.state.getProperty (idGraphRange, defaultDisplayRange));
 }
 
 void CabinPeqGraph::setDisplayRange (float db)
 {
-    processor.parameters.state.setProperty (idGraphRange, db, nullptr);
+    // Only what's shown: bands can still go beyond it (they sit at the edge)
+    processor.parameters.state.setProperty (idGraphRange, juce::jlimit (minDisplayRange, maxDisplayRange, db), nullptr);
     curvePathsNeedRebuilding = true;
     repaint();
 }
@@ -340,6 +345,7 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     }
 
     drawReadout (g);
+    drawZoomControl (g);
 
     if (bandProfile.getBands().empty())
     {
@@ -349,6 +355,67 @@ void CabinPeqGraph::paint (juce::Graphics& g)
                     getPlotArea().withTrimmedTop (getPlotArea().getHeight() * 0.5f + 24.0f).withHeight (20.0f),
                     juce::Justification::centred);
     }
+}
+
+CabinPeqGraph::ZoomControl CabinPeqGraph::getZoomControl() const
+{
+    auto area = getPlotArea().removeFromTop (34.0f).removeFromRight (136.0f).reduced (8.0f, 6.0f);
+    ZoomControl zoom;
+    zoom.bounds = area;
+    zoom.minus = area.removeFromLeft (26.0f);
+    zoom.plus = area.removeFromRight (26.0f);
+    zoom.label = area;
+    return zoom;
+}
+
+void CabinPeqGraph::stepDisplayRange (int direction)
+{
+    // Zooming in shows fewer dB, so it steps down the list
+    const float current = getDisplayRange();
+    float next = current;
+    if (direction < 0)
+    {
+        for (float range : displayRanges)
+            if (range > current + 0.01f) { next = range; break; }
+    }
+    else
+    {
+        for (auto it = std::rbegin (displayRanges); it != std::rend (displayRanges); ++it)
+            if (*it < current - 0.01f) { next = *it; break; }
+    }
+    setDisplayRange (next);
+}
+
+bool CabinPeqGraph::isOnAxis (juce::Point<float> position) const
+{
+    auto plot = getPlotArea();
+    return position.x < plot.getX() + axisWidth && plot.contains (position);
+}
+
+void CabinPeqGraph::drawZoomControl (juce::Graphics& g)
+{
+    const auto zoom = getZoomControl();
+    const bool hot = mouseIsOver && zoom.bounds.expanded (4.0f).contains (mousePosition);
+
+    g.setColour (Theme::panel.withAlpha (hot ? 0.95f : 0.75f));
+    g.fillRoundedRectangle (zoom.bounds, zoom.bounds.getHeight() * 0.5f);
+
+    auto drawSign = [&] (juce::Rectangle<float> area, bool isPlus)
+    {
+        const bool over = mouseIsOver && area.contains (mousePosition);
+        g.setColour (over ? Theme::text : Theme::textDim);
+        const auto c = area.getCentre();
+        g.drawLine (c.x - 4.0f, c.y, c.x + 4.0f, c.y, 1.5f);
+        if (isPlus)
+            g.drawLine (c.x, c.y - 4.0f, c.x, c.y + 4.0f, 1.5f);
+    };
+    // "+" shows more dB (zooms out), "-" fewer (zooms in)
+    drawSign (zoom.minus, false);
+    drawSign (zoom.plus, true);
+
+    g.setColour (Theme::textDim);
+    g.setFont (Theme::font (11.5f));
+    g.drawText ("+/- " + juce::String (juce::roundToInt (getDisplayRange())) + " dB", zoom.label, juce::Justification::centred);
 }
 
 void CabinPeqGraph::drawGrid (juce::Graphics& g)
@@ -385,7 +452,8 @@ void CabinPeqGraph::drawGrid (juce::Graphics& g)
     // Gains
     const float range = getDisplayRange();
     const float step = gridStepFor (range);
-    for (float db = -range; db <= range + 0.01f; db += step)
+    const float lowest = -std::floor (range / step + 0.001f) * step;
+    for (float db = lowest; db <= range + 0.01f; db += step)
     {
         const float y = yForDb (db);
         g.setColour (std::abs (db) < 0.01f ? Theme::zeroLine : Theme::gridLine);
@@ -664,9 +732,12 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent& event)
     {
         hoverId = newHover;
         hoverIsNearZeroLine = nearLine;
-        setMouseCursor (hoverId >= 0 ? juce::MouseCursor::DraggingHandCursor
-                                     : nearLine ? juce::MouseCursor::CrosshairCursor : juce::MouseCursor::NormalCursor);
     }
+
+    setMouseCursor (hoverId >= 0 ? juce::MouseCursor::DraggingHandCursor
+                    : getZoomControl().bounds.contains (event.position) ? juce::MouseCursor::PointingHandCursor
+                    : isOnAxis (event.position) ? juce::MouseCursor::UpDownResizeCursor
+                    : nearLine ? juce::MouseCursor::CrosshairCursor : juce::MouseCursor::NormalCursor);
     repaint();
 }
 
@@ -688,6 +759,22 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
     const bool repeatsAnAdd = isRepeatClick && bandAddedByLastClick >= 0 && bandProfile.getBandWithId (bandAddedByLastClick).has_value();
     if (! repeatsAnAdd)
         bandAddedByLastClick = -1;
+
+    // The zoom buttons, and dragging the dB axis to zoom
+    if (! event.mods.isPopupMenu())
+    {
+        const auto zoom = getZoomControl();
+        if (zoom.minus.contains (event.position)) { stepDisplayRange (1); return; }
+        if (zoom.plus.contains (event.position))  { stepDisplayRange (-1); return; }
+        if (zoom.bounds.contains (event.position)) return;
+
+        if (isOnAxis (event.position) && ! bandAt (event.position).has_value())
+        {
+            dragMode = DragMode::zoom;
+            rangeAtDragStart = getDisplayRange();
+            return;
+        }
+    }
 
     auto band = bandAt (event.position);
 
@@ -763,6 +850,13 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
 void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 {
     mousePosition = event.position;
+
+    if (dragMode == DragMode::zoom)
+    {
+        // Drag up to zoom in (fewer dB), down to zoom out
+        setDisplayRange (rangeAtDragStart * std::exp ((float) event.getDistanceFromDragStartY() / 150.0f));
+        return;
+    }
 
     if (dragMode == DragMode::marquee)
     {
@@ -854,8 +948,14 @@ void CabinPeqGraph::mouseUp (const juce::MouseEvent& event)
 void CabinPeqGraph::mouseDoubleClick (const juce::MouseEvent& event)
 {
     // Ignore it if the first click added a band; the second click is already dragging it
-    if (event.mods.isPopupMenu() || bandAddedByLastClick >= 0)
+    if (event.mods.isPopupMenu() || bandAddedByLastClick >= 0 || getZoomControl().bounds.contains (event.position))
         return;
+
+    if (isOnAxis (event.position) && ! bandAt (event.position).has_value())
+    {
+        setDisplayRange (defaultDisplayRange);
+        return;
+    }
 
     auto band = bandAt (event.position);
     if (band.has_value())
@@ -874,6 +974,15 @@ void CabinPeqGraph::mouseDoubleClick (const juce::MouseEvent& event)
 
 void CabinPeqGraph::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
+    // Scrolling on the dB axis zooms
+    if (isOnAxis (event.position) || getZoomControl().bounds.contains (event.position))
+    {
+        const float scroll = wheel.deltaY * (wheel.isReversed ? -1.0f : 1.0f);
+        if (scroll != 0.0f)
+            setDisplayRange (getDisplayRange() * std::exp (-scroll * 0.6f));
+        return;
+    }
+
     std::vector<Band> targets;
     if (auto band = bandAt (event.position))
         targets = selectedIds.count (band->id) > 0 ? getSelectedBands() : std::vector<Band> { *band };
