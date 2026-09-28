@@ -20,7 +20,7 @@ loads the VST3 to EQ everything the Mac plays.
   (+/-3 to +/-60 dB), and so does dragging or scrolling on the dB axis; double-click the axis for
   +/-30 dB. It only changes what's shown, not how far bands can go. The band strip sets the shape (bell, shelves, cuts)
   and which ear it's for.
-- **Curve mode** (Bands / Curve in the top bar): instead of bands that add up, click anywhere on
+- **Curve mode** (Bands / Curve in the top bar; new profiles start as curves, and imported or older ones as bands): instead of bands that add up, click anywhere on
   the graph to put a point there, and the EQ follows a smooth curve through every point (a monotone
   cubic, so it never overshoots between them, and flat past the first and last). Drag points to move
   them (Cmd for fine), right-click to delete, Shift-click or Shift-drag to select several, and arrow
@@ -39,7 +39,7 @@ loads the VST3 to EQ everything the Mac plays.
   one. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
   right are its own volume, a speed (0.5 to 8 bursts a second, 2.5 to start), and a depth: each position plays that many times, quietest first,
   10 dB louder each time. Hiding it stops the sound.
-- **Calibration on the graph** (the panel's "On graph" mode, the default): 3 spots (or 2 or 4),
+- **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),
   each playing from its frequency (a sharp low cut) up to 20 kHz. They show on the EQ graph as dashed
   lines with chips along the bottom: drag the lowest or highest spot to spread them out from (or in
   towards) the middle, which stays put, and a middle spot to move them all. Two spots have a grip

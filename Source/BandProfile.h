@@ -78,7 +78,7 @@ class BandProfile
 public:
     enum class Mode { bands, curve };
 
-    BandProfile() = default;
+    BandProfile() = default; // an empty curve
     BandProfile (std::vector<Band> bands, float volume);
     BandProfile (std::vector<CurvePoint> points, float volume); // a curve profile
 
@@ -97,7 +97,7 @@ public:
     void setBands (std::vector<Band> newBands) { bands = std::move (newBands); }
 
 private:
-    Mode mode = Mode::bands;
+    Mode mode = Mode::curve; // a new, empty profile starts as a curve; one made from bands is bands
     std::vector<Band> bands;
     std::vector<CurvePoint> points;
     float volume = 0.0f;

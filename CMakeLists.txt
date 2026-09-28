@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 # A CMake build of CabinEQ that mirrors CabinEQ.jucer, so the plugin builds with just the
 # Command Line Tools (no Xcode). update.sh uses it to build and install the VST3.
-project(CabinEQ VERSION 1.0.0 LANGUAGES C CXX)
+project(CabinEQ VERSION 1.1.0 LANGUAGES C CXX)
 
 set(JUCE_DIR "$ENV{HOME}/JUCE" CACHE PATH "Path to JUCE (8.0.4 or newer, for the macOS 15+ SDK)")
 if(NOT EXISTS "${JUCE_DIR}/CMakeLists.txt")

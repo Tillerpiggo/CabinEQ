@@ -396,6 +396,19 @@ public:
                     && ! xml.contains ("masterVolumeId") && ! xml.contains ("hasLicenseId"), "old properties are gone");
         }
 
+        beginTest ("A new profile starts as a curve, and one made from bands (an import) stays bands");
+        {
+            CabinEqAudioProcessor processor;
+            auto& profiles = processor.getProfiles();
+            expect (profiles.getSelectedProfile().getMode() == BandProfile::Mode::curve);
+            expect (profiles.addProfile ("Empty").getMode() == BandProfile::Mode::curve);
+            expect (profiles.addProfile ("Imported", BandProfile ({ Band::withQ (0, 500.0f, 3.0f, 1.0f, Band::Type::both) }, 0.0f)).getMode()
+                    == BandProfile::Mode::bands);
+            juce::ValueTree saved (CabinEqProfile::idProfile);
+            saved.setProperty (CabinEqProfile::idProfileName, "Saved before curves", nullptr);
+            expect (CabinEqProfile (saved, nullptr).getMode() == BandProfile::Mode::bands, "a profile saved before curves is bands");
+        }
+
         beginTest ("Undo and redo, and undo selects the profile it changed");
         {
             CabinEqAudioProcessor processor;
@@ -403,6 +416,7 @@ public:
             auto& undo = processor.getUndoManager();
 
             auto first = profiles.getSelectedProfile();
+            first.setMode (BandProfile::Mode::bands);
             undo.beginNewTransaction();
             first.addBand (Band::withQ (0, 500.0f, 3.0f, 1.0f, Band::Type::both));
 
@@ -606,6 +620,7 @@ public:
         beginTest ("Auto gain cancels a boost");
         {
             CabinEqAudioProcessor processor;
+            processor.getSelectedProfile().setMode (BandProfile::Mode::bands);
             processor.getSelectedProfile().addBand (Band::withQ (0, 1000.0f, 6.0f, 0.3f, Band::Type::both));
             pumpMessages();
             expectLessThan (processor.getAutoGainDb(), -3.0f);
@@ -681,6 +696,8 @@ public:
         CabinPeqGraph graph (processor);
         graph.setBounds (0, 0, 1000, 500);
         auto& profile = processor.getProfiles();
+        profile.getSelectedProfile().setMode (BandProfile::Mode::bands); // a new profile starts as a curve
+        graph.refresh();
 
         beginTest ("Clicking the line adds a band, and dragging shapes it");
         {
@@ -874,7 +891,8 @@ public:
             };
 
             expectEquals (CalibrationSettings::getSpotCount (state), 3, "three spots to start with");
-            expect (CalibrationSettings::getMode (state) == CalibrationPlayer::Mode::spots, "on the graph to start with");
+            expect (CalibrationSettings::getMode (state) == CalibrationPlayer::Mode::grid, "the grid to start with");
+            CalibrationSettings::setMode (state, player, CalibrationPlayer::Mode::spots);
             place ({ 200.0f, 1000.0f, 5000.0f });
             graph.setCalibrationSpotsVisible (true);
 
