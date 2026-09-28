@@ -412,7 +412,7 @@ void CabinPeqGraph::drawSpots (juce::Graphics& g)
         const float x = xForFrequency (spot.frequency);
         const auto colour = CalibrationSettings::spotColour (i);
         const bool isPlaying = playing && i == shownSpot;
-        const bool isHot = i == draggingSpot || i == hoverSpot;
+        const bool isHot = i == draggingSpot || i == hoverSpot || hoverAllSpots || dragMode == DragMode::spotsTogether;
 
         // What it plays: from here up to the next spot above it (or to the top)
         if (isPlaying)
@@ -944,10 +944,11 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent& event)
         hoverIsNearZeroLine = nearLine;
     }
 
-    const int spot = spotChipAt (event.position) >= 0 ? spotChipAt (event.position)
-                   : (band.has_value() ? -1 : spotLineAt (event.position));
-    if (spot != hoverSpot)
-        hoverSpot = spot;
+    // A chip moves its own spot; a line moves them all, so hovering one lights them all up
+    const int chip = spotChipAt (event.position);
+    const int spot = chip >= 0 ? chip : (band.has_value() ? -1 : spotLineAt (event.position));
+    hoverSpot = spot;
+    hoverAllSpots = chip < 0 && spot >= 0;
 
     setMouseCursor (spot >= 0 ? juce::MouseCursor::LeftRightResizeCursor
                     : event.position.y > getPlotArea().getBottom() ? juce::MouseCursor::LeftRightResizeCursor
@@ -963,6 +964,7 @@ void CabinPeqGraph::mouseExit (const juce::MouseEvent&)
     mouseIsOver = false;
     hoverId = -1;
     hoverSpot = -1;
+    hoverAllSpots = false;
     hoverIsNearZeroLine = false;
     repaint();
 }

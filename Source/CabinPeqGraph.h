@@ -163,6 +163,7 @@ private:
     // Calibration spots shown on the graph
     bool showSpots = false;
     int draggingSpot = -1, hoverSpot = -1, shownSpot = -1;
+    bool hoverAllSpots = false; // the mouse is on a spot's line, which moves them all
     juce::Rectangle<float> spotChip (int index) const;
     int spotChipAt (juce::Point<float> position) const;
     int spotLineAt (juce::Point<float> position) const;
