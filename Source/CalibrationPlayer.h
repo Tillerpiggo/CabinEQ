@@ -5,10 +5,11 @@
 
     Plays pink noise bursts at each position of a grid, in reading order: left to
     right, top to bottom. Columns are where the sound is between the ears. Rows set
-    where the sound starts: the bottom row is full-range pink noise, and each row up
-    cuts off more of the lows with a steep high-pass, evenly spaced (in octaves) from
-    20 Hz to 20 kHz. So with 3 rows: no cut, 200 Hz, 2 kHz. Each burst starts fast and
-    dies away slowly, so its tail overlaps the next one.
+    where the sound starts: n rows draw n lines across 20 Hz to 20 kHz, evenly in
+    octaves, cutting it into n + 1 sections, and each row's steep high-pass sits on
+    one of those lines, the lowest line for the bottom row. So with 3 rows the cuts
+    are at about 112 Hz, 632 Hz and 3.6 kHz. Each burst starts fast and dies away
+    slowly, so its tail overlaps the next one.
 
     If some positions are selected, only those play.
 
@@ -83,11 +84,11 @@ public:
         return ((bits >> (position % 64)) & 1) != 0;
     }
 
-    /// The high-pass cutoff for a row (0 is the top), or 0 for none.
+    /// The high-pass cutoff for a row (0 is the top): the rows' lines cut 20 Hz to 20 kHz into rows + 1 sections.
     static double cutoffForRow (int row, int rows)
     {
-        const int step = rows - 1 - row; // the bottom row has no cut
-        return step <= 0 ? 0.0 : 20.0 * std::pow (1000.0, (double) step / (double) rows);
+        const int line = rows - row; // 1 for the bottom row, up to rows for the top
+        return 20.0 * std::pow (1000.0, (double) line / (double) (rows + 1));
     }
 
     /// The position that played most recently, or -1 when stopped.

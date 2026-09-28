@@ -835,13 +835,14 @@ public:
             expect (heard == std::vector<int> { 2, 7, 12, 2, 7, 12 });
         }
 
-        beginTest ("Rows set a low cut: none at the bottom, then evenly up in octaves");
+        beginTest ("Three rows cut 20 Hz to 20 kHz into four sections, one low cut per row");
         {
-            expectEquals (CalibrationPlayer::cutoffForRow (2, 3), 0.0);
-            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (1, 3), 200.0, 0.01);
-            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (0, 3), 2000.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (2, 3), 20.0 * std::pow (1000.0, 0.25), 0.01); // ~112 Hz
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (1, 3), 20.0 * std::pow (1000.0, 0.5), 0.01);  // ~632 Hz
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (0, 3), 20.0 * std::pow (1000.0, 0.75), 0.01); // ~3.6 kHz
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (0, 1), 20.0 * std::pow (1000.0, 0.5), 0.01, "one row cuts in the middle");
 
-            // The top row of three has almost nothing below its 2 kHz cut
+            // The top row of three has almost nothing below its 3.6 kHz cut
             auto lowEnergyOfRow = [] (int row)
             {
                 CalibrationPlayer player;

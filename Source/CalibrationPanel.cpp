@@ -213,8 +213,7 @@ void CalibrationPanel::paint (juce::Graphics& g)
     for (int row = 0; row < rows(); ++row)
     {
         const double cutoff = CalibrationPlayer::cutoffForRow (row, rows());
-        const auto text = cutoff <= 0.0 ? juce::String ("Full")
-                        : cutoff >= 1000.0 ? juce::String (cutoff / 1000.0, cutoff >= 10000.0 ? 0 : 1) + "k"
+        const auto text = cutoff >= 1000.0 ? juce::String (cutoff / 1000.0, cutoff >= 10000.0 ? 0 : 1) + "k"
                                            : juce::String (juce::roundToInt (cutoff));
         g.drawText (text, gridArea.getX() - 46, (int) centreOf (row * columns()).y - 7, 38, 14, juce::Justification::centredRight);
     }

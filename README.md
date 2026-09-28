@@ -19,8 +19,9 @@ loads the VST3 to EQ everything the Mac plays.
   them to type.
 - **Calibration** (the grid button in the top bar): a grid of positions that play pink noise
   bursts in reading order, through the EQ. Columns go from your left ear to your right. Rows set
-  a sharp low cut: the bottom row is full-range, and each row up cuts more of the lows, evenly in
-  octaves from 20 Hz to 20 kHz (with 3 rows: none, 200 Hz, 2 kHz). Click positions to play just
+  a sharp low cut: n rows draw n lines across 20 Hz to 20 kHz, evenly in octaves, cutting it into
+  n + 1 sections, and each row's cut is one of those lines, lowest at the bottom (with 3 rows:
+  about 112 Hz, 632 Hz and 3.6 kHz). Click positions to play just
   those: Shift- or Cmd-click, or drag across them, to pick several; Play all goes back to every
   one. Rows, columns and its own volume are on the right. Hiding it stops the sound.
 - **Top bar**: undo/redo (Cmd+Z, Cmd+Shift+Z), the profile's preamp, auto gain (keeps
