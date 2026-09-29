@@ -37,7 +37,7 @@ fi
 rm -rf "$work" && mkdir -p "$work"
 
 step "Building CabinEQ $version for Apple silicon and Intel"
-cmake -S . -B build-dist -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" > /dev/null
+cmake -S . -B build-dist -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 > /dev/null
 cmake --build build-dist --target CabinEQ_VST3 CabinEQ_Tests CabinEQ_HostCheck -j 8 > "$work/build-plugin.log" 2>&1 \
     || { tail -30 "$work/build-plugin.log"; fail "The plugin didn't build"; }
 
@@ -60,6 +60,14 @@ ditto "SystemAudioTap/build-dist/CabinEQSystem_artefacts/Release/CabinEQ System.
 mkdir -p "$app/Contents/PlugIns"
 ditto build-dist/CabinEQ_artefacts/Release/VST3/CabinEQ.vst3 "$app/Contents/PlugIns/CabinEQ.vst3"
 xattr -cr "$app" # Finder info and the like break signatures
+
+# The app can only load a plugin that runs on every macOS the app does
+min_macos() { vtool -show-build "$1" | awk '/minos/ { print $2 }' | sort -V | tail -1 }
+app_min=$(min_macos "$app/Contents/MacOS/CabinEQ System")
+plugin_min=$(min_macos "$app/Contents/PlugIns/CabinEQ.vst3/Contents/MacOS/CabinEQ")
+[[ "$(printf '%s\n' "$plugin_min" "$app_min" | sort -V | tail -1)" == "$app_min" ]] \
+    || fail "The plugin needs macOS $plugin_min, but the app runs on $app_min: it wouldn't load on older Macs"
+echo "The app runs on macOS $app_min and later, and the plugin on $plugin_min and later"
 
 step "Signing with $identity"
 # Inside out: the plugin, then the app around it, both with the hardened runtime notarizing needs

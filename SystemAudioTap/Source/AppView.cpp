@@ -271,6 +271,11 @@ public:
             plugin.set (State::done, "CabinEQ", "Loaded from " + engine.getPluginFile().getFullPathName().replace (juce::File::getSpecialLocation (juce::File::userHomeDirectory).getFullPathName(), "~")
                         + juce::String (p->getName() != "CabinEQ" ? " (" + p->getName() + ")" : ""),
                         { "Change...", [this] { choosePlugin(); } });
+        else if (engine.canInstallPluginForDAWs())
+            // It's built in, but didn't load: this copy of the app is broken, so say so plainly
+            plugin.set (State::problem, "CabinEQ couldn't load",
+                        engine.getPluginError() + ". The CabinEQ built into this app didn't work on this Mac. Download the latest CabinEQ System and try again.",
+                        { "Choose...", [this] { choosePlugin(); } });
         else
             plugin.set (State::problem, "CabinEQ isn't installed",
                         engine.getPluginError() + ". Build and install it with update.sh in the CabinEQ folder, or choose the plugin yourself.",

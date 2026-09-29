@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 # Process taps need macOS 14.2+
 set(CMAKE_OSX_DEPLOYMENT_TARGET "14.2" CACHE STRING "")
 
-project(CabinEQSystem VERSION 1.1.0 LANGUAGES C CXX)
+project(CabinEQSystem VERSION 1.2.0 LANGUAGES C CXX)
 
 set(JUCE_DIR "$ENV{HOME}/JUCE" CACHE PATH "Path to JUCE")
 add_subdirectory(${JUCE_DIR} JUCE)
