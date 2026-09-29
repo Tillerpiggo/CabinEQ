@@ -277,10 +277,10 @@ void BandInspector::paint (juce::Graphics& g)
         g.setColour (point.has_value() ? Theme::textDim : Theme::textFaint);
         g.setFont (Theme::font (point.has_value() ? 11.0f : 13.0f));
         if (! point.has_value())
-            g.drawText (! isSplit() ? juce::String ("Click the graph to add a point, drag to move it, right-click to delete it. The curve plays as one smooth filter.")
+            g.drawText (! isSplit() ? juce::String ("Drag from the 0 dB line to add a point. Drag empty space to select several and drag them together; right-click deletes.")
                         : layer() == BandProfile::both ? juce::String ("Editing the curve both ears get. L and R tweak one ear on top of it (B, L and R keys switch).")
                         : juce::String ("Tweaking the ") + (layer() == BandProfile::leftTweak ? "left" : "right")
-                              + " ear on top of both (dashed). Drag its curve; the other ear is faint.",
+                              + " ear on top of both. Drag from the dashed line to add a point; the other ear is faint.",
                         area, juce::Justification::centredLeft, true);
         else
             g.drawText (numSelected > 1 ? juce::String (numSelected) + " points" : "Point",

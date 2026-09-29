@@ -948,18 +948,21 @@ public:
             expectEquals (profile.getSelectedProfile().getNumBands(), 0);
         }
 
-        beginTest ("In curve mode, clicking anywhere adds a point, dragging moves it, and right-click deletes it");
+        beginTest ("In curve mode, points come out of the 0 dB line; elsewhere, dragging selects, and selected points drag together");
         {
             auto p = profile.getSelectedProfile();
             p.setMode (BandProfile::Mode::curve);
             graph.refresh();
 
-            // Where the plot puts 1 kHz and +6 dB, as in the band tests
-            const float xFor1k = std::log (1000.0f / 20.0f) / std::log (1000.0f) * 1000.0f;
-            const float yFor6dB = 14.0f + (30.0f - 6.0f) / 60.0f * (478.0f - 28.0f);
-            const float yFor0dB = 14.0f + 0.5f * (478.0f - 28.0f);
-            const juce::Point<float> at { xFor1k, yFor6dB };
-            press (graph, at);
+            // Where the plot puts things, as in the band tests
+            auto xFor = [] (float hz) { return std::log (hz / 20.0f) / std::log (1000.0f) * 1000.0f; };
+            auto yFor = [] (float db) { return 14.0f + (30.0f - db) / 60.0f * (478.0f - 28.0f); };
+            const float xFor1k = xFor (1000.0f);
+            const juce::Point<float> onLine { xFor1k, yFor (0.0f) + 3.0f }, at { xFor1k, yFor (6.0f) };
+
+            // Pull one out of the line
+            press (graph, onLine);
+            drag (graph, onLine, at.translated (0.0f, 3.0f));
             release (graph, at);
             expectEquals (p.getNumPoints(), 1);
             expectEquals (p.getNumBands(), 0, "no band was added");
@@ -969,46 +972,59 @@ public:
                 expectWithinAbsoluteError (points[0].freq, 1000.0f, 15.0f);
                 expectWithinAbsoluteError (points[0].gain, 6.0f, 0.2f);
             }
-
-            // Drag it down to 0 dB
-            press (graph, at);
-            drag (graph, at, { xFor1k, yFor0dB });
-            release (graph, { xFor1k, yFor0dB });
-            points = p.getBandProfile().getPoints();
-            expect (! points.empty() && std::abs (points[0].gain) < 0.3f, "dragged down to 0 dB");
-            expectEquals (p.getNumPoints(), 1, "dragging a point doesn't add one");
-
             processor.undo();
             graph.refresh();
-            points = p.getBandProfile().getPoints();
-            expect (! points.empty() && std::abs (points[0].gain - 6.0f) < 0.3f, "undo puts it back");
+            expectEquals (p.getNumPoints(), 0, "adding and dragging undo as one step");
+            processor.redo();
+            graph.refresh();
+
+            // Clicking away from the line doesn't add one; it clears the selection
+            press (graph, { xFor (200.0f), yFor (15.0f) });
+            release (graph, { xFor (200.0f), yFor (15.0f) });
+            expectEquals (p.getNumPoints(), 1, "clicking empty space adds nothing");
+            expectEquals (graph.getNumSelected(), 0);
 
             // Right-click deletes it
-            const juce::Point<float> backAt { xFor1k, yFor6dB };
-            graph.mouseMove (event (graph, backAt, backAt, {}));
-            graph.mouseDown (event (graph, backAt, backAt, juce::ModifierKeys::rightButtonModifier));
-            graph.mouseUp (event (graph, backAt, backAt, {}));
+            graph.mouseMove (event (graph, at, at, {}));
+            graph.mouseDown (event (graph, at, at, juce::ModifierKeys::rightButtonModifier));
+            graph.mouseUp (event (graph, at, at, {}));
             expectEquals (p.getNumPoints(), 0);
 
-            // Split: R picks the right ear's tweak, and a click puts the right ear's curve where you click
+            // Drag a box around two points, then drag one: both move
+            p.setPoints ({ { 0, 300.0f, 6.0f }, { 1, 3000.0f, 9.0f }, { 2, 10000.0f, -3.0f } });
+            graph.refresh();
+            const juce::Point<float> boxFrom { xFor (200.0f), yFor (15.0f) }, boxTo { xFor (5000.0f), yFor (3.0f) };
+            press (graph, boxFrom);
+            drag (graph, boxFrom, boxTo);
+            release (graph, boxTo);
+            expectEquals (graph.getNumSelected(), 2, "the box selected the two inside it");
+
+            const juce::Point<float> grab { xFor (300.0f), yFor (6.0f) }, dropAt { xFor (300.0f), yFor (0.0f) };
+            press (graph, grab);
+            drag (graph, grab, dropAt);
+            release (graph, dropAt);
+            points = p.getBandProfile().getPoints();
+            expectEquals ((int) points.size(), 3, "dragging points doesn't add any");
+            expectWithinAbsoluteError (points[0].gain, 0.0f, 0.3f, "the one dragged moved down 6 dB");
+            expectWithinAbsoluteError (points[1].gain, 3.0f, 0.3f, "and so did the other selected one");
+            expectWithinAbsoluteError (points[2].gain, -3.0f, 0.01f, "the unselected one stayed");
+
+            // Split: R picks the right ear's tweak, whose centre line is the shared curve
             p.setPoints ({ { 0, 1000.0f, 2.0f } }); // both ears: +2 dB
             p.setCurveSplit (true);
             graph.refresh();
             graph.keyPressed (juce::KeyPress ('r'));
-            press (graph, at);
+            const juce::Point<float> onShared { xFor1k, yFor (2.0f) + 3.0f };
+            press (graph, onShared);
+            drag (graph, onShared, at.translated (0.0f, 3.0f));
             release (graph, at);
             expectEquals (p.getNumPoints (BandProfile::rightTweak), 1, "the right ear got the point");
             expectEquals (p.getNumPoints (BandProfile::leftTweak), 0, "the left didn't");
             expectEquals (p.getNumPoints(), 1, "nor did both");
             auto tweak = p.getBandProfile().getPoints (BandProfile::rightTweak);
-            expect (! tweak.empty() && std::abs (tweak[0].gain - 4.0f) < 0.2f, "clicking at +6 dB over a +2 dB curve tweaks by +4");
+            expect (! tweak.empty() && std::abs (tweak[0].gain - 4.0f) < 0.2f, "pulled up to +6 dB over a +2 dB curve: a +4 dB tweak");
             expectWithinAbsoluteError (p.getBandProfile().curveDbAt (1000.0f, 1), 6.0f, 0.2f);
-
-            // Dragging it down to 0 dB on screen takes the right ear there
-            press (graph, at);
-            drag (graph, at, { xFor1k, yFor0dB });
-            release (graph, { xFor1k, yFor0dB });
-            expectWithinAbsoluteError (p.getBandProfile().curveDbAt (1000.0f, 1), 0.0f, 0.3f);
+            expectWithinAbsoluteError (p.getBandProfile().curveDbAt (1000.0f, 0), 2.0f, 0.01f);
 
             graph.keyPressed (juce::KeyPress ('b'));
             expectEquals (graph.getNumSelected(), 0, "switching layers starts with nothing selected");

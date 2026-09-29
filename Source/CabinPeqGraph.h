@@ -76,13 +76,15 @@ private:
     std::optional<CurvePoint> pointAt (juce::Point<float> position) const;
     std::vector<CurvePoint> getSelectedPoints() const;
     bool exists (int id) const; // a band or point with this id, whichever the mode
-    int addPointAt (juce::Point<float> position);
+    int addPointAt (juce::Point<float> position, bool onCentreLine = true); // otherwise, exactly there
     void updatePoints (const std::vector<CurvePoint>& points);
     void curveMouseDown (const juce::MouseEvent&);
     void drawPoints (juce::Graphics&);
     int layer() const; // which of the curve's layers is being edited (a BandProfile::Layer): the shared curve unless split
     float layerBaseDb (float frequency) const; // what a layer's points are relative to: an ear's tweak sits on the shared curve
     float pointDb (const CurvePoint& point) const; // where a point is drawn
+    /// Curve mode's centre line, which new points are pulled out of: 0 dB, or for an ear's tweak, the shared curve
+    bool isNearCentreLine (juce::Point<float> position) const;
     static juce::Colour earColour (int channel);
     int shownLayer = -1;
 public:

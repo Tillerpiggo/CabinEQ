@@ -192,12 +192,15 @@ std::vector<CurvePoint> CabinPeqGraph::getSelectedPoints() const
     return points;
 }
 
-int CabinPeqGraph::addPointAt (juce::Point<float> position)
+int CabinPeqGraph::addPointAt (juce::Point<float> position, bool onCentreLine)
 {
     CurvePoint point;
     point.freq = juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, frequencyForX (position.x));
     // An ear's tweak is how far that ear is from the shared curve: the click puts the ear's curve here
-    point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, std::round ((dbForY (position.y) - layerBaseDb (point.freq)) * 10.0f) / 10.0f);
+    // On the centre line is 0 dB, or for an ear, right on the shared curve
+    point.gain = onCentreLine ? 0.0f
+                              : juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain,
+                                              std::round ((dbForY (position.y) - layerBaseDb (point.freq)) * 10.0f) / 10.0f);
 
     beginEdit ("Add point");
     const int id = profile().addPoint (point, layer());
@@ -340,6 +343,13 @@ std::optional<Band> CabinPeqGraph::bandAt (juce::Point<float> position) const
         }
     }
     return found;
+}
+
+bool CabinPeqGraph::isNearCentreLine (juce::Point<float> position) const
+{
+    return getPlotArea().contains (position)
+        && (int) bandProfile.getPoints (layer()).size() < CabinEqProfile::maxPoints
+        && std::abs (yForDb (layerBaseDb (frequencyForX (position.x))) - position.y) < 8.0f;
 }
 
 bool CabinPeqGraph::isNearZeroLine (juce::Point<float> position) const
@@ -689,7 +699,7 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     {
         g.setColour (Theme::textFaint);
         g.setFont (Theme::font (13.0f));
-        g.drawText (isCurveMode() ? "Click anywhere to add a point. The curve goes through every point you add"
+        g.drawText (isCurveMode() ? "Drag from the 0 dB line to add a point. The curve goes through every point you add"
                                   : "Click the 0 dB line to add a band, then drag to shape it",
                     getPlotArea().withTrimmedTop (getPlotArea().getHeight() * 0.5f + 24.0f).withHeight (20.0f),
                     juce::Justification::centred);
@@ -1131,10 +1141,10 @@ void CabinPeqGraph::drawPoints (juce::Graphics& g)
             g.fillEllipse (circle.reduced (3.5f));
     }
 
-    // Where a click would add a point
+    // Where a click would add a point: on the centre line
     if (hoverId < 0 && hoverIsNearZeroLine && dragMode == DragMode::none && mouseIsOver)
     {
-        auto ghost = juce::Rectangle<float> (13.0f, 13.0f).withCentre (mousePosition);
+        auto ghost = juce::Rectangle<float> (13.0f, 13.0f).withCentre ({ mousePosition.x, yForDb (layerBaseDb (frequencyForX (mousePosition.x))) });
         g.setColour (Theme::text.withAlpha (0.5f));
         g.drawEllipse (ghost, 1.2f);
     }
@@ -1220,9 +1230,9 @@ void CabinPeqGraph::mouseMove (const juce::MouseEvent& event)
     auto band = isCurveMode() ? std::nullopt : bandAt (event.position);
     auto point = isCurveMode() ? pointAt (event.position) : std::nullopt;
     const int newHover = band.has_value() ? band->id : point.has_value() ? point->id : -1;
-    // In curve mode, a click anywhere empty adds a point
+    // New bands and points come out of the centre line
     const bool nearLine = ! band.has_value() && ! point.has_value()
-                       && (isCurveMode() ? getPlotArea().contains (event.position) : isNearZeroLine (event.position));
+                       && (isCurveMode() ? isNearCentreLine (event.position) : isNearZeroLine (event.position));
 
     if (newHover != hoverId || nearLine != hoverIsNearZeroLine)
     {
@@ -1427,20 +1437,21 @@ void CabinPeqGraph::curveMouseDown (const juce::MouseEvent& event)
             setSelection (selectedIds, point->id);
         hasBegunDragEdit = false;
     }
-    else if (event.mods.isShiftDown() || ! getPlotArea().contains (event.position))
+    else if (! event.mods.isShiftDown() && isNearCentreLine (event.position))
     {
-        // Shift-drag across empty space selects points
-        dragMode = DragMode::marquee;
-        marquee = { event.position, event.position };
-        selectionBeforeMarquee = selectedIds;
-        return;
-    }
-    else
-    {
-        // A click anywhere empty adds a point there, and keeps hold of it
+        // Pull a new point out of the centre line, and keep hold of it
         if (addPointAt (event.position) < 0)
             return;
         hasBegunDragEdit = true; // adding it started the undo step
+    }
+    else
+    {
+        // Anywhere else, dragging selects the points inside (Shift adds to the selection); a click clears it
+        dragMode = DragMode::marquee;
+        marquee = { event.position, event.position };
+        selectionBeforeMarquee = event.mods.isShiftDown() ? selectedIds : std::set<int>();
+        setSelection (selectionBeforeMarquee, selectionBeforeMarquee.empty() ? -1 : focusedId);
+        return;
     }
 
     dragMode = DragMode::points;
@@ -1771,7 +1782,7 @@ void CabinPeqGraph::showBackgroundMenu (juce::Point<float> position)
     {
         const bool canAdd = bandProfile.getPoints (layer()).size() < (size_t) CabinEqProfile::maxPoints && getPlotArea().contains (position);
         menu.addItem ("Add point at " + Format::frequency (frequencyForX (position.x)), canAdd, false,
-                      [safeThis, position] { if (safeThis != nullptr) safeThis->addPointAt (position); });
+                      [safeThis, position] { if (safeThis != nullptr) safeThis->addPointAt (position, false); });
         menu.addSeparator();
         menu.addItem ("Show 20 Hz to 20 kHz", viewLow > minFrequency * 1.01f || viewHigh < maxFrequency * 0.99f, false,
                       [safeThis] { if (safeThis != nullptr) safeThis->setFrequencyView (minFrequency, maxFrequency); });

@@ -20,11 +20,12 @@ loads the VST3 to EQ everything the Mac plays.
   (+/-3 to +/-60 dB), and so does dragging or scrolling on the dB axis; double-click the axis for
   +/-30 dB. It only changes what's shown, not how far bands can go. The band strip sets the shape (bell, shelves, cuts)
   and which ear it's for.
-- **Curve mode** (Bands / Curve in the top bar; new profiles start as curves, and imported or older ones as bands): instead of bands that add up, click anywhere on
-  the graph to put a point there, and the EQ follows a smooth curve through every point (a monotone
-  cubic, so it never overshoots between them, and flat past the first and last). Drag points to move
-  them (Cmd for fine), right-click to delete, Shift-click or Shift-drag to select several, and arrow
-  keys to nudge. The first time you switch, the curve starts out tracing your bands. Both are kept, so
+- **Curve mode** (Bands / Curve in the top bar; new profiles start as curves, and imported or older ones as bands): instead of bands
+  that add up, the EQ follows a smooth curve through points you place (a monotone cubic, so it never
+  overshoots between them, and flat past the first and last). Drag a point out of the 0 dB line to
+  add one. Anywhere else, drag a point to move it (Cmd for fine), or drag across empty space to
+  select several (Shift adds to the selection) and then drag any of them to move them all together.
+  Right-click deletes; arrow keys nudge; Delete and Cmd+A work too. The first time you switch, the curve starts out tracing your bands. Both are kept, so
   switching back loses nothing. The curve plays as a minimum-phase FIR filter, redesigned in the
   background as you drag and crossfaded in, so there's no added delay and no clicks.
   **Split L/R** (in the strip under the graph) lets you tweak each ear on top of the curve both
