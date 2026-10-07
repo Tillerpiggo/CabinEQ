@@ -1195,6 +1195,41 @@ public:
             expectEquals (player.getCurrentPosition(), 7, "8 bursts in 2 s at 4 per second");
         }
 
+        beginTest ("Release sets how long a burst rings, and 0 ms leaves just the attack");
+        {
+            // How long after a single burst starts the output is last above -60 dB of its peak
+            auto ringSeconds = [this] (float releaseMs)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setGrid (1, 1);
+                player.setRate (CalibrationPlayer::minRate); // one burst, then 2 s of nothing
+                player.setReleaseMs (releaseMs);
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) (1.9 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+
+                // Noise is jumpy, so compare 2 ms RMS windows against the loudest one
+                const int window = (int) (0.002 * sampleRate);
+                std::vector<float> rms;
+                for (int start = 0; start + window <= buffer.getNumSamples(); start += window)
+                    rms.push_back (buffer.getRMSLevel (0, start, window));
+                const float peak = *std::max_element (rms.begin(), rms.end());
+                expectGreaterThan (peak, 0.0f);
+                int last = 0;
+                for (int i = 0; i < (int) rms.size(); ++i)
+                    if (rms[(size_t) i] > peak * 0.001f)
+                        last = i;
+                return (float) ((last + 1) * window / sampleRate);
+            };
+
+            expectLessThan (ringSeconds (0.0f), 0.012f, "0 ms: the 4 ms attack, then gone");
+            expectWithinAbsoluteError (ringSeconds (300.0f), 0.3f, 0.08f);
+            expectWithinAbsoluteError (ringSeconds (1500.0f), 1.5f, 0.3f);
+        }
+
         beginTest ("Spots mode plays each spot in turn, across the pan range");
         {
             CalibrationPlayer player;

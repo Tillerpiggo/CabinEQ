@@ -61,8 +61,8 @@ private:
     CalibrationPlayer& player;
 
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
-    juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider;
-    juce::Label volumeLabel, depthLabel, speedLabel;
+    juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider, releaseSlider;
+    juce::Label volumeLabel, depthLabel, speedLabel, releaseLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;
 
     juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" };

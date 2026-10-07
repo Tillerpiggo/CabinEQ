@@ -18,6 +18,7 @@ namespace
     const juce::Identifier idLevel { "calibrationLevel" };
     const juce::Identifier idDepth { "calibrationDepth" };
     const juce::Identifier idSpeed { "calibrationSpeed" };
+    const juce::Identifier idRelease { "calibrationRelease" };
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -59,9 +60,16 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     speedSlider.setSkewFactorFromMidPoint (2.5);
     speedSlider.textFromValueFunction = [] (double v) { return juce::String (v, 1) + " / s"; };
     speedSlider.setTooltip ("How many bursts play each second");
-    for (auto* slider : { &volumeSlider, &depthSlider, &speedSlider })
+    setUpSlider (releaseSlider, juce::Slider::LinearHorizontal, 0.0, CalibrationPlayer::maxReleaseMs, 10.0,
+                 (double) state.getProperty (idRelease, CalibrationPlayer::defaultReleaseMs));
+    releaseSlider.setSkewFactorFromMidPoint (600.0);
+    releaseSlider.textFromValueFunction = [] (double v) { return v >= 1000.0 ? juce::String (v / 1000.0, 2) + " s" : juce::String ((int) v) + " ms"; };
+    releaseSlider.setTooltip ("How long each burst takes to fade out. 0 ms cuts it off straight after the attack, for a short tick.");
+    for (auto* slider : { &volumeSlider, &depthSlider, &speedSlider, &releaseSlider })
         slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
     speedSlider.updateText();
+    releaseSlider.updateText();
+    setUpLabel (releaseLabel, "Release");
     setUpLabel (volumeLabel, "Volume");
     setUpLabel (depthLabel, "Depth");
     setUpLabel (speedLabel, "Speed");
@@ -201,6 +209,7 @@ void CalibrationPanel::applySettings()
     player.setLevelDb ((float) volumeSlider.getValue());
     player.setDepth ((int) depthSlider.getValue());
     player.setRate ((float) speedSlider.getValue());
+    player.setReleaseMs ((float) releaseSlider.getValue());
 
     // Forget selected positions that aren't on the grid any more
     auto selection = player.getSelection();
@@ -215,6 +224,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idLevel, volumeSlider.getValue(), nullptr);
     state.setProperty (idDepth, (int) depthSlider.getValue(), nullptr);
     state.setProperty (idSpeed, speedSlider.getValue(), nullptr);
+    state.setProperty (idRelease, releaseSlider.getValue(), nullptr);
 
     updateButtons();
     repaint();
@@ -495,9 +505,10 @@ void CalibrationPanel::resized()
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));
     controls.removeFromLeft (20);
-    for (auto [slider, label] : { std::pair { &volumeSlider, &volumeLabel }, std::pair { &speedSlider, &speedLabel }, std::pair { &depthSlider, &depthLabel } })
+    for (auto [slider, label] : { std::pair { &volumeSlider, &volumeLabel }, std::pair { &speedSlider, &speedLabel }, std::pair { &releaseSlider, &releaseLabel },
+                                 std::pair { &depthSlider, &depthLabel } })
     {
-        auto row = controls.removeFromTop (36);
+        auto row = controls.removeFromTop (34);
         label->setBounds (row.removeFromLeft (64));
         slider->setBounds (row.withSizeKeepingCentre (row.getWidth(), 28));
     }
