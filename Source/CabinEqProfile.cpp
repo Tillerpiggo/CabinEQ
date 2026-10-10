@@ -48,7 +48,9 @@ juce::ValueTree CabinEqProfile::createTree (const juce::String& name, const Band
         profileTree.appendChild (treeFromPoints (idCurveRight, bandProfile.getPoints (BandProfile::rightTweak)), nullptr);
         profileTree.setProperty (idCurveSplit, true, nullptr);
     }
-    profileTree.setProperty (idMode, bandProfile.isCurve() ? "curve" : "bands", nullptr);
+    profileTree.setProperty (idBandsOn, bandProfile.getBandsOn(), nullptr);
+    profileTree.setProperty (idCurveOn, bandProfile.getCurveOn(), nullptr);
+    profileTree.setProperty (idMode, bandProfile.getCurveOn() && ! bandProfile.getBandsOn() ? "curve" : "bands", nullptr); // for older builds
     return profileTree;
 }
 
@@ -139,18 +141,33 @@ BandProfile CabinEqProfile::getBandProfile() const
     profile.setPoints (pointsFromTree (tree.getChildWithName (idCurve)));
     if (isCurveSplit())
         profile.setSplit (pointsFromTree (tree.getChildWithName (idCurveLeft)), pointsFromTree (tree.getChildWithName (idCurveRight)));
-    profile.setMode (getMode());
+    profile.setBandsOn (getBandsOn());
+    profile.setCurveOn (getCurveOn());
     return profile;
 }
 
-BandProfile::Mode CabinEqProfile::getMode() const
+bool CabinEqProfile::getBandsOn() const
 {
-    return tree.getProperty (idMode).toString() == "curve" ? BandProfile::Mode::curve : BandProfile::Mode::bands;
+    if (tree.hasProperty (idBandsOn))
+        return (bool) tree.getProperty (idBandsOn);
+    return tree.getProperty (idMode).toString() != "curve"; // saved before the layers were separate
 }
 
-void CabinEqProfile::setMode (BandProfile::Mode mode)
+bool CabinEqProfile::getCurveOn() const
 {
-    tree.setProperty (idMode, mode == BandProfile::Mode::curve ? "curve" : "bands", undoManager);
+    if (tree.hasProperty (idCurveOn))
+        return (bool) tree.getProperty (idCurveOn);
+    return tree.getProperty (idMode).toString() == "curve";
+}
+
+void CabinEqProfile::setBandsOn (bool on)
+{
+    tree.setProperty (idBandsOn, on, undoManager);
+}
+
+void CabinEqProfile::setCurveOn (bool on)
+{
+    tree.setProperty (idCurveOn, on, undoManager);
 }
 
 juce::ValueTree CabinEqProfile::treeFromPoints (const juce::Identifier& name, const std::vector<CurvePoint>& points)

@@ -70,7 +70,7 @@ private:
     enum class DragMode { none, bands, points, marquee, zoom, spotsTogether, spotsResize, pan };
 
     // Curve mode: points the curve goes through, instead of bands
-    bool isCurveMode() const { return bandProfile.isCurve(); }
+    bool isCurveMode() const { return editingCurve; } // which layer clicks and edits go to
     float responseDb (float frequency, int channel = -1) const; // of whichever the profile uses
     juce::Point<float> pointPosition (const CurvePoint& point) const;
     std::optional<CurvePoint> pointAt (juce::Point<float> position) const;
@@ -93,6 +93,7 @@ public:
 private:
     std::vector<CurvePoint> pointsAtDragStart;
     bool wasCurveMode = false;
+    bool editingCurve = false; // from the processor, for the profile as it is now
 
     // The -/+ dB range control in the top right
     struct ZoomControl { juce::Rectangle<float> bounds, minus, plus, label; };

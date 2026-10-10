@@ -15,7 +15,7 @@
 
 /// A handle to one profile's ValueTree, which is where its EQ and preamp are saved:
 ///
-///     <Profile ProfileName="..." ProfileVolume="0.0" mode="bands">
+///     <Profile ProfileName="..." ProfileVolume="0.0" bandsOn="1" curveOn="0">
 ///       <Bands>
 ///         <Band id="0" freq="1000" ampl="3" bandwidth="1" bandtype="0" shape="0" enabled="1"/>
 ///       </Bands>
@@ -26,7 +26,7 @@
 ///       <CurveRight> ... </CurveRight>
 ///     </Profile>
 ///
-/// "mode" says which of the two is playing; both are kept, so switching loses nothing. <Curve> is
+/// bandsOn and curveOn say which layers play; both are kept whether they play or not. <Curve> is
 /// what both ears get. With curveSplit="1", <CurveLeft> and <CurveRight> are each ear's tweak on top.
 ///
 /// Copies share the same tree. Edits go through the UndoManager, if there is one.
@@ -60,9 +60,13 @@ public:
     void setVolume (float volume);
     void renameTo (const juce::String& newName);
 
-    // Curve mode. `layer` is a BandProfile::Layer: the shared curve, or (when split) an ear's tweak.
-    BandProfile::Mode getMode() const;
-    void setMode (BandProfile::Mode mode);
+    // The two layers that can play. Both can be on: the bands, then the curve.
+    bool getBandsOn() const;
+    bool getCurveOn() const;
+    void setBandsOn (bool on);
+    void setCurveOn (bool on);
+
+    // The curve. `layer` is a BandProfile::Layer: the shared curve, or (when split) an ear's tweak.
     std::optional<CurvePoint> getPoint (int id, int layer = BandProfile::both) const;
     int getNumPoints (int layer = BandProfile::both) const;
     int addPoint (const CurvePoint& point, int layer = BandProfile::both); // returns its new id, or -1 if the curve is full
@@ -79,7 +83,9 @@ public:
     static inline const juce::Identifier idProfileName { "ProfileName" };
     static inline const juce::Identifier idProfileVolume { "ProfileVolume" };
     static inline const juce::Identifier idBands { "Bands" };
-    static inline const juce::Identifier idMode { "mode" };
+    static inline const juce::Identifier idMode { "mode" }; // older profiles only: "bands" or "curve"
+    static inline const juce::Identifier idBandsOn { "bandsOn" };
+    static inline const juce::Identifier idCurveOn { "curveOn" };
     static inline const juce::Identifier idCurve { "Curve" };
     static inline const juce::Identifier idCurveLeft { "CurveLeft" };
     static inline const juce::Identifier idCurveRight { "CurveRight" };

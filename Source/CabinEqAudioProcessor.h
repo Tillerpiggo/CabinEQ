@@ -85,6 +85,11 @@ public:
 
     /// Auto gain's current correction in dB, whether or not it's switched on.
     float getAutoGainDb() const { return autoGainDb; }
+
+    /// With both layers on, which one the graph and the inspector edit. With only one on, that's the one.
+    static inline const juce::Identifier idEditCurve { "editCurve" };
+    bool isEditingCurve() const;
+    void setEditingCurve (bool editCurve); // not undoable: which layer you're looking at
     bool isAutoGainOn() const;
     double getCurveSampleRate() const;
 

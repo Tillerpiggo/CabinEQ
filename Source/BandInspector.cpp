@@ -142,7 +142,7 @@ std::optional<Band> BandInspector::currentBand() const
 
 bool BandInspector::isCurveMode() const
 {
-    return processor.getSelectedProfile().getMode() == BandProfile::Mode::curve;
+    return processor.isEditingCurve();
 }
 
 std::optional<CurvePoint> BandInspector::currentPoint() const

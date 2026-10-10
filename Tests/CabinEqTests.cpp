@@ -400,13 +400,14 @@ public:
         {
             CabinEqAudioProcessor processor;
             auto& profiles = processor.getProfiles();
-            expect (profiles.getSelectedProfile().getMode() == BandProfile::Mode::curve);
-            expect (profiles.addProfile ("Empty").getMode() == BandProfile::Mode::curve);
-            expect (profiles.addProfile ("Imported", BandProfile ({ Band::withQ (0, 500.0f, 3.0f, 1.0f, Band::Type::both) }, 0.0f)).getMode()
-                    == BandProfile::Mode::bands);
+            expect (profiles.getSelectedProfile().getCurveOn() && ! profiles.getSelectedProfile().getBandsOn(), "a new profile is a curve");
+            auto empty = profiles.addProfile ("Empty");
+            expect (empty.getCurveOn() && ! empty.getBandsOn());
+            auto imported = profiles.addProfile ("Imported", BandProfile ({ Band::withQ (0, 500.0f, 3.0f, 1.0f, Band::Type::both) }, 0.0f));
+            expect (imported.getBandsOn() && ! imported.getCurveOn(), "an import is bands");
             juce::ValueTree saved (CabinEqProfile::idProfile);
             saved.setProperty (CabinEqProfile::idProfileName, "Saved before curves", nullptr);
-            expect (CabinEqProfile (saved, nullptr).getMode() == BandProfile::Mode::bands, "a profile saved before curves is bands");
+            expect (CabinEqProfile (saved, nullptr).getBandsOn() && ! CabinEqProfile (saved, nullptr).getCurveOn(), "a profile saved before curves is bands");
         }
 
         beginTest ("Undo and redo, and undo selects the profile it changed");
@@ -416,7 +417,7 @@ public:
             auto& undo = processor.getUndoManager();
 
             auto first = profiles.getSelectedProfile();
-            first.setMode (BandProfile::Mode::bands);
+            first.setBandsOn (true), first.setCurveOn (false);
             undo.beginNewTransaction();
             first.addBand (Band::withQ (0, 500.0f, 3.0f, 1.0f, Band::Type::both));
 
@@ -620,7 +621,7 @@ public:
         beginTest ("Auto gain cancels a boost");
         {
             CabinEqAudioProcessor processor;
-            processor.getSelectedProfile().setMode (BandProfile::Mode::bands);
+            processor.getSelectedProfile().setBandsOn (true), processor.getSelectedProfile().setCurveOn (false);
             processor.getSelectedProfile().addBand (Band::withQ (0, 1000.0f, 6.0f, 0.3f, Band::Type::both));
             pumpMessages();
             expectLessThan (processor.getAutoGainDb(), -3.0f);
@@ -696,7 +697,7 @@ public:
         CabinPeqGraph graph (processor);
         graph.setBounds (0, 0, 1000, 500);
         auto& profile = processor.getProfiles();
-        profile.getSelectedProfile().setMode (BandProfile::Mode::bands); // a new profile starts as a curve
+        profile.getSelectedProfile().setBandsOn (true), profile.getSelectedProfile().setCurveOn (false); // a new profile starts as a curve
         graph.refresh();
 
         beginTest ("Clicking the line adds a band, and dragging shapes it");
@@ -951,7 +952,7 @@ public:
         beginTest ("In curve mode, points come out of the 0 dB line; elsewhere, dragging selects, and selected points drag together");
         {
             auto p = profile.getSelectedProfile();
-            p.setMode (BandProfile::Mode::curve);
+            p.setBandsOn (false), p.setCurveOn (true);
             graph.refresh();
 
             // Where the plot puts things, as in the band tests
@@ -1030,7 +1031,7 @@ public:
             expectEquals (graph.getNumSelected(), 0, "switching layers starts with nothing selected");
             p.setCurveSplit (false);
 
-            p.setMode (BandProfile::Mode::bands);
+            p.setBandsOn (true), p.setCurveOn (false);
             graph.refresh();
         }
     }
@@ -1596,6 +1597,69 @@ public:
             expectEquals (profile.getNumPoints (BandProfile::rightTweak), 1, "undo brings the tweak back");
         }
 
+        beginTest ("Bands and curve are independent, and both on they stack");
+        {
+            CabinEqAudioProcessor processor;
+            processor.parameters.getParameter (ParamIDs::autoGain)->setValueNotifyingHost (0.0f);
+            processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+            processor.prepareToPlay (sampleRate, blockSize);
+
+            auto profile = processor.getSelectedProfile();
+            profile.setBandsOn (true), profile.setCurveOn (false);
+            profile.addBand (Band::withQ (0, 1000.0f, 6.0f, 0.3f, Band::Type::both));
+            profile.setPoints ({ { 0, 1000.0f, 6.0f } });
+
+            auto gainAt1k = [&processor] (int blocks)
+            {
+                juce::AudioBuffer<float> buffer (2, blockSize);
+                juce::MidiBuffer midi;
+                double phase = 0.0, in = 0.0, out = 0.0;
+                for (int block = 0; block < blocks; ++block)
+                {
+                    for (int i = 0; i < blockSize; ++i)
+                    {
+                        const auto sample = (float) (0.1 * std::sin (phase));
+                        phase += juce::MathConstants<double>::twoPi * 1000.0 / sampleRate;
+                        buffer.setSample (0, i, sample);
+                        buffer.setSample (1, i, sample);
+                        if (block >= blocks / 2) in += sample * sample;
+                    }
+                    processor.processBlock (buffer, midi);
+                    if (block >= blocks / 2)
+                        for (int i = 0; i < blockSize; ++i)
+                            out += buffer.getSample (0, i) * buffer.getSample (0, i);
+                }
+                return (float) (10.0 * std::log10 (out / in));
+            };
+            auto settle = [&] (int blocks) { juce::Thread::sleep (300); gainAt1k (40); juce::Thread::sleep (300); return gainAt1k (blocks); };
+
+            expectWithinAbsoluteError (settle (200), 6.0f, 0.3f, "bands alone: +6");
+
+            profile.setCurveOn (true);
+            expectWithinAbsoluteError (settle (200), 12.0f, 0.4f, "bands and curve: +6 and +6 stack to +12");
+            expectEquals (profile.getNumPoints(), 1, "the curve's points are still there");
+
+            profile.setBandsOn (false);
+            expectWithinAbsoluteError (settle (200), 6.0f, 0.3f, "curve alone: +6");
+            expectEquals (profile.getNumBands(), 1, "the bands are still there");
+
+            profile.setBandsOn (true), profile.setCurveOn (false);
+            expectWithinAbsoluteError (settle (200), 6.0f, 0.3f, "and back to bands alone");
+        }
+
+        beginTest ("With both layers on, the layer you edit is the one you last picked; with one on, it's that one");
+        {
+            CabinEqAudioProcessor processor;
+            auto profile = processor.getSelectedProfile();
+            profile.setBandsOn (true), profile.setCurveOn (true);
+            processor.setEditingCurve (false);
+            expect (! processor.isEditingCurve(), "bands, when you last picked bands");
+            processor.setEditingCurve (true);
+            expect (processor.isEditingCurve(), "the curve, once you pick it");
+            profile.setCurveOn (false);
+            expect (! processor.isEditingCurve(), "with only bands on, you edit the bands");
+        }
+
         beginTest ("A split curve plays each ear its own gain through the processor");
         {
             CabinEqAudioProcessor processor;
@@ -1604,7 +1668,7 @@ public:
             processor.prepareToPlay (sampleRate, blockSize);
 
             auto profile = processor.getSelectedProfile();
-            profile.setMode (BandProfile::Mode::curve);
+            profile.setBandsOn (false), profile.setCurveOn (true);
             profile.setPoints ({ { 0, 1000.0f, 1.0f } });
             profile.setCurveSplit (true);
             profile.setPoints ({ { 0, 1000.0f, 5.0f } }, BandProfile::leftTweak);
@@ -1653,7 +1717,7 @@ public:
 
             auto profile = processor.getSelectedProfile();
             profile.setPoints ({ { 0, 1000.0f, 6.0f } }); // one point: +6 dB everywhere
-            profile.setMode (BandProfile::Mode::curve);
+            profile.setBandsOn (false), profile.setCurveOn (true);
 
             auto gainAt1k = [&processor] (int blocks)
             {
@@ -1684,7 +1748,7 @@ public:
             juce::Thread::sleep (300);
             expectWithinAbsoluteError (gainAt1k (200), 6.0f, 0.3f);
 
-            profile.setMode (BandProfile::Mode::bands);
+            profile.setBandsOn (true), profile.setCurveOn (false);
             juce::Thread::sleep (300);
             gainAt1k (40);
             juce::Thread::sleep (300);
@@ -1743,7 +1807,7 @@ static PresetFileTests presetFileTests;
 
 //==============================================================================
 /// Renders the editor with a demo profile to a PNG, to check the UI without clicking around.
-static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed, bool curveMode, bool split)
+static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed, bool curveMode, bool split, bool bothLayers)
 {
     CabinEqAudioProcessor processor;
     auto profile = processor.getSelectedProfile();
@@ -1753,12 +1817,12 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
                         Band::withQ (0, 5400.0f, 4.0f, 3.0f, Band::Type::both),
                         Band::withQ (0, 9800.0f, -2.5f, 0.7f, Band::Type::both, Band::Shape::highShelf) });
     profile.setVolume (-6.0f);
+    profile.setBandsOn (! curveMode || bothLayers), profile.setCurveOn (curveMode);
     if (curveMode)
     {
         BandEqCurve bands;
         bands.updateWithBands (profile.getBandProfile().getBands());
         profile.setPoints (CurveResponse::tracing ([&bands] (float f) { return bands.dbAtFrequency (f); }));
-        profile.setMode (BandProfile::Mode::curve);
         if (split)
         {
             profile.setCurveSplit (true);
@@ -1878,7 +1942,8 @@ int main (int argc, char** argv)
                               argc >= 6 && juce::String (argv[5]).contains ("spots"),
                               argc >= 6 && juce::String (argv[5]).contains ("zoom"),
                               argc >= 6 && juce::String (argv[5]).contains ("curve"),
-                              argc >= 6 && juce::String (argv[5]).contains ("split"));
+                              argc >= 6 && juce::String (argv[5]).contains ("split"),
+                              argc >= 6 && juce::String (argv[5]).contains ("both"));
 
     CabinEqProfileManager::shouldBackUpOldState = false;
 

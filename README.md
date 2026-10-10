@@ -20,7 +20,11 @@ loads the VST3 to EQ everything the Mac plays.
   (+/-3 to +/-60 dB), and so does dragging or scrolling on the dB axis; double-click the axis for
   +/-30 dB. It only changes what's shown, not how far bands can go. The band strip sets the shape (bell, shelves, cuts)
   and which ear it's for.
-- **Curve mode** (Bands / Curve in the top bar; new profiles start as curves, and imported or older ones as bands): instead of bands
+- **Bands and Curve** (the two buttons in the top bar): each one turns on or off, and both can play at once.
+  The bands run first, then the curve on top of them, so the two stack. Each keeps its own edits, and
+  turning one off doesn't lose anything. New profiles start with just the curve; imports and older profiles
+  start with just the bands. Click a band or a point to choose which layer you're editing (the one you're
+  editing is the brighter one), or turn one layer on or off to choose what plays. The curve:
   that add up, the EQ follows a smooth curve through points you place (a monotone cubic, so it never
   overshoots between them, and flat past the first and last). Drag a point out of the 0 dB line to
   add one. Anywhere else, drag a point to move it (Cmd for fine), or drag across empty space to

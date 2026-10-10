@@ -89,11 +89,11 @@ juce::String Band::typeName (Type type)
 
 //==============================================
 BandProfile::BandProfile (std::vector<Band> bands, float volume)
-    : mode (Mode::bands), bands (std::move (bands)), volume (volume)
+    : bandsOn (true), curveOn (false), bands (std::move (bands)), volume (volume)
 {}
 
 BandProfile::BandProfile (std::vector<CurvePoint> points, float volume)
-    : mode (Mode::curve), points (std::move (points)), volume (volume)
+    : bandsOn (false), curveOn (true), points (std::move (points)), volume (volume)
 {
     shared.setPoints (this->points);
 }

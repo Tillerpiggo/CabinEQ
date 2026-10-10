@@ -76,14 +76,13 @@ public:
 class BandProfile
 {
 public:
-    enum class Mode { bands, curve };
-
     BandProfile() = default; // an empty curve
     BandProfile (std::vector<Band> bands, float volume);
     BandProfile (std::vector<CurvePoint> points, float volume); // a curve profile
 
-    Mode getMode() const { return mode; }
-    bool isCurve() const { return mode == Mode::curve; }
+    /// What plays: the bands, the curve, or both, chained (the bands first, then the curve on top). Each keeps its own edits.
+    bool getBandsOn() const { return bandsOn; }
+    bool getCurveOn() const { return curveOn; }
 
     const std::vector<Band>& getBands() const;
     std::optional<Band> getBandWithId (int id) const;
@@ -98,13 +97,14 @@ public:
     float getVolume() const; // preamp, in dB
 
     // Both kinds are kept, so switching back and forth loses nothing
-    void setMode (Mode newMode) { mode = newMode; }
+    void setBandsOn (bool on) { bandsOn = on; }
+    void setCurveOn (bool on) { curveOn = on; }
     void setPoints (std::vector<CurvePoint> newPoints) { points = std::move (newPoints); shared.setPoints (points); }
     void setSplit (std::vector<CurvePoint> newLeftTweak, std::vector<CurvePoint> newRightTweak);
     void setBands (std::vector<Band> newBands) { bands = std::move (newBands); }
 
 private:
-    Mode mode = Mode::curve; // a new, empty profile starts as a curve; one made from bands is bands
+    bool bandsOn = false, curveOn = true; // a new, empty profile is a curve; one made from bands is bands
     std::vector<Band> bands;
     std::vector<CurvePoint> points, leftTweakPoints, rightTweakPoints;
     bool split = false;

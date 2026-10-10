@@ -56,7 +56,7 @@ private:
     void showCrossfeed();
     void showMessage (const juce::String& title, const juce::String& message);
     void setCalibrationShown (bool shouldShow);
-    void setMode (BandProfile::Mode mode);
+    void toggleLayer (bool curve); // turns the bands or the curve on or off
 
     CabinEqAudioProcessor& processor;
 

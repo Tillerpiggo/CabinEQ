@@ -115,8 +115,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     addAndMakeVisible (volumeField);
 
     // Bands (filters that add up) or a curve through points (one smooth FIR filter)
-    bandsModeButton.setTooltip ("Bands: bells, shelves and cuts that add up. Light on the CPU, no delay.");
-    curveModeButton.setTooltip ("Curve: click points and the EQ follows a smooth curve through them, played by a FIR filter. Starts from your bands.");
+    bandsModeButton.setTooltip ("Bands: bells, shelves and cuts. Click to turn them on or off.");
+    curveModeButton.setTooltip ("Curve: a smooth curve through points, played by a FIR filter after the bands. Click to turn it on or off.");
     bandsModeButton.setConnectedEdges (juce::Button::ConnectedOnRight);
     curveModeButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
     for (auto* button : { &bandsModeButton, &curveModeButton })
@@ -126,8 +126,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
         button->setColour (juce::TextButton::textColourOnId, Theme::graph);
         addAndMakeVisible (*button);
     }
-    bandsModeButton.onClick = [this] { setMode (BandProfile::Mode::bands); };
-    curveModeButton.onClick = [this] { setMode (BandProfile::Mode::curve); };
+    bandsModeButton.onClick = [this] { toggleLayer (false); };
+    curveModeButton.onClick = [this] { toggleLayer (true); };
 
     autoGainToggle.setTooltip ("Turns the output down by as much as the EQ makes music louder, so switching the EQ on and off is a fair comparison.");
     autoGainToggle.onStateChange = [this] { updateTopBar(); };
@@ -182,31 +182,38 @@ void CabinEqPage::updateInspector()
     inspector.showBand (id, number, graph.getNumSelected());
 }
 
-void CabinEqPage::setMode (BandProfile::Mode mode)
+void CabinEqPage::toggleLayer (bool curve)
 {
     auto profile = processor.getSelectedProfile();
-    if (profile.getMode() == mode)
+    const bool turningOn = curve ? ! profile.getCurveOn() : ! profile.getBandsOn();
+    const bool otherOn = curve ? profile.getBandsOn() : profile.getCurveOn();
+
+    // At least one layer plays; the power button is how you turn everything off
+    if (! turningOn && ! otherOn)
         return;
 
-    processor.getUndoManager().beginNewTransaction (mode == BandProfile::Mode::curve ? "Switch to curve" : "Switch to bands");
+    processor.getUndoManager().beginNewTransaction ((turningOn ? "Turn " : "Turn off ") + juce::String (curve ? "curve" : "bands"));
+    if (curve)
+        profile.setCurveOn (turningOn);
+    else
+        profile.setBandsOn (turningOn);
 
-    // A first curve starts out sounding the same as the bands
-    if (mode == BandProfile::Mode::curve && profile.getNumPoints() == 0)
-    {
-        BandEqCurve bands;
-        bands.setSampleRate (processor.getCurveSampleRate());
-        bands.updateWithBands (profile.getBandProfile().getBands());
-        profile.setPoints (CurveResponse::tracing ([&bands] (float frequency) { return bands.dbAtFrequency (frequency); }));
-    }
-    profile.setMode (mode);
+    // The one you just turned on is the one you're editing
+    if (turningOn)
+        processor.setEditingCurve (curve);
     refreshAll();
 }
 
 void CabinEqPage::updateTopBar()
 {
-    const bool curveMode = processor.getSelectedProfile().getMode() == BandProfile::Mode::curve;
-    bandsModeButton.setToggleState (! curveMode, juce::dontSendNotification);
-    curveModeButton.setToggleState (curveMode, juce::dontSendNotification);
+    const auto profile = processor.getSelectedProfile();
+    bandsModeButton.setToggleState (profile.getBandsOn(), juce::dontSendNotification);
+    curveModeButton.setToggleState (profile.getCurveOn(), juce::dontSendNotification);
+
+    // With both on, the layer you're editing is the bright one
+    const bool editingCurve = processor.isEditingCurve();
+    bandsModeButton.setColour (juce::TextButton::buttonOnColourId, editingCurve ? Theme::accent.withAlpha (0.5f) : Theme::accent);
+    curveModeButton.setColour (juce::TextButton::buttonOnColourId, editingCurve ? Theme::accent : Theme::accent.withAlpha (0.5f));
 
     const bool bypassed = processor.parameters.getParameter (ParamIDs::bypass)->getValue() >= 0.5f;
     powerButton->setToggleState (! bypassed, juce::dontSendNotification);

@@ -302,28 +302,42 @@ void CabinEqAudioProcessor::refresh()
 
     auto bandProfile = selected.getBandProfile();
     pushBandsToAudio (bandProfile);
-    if (bandProfile.isCurve())
+
+    // Whatever plays, the loudness change is the bands' and the curve's, added in dB
+    curve.setSampleRate (getCurveSampleRate());
+    curve.updateWithBands (bandProfile.getBandsOn() ? bandProfile.getBands() : std::vector<Band>{});
+    autoGainDb = -CurveResponse::loudnessChangeDb ([&] (float frequency)
     {
-        // Split ears: as loud as the two on average
-        auto loudness = [&bandProfile] (int ear) { return CurveResponse::loudnessChangeDb ([&] (float f) { return bandProfile.curveDbAt (f, ear); }); };
-        autoGainDb = bandProfile.isSplit() ? -0.5f * (loudness (0) + loudness (1)) : -CurveResponse (bandProfile.getPoints()).loudnessChangeDb();
-    }
-    else
-    {
-        curve.setSampleRate (getCurveSampleRate());
-        curve.updateWithBands (bandProfile.getBands());
-        autoGainDb = -curve.loudnessChangeDb();
-    }
+        float db = 0.0f;
+        if (bandProfile.getBandsOn())
+            db += curve.dbAtFrequency (frequency);
+        if (bandProfile.getCurveOn())
+            db += bandProfile.curveDbAt (frequency, -1); // the average of the ears, when split
+        return db;
+    });
+}
+
+bool CabinEqAudioProcessor::isEditingCurve() const
+{
+    const auto profile = profiles.getSelectedProfile();
+    if (profile.getBandsOn() != profile.getCurveOn())
+        return profile.getCurveOn(); // only one plays: that's the one to edit
+    return (bool) parameters.state.getProperty (idEditCurve, false);
+}
+
+void CabinEqAudioProcessor::setEditingCurve (bool editCurve)
+{
+    parameters.state.setProperty (idEditCurve, editCurve, nullptr);
 }
 
 void CabinEqAudioProcessor::pushBandsToAudio (const BandProfile& bandProfile)
 {
     const juce::ScopedLock lock (refreshLock);
 
-    // Only one kind plays: the other fades out
-    if (bandProfile.isCurve())
+    // The bands first, then the curve on top of them; a layer that's off fades out
+    playbackManager.setBands (bandProfile.getBandsOn() ? bandProfile.getBands() : std::vector<Band>{});
+    if (bandProfile.getCurveOn())
     {
-        playbackManager.setBands ({});
         std::optional<CurveFilter::EarTweaks> tweaks;
         if (bandProfile.isSplit())
             tweaks = CurveFilter::EarTweaks { bandProfile.getPoints (BandProfile::leftTweak), bandProfile.getPoints (BandProfile::rightTweak) };
@@ -331,7 +345,6 @@ void CabinEqAudioProcessor::pushBandsToAudio (const BandProfile& bandProfile)
     }
     else
     {
-        playbackManager.setBands (bandProfile.getBands());
         playbackManager.setCurve (std::nullopt);
     }
     preampDb = bandProfile.getVolume();
