@@ -1304,6 +1304,42 @@ public:
             expectWithinAbsoluteError (levels[2] - levels[1], 10.0f, 3.0f, "and the third another 10 dB");
         }
 
+        beginTest ("The floor sets where a depth run starts; the repeats climb evenly from there to full level");
+        {
+            auto levelsWith = [this] (int depth, float floorDb)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setGrid (1, 1);
+                player.setDepth (depth);
+                player.setFloorDb (floorDb);
+                player.setReleaseMs (100.0f); // each burst is gone before the next, so they can be measured apart
+                player.setRate (1.0f / 0.3f);
+                player.setPlaying (true);
+
+                std::vector<float> levels;
+                for (int burst = 0; burst < depth; ++burst)
+                {
+                    juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+                    buffer.clear();
+                    player.process (buffer);
+                    levels.push_back (juce::Decibels::gainToDecibels (buffer.getRMSLevel (0, 0, (int) (0.05 * sampleRate))));
+                }
+                return levels;
+            };
+
+            auto levels = levelsWith (3, -30.0f);
+            expectWithinAbsoluteError (levels[2] - levels[0], 30.0f, 3.0f, "the first is the floor: 30 dB under the last");
+            expectWithinAbsoluteError (levels[1] - levels[0], 15.0f, 3.0f, "the middle one is halfway");
+
+            levels = levelsWith (2, -40.0f);
+            expectWithinAbsoluteError (levels[1] - levels[0], 40.0f, 3.0f, "two plays: the floor, then full level");
+
+            const float alone = levelsWith (1, -40.0f)[0];
+            expectWithinAbsoluteError (alone, levelsWith (1, 0.0f)[0], 3.0f, "with a depth of one there's no run, so the floor does nothing");
+        }
+
         beginTest ("Speed sets how often bursts come");
         {
             CalibrationPlayer player;
@@ -1433,6 +1469,7 @@ public:
             player.setPanRange (-1.0f, 1.0f);
             player.setPanSteps (3);
             player.setDepth (2);
+            player.setFloorDb (-10.0f);
             player.setRate (1.0f / 0.3f);
             player.setPlaying (true);
 

@@ -20,6 +20,7 @@ namespace
     const juce::Identifier idSpeed { "calibrationSpeed" };
     const juce::Identifier idRelease { "calibrationRelease" };
     const juce::Identifier idAttack { "calibrationAttack" };
+    const juce::Identifier idFloor { "calibrationFloor" };
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -72,18 +73,23 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     attackSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + " ms"; };
     attackSlider.setTooltip ("How long each burst takes to reach full level. Longer softens the start; 0 ms is the sharpest.");
     setUpLabel (attackLabel, "Attack");
-    for (auto* slider : { &volumeSlider, &depthSlider, &speedSlider, &releaseSlider, &attackSlider })
+    setUpSlider (floorSlider, juce::Slider::LinearHorizontal, CalibrationPlayer::minFloorDb, 0.0, 1.0,
+                 (double) state.getProperty (idFloor, CalibrationPlayer::defaultFloorDb));
+    floorSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + " dB"; };
+    setUpLabel (floorLabel, "Floor");
+    for (auto* slider : { &volumeSlider, &depthSlider, &speedSlider, &releaseSlider, &attackSlider, &floorSlider })
         slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
     speedSlider.updateText();
     releaseSlider.updateText();
     attackSlider.updateText();
+    floorSlider.updateText();
     setUpLabel (releaseLabel, "Release");
     setUpLabel (volumeLabel, "Volume");
     setUpLabel (depthLabel, "Depth");
     setUpLabel (speedLabel, "Speed");
     depthSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + (v > 1 ? " times" : " time"); };
     depthSlider.updateText();
-    depthSlider.setTooltip ("Plays each position this many times, quietest first, 10 dB louder each time");
+    depthSlider.setTooltip ("Plays each position this many times, quietest first, climbing from the floor to the volume in even steps");
     volumeSlider.textFromValueFunction = [] (double v) { return juce::String (v, 1) + " dB"; };
     volumeSlider.updateText();
     volumeSlider.setTooltip ("How loud the calibration sounds are, separately from everything else");
@@ -216,6 +222,14 @@ void CalibrationPanel::applySettings()
     player.setGrid (rows(), columns());
     player.setLevelDb ((float) volumeSlider.getValue());
     player.setDepth ((int) depthSlider.getValue());
+    player.setFloorDb ((float) floorSlider.getValue());
+
+    // The floor is where a depth run starts, so it means nothing with a depth of one
+    const bool hasRange = depthSlider.getValue() > 1.0;
+    floorSlider.setEnabled (hasRange);
+    floorLabel.setEnabled (hasRange);
+    floorSlider.setTooltip (hasRange ? "The quietest of each position's plays, as dB below the volume. The rest climb from here to the volume in even steps."
+                                     : "Turn the depth up to play each position at several levels; this sets the quietest of them");
     player.setRate ((float) speedSlider.getValue());
     player.setReleaseMs ((float) releaseSlider.getValue());
     player.setAttackMs ((float) attackSlider.getValue());
@@ -232,6 +246,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idColumns, columns(), nullptr);
     state.setProperty (idLevel, volumeSlider.getValue(), nullptr);
     state.setProperty (idDepth, (int) depthSlider.getValue(), nullptr);
+    state.setProperty (idFloor, floorSlider.getValue(), nullptr);
     state.setProperty (idSpeed, speedSlider.getValue(), nullptr);
     state.setProperty (idRelease, releaseSlider.getValue(), nullptr);
     state.setProperty (idAttack, attackSlider.getValue(), nullptr);
@@ -517,9 +532,9 @@ void CalibrationPanel::resized()
     controls.removeFromLeft (20);
     for (auto [slider, label] : { std::pair { &volumeSlider, &volumeLabel }, std::pair { &speedSlider, &speedLabel }, std::pair { &attackSlider, &attackLabel },
                                  std::pair { &releaseSlider, &releaseLabel },
-                                 std::pair { &depthSlider, &depthLabel } })
+                                 std::pair { &depthSlider, &depthLabel }, std::pair { &floorSlider, &floorLabel } })
     {
-        auto row = controls.removeFromTop (32);
+        auto row = controls.removeFromTop (30);
         label->setBounds (row.removeFromLeft (64));
         slider->setBounds (row.withSizeKeepingCentre (row.getWidth(), 28));
     }

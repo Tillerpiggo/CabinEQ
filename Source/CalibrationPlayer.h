@@ -12,7 +12,8 @@
     slowly, so its tail overlaps the next one.
 
     With a depth above 1, each position plays that many times before moving on, getting
-    louder by 10 dB each time: depth 3 plays it at -20, -10, then 0 dB.
+    louder in even steps from the floor up to full level: depth 3 with a floor of -20 dB
+    plays it at -20, -10, then 0 dB.
 
     If some positions are selected, only those play.
 
@@ -48,7 +49,7 @@ public:
     static constexpr int maxPanSteps = 5;
 
     enum class Mode { grid = 0, spots = 1 };
-    static constexpr float depthStepDb = 10.0f;
+    static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest of a depth run, below the volume
 
     void prepare (double newSampleRate)
     {
@@ -61,6 +62,8 @@ public:
     }
 
     void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
+    /// How far below the volume a depth run starts. The repeats climb from there to the volume in even steps.
+    void setFloorDb (float newFloorDb)  { floorDb = juce::jlimit (minFloorDb, 0.0f, newFloorDb); }
     void setRate (float burstsPerSecond) { rate = juce::jlimit (minRate, maxRate, burstsPerSecond); }
     /// How long each burst takes to fade out after its attack. 0 cuts it off straight away, leaving just the attack.
     void setReleaseMs (float milliseconds) { releaseMs = juce::jlimit (0.0f, maxReleaseMs, milliseconds); }
@@ -323,8 +326,9 @@ private:
                 voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
         }
 
-        // Quietest first: each repeat is 10 dB louder, ending at full level
-        voice->peak *= juce::Decibels::decibelsToGain (-depthStepDb * (float) (depthRuns - 1 - repeat % depthRuns));
+        // Quietest first: from the floor up to full level, in even steps
+        if (depthRuns > 1)
+            voice->peak *= juce::Decibels::decibelsToGain (floorDb.load() * (float) (depthRuns - 1 - repeat % depthRuns) / (float) (depthRuns - 1));
 
         voice->age = 0;
         voice->active = true;
@@ -352,6 +356,7 @@ private:
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
     std::atomic<float> releaseMs { defaultReleaseMs }, attackMs { defaultAttackMs };
+    std::atomic<float> floorDb { defaultFloorDb };
     std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
     std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };
