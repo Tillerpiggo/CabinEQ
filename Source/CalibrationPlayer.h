@@ -54,6 +54,7 @@ public:
     void prepare (double newSampleRate)
     {
         sampleRate = newSampleRate;
+        makeSteepNoise();
         for (auto& voice : voices)
             voice.active = false;
         samplesUntilNext = 0;
@@ -64,6 +65,13 @@ public:
     void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
     /// How far below the volume a depth run starts. The repeats climb from there to the volume in even steps.
     void setFloorDb (float newFloorDb)  { floorDb = juce::jlimit (minFloorDb, 0.0f, newFloorDb); }
+
+    /// Steep noise falls 4.5 dB an octave where pink falls 3: it's pink through a -1.5 dB/octave filter.
+    /// Each burst is then turned up by 1.5 dB for every octave its lowest frequency is above 20 Hz, so at
+    /// its own bottom edge it's as strong as pink would be, and falls away faster above that.
+    static constexpr float steepTiltDbPerOctave = 1.5f;
+    void setSteepNoise (bool shouldBeSteep) { steep = shouldBeSteep; }
+    bool isSteepNoise() const               { return steep; }
     void setRate (float burstsPerSecond) { rate = juce::jlimit (minRate, maxRate, burstsPerSecond); }
     /// How long each burst takes to fade out after its attack. 0 cuts it off straight away, leaving just the attack.
     void setReleaseMs (float milliseconds) { releaseMs = juce::jlimit (0.0f, maxReleaseMs, milliseconds); }
@@ -159,6 +167,7 @@ public:
         auto* right = buffer.getWritePointer (numChannels > 1 ? 1 : 0);
         const float gain = level.load();
         const int interval = std::max (1, (int) (sampleRate / rate.load()));
+        const bool useSteepNoise = steep.load() && ! steepNoise.empty();
 
         const int attackSamples = std::max (1, (int) (attackMs.load() * 0.001 * sampleRate));
 
@@ -178,7 +187,17 @@ public:
                 samplesUntilNext = interval; // sped up mid-wait
             }
 
-            const float noise = nextPink();
+            float noise;
+            if (useSteepNoise)
+            {
+                noise = steepNoise[steepIndex];
+                if (++steepIndex >= steepNoise.size())
+                    steepIndex = 0;
+            }
+            else
+            {
+                noise = nextPink();
+            }
             float l = 0.0f, r = 0.0f;
             for (auto& voice : voices)
             {
@@ -326,12 +345,52 @@ private:
                 voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
         }
 
+        // Steep noise: up by the tilt for every octave this burst's lowest frequency is above 20 Hz
+        if (steep.load())
+            voice->peak *= juce::Decibels::decibelsToGain (steepTiltDbPerOctave * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
+
         // Quietest first: from the floor up to full level, in even steps
         if (depthRuns > 1)
             voice->peak *= juce::Decibels::decibelsToGain (floorDb.load() * (float) (depthRuns - 1 - repeat % depthRuns) / (float) (depthRuns - 1));
 
         voice->age = 0;
         voice->active = true;
+    }
+
+    /// A few seconds of pink noise through a -1.5 dB/octave filter (level with pink at 20 Hz), to loop. The filter
+    /// is applied to the whole stretch at once, in the frequency domain, which is the same as a long FIR filter
+    /// that wraps round, so the loop has no seam, and playing it costs nothing.
+    void makeSteepNoise()
+    {
+        constexpr int order = 18; // 262144 samples: 5.5 s at 48 kHz
+        const int size = 1 << order;
+        juce::dsp::FFT fft (order);
+        std::vector<float> data ((size_t) size * 2, 0.0f);
+        for (int i = 0; i < size; ++i)
+            data[(size_t) i] = nextPink();
+
+        fft.performRealOnlyForwardTransform (data.data());
+        double expectedPower = 0.0;
+        for (int bin = 0; bin < size; ++bin)
+        {
+            const double frequency = (double) std::min (bin, size - bin) * sampleRate / size;
+            const float tilt = bin == 0 ? 0.0f : (float) std::pow (std::max (20.0, frequency) / 20.0, -steepTiltDbPerOctave / 6.0206);
+            data[(size_t) bin * 2] *= tilt;
+            data[(size_t) bin * 2 + 1] *= tilt;
+            expectedPower += (double) data[(size_t) bin * 2] * data[(size_t) bin * 2] + (double) data[(size_t) bin * 2 + 1] * data[(size_t) bin * 2 + 1];
+        }
+        fft.performRealOnlyInverseTransform (data.data());
+
+        // Parseval says how loud it should have come out, whichever way the FFT scales its inverse
+        double power = 0.0;
+        for (int i = 0; i < size; ++i)
+            power += (double) data[(size_t) i] * data[(size_t) i];
+        const float scale = power > 0.0 ? (float) std::sqrt (expectedPower / size / power) : 0.0f;
+
+        steepNoise.resize ((size_t) size);
+        for (int i = 0; i < size; ++i)
+            steepNoise[(size_t) i] = data[(size_t) i] * scale;
+        steepIndex = 0;
     }
 
     /// Paul Kellet's pink noise, scaled to 0 dB RMS (its raw RMS is about 1.74), so the level is the burst's RMS
@@ -357,6 +416,9 @@ private:
     std::atomic<float> rate { defaultRate };
     std::atomic<float> releaseMs { defaultReleaseMs }, attackMs { defaultAttackMs };
     std::atomic<float> floorDb { defaultFloorDb };
+    std::atomic<bool> steep { false };
+    std::vector<float> steepNoise;
+    size_t steepIndex = 0;
     std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
     std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };

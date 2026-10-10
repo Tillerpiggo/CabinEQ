@@ -1531,6 +1531,58 @@ public:
             expectLessThan (measure (500.0f, 3000.0f, Band::Shape::highCut, 150.0f) * 50.0f, above, "and its low cut still works");
         }
 
+        beginTest ("Steep noise falls 1.5 dB an octave faster than pink, and each burst is turned up to match pink at its bottom edge");
+        {
+            // The power of a stretch of bursts in the octave around a frequency, in dB. `spot` is the bursts'
+            // low cut (0 for none).
+            auto octavePower = [this] (bool steep, float spot, std::vector<float> centres)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::spots);
+                player.setSpotCount (1);
+                player.setSpot (0, spot);
+                player.setSteepNoise (steep);
+                player.setRate (CalibrationPlayer::maxRate); // dense, so there's plenty to measure
+                player.setPlaying (true);
+
+                const int order = 17, size = 1 << order;
+                juce::AudioBuffer<float> buffer (2, size);
+                buffer.clear();
+                player.process (buffer);
+
+                juce::dsp::FFT fft (order);
+                std::vector<float> data ((size_t) size * 2, 0.0f);
+                std::copy_n (buffer.getReadPointer (0), size, data.begin());
+                fft.performFrequencyOnlyForwardTransform (data.data());
+
+                std::vector<float> powers;
+                for (float centre : centres)
+                {
+                    double power = 0.0;
+                    const int low = (int) (centre / std::sqrt (2.0f) * size / sampleRate), high = (int) (centre * std::sqrt (2.0f) * size / sampleRate);
+                    for (int bin = low; bin < high; ++bin)
+                        power += (double) data[(size_t) bin] * data[(size_t) bin];
+                    powers.push_back ((float) (10.0 * std::log10 (power)));
+                }
+                return powers;
+            };
+
+            // No low cut: pink has the same power in each octave; steep loses 1.5 dB an octave, from level at 20 Hz
+            const auto pink = octavePower (false, 0.0f, { 250.0f, 4000.0f });
+            const auto steep = octavePower (true, 0.0f, { 250.0f, 4000.0f });
+            expectWithinAbsoluteError (pink[0] - pink[1], 0.0f, 1.5f, "pink: 250 Hz and 4 kHz octaves are as strong");
+            expectWithinAbsoluteError (steep[0] - steep[1], 6.0f, 1.5f, "steep: four octaves up is 6 dB down");
+            expectWithinAbsoluteError (steep[0] - pink[0], -1.5f * std::log2 (250.0f / 20.0f), 1.5f, "and it's level with pink at 20 Hz");
+
+            // Bursts from 2 kHz up: turned up 1.5 dB for each octave 2 kHz is above 20 Hz, so just above 2 kHz
+            // they're about as strong as pink ones (not 11 dB under), and they fall away above that
+            const auto pinkFrom2k = octavePower (false, 2000.0f, { 3500.0f, 14000.0f });
+            const auto steepFrom2k = octavePower (true, 2000.0f, { 3500.0f, 14000.0f });
+            expectWithinAbsoluteError (steepFrom2k[0] - pinkFrom2k[0], -1.5f * std::log2 (3500.0f / 2000.0f), 1.5f, "at its bottom edge it matches pink");
+            expectWithinAbsoluteError (steepFrom2k[1] - pinkFrom2k[1], -1.5f * std::log2 (14000.0f / 2000.0f), 1.5f, "two octaves on it's 3 dB softer still");
+        }
+
         beginTest ("Clicking a position repeats just it");
         {
             CalibrationPlayer player;
