@@ -21,7 +21,8 @@ namespace
     const juce::Identifier idRelease { "calibrationRelease" };
     const juce::Identifier idAttack { "calibrationAttack" };
     const juce::Identifier idFloor { "calibrationFloor" };
-    const juce::Identifier idSteepNoise { "calibrationSteepNoise" };
+    const juce::Identifier idNoise { "calibrationNoise" };
+    const juce::Identifier idSteepNoise { "calibrationSteepNoise" }; // before there were three: true was -4.5
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -113,20 +114,30 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         addAndMakeVisible (button);
 
     // The noise the bursts are made of
-    pinkNoiseButton.setTooltip ("Pink noise: the same power in every octave (it falls 3 dB an octave)");
-    steepNoiseButton.setTooltip ("Steeper noise: it falls 4.5 dB an octave, and each burst is turned up 1.5 dB for every octave its "
-                                 "lowest frequency is above 20 Hz, so it's as strong as pink at its bottom edge and softer above");
-    pinkNoiseButton.setConnectedEdges (juce::Button::ConnectedOnRight);
-    steepNoiseButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
-    pinkNoiseButton.onClick = [this] { setSteepNoise (false); };
-    steepNoiseButton.onClick = [this] { setSteepNoise (true); };
-    for (auto* button : { &pinkNoiseButton, &steepNoiseButton })
+    const char* names[] { "Pink", "-4.5", "-6 dB/oct" };
+    const char* tips[] {
+        "Pink noise: the same power in every octave (it falls 3 dB an octave)",
+        "Noise that falls 4.5 dB an octave. Each burst is turned up 1.5 dB for every octave its lowest frequency is above 20 Hz, "
+        "so at its bottom edge it's as strong as pink, and softer above",
+        "Noise that falls 6 dB an octave. Each burst is turned up 1.5 dB for every octave its lowest frequency is above 20 Hz, "
+        "so from burst to burst the bottom edges fall 4.5 dB an octave, and each is softer still above"
+    };
+    for (size_t i = 0; i < noiseButtons.size(); ++i)
     {
-        button->setColour (juce::TextButton::buttonOnColourId, Theme::accent);
-        button->setColour (juce::TextButton::textColourOnId, Theme::graph);
+        auto& button = noiseButtons[i];
+        button.setButtonText (names[i]);
+        button.setTooltip (tips[i]);
+        button.setConnectedEdges ((i > 0 ? juce::Button::ConnectedOnLeft : 0) | (i + 1 < noiseButtons.size() ? juce::Button::ConnectedOnRight : 0));
+        button.setColour (juce::TextButton::buttonOnColourId, Theme::accent);
+        button.setColour (juce::TextButton::textColourOnId, Theme::graph);
+        button.onClick = [this, i] { setNoise ((CalibrationPlayer::Noise) i); };
         addAndMakeVisible (button);
     }
-    setSteepNoise ((bool) processor.parameters.state.getProperty (idSteepNoise, false));
+    {
+        const auto& state = processor.parameters.state;
+        const int fallback = (bool) state.getProperty (idSteepNoise, false) ? 1 : 0;
+        setNoise ((CalibrationPlayer::Noise) juce::jlimit (0, 2, (int) state.getProperty (idNoise, fallback)));
+    }
 
     // Spots on the EQ graph, or the grid
     for (auto* button : { &spotsModeButton, &gridModeButton })
@@ -234,12 +245,12 @@ void CalibrationPanel::refreshSpots()
     updateButtons();
 }
 
-void CalibrationPanel::setSteepNoise (bool shouldBeSteep)
+void CalibrationPanel::setNoise (CalibrationPlayer::Noise noise)
 {
-    player.setSteepNoise (shouldBeSteep);
-    processor.parameters.state.setProperty (idSteepNoise, shouldBeSteep, nullptr); // not undoable, like the rest
-    pinkNoiseButton.setToggleState (! shouldBeSteep, juce::dontSendNotification);
-    steepNoiseButton.setToggleState (shouldBeSteep, juce::dontSendNotification);
+    player.setNoise (noise);
+    processor.parameters.state.setProperty (idNoise, (int) noise, nullptr); // not undoable, like the rest
+    for (size_t i = 0; i < noiseButtons.size(); ++i)
+        noiseButtons[i].setToggleState ((int) i == (int) noise, juce::dontSendNotification);
 }
 
 void CalibrationPanel::applySettings()
@@ -552,8 +563,9 @@ void CalibrationPanel::resized()
     header.removeFromLeft (4);
     gridModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
     header.removeFromLeft (16);
-    pinkNoiseButton.setBounds (header.removeFromLeft (52).withSizeKeepingCentre (52, 26));
-    steepNoiseButton.setBounds (header.removeFromLeft (92).withSizeKeepingCentre (92, 26));
+    const int noiseWidths[] { 48, 46, 78 };
+    for (size_t i = 0; i < noiseButtons.size(); ++i)
+        noiseButtons[i].setBounds (header.removeFromLeft (noiseWidths[i]).withSizeKeepingCentre (noiseWidths[i], 26));
 
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));

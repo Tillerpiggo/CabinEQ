@@ -61,8 +61,8 @@ private:
     CalibrationPlayer& player;
 
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
-    juce::TextButton pinkNoiseButton { "Pink" }, steepNoiseButton { "-4.5 dB/oct" };
-    void setSteepNoise (bool shouldBeSteep);
+    std::array<juce::TextButton, 3> noiseButtons; // pink, -4.5 and -6 dB an octave
+    void setNoise (CalibrationPlayer::Noise noise);
     juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider, attackSlider, releaseSlider, floorSlider;
     juce::Label volumeLabel, depthLabel, speedLabel, attackLabel, releaseLabel, floorLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;
