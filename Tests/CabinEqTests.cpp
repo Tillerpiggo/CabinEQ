@@ -581,7 +581,7 @@ public:
             expectEquals (editor->getWidth(), 900);
         }
 
-        beginTest ("Master volume boosts, even bypassed, and the limiter stops it clipping");
+        beginTest ("Master volume boosts, even bypassed, and nothing limits or compresses it");
         {
             CabinEqAudioProcessor processor;
             processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
@@ -612,7 +612,8 @@ public:
             };
 
             expectWithinAbsoluteError (juce::Decibels::gainToDecibels (run (0.01f) / 0.01f), 12.0f, 0.2f, "a quiet signal gets 12 dB louder");
-            expectLessThan (run (0.8f), 0.98f, "a loud one is held under full scale");
+            expectWithinAbsoluteError (juce::Decibels::gainToDecibels (run (0.8f) / 0.8f), 12.0f, 0.05f, "a loud one gets exactly the same 12 dB, past full scale");
+            expectGreaterThan (run (0.8f), 3.0f, "nothing holds it under full scale");
 
             processor.parameters.getParameter (ParamIDs::bypass)->setValueNotifyingHost (1.0f);
             expectWithinAbsoluteError (juce::Decibels::gainToDecibels (run (0.01f) / 0.01f), 12.0f, 0.2f, "and it still applies with the EQ off");

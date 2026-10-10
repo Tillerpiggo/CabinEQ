@@ -20,8 +20,9 @@
 
 /// The audio path: calibration sounds (when they're playing), then the EQ (bands, or a curve's FIR filter),
 /// then crossfeed, then gain,
-/// with a click-free bypass. Last comes the master volume, which applies whether the EQ is on or off,
-/// and a limiter that catches peaks a boost would push past full scale.
+/// with a click-free bypass. Last comes the master volume, which applies whether the EQ is on or off.
+/// Everything is linear: there's no limiter, compressor or clipper anywhere, so a signal boosted past full
+/// scale leaves exactly as boosted, and it's whatever plays it that clips.
 /// setBands() is for the message thread; the other setters are safe from any thread.
 class PlaybackManager
 {
@@ -54,8 +55,6 @@ private:
     std::atomic<bool> bypassed { false };
     std::atomic<float> volumeDb { 0.0f };
     juce::SmoothedValue<float> volume { 1.0f };
-    float limiterGain = 1.0f, limiterRelease = 0.9995f;
-    static constexpr float limiterCeiling = 0.97f; // about -0.3 dBFS
 
     juce::SmoothedValue<float> gain { 1.0f };
     juce::SmoothedValue<float> wetMix { 1.0f }; // 1 = EQ on, 0 = bypassed

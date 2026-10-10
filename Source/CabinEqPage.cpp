@@ -233,7 +233,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
 
     // Master volume: a parameter, so hosts can automate it. It applies with the EQ on or off.
     volumeField.format = [] (double v) { return Format::gain (v); };
-    volumeField.setTooltip ("Master volume, for everything. It can boost, and a limiter stops the boost from clipping.");
+    volumeField.setTooltip ("Master volume, for everything. It can boost. Nothing limits it, so turn it down if the sound distorts.");
     volumeField.onGestureStart = [this] { processor.parameters.getParameter (ParamIDs::volume)->beginChangeGesture(); };
     volumeField.onGestureEnd = [this] { processor.parameters.getParameter (ParamIDs::volume)->endChangeGesture(); };
     volumeField.onValueChange = [this] (double v)

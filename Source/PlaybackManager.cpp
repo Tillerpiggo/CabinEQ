@@ -27,8 +27,6 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     wetMix.reset (spec.sampleRate, 0.03);
     volume.reset (spec.sampleRate, 0.05);
     volume.setCurrentAndTargetValue (juce::Decibels::decibelsToGain (volumeDb.load()));
-    limiterGain = 1.0f;
-    limiterRelease = (float) std::exp (-1.0 / (0.15 * spec.sampleRate));
     wetMix.setCurrentAndTargetValue (bypassed ? 0.0f : 1.0f);
     isFullyBypassed = bypassed;
 }
@@ -152,29 +150,5 @@ void PlaybackManager::applyVolume (juce::AudioBuffer<float>& buffer, int start, 
     {
         for (int channel = 0; channel < numChannels; ++channel)
             buffer.applyGain (channel, start, length, volume.getCurrentValue());
-    }
-
-    // The limiter only does anything when a peak would go over, or it's still letting go of one
-    float loudest = 0.0f;
-    for (int channel = 0; channel < numChannels; ++channel)
-        loudest = std::max (loudest, buffer.getMagnitude (channel, start, length));
-    if (loudest <= limiterCeiling && limiterGain >= 1.0f)
-        return;
-
-    auto* left = buffer.getWritePointer (0, start);
-    auto* right = buffer.getWritePointer (numChannels > 1 ? 1 : 0, start);
-    for (int i = 0; i < length; ++i)
-    {
-        // Let go slowly, and clamp down straight away on a peak
-        limiterGain = 1.0f - (1.0f - limiterGain) * limiterRelease;
-        const float peak = std::max (std::abs (left[i]), std::abs (right[i]));
-        if (peak * limiterGain > limiterCeiling)
-            limiterGain = limiterCeiling / peak;
-        if (limiterGain > 0.99999f)
-            limiterGain = 1.0f;
-
-        left[i] *= limiterGain;
-        if (numChannels > 1)
-            right[i] *= limiterGain;
     }
 }
