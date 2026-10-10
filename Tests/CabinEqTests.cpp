@@ -619,6 +619,59 @@ public:
             expectWithinAbsoluteError (juce::Decibels::gainToDecibels (run (0.01f) / 0.01f), 12.0f, 0.2f, "and it still applies with the EQ off");
         }
 
+        beginTest ("Mono plays the average of left and right in both ears, with the EQ on or off");
+        {
+            CabinEqAudioProcessor processor;
+            processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+            processor.prepareToPlay (sampleRate, blockSize);
+            processor.parameters.getParameter (ParamIDs::autoGain)->setValueNotifyingHost (0.0f);
+
+            // A sine in the left ear only; returns each ear's level relative to it, and the most the ears differ
+            auto run = [&processor]
+            {
+                juce::MidiBuffer midi;
+                juce::AudioBuffer<float> buffer (2, blockSize);
+                double phase = 0.0, in = 0.0, left = 0.0, right = 0.0;
+                float difference = 0.0f;
+                for (int block = 0; block < 60; ++block)
+                {
+                    buffer.clear();
+                    for (int i = 0; i < blockSize; ++i)
+                    {
+                        const auto sample = (float) (0.2 * std::sin (phase));
+                        phase += juce::MathConstants<double>::twoPi * 1000.0 / sampleRate;
+                        buffer.setSample (0, i, sample);
+                        if (block >= 30) in += sample * sample;
+                    }
+                    processor.processBlock (buffer, midi);
+                    if (block >= 30)
+                        for (int i = 0; i < blockSize; ++i)
+                        {
+                            left += buffer.getSample (0, i) * buffer.getSample (0, i);
+                            right += buffer.getSample (1, i) * buffer.getSample (1, i);
+                            difference = std::max (difference, std::abs (buffer.getSample (0, i) - buffer.getSample (1, i)));
+                        }
+                }
+                return std::tuple { (float) std::sqrt (left / in), (float) std::sqrt (right / in), difference };
+            };
+
+            auto [stereoLeft, stereoRight, stereoDifference] = run();
+            expectWithinAbsoluteError (stereoLeft, 1.0f, 0.01f, "stereo: the left is as it came in");
+            expectWithinAbsoluteError (stereoRight, 0.0f, 0.001f, "and the right is silent");
+
+            processor.parameters.getParameter (ParamIDs::mono)->setValueNotifyingHost (1.0f);
+            auto [monoLeft, monoRight, monoDifference] = run();
+            expectWithinAbsoluteError (monoLeft, 0.5f, 0.01f, "mono: half of it in the left");
+            expectWithinAbsoluteError (monoRight, 0.5f, 0.01f, "and half in the right");
+            expectLessThan (monoDifference, 1.0e-5f, "sample for sample the same");
+
+            processor.parameters.getParameter (ParamIDs::bypass)->setValueNotifyingHost (1.0f);
+            auto [bypassedLeft, bypassedRight, bypassedDifference] = run();
+            expectWithinAbsoluteError (bypassedRight, 0.5f, 0.01f, "still mono with the EQ off");
+            expectLessThan (bypassedDifference, 1.0e-5f);
+            juce::ignoreUnused (stereoDifference, bypassedLeft);
+        }
+
         beginTest ("Auto gain cancels a boost");
         {
             CabinEqAudioProcessor processor;

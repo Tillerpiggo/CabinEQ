@@ -141,6 +141,15 @@ namespace Icons
         return p;
     }
 
+    inline juce::Path mono()
+    {
+        // The two ears' circles as one, with the sound in the middle
+        juce::Path p;
+        p.addEllipse (6, 6, 12, 12);
+        p.addEllipse (10.75f, 10.75f, 2.5f, 2.5f);
+        return p;
+    }
+
     inline juce::Path grid()
     {
         // A 3 x 3 grid of dots, for the calibration panel

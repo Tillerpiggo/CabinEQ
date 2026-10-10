@@ -36,6 +36,9 @@ public:
     void setGainDb (float gainDb); // preamp plus auto gain
     void setBypassed (bool shouldBeBypassed);
     void setVolumeDb (float volumeDb); // master volume, which can boost
+    /// Sums what's playing to mono (the average of left and right) before the EQ, with the EQ on or off.
+    /// The calibration sounds aren't summed: where they sit is the point of them.
+    void setMono (bool shouldBeMono) { mono = shouldBeMono; }
 
     CrossfeedProcessor& getCrossfeed() { return crossfeed; }
     SpectrumAnalyzer& getAnalyzer() { return analyzer; }
@@ -54,6 +57,8 @@ private:
     std::atomic<float> gainDb { 0.0f };
     std::atomic<bool> bypassed { false };
     std::atomic<float> volumeDb { 0.0f };
+    std::atomic<bool> mono { false };
+    juce::SmoothedValue<float> monoMix { 0.0f }; // 0 stereo, 1 mono: it fades, so switching doesn't click
     juce::SmoothedValue<float> volume { 1.0f };
 
     juce::SmoothedValue<float> gain { 1.0f };

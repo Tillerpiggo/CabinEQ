@@ -68,7 +68,7 @@ private:
     BandInspector inspector;
     CalibrationPanel calibrationPanel;
 
-    std::unique_ptr<IconButton> undoButton, redoButton, calibrationButton, crossfeedButton, settingsButton, powerButton;
+    std::unique_ptr<IconButton> undoButton, redoButton, calibrationButton, crossfeedButton, monoButton, settingsButton, powerButton;
     ValueField preampField { "Preamp", -30.0, 30.0, 0.0 };
     ValueField volumeField { "Volume", -30.0, 24.0, 0.0 };
     juce::ToggleButton autoGainToggle { "Auto gain" };

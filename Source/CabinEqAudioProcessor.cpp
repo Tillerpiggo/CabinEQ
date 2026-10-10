@@ -30,6 +30,7 @@ CabinEqAudioProcessor::CabinEqAudioProcessor()
     crossfeedParameter = parameters.getRawParameterValue (ParamIDs::crossfeed);
     crossfeedLevelParameter = parameters.getRawParameterValue (ParamIDs::crossfeedLevel);
     crossfeedDelayParameter = parameters.getRawParameterValue (ParamIDs::crossfeedDelay);
+    monoParameter = parameters.getRawParameterValue (ParamIDs::mono);
 
     profiles.ensureValidState();
     currentSelection = profiles.getSelectedProfileName();
@@ -109,6 +110,7 @@ void CabinEqAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     crossfeed.setEnabled (crossfeedParameter->load() >= 0.5f);
     crossfeed.setLevelDb (crossfeedLevelParameter->load());
     crossfeed.setDelayMs (crossfeedDelayParameter->load());
+    playbackManager.setMono (monoParameter->load() >= 0.5f);
 
     const bool autoGainOn = autoGainParameter->load() >= 0.5f;
     playbackManager.setGainDb (preampDb.load() + (autoGainOn ? autoGainDb.load() : 0.0f));
@@ -224,6 +226,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout CabinEqAudioProcessor::creat
                                                        NormalisableRange<float> (-30.0f, 24.0f, 0.1f), 0.0f,
                                                        AudioParameterFloatAttributes().withLabel ("dB")));
     layout.add (std::make_unique<AudioParameterBool> (ParameterID (ParamIDs::crossfeed, 1), "Crossfeed", false));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID (ParamIDs::mono, 1), "Mono", false));
     layout.add (std::make_unique<AudioParameterFloat> (ParameterID (ParamIDs::crossfeedLevel, 1), "Crossfeed Level",
                                                        NormalisableRange<float> (-24.0f, -3.0f, 0.1f), -9.0f,
                                                        AudioParameterFloatAttributes().withLabel ("dB")));

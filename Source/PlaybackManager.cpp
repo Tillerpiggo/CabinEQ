@@ -27,6 +27,8 @@ void PlaybackManager::prepare (const juce::dsp::ProcessSpec& spec)
     wetMix.reset (spec.sampleRate, 0.03);
     volume.reset (spec.sampleRate, 0.05);
     volume.setCurrentAndTargetValue (juce::Decibels::decibelsToGain (volumeDb.load()));
+    monoMix.reset (spec.sampleRate, 0.03);
+    monoMix.setCurrentAndTargetValue (mono ? 1.0f : 0.0f);
     wetMix.setCurrentAndTargetValue (bypassed ? 0.0f : 1.0f);
     isFullyBypassed = bypassed;
 }
@@ -61,6 +63,21 @@ void PlaybackManager::processBlock (juce::AudioBuffer<float>& buffer) noexcept
     gain.setTargetValue (juce::Decibels::decibelsToGain (gainDb.load()));
     wetMix.setTargetValue (bypassed ? 0.0f : 1.0f);
     volume.setTargetValue (juce::Decibels::decibelsToGain (volumeDb.load()));
+
+    // Mono first: each side moves to the average of the two
+    monoMix.setTargetValue (mono ? 1.0f : 0.0f);
+    if (buffer.getNumChannels() > 1 && (monoMix.isSmoothing() || monoMix.getTargetValue() > 0.0f))
+    {
+        auto* left = buffer.getWritePointer (0);
+        auto* right = buffer.getWritePointer (1);
+        for (int i = 0; i < buffer.getNumSamples(); ++i)
+        {
+            const float mix = monoMix.getNextValue();
+            const float middle = 0.5f * (left[i] + right[i]);
+            left[i] += mix * (middle - left[i]);
+            right[i] += mix * (middle - right[i]);
+        }
+    }
 
     // The calibration sounds go through the EQ, so you hear what it does to them
     calibration.process (buffer);

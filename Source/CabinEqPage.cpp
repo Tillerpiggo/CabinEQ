@@ -201,12 +201,21 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     redoButton = std::make_unique<IconButton> ("Redo", Icons::redo(), "Redo");
     calibrationButton = std::make_unique<IconButton> ("Calibration", Icons::grid(), "Calibration sounds: a grid of noise bursts to check the EQ by ear");
     crossfeedButton = std::make_unique<IconButton> ("Crossfeed", Icons::crossfeed(), "Crossfeed");
+    monoButton = std::make_unique<IconButton> ("Mono", Icons::mono(), "Mono");
     settingsButton = std::make_unique<IconButton> ("Audio settings", Icons::settings(), "Audio devices");
     powerButton = std::make_unique<IconButton> ("EQ on", Icons::power(), "Turn the EQ off to compare");
 
     undoButton->onClick = [this] { processor.undo(); };
     redoButton->onClick = [this] { processor.redo(); };
     crossfeedButton->onClick = [this] { showCrossfeed(); };
+    monoButton->onClick = [this]
+    {
+        auto* mono = processor.parameters.getParameter (ParamIDs::mono);
+        mono->beginChangeGesture();
+        mono->setValueNotifyingHost (mono->getValue() >= 0.5f ? 0.0f : 1.0f);
+        mono->endChangeGesture();
+        updateTopBar();
+    };
     calibrationButton->onClick = [this] { setCalibrationShown (! calibrationPanel.isVisible()); };
     calibrationPanel.onCloseClicked = [this] { setCalibrationShown (false); };
     calibrationPanel.onModeChanged = [this] { graph.setCalibrationSpotsVisible (calibrationPanel.isVisible() && calibrationPanel.isShowingSpots()); };
@@ -221,7 +230,7 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
         updateTopBar();
     };
 
-    for (auto* button : { undoButton.get(), redoButton.get(), calibrationButton.get(), crossfeedButton.get(), settingsButton.get(), powerButton.get() })
+    for (auto* button : { undoButton.get(), redoButton.get(), calibrationButton.get(), crossfeedButton.get(), monoButton.get(), settingsButton.get(), powerButton.get() })
         addAndMakeVisible (button);
     settingsButton->setVisible (processor.isStandalone());
 
@@ -364,6 +373,10 @@ void CabinEqPage::updateTopBar()
 
     const bool crossfeedOn = processor.parameters.getRawParameterValue (ParamIDs::crossfeed)->load() >= 0.5f;
     crossfeedButton->setToggleState (crossfeedOn, juce::dontSendNotification);
+    const bool monoOn = processor.parameters.getRawParameterValue (ParamIDs::mono)->load() >= 0.5f;
+    monoButton->setToggleState (monoOn, juce::dontSendNotification);
+    monoButton->setTooltip (monoOn ? "Mono is on: both ears get the same sound. Click for stereo."
+                                   : "Mono: play left and right summed, the same in both ears");
 
     preampField.setValue (processor.getSelectedProfile().getVolume());
     volumeField.setValue (processor.parameters.getRawParameterValue (ParamIDs::volume)->load());
@@ -420,6 +433,7 @@ void CabinEqPage::resized()
     placeRight (*powerButton, 36, 36, 4);
     if (settingsButton->isVisible())
         placeRight (*settingsButton, 36, 36, 4);
+    placeRight (*monoButton, 36, 36, 4);
     placeRight (*crossfeedButton, 36, 36, 4);
     placeRight (*calibrationButton, 36, 36, 14);
     placeRight (volumeField, 92, 38, 12);

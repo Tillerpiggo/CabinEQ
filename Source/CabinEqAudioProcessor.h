@@ -22,6 +22,7 @@ namespace ParamIDs
     inline const juce::String crossfeed { "crossfeed" };
     inline const juce::String crossfeedLevel { "crossfeedLevel" };
     inline const juce::String crossfeedDelay { "crossfeedDelay" };
+    inline const juce::String mono { "mono" };
 }
 
 //==============================================================================
@@ -136,6 +137,7 @@ private:
     std::atomic<float>* crossfeedParameter = nullptr;
     std::atomic<float>* crossfeedLevelParameter = nullptr;
     std::atomic<float>* crossfeedDelayParameter = nullptr;
+    std::atomic<float>* monoParameter = nullptr;
 
     bool isUndoingOrRedoing = false;
     juce::String profileChangedByUndo;

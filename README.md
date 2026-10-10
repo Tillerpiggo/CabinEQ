@@ -68,7 +68,9 @@ loads the VST3 to EQ everything the Mac plays.
   Zoom in on the graph to place them, and the bands, precisely.
 - **Top bar**: undo/redo (Cmd+Z, Cmd+Shift+Z), the profile's preamp, auto gain (keeps
   loudness the same when you switch the EQ on and off), master volume (-30 to +24 dB, with the EQ
-  on or off, with nothing limiting or compressing it: the whole signal path is linear, so a boost past full scale clips at your output), calibration, crossfeed, and the EQ's on/off.
+  on or off, with nothing limiting or compressing it: the whole signal path is linear, so a boost past full scale clips at your output), calibration, crossfeed, mono (left and right
+  summed, the same in both ears, before the EQ and whether it's on or off; the calibration sounds stay where
+  they are), and the EQ's on/off.
 
 ## Building
 
