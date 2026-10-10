@@ -1161,6 +1161,25 @@ void CabinPeqGraph::drawPoints (juce::Graphics& g)
             g.fillEllipse (circle.reduced (3.5f));
     }
 
+    // The lever, while a Shift-drag swings one side about a point
+    if (dragMode == DragMode::rotate && hasBegunDragEdit)
+    {
+        const auto plot = getPlotArea();
+        const auto pivot = pointPosition (rotatePivot);
+        const float edgeX = rotatesLeftSide ? plot.getX() : plot.getRight();
+        const float reach = std::abs (edgeX - pivot.x) / std::max (1.0f, std::abs (xForFrequency (rotatePivot.freq * std::pow (2.0f, rotatesLeftSide ? -rotateArmOctaves : rotateArmOctaves)) - pivot.x));
+        const float dbPerPixel = dbForY (0.0f) - dbForY (1.0f);
+        juce::Path lever;
+        lever.startNewSubPath (pivot);
+        lever.lineTo (edgeX, pivot.y - rotatedDb * reach / dbPerPixel);
+        juce::Path dashed;
+        const float dashes[] { 2.0f, 4.0f };
+        juce::PathStrokeType (1.2f).createDashedStroke (dashed, lever, dashes, 2);
+        g.setColour (colour.withAlpha (0.7f));
+        g.fillPath (dashed);
+        g.drawEllipse (juce::Rectangle<float> (18.0f, 18.0f).withCentre (pivot), 1.2f);
+    }
+
     // Where a click would add a point: on the centre line
     if (hoverId < 0 && hoverIsNearZeroLine && dragMode == DragMode::none && mouseIsOver)
     {
@@ -1445,12 +1464,22 @@ void CabinPeqGraph::curveMouseDown (const juce::MouseEvent& event)
     {
         if (event.mods.isShiftDown())
         {
-            auto ids = selectedIds;
-            if (ids.count (point->id) > 0)
-                ids.erase (point->id);
-            else
-                ids.insert (point->id);
-            setSelection (ids, ids.count (point->id) > 0 ? point->id : (ids.empty() ? -1 : *ids.rbegin()));
+            // A Shift-click toggles it in the selection (on mouse-up, if you didn't drag). A Shift-drag
+            // swings the points on its side about it.
+            shiftClickedId = point->id;
+            rotatePivot = *point;
+            rotatesLeftSide = xForFrequency (point->freq) < getPlotArea().getCentreX();
+            rotateArmOctaves = std::max (0.5f, rotatesLeftSide ? std::log2 (point->freq / viewLow) : std::log2 (viewHigh / point->freq));
+            rotatedDb = 0.0f;
+            pointsAtDragStart.clear();
+            for (const auto& other : bandProfile.getPoints (layer()))
+                if (other.id != point->id && (rotatesLeftSide ? other.freq < point->freq : other.freq > point->freq))
+                    pointsAtDragStart.push_back (other);
+
+            dragMode = DragMode::rotate;
+            hasBegunDragEdit = false;
+            lastDragPosition = event.position;
+            dragDistance = {};
             return;
         }
         if (selectedIds.count (point->id) == 0)
@@ -1486,6 +1515,34 @@ void CabinPeqGraph::curveMouseDown (const juce::MouseEvent& event)
 void CabinPeqGraph::mouseDrag (const juce::MouseEvent& event)
 {
     mousePosition = event.position;
+
+    if (dragMode == DragMode::rotate)
+    {
+        // Cmd swings finely, as it moves finely
+        dragDistance += (event.position - lastDragPosition) * (isCommandDown (event.mods) ? 0.15f : 1.0f);
+        lastDragPosition = event.position;
+        if (! hasBegunDragEdit && std::abs (dragDistance.y) < 3.0f)
+            return; // not a drag yet: it may still be a Shift-click
+
+        if (! hasBegunDragEdit)
+        {
+            beginEdit ("Rotate points");
+            hasBegunDragEdit = true;
+            shiftClickedId = -1;
+        }
+
+        // A point at the edge of the view moves with the mouse; nearer the pivot, in proportion, down to nothing
+        rotatedDb = -dragDistance.y * (dbForY (0.0f) - dbForY (1.0f));
+        std::vector<CurvePoint> swung;
+        for (auto point : pointsAtDragStart)
+        {
+            const float octavesAway = std::abs (std::log2 (point.freq / rotatePivot.freq));
+            point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, point.gain + rotatedDb * octavesAway / rotateArmOctaves);
+            swung.push_back (point);
+        }
+        updatePoints (swung);
+        return;
+    }
 
     if (dragMode == DragMode::points)
     {

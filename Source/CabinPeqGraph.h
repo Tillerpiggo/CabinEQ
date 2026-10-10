@@ -67,7 +67,7 @@ public:
     bool keyPressed (const juce::KeyPress&) override;
 
 private:
-    enum class DragMode { none, bands, points, marquee, zoom, spotsTogether, spotsResize, pan };
+    enum class DragMode { none, bands, points, rotate, marquee, zoom, spotsTogether, spotsResize, pan };
 
     // Curve mode: points the curve goes through, instead of bands
     bool isCurveMode() const { return editingCurve; } // which layer clicks and edits go to
@@ -94,6 +94,13 @@ public:
     float layerBaseDb (float frequency) const;
 private:
     std::vector<CurvePoint> pointsAtDragStart;
+
+    // Experimental: Shift-drag a point to swing the points on one side of it about it, like a hinge.
+    // Which side is the point's own: left of the graph's middle swings the left, right swings the right.
+    CurvePoint rotatePivot;
+    bool rotatesLeftSide = false;
+    float rotateArmOctaves = 1.0f; // from the pivot to the edge of the view: a point out there follows the mouse
+    float rotatedDb = 0.0f;
     bool wasCurveMode = false;
     bool editingCurve = false; // from the processor, for the profile as it is now
 

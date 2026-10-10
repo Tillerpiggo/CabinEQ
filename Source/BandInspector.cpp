@@ -280,7 +280,7 @@ void BandInspector::paint (juce::Graphics& g)
             g.drawText (layer() == BandProfile::leftTweak ? "Tweaking the left ear, on top of the dashed line. Drag a point out of it."
                         : layer() == BandProfile::rightTweak ? "Tweaking the right ear, on top of the dashed line. Drag a point out of it."
                         : processor.getSelectedProfile().getBandsOn() ? "The curve sits on top of your bands (dashed). Drag a point out of the dashed line."
-                        : "Drag a point out of the 0 dB line. Drag across empty space to select several.",
+                        : "Drag a point out of the 0 dB line. Drag across empty space to select several. Shift-drag a point to swing one side about it.",
                         area, juce::Justification::centredLeft, true);
         else
             g.drawText (numSelected > 1 ? juce::String (numSelected) + " points" : "Point",

@@ -1010,6 +1010,44 @@ public:
             expectWithinAbsoluteError (points[1].gain, 3.0f, 0.3f, "and so did the other selected one");
             expectWithinAbsoluteError (points[2].gain, -3.0f, 0.01f, "the unselected one stayed");
 
+            // Experimental: Shift-drag a point to swing the points on its side about it
+            p.setPoints ({ { 0, 50.0f, 0.0f }, { 1, 100.0f, 0.0f }, { 2, 200.0f, 2.0f }, { 3, 2000.0f, 1.0f }, { 4, 8000.0f, 1.0f } });
+            graph.refresh();
+            const auto shift = juce::ModifierKeys (juce::ModifierKeys::leftButtonModifier | juce::ModifierKeys::shiftModifier);
+            auto shiftDrag = [&] (juce::Point<float> from, float pixelsUp)
+            {
+                graph.mouseMove (event (graph, from, from, {}));
+                graph.mouseDown (event (graph, from, from, shift));
+                for (int step = 1; step <= 10; ++step)
+                    graph.mouseDrag (event (graph, from.translated (0.0f, -pixelsUp * (float) step / 10.0f), from, shift));
+                graph.mouseUp (event (graph, from.translated (0.0f, -pixelsUp), from, {}));
+            };
+
+            // 200 Hz is left of the middle of the graph, so its left side swings: 75 px up is 10 dB at the edge
+            shiftDrag ({ xFor (200.0f), yFor (2.0f) }, 75.0f);
+            points = p.getBandProfile().getPoints();
+            const float arm = std::log2 (200.0f / 20.0f);
+            expectWithinAbsoluteError (points[0].gain, 10.0f * 2.0f / arm, 0.25f, "two octaves away: most of the way");
+            expectWithinAbsoluteError (points[1].gain, 10.0f * 1.0f / arm, 0.25f, "one octave away: half as far");
+            expectWithinAbsoluteError (points[2].gain, 2.0f, 0.001f, "the point itself stays where it is");
+            expectWithinAbsoluteError (points[3].gain, 1.0f, 0.001f, "and so does the other side");
+            processor.undo();
+            graph.refresh();
+            expectWithinAbsoluteError (p.getBandProfile().getPoints()[0].gain, 0.0f, 0.001f, "one undo puts it all back");
+
+            // 2 kHz is right of the middle, so its right side swings (down, here)
+            shiftDrag ({ xFor (2000.0f), yFor (1.0f) }, -75.0f);
+            points = p.getBandProfile().getPoints();
+            expectWithinAbsoluteError (points[4].gain, 1.0f - 10.0f * 2.0f / std::log2 (20000.0f / 2000.0f), 0.25f);
+            expectWithinAbsoluteError (points[1].gain, 0.0f, 0.001f, "the left side stays");
+
+            // A Shift-click without a drag still just selects
+            graph.keyPressed (juce::KeyPress (juce::KeyPress::escapeKey));
+            const int before = graph.getNumSelected();
+            shiftDrag ({ xFor (200.0f), yFor (2.0f) }, 0.0f);
+            expectEquals (graph.getNumSelected(), before + 1, "Shift-click adds it to the selection");
+            expectWithinAbsoluteError (p.getBandProfile().getPoints()[2].gain, 2.0f, 0.001f);
+
             // Split: R picks the right ear's tweak, whose centre line is the shared curve
             p.setPoints ({ { 0, 1000.0f, 2.0f } }); // both ears: +2 dB
             p.setCurveSplit (true);

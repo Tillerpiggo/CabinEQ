@@ -31,7 +31,10 @@ loads the VST3 to EQ everything the Mac plays.
   overshoots between them, and flat past the first and last). Drag a point out of the 0 dB line to
   add one. Anywhere else, drag a point to move it (Cmd for fine), or drag across empty space to
   select several (Shift adds to the selection) and then drag any of them to move them all together.
-  Right-click deletes; arrow keys nudge; Delete and Cmd+A work too. The first time you switch, the curve starts out tracing your bands. Both are kept, so
+  Right-click deletes; arrow keys nudge; Delete and Cmd+A work too. Experimental: Shift-drag a point
+  up or down to swing the points on one side of it about it, like a hinge (a point at the edge of the
+  view follows the mouse, nearer ones move in proportion, and the point itself stays put). A point left
+  of the middle of the graph swings the points to its left; one right of the middle, those to its right. The first time you switch, the curve starts out tracing your bands. Both are kept, so
   switching back loses nothing. The curve plays as a minimum-phase FIR filter, redesigned in the
   background as you drag and crossfaded in, so there's no added delay and no clicks.
   **Split L/R** (in the strip under the graph) lets you tweak each ear on top of the curve both
