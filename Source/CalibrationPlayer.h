@@ -80,11 +80,12 @@ public:
     /// tilts it further (level with pink at 20 Hz), so each burst falls away faster: by its mode's slope, which
     /// can be changed. What a mode fixes is its top line: how fast the bursts' bottom edges fall from burst
     /// to burst. Each burst is turned up, by its lowest frequency, by whatever keeps them on that line.
-    ///   minus4_5  top line 3 dB an octave, as pink's is. Its slope starts at 4.5.
-    ///   minus6    top line 4.5 dB an octave. Its slope starts at 6.
+    ///   minus4_5  top line 4.5 dB an octave. Its slope starts at 4.5 too, so to begin with nothing's turned up:
+    ///             every burst is the same noise, cut off lower or higher.
+    ///   minus6    top line 4.5 dB an octave as well. Its slope starts at 6, so each burst falls away faster.
     enum class Noise { pink = 0, minus4_5 = 1, minus6 = 2 };
     static constexpr float maxSlopeDbPerOctave = 12.0f;
-    static constexpr float topLineDbPerOctave (Noise noise)      { return noise == Noise::minus6 ? 4.5f : 3.0f; }
+    static constexpr float topLineDbPerOctave (Noise noise)      { return noise == Noise::pink ? 3.0f : 4.5f; }
     static constexpr float defaultSlopeDbPerOctave (Noise noise) { return noise == Noise::minus6 ? 6.0f : noise == Noise::minus4_5 ? 4.5f : 3.0f; }
 
     /// Message thread. A change of tilt makes new noise here, and the audio picks it up at its next block.

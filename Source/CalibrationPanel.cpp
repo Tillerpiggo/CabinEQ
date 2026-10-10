@@ -118,8 +118,8 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     const char* names[] { "Pink", "-4.5", "-6 dB/oct" };
     const char* tips[] {
         "Pink noise: the same power in every octave (it falls 3 dB an octave)",
-        "Noise that falls 4.5 dB an octave. Each burst is turned up 1.5 dB for every octave its lowest frequency is above 20 Hz, "
-        "so at its bottom edge it's as strong as pink, and softer above",
+        "Noise that falls 4.5 dB an octave. From burst to burst, their bottom edges fall 4.5 dB an octave too, "
+        "so higher bursts are softer than pink ones",
         "Noise that falls 6 dB an octave. Each burst is turned up 1.5 dB for every octave its lowest frequency is above 20 Hz, "
         "so from burst to burst the bottom edges fall 4.5 dB an octave, and each is softer still above"
     };

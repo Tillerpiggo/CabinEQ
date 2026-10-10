@@ -1581,12 +1581,12 @@ public:
             expectWithinAbsoluteError (steeper[0] - steeper[1], 12.0f, 1.5f, "-6: four octaves up is 12 dB down on pink");
             expectWithinAbsoluteError (steeper[0] - pink[0], -3.0f * octaves (20.0f, 250.0f), 1.5f, "and it's level with pink at 20 Hz too");
 
-            // -4.5, bursts from 2 kHz up: the boost undoes the tilt at 2 kHz, so just above it they're about as strong
-            // as pink ones (not 11 dB under), and they fall away above that
+            // -4.5, bursts from 2 kHz up: its top line is 4.5 dB an octave too, so nothing's turned up. It's the
+            // same noise as with no low cut, less the octaves below 2 kHz
             const auto pinkFrom2k = octavePower (Noise::pink, 2000.0f, { 3500.0f, 14000.0f });
             const auto steepFrom2k = octavePower (Noise::minus4_5, 2000.0f, { 3500.0f, 14000.0f });
-            expectWithinAbsoluteError (steepFrom2k[0] - pinkFrom2k[0], -1.5f * octaves (2000.0f, 3500.0f), 1.5f, "-4.5: at its bottom edge it matches pink");
-            expectWithinAbsoluteError (steepFrom2k[1] - pinkFrom2k[1], -1.5f * octaves (2000.0f, 14000.0f), 1.5f, "two octaves on it's 3 dB softer still");
+            expectWithinAbsoluteError (steepFrom2k[0] - pinkFrom2k[0], -1.5f * octaves (20.0f, 3500.0f), 1.5f, "-4.5: its bottom edge is on the -4.5 line, not pink's");
+            expectWithinAbsoluteError (steepFrom2k[1] - pinkFrom2k[1], -1.5f * octaves (20.0f, 14000.0f), 1.5f, "and two octaves on it's 3 dB softer still");
 
             // -6: the boost undoes half the tilt, so the bottom edges of bursts from 500 Hz and from 4 kHz (three
             // octaves apart) are 1.5 dB an octave further apart than pink's would be: 4.5 dB an octave overall
@@ -1642,8 +1642,8 @@ public:
                 const std::vector<float> justAbove { spot * 1.75f };
                 return withSlope (noise, slope, spot, justAbove)[0] - octavePower (Noise::pink, spot, justAbove)[0];
             };
-            expectWithinAbsoluteError (edgeUnderPink (Noise::minus4_5, 7.5f, 4000.0f) - edgeUnderPink (Noise::minus4_5, 7.5f, 500.0f), 0.0f, 1.5f,
-                                       "-4.5 at a slope of 7.5: the bottom edges still follow pink's line");
+            expectWithinAbsoluteError (edgeUnderPink (Noise::minus4_5, 7.5f, 4000.0f) - edgeUnderPink (Noise::minus4_5, 7.5f, 500.0f), -4.5f, 1.5f,
+                                       "-4.5 at a slope of 7.5: the bottom edges still fall 4.5 dB an octave");
             expectWithinAbsoluteError (edgeUnderPink (Noise::minus6, 9.0f, 4000.0f) - edgeUnderPink (Noise::minus6, 9.0f, 500.0f), -4.5f, 1.5f,
                                        "-6 at a slope of 9: the bottom edges still fall 4.5 dB an octave");
 
