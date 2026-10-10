@@ -1598,6 +1598,58 @@ public:
             const float low = edgeBelowPink (500.0f), high = edgeBelowPink (4000.0f);
             expectWithinAbsoluteError (low, -1.5f * octaves (20.0f, 500.0f) - 3.0f * octaves (500.0f, 875.0f), 1.5f, "-6: a burst's edge is 1.5 dB an octave under pink's");
             expectWithinAbsoluteError (high - low, -1.5f * 3.0f, 1.5f, "so edge to edge it falls 4.5 dB an octave overall");
+
+            // The slope is adjustable, and the top line doesn't move. A steeper -4.5 (7.5 dB an octave): each burst
+            // falls away faster, but bursts from 500 Hz and from 4 kHz still start as strong as pink ones.
+            auto withSlope = [this, &octaves] (Noise noise, float slope, float spot, std::vector<float> centres)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::spots);
+                player.setSpotCount (1);
+                player.setSpot (0, spot);
+                player.setNoise (noise);
+                player.setSlope (noise, slope);
+                player.setRate (CalibrationPlayer::maxRate);
+                player.setPlaying (true);
+
+                const int order = 17, size = 1 << order;
+                juce::AudioBuffer<float> buffer (2, size);
+                buffer.clear();
+                player.process (buffer);
+                juce::dsp::FFT fft (order);
+                std::vector<float> data ((size_t) size * 2, 0.0f);
+                std::copy_n (buffer.getReadPointer (0), size, data.begin());
+                fft.performFrequencyOnlyForwardTransform (data.data());
+                std::vector<float> powers;
+                for (float centre : centres)
+                {
+                    double power = 0.0;
+                    const int from = (int) (centre / std::sqrt (2.0f) * size / sampleRate), to = (int) (centre * std::sqrt (2.0f) * size / sampleRate);
+                    for (int bin = from; bin < to; ++bin)
+                        power += (double) data[(size_t) bin] * data[(size_t) bin];
+                    powers.push_back ((float) (10.0 * std::log10 (power)));
+                }
+                juce::ignoreUnused (octaves);
+                return powers;
+            };
+
+            const auto steeper45 = withSlope (Noise::minus4_5, 7.5f, 0.0f, { 250.0f, 4000.0f });
+            expectWithinAbsoluteError (steeper45[0] - steeper45[1], (7.5f - 3.0f) * 4.0f, 2.0f, "a slope of 7.5: four octaves up is 18 dB down on pink");
+
+            auto edgeUnderPink = [&] (Noise noise, float slope, float spot)
+            {
+                const std::vector<float> justAbove { spot * 1.75f };
+                return withSlope (noise, slope, spot, justAbove)[0] - octavePower (Noise::pink, spot, justAbove)[0];
+            };
+            expectWithinAbsoluteError (edgeUnderPink (Noise::minus4_5, 7.5f, 4000.0f) - edgeUnderPink (Noise::minus4_5, 7.5f, 500.0f), 0.0f, 1.5f,
+                                       "-4.5 at a slope of 7.5: the bottom edges still follow pink's line");
+            expectWithinAbsoluteError (edgeUnderPink (Noise::minus6, 9.0f, 4000.0f) - edgeUnderPink (Noise::minus6, 9.0f, 500.0f), -4.5f, 1.5f,
+                                       "-6 at a slope of 9: the bottom edges still fall 4.5 dB an octave");
+
+            CalibrationPlayer limits;
+            limits.setSlope (Noise::minus6, 1.0f);
+            expectWithinAbsoluteError (limits.getSlope (Noise::minus6), 4.5f, 0.001f, "the slope can't be shallower than the top line");
         }
 
         beginTest ("Clicking a position repeats just it");
@@ -2065,6 +2117,8 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
     }
     processor.getProfiles().addProfile ("HD 600 (AutoEQ)");
     processor.parameters.state.setProperty ("showCalibration", showCalibration, nullptr);
+    if (const auto noise = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_NOISE", {}); noise.isNotEmpty())
+        processor.parameters.state.setProperty ("calibrationNoise", noise.getIntValue(), nullptr);
     if (zoomed)
     {
         processor.parameters.state.setProperty ("graphLowFrequency", 800.0f, nullptr);

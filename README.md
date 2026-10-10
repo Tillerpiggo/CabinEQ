@@ -60,11 +60,12 @@ loads the VST3 to EQ everything the Mac plays.
   fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (each position plays that many times, quietest first), and a floor: how far
   below the volume the quietest of those plays is (-20 dB to start), with the rest climbing evenly from there to the volume. Hiding it stops the sound.
 - **Calibration noise** (Pink | -4.5 | -6 dB/oct in the panel's header): pink noise falls 3 dB an octave. The other
-  two are pink through a filter that tilts it further, level with pink at 20 Hz, and in both, each burst is
-  turned up 1.5 dB for every octave its lowest frequency (its low cut) is above 20 Hz.
-  With **-4.5**, that boost undoes the tilt at each burst's bottom edge: every burst starts as strong as a pink one,
-  and falls away faster above. With **-6**, it undoes half of it: from burst to burst the bottom edges fall 4.5 dB
-  an octave, and each burst falls away faster still.
+  two are pink through a filter that tilts it further (level with pink at 20 Hz), so each burst falls away faster.
+  What a mode fixes is its top line: how fast the bursts' bottom edges fall from one burst to the next. Each burst is
+  turned up, by how many octaves its lowest frequency is above 20 Hz, by whatever keeps it on that line.
+  **-4.5** keeps pink's line (3 dB an octave); **-6** falls 4.5 dB an octave. The **Slope** slider (with the other
+  sliders, when one of these is on) sets how fast each burst falls away, from the top line's own slope up to 12 dB an
+  octave; it starts at 4.5 and 6, and each mode remembers its own. The top line doesn't move when you change it.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),
   each playing from its frequency (a sharp low cut) up to 20 kHz. They show on the EQ graph as dashed
   lines with chips along the bottom: drag the lowest or highest spot to spread them out from (or in

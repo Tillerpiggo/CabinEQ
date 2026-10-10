@@ -63,6 +63,8 @@ private:
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
     std::array<juce::TextButton, 3> noiseButtons; // pink, -4.5 and -6 dB an octave
     void setNoise (CalibrationPlayer::Noise noise);
+    juce::Slider slopeSlider; // how fast each burst falls away, for the tilted noises
+    juce::Label slopeLabel;
     juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider, attackSlider, releaseSlider, floorSlider;
     juce::Label volumeLabel, depthLabel, speedLabel, attackLabel, releaseLabel, floorLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;

@@ -23,6 +23,7 @@ namespace
     const juce::Identifier idFloor { "calibrationFloor" };
     const juce::Identifier idNoise { "calibrationNoise" };
     const juce::Identifier idSteepNoise { "calibrationSteepNoise" }; // before there were three: true was -4.5
+    const juce::Identifier idSlopes[] { "calibrationSlope45", "calibrationSlope6" }; // each tilted noise's own
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -133,6 +134,30 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         button.onClick = [this, i] { setNoise ((CalibrationPlayer::Noise) i); };
         addAndMakeVisible (button);
     }
+    // How fast each burst falls away. The mode's top line stays where it is.
+    slopeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    slopeSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 78, 20);
+    slopeSlider.textFromValueFunction = [] (double v) { return "-" + juce::String (v, 1) + " dB/oct"; };
+    slopeSlider.valueFromTextFunction = [] (const juce::String& text) { return std::abs (text.getDoubleValue()); };
+    slopeSlider.onValueChange = [this]
+    {
+        const auto noise = player.getNoise();
+        if (noise == CalibrationPlayer::Noise::pink)
+            return;
+        player.setSlope (noise, (float) slopeSlider.getValue());
+        processor.parameters.state.setProperty (idSlopes[(int) noise - 1], slopeSlider.getValue(), nullptr);
+    };
+    addChildComponent (slopeSlider);
+    slopeLabel.setText ("Slope", juce::dontSendNotification);
+    slopeLabel.setFont (Theme::font (12.0f));
+    slopeLabel.setColour (juce::Label::textColourId, Theme::textDim);
+    addChildComponent (slopeLabel);
+    for (int i = 0; i < 2; ++i)
+    {
+        const auto noise = (CalibrationPlayer::Noise) (i + 1);
+        player.setSlope (noise, (float) (double) processor.parameters.state.getProperty (idSlopes[i], CalibrationPlayer::defaultSlopeDbPerOctave (noise)));
+    }
+
     {
         const auto& state = processor.parameters.state;
         const int fallback = (bool) state.getProperty (idSteepNoise, false) ? 1 : 0;
@@ -251,6 +276,22 @@ void CalibrationPanel::setNoise (CalibrationPlayer::Noise noise)
     processor.parameters.state.setProperty (idNoise, (int) noise, nullptr); // not undoable, like the rest
     for (size_t i = 0; i < noiseButtons.size(); ++i)
         noiseButtons[i].setToggleState ((int) i == (int) noise, juce::dontSendNotification);
+
+    // The slope is each tilted noise's own; it can't be shallower than the mode's top line
+    const bool tilted = noise != CalibrationPlayer::Noise::pink;
+    slopeSlider.setVisible (tilted);
+    slopeLabel.setVisible (tilted);
+    resized();
+    if (tilted)
+    {
+        const float topLine = CalibrationPlayer::topLineDbPerOctave (noise);
+        slopeSlider.setRange (topLine, CalibrationPlayer::maxSlopeDbPerOctave, 0.1);
+        slopeSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultSlopeDbPerOctave (noise));
+        slopeSlider.setValue (player.getSlope (noise), juce::dontSendNotification);
+        slopeSlider.updateText();
+        slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency. From burst to burst, their bottom edges still fall "
+                                + juce::String (topLine, 1) + " dB an octave: each burst's volume makes up the difference. Double-click to reset.");
+    }
 }
 
 void CalibrationPanel::applySettings()
@@ -567,16 +608,21 @@ void CalibrationPanel::resized()
     for (size_t i = 0; i < noiseButtons.size(); ++i)
         noiseButtons[i].setBounds (header.removeFromLeft (noiseWidths[i]).withSizeKeepingCentre (noiseWidths[i], 26));
 
+
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));
     controls.removeFromLeft (20);
-    for (auto [slider, label] : { std::pair { &volumeSlider, &volumeLabel }, std::pair { &speedSlider, &speedLabel }, std::pair { &attackSlider, &attackLabel },
-                                 std::pair { &releaseSlider, &releaseLabel },
-                                 std::pair { &depthSlider, &depthLabel }, std::pair { &floorSlider, &floorLabel } })
+    // The slope's row is only there for the tilted noises; the rows close up to make room for it
+    std::vector<std::pair<juce::Slider*, juce::Label*>> rows { { &volumeSlider, &volumeLabel }, { &speedSlider, &speedLabel }, { &attackSlider, &attackLabel },
+                                                              { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &floorSlider, &floorLabel } };
+    if (slopeSlider.isVisible())
+        rows.push_back ({ &slopeSlider, &slopeLabel });
+    const int rowHeight = std::min (30, controls.getHeight() / (int) rows.size());
+    for (auto [slider, label] : rows)
     {
-        auto row = controls.removeFromTop (30);
+        auto row = controls.removeFromTop (rowHeight);
         label->setBounds (row.removeFromLeft (64));
-        slider->setBounds (row.withSizeKeepingCentre (row.getWidth(), 28));
+        slider->setBounds (row.withSizeKeepingCentre (row.getWidth(), std::min (28, rowHeight)));
     }
 
     // Spots mode: how many, the pan range, and which one's playing

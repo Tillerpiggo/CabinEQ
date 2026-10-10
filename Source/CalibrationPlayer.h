@@ -54,8 +54,16 @@ public:
     void prepare (double newSampleRate)
     {
         sampleRate = newSampleRate;
-        for (size_t i = 0; i < tiltedNoise.size(); ++i)
-            makeTiltedNoise (tiltedNoise[i], tiltDbPerOctave ((Noise) (i + 1)));
+        {
+            // Audio isn't running, so the tilted noise can go straight in
+            const juce::ScopedLock build (buildLock);
+            makePinkSpectrum();
+            builtTilt = wantedTilt();
+            tiltedNoise = makeTiltedNoise (builtTilt);
+            const juce::SpinLock::ScopedLockType lock (pendingLock);
+            pendingNoise.clear();
+            hasPending = false;
+        }
         tiltedIndex = 0;
         for (auto& voice : voices)
             voice.active = false;
@@ -69,17 +77,37 @@ public:
     void setFloorDb (float newFloorDb)  { floorDb = juce::jlimit (minFloorDb, 0.0f, newFloorDb); }
 
     /// What the bursts are made of. Pink falls 3 dB an octave. The other two are pink through a filter that
-    /// tilts it further (level with pink at 20 Hz), and their bursts are each turned up by 1.5 dB for every
-    /// octave the burst's lowest frequency is above 20 Hz:
-    ///   minus4_5  falls 4.5 dB an octave. The boost undoes the tilt at each burst's bottom edge, so from burst
-    ///             to burst the bottom edges are as strong as pink's (3 dB an octave), and each falls away faster.
-    ///   minus6    falls 6 dB an octave. The boost undoes half the tilt, so from burst to burst the bottom edges
-    ///             fall 4.5 dB an octave, and each burst falls away faster still.
+    /// tilts it further (level with pink at 20 Hz), so each burst falls away faster: by its mode's slope, which
+    /// can be changed. What a mode fixes is its top line: how fast the bursts' bottom edges fall from burst
+    /// to burst. Each burst is turned up, by its lowest frequency, by whatever keeps them on that line.
+    ///   minus4_5  top line 3 dB an octave, as pink's is. Its slope starts at 4.5.
+    ///   minus6    top line 4.5 dB an octave. Its slope starts at 6.
     enum class Noise { pink = 0, minus4_5 = 1, minus6 = 2 };
-    static constexpr float burstBoostDbPerOctave = 1.5f;
-    static constexpr float tiltDbPerOctave (Noise noise) { return noise == Noise::minus6 ? 3.0f : noise == Noise::minus4_5 ? 1.5f : 0.0f; }
-    void setNoise (Noise newNoise) { noiseType = juce::jlimit (0, 2, (int) newNoise); }
-    Noise getNoise() const         { return (Noise) noiseType.load(); }
+    static constexpr float maxSlopeDbPerOctave = 12.0f;
+    static constexpr float topLineDbPerOctave (Noise noise)      { return noise == Noise::minus6 ? 4.5f : 3.0f; }
+    static constexpr float defaultSlopeDbPerOctave (Noise noise) { return noise == Noise::minus6 ? 6.0f : noise == Noise::minus4_5 ? 4.5f : 3.0f; }
+
+    /// Message thread. A change of tilt makes new noise here, and the audio picks it up at its next block.
+    void setNoise (Noise newNoise)
+    {
+        noiseType = juce::jlimit (0, 2, (int) newNoise);
+        updateTiltedNoise();
+    }
+    Noise getNoise() const { return (Noise) noiseType.load(); }
+
+    /// How fast each burst falls away, in dB an octave (as a positive number). No shallower than the mode's top line.
+    void setSlope (Noise noise, float dbPerOctave)
+    {
+        if (noise == Noise::pink)
+            return;
+        slopes[(size_t) noise - 1] = juce::jlimit (topLineDbPerOctave (noise), maxSlopeDbPerOctave, dbPerOctave);
+        updateTiltedNoise();
+    }
+    float getSlope (Noise noise) const { return noise == Noise::pink ? 3.0f : slopes[(size_t) noise - 1].load(); }
+
+    /// How much each burst is turned up per octave its lowest frequency is above 20 Hz: what the slope loses
+    /// that the top line doesn't
+    float burstBoostDbPerOctave() const { return getSlope (getNoise()) - topLineDbPerOctave (getNoise()); }
     void setRate (float burstsPerSecond) { rate = juce::jlimit (minRate, maxRate, burstsPerSecond); }
     /// How long each burst takes to fade out after its attack. 0 cuts it off straight away, leaving just the attack.
     void setReleaseMs (float milliseconds) { releaseMs = juce::jlimit (0.0f, maxReleaseMs, milliseconds); }
@@ -175,8 +203,19 @@ public:
         auto* right = buffer.getWritePointer (numChannels > 1 ? 1 : 0);
         const float gain = level.load();
         const int interval = std::max (1, (int) (sampleRate / rate.load()));
-        const int noiseNow = noiseType.load();
-        const std::vector<float>* tilted = noiseNow > 0 && ! tiltedNoise[(size_t) noiseNow - 1].empty() ? &tiltedNoise[(size_t) noiseNow - 1] : nullptr;
+        // Take newly made noise, if there is some and the message thread isn't mid-handover
+        if (hasPending.load())
+        {
+            const juce::SpinLock::ScopedTryLockType lock (pendingLock);
+            if (lock.isLocked())
+            {
+                std::swap (tiltedNoise, pendingNoise); // the old one's freed by the message thread, later
+                hasPending = false;
+                if (tiltedIndex >= tiltedNoise.size())
+                    tiltedIndex = 0;
+            }
+        }
+        const std::vector<float>* tilted = getNoise() != Noise::pink && ! tiltedNoise.empty() ? &tiltedNoise : nullptr;
 
         const int attackSamples = std::max (1, (int) (attackMs.load() * 0.001 * sampleRate));
 
@@ -354,9 +393,9 @@ private:
                 voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
         }
 
-        // Tilted noise: up 1.5 dB for every octave this burst's lowest frequency is above 20 Hz
+        // Tilted noise: up for every octave this burst's lowest frequency is above 20 Hz, to keep it on the top line
         if (getNoise() != Noise::pink)
-            voice->peak *= juce::Decibels::decibelsToGain (burstBoostDbPerOctave * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
+            voice->peak *= juce::Decibels::decibelsToGain (burstBoostDbPerOctave() * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
 
         // Quietest first: from the floor up to full level, in even steps
         if (depthRuns > 1)
@@ -366,24 +405,55 @@ private:
         voice->active = true;
     }
 
-    /// A few seconds of pink noise through a filter that tilts it down (level with pink at 20 Hz), to loop. The filter
-    /// is applied to the whole stretch at once, in the frequency domain, which is the same as a long FIR filter
-    /// that wraps round, so the loop has no seam, and playing it costs nothing.
-    void makeTiltedNoise (std::vector<float>& tiltedOut, float dbPerOctave)
-    {
-        constexpr int order = 18; // 262144 samples: 5.5 s at 48 kHz
-        const int size = 1 << order;
-        juce::dsp::FFT fft (order);
-        std::vector<float> data ((size_t) size * 2, 0.0f);
-        for (int i = 0; i < size; ++i)
-            data[(size_t) i] = nextPink();
+    /// How far the noise wanted now is tilted beyond pink, in dB an octave
+    float wantedTilt() const { return getSlope (getNoise()) - 3.0f; }
 
-        fft.performRealOnlyForwardTransform (data.data());
+    /// Makes the noise for a new tilt, if it's changed, and leaves it for the audio thread to pick up
+    void updateTiltedNoise()
+    {
+        const juce::ScopedLock build (buildLock);
+        const float tilt = wantedTilt();
+        if (getNoise() == Noise::pink || pinkSpectrum.empty() || std::abs (tilt - builtTilt) < 1.0e-4f)
+            return;
+
+        auto noise = makeTiltedNoise (tilt);
+        builtTilt = tilt;
+        const juce::SpinLock::ScopedLockType lock (pendingLock);
+        pendingNoise = std::move (noise);
+        hasPending = true;
+    }
+
+    static constexpr int noiseOrder = 18; // 262144 samples: 5.5 s at 48 kHz
+
+    /// The spectrum of a few seconds of pink noise, kept so that tilting it again is quick
+    void makePinkSpectrum()
+    {
+        const int size = 1 << noiseOrder;
+        juce::dsp::FFT fft (noiseOrder);
+        pinkSpectrum.assign ((size_t) size * 2, 0.0f);
+        for (int i = 0; i < size; ++i)
+            pinkSpectrum[(size_t) i] = nextPink();
+        fft.performRealOnlyForwardTransform (pinkSpectrum.data());
+
+        octavesAbove20.resize ((size_t) size);
+        for (int bin = 0; bin < size; ++bin)
+            octavesAbove20[(size_t) bin] = (float) std::log2 (std::max (20.0, (double) std::min (bin, size - bin) * sampleRate / size) / 20.0);
+    }
+
+    /// That pink noise through a filter that tilts it down (level with pink at 20 Hz), to loop. The filter is
+    /// applied to the whole stretch at once, in the frequency domain, which is the same as a long FIR filter
+    /// that wraps round, so the loop has no seam, and playing it costs nothing.
+    std::vector<float> makeTiltedNoise (float dbPerOctave) const
+    {
+        const int size = 1 << noiseOrder;
+        juce::dsp::FFT fft (noiseOrder);
+        auto data = pinkSpectrum;
+
         double expectedPower = 0.0;
+        const float exponent = -dbPerOctave / 6.0206f;
         for (int bin = 0; bin < size; ++bin)
         {
-            const double frequency = (double) std::min (bin, size - bin) * sampleRate / size;
-            const float tilt = bin == 0 ? 0.0f : (float) std::pow (std::max (20.0, frequency) / 20.0, -dbPerOctave / 6.0206);
+            const float tilt = bin == 0 ? 0.0f : std::exp2 (exponent * octavesAbove20[(size_t) bin]);
             data[(size_t) bin * 2] *= tilt;
             data[(size_t) bin * 2 + 1] *= tilt;
             expectedPower += (double) data[(size_t) bin * 2] * data[(size_t) bin * 2] + (double) data[(size_t) bin * 2 + 1] * data[(size_t) bin * 2 + 1];
@@ -396,9 +466,10 @@ private:
             power += (double) data[(size_t) i] * data[(size_t) i];
         const float scale = power > 0.0 ? (float) std::sqrt (expectedPower / size / power) : 0.0f;
 
-        tiltedOut.resize ((size_t) size);
-        for (int i = 0; i < size; ++i)
-            tiltedOut[(size_t) i] = data[(size_t) i] * scale;
+        data.resize ((size_t) size);
+        for (auto& sample : data)
+            sample *= scale;
+        return data;
     }
 
     /// Paul Kellet's pink noise, scaled to 0 dB RMS (its raw RMS is about 1.74), so the level is the burst's RMS
@@ -425,8 +496,17 @@ private:
     std::atomic<float> releaseMs { defaultReleaseMs }, attackMs { defaultAttackMs };
     std::atomic<float> floorDb { defaultFloorDb };
     std::atomic<int> noiseType { (int) Noise::pink };
-    std::array<std::vector<float>, 2> tiltedNoise; // for minus4_5 and minus6
+    std::array<std::atomic<float>, 2> slopes { defaultSlopeDbPerOctave (Noise::minus4_5), defaultSlopeDbPerOctave (Noise::minus6) };
+
+    // The tilted noise the audio thread plays, and the next one, made on the message thread
+    std::vector<float> tiltedNoise;
     size_t tiltedIndex = 0;
+    juce::CriticalSection buildLock; // makers only: never the audio thread
+    std::vector<float> pinkSpectrum, octavesAbove20;
+    float builtTilt = 0.0f;
+    juce::SpinLock pendingLock;
+    std::vector<float> pendingNoise;
+    std::atomic<bool> hasPending { false };
     std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
     std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };
