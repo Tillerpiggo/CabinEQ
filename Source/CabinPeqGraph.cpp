@@ -138,7 +138,14 @@ int CabinPeqGraph::layer() const
 
 float CabinPeqGraph::layerBaseDb (float frequency) const
 {
-    return layer() == BandProfile::both ? 0.0f : bandProfile.curveDbAt (frequency, -2);
+    // Each layer sits on the ones before it: the curve on the bands, an ear's tweak on the curve as well
+    const int editing = layer();
+    float db = 0.0f;
+    if (bandProfile.getBandsOn())
+        db += editing == BandProfile::both ? curve.dbAtFrequency (frequency) : curve.dbAtFrequencyForChannel (frequency, editing - 1);
+    if (editing != BandProfile::both)
+        db += bandProfile.curveDbAt (frequency, -2);
+    return db;
 }
 
 float CabinPeqGraph::pointDb (const CurvePoint& point) const
@@ -153,9 +160,7 @@ juce::Colour CabinPeqGraph::earColour (int channel)
 
 float CabinPeqGraph::responseDb (float frequency, int channel) const
 {
-    // Both layers, chained: the bands, then the curve on top. channel -2 is the shared curve alone.
-    if (channel == -2)
-        return bandProfile.curveDbAt (frequency, -2);
+    // What you hear: the bands, then the curve on top. channel -1 averages the ears; -2 leaves out the ears' tweaks.
     float db = 0.0f;
     if (bandProfile.getBandsOn())
         db += channel < 0 ? curve.dbAtFrequency (frequency) : curve.dbAtFrequencyForChannel (frequency, channel);
@@ -683,10 +688,10 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     if (getShowSpectrum())
         drawSpectrum (g);
     drawCurves (g);
-    // Both layers show when they're on; the one you're editing is the bright one
-    if (bandProfile.getCurveOn())
+    // Only the layer you're editing has handles; the other is in the lines
+    if (isCurveMode())
         drawPoints (g);
-    if (bandProfile.getBandsOn())
+    else
         drawHandles (g);
 
     if (dragMode == DragMode::marquee)
@@ -705,7 +710,7 @@ void CabinPeqGraph::paint (juce::Graphics& g)
     {
         g.setColour (Theme::textFaint);
         g.setFont (Theme::font (13.0f));
-        g.drawText (isCurveMode() ? "Drag from the 0 dB line to add a point. The curve goes through every point you add"
+        g.drawText (isCurveMode() ? (underCurve.isEmpty() ? "Drag a point out of the 0 dB line" : "Drag a point out of the dashed line")
                                   : "Click the 0 dB line to add a band, then drag to shape it",
                     getPlotArea().withTrimmedTop (getPlotArea().getHeight() * 0.5f + 24.0f).withHeight (20.0f),
                     juce::Justification::centred);
@@ -895,22 +900,25 @@ void CabinPeqGraph::drawSpectrum (juce::Graphics& g)
     g.fillPath (path);
 }
 
-juce::Path CabinPeqGraph::curvePathForChannel (int channel) const
+juce::Path CabinPeqGraph::pathFor (const std::function<float (float)>& dbAt) const
 {
     auto plot = getPlotArea();
     const float range = getDisplayRange();
     juce::Path path;
     for (float x = plot.getX(); x <= plot.getRight() + 1.0f; x += 1.5f)
     {
-        const float frequency = frequencyForX (x);
-        const float db = responseDb (frequency, channel);
-        const float y = yForDb (juce::jlimit (-range * 1.2f, range * 1.2f, db));
+        const float y = yForDb (juce::jlimit (-range * 1.2f, range * 1.2f, dbAt (frequencyForX (x))));
         if (x == plot.getX())
             path.startNewSubPath (x, y);
         else
             path.lineTo (x, y);
     }
     return path;
+}
+
+juce::Path CabinPeqGraph::curvePathForChannel (int channel) const
+{
+    return pathFor ([this, channel] (float frequency) { return responseDb (frequency, channel); });
 }
 
 void CabinPeqGraph::rebuildCurvePaths()
@@ -930,6 +938,14 @@ void CabinPeqGraph::rebuildCurvePaths()
         rightCurve.clear();
         sharedCurve.clear();
     }
+
+    // Dashed underneath: what the layer you're editing sits on. For the curve that's the bands (and, for an
+    // ear's tweak, the shared curve too); for the bands, with a curve on top, it's the bands on their own.
+    underCurve.clear();
+    if (isCurveMode() && (bandProfile.getBandsOn() || layer() != BandProfile::both))
+        underCurve = pathFor ([this] (float frequency) { return layerBaseDb (frequency); });
+    else if (! isCurveMode() && bandProfile.getCurveOn())
+        underCurve = pathFor ([this] (float frequency) { return curve.dbAtFrequency (frequency); });
 }
 
 void CabinPeqGraph::drawCurves (juce::Graphics& g)
@@ -962,6 +978,15 @@ void CabinPeqGraph::drawCurves (juce::Graphics& g)
         g.fillPath (shape);
     }
 
+    if (! underCurve.isEmpty())
+    {
+        juce::Path dashed;
+        const float dashes[] { 4.0f, 5.0f };
+        juce::PathStrokeType (1.3f).createDashedStroke (dashed, underCurve, dashes, 2);
+        g.setColour (Theme::text.withAlpha (isBypassed ? 0.15f : 0.32f));
+        g.fillPath (dashed);
+    }
+
     const float thickness = 2.2f;
     if (! mainCurve.isEmpty())
     {
@@ -984,31 +1009,20 @@ void CabinPeqGraph::drawCurves (juce::Graphics& g)
         auto key = plot.withTrimmedLeft (plot.getWidth() - 120.0f).withHeight (22.0f)
                        .withY (getZoomControl().bounds.getBottom() + 6.0f).translated (-10.0f, 0.0f);
         g.setFont (Theme::font (11.0f));
-        // In curve mode: editing both, the shared curve is bright and the ears faint; editing an ear, it's
-        // bright, the other ear faint, and the shared curve it sits on dashed
+        // In curve mode: editing both ears, what they share is bright and the ears faint; editing an ear,
+        // it's the bright one, and the other ear faint
         const int editing = isCurveMode() && layer() != BandProfile::both ? layer() - 1 : -1;
-        if (isCurveMode() && ! sharedCurve.isEmpty())
+        if (isCurveMode() && editing < 0 && ! sharedCurve.isEmpty())
         {
             const auto colour = isBypassed ? Theme::textFaint : Theme::accentBright;
-            if (editing < 0)
-            {
-                juce::Path fill (sharedCurve);
-                fill.lineTo (plot.getRight(), zeroY);
-                fill.lineTo (plot.getX(), zeroY);
-                fill.closeSubPath();
-                g.setColour (colour.withAlpha (isBypassed ? 0.05f : 0.10f));
-                g.fillPath (fill);
-                g.setColour (colour);
-                g.strokePath (sharedCurve, juce::PathStrokeType (thickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
-            }
-            else
-            {
-                juce::Path dashed;
-                const float dashes[] { 5.0f, 5.0f };
-                juce::PathStrokeType (1.4f).createDashedStroke (dashed, sharedCurve, dashes, 2);
-                g.setColour (colour.withAlpha (0.5f));
-                g.fillPath (dashed);
-            }
+            juce::Path fill (sharedCurve);
+            fill.lineTo (plot.getRight(), zeroY);
+            fill.lineTo (plot.getX(), zeroY);
+            fill.closeSubPath();
+            g.setColour (colour.withAlpha (isBypassed ? 0.05f : 0.10f));
+            g.fillPath (fill);
+            g.setColour (colour);
+            g.strokePath (sharedCurve, juce::PathStrokeType (thickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
         }
         if (editing >= 0)
         {
@@ -1061,8 +1075,6 @@ void CabinPeqGraph::drawHandles (juce::Graphics& g)
         auto colour = Theme::bandColour (index);
         if (isBypassed)
             colour = colour.withSaturation (0.1f).withMultipliedBrightness (0.7f);
-        if (isCurveMode())
-            colour = colour.withMultipliedAlpha (0.45f); // not the one being edited
 
         auto circle = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);
 
@@ -1127,8 +1139,7 @@ void CabinPeqGraph::drawPoints (juce::Graphics& g)
     juce::Graphics::ScopedSaveState clip (g);
     g.reduceClipRegion (getPlotArea().toNearestInt());
 
-    const auto colour = (isBypassed ? Theme::textFaint : layer() == BandProfile::both ? Theme::accentBright : earColour (layer() - 1))
-                            .withMultipliedAlpha (isCurveMode() ? 1.0f : 0.45f); // dimmed when it's the bands you're editing
+    const auto colour = isBypassed ? Theme::textFaint : layer() == BandProfile::both ? Theme::accentBright : earColour (layer() - 1);
     for (const auto& point : bandProfile.getPoints (layer()))
     {
         const auto centre = pointPosition (point);
@@ -1168,8 +1179,10 @@ void CabinPeqGraph::drawReadout (juce::Graphics& g)
         if (auto point = bandProfile.getPointWithId (shownPoint, layer()))
         {
             auto text = Format::frequency (point->freq) + "  " + Format::gain (pointDb (*point));
-            if (layer() != BandProfile::both)
-                text << "  (" << Format::gain (point->gain) << " vs both)";
+            // Sitting on another layer: what you hear there, then this layer's share of it
+            if (! underCurve.isEmpty())
+                text << "   " << (layer() == BandProfile::both ? "curve " : layer() == BandProfile::leftTweak ? "left " : "right ")
+                     << Format::gain (point->gain);
             const auto font = Theme::font (12.0f);
             const auto centre = pointPosition (*point);
             auto tag = juce::Rectangle<float> (Theme::textWidth (font, text) + 16.0f, 22.0f)
@@ -1327,18 +1340,6 @@ void CabinPeqGraph::mouseDown (const juce::MouseEvent& event)
         {
             beginSpotDrag (line, event.position.x);
             return;
-        }
-    }
-
-    // With both layers on, clicking a band or a point makes its layer the one you're editing
-    if (bandProfile.getBandsOn() && bandProfile.getCurveOn())
-    {
-        const bool onBand = bandAt (event.position).has_value();
-        const bool onPoint = pointAt (event.position).has_value();
-        if (onBand != onPoint && onBand == isCurveMode())
-        {
-            processor.setEditingCurve (! onBand);
-            refresh();
         }
     }
 
@@ -1757,6 +1758,14 @@ bool CabinPeqGraph::keyPressed (const juce::KeyPress& key)
         deleteSelectedBands();
         return true;
     }
+    // Tab swaps between the bands and the curve, when both are on
+    if (key == juce::KeyPress::tabKey && bandProfile.getBandsOn() && bandProfile.getCurveOn())
+    {
+        processor.setEditingCurve (! isCurveMode());
+        refresh();
+        return true;
+    }
+
     // B, L and R pick what to edit when the ears are split: both, or one ear's tweak
     if (isCurveMode() && bandProfile.isSplit() && ! isCommandDown (mods)
         && (key.getKeyCode() == 'L' || key.getKeyCode() == 'l' || key.getKeyCode() == 'R' || key.getKeyCode() == 'r'

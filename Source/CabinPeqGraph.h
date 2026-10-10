@@ -81,7 +81,6 @@ private:
     void curveMouseDown (const juce::MouseEvent&);
     void drawPoints (juce::Graphics&);
     int layer() const; // which of the curve's layers is being edited (a BandProfile::Layer): the shared curve unless split
-    float layerBaseDb (float frequency) const; // what a layer's points are relative to: an ear's tweak sits on the shared curve
     float pointDb (const CurvePoint& point) const; // where a point is drawn
     /// Curve mode's centre line, which new points are pulled out of: 0 dB, or for an ear's tweak, the shared curve
     bool isNearCentreLine (juce::Point<float> position) const;
@@ -90,6 +89,9 @@ private:
 public:
     static inline const juce::Identifier idCurveLayer { "curveLayer" }; // on the state root, not undoable
     void setEditingLayer (int layer); // a BandProfile::Layer: both ears, or one ear's tweak, when split
+    /// What the curve layer being edited sits on, and so what its points' gains are relative to: the bands
+    /// if they're on, and for an ear's tweak, the shared curve as well. It's the dashed line.
+    float layerBaseDb (float frequency) const;
 private:
     std::vector<CurvePoint> pointsAtDragStart;
     bool wasCurveMode = false;
@@ -177,6 +179,8 @@ private:
     // Cached paths
     bool curvePathsNeedRebuilding = true;
     juce::Path mainCurve, leftCurve, rightCurve, sharedCurve;
+    juce::Path underCurve; // dashed: what the layer being edited sits on
+    juce::Path pathFor (const std::function<float (float)>& dbAt) const;
 
     // Bands, and the widest view, go from 20 Hz to 20 kHz; the view can zoom in on part of that
     static constexpr float minFrequency = 20.0f;

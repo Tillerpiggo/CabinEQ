@@ -1031,6 +1031,36 @@ public:
             expectEquals (graph.getNumSelected(), 0, "switching layers starts with nothing selected");
             p.setCurveSplit (false);
 
+            // Bands underneath: the curve sits on them, so you drag what you hear
+            p.setPoints ({});
+            p.setBands ({ Band::withQ (0, 1000.0f, 6.0f, 0.3f, Band::Type::both) }); // about +6 dB around 1 kHz
+            p.setBandsOn (true);
+            processor.setEditingCurve (true);
+            graph.refresh();
+            const float bandsAt1k = graph.layerBaseDb (1000.0f);
+            expectWithinAbsoluteError (bandsAt1k, 6.0f, 0.2f, "the curve's centre line is the bands");
+
+            press (graph, { xFor1k, yFor (0.0f) });
+            release (graph, { xFor1k, yFor (0.0f) });
+            expectEquals (p.getNumPoints(), 0, "the 0 dB line isn't where points come from any more");
+
+            const juce::Point<float> onBands { xFor1k, yFor (bandsAt1k) + 2.0f }, upTo { xFor1k, yFor (9.0f) };
+            press (graph, onBands);
+            drag (graph, onBands, upTo.translated (0.0f, 2.0f));
+            release (graph, upTo);
+            auto onTop = p.getBandProfile().getPoints();
+            expectEquals ((int) onTop.size(), 1);
+            expect (! onTop.empty() && std::abs (onTop[0].gain - 3.0f) < 0.3f, "dragged to +9 dB on +6 dB of bands: the curve adds +3");
+
+            // Tab swaps to the bands, whose handles are then the ones you can grab
+            graph.keyPressed (juce::KeyPress (juce::KeyPress::tabKey));
+            expect (! processor.isEditingCurve(), "Tab swaps to the bands");
+            graph.keyPressed (juce::KeyPress (juce::KeyPress::tabKey));
+            expect (processor.isEditingCurve(), "and back");
+            p.setPoints ({});
+            p.setBandsOn (false);
+            p.setBands ({});
+
             p.setBandsOn (true), p.setCurveOn (false);
             graph.refresh();
         }
@@ -1807,7 +1837,7 @@ static PresetFileTests presetFileTests;
 
 //==============================================================================
 /// Renders the editor with a demo profile to a PNG, to check the UI without clicking around.
-static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed, bool curveMode, bool split, bool bothLayers)
+static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed, bool curveMode, bool split, bool bothLayers, bool editBands)
 {
     CabinEqAudioProcessor processor;
     auto profile = processor.getSelectedProfile();
@@ -1818,11 +1848,15 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
                         Band::withQ (0, 9800.0f, -2.5f, 0.7f, Band::Type::both, Band::Shape::highShelf) });
     profile.setVolume (-6.0f);
     profile.setBandsOn (! curveMode || bothLayers), profile.setCurveOn (curveMode);
+    processor.setEditingCurve (! editBands);
     if (curveMode)
     {
         BandEqCurve bands;
         bands.updateWithBands (profile.getBandProfile().getBands());
-        profile.setPoints (CurveResponse::tracing ([&bands] (float f) { return bands.dbAtFrequency (f); }));
+        if (bothLayers)
+            profile.setPoints ({ { 0, 60.0f, 0.0f }, { 1, 300.0f, -2.0f }, { 2, 1200.0f, 1.5f }, { 3, 7000.0f, -3.0f }, { 4, 14000.0f, 1.0f } });
+        else
+            profile.setPoints (CurveResponse::tracing ([&bands] (float f) { return bands.dbAtFrequency (f); }));
         if (split)
         {
             profile.setCurveSplit (true);
@@ -1943,7 +1977,8 @@ int main (int argc, char** argv)
                               argc >= 6 && juce::String (argv[5]).contains ("zoom"),
                               argc >= 6 && juce::String (argv[5]).contains ("curve"),
                               argc >= 6 && juce::String (argv[5]).contains ("split"),
-                              argc >= 6 && juce::String (argv[5]).contains ("both"));
+                              argc >= 6 && juce::String (argv[5]).contains ("both"),
+                              argc >= 6 && juce::String (argv[5]).contains ("editbands"));
 
     CabinEqProfileManager::shouldBackUpOldState = false;
 

@@ -52,9 +52,9 @@ BandInspector::BandInspector (CabinEqAudioProcessor& p)
             editPoint ([this, v] (CurvePoint& point)
             {
                 // An ear's point stays at the same level on screen as it moves along the shared curve
-                const float shownDb = point.gain + layerBaseDb (point.freq);
+                const float shownDb = point.gain + baseAt (point.freq);
                 point.freq = juce::jlimit (CurvePoint::minFreq, CurvePoint::maxFreq, (float) v);
-                point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, shownDb - layerBaseDb (point.freq));
+                point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, shownDb - baseAt (point.freq));
             });
         else
             edit ({}, [v] (Band& band) { band.freq = (float) v; });
@@ -64,7 +64,7 @@ BandInspector::BandInspector (CabinEqAudioProcessor& p)
         if (isCurveMode())
             editPoint ([this, v] (CurvePoint& point)
             {
-                point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, (float) v - layerBaseDb (point.freq));
+                point.gain = juce::jlimit (CurvePoint::minGain, CurvePoint::maxGain, (float) v - baseAt (point.freq));
             });
         else
             edit ({}, [v] (Band& band) { band.ampl = (float) v; });
@@ -162,9 +162,9 @@ int BandInspector::layer() const
     return isSplit() ? juce::jlimit (0, 2, (int) processor.parameters.state.getProperty (CabinPeqGraph::idCurveLayer, 0)) : (int) BandProfile::both;
 }
 
-float BandInspector::layerBaseDb (float frequency) const
+float BandInspector::baseAt (float frequency) const
 {
-    return layer() == BandProfile::both ? 0.0f : processor.getSelectedBandProfile().curveDbAt (frequency, -2);
+    return layerBaseDb != nullptr ? layerBaseDb (frequency) : 0.0f;
 }
 
 void BandInspector::setLayer (int newLayer)
@@ -227,7 +227,7 @@ void BandInspector::updateControls()
         if (point.has_value())
         {
             frequencyField.setValue (point->freq);
-            gainField.setValue (point->gain + layerBaseDb (point->freq)); // the level you see: for an ear, both plus its tweak
+            gainField.setValue (point->gain + baseAt (point->freq)); // the level you see: for an ear, both plus its tweak
             gainField.setEnabled (true);
             deleteButton.setButtonText (numSelected > 1 ? "Delete " + juce::String (numSelected) : "Delete");
             for (auto* field : { &frequencyField, &gainField })
@@ -277,10 +277,10 @@ void BandInspector::paint (juce::Graphics& g)
         g.setColour (point.has_value() ? Theme::textDim : Theme::textFaint);
         g.setFont (Theme::font (point.has_value() ? 11.0f : 13.0f));
         if (! point.has_value())
-            g.drawText (! isSplit() ? juce::String ("Drag from the 0 dB line to add a point. Drag empty space to select several and drag them together; right-click deletes.")
-                        : layer() == BandProfile::both ? juce::String ("Editing the curve both ears get. L and R tweak one ear on top of it (B, L and R keys switch).")
-                        : juce::String ("Tweaking the ") + (layer() == BandProfile::leftTweak ? "left" : "right")
-                              + " ear on top of both. Drag from the dashed line to add a point; the other ear is faint.",
+            g.drawText (layer() == BandProfile::leftTweak ? "Tweaking the left ear, on top of the dashed line. Drag a point out of it."
+                        : layer() == BandProfile::rightTweak ? "Tweaking the right ear, on top of the dashed line. Drag a point out of it."
+                        : processor.getSelectedProfile().getBandsOn() ? "The curve sits on top of your bands (dashed). Drag a point out of the dashed line."
+                        : "Drag a point out of the 0 dB line. Drag across empty space to select several.",
                         area, juce::Justification::centredLeft, true);
         else
             g.drawText (numSelected > 1 ? juce::String (numSelected) + " points" : "Point",

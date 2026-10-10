@@ -49,6 +49,134 @@ private:
 };
 
 //==============================================================================
+/// The two layers, in the order the sound goes through them:  ● Bands › ● Curve
+/// A layer's dot turns it on or off; its name picks it as the one the graph edits.
+class CabinEqPage::LayerSwitch : public juce::Component,
+                                 public juce::SettableTooltipClient
+{
+public:
+    static constexpr int width = 150, height = 30;
+
+    std::function<void (bool curve)> onToggle, onEdit;
+
+    void setState (bool newBandsOn, bool newCurveOn, bool newEditingCurve)
+    {
+        if (on[0] == newBandsOn && on[1] == newCurveOn && editingCurve == newEditingCurve)
+            return;
+        on[0] = newBandsOn;
+        on[1] = newCurveOn;
+        editingCurve = newEditingCurve;
+        repaint();
+    }
+
+    void paint (juce::Graphics& g) override
+    {
+        g.setColour (Theme::background);
+        g.fillRoundedRectangle (getLocalBounds().toFloat(), 8.0f);
+
+        for (int layer = 0; layer < 2; ++layer)
+        {
+            const auto area = segment (layer);
+            const bool isOn = on[layer], isEdited = isOn && editingCurve == (layer == 1);
+            const bool isHovered = hovered.layer == layer;
+
+            if (isEdited || (isHovered && ! hovered.onDot))
+            {
+                g.setColour (isEdited ? Theme::raised : Theme::raised.withAlpha (0.5f));
+                g.fillRoundedRectangle (area, 6.0f);
+            }
+
+            // The dot: lit when the layer's playing
+            const auto dot = dotArea (layer).withSizeKeepingCentre (8.0f, 8.0f);
+            if (isOn)
+            {
+                g.setColour (Theme::accent.withAlpha (isHovered && hovered.onDot ? 0.4f : 0.22f));
+                g.fillEllipse (dot.expanded (3.5f));
+                g.setColour (Theme::accentBright);
+                g.fillEllipse (dot);
+            }
+            else
+            {
+                g.setColour (isHovered && hovered.onDot ? Theme::text : Theme::textFaint);
+                g.drawEllipse (dot.reduced (0.5f), 1.4f);
+            }
+
+            g.setColour (isEdited ? Theme::text : isOn ? Theme::textDim : Theme::textFaint);
+            g.setFont (Theme::font (13.0f, isEdited));
+            g.drawText (layer == 0 ? "Bands" : "Curve", area.withTrimmedLeft (23.0f), juce::Justification::centredLeft);
+        }
+
+        // The chevron between them: the bands feed the curve, when both are on
+        const auto middle = getLocalBounds().toFloat().getCentre();
+        juce::Path chevron;
+        chevron.startNewSubPath (middle.x - 2.0f, middle.y - 4.0f);
+        chevron.lineTo (middle.x + 2.0f, middle.y);
+        chevron.lineTo (middle.x - 2.0f, middle.y + 4.0f);
+        g.setColour (on[0] && on[1] ? Theme::accentBright.withAlpha (0.8f) : Theme::textFaint.withAlpha (0.6f));
+        g.strokePath (chevron, juce::PathStrokeType (1.5f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    }
+
+    void mouseMove (const juce::MouseEvent& event) override
+    {
+        const auto now = partAt (event.position);
+        if (now.layer != hovered.layer || now.onDot != hovered.onDot)
+        {
+            hovered = now;
+            const juce::String name (now.layer == 0 ? "bands" : "curve");
+            setTooltip (now.layer < 0 ? juce::String()
+                        : now.onDot ? (on[now.layer] ? "Turn the " + name + " off" : "Turn the " + name + " on")
+                        : now.layer == 0 ? "Edit the bands: bells, shelves and cuts. They play first."
+                                         : "Edit the curve: a smooth line through your points, on top of the bands. Tab swaps.");
+            setMouseCursor (now.layer >= 0 ? juce::MouseCursor::PointingHandCursor : juce::MouseCursor::NormalCursor);
+            repaint();
+        }
+    }
+
+    void mouseExit (const juce::MouseEvent&) override
+    {
+        hovered = {};
+        repaint();
+    }
+
+    void mouseUp (const juce::MouseEvent& event) override
+    {
+        const auto part = partAt (event.position);
+        if (part.layer < 0 || ! getLocalBounds().toFloat().contains (event.position))
+            return;
+        if (part.onDot ? onToggle != nullptr : onEdit != nullptr)
+            (part.onDot ? onToggle : onEdit) (part.layer == 1);
+    }
+
+private:
+    struct Part
+    {
+        int layer = -1;
+        bool onDot = false;
+    };
+
+    juce::Rectangle<float> segment (int layer) const
+    {
+        auto area = getLocalBounds().toFloat().reduced (2.0f);
+        const float each = (area.getWidth() - 14.0f) * 0.5f; // 14 for the chevron
+        return layer == 0 ? area.removeFromLeft (each) : area.removeFromRight (each);
+    }
+
+    juce::Rectangle<float> dotArea (int layer) const { return segment (layer).removeFromLeft (23.0f); }
+
+    Part partAt (juce::Point<float> position) const
+    {
+        for (int layer = 0; layer < 2; ++layer)
+            if (segment (layer).contains (position))
+                return { layer, dotArea (layer).contains (position) };
+        return {};
+    }
+
+    bool on[2] { true, false };
+    bool editingCurve = false;
+    Part hovered;
+};
+
+//==============================================================================
 CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     : processor (p), profileList (p), graph (p), inspector (p), calibrationPanel (p),
       autoGainAttachment (p.parameters, ParamIDs::autoGain, autoGainToggle)
@@ -63,7 +191,8 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     profileList.onExportFile = [this] (const juce::String& name) { exportProfile (name); };
     profileList.onCopy = [this] (const juce::String& name) { copyProfile (name); };
 
-    graph.onSelectionChanged = [this] { updateInspector(); };
+    graph.onSelectionChanged = [this] { updateInspector(); updateLayerSwitch(); };
+    inspector.layerBaseDb = [this] (float frequency) { return graph.layerBaseDb (frequency); };
     inspector.onEdited = [this] { graph.refresh(); };
     inspector.onDeleteClicked = [this] { graph.deleteSelectedBands(); };
 
@@ -114,20 +243,11 @@ CabinEqPage::CabinEqPage (CabinEqAudioProcessor& p)
     };
     addAndMakeVisible (volumeField);
 
-    // Bands (filters that add up) or a curve through points (one smooth FIR filter)
-    bandsModeButton.setTooltip ("Bands: bells, shelves and cuts. Click to turn them on or off.");
-    curveModeButton.setTooltip ("Curve: a smooth curve through points, played by a FIR filter after the bands. Click to turn it on or off.");
-    bandsModeButton.setConnectedEdges (juce::Button::ConnectedOnRight);
-    curveModeButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
-    for (auto* button : { &bandsModeButton, &curveModeButton })
-    {
-        button->setClickingTogglesState (false);
-        button->setColour (juce::TextButton::buttonOnColourId, Theme::accent);
-        button->setColour (juce::TextButton::textColourOnId, Theme::graph);
-        addAndMakeVisible (*button);
-    }
-    bandsModeButton.onClick = [this] { toggleLayer (false); };
-    curveModeButton.onClick = [this] { toggleLayer (true); };
+    // The two layers: bands, then a curve on top
+    layerSwitch = std::make_unique<LayerSwitch>();
+    layerSwitch->onToggle = [this] (bool curve) { toggleLayer (curve); };
+    layerSwitch->onEdit = [this] (bool curve) { editLayer (curve); };
+    addAndMakeVisible (*layerSwitch);
 
     autoGainToggle.setTooltip ("Turns the output down by as much as the EQ makes music louder, so switching the EQ on and off is a fair comparison.");
     autoGainToggle.onStateChange = [this] { updateTopBar(); };
@@ -188,15 +308,20 @@ void CabinEqPage::toggleLayer (bool curve)
     const bool turningOn = curve ? ! profile.getCurveOn() : ! profile.getBandsOn();
     const bool otherOn = curve ? profile.getBandsOn() : profile.getCurveOn();
 
-    // At least one layer plays; the power button is how you turn everything off
-    if (! turningOn && ! otherOn)
-        return;
-
-    processor.getUndoManager().beginNewTransaction ((turningOn ? "Turn " : "Turn off ") + juce::String (curve ? "curve" : "bands"));
+    processor.getUndoManager().beginNewTransaction ((turningOn ? "Turn on " : "Turn off ") + juce::String (curve ? "curve" : "bands"));
     if (curve)
         profile.setCurveOn (turningOn);
     else
         profile.setBandsOn (turningOn);
+
+    // Something always plays: turning off the only layer hands over to the other
+    if (! turningOn && ! otherOn)
+    {
+        if (curve)
+            profile.setBandsOn (true);
+        else
+            profile.setCurveOn (true);
+    }
 
     // The one you just turned on is the one you're editing
     if (turningOn)
@@ -204,16 +329,27 @@ void CabinEqPage::toggleLayer (bool curve)
     refreshAll();
 }
 
-void CabinEqPage::updateTopBar()
+void CabinEqPage::editLayer (bool curve)
+{
+    auto profile = processor.getSelectedProfile();
+    if (! (curve ? profile.getCurveOn() : profile.getBandsOn()))
+    {
+        toggleLayer (curve); // editing a layer you can't hear makes no sense: on it goes
+        return;
+    }
+    processor.setEditingCurve (curve);
+    refreshAll();
+}
+
+void CabinEqPage::updateLayerSwitch()
 {
     const auto profile = processor.getSelectedProfile();
-    bandsModeButton.setToggleState (profile.getBandsOn(), juce::dontSendNotification);
-    curveModeButton.setToggleState (profile.getCurveOn(), juce::dontSendNotification);
+    layerSwitch->setState (profile.getBandsOn(), profile.getCurveOn(), processor.isEditingCurve());
+}
 
-    // With both on, the layer you're editing is the bright one
-    const bool editingCurve = processor.isEditingCurve();
-    bandsModeButton.setColour (juce::TextButton::buttonOnColourId, editingCurve ? Theme::accent.withAlpha (0.5f) : Theme::accent);
-    curveModeButton.setColour (juce::TextButton::buttonOnColourId, editingCurve ? Theme::accent : Theme::accent.withAlpha (0.5f));
+void CabinEqPage::updateTopBar()
+{
+    updateLayerSwitch();
 
     const bool bypassed = processor.parameters.getParameter (ParamIDs::bypass)->getValue() >= 0.5f;
     powerButton->setToggleState (! bypassed, juce::dontSendNotification);
@@ -249,7 +385,7 @@ void CabinEqPage::paint (juce::Graphics& g)
     g.drawHorizontalLine (topBar.getBottom() - 1, (float) topBar.getX(), (float) topBar.getRight());
 
     // The profile's name
-    auto title = topBar.reduced (20, 0).withWidth (std::max (0, bandsModeButton.getX() - topBar.getX() - 32));
+    auto title = topBar.reduced (20, 0).withWidth (std::max (0, layerSwitch->getX() - topBar.getX() - 32));
     g.setColour (Theme::text);
     g.setFont (Theme::font (17.0f, true));
     g.drawText (processor.getProfiles().getSelectedProfileName(), title, juce::Justification::centredLeft, true);
@@ -291,8 +427,7 @@ void CabinEqPage::resized()
     placeRight (preampField, 92, 38, 18);
     placeRight (*redoButton, 32, 32, 2);
     placeRight (*undoButton, 32, 32, 14);
-    placeRight (curveModeButton, 58, 28, 0);
-    placeRight (bandsModeButton, 58, 28, 0);
+    placeRight (*layerSwitch, LayerSwitch::width, LayerSwitch::height, 0);
 
     if (calibrationPanel.isVisible())
         calibrationPanel.setBounds (area.removeFromBottom (CalibrationPanel::preferredHeight));

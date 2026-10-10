@@ -25,6 +25,7 @@ public:
 
     std::function<void()> onEdited;
     std::function<void()> onDeleteClicked;
+    std::function<float (float frequency)> layerBaseDb; // what the curve layer being edited sits on (the graph knows)
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -35,10 +36,10 @@ private:
     bool isCurveMode() const;
     void editPoint (std::function<void (CurvePoint&)> change);
     int layer() const; // what's being edited, a BandProfile::Layer: the shared curve, or (when split) an ear's tweak
-    float layerBaseDb (float frequency) const; // what that layer's points sit on
     bool isSplit() const;
     juce::Rectangle<int> curveControlsArea() const; // the split switch and the ear buttons
     void setLayer (int layer);
+    float baseAt (float frequency) const;
     void edit (const juce::String& name, std::function<void (Band&)> change);
     void updateControls();
 
