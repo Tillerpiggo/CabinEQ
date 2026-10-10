@@ -1230,6 +1230,48 @@ public:
             expectWithinAbsoluteError (ringSeconds (1500.0f), 1.5f, 0.3f);
         }
 
+        beginTest ("Attack sets how long a burst takes to reach full level");
+        {
+            // When a single burst's 2 ms RMS first gets within 3 dB of its loudest
+            auto riseSeconds = [this] (float attackMs)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setGrid (1, 1);
+                player.setRate (CalibrationPlayer::minRate);
+                player.setAttackMs (attackMs);
+                player.setReleaseMs (CalibrationPlayer::maxReleaseMs); // a slow fade, so the peak is where the attack ends
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) (0.6 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+
+                const int window = (int) (0.002 * sampleRate);
+                std::vector<float> rms;
+                for (int start = 0; start + window <= buffer.getNumSamples(); start += window)
+                    rms.push_back (buffer.getRMSLevel (0, start, window));
+                // Smooth over 5 windows: noise is jumpy
+                std::vector<float> smooth (rms.size());
+                for (size_t i = 0; i < rms.size(); ++i)
+                {
+                    float sum = 0.0f; int n = 0;
+                    for (size_t j = i >= 2 ? i - 2 : 0; j < std::min (rms.size(), i + 3); ++j) { sum += rms[j]; ++n; }
+                    smooth[i] = sum / (float) n;
+                }
+                const float peak = *std::max_element (smooth.begin(), smooth.end());
+                for (size_t i = 0; i < smooth.size(); ++i)
+                    if (smooth[i] > peak * 0.7f)
+                        return (float) ((double) (i * (size_t) window) / sampleRate);
+                return -1.0f;
+            };
+
+            expectLessThan (riseSeconds (0.0f), 0.01f, "0 ms: full level straight away");
+            const float soft = riseSeconds (100.0f);
+            expectGreaterThan (soft, 0.04f, "100 ms: it takes a while to come up");
+            expectLessThan (soft, 0.11f);
+        }
+
         beginTest ("Spots mode plays each spot in turn, across the pan range");
         {
             CalibrationPlayer player;

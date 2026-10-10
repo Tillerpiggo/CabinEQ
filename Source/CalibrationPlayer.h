@@ -43,6 +43,7 @@ public:
     static constexpr int maxDepth = 5;
     static constexpr float minRate = 0.5f, maxRate = 8.0f, defaultRate = 2.5f; // bursts per second
     static constexpr float maxReleaseMs = 3000.0f, defaultReleaseMs = 1500.0f; // how long a burst takes to fade out (by 60 dB)
+    static constexpr float maxAttackMs = 200.0f, defaultAttackMs = 4.0f; // how long a burst takes to reach full level
     static constexpr int maxSpots = 4;
     static constexpr int maxPanSteps = 5;
 
@@ -52,7 +53,6 @@ public:
     void prepare (double newSampleRate)
     {
         sampleRate = newSampleRate;
-        attackSamples = std::max (1, (int) (0.004 * sampleRate));
         for (auto& voice : voices)
             voice.active = false;
         samplesUntilNext = 0;
@@ -64,6 +64,8 @@ public:
     void setRate (float burstsPerSecond) { rate = juce::jlimit (minRate, maxRate, burstsPerSecond); }
     /// How long each burst takes to fade out after its attack. 0 cuts it off straight away, leaving just the attack.
     void setReleaseMs (float milliseconds) { releaseMs = juce::jlimit (0.0f, maxReleaseMs, milliseconds); }
+    /// How long each burst takes to rise to full level. Longer is softer; 0 starts at full level.
+    void setAttackMs (float milliseconds) { attackMs = juce::jlimit (0.0f, maxAttackMs, milliseconds); }
 
     void setMode (Mode newMode)          { mode = (int) newMode; }
     Mode getMode() const                 { return (Mode) mode.load(); }
@@ -154,6 +156,8 @@ public:
         auto* right = buffer.getWritePointer (numChannels > 1 ? 1 : 0);
         const float gain = level.load();
         const int interval = std::max (1, (int) (sampleRate / rate.load()));
+
+        const int attackSamples = std::max (1, (int) (attackMs.load() * 0.001 * sampleRate));
 
         // The release falls 60 dB (6.9 time constants) in the time asked for; never faster than 1 ms, so "0" doesn't click
         const double releaseSeconds = std::max (0.001, (double) releaseMs.load() * 0.001);
@@ -342,13 +346,12 @@ private:
     }
 
     double sampleRate = 48000.0;
-    int attackSamples = 192;
 
     std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 };
     std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
-    std::atomic<float> releaseMs { defaultReleaseMs };
+    std::atomic<float> releaseMs { defaultReleaseMs }, attackMs { defaultAttackMs };
     std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
     std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };

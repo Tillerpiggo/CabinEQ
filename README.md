@@ -47,7 +47,7 @@ loads the VST3 to EQ everything the Mac plays.
   those: Shift- or Cmd-click, or drag across them, to pick several, and move them with the
   arrow keys (Shift+arrow adds the next one); Play all goes back to every
   one. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
-  right are its own volume, a speed (0.5 to 8 bursts a second, 2.5 to start), a release (how long each burst takes to
+  right are its own volume, a speed (0.5 to 8 bursts a second, 2.5 to start), an attack (how long each burst takes to reach full level: 0 to 200 ms, 4 ms to start; longer is softer), a release (how long each burst takes to
   fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), and a depth: each position plays that many times, quietest first,
   10 dB louder each time. Hiding it stops the sound.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),
