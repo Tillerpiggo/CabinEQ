@@ -1531,20 +1531,19 @@ public:
             expectLessThan (measure (500.0f, 3000.0f, Band::Shape::highCut, 150.0f) * 50.0f, above, "and its low cut still works");
         }
 
-        beginTest ("Tilted noise falls faster than pink, and each burst is turned up 1.5 dB an octave by its lowest frequency");
+        beginTest ("The noise's slope and top line are set separately: how fast a burst falls away, and how fast their bottom edges do");
         {
-            using Noise = CalibrationPlayer::Noise;
-
             // The power of a stretch of bursts in the octave around a frequency, in dB. `spot` is the bursts'
             // low cut (0 for none).
-            auto octavePower = [this] (Noise noise, float spot, std::vector<float> centres)
+            auto octavePower = [this] (float slope, float topLine, float spot, std::vector<float> centres)
             {
                 CalibrationPlayer player;
                 player.prepare (sampleRate);
                 player.setMode (CalibrationPlayer::Mode::spots);
                 player.setSpotCount (1);
                 player.setSpot (0, spot);
-                player.setNoise (noise);
+                player.setSlope (slope);
+                player.setTopLine (topLine);
                 player.setRate (CalibrationPlayer::maxRate); // dense, so there's plenty to measure
                 player.setPlaying (true);
 
@@ -1571,85 +1570,37 @@ public:
             };
             auto octaves = [] (float from, float to) { return std::log2 (to / from); };
 
-            // No low cut: pink has the same power in each octave; the others lose 1.5 and 3 dB an octave, from level at 20 Hz
-            const auto pink = octavePower (Noise::pink, 0.0f, { 250.0f, 4000.0f });
-            expectWithinAbsoluteError (pink[0] - pink[1], 0.0f, 1.5f, "pink: 250 Hz and 4 kHz octaves are as strong");
-            const auto steep = octavePower (Noise::minus4_5, 0.0f, { 250.0f, 4000.0f });
-            expectWithinAbsoluteError (steep[0] - steep[1], 6.0f, 1.5f, "-4.5: four octaves up is 6 dB down on pink");
-            expectWithinAbsoluteError (steep[0] - pink[0], -1.5f * octaves (20.0f, 250.0f), 1.5f, "and it's level with pink at 20 Hz");
-            const auto steeper = octavePower (Noise::minus6, 0.0f, { 250.0f, 4000.0f });
-            expectWithinAbsoluteError (steeper[0] - steeper[1], 12.0f, 1.5f, "-6: four octaves up is 12 dB down on pink");
-            expectWithinAbsoluteError (steeper[0] - pink[0], -3.0f * octaves (20.0f, 250.0f), 1.5f, "and it's level with pink at 20 Hz too");
+            // The slope, with no low cut: pink has the same power in each octave; steeper loses the difference, from level at 20 Hz
+            const auto pink = octavePower (3.0f, 3.0f, 0.0f, { 250.0f, 4000.0f });
+            expectWithinAbsoluteError (pink[0] - pink[1], 0.0f, 1.5f, "a slope of 3 is pink: 250 Hz and 4 kHz octaves are as strong");
+            for (float slope : { 4.5f, 6.0f, 7.5f })
+            {
+                const auto tilted = octavePower (slope, 3.0f, 0.0f, { 250.0f, 4000.0f });
+                expectWithinAbsoluteError (tilted[0] - tilted[1], (slope - 3.0f) * 4.0f, 2.0f, "four octaves up, it's down by four times what the slope is over pink's");
+                expectWithinAbsoluteError (tilted[0] - pink[0], -(slope - 3.0f) * octaves (20.0f, 250.0f), 1.5f, "and it's level with pink at 20 Hz");
+            }
 
-            // -4.5, bursts from 2 kHz up: its top line is 4.5 dB an octave too, so nothing's turned up. It's the
-            // same noise as with no low cut, less the octaves below 2 kHz
-            const auto pinkFrom2k = octavePower (Noise::pink, 2000.0f, { 3500.0f, 14000.0f });
-            const auto steepFrom2k = octavePower (Noise::minus4_5, 2000.0f, { 3500.0f, 14000.0f });
-            expectWithinAbsoluteError (steepFrom2k[0] - pinkFrom2k[0], -1.5f * octaves (20.0f, 3500.0f), 1.5f, "-4.5: its bottom edge is on the -4.5 line, not pink's");
-            expectWithinAbsoluteError (steepFrom2k[1] - pinkFrom2k[1], -1.5f * octaves (20.0f, 14000.0f), 1.5f, "and two octaves on it's 3 dB softer still");
-
-            // -6: the boost undoes half the tilt, so the bottom edges of bursts from 500 Hz and from 4 kHz (three
-            // octaves apart) are 1.5 dB an octave further apart than pink's would be: 4.5 dB an octave overall
-            auto edgeBelowPink = [&] (float spot)
+            // The top line: how much further under a pink burst's a burst's bottom edge is, for bursts from 4 kHz
+            // against bursts from 500 Hz. Three octaves apart, so three times what the top line is over pink's,
+            // whatever the slope: shallower than it, the same, or steeper.
+            auto edgeUnderPink = [&] (float slope, float topLine, float spot)
             {
                 const std::vector<float> justAbove { spot * 1.75f };
-                return octavePower (Noise::minus6, spot, justAbove)[0] - octavePower (Noise::pink, spot, justAbove)[0];
+                return octavePower (slope, topLine, spot, justAbove)[0] - octavePower (3.0f, 3.0f, spot, justAbove)[0];
             };
-            const float low = edgeBelowPink (500.0f), high = edgeBelowPink (4000.0f);
-            expectWithinAbsoluteError (low, -1.5f * octaves (20.0f, 500.0f) - 3.0f * octaves (500.0f, 875.0f), 1.5f, "-6: a burst's edge is 1.5 dB an octave under pink's");
-            expectWithinAbsoluteError (high - low, -1.5f * 3.0f, 1.5f, "so edge to edge it falls 4.5 dB an octave overall");
+            for (auto [slope, topLine] : { std::pair { 4.5f, 3.0f }, std::pair { 7.5f, 3.0f }, std::pair { 4.5f, 4.5f }, std::pair { 6.0f, 4.5f },
+                                           std::pair { 9.0f, 6.0f }, std::pair { 4.5f, 6.0f }, std::pair { 3.0f, 4.5f } })
+                expectWithinAbsoluteError (edgeUnderPink (slope, topLine, 4000.0f) - edgeUnderPink (slope, topLine, 500.0f), -(topLine - 3.0f) * 3.0f, 1.5f,
+                                           "slope " + juce::String (slope) + ", top line " + juce::String (topLine));
 
-            // The slope is adjustable, and the top line doesn't move. A steeper -4.5 (7.5 dB an octave): each burst
-            // falls away faster, but bursts from 500 Hz and from 4 kHz still start as strong as pink ones.
-            auto withSlope = [this, &octaves] (Noise noise, float slope, float spot, std::vector<float> centres)
-            {
-                CalibrationPlayer player;
-                player.prepare (sampleRate);
-                player.setMode (CalibrationPlayer::Mode::spots);
-                player.setSpotCount (1);
-                player.setSpot (0, spot);
-                player.setNoise (noise);
-                player.setSlope (noise, slope);
-                player.setRate (CalibrationPlayer::maxRate);
-                player.setPlaying (true);
-
-                const int order = 17, size = 1 << order;
-                juce::AudioBuffer<float> buffer (2, size);
-                buffer.clear();
-                player.process (buffer);
-                juce::dsp::FFT fft (order);
-                std::vector<float> data ((size_t) size * 2, 0.0f);
-                std::copy_n (buffer.getReadPointer (0), size, data.begin());
-                fft.performFrequencyOnlyForwardTransform (data.data());
-                std::vector<float> powers;
-                for (float centre : centres)
-                {
-                    double power = 0.0;
-                    const int from = (int) (centre / std::sqrt (2.0f) * size / sampleRate), to = (int) (centre * std::sqrt (2.0f) * size / sampleRate);
-                    for (int bin = from; bin < to; ++bin)
-                        power += (double) data[(size_t) bin] * data[(size_t) bin];
-                    powers.push_back ((float) (10.0 * std::log10 (power)));
-                }
-                juce::ignoreUnused (octaves);
-                return powers;
-            };
-
-            const auto steeper45 = withSlope (Noise::minus4_5, 7.5f, 0.0f, { 250.0f, 4000.0f });
-            expectWithinAbsoluteError (steeper45[0] - steeper45[1], (7.5f - 3.0f) * 4.0f, 2.0f, "a slope of 7.5: four octaves up is 18 dB down on pink");
-
-            auto edgeUnderPink = [&] (Noise noise, float slope, float spot)
-            {
-                const std::vector<float> justAbove { spot * 1.75f };
-                return withSlope (noise, slope, spot, justAbove)[0] - octavePower (Noise::pink, spot, justAbove)[0];
-            };
-            expectWithinAbsoluteError (edgeUnderPink (Noise::minus4_5, 7.5f, 4000.0f) - edgeUnderPink (Noise::minus4_5, 7.5f, 500.0f), -4.5f, 1.5f,
-                                       "-4.5 at a slope of 7.5: the bottom edges still fall 4.5 dB an octave");
-            expectWithinAbsoluteError (edgeUnderPink (Noise::minus6, 9.0f, 4000.0f) - edgeUnderPink (Noise::minus6, 9.0f, 500.0f), -4.5f, 1.5f,
-                                       "-6 at a slope of 9: the bottom edges still fall 4.5 dB an octave");
+            // A slope of 4.5 on pink's top line: just above its bottom edge, a burst from 2 kHz is about as strong as a pink one
+            expectWithinAbsoluteError (edgeUnderPink (4.5f, 3.0f, 2000.0f), -1.5f * octaves (2000.0f, 3500.0f), 1.5f, "on pink's line, it starts as strong as pink");
 
             CalibrationPlayer limits;
-            limits.setSlope (Noise::minus6, 1.0f);
-            expectWithinAbsoluteError (limits.getSlope (Noise::minus6), 4.5f, 0.001f, "the slope can't be shallower than the top line");
+            limits.setSlope (1.0f);
+            limits.setTopLine (20.0f);
+            expectWithinAbsoluteError (limits.getSlope(), 3.0f, 0.001f, "the slope is no shallower than pink");
+            expectWithinAbsoluteError (limits.getTopLine(), 12.0f, 0.001f, "and neither goes past 12 dB an octave");
         }
 
         beginTest ("Clicking a position repeats just it");

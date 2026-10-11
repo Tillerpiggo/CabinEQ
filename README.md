@@ -59,14 +59,12 @@ loads the VST3 to EQ everything the Mac plays.
   right are its own volume, a speed (0.5 to 8 bursts a second, 2.5 to start), an attack (how long each burst takes to reach full level: 0 to 200 ms, 4 ms to start; longer is softer), a release (how long each burst takes to
   fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (each position plays that many times, quietest first), and a floor: how far
   below the volume the quietest of those plays is (-20 dB to start), with the rest climbing evenly from there to the volume. Hiding it stops the sound.
-- **Calibration noise** (Pink | -4.5 | -6 dB/oct in the panel's header): pink noise falls 3 dB an octave. The other
-  two are pink through a filter that tilts it further (level with pink at 20 Hz), so each burst falls away faster.
-  What a mode fixes is its top line: how fast the bursts' bottom edges fall from one burst to the next. Each burst is
-  turned up, by how many octaves its lowest frequency is above 20 Hz, by whatever keeps it on that line.
-  Both **-4.5** and **-6** have a top line of 4.5 dB an octave. The **Slope** slider (with the other
-  sliders, when one of these is on) sets how fast each burst falls away, from 4.5 up to 12 dB an
-  octave. It starts at 4.5 for -4.5 (so nothing's turned up: every burst is the same noise, cut off lower or higher)
-  and at 6 for -6, and each mode remembers its own. The top line doesn't move when you change it.
+- **Calibration noise** (the Slope and Top line sliders, with the others): two slopes, set separately, from -3 to
+  -12 dB an octave. **Slope** is how fast each burst falls away above its lowest frequency: -3 is pink noise, and
+  anything steeper is pink through a filter that tilts it further (level with pink at 20 Hz). **Top line** is how fast
+  the bursts' bottom edges fall from one burst to the next: each burst is turned up or down, by how many octaves its
+  lowest frequency (its low cut) is above 20 Hz, to put it on that line. Both at -3 is plain pink noise. Double-click
+  either to go back to -3.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),
   each playing from its frequency (a sharp low cut) up to 20 kHz. They show on the EQ graph as dashed
   lines with chips along the bottom: drag the lowest or highest spot to spread them out from (or in

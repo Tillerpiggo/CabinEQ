@@ -76,39 +76,30 @@ public:
     /// How far below the volume a depth run starts. The repeats climb from there to the volume in even steps.
     void setFloorDb (float newFloorDb)  { floorDb = juce::jlimit (minFloorDb, 0.0f, newFloorDb); }
 
-    /// What the bursts are made of. Pink falls 3 dB an octave. The other two are pink through a filter that
-    /// tilts it further (level with pink at 20 Hz), so each burst falls away faster: by its mode's slope, which
-    /// can be changed. What a mode fixes is its top line: how fast the bursts' bottom edges fall from burst
-    /// to burst. Each burst is turned up, by its lowest frequency, by whatever keeps them on that line.
-    ///   minus4_5  top line 4.5 dB an octave. Its slope starts at 4.5 too, so to begin with nothing's turned up:
-    ///             every burst is the same noise, cut off lower or higher.
-    ///   minus6    top line 4.5 dB an octave as well. Its slope starts at 6, so each burst falls away faster.
-    enum class Noise { pink = 0, minus4_5 = 1, minus6 = 2 };
-    static constexpr float maxSlopeDbPerOctave = 12.0f;
-    static constexpr float topLineDbPerOctave (Noise noise)      { return noise == Noise::pink ? 3.0f : 4.5f; }
-    static constexpr float defaultSlopeDbPerOctave (Noise noise) { return noise == Noise::minus6 ? 6.0f : noise == Noise::minus4_5 ? 4.5f : 3.0f; }
+    /// What the bursts are made of, as two slopes in dB an octave (positive numbers: 3 is pink), set independently:
+    ///
+    ///   slope     how fast each burst falls away above its lowest frequency. Pink falls 3. Anything steeper is
+    ///             pink through a filter that tilts it further (level with pink at 20 Hz).
+    ///   top line  how fast the bursts' bottom edges fall from one burst to the next. Each burst is turned up
+    ///             or down, by how many octaves its lowest frequency is above 20 Hz, by whatever puts it on that
+    ///             line: the slope less the top line, an octave.
+    ///
+    /// Both at 3 is plain pink noise, every burst as strong at its bottom edge as the last.
+    static constexpr float pinkDbPerOctave = 3.0f, maxSlopeDbPerOctave = 12.0f;
 
-    /// Message thread. A change of tilt makes new noise here, and the audio picks it up at its next block.
-    void setNoise (Noise newNoise)
+    /// Message thread. A new slope makes new noise here, and the audio picks it up at its next block.
+    void setSlope (float dbPerOctave)
     {
-        noiseType = juce::jlimit (0, 2, (int) newNoise);
+        slope = juce::jlimit (pinkDbPerOctave, maxSlopeDbPerOctave, dbPerOctave);
         updateTiltedNoise();
     }
-    Noise getNoise() const { return (Noise) noiseType.load(); }
+    float getSlope() const { return slope.load(); }
 
-    /// How fast each burst falls away, in dB an octave (as a positive number). No shallower than the mode's top line.
-    void setSlope (Noise noise, float dbPerOctave)
-    {
-        if (noise == Noise::pink)
-            return;
-        slopes[(size_t) noise - 1] = juce::jlimit (topLineDbPerOctave (noise), maxSlopeDbPerOctave, dbPerOctave);
-        updateTiltedNoise();
-    }
-    float getSlope (Noise noise) const { return noise == Noise::pink ? 3.0f : slopes[(size_t) noise - 1].load(); }
+    void setTopLine (float dbPerOctave) { topLine = juce::jlimit (pinkDbPerOctave, maxSlopeDbPerOctave, dbPerOctave); }
+    float getTopLine() const            { return topLine.load(); }
 
-    /// How much each burst is turned up per octave its lowest frequency is above 20 Hz: what the slope loses
-    /// that the top line doesn't
-    float burstBoostDbPerOctave() const { return getSlope (getNoise()) - topLineDbPerOctave (getNoise()); }
+    /// How much each burst is turned up for every octave its lowest frequency is above 20 Hz
+    float burstBoostDbPerOctave() const { return getSlope() - getTopLine(); }
     void setRate (float burstsPerSecond) { rate = juce::jlimit (minRate, maxRate, burstsPerSecond); }
     /// How long each burst takes to fade out after its attack. 0 cuts it off straight away, leaving just the attack.
     void setReleaseMs (float milliseconds) { releaseMs = juce::jlimit (0.0f, maxReleaseMs, milliseconds); }
@@ -216,7 +207,7 @@ public:
                     tiltedIndex = 0;
             }
         }
-        const std::vector<float>* tilted = getNoise() != Noise::pink && ! tiltedNoise.empty() ? &tiltedNoise : nullptr;
+        const std::vector<float>* tilted = isTilted() && ! tiltedNoise.empty() ? &tiltedNoise : nullptr;
 
         const int attackSamples = std::max (1, (int) (attackMs.load() * 0.001 * sampleRate));
 
@@ -394,9 +385,8 @@ private:
                 voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
         }
 
-        // Tilted noise: up for every octave this burst's lowest frequency is above 20 Hz, to keep it on the top line
-        if (getNoise() != Noise::pink)
-            voice->peak *= juce::Decibels::decibelsToGain (burstBoostDbPerOctave() * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
+        // Up (or down) for every octave this burst's lowest frequency is above 20 Hz, to put it on the top line
+        voice->peak *= juce::Decibels::decibelsToGain (burstBoostDbPerOctave() * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
 
         // Quietest first: from the floor up to full level, in even steps
         if (depthRuns > 1)
@@ -407,14 +397,15 @@ private:
     }
 
     /// How far the noise wanted now is tilted beyond pink, in dB an octave
-    float wantedTilt() const { return getSlope (getNoise()) - 3.0f; }
+    float wantedTilt() const { return getSlope() - pinkDbPerOctave; }
+    bool isTilted() const    { return wantedTilt() > 0.001f; } // otherwise it's plain pink, made as it goes
 
     /// Makes the noise for a new tilt, if it's changed, and leaves it for the audio thread to pick up
     void updateTiltedNoise()
     {
         const juce::ScopedLock build (buildLock);
         const float tilt = wantedTilt();
-        if (getNoise() == Noise::pink || pinkSpectrum.empty() || std::abs (tilt - builtTilt) < 1.0e-4f)
+        if (! isTilted() || pinkSpectrum.empty() || std::abs (tilt - builtTilt) < 1.0e-4f)
             return;
 
         auto noise = makeTiltedNoise (tilt);
@@ -496,8 +487,7 @@ private:
     std::atomic<float> rate { defaultRate };
     std::atomic<float> releaseMs { defaultReleaseMs }, attackMs { defaultAttackMs };
     std::atomic<float> floorDb { defaultFloorDb };
-    std::atomic<int> noiseType { (int) Noise::pink };
-    std::array<std::atomic<float>, 2> slopes { defaultSlopeDbPerOctave (Noise::minus4_5), defaultSlopeDbPerOctave (Noise::minus6) };
+    std::atomic<float> slope { pinkDbPerOctave }, topLine { pinkDbPerOctave };
 
     // The tilted noise the audio thread plays, and the next one, made on the message thread
     std::vector<float> tiltedNoise;

@@ -21,9 +21,12 @@ namespace
     const juce::Identifier idRelease { "calibrationRelease" };
     const juce::Identifier idAttack { "calibrationAttack" };
     const juce::Identifier idFloor { "calibrationFloor" };
-    const juce::Identifier idNoise { "calibrationNoise" };
-    const juce::Identifier idSteepNoise { "calibrationSteepNoise" }; // before there were three: true was -4.5
-    const juce::Identifier idSlopes[] { "calibrationSlope45", "calibrationSlope6" }; // each tilted noise's own
+    const juce::Identifier idSlope { "calibrationSlope" }, idTopLine { "calibrationTopLine" };
+
+    // Before the slope and the top line were set separately, the noise was one of three modes
+    const juce::Identifier idOldNoise { "calibrationNoise" };           // 0 pink, 1 "-4.5", 2 "-6"
+    const juce::Identifier idOldSteepNoise { "calibrationSteepNoise" }; // older still: true was "-4.5"
+    const juce::Identifier idOldSlopes[] { "calibrationSlope45", "calibrationSlope6" };
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -114,54 +117,28 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     for (auto* button : { &playButton, &allButton, &closeButton })
         addAndMakeVisible (button);
 
-    // The noise the bursts are made of
-    const char* names[] { "Pink", "-4.5", "-6 dB/oct" };
-    const char* tips[] {
-        "Pink noise: the same power in every octave (it falls 3 dB an octave)",
-        "Noise that falls 4.5 dB an octave. From burst to burst, their bottom edges fall 4.5 dB an octave too, "
-        "so higher bursts are softer than pink ones",
-        "Noise that falls 6 dB an octave. Each burst is turned up 1.5 dB for every octave its lowest frequency is above 20 Hz, "
-        "so from burst to burst the bottom edges fall 4.5 dB an octave, and each is softer still above"
-    };
-    for (size_t i = 0; i < noiseButtons.size(); ++i)
+    // The noise the bursts are made of: two slopes, set separately
     {
-        auto& button = noiseButtons[i];
-        button.setButtonText (names[i]);
-        button.setTooltip (tips[i]);
-        button.setConnectedEdges ((i > 0 ? juce::Button::ConnectedOnLeft : 0) | (i + 1 < noiseButtons.size() ? juce::Button::ConnectedOnRight : 0));
-        button.setColour (juce::TextButton::buttonOnColourId, Theme::accent);
-        button.setColour (juce::TextButton::textColourOnId, Theme::graph);
-        button.onClick = [this, i] { setNoise ((CalibrationPlayer::Noise) i); };
-        addAndMakeVisible (button);
-    }
-    // How fast each burst falls away. The mode's top line stays where it is.
-    slopeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
-    slopeSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 78, 20);
-    slopeSlider.textFromValueFunction = [] (double v) { return "-" + juce::String (v, 1) + " dB/oct"; };
-    slopeSlider.valueFromTextFunction = [] (const juce::String& text) { return std::abs (text.getDoubleValue()); };
-    slopeSlider.onValueChange = [this]
-    {
-        const auto noise = player.getNoise();
-        if (noise == CalibrationPlayer::Noise::pink)
-            return;
-        player.setSlope (noise, (float) slopeSlider.getValue());
-        processor.parameters.state.setProperty (idSlopes[(int) noise - 1], slopeSlider.getValue(), nullptr);
-    };
-    addChildComponent (slopeSlider);
-    slopeLabel.setText ("Slope", juce::dontSendNotification);
-    slopeLabel.setFont (Theme::font (12.0f));
-    slopeLabel.setColour (juce::Label::textColourId, Theme::textDim);
-    addChildComponent (slopeLabel);
-    for (int i = 0; i < 2; ++i)
-    {
-        const auto noise = (CalibrationPlayer::Noise) (i + 1);
-        player.setSlope (noise, (float) (double) processor.parameters.state.getProperty (idSlopes[i], CalibrationPlayer::defaultSlopeDbPerOctave (noise)));
-    }
+        const auto& saved = processor.parameters.state;
+        const int oldMode = juce::jlimit (0, 2, (int) saved.getProperty (idOldNoise, (bool) saved.getProperty (idOldSteepNoise, false) ? 1 : 0));
+        const double oldSlope = oldMode == 0 ? 3.0 : (double) saved.getProperty (idOldSlopes[oldMode - 1], oldMode == 1 ? 4.5 : 6.0);
+        const double oldTopLine = oldMode == 0 ? 3.0 : 4.5;
 
-    {
-        const auto& state = processor.parameters.state;
-        const int fallback = (bool) state.getProperty (idSteepNoise, false) ? 1 : 0;
-        setNoise ((CalibrationPlayer::Noise) juce::jlimit (0, 2, (int) state.getProperty (idNoise, fallback)));
+        for (auto [slider, label, name, id, fallback] : { std::tuple { &slopeSlider, &slopeLabel, "Slope", idSlope, oldSlope },
+                                                          std::tuple { &topLineSlider, &topLineLabel, "Top line", idTopLine, oldTopLine } })
+        {
+            setUpSlider (*slider, juce::Slider::LinearHorizontal, CalibrationPlayer::pinkDbPerOctave, CalibrationPlayer::maxSlopeDbPerOctave, 0.1,
+                         (double) saved.getProperty (id, fallback));
+            slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 78, 20);
+            slider->textFromValueFunction = [] (double v) { return "-" + juce::String (v, 1) + " dB/oct"; };
+            slider->valueFromTextFunction = [] (const juce::String& text) { return std::abs (text.getDoubleValue()); };
+            slider->setDoubleClickReturnValue (true, CalibrationPlayer::pinkDbPerOctave);
+            slider->updateText();
+            setUpLabel (*label, name);
+        }
+        slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency. -3 is pink noise. Double-click for pink.");
+        topLineSlider.setTooltip ("How fast the bursts' bottom edges fall from one burst to the next: each burst's volume is set to put it on this line. "
+                                  "-3 is as pink noise would be. Double-click for that.");
     }
 
     // Spots on the EQ graph, or the grid
@@ -270,36 +247,14 @@ void CalibrationPanel::refreshSpots()
     updateButtons();
 }
 
-void CalibrationPanel::setNoise (CalibrationPlayer::Noise noise)
-{
-    player.setNoise (noise);
-    processor.parameters.state.setProperty (idNoise, (int) noise, nullptr); // not undoable, like the rest
-    for (size_t i = 0; i < noiseButtons.size(); ++i)
-        noiseButtons[i].setToggleState ((int) i == (int) noise, juce::dontSendNotification);
-
-    // The slope is each tilted noise's own; it can't be shallower than the mode's top line
-    const bool tilted = noise != CalibrationPlayer::Noise::pink;
-    slopeSlider.setVisible (tilted);
-    slopeLabel.setVisible (tilted);
-    resized();
-    if (tilted)
-    {
-        const float topLine = CalibrationPlayer::topLineDbPerOctave (noise);
-        slopeSlider.setRange (topLine, CalibrationPlayer::maxSlopeDbPerOctave, 0.1);
-        slopeSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultSlopeDbPerOctave (noise));
-        slopeSlider.setValue (player.getSlope (noise), juce::dontSendNotification);
-        slopeSlider.updateText();
-        slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency. From burst to burst, their bottom edges still fall "
-                                + juce::String (topLine, 1) + " dB an octave: each burst's volume makes up the difference. Double-click to reset.");
-    }
-}
-
 void CalibrationPanel::applySettings()
 {
     player.setGrid (rows(), columns());
     player.setLevelDb ((float) volumeSlider.getValue());
     player.setDepth ((int) depthSlider.getValue());
     player.setFloorDb ((float) floorSlider.getValue());
+    player.setSlope ((float) slopeSlider.getValue());
+    player.setTopLine ((float) topLineSlider.getValue());
 
     // The floor is where a depth run starts, so it means nothing with a depth of one
     const bool hasRange = depthSlider.getValue() > 1.0;
@@ -324,6 +279,8 @@ void CalibrationPanel::applySettings()
     state.setProperty (idLevel, volumeSlider.getValue(), nullptr);
     state.setProperty (idDepth, (int) depthSlider.getValue(), nullptr);
     state.setProperty (idFloor, floorSlider.getValue(), nullptr);
+    state.setProperty (idSlope, slopeSlider.getValue(), nullptr);
+    state.setProperty (idTopLine, topLineSlider.getValue(), nullptr);
     state.setProperty (idSpeed, speedSlider.getValue(), nullptr);
     state.setProperty (idRelease, releaseSlider.getValue(), nullptr);
     state.setProperty (idAttack, attackSlider.getValue(), nullptr);
@@ -603,20 +560,14 @@ void CalibrationPanel::resized()
     spotsModeButton.setBounds (header.removeFromLeft (84).withSizeKeepingCentre (84, 26));
     header.removeFromLeft (4);
     gridModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
-    header.removeFromLeft (16);
-    const int noiseWidths[] { 48, 46, 78 };
-    for (size_t i = 0; i < noiseButtons.size(); ++i)
-        noiseButtons[i].setBounds (header.removeFromLeft (noiseWidths[i]).withSizeKeepingCentre (noiseWidths[i], 26));
 
 
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));
     controls.removeFromLeft (20);
-    // The slope's row is only there for the tilted noises; the rows close up to make room for it
-    std::vector<std::pair<juce::Slider*, juce::Label*>> rows { { &volumeSlider, &volumeLabel }, { &speedSlider, &speedLabel }, { &attackSlider, &attackLabel },
-                                                              { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &floorSlider, &floorLabel } };
-    if (slopeSlider.isVisible())
-        rows.push_back ({ &slopeSlider, &slopeLabel });
+    const std::vector<std::pair<juce::Slider*, juce::Label*>> rows { { &volumeSlider, &volumeLabel }, { &speedSlider, &speedLabel }, { &attackSlider, &attackLabel },
+                                                                    { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &floorSlider, &floorLabel },
+                                                                    { &slopeSlider, &slopeLabel }, { &topLineSlider, &topLineLabel } };
     const int rowHeight = std::min (30, controls.getHeight() / (int) rows.size());
     for (auto [slider, label] : rows)
     {
