@@ -42,7 +42,7 @@ public:
     static constexpr int defaultRows = 3;
     static constexpr int defaultColumns = 5;
     static constexpr int maxDepth = 5;
-    static constexpr float minRate = 0.5f, maxRate = 8.0f, defaultRate = 2.5f; // bursts per second
+    static constexpr float minRate = 0.5f, maxRate = 32.0f, defaultRate = 2.5f; // bursts per second
     static constexpr float maxReleaseMs = 3000.0f, defaultReleaseMs = 1500.0f; // how long a burst takes to fade out (by 60 dB)
     static constexpr float maxAttackMs = 200.0f, defaultAttackMs = 4.0f; // how long a burst takes to reach full level
     static constexpr int maxSpots = 4;
@@ -505,7 +505,7 @@ private:
     std::atomic<int> currentPosition { -1 };
 
     // Audio thread
-    std::array<Voice, 10> voices {};
+    std::array<Voice, 32> voices {}; // enough for the fastest bursts to ring for a second each before the quietest is reused
     int samplesUntilNext = 0, position = -1, repeat = 0;
     juce::Random random { 42 };
     float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
