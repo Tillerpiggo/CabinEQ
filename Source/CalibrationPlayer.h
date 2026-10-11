@@ -11,16 +11,16 @@
     are at about 112 Hz, 632 Hz and 3.6 kHz. Each burst starts fast and dies away
     slowly, so its tail overlaps the next one.
 
-    With a depth above 1, each position plays that many times before moving on, getting
-    louder in even steps from the floor up to full level: depth 3 with a floor of -20 dB
-    plays it at -20, -10, then 0 dB.
+    With a depth above 1, it goes round all the positions that many times, a level louder each
+    time round, in even steps from the floor up to full level, and then starts again from the
+    floor: depth 3 with a floor of -20 dB plays them all at -20, then all at -10, then all at 0 dB.
 
     If some positions are selected, only those play.
 
     In spots mode it plays 2 to 4 spots instead of the grid, which you place on the EQ
     graph. Each spot plays from its own frequency (a sharp low cut) up to 20 kHz. They
     share a pan range: with more than one pan step, each spot plays at that many
-    positions across it, left to right, and at each one does its whole depth run.
+    positions across it, left to right, before the next spot plays.
 
     The setters can be called from any thread; process() is for the audio thread.
 
@@ -49,7 +49,7 @@ public:
     static constexpr int maxPanSteps = 5;
 
     enum class Mode { grid = 0, spots = 1 };
-    static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest of a depth run, below the volume
+    static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest time round, below the volume
 
     void prepare (double newSampleRate)
     {
@@ -70,10 +70,11 @@ public:
         samplesUntilNext = 0;
         position = -1;
         repeat = 0;
+        depthLevel = 0;
     }
 
     void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
-    /// How far below the volume a depth run starts. The repeats climb from there to the volume in even steps.
+    /// How far below the volume the first time round is. Each time round after it is a step louder, up to the volume.
     void setFloorDb (float newFloorDb)  { floorDb = juce::jlimit (minFloorDb, 0.0f, newFloorDb); }
 
     /// What the bursts are made of, as two slopes in dB an octave (positive numbers: 3 is pink), set independently:
@@ -187,6 +188,7 @@ public:
             samplesUntilNext = 0;
             position = -1;
             repeat = 0;
+            depthLevel = 0;
             return;
         }
 
@@ -310,12 +312,11 @@ private:
         for (int p = 0; ! spots && p < count && ! anySelected; ++p)
             anySelected = isSelected (p);
 
-        // Play the same position again, louder, until it's played `depth` times
+        // A spot plays again at its next pan position, until it's been across the range
         const int depthRuns = depth.load();
         const int panPositions = spots ? panSteps.load() : 1;
-        const int timesEach = depthRuns * panPositions; // a depth run at each pan position
         const bool canRepeat = position >= 0 && position < count && (! anySelected || isSelected (position));
-        if (canRepeat && repeat + 1 < timesEach)
+        if (canRepeat && repeat + 1 < panPositions)
         {
             ++repeat;
         }
@@ -323,6 +324,7 @@ private:
         {
             // Otherwise the next position in reading order, of the selected ones if any are
             repeat = 0;
+            const int previous = position;
             for (int step = 1; step <= count; ++step)
             {
                 const int candidate = (std::max (position, -1) + step) % count;
@@ -332,7 +334,12 @@ private:
                     break;
                 }
             }
+
+            // Back round to the start: that's every position played, so the next time round is a level louder
+            if (previous >= 0 && position <= previous)
+                ++depthLevel;
         }
+        depthLevel = depthLevel % depthRuns; // from the floor again after the loudest (or if the depth's come down)
         currentPosition = position;
 
         // Where it is between the ears (0 = left, 1 = right), and where its low cut is
@@ -340,9 +347,9 @@ private:
         double cutoff;
         if (spots)
         {
-            // Left to right across the range, one pan position per depth run
+            // Left to right across the range
             const float low = panLow.load(), high = panHigh.load();
-            const int panIndex = repeat / depthRuns;
+            const int panIndex = repeat;
             const float spread = panPositions > 1 ? low + (high - low) * (float) panIndex / (float) (panPositions - 1)
                                                   : 0.5f * (low + high);
             pan = 0.5f * (spread + 1.0f);
@@ -388,9 +395,9 @@ private:
         // Up (or down) for every octave this burst's lowest frequency is above 20 Hz, to put it on the top line
         voice->peak *= juce::Decibels::decibelsToGain (burstBoostDbPerOctave() * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
 
-        // Quietest first: from the floor up to full level, in even steps
+        // Quietest first: each time round all the positions is a step up, from the floor to full level
         if (depthRuns > 1)
-            voice->peak *= juce::Decibels::decibelsToGain (floorDb.load() * (float) (depthRuns - 1 - repeat % depthRuns) / (float) (depthRuns - 1));
+            voice->peak *= juce::Decibels::decibelsToGain (floorDb.load() * (float) (depthRuns - 1 - depthLevel) / (float) (depthRuns - 1));
 
         voice->age = 0;
         voice->active = true;
@@ -506,7 +513,8 @@ private:
 
     // Audio thread
     std::array<Voice, 32> voices {}; // enough for the fastest bursts to ring for a second each before the quietest is reused
-    int samplesUntilNext = 0, position = -1, repeat = 0;
+    int samplesUntilNext = 0, position = -1, repeat = 0; // repeat: which pan position a spot is on
+    int depthLevel = 0; // which time round all the positions this is: 0 is the quietest
     juce::Random random { 42 };
     float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
 };

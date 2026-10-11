@@ -95,7 +95,7 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     setUpLabel (speedLabel, "Speed");
     depthSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + (v > 1 ? " times" : " time"); };
     depthSlider.updateText();
-    depthSlider.setTooltip ("Plays each position this many times, quietest first, climbing from the floor to the volume in even steps");
+    depthSlider.setTooltip ("Goes round all the positions this many times, a level louder each time round, from the floor up to the volume");
     volumeSlider.textFromValueFunction = [] (double v) { return juce::String (v, 1) + " dB"; };
     volumeSlider.updateText();
     volumeSlider.setTooltip ("How loud the calibration sounds are, separately from everything else");
@@ -177,7 +177,7 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     panStepsSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
     panStepsSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + ((int) v == 1 ? " step" : " steps"); };
     panStepsSlider.updateText();
-    panStepsSlider.setTooltip ("Plays each spot at this many positions across the pan range, left to right, each with its whole depth run");
+    panStepsSlider.setTooltip ("Plays each spot at this many positions across the pan range, left to right, before the next spot");
     panStepsSlider.onValueChange = [this] { CalibrationSettings::setPanSteps (processor.parameters.state, player, (int) panStepsSlider.getValue()); };
     addChildComponent (panStepsSlider);
     panStepsLabel.setText ("Pan steps", juce::dontSendNotification);
@@ -256,12 +256,12 @@ void CalibrationPanel::applySettings()
     player.setSlope ((float) slopeSlider.getValue());
     player.setTopLine ((float) topLineSlider.getValue());
 
-    // The floor is where a depth run starts, so it means nothing with a depth of one
+    // The floor is the quietest time round, so it means nothing with a depth of one
     const bool hasRange = depthSlider.getValue() > 1.0;
     floorSlider.setEnabled (hasRange);
     floorLabel.setEnabled (hasRange);
-    floorSlider.setTooltip (hasRange ? "The quietest of each position's plays, as dB below the volume. The rest climb from here to the volume in even steps."
-                                     : "Turn the depth up to play each position at several levels; this sets the quietest of them");
+    floorSlider.setTooltip (hasRange ? "The quietest time round, as dB below the volume. Each time round after it is a step louder, up to the volume."
+                                     : "Turn the depth up to go round the positions at several levels; this sets the quietest of them");
     player.setRate ((float) speedSlider.getValue());
     player.setReleaseMs ((float) releaseSlider.getValue());
     player.setAttackMs ((float) attackSlider.getValue());

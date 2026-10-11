@@ -57,8 +57,8 @@ loads the VST3 to EQ everything the Mac plays.
   arrow keys (Shift+arrow adds the next one); Play all goes back to every
   one. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
   right are its own volume, a speed (0.5 to 32 bursts a second, 2.5 to start), an attack (how long each burst takes to reach full level: 0 to 200 ms, 4 ms to start; longer is softer), a release (how long each burst takes to
-  fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (each position plays that many times, quietest first), and a floor: how far
-  below the volume the quietest of those plays is (-20 dB to start), with the rest climbing evenly from there to the volume. Hiding it stops the sound.
+  fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (it goes round all the positions that many times, a level louder each time round,
+  then starts again), and a floor: how far below the volume the quietest time round is (-20 dB to start), with the rest climbing evenly from there to the volume. Hiding it stops the sound.
 - **Calibration noise** (the Slope and Top line sliders, with the others): two slopes, set separately, from -3 to
   -12 dB an octave. **Slope** is how fast each burst falls away above its lowest frequency: -3 is pink noise, and
   anything steeper is pink through a filter that tilts it further (level with pink at 20 Hz). **Top line** is how fast
@@ -70,7 +70,7 @@ loads the VST3 to EQ everything the Mac plays.
   lines with chips along the bottom: drag the lowest or highest spot to spread them out from (or in
   towards) the middle, which stays put, and a middle spot to move them all. Two spots have a grip
   between them to move both. They share a pan range (two thumbs); pan steps play each spot at that
-  many positions across it, left to right, each with its whole depth run. The one playing lights up.
+  many positions across it, left to right, before the next spot plays. The one playing lights up.
   Zoom in on the graph to place them, and the bands, precisely.
 - **Top bar**: undo/redo (Cmd+Z, Cmd+Shift+Z), the profile's preamp, auto gain (keeps
   loudness the same when you switch the EQ on and off), master volume (-30 to +24 dB, with the EQ

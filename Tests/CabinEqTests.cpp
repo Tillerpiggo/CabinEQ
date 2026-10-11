@@ -1279,32 +1279,36 @@ public:
             expectLessThan (lowEnergyOfRow (0) * 50.0f, lowEnergyOfRow (2), "the top row has far less bass than the bottom one");
         }
 
-        beginTest ("Depth plays each position several times, 10 dB louder each time");
+        beginTest ("Depth goes round all the positions several times, a level louder each time round");
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
             player.setMode (CalibrationPlayer::Mode::grid);
             player.setGrid (1, 2);
             player.setDepth (3);
+            player.setReleaseMs (100.0f); // each burst is gone before the next, so they can be measured apart
             player.setRate (1.0f / 0.3f);
             player.setPlaying (true);
 
             std::vector<int> positions;
             std::vector<float> levels;
-            for (int burst = 0; burst < 4; ++burst)
+            for (int burst = 0; burst < 7; ++burst)
             {
                 juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
                 buffer.clear();
                 player.process (buffer);
                 positions.push_back (player.getCurrentPosition());
-                levels.push_back (juce::Decibels::gainToDecibels (buffer.getMagnitude (0, (int) (0.02 * sampleRate))));
+                const int length = (int) (0.05 * sampleRate);
+                levels.push_back (juce::Decibels::gainToDecibels (std::max (buffer.getRMSLevel (0, 0, length), buffer.getRMSLevel (1, 0, length))));
             }
-            expect (positions == std::vector<int> { 0, 0, 0, 1 });
-            expectWithinAbsoluteError (levels[1] - levels[0], 10.0f, 3.0f, "the second is about 10 dB louder");
-            expectWithinAbsoluteError (levels[2] - levels[1], 10.0f, 3.0f, "and the third another 10 dB");
+            expect (positions == std::vector<int> { 0, 1, 0, 1, 0, 1, 0 }, "every position, then every position again");
+            expectWithinAbsoluteError (levels[1] - levels[0], 0.0f, 3.0f, "the first time round, both are at the floor");
+            expectWithinAbsoluteError (levels[2] - levels[0], 10.0f, 3.0f, "the second time round is 10 dB louder");
+            expectWithinAbsoluteError (levels[4] - levels[2], 10.0f, 3.0f, "and the third another 10 dB");
+            expectWithinAbsoluteError (levels[6] - levels[0], 0.0f, 3.0f, "then it starts again from the floor");
         }
 
-        beginTest ("The floor sets where a depth run starts; the repeats climb evenly from there to full level");
+        beginTest ("The floor sets the quietest time round; the rest climb evenly from there to full level");
         {
             auto levelsWith = [this] (int depth, float floorDb)
             {
@@ -1460,7 +1464,7 @@ public:
             expect (heard == std::vector<int> { 1, 0, 1 }, "it goes back and forth between the two");
         }
 
-        beginTest ("Pan steps sweep each spot across the range, each with its depth run");
+        beginTest ("Pan steps sweep each spot across the range, and depth steps up once every spot has been across");
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
@@ -1470,29 +1474,31 @@ public:
             player.setPanSteps (3);
             player.setDepth (2);
             player.setFloorDb (-10.0f);
+            player.setReleaseMs (100.0f); // each burst is gone before the next
             player.setRate (1.0f / 0.3f);
             player.setPlaying (true);
 
             std::vector<int> positions;
             std::vector<float> lefts, rights, levels;
-            for (int burst = 0; burst < 7; ++burst)
+            for (int burst = 0; burst < 13; ++burst)
             {
                 juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
                 buffer.clear();
                 player.process (buffer);
                 positions.push_back (player.getCurrentPosition());
-                const int start = (int) (0.005 * sampleRate), length = (int) (0.02 * sampleRate);
+                const int start = (int) (0.005 * sampleRate), length = (int) (0.04 * sampleRate);
                 lefts.push_back (buffer.getRMSLevel (0, start, length));
                 rights.push_back (buffer.getRMSLevel (1, start, length));
                 levels.push_back (juce::Decibels::gainToDecibels (std::max (lefts.back(), rights.back())));
             }
 
-            expect (positions == std::vector<int> { 0, 0, 0, 0, 0, 0, 1 }, "six bursts for A (3 pans x 2 depths), then B");
-            // Look at the loud burst of each depth run (the quiet one is under the last one's tail)
-            expectGreaterThan (lefts[1], rights[1] * 10.0f, "it starts on the left");
-            expectWithinAbsoluteError (lefts[3] / rights[3], 1.0f, 0.5f, "the middle step is in the centre");
-            expectGreaterThan (rights[5], lefts[5] * 3.0f, "and ends on the right");
-            expectWithinAbsoluteError (levels[1] - levels[0], 10.0f, 3.0f, "each pan position does its depth run, quiet then loud");
+            expect (positions == std::vector<int> { 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0 }, "A at its three pans, then B at its three, then round again");
+            expectGreaterThan (lefts[0], rights[0] * 10.0f, "it starts on the left");
+            expectWithinAbsoluteError (lefts[1] / rights[1], 1.0f, 0.5f, "the middle step is in the centre");
+            expectGreaterThan (rights[2], lefts[2] * 10.0f, "and ends on the right");
+            expectWithinAbsoluteError (levels[2] - levels[0], 0.0f, 3.0f, "the first time round, every pan is at the floor");
+            expectWithinAbsoluteError (levels[6] - levels[0], 10.0f, 3.0f, "the second time round is louder");
+            expectWithinAbsoluteError (levels[12] - levels[0], 0.0f, 3.0f, "then it starts again from the floor");
         }
 
         beginTest ("Each spot plays from its frequency all the way up");
