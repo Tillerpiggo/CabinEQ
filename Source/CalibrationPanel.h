@@ -40,11 +40,13 @@ public:
     void resized() override;
     void mouseDown (const juce::MouseEvent&) override;
     void mouseDrag (const juce::MouseEvent&) override;
+    void mouseUp (const juce::MouseEvent&) override;
     bool keyPressed (const juce::KeyPress&) override; // arrows move the selection, Shift+arrows grow it
     void mouseMove (const juce::MouseEvent&) override;
     void mouseExit (const juce::MouseEvent&) override;
 
     static constexpr int preferredHeight = 260;
+    juce::Rectangle<int> getFieldArea() const { return gridArea; } // where the grid, or Drag mode's field, is
 
 private:
     void timerCallback() override;
@@ -67,7 +69,22 @@ private:
     juce::Label volumeLabel, depthLabel, speedLabel, attackLabel, releaseLabel, floorLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;
 
-    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" };
+    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" };
+
+    // Drag mode: a square of dots you put anywhere on the field (the grid's area). Across is pan; up is the low cut.
+    std::array<juce::TextButton, 2> squareSizeButtons; // 2 x 2 and 3 x 3
+    enum class SquareDrag { none, move, resize };
+    SquareDrag squareDrag = SquareDrag::none;
+    juce::Point<float> squareGrab; // from the square's centre to where it was grabbed, on the field
+    CalibrationPlayer::Mode mode() const;
+    bool isSquareMode() const { return mode() == CalibrationPlayer::Mode::square; }
+    juce::Point<float> toPanel (juce::Point<float> onField) const;
+    juce::Point<float> toField (juce::Point<float> onPanel) const;
+    juce::Rectangle<float> squareOutline() const; // around its dots
+    juce::Rectangle<float> squareHandle() const;  // the corner that resizes it
+    void setSquare (CalibrationPlayer::Square square);
+    void paintSquareMode (juce::Graphics&);
+    void startPlaying();
     std::array<juce::TextButton, CalibrationPlayer::maxSpots - 1> spotCountButtons; // 2, 3 and 4 spots
     juce::Slider spotsPan;       // the pan range they all share, with two thumbs
     juce::Slider panStepsSlider; // how many positions across it

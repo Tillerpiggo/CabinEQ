@@ -141,11 +141,27 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
                                   "-3 is as pink noise would be. Double-click for that.");
     }
 
-    // Spots on the EQ graph, or the grid
-    for (auto* button : { &spotsModeButton, &gridModeButton })
+    // Spots on the EQ graph, the grid, or a square to drag about
+    for (auto* button : { &spotsModeButton, &gridModeButton, &squareModeButton })
     {
         button->setClickingTogglesState (false);
         addAndMakeVisible (*button);
+    }
+    squareModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::square); };
+    squareModeButton.setTooltip ("A square of dots you drag anywhere: across is from your left ear to your right, and up is a higher low cut");
+    for (size_t i = 0; i < squareSizeButtons.size(); ++i)
+    {
+        const int size = (int) i + 2;
+        auto& button = squareSizeButtons[i];
+        button.setButtonText (juce::String (size) + " x " + juce::String (size));
+        button.setTooltip (juce::String (size * size) + " dots, " + juce::String (size) + " along each side");
+        button.onClick = [this, size]
+        {
+            auto square = player.getSquare();
+            square.size = size;
+            setSquare (square);
+        };
+        addChildComponent (button);
     }
     gridModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::grid); };
     spotsModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::spots); };
@@ -206,9 +222,120 @@ void CalibrationPanel::stop()
     updateButtons();
 }
 
+CalibrationPlayer::Mode CalibrationPanel::mode() const
+{
+    return CalibrationSettings::getMode (processor.parameters.state);
+}
+
 bool CalibrationPanel::isShowingSpots() const
 {
-    return CalibrationSettings::getMode (processor.parameters.state) == CalibrationPlayer::Mode::spots;
+    return mode() == CalibrationPlayer::Mode::spots;
+}
+
+//==============================================================================
+// Drag mode. The field is the grid's area: (0, 0) is its bottom left, (1, 1) its top right.
+juce::Point<float> CalibrationPanel::toPanel (juce::Point<float> onField) const
+{
+    return { (float) gridArea.getX() + onField.x * (float) gridArea.getWidth(),
+             (float) gridArea.getBottom() - onField.y * (float) gridArea.getHeight() };
+}
+
+juce::Point<float> CalibrationPanel::toField (juce::Point<float> onPanel) const
+{
+    return { (onPanel.x - (float) gridArea.getX()) / (float) std::max (1, gridArea.getWidth()),
+             ((float) gridArea.getBottom() - onPanel.y) / (float) std::max (1, gridArea.getHeight()) };
+}
+
+juce::Rectangle<float> CalibrationPanel::squareOutline() const
+{
+    const auto square = player.getSquare();
+    const auto topLeft = toPanel ({ square.x - square.width * 0.5f, square.y + square.height * 0.5f });
+    const auto bottomRight = toPanel ({ square.x + square.width * 0.5f, square.y - square.height * 0.5f });
+    return juce::Rectangle<float> (topLeft, bottomRight).expanded (15.0f);
+}
+
+juce::Rectangle<float> CalibrationPanel::squareHandle() const
+{
+    return juce::Rectangle<float> (16.0f, 16.0f).withCentre (squareOutline().getBottomRight().translated (-2.0f, -2.0f));
+}
+
+void CalibrationPanel::setSquare (CalibrationPlayer::Square square)
+{
+    CalibrationSettings::setSquare (processor.parameters.state, player, square);
+    refreshSpots();
+    repaint();
+}
+
+void CalibrationPanel::startPlaying()
+{
+    if (! player.isPlaying())
+    {
+        player.setPlaying (true);
+        playButton.setToggleState (true, juce::dontSendNotification);
+    }
+    updateButtons();
+}
+
+void CalibrationPanel::paintSquareMode (juce::Graphics& g)
+{
+    const auto field = gridArea.toFloat();
+    g.setFont (Theme::font (10.5f));
+    g.setColour (Theme::textFaint);
+    g.drawText ("Left", gridArea.getX(), gridArea.getBottom() + 4, 60, 14, juce::Justification::centredLeft);
+    g.drawText ("Right", gridArea.getRight() - 60, gridArea.getBottom() + 4, 60, 14, juce::Justification::centredRight);
+    g.drawText ("Drag the square to move it, and its corner to resize it. Higher up is a higher low cut.",
+                gridArea.getX(), gridArea.getBottom() + 22, gridArea.getWidth(), 28, juce::Justification::centredLeft, true);
+
+    g.setColour (Theme::panel);
+    g.fillRoundedRectangle (field.expanded (6.0f), Theme::cornerRadius);
+
+    // Up the side: the low cut at that height
+    for (auto [frequency, label] : { std::pair { 20.0f, "20" }, std::pair { 100.0f, "100" }, std::pair { 1000.0f, "1k" }, std::pair { 10000.0f, "10k" } })
+    {
+        const float y = toPanel ({ 0.0f, std::log (frequency / 20.0f) / std::log (1000.0f) }).y;
+        g.setColour (Theme::textFaint);
+        g.drawText (label, gridArea.getX() - 46, (int) y - 7, 38, 14, juce::Justification::centredRight);
+        if (frequency > 20.0f)
+        {
+            g.setColour (Theme::border.withAlpha (0.6f));
+            g.drawHorizontalLine ((int) y, field.getX(), field.getRight());
+        }
+    }
+
+    juce::Graphics::ScopedSaveState clip (g);
+    g.reduceClipRegion (field.expanded (6.0f).toNearestInt());
+
+    // The square, its corner, and its dots
+    const auto outline = squareOutline();
+    const bool isHot = squareDrag != SquareDrag::none || outline.contains (getMouseXYRelative().toFloat());
+    g.setColour (Theme::accent.withAlpha (isHot ? 0.10f : 0.06f));
+    g.fillRoundedRectangle (outline, 8.0f);
+    g.setColour (Theme::accent.withAlpha (isHot ? 0.8f : 0.45f));
+    g.drawRoundedRectangle (outline, 8.0f, 1.2f);
+
+    const auto corner = outline.getBottomRight();
+    juce::Path grip;
+    for (float inset : { 5.0f, 9.0f })
+    {
+        grip.startNewSubPath (corner.x - inset - 3.0f, corner.y - 3.0f);
+        grip.lineTo (corner.x - 3.0f, corner.y - inset - 3.0f);
+    }
+    g.strokePath (grip, juce::PathStrokeType (1.3f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+
+    const auto square = player.getSquare();
+    const float radius = 6.0f;
+    for (int position = 0; position < square.size * square.size; ++position)
+    {
+        auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (toPanel (square.dot (position)));
+        const bool isCurrent = position == shownPosition;
+        if (isCurrent)
+        {
+            g.setColour (Theme::accent.withAlpha (0.3f));
+            g.fillEllipse (dot.expanded (radius * 0.9f));
+        }
+        g.setColour (isCurrent ? Theme::accentBright : Theme::raisedHover.brighter (0.15f));
+        g.fillEllipse (dot);
+    }
 }
 
 void CalibrationPanel::setMode (CalibrationPlayer::Mode mode)
@@ -223,11 +350,17 @@ void CalibrationPanel::setMode (CalibrationPlayer::Mode mode)
 
 void CalibrationPanel::refreshSpots()
 {
-    const bool spots = isShowingSpots();
+    const bool spots = isShowingSpots(), square = isSquareMode(), grid = ! spots && ! square;
     const int count = CalibrationSettings::getSpotCount (processor.parameters.state);
 
-    gridModeButton.setToggleState (! spots, juce::dontSendNotification);
+    gridModeButton.setToggleState (grid, juce::dontSendNotification);
     spotsModeButton.setToggleState (spots, juce::dontSendNotification);
+    squareModeButton.setToggleState (square, juce::dontSendNotification);
+    for (size_t i = 0; i < squareSizeButtons.size(); ++i)
+    {
+        squareSizeButtons[i].setVisible (square);
+        squareSizeButtons[i].setToggleState (player.getSquare().size == (int) i + 2, juce::dontSendNotification);
+    }
     for (int i = 0; i < (int) spotCountButtons.size(); ++i)
     {
         spotCountButtons[(size_t) i].setToggleState (count == i + 2, juce::dontSendNotification);
@@ -235,7 +368,7 @@ void CalibrationPanel::refreshSpots()
     }
 
     for (auto* component : std::initializer_list<juce::Component*> { &rowsSlider, &columnsSlider })
-        component->setVisible (! spots);
+        component->setVisible (grid);
     for (auto* component : std::initializer_list<juce::Component*> { &spotsPan, &panStepsSlider, &panStepsLabel })
         component->setVisible (spots);
 
@@ -292,7 +425,7 @@ void CalibrationPanel::applySettings()
 void CalibrationPanel::updateButtons()
 {
     playButton.setButtonText (player.isPlaying() ? "Stop" : "Play");
-    allButton.setVisible (! isShowingSpots() && ! player.getSelection().empty());
+    allButton.setVisible (mode() == CalibrationPlayer::Mode::grid && ! player.getSelection().empty());
     repaint();
 }
 
@@ -332,6 +465,39 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
 {
     if (isShowingSpots())
         return;
+
+    if (isSquareMode())
+    {
+        // The corner resizes it; anywhere else on the field moves it, bringing it to the mouse first if it's elsewhere
+        squareDrag = SquareDrag::none;
+        if (squareHandle().contains (event.position))
+        {
+            // From the mouse to the bottom right dot, so the corner doesn't jump to the mouse
+            const auto square = player.getSquare();
+            squareDrag = SquareDrag::resize;
+            squareGrab = event.position - toPanel ({ square.x + square.width * 0.5f, square.y - square.height * 0.5f });
+        }
+        else if (gridArea.toFloat().expanded (6.0f).contains (event.position))
+        {
+            auto square = player.getSquare();
+            if (! squareOutline().contains (event.position))
+            {
+                const auto at = toField (event.position);
+                square.x = at.x;
+                square.y = at.y;
+                setSquare (square);
+                square = player.getSquare();
+            }
+            squareDrag = SquareDrag::move;
+            squareGrab = toField (event.position) - juce::Point<float> (square.x, square.y);
+        }
+        if (squareDrag != SquareDrag::none)
+        {
+            grabKeyboardFocus();
+            startPlaying();
+        }
+        return;
+    }
     const int position = positionAt (event.position);
     if (position < 0)
         return;
@@ -365,6 +531,34 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
 {
     if (isShowingSpots())
         return;
+
+    if (isSquareMode())
+    {
+        auto square = player.getSquare();
+        const auto at = toField (event.position);
+        if (squareDrag == SquareDrag::move)
+        {
+            square.x = at.x - squareGrab.x;
+            square.y = at.y - squareGrab.y;
+        }
+        else if (squareDrag == SquareDrag::resize)
+        {
+            // About its centre, which stays put: the bottom right dot follows the mouse
+            const auto centre = toPanel ({ square.x, square.y });
+            const auto corner = event.position - squareGrab;
+            square.width = 2.0f * (corner.x - centre.x) / (float) std::max (1, gridArea.getWidth());
+            square.height = 2.0f * (corner.y - centre.y) / (float) std::max (1, gridArea.getHeight());
+            // No wider or taller than still fits where it is
+            square.width = std::min (square.width, 2.0f * std::min (square.x, 1.0f - square.x));
+            square.height = std::min (square.height, 2.0f * std::min (square.y, 1.0f - square.y));
+        }
+        else
+        {
+            return;
+        }
+        setSquare (square);
+        return;
+    }
     const int position = positionAt (event.position);
     if (position < 0)
         return;
@@ -383,6 +577,20 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
 {
     if (isShowingSpots())
         return false;
+
+    if (isSquareMode())
+    {
+        // Arrows move the square; with Shift, a small step
+        const float step = key.getModifiers().isShiftDown() ? 0.005f : 0.025f;
+        auto square = player.getSquare();
+        if (key.getKeyCode() == juce::KeyPress::upKey)         square.y += step;
+        else if (key.getKeyCode() == juce::KeyPress::downKey)  square.y -= step;
+        else if (key.getKeyCode() == juce::KeyPress::leftKey)  square.x -= step;
+        else if (key.getKeyCode() == juce::KeyPress::rightKey) square.x += step;
+        else return false;
+        setSquare (square);
+        return true;
+    }
     int rowStep = 0, columnStep = 0;
     if (key.getKeyCode() == juce::KeyPress::upKey)         rowStep = -1;
     else if (key.getKeyCode() == juce::KeyPress::downKey)  rowStep = 1;
@@ -439,8 +647,23 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
     return true;
 }
 
+void CalibrationPanel::mouseUp (const juce::MouseEvent&)
+{
+    squareDrag = SquareDrag::none;
+    repaint();
+}
+
 void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
 {
+    if (isSquareMode())
+    {
+        setMouseCursor (squareHandle().contains (event.position) ? juce::MouseCursor::BottomRightCornerResizeCursor
+                        : squareOutline().contains (event.position) ? juce::MouseCursor::DraggingHandCursor
+                        : gridArea.toFloat().contains (event.position) ? juce::MouseCursor::PointingHandCursor : juce::MouseCursor::NormalCursor);
+        repaint (gridArea.expanded (8));
+        return;
+    }
+
     const int position = positionAt (event.position);
     if (position != hoverPosition)
     {
@@ -502,6 +725,12 @@ void CalibrationPanel::paint (juce::Graphics& g)
         return;
     }
 
+    if (isSquareMode())
+    {
+        paintSquareMode (g);
+        return;
+    }
+
     // Which way is which, and what the axis sliders are
     g.setFont (Theme::font (10.5f));
     g.drawText ("Left", gridArea.getX(), gridArea.getBottom() + 4, 60, 14, juce::Justification::centredLeft);
@@ -560,6 +789,8 @@ void CalibrationPanel::resized()
     spotsModeButton.setBounds (header.removeFromLeft (84).withSizeKeepingCentre (84, 26));
     header.removeFromLeft (4);
     gridModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
+    header.removeFromLeft (4);
+    squareModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
 
 
     area.removeFromBottom (10);
@@ -609,6 +840,10 @@ void CalibrationPanel::resized()
     gridArea = area.reduced (6);
 
     rowsSlider.setBounds (juce::Rectangle<int> (rowsStrip.getCentreX() - 14, gridArea.getY() - 6, 28, gridArea.getHeight() + 12));
+
+    // Drag mode has its square's size where the rows slider is
+    for (size_t i = 0; i < squareSizeButtons.size(); ++i)
+        squareSizeButtons[i].setBounds (rowsStrip.getX(), gridArea.getY() - 4 + (int) i * 30, rowsStrip.getWidth() - 2, 26);
     columnsSlider.setBounds (juce::Rectangle<int> (gridArea.getX() - 6, columnsStrip.getY(), gridArea.getWidth() + 12, 28));
 
     // Captions in the corner the two sliders leave free

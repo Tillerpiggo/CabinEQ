@@ -48,7 +48,46 @@ public:
     static constexpr int maxSpots = 4;
     static constexpr int maxPanSteps = 5;
 
-    enum class Mode { grid = 0, spots = 1 };
+    enum class Mode { grid = 0, spots = 1, square = 2 };
+
+    /// Square mode: a square of 2 x 2 or 3 x 3 dots that you put anywhere on a field. Across the field is from
+    /// your left ear to your right; up it is the low cut, from none at the bottom to 20 kHz at the top. All of
+    /// these are fractions of the field: (0, 0) is its bottom left.
+    struct Square
+    {
+        int size = 3;                    // dots along each side
+        float x = 0.5f, y = 0.5f;        // its centre
+        float width = 0.5f, height = 0.5f;
+
+        /// Where a dot is on the field, in reading order from the top left
+        juce::Point<float> dot (int position) const
+        {
+            const int row = position / size, column = position % size;
+            const float across = size > 1 ? (float) column / (float) (size - 1) - 0.5f : 0.0f;
+            const float down = size > 1 ? (float) row / (float) (size - 1) - 0.5f : 0.0f;
+            return { x + across * width, y - down * height };
+        }
+
+        /// A dot's low cut, in Hz: 20 Hz at the bottom of the field, which is none at all, to 20 kHz at the top
+        static double cutoffAt (float fieldY) { return 20.0 * std::pow (1000.0, (double) juce::jlimit (0.0f, 1.0f, fieldY)); }
+    };
+    static constexpr float minSquareSide = 0.08f;
+
+    /// Keeps it a sensible size and wholly on the field
+    void setSquare (Square square)
+    {
+        square.size = square.size <= 2 ? 2 : 3;
+        square.width = juce::jlimit (minSquareSide, 1.0f, square.width);
+        square.height = juce::jlimit (minSquareSide, 1.0f, square.height);
+        square.x = juce::jlimit (square.width * 0.5f, 1.0f - square.width * 0.5f, square.x);
+        square.y = juce::jlimit (square.height * 0.5f, 1.0f - square.height * 0.5f, square.y);
+        squareSize = square.size;
+        squareX = square.x;
+        squareY = square.y;
+        squareWidth = square.width;
+        squareHeight = square.height;
+    }
+    Square getSquare() const { return { squareSize.load(), squareX.load(), squareY.load(), squareWidth.load(), squareHeight.load() }; }
     static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest time round, below the volume
 
     void prepare (double newSampleRate)
@@ -304,12 +343,15 @@ private:
 
     void trigger() noexcept
     {
-        const bool spots = mode.load() == (int) Mode::spots;
+        const auto modeNow = (Mode) mode.load();
+        const bool spots = modeNow == Mode::spots;
+        const auto square = getSquare();
         const int rows = numRows.load(), columns = numColumns.load();
-        const int count = spots ? spotCount.load() : rows * columns;
+        const int count = spots ? spotCount.load() : modeNow == Mode::square ? square.size * square.size : rows * columns;
 
+        // Only the grid has positions you pick out
         bool anySelected = false;
-        for (int p = 0; ! spots && p < count && ! anySelected; ++p)
+        for (int p = 0; modeNow == Mode::grid && p < count && ! anySelected; ++p)
             anySelected = isSelected (p);
 
         // A spot plays again at its next pan position, until it's been across the range
@@ -355,6 +397,14 @@ private:
             pan = 0.5f * (spread + 1.0f);
             cutoff = spotFrequency[(size_t) position].load();
             if (cutoff <= 20.0)
+                cutoff = 0.0;
+        }
+        else if (modeNow == Mode::square)
+        {
+            const auto dot = square.dot (position);
+            pan = juce::jlimit (0.0f, 1.0f, dot.x);
+            cutoff = Square::cutoffAt (dot.y);
+            if (cutoff <= 20.5)
                 cutoff = 0.0;
         }
         else
@@ -508,6 +558,8 @@ private:
     std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
     std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };
+    std::atomic<int> squareSize { 3 };
+    std::atomic<float> squareX { 0.5f }, squareY { 0.5f }, squareWidth { 0.5f }, squareHeight { 0.5f };
     std::atomic<bool> playing { false };
     std::atomic<int> currentPosition { -1 };
 

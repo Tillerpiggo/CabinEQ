@@ -22,6 +22,8 @@ namespace CalibrationSettings
     inline const juce::Identifier idPanLow { "calibrationPanLow" };
     inline const juce::Identifier idPanHigh { "calibrationPanHigh" };
     inline const juce::Identifier idPanSteps { "calibrationPanSteps" };
+    inline const juce::Identifier idSquareSize { "calibrationSquareSize" }, idSquareX { "calibrationSquareX" }, idSquareY { "calibrationSquareY" },
+                                  idSquareWidth { "calibrationSquareWidth" }, idSquareHeight { "calibrationSquareHeight" };
 
     constexpr float minFrequency = 20.0f, maxFrequency = 16000.0f;
 
@@ -37,7 +39,7 @@ namespace CalibrationSettings
     /// "On graph" unless you've picked the grid
     inline CalibrationPlayer::Mode getMode (const juce::ValueTree& state)
     {
-        return (int) state.getProperty (idMode, 0) == 1 ? CalibrationPlayer::Mode::spots : CalibrationPlayer::Mode::grid;
+        return (CalibrationPlayer::Mode) juce::jlimit (0, 2, (int) state.getProperty (idMode, 0));
     }
 
     inline int getSpotCount (const juce::ValueTree& state)
@@ -65,6 +67,18 @@ namespace CalibrationSettings
         return juce::jlimit (1, CalibrationPlayer::maxPanSteps, (int) state.getProperty (idPanSteps, 1));
     }
 
+    /// The square you drag about, in square mode
+    inline CalibrationPlayer::Square getSquare (const juce::ValueTree& state)
+    {
+        CalibrationPlayer::Square square;
+        square.size = state.getProperty (idSquareSize, square.size);
+        square.x = state.getProperty (idSquareX, square.x);
+        square.y = state.getProperty (idSquareY, square.y);
+        square.width = state.getProperty (idSquareWidth, square.width);
+        square.height = state.getProperty (idSquareHeight, square.height);
+        return square;
+    }
+
     /// Hands everything in the state to the player
     inline void apply (const juce::ValueTree& state, CalibrationPlayer& player)
     {
@@ -75,6 +89,19 @@ namespace CalibrationSettings
         const auto pan = getPanRange (state);
         player.setPanRange (pan.getStart(), pan.getEnd());
         player.setPanSteps (getPanSteps (state));
+        player.setSquare (getSquare (state));
+    }
+
+    /// Saves the square as the player has it, once it's kept it on the field
+    inline void setSquare (juce::ValueTree state, CalibrationPlayer& player, CalibrationPlayer::Square square)
+    {
+        player.setSquare (square);
+        square = player.getSquare();
+        state.setProperty (idSquareSize, square.size, nullptr);
+        state.setProperty (idSquareX, square.x, nullptr);
+        state.setProperty (idSquareY, square.y, nullptr);
+        state.setProperty (idSquareWidth, square.width, nullptr);
+        state.setProperty (idSquareHeight, square.height, nullptr);
     }
 
     inline void setSpotFrequency (juce::ValueTree state, CalibrationPlayer& player, int index, float frequency)

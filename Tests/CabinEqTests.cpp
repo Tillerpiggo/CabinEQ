@@ -1609,6 +1609,53 @@ public:
             expectWithinAbsoluteError (limits.getTopLine(), 12.0f, 0.001f, "and neither goes past 12 dB an octave");
         }
 
+        beginTest ("Square mode plays a square of dots in reading order: across is pan, up is the low cut");
+        {
+            using Square = CalibrationPlayer::Square;
+            const Square square { 3, 0.5f, 0.5f, 0.4f, 0.6f };
+            expectWithinAbsoluteError (square.dot (0).x, 0.3f, 0.001f, "the first is the top left");
+            expectWithinAbsoluteError (square.dot (0).y, 0.8f, 0.001f);
+            expectWithinAbsoluteError (square.dot (4).x, 0.5f, 0.001f, "the middle one is its centre");
+            expectWithinAbsoluteError (square.dot (4).y, 0.5f, 0.001f);
+            expectWithinAbsoluteError (square.dot (8).x, 0.7f, 0.001f, "the last is the bottom right");
+            expectWithinAbsoluteError (square.dot (8).y, 0.2f, 0.001f);
+            expectWithinAbsoluteError ((float) Square::cutoffAt (0.0f), 20.0f, 0.01f, "the bottom of the field is 20 Hz: no cut");
+            expectWithinAbsoluteError ((float) Square::cutoffAt (0.5f), 632.5f, 1.0f, "halfway up is halfway in octaves");
+            expectWithinAbsoluteError ((float) Square::cutoffAt (1.0f), 20000.0f, 1.0f);
+
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::square);
+            player.setSquare ({ 2, 0.5f, 0.5f, 0.8f, 0.5f });
+            player.setReleaseMs (100.0f);
+            player.setRate (1.0f / 0.3f);
+            player.setPlaying (true);
+
+            std::vector<int> positions;
+            std::vector<float> lefts, rights;
+            for (int burst = 0; burst < 5; ++burst)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                positions.push_back (player.getCurrentPosition());
+                lefts.push_back (buffer.getRMSLevel (0, 0, (int) (0.05 * sampleRate)));
+                rights.push_back (buffer.getRMSLevel (1, 0, (int) (0.05 * sampleRate)));
+            }
+            expect (positions == std::vector<int> { 0, 1, 2, 3, 0 }, "its four dots, then round again");
+            expectGreaterThan (lefts[0], rights[0] * 3.0f, "the top left dot is on the left");
+            expectGreaterThan (rights[1], lefts[1] * 3.0f, "the top right one on the right");
+            expectGreaterThan (lefts[2], rights[2] * 3.0f, "then the bottom left");
+
+            // It can't be dragged off the field, or made too small to see
+            player.setSquare ({ 7, -1.0f, 2.0f, 0.5f, 0.001f });
+            const auto kept = player.getSquare();
+            expectEquals (kept.size, 3);
+            expectWithinAbsoluteError (kept.x, 0.25f, 0.001f);
+            expectWithinAbsoluteError (kept.height, CalibrationPlayer::minSquareSide, 0.001f);
+            expectWithinAbsoluteError (kept.y, 1.0f - kept.height * 0.5f, 0.001f);
+        }
+
         beginTest ("Clicking a position repeats just it");
         {
             CalibrationPlayer player;
@@ -1679,6 +1726,59 @@ public:
         expect (player.getSelection() == std::set<int> { 8, 9 }, "the pair moved right until it hit the edge");
         expect (player.isPlaying(), "and it started playing");
         panel.stop();
+
+        beginTest ("Drag mode: a square of dots that you move about the field and resize from its corner");
+        {
+            CabinEqAudioProcessor dragProcessor;
+            auto& state = dragProcessor.parameters.state;
+            auto& dragPlayer = dragProcessor.getCalibration();
+            CalibrationSettings::setMode (state, dragPlayer, CalibrationPlayer::Mode::square);
+            CalibrationSettings::setSquare (state, dragPlayer, { 2, 0.5f, 0.5f, 0.4f, 0.4f });
+            CalibrationPanel dragPanel (dragProcessor);
+            dragPanel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+            const auto field = dragPanel.getFieldArea().toFloat();
+            auto onField = [field] (float x, float y) { return juce::Point<float> (field.getX() + x * field.getWidth(), field.getBottom() - y * field.getHeight()); };
+            auto mouse = [&dragPanel] (juce::Point<float> at, juce::Point<float> down, bool isDown)
+            {
+                return juce::MouseEvent (juce::Desktop::getInstance().getMainMouseSource(), at, isDown ? juce::ModifierKeys::leftButtonModifier : juce::ModifierKeys(),
+                                         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, &dragPanel, &dragPanel, juce::Time::getCurrentTime(), down, juce::Time::getCurrentTime(), 1, false);
+            };
+            auto dragFromTo = [&] (juce::Point<float> from, juce::Point<float> to)
+            {
+                dragPanel.mouseDown (mouse (from, from, true));
+                dragPanel.mouseDrag (mouse (to, from, true));
+                dragPanel.mouseUp (mouse (to, from, false));
+            };
+
+            // Grab it by its middle and move it up and to the right
+            dragFromTo (onField (0.5f, 0.5f), onField (0.7f, 0.6f));
+            auto square = dragPlayer.getSquare();
+            expectWithinAbsoluteError (square.x, 0.7f, 0.01f);
+            expectWithinAbsoluteError (square.y, 0.6f, 0.01f);
+            expectWithinAbsoluteError (square.width, 0.4f, 0.001f, "moving it doesn't resize it");
+            expect (dragPlayer.isPlaying(), "and it starts playing");
+            expectWithinAbsoluteError ((float) state.getProperty (CalibrationSettings::idSquareX), 0.7f, 0.01f, "where it is is saved");
+
+            // Clicking somewhere else on the field brings it there; the edges keep it wholly on
+            dragFromTo (onField (0.05f, 0.95f), onField (0.05f, 0.95f));
+            square = dragPlayer.getSquare();
+            expectWithinAbsoluteError (square.x, 0.2f, 0.01f, "as far left as it fits");
+            expectWithinAbsoluteError (square.y, 0.8f, 0.01f, "and as far up");
+
+            // Its bottom right corner (just outside its dots) resizes it about its centre
+            CalibrationSettings::setSquare (state, dragPlayer, { 2, 0.5f, 0.5f, 0.4f, 0.4f });
+            const auto corner = onField (0.7f, 0.3f).translated (13.0f, 13.0f);
+            dragFromTo (corner, corner.translated (0.1f * field.getWidth(), 0.05f * field.getHeight()));
+            square = dragPlayer.getSquare();
+            expectWithinAbsoluteError (square.width, 0.6f, 0.005f, "wider by twice as far as the corner went");
+            expectWithinAbsoluteError (square.height, 0.5f, 0.005f);
+            expectWithinAbsoluteError (square.x, 0.5f, 0.001f, "its centre stays put");
+
+            // Arrows nudge it
+            dragPanel.keyPressed (juce::KeyPress (juce::KeyPress::rightKey));
+            expectGreaterThan (dragPlayer.getSquare().x, 0.5f);
+            dragPanel.stop();
+        }
     }
 };
 
@@ -2074,6 +2174,8 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
     }
     processor.getProfiles().addProfile ("HD 600 (AutoEQ)");
     processor.parameters.state.setProperty ("showCalibration", showCalibration, nullptr);
+    if (const auto mode = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_MODE", {}); mode.isNotEmpty())
+        processor.parameters.state.setProperty ("calibrationMode", mode.getIntValue(), nullptr);
     if (const auto noise = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_NOISE", {}); noise.isNotEmpty())
         processor.parameters.state.setProperty ("calibrationNoise", noise.getIntValue(), nullptr);
     if (zoomed)
