@@ -56,20 +56,16 @@ loads the VST3 to EQ everything the Mac plays.
   those: Shift- or Cmd-click, or drag across them, to pick several, and move them with the
   arrow keys (Shift+arrow adds the next one); Play all goes back to every
   one. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
-  right are its own volume, a speed (0.5 to 32 bursts a second, 2.5 to start), an attack (how long each burst takes to reach full level: 0 to 200 ms, 4 ms to start; longer is softer), a release (how long each burst takes to
-  fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (it goes round all the positions that many times, a level louder each time round,
-  then starts again), and a floor: how far below the volume the quietest time round is (-20 dB to start), with the rest climbing evenly from there to the volume. Hiding it stops the sound.
+  right are its own volume, a speed (0.5 to 64 bursts a second, 2.5 to start), an attack (how long each burst takes to reach full level: 0 to 200 ms, 4 ms to start; longer is softer), a release (how long each burst takes to
+  fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (each row plays that many times before the next row does, a level louder each time),
+  repeats (how many times the row plays at each of those levels before going up one), and a floor: how far below the volume the quietest level is (-20 dB to start), with the rest climbing evenly from there to the volume. On the graph, each spot (across its pan steps) is a row. Hiding it stops the sound.
 - **Calibration, Drag mode** (the panel's third mode): like the grid, but instead of fixed rows and columns there's
   one square of dots, 2 x 2 or 3 x 3, that you put where you like. Across the field is from your left ear to your
   right, and up it is the low cut, from none at the bottom (20 Hz) to 20 kHz at the top. Drag the square to move it
   (or click elsewhere on the field to bring it there; the arrow keys nudge it), and drag its bottom right corner to
   resize it about its centre. Its dots play in reading order.
-- **Calibration noise** (the Slope and Top line sliders, with the others): two slopes, set separately, from -3 to
-  -12 dB an octave. **Slope** is how fast each burst falls away above its lowest frequency: -3 is pink noise, and
-  anything steeper is pink through a filter that tilts it further (level with pink at 20 Hz). **Top line** is how fast
-  the bursts' bottom edges fall from one burst to the next: each burst is turned up or down, by how many octaves its
-  lowest frequency (its low cut) is above 20 Hz, to put it on that line. Both at -3 is plain pink noise. Double-click
-  either to go back to -3.
+- **Calibration noise**: it falls 4.5 dB an octave (pink noise falls 3), and every burst is that same noise, cut off
+  lower or higher, so the bursts' bottom edges fall 4.5 dB an octave from one burst to the next as well.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),
   each playing from its frequency (a sharp low cut) up to 20 kHz. They show on the EQ graph as dashed
   lines with chips along the bottom: drag the lowest or highest spot to spread them out from (or in

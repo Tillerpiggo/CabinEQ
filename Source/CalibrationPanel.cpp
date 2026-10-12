@@ -21,12 +21,7 @@ namespace
     const juce::Identifier idRelease { "calibrationRelease" };
     const juce::Identifier idAttack { "calibrationAttack" };
     const juce::Identifier idFloor { "calibrationFloor" };
-    const juce::Identifier idSlope { "calibrationSlope" }, idTopLine { "calibrationTopLine" };
-
-    // Before the slope and the top line were set separately, the noise was one of three modes
-    const juce::Identifier idOldNoise { "calibrationNoise" };           // 0 pink, 1 "-4.5", 2 "-6"
-    const juce::Identifier idOldSteepNoise { "calibrationSteepNoise" }; // older still: true was "-4.5"
-    const juce::Identifier idOldSlopes[] { "calibrationSlope45", "calibrationSlope6" };
+    const juce::Identifier idRepeats { "calibrationDepthRepeats" };
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -95,7 +90,7 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     setUpLabel (speedLabel, "Speed");
     depthSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + (v > 1 ? " times" : " time"); };
     depthSlider.updateText();
-    depthSlider.setTooltip ("Goes round all the positions this many times, a level louder each time round, from the floor up to the volume");
+    depthSlider.setTooltip ("Plays each row this many times before the next row, a level louder each time, from the floor up to the volume");
     volumeSlider.textFromValueFunction = [] (double v) { return juce::String (v, 1) + " dB"; };
     volumeSlider.updateText();
     volumeSlider.setTooltip ("How loud the calibration sounds are, separately from everything else");
@@ -117,29 +112,13 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     for (auto* button : { &playButton, &allButton, &closeButton })
         addAndMakeVisible (button);
 
-    // The noise the bursts are made of: two slopes, set separately
-    {
-        const auto& saved = processor.parameters.state;
-        const int oldMode = juce::jlimit (0, 2, (int) saved.getProperty (idOldNoise, (bool) saved.getProperty (idOldSteepNoise, false) ? 1 : 0));
-        const double oldSlope = oldMode == 0 ? 3.0 : (double) saved.getProperty (idOldSlopes[oldMode - 1], oldMode == 1 ? 4.5 : 6.0);
-        const double oldTopLine = oldMode == 0 ? 3.0 : 4.5;
-
-        for (auto [slider, label, name, id, fallback] : { std::tuple { &slopeSlider, &slopeLabel, "Slope", idSlope, oldSlope },
-                                                          std::tuple { &topLineSlider, &topLineLabel, "Top line", idTopLine, oldTopLine } })
-        {
-            setUpSlider (*slider, juce::Slider::LinearHorizontal, CalibrationPlayer::pinkDbPerOctave, CalibrationPlayer::maxSlopeDbPerOctave, 0.1,
-                         (double) saved.getProperty (id, fallback));
-            slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 78, 20);
-            slider->textFromValueFunction = [] (double v) { return "-" + juce::String (v, 1) + " dB/oct"; };
-            slider->valueFromTextFunction = [] (const juce::String& text) { return std::abs (text.getDoubleValue()); };
-            slider->setDoubleClickReturnValue (true, CalibrationPlayer::pinkDbPerOctave);
-            slider->updateText();
-            setUpLabel (*label, name);
-        }
-        slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency. -3 is pink noise. Double-click for pink.");
-        topLineSlider.setTooltip ("How fast the bursts' bottom edges fall from one burst to the next: each burst's volume is set to put it on this line. "
-                                  "-3 is as pink noise would be. Double-click for that.");
-    }
+    // How many times a row plays at each depth level
+    setUpSlider (repeatsSlider, juce::Slider::LinearHorizontal, 1, CalibrationPlayer::maxDepthRepeats, 1, (int) state.getProperty (idRepeats, 1));
+    repeatsSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
+    repeatsSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + (v > 1 ? " times" : " time"); };
+    repeatsSlider.updateText();
+    repeatsSlider.setTooltip ("Plays each row this many times at each depth level before going up to the next");
+    setUpLabel (repeatsLabel, "Repeats");
 
     // Spots on the EQ graph, the grid, or a square to drag about
     for (auto* button : { &spotsModeButton, &gridModeButton, &squareModeButton })
@@ -386,15 +365,14 @@ void CalibrationPanel::applySettings()
     player.setLevelDb ((float) volumeSlider.getValue());
     player.setDepth ((int) depthSlider.getValue());
     player.setFloorDb ((float) floorSlider.getValue());
-    player.setSlope ((float) slopeSlider.getValue());
-    player.setTopLine ((float) topLineSlider.getValue());
+    player.setDepthRepeats ((int) repeatsSlider.getValue());
 
-    // The floor is the quietest time round, so it means nothing with a depth of one
+    // The floor is the quietest level, so it means nothing with a depth of one
     const bool hasRange = depthSlider.getValue() > 1.0;
     floorSlider.setEnabled (hasRange);
     floorLabel.setEnabled (hasRange);
-    floorSlider.setTooltip (hasRange ? "The quietest time round, as dB below the volume. Each time round after it is a step louder, up to the volume."
-                                     : "Turn the depth up to go round the positions at several levels; this sets the quietest of them");
+    floorSlider.setTooltip (hasRange ? "The quietest level a row plays at, as dB below the volume. Each level after it is a step louder, up to the volume."
+                                     : "Turn the depth up to play each row at several levels; this sets the quietest of them");
     player.setRate ((float) speedSlider.getValue());
     player.setReleaseMs ((float) releaseSlider.getValue());
     player.setAttackMs ((float) attackSlider.getValue());
@@ -412,8 +390,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idLevel, volumeSlider.getValue(), nullptr);
     state.setProperty (idDepth, (int) depthSlider.getValue(), nullptr);
     state.setProperty (idFloor, floorSlider.getValue(), nullptr);
-    state.setProperty (idSlope, slopeSlider.getValue(), nullptr);
-    state.setProperty (idTopLine, topLineSlider.getValue(), nullptr);
+    state.setProperty (idRepeats, (int) repeatsSlider.getValue(), nullptr);
     state.setProperty (idSpeed, speedSlider.getValue(), nullptr);
     state.setProperty (idRelease, releaseSlider.getValue(), nullptr);
     state.setProperty (idAttack, attackSlider.getValue(), nullptr);
@@ -797,8 +774,8 @@ void CalibrationPanel::resized()
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));
     controls.removeFromLeft (20);
     const std::vector<std::pair<juce::Slider*, juce::Label*>> rows { { &volumeSlider, &volumeLabel }, { &speedSlider, &speedLabel }, { &attackSlider, &attackLabel },
-                                                                    { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &floorSlider, &floorLabel },
-                                                                    { &slopeSlider, &slopeLabel }, { &topLineSlider, &topLineLabel } };
+                                                                    { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &repeatsSlider, &repeatsLabel },
+                                                                    { &floorSlider, &floorLabel } };
     const int rowHeight = std::min (30, controls.getHeight() / (int) rows.size());
     for (auto [slider, label] : rows)
     {

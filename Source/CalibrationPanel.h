@@ -63,8 +63,8 @@ private:
     CalibrationPlayer& player;
 
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
-    juce::Slider slopeSlider, topLineSlider; // the noise: how fast a burst falls away, and how fast their bottom edges do
-    juce::Label slopeLabel, topLineLabel;
+    juce::Slider repeatsSlider; // how many times a row plays at each depth level
+    juce::Label repeatsLabel;
     juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider, attackSlider, releaseSlider, floorSlider;
     juce::Label volumeLabel, depthLabel, speedLabel, attackLabel, releaseLabel, floorLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;

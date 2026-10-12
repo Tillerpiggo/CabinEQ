@@ -1308,6 +1308,55 @@ public:
             expectWithinAbsoluteError (levels[6] - levels[0], 0.0f, 3.0f, "then it starts again from the floor");
         }
 
+        beginTest ("Depth goes a row at a time, and repeats play the row again at each level before it goes up");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::grid);
+            player.setGrid (2, 2);
+            player.setDepth (2);
+            player.setDepthRepeats (2);
+            player.setFloorDb (-12.0f);
+            player.setSlope (3.0f);    // pink, on pink's line: both rows are made as loud as each other
+            player.setTopLine (3.0f);
+            player.setReleaseMs (100.0f); // each burst is gone before the next
+            player.setRate (1.0f / 0.3f);
+            player.setPlaying (true);
+
+            std::vector<int> positions;
+            std::vector<float> levels;
+            for (int burst = 0; burst < 17; ++burst)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                positions.push_back (player.getCurrentPosition());
+                const int length = (int) (0.05 * sampleRate);
+                levels.push_back (juce::Decibels::gainToDecibels (std::max (buffer.getRMSLevel (0, 0, length), buffer.getRMSLevel (1, 0, length))));
+            }
+            expect (positions == std::vector<int> { 0, 1, 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 2, 3, 0 },
+                    "the top row four times (two levels, twice each), then the bottom row four times, then the top again");
+            expectWithinAbsoluteError (levels[2] - levels[0], 0.0f, 3.0f, "its repeat is at the same level");
+            expectWithinAbsoluteError (levels[4] - levels[0], 12.0f, 3.0f, "then it's a level louder");
+            expectWithinAbsoluteError (levels[6] - levels[4], 0.0f, 3.0f, "twice");
+            expectWithinAbsoluteError (levels[10] - levels[8], 0.0f, 3.0f, "the next row starts again from the floor, twice");
+            expectWithinAbsoluteError (levels[12] - levels[8], 12.0f, 3.0f, "then louder");
+
+            // With just one dot of the bottom row picked out, that's the row
+            player.setSelection ({ 3 });
+            juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+            for (int burst = 0; burst < 3; ++burst)
+            {
+                buffer.clear();
+                player.process (buffer);
+                expectEquals (player.getCurrentPosition(), 3);
+            }
+
+            CalibrationPlayer fresh;
+            expectWithinAbsoluteError (fresh.getSlope(), 4.5f, 0.001f, "left alone, the noise falls 4.5 dB an octave");
+            expectWithinAbsoluteError (fresh.getTopLine(), 4.5f, 0.001f, "and so do the bursts' bottom edges");
+        }
+
         beginTest ("The floor sets the quietest time round; the rest climb evenly from there to full level");
         {
             auto levelsWith = [this] (int depth, float floorDb)
@@ -1464,7 +1513,7 @@ public:
             expect (heard == std::vector<int> { 1, 0, 1 }, "it goes back and forth between the two");
         }
 
-        beginTest ("Pan steps sweep each spot across the range, and depth steps up once every spot has been across");
+        beginTest ("Pan steps sweep each spot across the range, and a spot goes through its depth levels before the next spot");
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
@@ -1492,13 +1541,14 @@ public:
                 levels.push_back (juce::Decibels::gainToDecibels (std::max (lefts.back(), rights.back())));
             }
 
-            expect (positions == std::vector<int> { 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0 }, "A at its three pans, then B at its three, then round again");
+            expect (positions == std::vector<int> { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0 }, "A across its three pans, twice (once for each level), then B the same");
             expectGreaterThan (lefts[0], rights[0] * 10.0f, "it starts on the left");
             expectWithinAbsoluteError (lefts[1] / rights[1], 1.0f, 0.5f, "the middle step is in the centre");
             expectGreaterThan (rights[2], lefts[2] * 10.0f, "and ends on the right");
-            expectWithinAbsoluteError (levels[2] - levels[0], 0.0f, 3.0f, "the first time round, every pan is at the floor");
-            expectWithinAbsoluteError (levels[6] - levels[0], 10.0f, 3.0f, "the second time round is louder");
-            expectWithinAbsoluteError (levels[12] - levels[0], 0.0f, 3.0f, "then it starts again from the floor");
+            expectWithinAbsoluteError (levels[2] - levels[0], 0.0f, 3.0f, "the first time across, every pan is at the floor");
+            expectWithinAbsoluteError (levels[3] - levels[0], 10.0f, 3.0f, "the second time across is louder");
+            expectWithinAbsoluteError (levels[9] - levels[6], 10.0f, 3.0f, "and B does the same");
+            expectWithinAbsoluteError (levels[12] - levels[0], 0.0f, 3.0f, "then A starts again from the floor");
         }
 
         beginTest ("Each spot plays from its frequency all the way up");

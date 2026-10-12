@@ -11,9 +11,13 @@
     are at about 112 Hz, 632 Hz and 3.6 kHz. Each burst starts fast and dies away
     slowly, so its tail overlaps the next one.
 
-    With a depth above 1, it goes round all the positions that many times, a level louder each
-    time round, in even steps from the floor up to full level, and then starts again from the
-    floor: depth 3 with a floor of -20 dB plays them all at -20, then all at -10, then all at 0 dB.
+    With a depth above 1, each row plays that many times before the next row does, a level louder
+    each time, in even steps from the floor up to full level: depth 3 with a floor of -20 dB plays
+    a row at -20, then at -10, then at 0 dB, and then the next row starts from -20. With repeats
+    above 1, the row plays that many times at each of those levels before going up one.
+
+    The noise falls 4.5 dB an octave (pink falls 3), and so do the bursts' bottom edges from one
+    burst to the next: every burst is the same noise, cut off lower or higher.
 
     If some positions are selected, only those play.
 
@@ -42,7 +46,7 @@ public:
     static constexpr int defaultRows = 3;
     static constexpr int defaultColumns = 5;
     static constexpr int maxDepth = 5;
-    static constexpr float minRate = 0.5f, maxRate = 32.0f, defaultRate = 2.5f; // bursts per second
+    static constexpr float minRate = 0.5f, maxRate = 64.0f, defaultRate = 2.5f; // bursts per second
     static constexpr float maxReleaseMs = 3000.0f, defaultReleaseMs = 1500.0f; // how long a burst takes to fade out (by 60 dB)
     static constexpr float maxAttackMs = 200.0f, defaultAttackMs = 4.0f; // how long a burst takes to reach full level
     static constexpr int maxSpots = 4;
@@ -107,12 +111,14 @@ public:
         for (auto& voice : voices)
             voice.active = false;
         samplesUntilNext = 0;
-        position = -1;
-        repeat = 0;
-        depthLevel = 0;
+        seqRow = seqColumn = -1;
+        depthLevel = depthRepeat = 0;
     }
 
     void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
+    /// How many times a row plays at each level before it goes up one
+    static constexpr int maxDepthRepeats = 8;
+    void setDepthRepeats (int repeats)  { depthRepeats = juce::jlimit (1, maxDepthRepeats, repeats); }
     /// How far below the volume the first time round is. Each time round after it is a step louder, up to the volume.
     void setFloorDb (float newFloorDb)  { floorDb = juce::jlimit (minFloorDb, 0.0f, newFloorDb); }
 
@@ -126,6 +132,7 @@ public:
     ///
     /// Both at 3 is plain pink noise, every burst as strong at its bottom edge as the last.
     static constexpr float pinkDbPerOctave = 3.0f, maxSlopeDbPerOctave = 12.0f;
+    static constexpr float defaultDbPerOctave = 4.5f; // what both are, unless something sets them
 
     /// Message thread. A new slope makes new noise here, and the audio picks it up at its next block.
     void setSlope (float dbPerOctave)
@@ -225,9 +232,8 @@ public:
         if (! isPlaying && ! anyVoice)
         {
             samplesUntilNext = 0;
-            position = -1;
-            repeat = 0;
-            depthLevel = 0;
+            seqRow = seqColumn = -1;
+            depthLevel = depthRepeat = 0;
             return;
         }
 
@@ -347,41 +353,64 @@ private:
         const bool spots = modeNow == Mode::spots;
         const auto square = getSquare();
         const int rows = numRows.load(), columns = numColumns.load();
-        const int count = spots ? spotCount.load() : modeNow == Mode::square ? square.size * square.size : rows * columns;
+        const int panPositions = spots ? panSteps.load() : 1;
+
+        // Everything plays a row at a time: a grid's or a square's own rows, and for spots, a row each, with
+        // a place for each pan step
+        const int rowCount = spots ? spotCount.load() : modeNow == Mode::square ? square.size : rows;
+        const int rowLength = spots ? panPositions : modeNow == Mode::square ? square.size : columns;
 
         // Only the grid has positions you pick out
         bool anySelected = false;
-        for (int p = 0; modeNow == Mode::grid && p < count && ! anySelected; ++p)
+        for (int p = 0; modeNow == Mode::grid && p < rowCount * rowLength && ! anySelected; ++p)
             anySelected = isSelected (p);
 
-        // A spot plays again at its next pan position, until it's been across the range
-        const int depthRuns = depth.load();
-        const int panPositions = spots ? panSteps.load() : 1;
-        const bool canRepeat = position >= 0 && position < count && (! anySelected || isSelected (position));
-        if (canRepeat && repeat + 1 < panPositions)
+        auto nextInRow = [&] (int row, int after)
         {
-            ++repeat;
+            for (int column = after + 1; column < rowLength; ++column)
+                if (! anySelected || isSelected (row * rowLength + column))
+                    return column;
+            return -1;
+        };
+        auto nextRowWithSomething = [&] (int after)
+        {
+            for (int step = 1; step <= rowCount; ++step)
+                if (const int row = (std::max (after, -1) + step) % rowCount; nextInRow (row, -1) >= 0)
+                    return row;
+            return 0;
+        };
+
+        // Starting out, or the row it was on has gone (or has nothing selected in it now)
+        const int depthRuns = depth.load(), repeats = depthRepeats.load();
+        if (seqRow < 0 || seqRow >= rowCount || nextInRow (seqRow, -1) < 0)
+        {
+            seqRow = nextRowWithSomething (seqRow < rowCount ? seqRow : -1);
+            seqColumn = -1;
+            depthLevel = 0;
+            depthRepeat = 0;
         }
-        else
+
+        int next = nextInRow (seqRow, seqColumn);
+        if (next < 0)
         {
-            // Otherwise the next position in reading order, of the selected ones if any are
-            repeat = 0;
-            const int previous = position;
-            for (int step = 1; step <= count; ++step)
+            // That's the row played. Again at this level, until it's had its repeats; then a level louder;
+            // and after the loudest, on to the next row, from the floor.
+            if (++depthRepeat >= repeats)
             {
-                const int candidate = (std::max (position, -1) + step) % count;
-                if (! anySelected || isSelected (candidate))
+                depthRepeat = 0;
+                if (++depthLevel >= depthRuns)
                 {
-                    position = candidate;
-                    break;
+                    depthLevel = 0;
+                    seqRow = nextRowWithSomething (seqRow);
                 }
             }
-
-            // Back round to the start: that's every position played, so the next time round is a level louder
-            if (previous >= 0 && position <= previous)
-                ++depthLevel;
+            next = std::max (0, nextInRow (seqRow, -1));
         }
-        depthLevel = depthLevel % depthRuns; // from the floor again after the loudest (or if the depth's come down)
+        seqColumn = next;
+        depthLevel = std::min (depthLevel, depthRuns - 1); // if the depth's come down
+
+        const int position = spots ? seqRow : seqRow * rowLength + seqColumn;
+        const int repeat = seqColumn; // for a spot, which pan position it's at
         currentPosition = position;
 
         // Where it is between the ears (0 = left, 1 = right), and where its low cut is
@@ -538,13 +567,13 @@ private:
 
     double sampleRate = 48000.0;
 
-    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 };
+    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 }, depthRepeats { 1 };
     std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
     std::atomic<float> releaseMs { defaultReleaseMs }, attackMs { defaultAttackMs };
     std::atomic<float> floorDb { defaultFloorDb };
-    std::atomic<float> slope { pinkDbPerOctave }, topLine { pinkDbPerOctave };
+    std::atomic<float> slope { defaultDbPerOctave }, topLine { defaultDbPerOctave };
 
     // The tilted noise the audio thread plays, and the next one, made on the message thread
     std::vector<float> tiltedNoise;
@@ -564,9 +593,11 @@ private:
     std::atomic<int> currentPosition { -1 };
 
     // Audio thread
-    std::array<Voice, 32> voices {}; // enough for the fastest bursts to ring for a second each before the quietest is reused
-    int samplesUntilNext = 0, position = -1, repeat = 0; // repeat: which pan position a spot is on
-    int depthLevel = 0; // which time round all the positions this is: 0 is the quietest
+    std::array<Voice, 64> voices {}; // enough for the fastest bursts to ring for a second each before the quietest is reused
+    int samplesUntilNext = 0;
+    int seqRow = -1, seqColumn = -1; // where it's playing: the row, and the place along it
+    int depthLevel = 0;  // which level the row's being played at: 0 is the quietest
+    int depthRepeat = 0; // how many times it's been played at that level
     juce::Random random { 42 };
     float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
 };
