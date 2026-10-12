@@ -184,17 +184,18 @@ juce::AudioBuffer<float> CurveFilter::designCurrent (double rate)
         return bothEars (std::move (identity));
     }
 
-    CurveResponse curve (request->points);
-    if (request->tweaks.has_value())
+    if (request->ears.has_value())
     {
-        CurveResponse left ((*request->tweaks)[0]), right ((*request->tweaks)[1]);
-        return designSplit ([&] (float f) { return curve.dbAtFrequency (f) + left.dbAtFrequency (f); },
-                            [&] (float f) { return curve.dbAtFrequency (f) + right.dbAtFrequency (f); }, rate);
+        const auto& ears = *request->ears;
+        CurveResponse left (ears.points[0]), right (ears.points[1]), leftTweak (ears.tweaks[0]), rightTweak (ears.tweaks[1]);
+        return designSplit ([&] (float f) { return left.dbAtFrequency (f) + leftTweak.dbAtFrequency (f); },
+                            [&] (float f) { return right.dbAtFrequency (f) + rightTweak.dbAtFrequency (f); }, rate);
     }
+    CurveResponse curve (request->points);
     return bothEars (design ([&curve] (float frequency) { return curve.dbAtFrequency (frequency); }, rate, lengthFor (rate)));
 }
 
-void CurveFilter::setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<EarTweaks> tweaks)
+void CurveFilter::setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<EarCurves> ears)
 {
     auto samePoints = [] (const std::vector<CurvePoint>& a, const std::vector<CurvePoint>& b)
     {
@@ -209,15 +210,20 @@ void CurveFilter::setCurve (std::optional<std::vector<CurvePoint>> points, std::
             return false;
         if (! a.has_value())
             return true;
-        if (a->tweaks.has_value() != b->tweaks.has_value())
+        if (a->ears.has_value() != b->ears.has_value())
             return false;
-        return samePoints (a->points, b->points)
-            && (! a->tweaks.has_value() || (samePoints ((*a->tweaks)[0], (*b->tweaks)[0]) && samePoints ((*a->tweaks)[1], (*b->tweaks)[1])));
+        if (! a->ears.has_value())
+            return samePoints (a->points, b->points);
+        for (int ear = 0; ear < 2; ++ear)
+            if (! samePoints (a->ears->points[(size_t) ear], b->ears->points[(size_t) ear])
+                || ! samePoints (a->ears->tweaks[(size_t) ear], b->ears->tweaks[(size_t) ear]))
+                return false;
+        return true;
     };
 
     std::optional<Request> request;
     if (points.has_value())
-        request = Request { std::move (*points), std::move (tweaks) };
+        request = Request { std::move (*points), std::move (ears) };
 
     {
         // Everything that changes the plugin's state asks; only redesign when the curve really changed

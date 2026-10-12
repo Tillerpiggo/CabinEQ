@@ -1156,6 +1156,78 @@ public:
             p.setBandsOn (true), p.setCurveOn (false);
             graph.refresh();
         }
+
+        beginTest ("With three points selected, two pads shape the middle one, and how it differs between the ears");
+        {
+            auto p = profile.getSelectedProfile();
+            p.setBands ({});
+            p.setBandsOn (false), p.setCurveOn (true);
+            p.setPoints ({ { 0, 500.0f, 0.0f }, { 1, 1000.0f, 3.0f }, { 2, 4000.0f, 0.0f }, { 3, 12000.0f, -2.0f } });
+            graph.refresh();
+
+            CurveShapePanel* pads = nullptr;
+            for (auto* child : graph.getChildren())
+                if (auto* found = dynamic_cast<CurveShapePanel*> (child))
+                    pads = found;
+            expect (pads != nullptr);
+            if (pads == nullptr)
+                return;
+
+            // Select the first three by dragging a box round them
+            auto xFor = [] (float hz) { return std::log (hz / 20.0f) / std::log (1000.0f) * 1000.0f; };
+            auto yFor = [] (float db) { return 14.0f + (30.0f - db) / 60.0f * (478.0f - 28.0f); };
+            expect (! pads->isVisible(), "no pads with nothing selected");
+            press (graph, { xFor (400.0f), yFor (12.0f) });
+            drag (graph, { xFor (400.0f), yFor (12.0f) }, { xFor (5000.0f), yFor (-12.0f) });
+            release (graph, { xFor (5000.0f), yFor (-12.0f) });
+            expectEquals (graph.getNumSelected(), 3);
+            expect (pads->isVisible(), "three selected: the pads are there");
+
+            auto middle = [&p] { return *p.getPoint (1); };
+
+            // Frequency pad: across is where it is between the outer two (in octaves); up makes it higher in the left ear
+            pads->frequencyPad.onGestureStart();
+            pads->frequencyPad.onChange ({ 0.5f, 0.5f });
+            expectWithinAbsoluteError (middle().freq, std::sqrt (500.0f * 4000.0f), 5.0f, "halfway across is halfway between them, in octaves");
+            expectWithinAbsoluteError (middle().freqSplit, 0.0f, 0.001f, "and the middle of the pad is the same in both ears");
+            pads->frequencyPad.onChange ({ 0.5f, 0.75f });
+            expectWithinAbsoluteError (middle().freqSplit, 0.5f, 0.01f, "three quarters up: half an octave higher in the left ear");
+            pads->frequencyPad.onChange ({ 0.0f, 1.0f });
+            expectLessThan (middle().freq, 540.0f, "all the way left is just above the lower point");
+            expectGreaterThan (middle().forEar (1).freq, 500.0f, "and neither ear's version goes past it");
+            expectLessThan (middle().forEar (0).freq, 4000.0f);
+            expectWithinAbsoluteError (p.getPoint (0)->freq, 500.0f, 0.001f, "the outer two don't move");
+            expectWithinAbsoluteError (p.getPoint (2)->freq, 4000.0f, 0.001f);
+
+            // Gain pad: up is its gain; left makes it louder in the left ear
+            pads->gainPad.onGestureStart();
+            pads->gainPad.onChange ({ 0.5f, 0.75f });
+            expectWithinAbsoluteError (middle().gain, 12.0f, 0.05f, "three quarters up is +12 dB");
+            expectWithinAbsoluteError (middle().gainSplit, 0.0f, 0.001f);
+            pads->gainPad.onChange ({ 0.25f, 0.5f });
+            expectWithinAbsoluteError (middle().gain, 0.0f, 0.05f, "the middle is 0 dB");
+            expectWithinAbsoluteError (middle().gainSplit, 6.0f, 0.05f, "a quarter across: 6 dB louder in the left ear");
+            expectWithinAbsoluteError (middle().forEar (0).gain, 3.0f, 0.05f, "half of it each way");
+            expectWithinAbsoluteError (middle().forEar (1).gain, -3.0f, 0.05f);
+
+            // Double-click makes the ears the same again; undo brings the difference back
+            pads->gainPad.onReset();
+            expectWithinAbsoluteError (middle().gainSplit, 0.0f, 0.001f);
+            processor.undo();
+            graph.refresh();
+            expectWithinAbsoluteError (middle().gainSplit, 6.0f, 0.05f);
+
+            // Dragging the point on the graph keeps its difference
+            graph.keyPressed (juce::KeyPress (juce::KeyPress::upKey));
+            expectWithinAbsoluteError (middle().gainSplit, 6.0f, 0.05f, "nudging it keeps how the ears differ");
+
+            // A fourth point selected, or one fewer: no pads
+            graph.keyPressed (juce::KeyPress ('a', juce::ModifierKeys::commandModifier, 0));
+            expect (! pads->isVisible(), "four selected: no pads");
+
+            p.setPoints ({});
+            graph.refresh();
+        }
     }
 
 private:
@@ -2047,6 +2119,79 @@ public:
             expect (! processor.isEditingCurve(), "with only bands on, you edit the bands");
         }
 
+        beginTest ("A point can differ between the ears: each ear's curve goes through its own version of it");
+        {
+            const CurvePoint point { 0, 1000.0f, 2.0f, 0.5f, 6.0f }; // half an octave higher, and 6 dB louder, in the left ear
+            expectWithinAbsoluteError (point.forEar (0).freq, 1000.0f * std::pow (2.0f, 0.25f), 0.1f);
+            expectWithinAbsoluteError (point.forEar (1).freq, 1000.0f / std::pow (2.0f, 0.25f), 0.1f);
+            expectWithinAbsoluteError (point.forEar (0).gain, 5.0f, 0.001f);
+            expectWithinAbsoluteError (point.forEar (1).gain, -1.0f, 0.001f);
+
+            BandProfile curve (std::vector<CurvePoint> { { 0, 200.0f, 0.0f }, point, { 2, 8000.0f, 0.0f } }, 0.0f);
+            expect (curve.earsDiffer());
+            expectWithinAbsoluteError (curve.curveDbAt (point.forEar (0).freq, 0), 5.0f, 0.01f, "the left ear's curve goes through its version");
+            expectWithinAbsoluteError (curve.curveDbAt (point.forEar (1).freq, 1), -1.0f, 0.01f, "and the right's through its");
+            expectWithinAbsoluteError (curve.curveDbAt (1000.0f, -2), 2.0f, 0.01f, "as drawn, it's where the point is");
+            expectWithinAbsoluteError (curve.curveDbAt (200.0f, 0), curve.curveDbAt (200.0f, 1), 0.001f, "a point with no difference is the same in both");
+            expect (! BandProfile (std::vector<CurvePoint> { { 0, 200.0f, 3.0f } }, 0.0f).earsDiffer());
+
+            // Saved with the profile, and gone from it when it's zero again
+            auto tree = CabinEqProfile::createTree ("Ears", curve);
+            CabinEqProfile saved (tree, nullptr);
+            auto read = *saved.getPoint (1);
+            expectWithinAbsoluteError (read.freqSplit, 0.5f, 0.0001f);
+            expectWithinAbsoluteError (read.gainSplit, 6.0f, 0.0001f);
+            read.freqSplit = read.gainSplit = 0.0f;
+            saved.updatePoint (read);
+            expect (! saved.getBandProfile().earsDiffer());
+            expect (! tree.toXmlString().contains ("Split="), "nothing's kept for a point that's the same in both ears");
+        }
+
+        beginTest ("A point that's louder in one ear plays that way through the processor, with no Split L/R needed");
+        {
+            CabinEqAudioProcessor processor;
+            processor.parameters.getParameter (ParamIDs::autoGain)->setValueNotifyingHost (0.0f);
+            processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+            processor.prepareToPlay (sampleRate, blockSize);
+
+            auto profile = processor.getSelectedProfile();
+            profile.setBandsOn (false), profile.setCurveOn (true);
+            profile.setPoints ({ { 0, 1000.0f, 2.0f, 0.0f, 6.0f } }); // one point: +5 dB in the left ear, -1 in the right, everywhere
+
+            auto gains = [&processor] (int blocks)
+            {
+                juce::AudioBuffer<float> buffer (2, blockSize);
+                juce::MidiBuffer midi;
+                double phase = 0.0, in = 0.0, outL = 0.0, outR = 0.0;
+                for (int block = 0; block < blocks; ++block)
+                {
+                    for (int i = 0; i < blockSize; ++i)
+                    {
+                        const auto sample = (float) (0.1 * std::sin (phase));
+                        phase += juce::MathConstants<double>::twoPi * 1000.0 / sampleRate;
+                        buffer.setSample (0, i, sample);
+                        buffer.setSample (1, i, sample);
+                        if (block >= blocks / 2) in += sample * sample;
+                    }
+                    processor.processBlock (buffer, midi);
+                    if (block >= blocks / 2)
+                        for (int i = 0; i < blockSize; ++i)
+                        {
+                            outL += buffer.getSample (0, i) * buffer.getSample (0, i);
+                            outR += buffer.getSample (1, i) * buffer.getSample (1, i);
+                        }
+                }
+                return std::pair { (float) (10.0 * std::log10 (outL / in)), (float) (10.0 * std::log10 (outR / in)) };
+            };
+
+            juce::Thread::sleep (300);
+            gains (40);
+            juce::Thread::sleep (300);
+            auto [leftGain, rightGain] = gains (200);
+            expectWithinAbsoluteError (leftGain, 5.0f, 0.3f);
+            expectWithinAbsoluteError (rightGain, -1.0f, 0.3f);
+        }
+
         beginTest ("A split curve plays each ear its own gain through the processor");
         {
             CabinEqAudioProcessor processor;
@@ -2259,7 +2404,19 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         return nullptr;
     };
     if (auto* graph = dynamic_cast<CabinPeqGraph*> (findGraph (*editor)))
-        graph->focusBand (2);
+    {
+        if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_SHAPE", {}).isNotEmpty())
+        {
+            // Three points, the middle one different in each ear, all selected: the shape pads
+            processor.getSelectedProfile().setPoints ({ { 0, 300.0f, 0.0f }, { 1, 1500.0f, 6.0f, 0.5f, 4.0f }, { 2, 6000.0f, -1.0f } });
+            graph->refresh();
+            graph->keyPressed (juce::KeyPress ('a', juce::ModifierKeys::commandModifier, 0));
+        }
+        else
+        {
+            graph->focusBand (2);
+        }
+    }
     juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
 
     auto image = editor->createComponentSnapshot (editor->getLocalBounds(), true, 2.0f);

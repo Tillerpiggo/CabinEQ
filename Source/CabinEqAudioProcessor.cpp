@@ -341,10 +341,15 @@ void CabinEqAudioProcessor::pushBandsToAudio (const BandProfile& bandProfile)
     playbackManager.setBands (bandProfile.getBandsOn() ? bandProfile.getBands() : std::vector<Band>{});
     if (bandProfile.getCurveOn())
     {
-        std::optional<CurveFilter::EarTweaks> tweaks;
-        if (bandProfile.isSplit())
-            tweaks = CurveFilter::EarTweaks { bandProfile.getPoints (BandProfile::leftTweak), bandProfile.getPoints (BandProfile::rightTweak) };
-        playbackManager.setCurve (bandProfile.getPoints(), std::move (tweaks));
+        // Different in each ear: tweaks, or points that differ between them
+        std::optional<CurveFilter::EarCurves> ears;
+        if (bandProfile.earsDiffer())
+        {
+            ears = CurveFilter::EarCurves { { bandProfile.getEarPoints (0), bandProfile.getEarPoints (1) }, {} };
+            if (bandProfile.isSplit())
+                ears->tweaks = { bandProfile.getPoints (BandProfile::leftTweak), bandProfile.getPoints (BandProfile::rightTweak) };
+        }
+        playbackManager.setCurve (bandProfile.getPoints(), std::move (ears));
     }
     else
     {

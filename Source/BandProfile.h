@@ -92,14 +92,23 @@ public:
     const std::vector<CurvePoint>& getPoints (int layer = both) const;
     std::optional<CurvePoint> getPointWithId (int id, int layer = both) const;
     bool isSplit() const { return split; }
-    /// What an ear hears (0 left, 1 right), or with -1, the average of the two, or with -2, the shared curve alone
+
+    /// Whether the curve's any different in the two ears: tweaks, or a point that differs between them
+    bool earsDiffer() const { return split || pointsDiffer; }
+    /// The curve's own points as one ear has them (0 left, 1 right)
+    std::vector<CurvePoint> getEarPoints (int ear) const;
+    /// The curve through the points, without the ears' tweaks: as one ear has them (0 left, 1 right), or as they're
+    /// drawn and edited, in the middle
+    float sharedDbAt (float frequency, int ear = -1) const;
+    /// What an ear hears (0 left, 1 right), or with -1, the average of the two, or with -2, the curve through the
+    /// points as drawn (no tweaks, and no differences between the ears)
     float curveDbAt (float frequency, int ear = -1) const;
     float getVolume() const; // preamp, in dB
 
     // Both kinds are kept, so switching back and forth loses nothing
     void setBandsOn (bool on) { bandsOn = on; }
     void setCurveOn (bool on) { curveOn = on; }
-    void setPoints (std::vector<CurvePoint> newPoints) { points = std::move (newPoints); shared.setPoints (points); }
+    void setPoints (std::vector<CurvePoint> newPoints);
     void setSplit (std::vector<CurvePoint> newLeftTweak, std::vector<CurvePoint> newRightTweak);
     void setBands (std::vector<Band> newBands) { bands = std::move (newBands); }
 
@@ -108,6 +117,8 @@ private:
     std::vector<Band> bands;
     std::vector<CurvePoint> points, leftTweakPoints, rightTweakPoints;
     bool split = false;
-    CurveResponse shared, leftResponse, rightResponse; // kept in step with the points, for curveDbAt
+    bool pointsDiffer = false;
+    CurveResponse shared, leftShared, rightShared; // through the points: as drawn, and as each ear has them
+    CurveResponse leftResponse, rightResponse;     // the ears' tweaks. All kept in step with the points, for curveDbAt
     float volume = 0.0f;
 };

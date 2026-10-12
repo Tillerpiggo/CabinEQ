@@ -37,6 +37,11 @@ loads the VST3 to EQ everything the Mac plays.
   of the middle of the graph swings the points to its left; one right of the middle, those to its right. The first time you switch, the curve starts out tracing your bands. Both are kept, so
   switching back loses nothing. The curve plays as a minimum-phase FIR filter, redesigned in the
   background as you drag and crossfaded in, so there's no added delay and no clicks.
+  **Shape pads**: select three of the curve's points and two pads appear on the graph, for the middle one. On the
+  Frequency pad, across moves it between the outer two, and up or down makes it higher in one ear than the other. On the
+  Gain pad, up or down is its gain, and across makes it louder in the left ear or the right. Double-click a pad to make
+  the ears the same again. A point is still one point, on the curve as drawn; each ear's curve goes through its own
+  version of it, half the difference each way, and is drawn faintly (blue for left, orange for right).
   **Split L/R** (in the strip under the graph) lets you tweak each ear on top of the curve both
   ears get. Both | L | R (or the B, L and R keys) picks what you're editing: Both edits the shared
   curve, which moves both ears; L or R shows that ear's curve with the shared one dashed underneath,

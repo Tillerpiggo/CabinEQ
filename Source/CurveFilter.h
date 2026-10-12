@@ -40,9 +40,13 @@ public:
     ~CurveFilter() override;
 
     /// Message thread. Nothing (std::nullopt) means the curve's not in use: it fades out and stops costing anything.
-    using EarTweaks = std::array<std::vector<CurvePoint>, 2>; // left, right: added to the shared curve
-    /// With `tweaks`, the ears are split: each hears `points` plus its tweak.
-    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<EarTweaks> tweaks = std::nullopt);
+    /// What each ear (left, right) hears when they differ: the curve through its own points, plus its tweak
+    struct EarCurves
+    {
+        std::array<std::vector<CurvePoint>, 2> points, tweaks;
+    };
+    /// With `ears`, the two ears differ, and `points` isn't used.
+    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<EarCurves> ears = std::nullopt);
 
     /// While audio isn't running. Designs the current curve right away, so it's there from the first block.
     void prepare (const juce::dsp::ProcessSpec& spec);
@@ -73,7 +77,7 @@ private:
     struct Request
     {
         std::vector<CurvePoint> points;
-        std::optional<EarTweaks> tweaks;
+        std::optional<EarCurves> ears;
     };
     std::optional<Request> requested;
     bool hasNewRequest = false, hasEverBeenAsked = false;

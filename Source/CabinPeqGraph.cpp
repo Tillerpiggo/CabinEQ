@@ -57,6 +57,16 @@ CabinPeqGraph::CabinPeqGraph (CabinEqAudioProcessor& p)
 {
     setWantsKeyboardFocus (true);
     setOpaque (true);
+
+    // The pads for the middle of three selected points
+    addChildComponent (shapePanel);
+    shapePanel.frequencyPad.onGestureStart = [this] { beginEdit ("Move point between the others"); };
+    shapePanel.frequencyPad.onChange = [this] (juce::Point<float> pad) { setShapeFrequency (pad); };
+    shapePanel.frequencyPad.onReset = [this] { editShapePoint ("Same frequency in both ears", [] (CurvePoint& point) { point.freqSplit = 0.0f; }); };
+    shapePanel.gainPad.onGestureStart = [this] { beginEdit ("Change point's gain"); };
+    shapePanel.gainPad.onChange = [this] (juce::Point<float> pad) { setShapeGain (pad); };
+    shapePanel.gainPad.onReset = [this] { editShapePoint ("Same gain in both ears", [] (CurvePoint& point) { point.gainSplit = 0.0f; }); };
+
     viewLow = processor.parameters.state.getProperty (idViewLow, minFrequency);
     viewHigh = processor.parameters.state.getProperty (idViewHigh, maxFrequency);
     setFrequencyView (viewLow, viewHigh);
@@ -100,6 +110,7 @@ void CabinPeqGraph::refresh()
     curve.updateWithBands (bandProfile.getBands());
     curvePathsNeedRebuilding = true;
     repaint();
+    updateShapePanel();
 
     if (onSelectionChanged)
         onSelectionChanged();
@@ -144,7 +155,7 @@ float CabinPeqGraph::layerBaseDb (float frequency) const
     if (bandProfile.getBandsOn())
         db += editing == BandProfile::both ? curve.dbAtFrequency (frequency) : curve.dbAtFrequencyForChannel (frequency, editing - 1);
     if (editing != BandProfile::both)
-        db += bandProfile.curveDbAt (frequency, -2);
+        db += bandProfile.sharedDbAt (frequency, editing - 1); // the curve through the points, as that ear has them
     return db;
 }
 
@@ -236,8 +247,115 @@ void CabinPeqGraph::setSelection (std::set<int> ids, int newFocusedId)
     selectedIds = std::move (ids);
     focusedId = newFocusedId;
     repaint();
+    updateShapePanel (true);
     if (onSelectionChanged)
         onSelectionChanged();
+}
+
+//==============================================================================
+// The shape pads, for the middle of three selected points
+namespace
+{
+    // The middle point keeps a little clear of the outer two, and so do its two ears' versions of it
+    struct ShapeRange
+    {
+        ShapeRange (float lowFreq, float highFreq)
+            : low (std::log2 (lowFreq)), high (std::log2 (highFreq)),
+              margin (std::min (0.05f, (high - low) / 10.0f)),
+              maxSplit (std::min (1.0f, (high - low) * 0.5f)) {}
+
+        float octaveFor (float x) const { return low + margin + x * (high - low - 2.0f * margin); }
+        float xFor (float octave) const { return (octave - low - margin) / std::max (1.0e-6f, high - low - 2.0f * margin); }
+        float splitFor (float y) const  { return (y - 0.5f) * 2.0f * maxSplit; }
+        float yFor (float split) const  { return 0.5f + split / std::max (1.0e-6f, 2.0f * maxSplit); }
+
+        /// The most the ears can differ with the point at this octave, each staying between the outer two
+        float roomAt (float octave) const { return std::max (0.0f, 2.0f * (std::min (octave - low, high - octave) - margin * 0.5f)); }
+
+        float low, high, margin, maxSplit; // octaves (log2 Hz)
+    };
+}
+
+std::optional<CabinPeqGraph::ShapePoints> CabinPeqGraph::shapePoints() const
+{
+    if (! isCurveMode() || layer() != BandProfile::both || selectedIds.size() != 3)
+        return std::nullopt;
+
+    auto selected = getSelectedPoints();
+    if (selected.size() != 3)
+        return std::nullopt;
+    std::sort (selected.begin(), selected.end(), [] (const CurvePoint& a, const CurvePoint& b) { return a.freq < b.freq; });
+    if (selected[2].freq <= selected[0].freq * 1.01f)
+        return std::nullopt; // no room between the outer two
+    return ShapePoints { selected[0], selected[1], selected[2] };
+}
+
+void CabinPeqGraph::updateShapePanel (bool chooseSide)
+{
+    const auto shape = shapePoints();
+    if (! shape.has_value())
+    {
+        shapePanel.setVisible (false);
+        return;
+    }
+
+    // Out of the way of the point it's shaping; it only changes sides when the selection does, not as the point moves
+    if (chooseSide || ! shapePanel.isVisible())
+        shapePanelOnLeft = xForFrequency (shape->middle.freq) > getPlotArea().getCentreX();
+    const auto plot = getPlotArea().toNearestInt();
+    shapePanel.setBounds (shapePanelOnLeft ? plot.getX() + 52 : plot.getRight() - CurveShapePanel::width - 12,
+                          plot.getBottom() - CurveShapePanel::height - 30, CurveShapePanel::width, CurveShapePanel::height);
+    shapePanel.setVisible (true);
+
+    const auto& point = shape->middle;
+    const ShapeRange range (shape->low.freq, shape->high.freq);
+    // Always from the point itself, so a pad shows where it really is (it may have been kept clear of an edge)
+    shapePanel.frequencyPad.setPosition ({ range.xFor (std::log2 (point.freq)), range.yFor (point.freqSplit) });
+    shapePanel.gainPad.setPosition ({ 0.5f - point.gainSplit / (2.0f * shapeGainSplitRange), 0.5f + point.gain / (2.0f * shapeGainRange) });
+
+    auto signedText = [] (float value, int decimals, const char* unit)
+    {
+        return juce::String (value > 0.0f ? "+" : "") + juce::String (value, decimals) + unit;
+    };
+    shapePanel.setTexts (Format::frequency (point.freq) + (point.freqSplit != 0.0f ? "   L " + signedText (point.freqSplit, 2, " oct") : juce::String()),
+                         Format::gain (point.gain) + (point.gainSplit != 0.0f ? "   L " + signedText (point.gainSplit, 1, " dB") : juce::String()));
+}
+
+void CabinPeqGraph::editShapePoint (const juce::String& name, std::function<void (CurvePoint&)> change)
+{
+    const auto shape = shapePoints();
+    if (! shape.has_value())
+        return;
+    if (name.isNotEmpty())
+        beginEdit (name);
+    auto point = shape->middle;
+    change (point);
+    profile().updatePoint (point);
+    refresh();
+}
+
+void CabinPeqGraph::setShapeFrequency (juce::Point<float> pad)
+{
+    const auto shape = shapePoints();
+    if (! shape.has_value())
+        return;
+    const ShapeRange range (shape->low.freq, shape->high.freq);
+    editShapePoint ({}, [&] (CurvePoint& point)
+    {
+        const float octave = range.octaveFor (pad.x);
+        const float room = range.roomAt (octave);
+        point.freq = std::pow (2.0f, octave);
+        point.freqSplit = juce::jlimit (-room, room, range.splitFor (pad.y));
+    });
+}
+
+void CabinPeqGraph::setShapeGain (juce::Point<float> pad)
+{
+    editShapePoint ({}, [&] (CurvePoint& point)
+    {
+        point.gain = std::round ((pad.y - 0.5f) * 2.0f * shapeGainRange * 10.0f) / 10.0f;
+        point.gainSplit = std::round ((0.5f - pad.x) * 2.0f * shapeGainSplitRange * 10.0f) / 10.0f;
+    });
 }
 
 void CabinPeqGraph::deleteSelectedBands()
@@ -675,6 +793,7 @@ void CabinPeqGraph::setShowSpectrum (bool shouldShow)
 void CabinPeqGraph::resized()
 {
     curvePathsNeedRebuilding = true;
+    updateShapePanel();
 }
 
 void CabinPeqGraph::paint (juce::Graphics& g)
@@ -924,7 +1043,7 @@ juce::Path CabinPeqGraph::curvePathForChannel (int channel) const
 void CabinPeqGraph::rebuildCurvePaths()
 {
     curvePathsNeedRebuilding = false;
-    if ((bandProfile.getCurveOn() && bandProfile.isSplit()) || (bandProfile.getBandsOn() && curve.hasChannelSpecificBands()))
+    if ((bandProfile.getCurveOn() && bandProfile.earsDiffer()) || (bandProfile.getBandsOn() && curve.hasChannelSpecificBands()))
     {
         leftCurve = curvePathForChannel (0);
         rightCurve = curvePathForChannel (1);

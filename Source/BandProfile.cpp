@@ -93,9 +93,34 @@ BandProfile::BandProfile (std::vector<Band> bands, float volume)
 {}
 
 BandProfile::BandProfile (std::vector<CurvePoint> points, float volume)
-    : bandsOn (false), curveOn (true), points (std::move (points)), volume (volume)
+    : bandsOn (false), curveOn (true), volume (volume)
 {
-    shared.setPoints (this->points);
+    setPoints (std::move (points));
+}
+
+void BandProfile::setPoints (std::vector<CurvePoint> newPoints)
+{
+    points = std::move (newPoints);
+    shared.setPoints (points);
+
+    pointsDiffer = false;
+    for (const auto& point : points)
+        pointsDiffer |= point.differsBetweenEars();
+    leftShared.setPoints (getEarPoints (0));
+    rightShared.setPoints (getEarPoints (1));
+}
+
+std::vector<CurvePoint> BandProfile::getEarPoints (int ear) const
+{
+    std::vector<CurvePoint> earPoints;
+    for (const auto& point : points)
+        earPoints.push_back (point.forEar (ear));
+    return earPoints;
+}
+
+float BandProfile::sharedDbAt (float frequency, int ear) const
+{
+    return ear == 0 ? leftShared.dbAtFrequency (frequency) : ear == 1 ? rightShared.dbAtFrequency (frequency) : shared.dbAtFrequency (frequency);
 }
 
 const std::vector<CurvePoint>& BandProfile::getPoints (int layer) const
@@ -118,11 +143,12 @@ void BandProfile::setSplit (std::vector<CurvePoint> newLeftTweak, std::vector<Cu
 
 float BandProfile::curveDbAt (float frequency, int ear) const
 {
-    const float base = shared.dbAtFrequency (frequency);
-    if (! split || ear == -2)
-        return base;
-    const float left = leftResponse.dbAtFrequency (frequency), right = rightResponse.dbAtFrequency (frequency);
-    return base + (ear == 0 ? left : ear == 1 ? right : 0.5f * (left + right));
+    if (ear == -2 || ! earsDiffer())
+        return shared.dbAtFrequency (frequency);
+
+    const float left = leftShared.dbAtFrequency (frequency) + (split ? leftResponse.dbAtFrequency (frequency) : 0.0f);
+    const float right = rightShared.dbAtFrequency (frequency) + (split ? rightResponse.dbAtFrequency (frequency) : 0.0f);
+    return ear == 0 ? left : ear == 1 ? right : 0.5f * (left + right);
 }
 
 std::optional<CurvePoint> BandProfile::getPointWithId (int id, int layer) const

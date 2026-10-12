@@ -27,8 +27,26 @@ struct CurvePoint
     float freq = 1000.0f;
     float gain = 0.0f; // dB
 
+    // How the point differs between the ears, left less right: each ear gets half. Both zero is the same in both.
+    float freqSplit = 0.0f; // octaves
+    float gainSplit = 0.0f; // dB
+
     static constexpr float minFreq = 20.0f, maxFreq = 20000.0f;
     static constexpr float minGain = -30.0f, maxGain = 30.0f;
+    static constexpr float maxFreqSplit = 2.0f, maxGainSplit = 24.0f;
+
+    bool differsBetweenEars() const { return freqSplit != 0.0f || gainSplit != 0.0f; }
+
+    /// The point as one ear has it (0 left, 1 right): half the difference each way
+    CurvePoint forEar (int ear) const
+    {
+        const float side = ear == 0 ? 0.5f : -0.5f;
+        CurvePoint point = *this;
+        point.freq = std::min (maxFreq, std::max (minFreq, freq * std::pow (2.0f, side * freqSplit)));
+        point.gain = gain + side * gainSplit;
+        point.freqSplit = point.gainSplit = 0.0f;
+        return point;
+    }
 };
 
 class CurveResponse

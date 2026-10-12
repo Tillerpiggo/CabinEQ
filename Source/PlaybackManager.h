@@ -31,8 +31,8 @@ public:
     void processBlock (juce::AudioBuffer<float>& buffer) noexcept;
 
     void setBands (const std::vector<Band>& bands);
-    /// Nothing when the profile uses bands; with `right`, the ears are split
-    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<CurveFilter::EarTweaks> tweaks = std::nullopt);
+    /// Nothing when the curve's off; with `ears`, it's different in each ear
+    void setCurve (std::optional<std::vector<CurvePoint>> points, std::optional<CurveFilter::EarCurves> ears = std::nullopt);
     void setGainDb (float gainDb); // preamp plus auto gain
     void setBypassed (bool shouldBeBypassed);
     void setVolumeDb (float volumeDb); // master volume, which can boost

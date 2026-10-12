@@ -20,7 +20,7 @@
 ///         <Band id="0" freq="1000" ampl="3" bandwidth="1" bandtype="0" shape="0" enabled="1"/>
 ///       </Bands>
 ///       <Curve>
-///         <Point id="0" freq="100" gain="4"/>
+///         <Point id="0" freq="100" gain="4" freqSplit="0.1" gainSplit="-2"/>
 ///       </Curve>
 ///       <CurveLeft> ... </CurveLeft>
 ///       <CurveRight> ... </CurveRight>
@@ -92,6 +92,8 @@ public:
     static inline const juce::Identifier idCurveSplit { "curveSplit" };
     static inline const juce::Identifier idPoint { "Point" };
     static inline const juce::Identifier idGain { "gain" };
+    static inline const juce::Identifier idFreqSplit { "freqSplit" }; // a point's difference between the ears, left less right:
+    static inline const juce::Identifier idGainSplit { "gainSplit" }; // octaves, and dB. Only there when it's not zero.
     static inline const juce::Identifier idBand { "Band" };
     static inline const juce::Identifier idId { "id" };
     static inline const juce::Identifier idFreq { "freq" };
@@ -109,6 +111,7 @@ private:
     juce::Identifier curveNameFor (int layer) const;
     static juce::ValueTree treeFromPoints (const juce::Identifier& name, const std::vector<CurvePoint>& points);
     static std::vector<CurvePoint> pointsFromTree (const juce::ValueTree& curveTree);
+    static void writePoint (juce::ValueTree pointTree, const CurvePoint& point, juce::UndoManager* undo);
     int getNextBandId() const;
 
     juce::ValueTree tree;

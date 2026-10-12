@@ -16,6 +16,7 @@
 #include "CabinEqAudioProcessor.h"
 #include "BandEqCurve.h"
 #include "Theme.h"
+#include "CurveShapePanel.h"
 
 /// The EQ graph: the response curve over the live output spectrum, with a handle per band.
 ///
@@ -187,6 +188,18 @@ private:
     bool curvePathsNeedRebuilding = true;
     juce::Path mainCurve, leftCurve, rightCurve, sharedCurve;
     juce::Path underCurve; // dashed: what the layer being edited sits on
+
+    // With three of the curve's own points selected, two pads shape the middle one: where it is between the
+    // outer two, how high it is, and how each of those differs between the ears
+    CurveShapePanel shapePanel;
+    bool shapePanelOnLeft = false;
+    struct ShapePoints { CurvePoint low, middle, high; };
+    std::optional<ShapePoints> shapePoints() const;
+    void updateShapePanel (bool chooseSide = false);
+    void setShapeFrequency (juce::Point<float> pad);
+    void setShapeGain (juce::Point<float> pad);
+    void editShapePoint (const juce::String& name, std::function<void (CurvePoint&)> change);
+    static constexpr float shapeGainRange = 24.0f, shapeGainSplitRange = 12.0f; // each way, on the gain pad
     juce::Path pathFor (const std::function<float (float)>& dbAt) const;
 
     // Bands, and the widest view, go from 20 Hz to 20 kHz; the view can zoom in on part of that
