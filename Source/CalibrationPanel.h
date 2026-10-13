@@ -65,6 +65,9 @@ private:
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
     juce::Slider repeatsSlider; // how many times a row plays at each depth level
     juce::Label repeatsLabel;
+    std::array<juce::TextButton, 3> depthUnitButtons; // what the depth works on: each dot, each row, or the whole cycle
+    juce::Label depthUnitLabel;
+    void setDepthUnit (CalibrationPlayer::DepthUnit unit);
     juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider, attackSlider, releaseSlider, floorSlider;
     juce::Label volumeLabel, depthLabel, speedLabel, attackLabel, releaseLabel, floorLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;

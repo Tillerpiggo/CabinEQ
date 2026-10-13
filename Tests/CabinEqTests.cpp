@@ -1429,6 +1429,65 @@ public:
             expectWithinAbsoluteError (fresh.getTopLine(), 4.5f, 0.001f, "and so do the bursts' bottom edges");
         }
 
+        beginTest ("The depth can work on each dot, each row, or the whole cycle");
+        {
+            using Unit = CalibrationPlayer::DepthUnit;
+            // A 2 x 2 grid, two levels. Returns the order, and which bursts were the loud ones.
+            auto play = [this] (Unit unit, int repeats, int bursts)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setGrid (2, 2);
+                player.setDepth (2);
+                player.setDepthRepeats (repeats);
+                player.setDepthUnit (unit);
+                player.setFloorDb (-12.0f);
+                player.setSlope (3.0f); // pink, on pink's line: every dot is made as loud as the others
+                player.setTopLine (3.0f);
+                player.setReleaseMs (100.0f);
+                player.setRate (1.0f / 0.3f);
+                player.setPlaying (true);
+
+                std::vector<int> positions;
+                std::vector<float> levels;
+                for (int burst = 0; burst < bursts; ++burst)
+                {
+                    juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+                    buffer.clear();
+                    player.process (buffer);
+                    positions.push_back (player.getCurrentPosition());
+                    const int length = (int) (0.05 * sampleRate);
+                    levels.push_back (juce::Decibels::gainToDecibels (std::max (buffer.getRMSLevel (0, 0, length), buffer.getRMSLevel (1, 0, length))));
+                }
+                const float loudest = *std::max_element (levels.begin(), levels.end());
+                std::vector<bool> loud;
+                for (float level : levels)
+                    loud.push_back (level > loudest - 6.0f);
+                return std::pair { positions, loud };
+            };
+
+            auto [dots, dotsLoud] = play (Unit::dot, 1, 9);
+            expect (dots == std::vector<int> { 0, 0, 1, 1, 2, 2, 3, 3, 0 }, "dot: each dot at both levels before the next dot");
+            expect (dotsLoud == std::vector<bool> { false, true, false, true, false, true, false, true, false });
+
+            auto [rows, rowsLoud] = play (Unit::row, 1, 9);
+            expect (rows == std::vector<int> { 0, 1, 0, 1, 2, 3, 2, 3, 0 }, "row: each row at both levels before the next row");
+            expect (rowsLoud == std::vector<bool> { false, false, true, true, false, false, true, true, false });
+
+            auto [cycle, cycleLoud] = play (Unit::cycle, 1, 9);
+            expect (cycle == std::vector<int> { 0, 1, 2, 3, 0, 1, 2, 3, 0 }, "cycle: every dot at one level, then every dot at the next");
+            expect (cycleLoud == std::vector<bool> { false, false, false, false, true, true, true, true, false });
+
+            auto [dotsTwice, dotsTwiceLoud] = play (Unit::dot, 2, 6);
+            expect (dotsTwice == std::vector<int> { 0, 0, 0, 0, 1, 1 }, "dot, with two repeats: twice at each level");
+            expect (dotsTwiceLoud == std::vector<bool> { false, false, true, true, false, false });
+
+            auto [cycleTwice, cycleTwiceLoud] = play (Unit::cycle, 2, 12);
+            expect (cycleTwice == std::vector<int> { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 }, "cycle, with two repeats: twice round at each level");
+            expect (! cycleTwiceLoud[7] && cycleTwiceLoud[8], "and only then louder");
+        }
+
         beginTest ("The floor sets the quietest time round; the rest climb evenly from there to full level");
         {
             auto levelsWith = [this] (int depth, float floorDb)

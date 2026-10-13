@@ -63,7 +63,8 @@ loads the VST3 to EQ everything the Mac plays.
   one. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
   right are its own volume, a speed (0.5 to 64 bursts a second, 2.5 to start), an attack (how long each burst takes to reach full level: 0 to 200 ms, 4 ms to start; longer is softer), a release (how long each burst takes to
   fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (each row plays that many times before the next row does, a level louder each time),
-  repeats (how many times the row plays at each of those levels before going up one), and a floor: how far below the volume the quietest level is (-20 dB to start), with the rest climbing evenly from there to the volume. On the graph, each spot (across its pan steps) is a row. Hiding it stops the sound.
+  repeats (how many times the row plays at each of those levels before going up one), On each (Dot, Row or Cycle: what the depth and
+  repeats work on. Dot takes each dot through every level before the next dot; Row, the default, each row; Cycle plays every dot at one level, then every dot at the next), and a floor: how far below the volume the quietest level is (-20 dB to start), with the rest climbing evenly from there to the volume. On the graph, each spot (across its pan steps) is a row. Hiding it stops the sound.
 - **Calibration, Drag mode** (the panel's third mode): like the grid, but instead of fixed rows and columns there's
   one square of dots, 2 x 2 or 3 x 3, that you put where you like. Across the field is from your left ear to your
   right, and up it is the low cut, from none at the bottom (20 Hz) to 20 kHz at the top. Drag the square to move it

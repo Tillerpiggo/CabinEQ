@@ -14,7 +14,8 @@
     With a depth above 1, each row plays that many times before the next row does, a level louder
     each time, in even steps from the floor up to full level: depth 3 with a floor of -20 dB plays
     a row at -20, then at -10, then at 0 dB, and then the next row starts from -20. With repeats
-    above 1, the row plays that many times at each of those levels before going up one.
+    above 1, the row plays that many times at each of those levels before going up one. The depth
+    can work on each dot, or on the whole cycle of them, instead of on each row.
 
     The noise falls 4.5 dB an octave (pink falls 3), and so do the bursts' bottom edges from one
     burst to the next: every burst is the same noise, cut off lower or higher.
@@ -116,7 +117,13 @@ public:
     }
 
     void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
-    /// How many times a row plays at each level before it goes up one
+    /// What the depth works on: what plays at each level in turn before the next thing does. A dot, a row
+    /// (for spots, a spot across its pan steps), or the whole cycle of every position.
+    enum class DepthUnit { dot = 0, row = 1, cycle = 2 };
+    void setDepthUnit (DepthUnit unit)  { depthUnit = juce::jlimit (0, 2, (int) unit); }
+    DepthUnit getDepthUnit() const      { return (DepthUnit) depthUnit.load(); }
+
+    /// How many times that plays at each level before it goes up one
     static constexpr int maxDepthRepeats = 8;
     void setDepthRepeats (int repeats)  { depthRepeats = juce::jlimit (1, maxDepthRepeats, repeats); }
     /// How far below the volume the first time round is. Each time round after it is a step louder, up to the volume.
@@ -390,23 +397,61 @@ private:
             depthRepeat = 0;
         }
 
-        int next = nextInRow (seqRow, seqColumn);
-        if (next < 0)
+        if (seqColumn < 0)
         {
-            // That's the row played. Again at this level, until it's had its repeats; then a level louder;
-            // and after the loudest, on to the next row, from the floor.
-            if (++depthRepeat >= repeats)
+            seqColumn = std::max (0, nextInRow (seqRow, -1)); // the very first one
+        }
+        else
+        {
+            // What would play next, in reading order
+            int nextRow = seqRow, nextColumn = nextInRow (seqRow, seqColumn);
+            const bool rowEnded = nextColumn < 0;
+            if (rowEnded)
             {
-                depthRepeat = 0;
-                if (++depthLevel >= depthRuns)
+                nextRow = nextRowWithSomething (seqRow);
+                nextColumn = std::max (0, nextInRow (nextRow, -1));
+            }
+            const bool cycleEnded = rowEnded && nextRow <= seqRow;
+
+            // The unit the depth works on (a dot, a row, or the whole cycle) has just played. It plays again at
+            // this level until it's had its repeats, then a level louder, and after the loudest, it moves on.
+            const auto unit = (DepthUnit) depthUnit.load();
+            if (unit == DepthUnit::dot || (unit == DepthUnit::row && rowEnded) || (unit == DepthUnit::cycle && cycleEnded))
+            {
+                bool movesOn = false;
+                if (++depthRepeat >= repeats)
                 {
-                    depthLevel = 0;
-                    seqRow = nextRowWithSomething (seqRow);
+                    depthRepeat = 0;
+                    if (++depthLevel >= depthRuns)
+                    {
+                        depthLevel = 0;
+                        movesOn = true;
+                    }
+                }
+
+                if (! movesOn)
+                {
+                    // Back to the start of the unit
+                    if (unit == DepthUnit::dot && (! anySelected || isSelected (seqRow * rowLength + seqColumn)))
+                    {
+                        nextRow = seqRow;
+                        nextColumn = seqColumn;
+                    }
+                    else if (unit == DepthUnit::row)
+                    {
+                        nextRow = seqRow;
+                        nextColumn = std::max (0, nextInRow (seqRow, -1));
+                    }
+                    else if (unit == DepthUnit::cycle)
+                    {
+                        nextRow = nextRowWithSomething (-1);
+                        nextColumn = std::max (0, nextInRow (nextRow, -1));
+                    }
                 }
             }
-            next = std::max (0, nextInRow (seqRow, -1));
+            seqRow = nextRow;
+            seqColumn = nextColumn;
         }
-        seqColumn = next;
         depthLevel = std::min (depthLevel, depthRuns - 1); // if the depth's come down
 
         const int position = spots ? seqRow : seqRow * rowLength + seqColumn;
@@ -567,7 +612,7 @@ private:
 
     double sampleRate = 48000.0;
 
-    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 }, depthRepeats { 1 };
+    std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 }, depthRepeats { 1 }, depthUnit { (int) DepthUnit::row };
     std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };

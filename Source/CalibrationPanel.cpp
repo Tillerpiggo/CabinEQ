@@ -22,6 +22,7 @@ namespace
     const juce::Identifier idAttack { "calibrationAttack" };
     const juce::Identifier idFloor { "calibrationFloor" };
     const juce::Identifier idRepeats { "calibrationDepthRepeats" };
+    const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -119,6 +120,25 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     repeatsSlider.updateText();
     repeatsSlider.setTooltip ("Plays each row this many times at each depth level before going up to the next");
     setUpLabel (repeatsLabel, "Repeats");
+
+    // What the depth and repeats work on
+    const char* unitNames[] { "Dot", "Row", "Cycle" };
+    const char* unitTips[] {
+        "Each dot plays at every level (and its repeats) before the next dot",
+        "Each row plays at every level (and its repeats) before the next row. On the graph, a row is a spot across its pan steps.",
+        "Every dot plays at one level (and its repeats), then every dot at the next level"
+    };
+    for (size_t i = 0; i < depthUnitButtons.size(); ++i)
+    {
+        auto& button = depthUnitButtons[i];
+        button.setButtonText (unitNames[i]);
+        button.setTooltip (unitTips[i]);
+        button.setConnectedEdges ((i > 0 ? juce::Button::ConnectedOnLeft : 0) | (i + 1 < depthUnitButtons.size() ? juce::Button::ConnectedOnRight : 0));
+        button.onClick = [this, i] { setDepthUnit ((CalibrationPlayer::DepthUnit) i); };
+        addAndMakeVisible (button);
+    }
+    setUpLabel (depthUnitLabel, "On each");
+    setDepthUnit ((CalibrationPlayer::DepthUnit) juce::jlimit (0, 2, (int) state.getProperty (idDepthUnit, (int) CalibrationPlayer::DepthUnit::row)));
 
     // Spots on the EQ graph, the grid, or a square to drag about
     for (auto* button : { &spotsModeButton, &gridModeButton, &squareModeButton })
@@ -357,6 +377,14 @@ void CalibrationPanel::refreshSpots()
         spotsPan.setMinAndMaxValues (pan.getStart(), pan.getEnd(), juce::dontSendNotification);
     }
     updateButtons();
+}
+
+void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
+{
+    player.setDepthUnit (unit);
+    processor.parameters.state.setProperty (idDepthUnit, (int) unit, nullptr); // not undoable, like the rest
+    for (size_t i = 0; i < depthUnitButtons.size(); ++i)
+        depthUnitButtons[i].setToggleState ((int) i == (int) unit, juce::dontSendNotification);
 }
 
 void CalibrationPanel::applySettings()
@@ -776,9 +804,20 @@ void CalibrationPanel::resized()
     const std::vector<std::pair<juce::Slider*, juce::Label*>> rows { { &volumeSlider, &volumeLabel }, { &speedSlider, &speedLabel }, { &attackSlider, &attackLabel },
                                                                     { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &repeatsSlider, &repeatsLabel },
                                                                     { &floorSlider, &floorLabel } };
-    const int rowHeight = std::min (30, controls.getHeight() / (int) rows.size());
+    const int rowHeight = std::min (30, controls.getHeight() / ((int) rows.size() + 1)); // and one for what the depth works on
     for (auto [slider, label] : rows)
     {
+        if (slider == &floorSlider)
+        {
+            // Dot | Row | Cycle, between the repeats and the floor
+            auto row = controls.removeFromTop (rowHeight);
+            depthUnitLabel.setBounds (row.removeFromLeft (64));
+            row = row.withSizeKeepingCentre (row.getWidth(), std::min (24, rowHeight - 2)).withTrimmedRight (2);
+            const int each = row.getWidth() / (int) depthUnitButtons.size();
+            for (auto& button : depthUnitButtons)
+                button.setBounds (row.removeFromLeft (each));
+        }
+
         auto row = controls.removeFromTop (rowHeight);
         label->setBounds (row.removeFromLeft (64));
         slider->setBounds (row.withSizeKeepingCentre (row.getWidth(), std::min (28, rowHeight)));
