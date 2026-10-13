@@ -76,6 +76,11 @@ private:
 
     juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" }, guidedModeButton { "Guided" };
 
+    // How the low cuts are spaced up the grid, Drag mode's field and the guided arrangements: in octaves, mels or Hz
+    std::array<juce::TextButton, 3> spacingButtons;
+    juce::Label spacingLabel;
+    void setHeightSpacing (CalibrationPlayer::HeightSpacing spacing);
+
     // Guided mode (experimental): a search that gives you one change at a time to try. It plays its own arrangements.
     GuidedCalibrationView guidedView;
     bool isGuidedMode() const { return mode() == CalibrationPlayer::Mode::sequence; }

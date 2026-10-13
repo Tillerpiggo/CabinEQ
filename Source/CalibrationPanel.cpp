@@ -152,6 +152,25 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     setUpLabel (depthUnitLabel, "On each");
     setDepthUnit ((CalibrationPlayer::DepthUnit) juce::jlimit (0, 2, (int) state.getProperty (idDepthUnit, (int) CalibrationPlayer::DepthUnit::row)));
 
+    // How the heights are spaced
+    const char* spacingNames[] { "Log", "Mel", "Hz" };
+    const char* spacingTips[] {
+        "The low cuts are evenly spaced in octaves: each step up is the same ratio. The usual.",
+        "The low cuts are evenly spaced in mels, roughly how pitch is heard: between the other two",
+        "The low cuts are evenly spaced in Hz: each step up is the same number of Hz, so nearly all of them are high"
+    };
+    for (size_t i = 0; i < spacingButtons.size(); ++i)
+    {
+        auto& button = spacingButtons[i];
+        button.setButtonText (spacingNames[i]);
+        button.setTooltip (spacingTips[i]);
+        button.setConnectedEdges ((i > 0 ? juce::Button::ConnectedOnLeft : 0) | (i + 1 < spacingButtons.size() ? juce::Button::ConnectedOnRight : 0));
+        button.onClick = [this, i] { setHeightSpacing ((CalibrationPlayer::HeightSpacing) i); };
+        addAndMakeVisible (button);
+    }
+    setUpLabel (spacingLabel, "Heights");
+    spacingLabel.setJustificationType (juce::Justification::centredRight);
+
     // Spots on the EQ graph, the grid, or a square to drag about
     guidedModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::sequence); };
     guidedModeButton.setTooltip ("Experimental: a guided search. It gives you one change to the curve at a time to try by ear, and keeps the ones that hold up.");
@@ -303,10 +322,15 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
     g.setColour (Theme::panel);
     g.fillRoundedRectangle (field.expanded (6.0f), Theme::cornerRadius);
 
-    // Up the side: the low cut at that height
-    for (auto [frequency, label] : { std::pair { 20.0f, "20" }, std::pair { 100.0f, "100" }, std::pair { 1000.0f, "1k" }, std::pair { 10000.0f, "10k" } })
+    // Up the side: the low cut at that height, at whichever frequencies are well apart with this spacing
+    using Ticks = std::array<std::pair<float, const char*>, 4>;
+    const auto spacing = player.getHeightSpacing();
+    const auto ticks = spacing == CalibrationPlayer::HeightSpacing::hertz ? Ticks { { { 20.0f, "20" }, { 5000.0f, "5k" }, { 10000.0f, "10k" }, { 15000.0f, "15k" } } }
+                     : spacing == CalibrationPlayer::HeightSpacing::mels  ? Ticks { { { 20.0f, "20" }, { 1000.0f, "1k" }, { 3000.0f, "3k" }, { 10000.0f, "10k" } } }
+                                                                          : Ticks { { { 20.0f, "20" }, { 100.0f, "100" }, { 1000.0f, "1k" }, { 10000.0f, "10k" } } };
+    for (auto [frequency, label] : ticks)
     {
-        const float y = toPanel ({ 0.0f, std::log (frequency / 20.0f) / std::log (1000.0f) }).y;
+        const float y = toPanel ({ 0.0f, (float) CalibrationPlayer::heightOfFrequency (frequency, spacing) }).y;
         g.setColour (Theme::textFaint);
         g.drawText (label, gridArea.getX() - 46, (int) y - 7, 38, 14, juce::Justification::centredRight);
         if (frequency > 20.0f)
@@ -397,12 +421,28 @@ void CalibrationPanel::refreshSpots()
     for (auto* component : std::initializer_list<juce::Component*> { &spotsPan, &panStepsSlider, &panStepsLabel })
         component->setVisible (spots);
 
+    // On the graph you put the spots where you like, so there's nothing to space
+    const auto spacing = (int) player.getHeightSpacing();
+    for (size_t i = 0; i < spacingButtons.size(); ++i)
+    {
+        spacingButtons[i].setToggleState ((int) i == spacing, juce::dontSendNotification);
+        spacingButtons[i].setEnabled (! spots);
+    }
+    spacingLabel.setEnabled (! spots);
+
     const auto pan = CalibrationSettings::getPanRange (processor.parameters.state);
     if (! spotsPan.isMouseButtonDown())
     {
         spotsPan.setMinAndMaxValues (pan.getStart(), pan.getEnd(), juce::dontSendNotification);
     }
     updateButtons();
+}
+
+void CalibrationPanel::setHeightSpacing (CalibrationPlayer::HeightSpacing spacing)
+{
+    CalibrationSettings::setHeightSpacing (processor.parameters.state, player, spacing); // not undoable, like the rest
+    refreshSpots();
+    repaint();
 }
 
 void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
@@ -787,7 +827,7 @@ void CalibrationPanel::paint (juce::Graphics& g)
     // Each row's low cut
     for (int row = 0; row < rows(); ++row)
     {
-        const double cutoff = CalibrationPlayer::cutoffForRow (row, rows());
+        const double cutoff = CalibrationPlayer::cutoffForRow (row, rows(), player.getHeightSpacing());
         const auto text = cutoff >= 10000.0 ? juce::String (juce::roundToInt (cutoff / 1000.0)) + "k"
                         : cutoff >= 1000.0 ? juce::String (cutoff / 1000.0, 1) + "k"
                                            : juce::String (juce::roundToInt (cutoff));
@@ -842,6 +882,14 @@ void CalibrationPanel::resized()
     header.removeFromLeft (4);
     guidedModeButton.setBounds (header.removeFromLeft (72).withSizeKeepingCentre (72, 26));
 
+    // How the heights are spaced, if there's room for it: its label goes first when there isn't much
+    header.removeFromLeft (12);
+    const int spacingWidth = 3 * 36, labelWidth = 52;
+    const bool fitsButtons = header.getWidth() >= spacingWidth + 8, fitsLabel = header.getWidth() >= spacingWidth + labelWidth + 8;
+    spacingLabel.setBounds (fitsLabel ? header.removeFromLeft (labelWidth).withSizeKeepingCentre (labelWidth, 26) : juce::Rectangle<int>());
+    auto spacingRow = fitsButtons ? header.removeFromLeft (spacingWidth).withSizeKeepingCentre (spacingWidth, 24) : juce::Rectangle<int>();
+    for (auto& button : spacingButtons)
+        button.setBounds (fitsButtons ? spacingRow.removeFromLeft (36) : juce::Rectangle<int>());
 
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));

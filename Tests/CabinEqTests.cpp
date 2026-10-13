@@ -1352,6 +1352,77 @@ public:
             expectLessThan (lowEnergyOfRow (0) * 50.0f, lowEnergyOfRow (2), "the top row has far less bass than the bottom one");
         }
 
+        beginTest ("The heights can be spaced in octaves, mels or Hz, between the same 20 Hz and 20 kHz");
+        {
+            using Spacing = CalibrationPlayer::HeightSpacing;
+            for (auto spacing : { Spacing::octaves, Spacing::mels, Spacing::hertz })
+            {
+                expectWithinAbsoluteError (CalibrationPlayer::frequencyAtHeight (0.0, spacing), 20.0, 0.01, "the bottom's 20 Hz whichever it is");
+                expectWithinAbsoluteError (CalibrationPlayer::frequencyAtHeight (1.0, spacing), 20000.0, 0.5, "and the top's 20 kHz");
+                for (double fraction : { 0.1, 0.25, 0.5, 0.8 })
+                    expectWithinAbsoluteError (CalibrationPlayer::heightOfFrequency (CalibrationPlayer::frequencyAtHeight (fraction, spacing), spacing), fraction, 1.0e-6,
+                                               "and back again");
+            }
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (1, 3), 632.46, 0.01, "octaves unless you say otherwise");
+
+            // In Hz, three rows are each the same number of Hz from the next
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (2, 3, Spacing::hertz), 5015.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (1, 3, Spacing::hertz), 10010.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (0, 3, Spacing::hertz), 15005.0, 0.01);
+
+            // In mels they're between: each the same number of mels from the next
+            const double low = CalibrationPlayer::cutoffForRow (2, 3, Spacing::mels), middle = CalibrationPlayer::cutoffForRow (1, 3, Spacing::mels),
+                         high = CalibrationPlayer::cutoffForRow (0, 3, Spacing::mels);
+            expectWithinAbsoluteError (CalibrationPlayer::toMels (middle) - CalibrationPlayer::toMels (low),
+                                       CalibrationPlayer::toMels (high) - CalibrationPlayer::toMels (middle), 0.001);
+            expectWithinAbsoluteError (CalibrationPlayer::toMels (1000.0), 1000.0, 0.1, "1 kHz is 1000 mels");
+            expect (low > CalibrationPlayer::cutoffForRow (2, 3) && low < CalibrationPlayer::cutoffForRow (2, 3, Spacing::hertz));
+            expect (middle > 632.46 && middle < 10010.0);
+
+            // Drag mode's field and the guided heights go by it too
+            expectWithinAbsoluteError (CalibrationPlayer::Square::cutoffAt (0.5f, Spacing::hertz), 10010.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForHeight (-1.0f, Spacing::hertz), 5015.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForHeight (1.0f), CalibrationPlayer::cutoffForRow (0, 3), 0.01);
+
+            // What plays: the bottom row of three, in Hz, has lost its bass (it's cut at 5 kHz, not 112 Hz)
+            auto lowEnergyOfBottomRow = [] (Spacing spacing)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setHeightSpacing (spacing);
+                player.setGrid (3, 1);
+                player.setSelection ({ 2 });
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) sampleRate);
+                buffer.clear();
+                player.process (buffer);
+
+                FilterChain lowPass;
+                lowPass.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, 1000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::highCut));
+                lowPass.setBands (cuts);
+                lowPass.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                lowPass.process (block);
+                return buffer.getRMSLevel (0, 0, buffer.getNumSamples());
+            };
+            expectLessThan (lowEnergyOfBottomRow (Spacing::hertz) * 50.0f, lowEnergyOfBottomRow (Spacing::octaves));
+            expectLessThan (lowEnergyOfBottomRow (Spacing::hertz), lowEnergyOfBottomRow (Spacing::mels), "mels are between");
+
+            // It's kept with the other calibration settings, and handed to the player with them
+            CabinEqAudioProcessor processor;
+            auto& state = processor.parameters.state;
+            expect (CalibrationSettings::getHeightSpacing (state) == Spacing::octaves);
+            CalibrationSettings::setHeightSpacing (state, processor.getCalibration(), Spacing::mels);
+            expect (processor.getCalibration().getHeightSpacing() == Spacing::mels);
+            processor.getCalibration().setHeightSpacing (Spacing::octaves);
+            CalibrationSettings::apply (state, processor.getCalibration());
+            expect (processor.getCalibration().getHeightSpacing() == Spacing::mels);
+        }
+
         beginTest ("Depth goes round all the positions several times, a level louder each time round");
         {
             CalibrationPlayer player;
@@ -3147,6 +3218,16 @@ public:
             expectWithinAbsoluteError (top.gainSplit, 60.0f, 0.01f, "the ears can be the whole range apart, each way");
             expectWithinAbsoluteError (top.gain, points[4].gain, 0.01f, "with the level between them where it was");
 
+            // Spacing the heights another way starts the same sounds again with their new low cuts
+            const int playedSoFar = player.getSequenceBurstsPlayed();
+            playBursts (3);
+            expectGreaterThan (player.getSequenceBurstsPlayed(), playedSoFar);
+            player.setHeightSpacing (CalibrationPlayer::HeightSpacing::hertz);
+            view.poll();
+            expectEquals (player.getSequenceBurstsPlayed(), 0, "from the first of them");
+            player.setHeightSpacing (CalibrationPlayer::HeightSpacing::octaves);
+            view.poll();
+
             // Leaving partway through a turn (another mode, or hiding the panel) puts the curve back
             view.leave();
             expectWithinAbsoluteError (profile.getBandProfile().getPoints()[4].gainSplit, points[4].gainSplit, 0.01f, "what was being tried isn't kept");
@@ -3219,6 +3300,8 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
     }
     if (const auto mode = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_MODE", {}); mode.isNotEmpty())
         processor.parameters.state.setProperty ("calibrationMode", mode.getIntValue(), nullptr);
+    if (const auto spacing = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_SPACING", {}); spacing.isNotEmpty())
+        processor.parameters.state.setProperty (CalibrationSettings::idHeightSpacing, spacing.getIntValue(), nullptr); // 0 octaves, 1 mels, 2 Hz
     if (const auto noise = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_NOISE", {}); noise.isNotEmpty())
         processor.parameters.state.setProperty ("calibrationNoise", noise.getIntValue(), nullptr);
     if (zoomed)

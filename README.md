@@ -115,6 +115,11 @@ loads the VST3 to EQ everything the Mac plays.
   you answered, is written to a file in `~/Library/Application Support/CabinEQ/Guided calibration` (the Log
   button shows it). The search is `GuidedSearch.h`, which knows nothing of audio; `GuidedCalibrationView.h` joins
   it to the curve and the player.
+- **Calibration heights** (the Heights buttons beside the modes): how the low cuts are spaced between 20 Hz and
+  20 kHz, wherever they come from a height: the grid's rows, up Drag mode's field, and the guided arrangements.
+  **Log**, the default, is even in octaves (three rows: about 112 Hz, 632 Hz and 3.6 kHz). **Hz** is even in Hz
+  (5, 10 and 15 kHz: nearly everything's high). **Mel** is even in mels, roughly how pitch is heard, and between the
+  two (about 970 Hz, 3.2 kHz and 8.2 kHz). On the graph you put the spots where you like, so it does nothing there.
 - **Calibration noise**: it falls 4.5 dB an octave (pink noise falls 3), and every burst is that same noise, cut off
   lower or higher, so the bursts' bottom edges fall 4.5 dB an octave from one burst to the next as well.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),

@@ -89,8 +89,45 @@ public:
 
     float getFloorDb() const { return floorDb.load(); }
 
+    /// How the low cuts are spaced between 20 Hz and 20 kHz, wherever they're worked out from a height: the
+    /// grid's rows, Drag mode's field and the guided arrangements. (On the graph, you put them where you like.)
+    /// Octaves is the usual; hertz is each step the same number of Hz, so nearly everything's high; mels, roughly
+    /// how pitch is heard, is between the two.
+    enum class HeightSpacing { octaves = 0, mels = 1, hertz = 2 };
+
+    void setHeightSpacing (HeightSpacing spacing) { heightSpacing = juce::jlimit (0, 2, (int) spacing); }
+    HeightSpacing getHeightSpacing() const        { return (HeightSpacing) heightSpacing.load(); }
+
+    static double toMels (double frequency) { return 2595.0 * std::log10 (1.0 + frequency / 700.0); }
+    static double fromMels (double mels)    { return 700.0 * (std::pow (10.0, mels / 2595.0) - 1.0); }
+
+    /// The frequency a fraction of the way up from 20 Hz to 20 kHz
+    static double frequencyAtHeight (double fraction, HeightSpacing spacing = HeightSpacing::octaves)
+    {
+        fraction = juce::jlimit (0.0, 1.0, fraction);
+        if (spacing == HeightSpacing::hertz)
+            return 20.0 + (20000.0 - 20.0) * fraction;
+        if (spacing == HeightSpacing::mels)
+            return fromMels (toMels (20.0) + (toMels (20000.0) - toMels (20.0)) * fraction);
+        return 20.0 * std::pow (1000.0, fraction);
+    }
+
+    /// And back: how far up from 20 Hz to 20 kHz a frequency is
+    static double heightOfFrequency (double frequency, HeightSpacing spacing = HeightSpacing::octaves)
+    {
+        frequency = juce::jlimit (20.0, 20000.0, frequency);
+        if (spacing == HeightSpacing::hertz)
+            return (frequency - 20.0) / (20000.0 - 20.0);
+        if (spacing == HeightSpacing::mels)
+            return (toMels (frequency) - toMels (20.0)) / (toMels (20000.0) - toMels (20.0));
+        return std::log (frequency / 20.0) / std::log (1000.0);
+    }
+
     /// The low cut for a height from -1 (the grid's bottom row of three) to 1 (its top row), and anywhere between
-    static double cutoffForHeight (float height) { return 20.0 * std::pow (1000.0, (2.0 + (double) height) / 4.0); }
+    static double cutoffForHeight (float height, HeightSpacing spacing = HeightSpacing::octaves)
+    {
+        return frequencyAtHeight ((2.0 + (double) height) / 4.0, spacing);
+    }
 
     /// Square mode: a square of 2 x 2 or 3 x 3 dots that you put anywhere on a field. Across the field is from
     /// your left ear to your right; up it is the low cut, from none at the bottom to 20 kHz at the top. All of
@@ -111,7 +148,7 @@ public:
         }
 
         /// A dot's low cut, in Hz: 20 Hz at the bottom of the field, which is none at all, to 20 kHz at the top
-        static double cutoffAt (float fieldY) { return 20.0 * std::pow (1000.0, (double) juce::jlimit (0.0f, 1.0f, fieldY)); }
+        static double cutoffAt (float fieldY, HeightSpacing spacing = HeightSpacing::octaves) { return frequencyAtHeight ((double) fieldY, spacing); }
     };
     static constexpr float minSquareSide = 0.08f;
 
@@ -254,10 +291,10 @@ public:
     }
 
     /// The high-pass cutoff for a row (0 is the top): the rows' lines cut 20 Hz to 20 kHz into rows + 1 sections.
-    static double cutoffForRow (int row, int rows)
+    static double cutoffForRow (int row, int rows, HeightSpacing spacing = HeightSpacing::octaves)
     {
         const int line = rows - row; // 1 for the bottom row, up to rows for the top
-        return 20.0 * std::pow (1000.0, (double) line / (double) (rows + 1));
+        return frequencyAtHeight ((double) line / (double) (rows + 1), spacing);
     }
 
     /// The position that played most recently, or -1 when stopped.
@@ -537,7 +574,7 @@ private:
             {
                 const auto dot = square.dot (position);
                 pan = juce::jlimit (0.0f, 1.0f, dot.x);
-                cutoff = Square::cutoffAt (dot.y);
+                cutoff = Square::cutoffAt (dot.y, (HeightSpacing) heightSpacing.load());
                 if (cutoff <= 20.5)
                     cutoff = 0.0;
             }
@@ -545,7 +582,7 @@ private:
             {
                 const int row = position / columns, column = position % columns;
                 pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
-                cutoff = cutoffForRow (row, rows);
+                cutoff = cutoffForRow (row, rows, (HeightSpacing) heightSpacing.load());
             }
 
             // Quietest first: each level is a step up, from the floor to full level
@@ -694,7 +731,7 @@ private:
     juce::SpinLock pendingLock;
     std::vector<float> pendingNoise;
     std::atomic<bool> hasPending { false };
-    std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
+    std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 }, heightSpacing { (int) HeightSpacing::octaves };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
     std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };
     std::array<std::atomic<float>, maxSequenceLength> sequencePan {}, sequenceLevelDb {};

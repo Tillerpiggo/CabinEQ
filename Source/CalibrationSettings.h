@@ -22,6 +22,7 @@ namespace CalibrationSettings
     inline const juce::Identifier idPanLow { "calibrationPanLow" };
     inline const juce::Identifier idPanHigh { "calibrationPanHigh" };
     inline const juce::Identifier idPanSteps { "calibrationPanSteps" };
+    inline const juce::Identifier idHeightSpacing { "calibrationHeightSpacing" };
     inline const juce::Identifier idSquareSize { "calibrationSquareSize" }, idSquareX { "calibrationSquareX" }, idSquareY { "calibrationSquareY" },
                                   idSquareWidth { "calibrationSquareWidth" }, idSquareHeight { "calibrationSquareHeight" };
 
@@ -67,6 +68,12 @@ namespace CalibrationSettings
         return juce::jlimit (1, CalibrationPlayer::maxPanSteps, (int) state.getProperty (idPanSteps, 1));
     }
 
+    /// How the low cuts are spaced up the grid, Drag mode's field and the guided arrangements: octaves unless you've picked another
+    inline CalibrationPlayer::HeightSpacing getHeightSpacing (const juce::ValueTree& state)
+    {
+        return (CalibrationPlayer::HeightSpacing) juce::jlimit (0, 2, (int) state.getProperty (idHeightSpacing, 0));
+    }
+
     /// The square you drag about, in square mode
     inline CalibrationPlayer::Square getSquare (const juce::ValueTree& state)
     {
@@ -90,6 +97,13 @@ namespace CalibrationSettings
         player.setPanRange (pan.getStart(), pan.getEnd());
         player.setPanSteps (getPanSteps (state));
         player.setSquare (getSquare (state));
+        player.setHeightSpacing (getHeightSpacing (state));
+    }
+
+    inline void setHeightSpacing (juce::ValueTree state, CalibrationPlayer& player, CalibrationPlayer::HeightSpacing spacing)
+    {
+        state.setProperty (idHeightSpacing, (int) spacing, nullptr);
+        player.setHeightSpacing (spacing);
     }
 
     /// Saves the square as the player has it, once it's kept it on the field
