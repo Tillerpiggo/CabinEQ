@@ -120,6 +120,10 @@ loads the VST3 to EQ everything the Mac plays.
   **Log**, the default, is even in octaves (three rows: about 112 Hz, 632 Hz and 3.6 kHz). **Hz** is even in Hz
   (5, 10 and 15 kHz: nearly everything's high). **Mel** is even in mels, roughly how pitch is heard, and between the
   two (about 970 Hz, 3.2 kHz and 8.2 kHz). On the graph you put the spots where you like, so it does nothing there.
+  **Pin**, beside them, opens a Bottom and a Top frequency (100 Hz and 10 kHz to start) and a switch to pin the
+  heights to them: the bottom row is then exactly the bottom frequency and the top row exactly the top one, with the
+  rest spaced between as Log, Mel or Hz says (a single row is halfway). Drag mode's field runs from one to the other,
+  and so do the guided heights. Unpinned, they're spread between 20 Hz and 20 kHz with room left at both ends.
 - **Calibration noise**: it falls 4.5 dB an octave (pink noise falls 3), and every burst is that same noise, cut off
   lower or higher, so the bursts' bottom edges fall 4.5 dB an octave from one burst to the next as well.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),

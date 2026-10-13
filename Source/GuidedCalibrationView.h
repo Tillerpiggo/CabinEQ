@@ -186,8 +186,8 @@ public:
             return;
         }
 
-        // The floor slider's moved, or the heights are spaced another way: the levels and the low cuts come from those
-        if (player.getFloorDb() != playingFloor || player.getHeightSpacing() != playingSpacing)
+        // The floor slider's moved, or the heights are spaced or pinned another way: the levels and the low cuts come from those
+        if (player.getFloorDb() != playingFloor || player.getHeights() != playingSpacing)
             playArrangement (search->getArrangement());
 
         // It's played right through once the sound after its last has started
@@ -424,7 +424,7 @@ private:
     {
         std::vector<CalibrationPlayer::SequenceBurst> bursts;
         const float floor = player.getFloorDb();
-        const auto spacing = player.getHeightSpacing();
+        const auto spacing = player.getHeights();
         for (const auto& position : arrangement.bursts (repetitions))
             bursts.push_back ({ 0.5f * (position.pan + 1.0f), CalibrationPlayer::cutoffForHeight (position.height, spacing), floor * 0.5f * (1.0f - position.level) });
         sequenceLength = (int) bursts.size();
@@ -728,7 +728,7 @@ private:
     // What's playing
     int sequenceLength = 32, nextSequenceEnd = 32, playingRepetitions = 4;
     float playingFloor = 0.0f;   // what its levels were worked out from
-    CalibrationPlayer::HeightSpacing playingSpacing = CalibrationPlayer::HeightSpacing::octaves; // and its low cuts
+    CalibrationPlayer::Heights playingSpacing; // and its low cuts
 
     XYPad pad;
     juce::TextButton firstButton, secondButton, thirdButton, hearStartButton { "Hear start" }, restartButton { "Start over" }, logButton { "Log" };

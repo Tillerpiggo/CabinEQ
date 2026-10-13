@@ -23,6 +23,7 @@ namespace CalibrationSettings
     inline const juce::Identifier idPanHigh { "calibrationPanHigh" };
     inline const juce::Identifier idPanSteps { "calibrationPanSteps" };
     inline const juce::Identifier idHeightSpacing { "calibrationHeightSpacing" };
+    inline const juce::Identifier idHeightsPinned { "calibrationHeightsPinned" }, idHeightLow { "calibrationHeightLow" }, idHeightHigh { "calibrationHeightHigh" };
     inline const juce::Identifier idSquareSize { "calibrationSquareSize" }, idSquareX { "calibrationSquareX" }, idSquareY { "calibrationSquareY" },
                                   idSquareWidth { "calibrationSquareWidth" }, idSquareHeight { "calibrationSquareHeight" };
 
@@ -98,6 +99,18 @@ namespace CalibrationSettings
         player.setPanSteps (getPanSteps (state));
         player.setSquare (getSquare (state));
         player.setHeightSpacing (getHeightSpacing (state));
+        player.setHeightPins (state.getProperty (idHeightsPinned, false), state.getProperty (idHeightLow, CalibrationPlayer::defaultPinLow),
+                              state.getProperty (idHeightHigh, CalibrationPlayer::defaultPinHigh));
+    }
+
+    /// Pins the bottom and top heights to these frequencies, or lets them go, and saves it as the player has it
+    inline void setHeightPins (juce::ValueTree state, CalibrationPlayer& player, bool shouldPin, float low, float high)
+    {
+        player.setHeightPins (shouldPin, low, high);
+        const auto heights = player.getHeights();
+        state.setProperty (idHeightsPinned, heights.pinned, nullptr);
+        state.setProperty (idHeightLow, heights.low, nullptr);
+        state.setProperty (idHeightHigh, heights.high, nullptr);
     }
 
     inline void setHeightSpacing (juce::ValueTree state, CalibrationPlayer& player, CalibrationPlayer::HeightSpacing spacing)

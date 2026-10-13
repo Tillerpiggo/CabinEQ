@@ -80,6 +80,9 @@ private:
     std::array<juce::TextButton, 3> spacingButtons;
     juce::Label spacingLabel;
     void setHeightSpacing (CalibrationPlayer::HeightSpacing spacing);
+    juce::TextButton pinButton { "Pin" }; // pins the bottom and top heights to frequencies of your own
+    void showHeightPins();
+    void setHeightPins (bool shouldPin, float low, float high);
 
     // Guided mode (experimental): a search that gives you one change at a time to try. It plays its own arrangements.
     GuidedCalibrationView guidedView;

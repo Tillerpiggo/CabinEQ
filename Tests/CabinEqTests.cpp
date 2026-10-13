@@ -1412,6 +1412,29 @@ public:
             expectLessThan (lowEnergyOfBottomRow (Spacing::hertz) * 50.0f, lowEnergyOfBottomRow (Spacing::octaves));
             expectLessThan (lowEnergyOfBottomRow (Spacing::hertz), lowEnergyOfBottomRow (Spacing::mels), "mels are between");
 
+            // Pinned, the bottom row is exactly the bottom frequency and the top row exactly the top one
+            using Heights = CalibrationPlayer::Heights;
+            const Heights pinned (Spacing::octaves, 200.0f, 3200.0f);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (2, 3, pinned), 200.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (1, 3, pinned), 800.0, 0.01, "halfway in octaves");
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (0, 3, pinned), 3200.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (0, 1, pinned), 800.0, 0.01, "one row is halfway");
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForRow (1, 3, Heights (Spacing::hertz, 200.0f, 3200.0f)), 1700.0, 0.01, "or halfway in Hz");
+            expectWithinAbsoluteError (CalibrationPlayer::Square::cutoffAt (0.0f, pinned), 200.0, 0.01, "Drag mode's field is between them");
+            expectWithinAbsoluteError (CalibrationPlayer::Square::cutoffAt (1.0f, pinned), 3200.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForHeight (-1.0f, pinned), 200.0, 0.01, "and so are the guided heights");
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForHeight (0.0f, pinned), 800.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::cutoffForHeight (1.0f, pinned), 3200.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::heightOfFrequency (800.0, pinned), 0.5, 1.0e-6);
+            {
+                CalibrationPlayer player;
+                expect (! player.getHeights().pinned, "not unless you ask");
+                player.setHeightPins (true, 5000.0f, 50.0f);
+                expect (player.getHeights().pinned && player.getHeights().low == 50.0f && player.getHeights().high == 5000.0f, "the lower one's the bottom");
+                player.setHeightPins (true, 1.0f, 90000.0f);
+                expect (player.getHeights().low == 20.0f && player.getHeights().high == 20000.0f);
+            }
+
             // It's kept with the other calibration settings, and handed to the player with them
             CabinEqAudioProcessor processor;
             auto& state = processor.parameters.state;
@@ -1421,6 +1444,10 @@ public:
             processor.getCalibration().setHeightSpacing (Spacing::octaves);
             CalibrationSettings::apply (state, processor.getCalibration());
             expect (processor.getCalibration().getHeightSpacing() == Spacing::mels);
+            CalibrationSettings::setHeightPins (state, processor.getCalibration(), true, 150.0f, 6000.0f);
+            processor.getCalibration().setHeightPins (false, 20.0f, 20000.0f);
+            CalibrationSettings::apply (state, processor.getCalibration());
+            expect (processor.getCalibration().getHeights() == Heights (Spacing::mels, 150.0f, 6000.0f), "the pins too");
         }
 
         beginTest ("Depth goes round all the positions several times, a level louder each time round");
@@ -3302,6 +3329,8 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         processor.parameters.state.setProperty ("calibrationMode", mode.getIntValue(), nullptr);
     if (const auto spacing = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_SPACING", {}); spacing.isNotEmpty())
         processor.parameters.state.setProperty (CalibrationSettings::idHeightSpacing, spacing.getIntValue(), nullptr); // 0 octaves, 1 mels, 2 Hz
+    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_PINNED", {}).isNotEmpty())
+        processor.parameters.state.setProperty (CalibrationSettings::idHeightsPinned, true, nullptr);
     if (const auto noise = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_NOISE", {}); noise.isNotEmpty())
         processor.parameters.state.setProperty ("calibrationNoise", noise.getIntValue(), nullptr);
     if (zoomed)

@@ -25,6 +25,65 @@ namespace
     const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
 }
 
+//==============================================================================
+/// What the Pin button shows: whether the bottom and top heights are pinned, and to what
+class HeightPinsPopup : public juce::Component
+{
+public:
+    HeightPinsPopup (CalibrationPlayer::Heights heights, std::function<void (bool, float, float)> onChangeToUse)
+        : onChange (std::move (onChangeToUse))
+    {
+        pinToggle.setButtonText ("Pin the bottom and top");
+        pinToggle.setToggleState (heights.pinned, juce::dontSendNotification);
+        pinToggle.setTooltip ("The lowest height is exactly the bottom frequency and the highest exactly the top, with the rest spaced between. "
+                              "Off, they're spread between 20 Hz and 20 kHz with room left at both ends.");
+        pinToggle.onClick = [this] { changed(); };
+        addAndMakeVisible (pinToggle);
+
+        for (auto* field : { &bottomField, &topField })
+        {
+            field->format = [] (double v) { return Format::frequency (v); };
+            field->parse = Format::parseFrequency;
+            field->setTooltip ("Drag, scroll or double-click to type");
+            field->onValueChange = [this] (double) { changed(); };
+            addAndMakeVisible (*field);
+        }
+        bottomField.setValue (heights.low);
+        topField.setValue (heights.high);
+        updateEnablement();
+        setSize (236, 92);
+    }
+
+    void resized() override
+    {
+        auto area = getLocalBounds().reduced (4);
+        pinToggle.setBounds (area.removeFromTop (26));
+        area.removeFromTop (8);
+        bottomField.setBounds (area.removeFromLeft ((area.getWidth() - 8) / 2));
+        area.removeFromLeft (8);
+        topField.setBounds (area);
+    }
+
+private:
+    void changed()
+    {
+        updateEnablement();
+        onChange (pinToggle.getToggleState(), (float) bottomField.getValue(), (float) topField.getValue());
+    }
+
+    void updateEnablement()
+    {
+        bottomField.setEnabled (pinToggle.getToggleState());
+        topField.setEnabled (pinToggle.getToggleState());
+    }
+
+    std::function<void (bool, float, float)> onChange;
+    juce::ToggleButton pinToggle;
+    ValueField bottomField { "Bottom", 20.0, 20000.0, CalibrationPlayer::defaultPinLow, ValueField::Scale::logarithmic },
+               topField { "Top", 20.0, 20000.0, CalibrationPlayer::defaultPinHigh, ValueField::Scale::logarithmic };
+};
+
+//==============================================================================
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     : processor (p), player (p.getCalibration()), guidedView (p)
 {
@@ -168,6 +227,9 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         button.onClick = [this, i] { setHeightSpacing ((CalibrationPlayer::HeightSpacing) i); };
         addAndMakeVisible (button);
     }
+    pinButton.setTooltip ("Pin the bottom and top heights to frequencies of your own, rather than spreading them between 20 Hz and 20 kHz");
+    pinButton.onClick = [this] { showHeightPins(); };
+    addAndMakeVisible (pinButton);
     setUpLabel (spacingLabel, "Heights");
     spacingLabel.setJustificationType (juce::Justification::centredRight);
 
@@ -324,16 +386,26 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
 
     // Up the side: the low cut at that height, at whichever frequencies are well apart with this spacing
     using Ticks = std::array<std::pair<float, const char*>, 4>;
-    const auto spacing = player.getHeightSpacing();
-    const auto ticks = spacing == CalibrationPlayer::HeightSpacing::hertz ? Ticks { { { 20.0f, "20" }, { 5000.0f, "5k" }, { 10000.0f, "10k" }, { 15000.0f, "15k" } } }
-                     : spacing == CalibrationPlayer::HeightSpacing::mels  ? Ticks { { { 20.0f, "20" }, { 1000.0f, "1k" }, { 3000.0f, "3k" }, { 10000.0f, "10k" } } }
-                                                                          : Ticks { { { 20.0f, "20" }, { 100.0f, "100" }, { 1000.0f, "1k" }, { 10000.0f, "10k" } } };
+    const auto heights = player.getHeights();
+    const auto spacing = heights.spacing;
+    auto ticks = spacing == CalibrationPlayer::HeightSpacing::hertz ? Ticks { { { 20.0f, "20" }, { 5000.0f, "5k" }, { 10000.0f, "10k" }, { 15000.0f, "15k" } } }
+               : spacing == CalibrationPlayer::HeightSpacing::mels  ? Ticks { { { 20.0f, "20" }, { 1000.0f, "1k" }, { 3000.0f, "3k" }, { 10000.0f, "10k" } } }
+                                                                    : Ticks { { { 20.0f, "20" }, { 100.0f, "100" }, { 1000.0f, "1k" }, { 10000.0f, "10k" } } };
+    // Pinned, the field's between your own two frequencies: those, and two evenly between
+    std::array<juce::String, 4> pinnedLabels;
+    if (heights.pinned)
+        for (size_t i = 0; i < ticks.size(); ++i)
+        {
+            ticks[i].first = (float) CalibrationPlayer::frequencyAtHeight ((double) i / 3.0, heights);
+            pinnedLabels[i] = Format::frequencyShort (ticks[i].first);
+            ticks[i].second = pinnedLabels[i].toRawUTF8();
+        }
     for (auto [frequency, label] : ticks)
     {
-        const float y = toPanel ({ 0.0f, (float) CalibrationPlayer::heightOfFrequency (frequency, spacing) }).y;
+        const float y = toPanel ({ 0.0f, (float) CalibrationPlayer::heightOfFrequency (frequency, heights) }).y;
         g.setColour (Theme::textFaint);
         g.drawText (label, gridArea.getX() - 46, (int) y - 7, 38, 14, juce::Justification::centredRight);
-        if (frequency > 20.0f)
+        if (frequency > ticks[0].first)
         {
             g.setColour (Theme::border.withAlpha (0.6f));
             g.drawHorizontalLine ((int) y, field.getX(), field.getRight());
@@ -428,6 +500,8 @@ void CalibrationPanel::refreshSpots()
         spacingButtons[i].setToggleState ((int) i == spacing, juce::dontSendNotification);
         spacingButtons[i].setEnabled (! spots);
     }
+    pinButton.setEnabled (! spots);
+    pinButton.setToggleState (player.getHeights().pinned, juce::dontSendNotification);
     spacingLabel.setEnabled (! spots);
 
     const auto pan = CalibrationSettings::getPanRange (processor.parameters.state);
@@ -443,6 +517,25 @@ void CalibrationPanel::setHeightSpacing (CalibrationPlayer::HeightSpacing spacin
     CalibrationSettings::setHeightSpacing (processor.parameters.state, player, spacing); // not undoable, like the rest
     refreshSpots();
     repaint();
+}
+
+void CalibrationPanel::setHeightPins (bool shouldPin, float low, float high)
+{
+    CalibrationSettings::setHeightPins (processor.parameters.state, player, shouldPin, low, high); // not undoable either
+    refreshSpots();
+    repaint();
+}
+
+void CalibrationPanel::showHeightPins()
+{
+    auto content = std::make_unique<HeightPinsPopup> (player.getHeights(), [safeThis = juce::Component::SafePointer<CalibrationPanel> (this)] (bool pin, float low, float high)
+    {
+        if (safeThis != nullptr)
+            safeThis->setHeightPins (pin, low, high);
+    });
+    content->setLookAndFeel (&getLookAndFeel());
+    auto& box = juce::CallOutBox::launchAsynchronously (std::move (content), pinButton.getScreenBounds(), nullptr);
+    box.setLookAndFeel (&getLookAndFeel());
 }
 
 void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
@@ -827,7 +920,7 @@ void CalibrationPanel::paint (juce::Graphics& g)
     // Each row's low cut
     for (int row = 0; row < rows(); ++row)
     {
-        const double cutoff = CalibrationPlayer::cutoffForRow (row, rows(), player.getHeightSpacing());
+        const double cutoff = CalibrationPlayer::cutoffForRow (row, rows(), player.getHeights());
         const auto text = cutoff >= 10000.0 ? juce::String (juce::roundToInt (cutoff / 1000.0)) + "k"
                         : cutoff >= 1000.0 ? juce::String (cutoff / 1000.0, 1) + "k"
                                            : juce::String (juce::roundToInt (cutoff));
@@ -883,13 +976,14 @@ void CalibrationPanel::resized()
     guidedModeButton.setBounds (header.removeFromLeft (72).withSizeKeepingCentre (72, 26));
 
     // How the heights are spaced, if there's room for it: its label goes first when there isn't much
-    header.removeFromLeft (12);
-    const int spacingWidth = 3 * 36, labelWidth = 52;
-    const bool fitsButtons = header.getWidth() >= spacingWidth + 8, fitsLabel = header.getWidth() >= spacingWidth + labelWidth + 8;
+    header.removeFromLeft (8);
+    const int spacingWidth = 3 * 34, labelWidth = 48, pinWidth = 38;
+    const bool fitsButtons = header.getWidth() >= spacingWidth + pinWidth, fitsLabel = header.getWidth() >= spacingWidth + pinWidth + labelWidth;
     spacingLabel.setBounds (fitsLabel ? header.removeFromLeft (labelWidth).withSizeKeepingCentre (labelWidth, 26) : juce::Rectangle<int>());
     auto spacingRow = fitsButtons ? header.removeFromLeft (spacingWidth).withSizeKeepingCentre (spacingWidth, 24) : juce::Rectangle<int>();
     for (auto& button : spacingButtons)
-        button.setBounds (fitsButtons ? spacingRow.removeFromLeft (36) : juce::Rectangle<int>());
+        button.setBounds (fitsButtons ? spacingRow.removeFromLeft (34) : juce::Rectangle<int>());
+    pinButton.setBounds (fitsButtons ? header.removeFromLeft (pinWidth).withTrimmedLeft (4).withSizeKeepingCentre (pinWidth - 4, 24) : juce::Rectangle<int>());
 
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));
