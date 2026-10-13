@@ -84,6 +84,76 @@ private:
 };
 
 //==============================================================================
+/// What the Pan button shows: how positions across are spaced, and how they become a level in each ear
+class PanOptionsPopup : public juce::Component
+{
+public:
+    PanOptionsPopup (CabinEqAudioProcessor& p, std::function<void()> onChangeToUse)
+        : processor (p), onChange (std::move (onChangeToUse))
+    {
+        const char* spacingNames[] { "Even", "Centre", "Sides" };
+        const char* spacingTips[] { "Positions are evenly spaced from your left ear to your right. The usual.",
+                                    "Positions bunch towards the middle, where small differences are easiest to hear",
+                                    "Positions bunch out towards your ears" };
+        const char* lawNames[] { "Power", "Linear", "dB" };
+        const char* lawTips[] { "Equal power: as loud all the way across, with the middle 3 dB down in each ear. The usual.",
+                                "A straight crossfade: the middle is 6 dB down in each ear, so it sounds quieter there",
+                                "Every step across is the same number of dB between the ears, up to 30 dB at the ends, so hard left is still faintly in the right ear" };
+        for (size_t i = 0; i < 3; ++i)
+        {
+            setUp (spacingButtons[i], spacingNames[i], spacingTips[i], i);
+            spacingButtons[i].onClick = [this, i] { CalibrationSettings::setPanSpacing (processor.parameters.state, processor.getCalibration(), (CalibrationPlayer::PanSpacing) i); refresh(); };
+            setUp (lawButtons[i], lawNames[i], lawTips[i], i);
+            lawButtons[i].onClick = [this, i] { CalibrationSettings::setPanLaw (processor.parameters.state, processor.getCalibration(), (CalibrationPlayer::PanLaw) i); refresh(); };
+        }
+        refresh();
+        setSize (250, 68);
+    }
+
+    void paint (juce::Graphics& g) override
+    {
+        g.setFont (Theme::font (12.0f));
+        g.setColour (Theme::textDim);
+        g.drawText ("Spacing", 4, 4, 56, 26, juce::Justification::centredLeft);
+        g.drawText ("Law", 4, 38, 56, 26, juce::Justification::centredLeft);
+    }
+
+    void resized() override
+    {
+        for (size_t i = 0; i < 3; ++i)
+        {
+            spacingButtons[i].setBounds (64 + (int) i * 60, 4, 60, 26);
+            lawButtons[i].setBounds (64 + (int) i * 60, 38, 60, 26);
+        }
+    }
+
+private:
+    void setUp (juce::TextButton& button, const char* name, const char* tip, size_t index)
+    {
+        button.setButtonText (name);
+        button.setTooltip (tip);
+        button.setConnectedEdges ((index > 0 ? juce::Button::ConnectedOnLeft : 0) | (index < 2 ? juce::Button::ConnectedOnRight : 0));
+        addAndMakeVisible (button);
+    }
+
+    void refresh()
+    {
+        const auto& player = processor.getCalibration();
+        for (size_t i = 0; i < 3; ++i)
+        {
+            spacingButtons[i].setToggleState ((int) i == (int) player.getPanSpacing(), juce::dontSendNotification);
+            lawButtons[i].setToggleState ((int) i == (int) player.getPanLaw(), juce::dontSendNotification);
+        }
+        if (onChange)
+            onChange();
+    }
+
+    CabinEqAudioProcessor& processor;
+    std::function<void()> onChange;
+    std::array<juce::TextButton, 3> spacingButtons, lawButtons;
+};
+
+//==============================================================================
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     : processor (p), player (p.getCalibration()), guidedView (p)
 {
@@ -230,6 +300,9 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     pinButton.setTooltip ("Pin the bottom and top heights to frequencies of your own, rather than spreading them between 20 Hz and 20 kHz");
     pinButton.onClick = [this] { showHeightPins(); };
     addAndMakeVisible (pinButton);
+    panButton.setTooltip ("How positions across are spaced between your ears, and the pan law that turns a position into a level in each ear");
+    panButton.onClick = [this] { showPanOptions(); };
+    addAndMakeVisible (panButton);
     setUpLabel (spacingLabel, "Heights");
     spacingLabel.setJustificationType (juce::Justification::centredRight);
 
@@ -502,6 +575,8 @@ void CalibrationPanel::refreshSpots()
     }
     pinButton.setEnabled (! spots);
     pinButton.setToggleState (player.getHeights().pinned, juce::dontSendNotification);
+    panButton.setToggleState (player.getPanSpacing() != CalibrationPlayer::PanSpacing::even || player.getPanLaw() != CalibrationPlayer::PanLaw::power,
+                              juce::dontSendNotification); // lit when it's not the usual
     spacingLabel.setEnabled (! spots);
 
     const auto pan = CalibrationSettings::getPanRange (processor.parameters.state);
@@ -524,6 +599,18 @@ void CalibrationPanel::setHeightPins (bool shouldPin, float low, float high)
     CalibrationSettings::setHeightPins (processor.parameters.state, player, shouldPin, low, high); // not undoable either
     refreshSpots();
     repaint();
+}
+
+void CalibrationPanel::showPanOptions()
+{
+    auto content = std::make_unique<PanOptionsPopup> (processor, [safeThis = juce::Component::SafePointer<CalibrationPanel> (this)]
+    {
+        if (safeThis != nullptr)
+            safeThis->refreshSpots();
+    });
+    content->setLookAndFeel (&getLookAndFeel());
+    auto& box = juce::CallOutBox::launchAsynchronously (std::move (content), panButton.getScreenBounds(), nullptr);
+    box.setLookAndFeel (&getLookAndFeel());
 }
 
 void CalibrationPanel::showHeightPins()
@@ -600,7 +687,12 @@ void CalibrationPanel::applySettings()
 void CalibrationPanel::updateButtons()
 {
     playButton.setButtonText (player.isPlaying() ? "Stop" : "Play");
-    allButton.setVisible (mode() == CalibrationPlayer::Mode::grid && ! player.getSelection().empty());
+    const bool showAll = mode() == CalibrationPlayer::Mode::grid && ! player.getSelection().empty();
+    if (showAll != allButton.isVisible())
+    {
+        allButton.setVisible (showAll);
+        resized(); // the header's options have its room when it's not there
+    }
     repaint();
 }
 
@@ -964,7 +1056,8 @@ void CalibrationPanel::resized()
     header.removeFromRight (8);
     playButton.setBounds (header.removeFromRight (70).withSizeKeepingCentre (70, 26));
     header.removeFromRight (8);
-    allButton.setBounds (header.removeFromRight (78).withSizeKeepingCentre (78, 26));
+    if (allButton.isVisible())
+        allButton.setBounds (header.removeFromRight (78).withSizeKeepingCentre (78, 26));
 
     header.removeFromLeft (100); // the title
     spotsModeButton.setBounds (header.removeFromLeft (84).withSizeKeepingCentre (84, 26));
@@ -977,13 +1070,15 @@ void CalibrationPanel::resized()
 
     // How the heights are spaced, if there's room for it: its label goes first when there isn't much
     header.removeFromLeft (8);
-    const int spacingWidth = 3 * 34, labelWidth = 48, pinWidth = 38;
-    const bool fitsButtons = header.getWidth() >= spacingWidth + pinWidth, fitsLabel = header.getWidth() >= spacingWidth + pinWidth + labelWidth;
+    const int spacingWidth = 3 * 34, labelWidth = 48, pinWidth = 38, panWidth = 48;
+    const bool fitsButtons = header.getWidth() >= spacingWidth + pinWidth + panWidth,
+               fitsLabel = header.getWidth() >= spacingWidth + pinWidth + panWidth + labelWidth;
     spacingLabel.setBounds (fitsLabel ? header.removeFromLeft (labelWidth).withSizeKeepingCentre (labelWidth, 26) : juce::Rectangle<int>());
     auto spacingRow = fitsButtons ? header.removeFromLeft (spacingWidth).withSizeKeepingCentre (spacingWidth, 24) : juce::Rectangle<int>();
     for (auto& button : spacingButtons)
         button.setBounds (fitsButtons ? spacingRow.removeFromLeft (34) : juce::Rectangle<int>());
     pinButton.setBounds (fitsButtons ? header.removeFromLeft (pinWidth).withTrimmedLeft (4).withSizeKeepingCentre (pinWidth - 4, 24) : juce::Rectangle<int>());
+    panButton.setBounds (fitsButtons ? header.removeFromLeft (panWidth).withTrimmedLeft (10).withSizeKeepingCentre (panWidth - 10, 24) : juce::Rectangle<int>());
 
     area.removeFromBottom (10);
     auto controls = area.removeFromRight (std::min (300, area.getWidth() / 3));

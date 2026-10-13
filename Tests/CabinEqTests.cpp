@@ -1450,6 +1450,64 @@ public:
             expect (processor.getCalibration().getHeights() == Heights (Spacing::mels, 150.0f, 6000.0f), "the pins too");
         }
 
+        beginTest ("Positions across can bunch towards the middle or the sides, and there are three pan laws");
+        {
+            using Spacing = CalibrationPlayer::PanSpacing;
+            using Law = CalibrationPlayer::PanLaw;
+            for (auto spacing : { Spacing::even, Spacing::centre, Spacing::sides })
+                for (float fixed : { 0.0f, 0.5f, 1.0f })
+                    expectWithinAbsoluteError (CalibrationPlayer::spacedPan (fixed, spacing), fixed, 1.0e-6f, "the ends and the middle stay put");
+            expectWithinAbsoluteError (CalibrationPlayer::spacedPan (0.75f, Spacing::even), 0.75f, 1.0e-6f);
+            expectWithinAbsoluteError (CalibrationPlayer::spacedPan (0.75f, Spacing::centre), 0.625f, 1.0e-6f, "halfway out is a quarter of the way out");
+            expectWithinAbsoluteError (CalibrationPlayer::spacedPan (0.25f, Spacing::centre), 0.375f, 1.0e-6f, "on the left as on the right");
+            expectGreaterThan (CalibrationPlayer::spacedPan (0.75f, Spacing::sides), 0.75f);
+
+            auto power = CalibrationPlayer::panGains (0.5f, Law::power), linear = CalibrationPlayer::panGains (0.5f, Law::linear),
+                 decibels = CalibrationPlayer::panGains (0.5f, Law::decibels);
+            expectWithinAbsoluteError (power.first, 0.7071f, 0.001f, "equal power: the middle is 3 dB down in each ear");
+            expectWithinAbsoluteError (linear.first, 0.5f, 0.001f, "linear: 6 dB down");
+            expectWithinAbsoluteError (decibels.first, 0.7071f, 0.001f);
+            expectWithinAbsoluteError (power.first, power.second, 1.0e-6f);
+            expect (CalibrationPlayer::panGains (0.0f, Law::linear) == std::pair<float, float> (1.0f, 0.0f));
+            for (float pan : { 0.0f, 0.2f, 0.9f })
+            {
+                const auto gains = CalibrationPlayer::panGains (pan, Law::decibels);
+                expectWithinAbsoluteError (gains.first * gains.first + gains.second * gains.second, 1.0f, 1.0e-4f, "as loud all the way across");
+                expectWithinAbsoluteError (juce::Decibels::gainToDecibels (gains.second / gains.first), (2.0f * pan - 1.0f) * 30.0f, 0.01f,
+                                           "the same number of dB between the ears for every step");
+            }
+
+            // What plays: the grid's left column, with the dB law, is still faintly in the right ear
+            auto rightOverLeft = [] (Law law, Spacing spacing, int column)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setPanLaw (law);
+                player.setPanSpacing (spacing);
+                player.setGrid (1, 5);
+                player.setSelection ({ column });
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) (0.2 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                return buffer.getRMSLevel (1, 0, buffer.getNumSamples()) / std::max (1.0e-9f, buffer.getRMSLevel (0, 0, buffer.getNumSamples()));
+            };
+            expectLessThan (rightOverLeft (Law::power, Spacing::even, 0), 1.0e-4f, "hard left, usually");
+            expectWithinAbsoluteError (juce::Decibels::gainToDecibels (rightOverLeft (Law::decibels, Spacing::even, 0)), -30.0f, 0.2f);
+            expectWithinAbsoluteError (juce::Decibels::gainToDecibels (rightOverLeft (Law::decibels, Spacing::even, 1)), -15.0f, 0.2f, "the second of five is halfway out");
+            expectWithinAbsoluteError (juce::Decibels::gainToDecibels (rightOverLeft (Law::decibels, Spacing::centre, 1)), -7.5f, 0.2f, "or a quarter, bunched to the middle");
+
+            // Kept with the other calibration settings
+            CabinEqAudioProcessor processor;
+            CalibrationSettings::setPanLaw (processor.parameters.state, processor.getCalibration(), Law::linear);
+            CalibrationSettings::setPanSpacing (processor.parameters.state, processor.getCalibration(), Spacing::sides);
+            processor.getCalibration().setPanLaw (Law::power);
+            processor.getCalibration().setPanSpacing (Spacing::even);
+            CalibrationSettings::apply (processor.parameters.state, processor.getCalibration());
+            expect (processor.getCalibration().getPanLaw() == Law::linear && processor.getCalibration().getPanSpacing() == Spacing::sides);
+        }
+
         beginTest ("Depth goes round all the positions several times, a level louder each time round");
         {
             CalibrationPlayer player;

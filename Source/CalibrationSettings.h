@@ -23,6 +23,7 @@ namespace CalibrationSettings
     inline const juce::Identifier idPanHigh { "calibrationPanHigh" };
     inline const juce::Identifier idPanSteps { "calibrationPanSteps" };
     inline const juce::Identifier idHeightSpacing { "calibrationHeightSpacing" };
+    inline const juce::Identifier idPanSpacing { "calibrationPanSpacing" }, idPanLaw { "calibrationPanLaw" };
     inline const juce::Identifier idHeightsPinned { "calibrationHeightsPinned" }, idHeightLow { "calibrationHeightLow" }, idHeightHigh { "calibrationHeightHigh" };
     inline const juce::Identifier idSquareSize { "calibrationSquareSize" }, idSquareX { "calibrationSquareX" }, idSquareY { "calibrationSquareY" },
                                   idSquareWidth { "calibrationSquareWidth" }, idSquareHeight { "calibrationSquareHeight" };
@@ -99,8 +100,22 @@ namespace CalibrationSettings
         player.setPanSteps (getPanSteps (state));
         player.setSquare (getSquare (state));
         player.setHeightSpacing (getHeightSpacing (state));
+        player.setPanSpacing ((CalibrationPlayer::PanSpacing) juce::jlimit (0, 2, (int) state.getProperty (idPanSpacing, 0)));
+        player.setPanLaw ((CalibrationPlayer::PanLaw) juce::jlimit (0, 2, (int) state.getProperty (idPanLaw, 0)));
         player.setHeightPins (state.getProperty (idHeightsPinned, false), state.getProperty (idHeightLow, CalibrationPlayer::defaultPinLow),
                               state.getProperty (idHeightHigh, CalibrationPlayer::defaultPinHigh));
+    }
+
+    inline void setPanSpacing (juce::ValueTree state, CalibrationPlayer& player, CalibrationPlayer::PanSpacing spacing)
+    {
+        state.setProperty (idPanSpacing, (int) spacing, nullptr);
+        player.setPanSpacing (spacing);
+    }
+
+    inline void setPanLaw (juce::ValueTree state, CalibrationPlayer& player, CalibrationPlayer::PanLaw law)
+    {
+        state.setProperty (idPanLaw, (int) law, nullptr);
+        player.setPanLaw (law);
     }
 
     /// Pins the bottom and top heights to these frequencies, or lets them go, and saves it as the player has it

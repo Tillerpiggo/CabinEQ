@@ -82,6 +82,8 @@ private:
     void setHeightSpacing (CalibrationPlayer::HeightSpacing spacing);
     juce::TextButton pinButton { "Pin" }; // pins the bottom and top heights to frequencies of your own
     void showHeightPins();
+    juce::TextButton panButton { "Pan" }; // how positions across are spaced, and the pan law
+    void showPanOptions();
     void setHeightPins (bool shouldPin, float low, float high);
 
     // Guided mode (experimental): a search that gives you one change at a time to try. It plays its own arrangements.

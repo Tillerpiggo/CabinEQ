@@ -89,6 +89,46 @@ public:
 
     float getFloorDb() const { return floorDb.load(); }
 
+    /// How positions across are spaced between your left ear and your right, in the grid, Drag mode and the
+    /// guided arrangements (on the graph, the pan range is your own). Even is the usual; centre bunches them
+    /// towards the middle, where hearing's sharpest, and sides bunches them out towards the ears.
+    enum class PanSpacing { even = 0, centre = 1, sides = 2 };
+
+    /// How a position becomes a level in each ear. Power keeps the two ears' power the same all the way across
+    /// (the middle is 3 dB down in each). Linear is a straight crossfade, so the middle is 6 dB down and sounds
+    /// quieter. Decibels makes every step across the same number of dB between the ears, up to maxPanDb at the
+    /// ends, so even hard left is still faintly in the right ear.
+    enum class PanLaw { power = 0, linear = 1, decibels = 2 };
+    static constexpr float maxPanDb = 30.0f;
+
+    void setPanSpacing (PanSpacing spacing) { panSpacing = juce::jlimit (0, 2, (int) spacing); }
+    PanSpacing getPanSpacing() const        { return (PanSpacing) panSpacing.load(); }
+    void setPanLaw (PanLaw law)             { panLaw = juce::jlimit (0, 2, (int) law); }
+    PanLaw getPanLaw() const                { return (PanLaw) panLaw.load(); }
+
+    /// Where an evenly spaced position (0 left, 1 right) goes with this spacing. The ends and the middle stay put.
+    static float spacedPan (float pan, PanSpacing spacing)
+    {
+        const float across = juce::jlimit (-1.0f, 1.0f, 2.0f * pan - 1.0f);
+        const float power = spacing == PanSpacing::centre ? 2.0f : spacing == PanSpacing::sides ? 0.5f : 1.0f;
+        return 0.5f * (1.0f + std::copysign (std::pow (std::abs (across), power), across));
+    }
+
+    /// The left and right gains for a position (0 left, 1 right)
+    static std::pair<float, float> panGains (float pan, PanLaw law)
+    {
+        pan = juce::jlimit (0.0f, 1.0f, pan);
+        if (law == PanLaw::linear)
+            return { 1.0f - pan, pan };
+        if (law == PanLaw::decibels)
+        {
+            const float ratio = juce::Decibels::decibelsToGain ((2.0f * pan - 1.0f) * maxPanDb); // right over left
+            const float left = 1.0f / std::sqrt (1.0f + ratio * ratio);
+            return { left, ratio * left };
+        }
+        return { std::cos (pan * juce::MathConstants<float>::halfPi), std::sin (pan * juce::MathConstants<float>::halfPi) };
+    }
+
     /// How the low cuts are spaced between 20 Hz and 20 kHz, wherever they're worked out from a height: the
     /// grid's rows, Drag mode's field and the guided arrangements. (On the graph, you put them where you like.)
     /// Octaves is the usual; hertz is each step the same number of Hz, so nearly everything's high; mels, roughly
@@ -645,9 +685,10 @@ private:
             if (candidate.peak < voice->peak) voice = &candidate;
         }
 
-        // Equal-power pan
-        voice->leftGain = std::cos (pan * juce::MathConstants<float>::halfPi);
-        voice->rightGain = std::sin (pan * juce::MathConstants<float>::halfPi);
+        // Across: spaced as asked (except on the graph, where the range is your own), then into each ear by the pan law
+        if (modeNow != Mode::spots)
+            pan = spacedPan (pan, (PanSpacing) panSpacing.load());
+        std::tie (voice->leftGain, voice->rightGain) = panGains (pan, (PanLaw) panLaw.load());
 
         // Pink noise has the same power in every octave, so cutting some octaves off makes it
         // quieter; make up for that so every row (or spot) is as loud.
@@ -779,6 +820,7 @@ private:
     std::vector<float> pendingNoise;
     std::atomic<bool> hasPending { false };
     std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 }, heightSpacing { (int) HeightSpacing::octaves };
+    std::atomic<int> panSpacing { (int) PanSpacing::even }, panLaw { (int) PanLaw::power };
     std::atomic<bool> heightsPinned { false };
     std::atomic<float> pinLow { defaultPinLow }, pinHigh { defaultPinHigh };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };

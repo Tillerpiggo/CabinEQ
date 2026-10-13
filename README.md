@@ -124,6 +124,14 @@ loads the VST3 to EQ everything the Mac plays.
   heights to them: the bottom row is then exactly the bottom frequency and the top row exactly the top one, with the
   rest spaced between as Log, Mel or Hz says (a single row is halfway). Drag mode's field runs from one to the other,
   and so do the guided heights. Unpinned, they're spread between 20 Hz and 20 kHz with room left at both ends.
+- **Calibration pan** (the Pan button beside those; it's lit when either isn't the usual): two choices for the grid,
+  Drag mode and the guided arrangements. **Spacing** is where positions across go: Even (the default), Centre
+  (bunched towards the middle, where small differences are easiest to hear: halfway out becomes a quarter of the way
+  out) or Sides (bunched out towards your ears). The ends and the middle stay put, and the dots are still drawn
+  evenly. **Law** is how a position becomes a level in each ear: Power (the default: equal power, the middle 3 dB down
+  in each ear), Linear (a straight crossfade: the middle is 6 dB down, and sounds quieter) or dB (every step across is
+  the same number of dB between the ears, up to 30 dB at the ends, so hard left is still faintly in your right ear).
+  On the graph, the law applies but the spacing doesn't: its pan range is your own.
 - **Calibration noise**: it falls 4.5 dB an octave (pink noise falls 3), and every burst is that same noise, cut off
   lower or higher, so the bursts' bottom edges fall 4.5 dB an octave from one burst to the next as well.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),
