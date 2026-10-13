@@ -3,9 +3,9 @@
 
     GuidedCalibrationView.h
 
-    Experimental. The calibration panel's "Guided" mode: each turn, one line of
-    three sounds, what to listen for in it, and a pad to explore the plane
-    GuidedSearch gives you. This is what joins the search to the app:
+    Experimental. The calibration panel's "Guided" mode: each turn, a whole
+    arrangement of sounds, what to listen for in it, and a pad to explore the
+    plane GuidedSearch gives you. This is what joins the search to the app:
 
       the vertices   are the curve's own points, from 20 Hz to 20 kHz, bunched
                      towards the top by the high-frequency bias: a vertex a
@@ -16,12 +16,15 @@
                      minus half its difference between the ears.
       a preview      writes those points, so you hear it and see it on the graph.
                      A turn is one undo step; a choice that isn't kept is undone.
-      a trial        is three sounds for the calibration player: A, B, C, B, each
-                     repeated 2, 4 or 8 times, round and round. Pan is from left
-                     to right, height is the low cut (the grid's three rows', and
-                     between them), level is from the floor up to the volume.
-      the markers    are three dots laid out as the line should sound, with the
-                     one that's playing lit. They're the aim, not a measurement.
+      an arrangement is a box of sounds for the calibration player: its corners
+                     (and, later, a layer between two of its sides), each played
+                     2, 4 or 8 times before its neighbour, round and round. Pan
+                     is from left to right, height is the low cut (the grid's
+                     three rows', and between them), level is from the floor up
+                     to the volume.
+      the markers    are the box as it should sound, far smaller than near, with
+                     the sound that's playing lit and named. They're the aim, not
+                     a measurement.
       the log        is a line of JSON for everything tried, in
                      ~/Library/Application Support/CabinEQ/Guided calibration
 
@@ -89,14 +92,14 @@ public:
         logButton.setTooltip ("Show the file that everything tried is written to");
         logButton.onClick = [this] { (logFile.existsAsFile() ? logFile : logFolder()).revealToUser(); };
 
-        // How many times each of the three sounds plays before the next
+        // How many times each sound plays before the next
         repetitions = juce::jlimit (2, 8, (int) processor.parameters.state.getProperty (idRepetitions, 4));
         for (size_t i = 0; i < repetitionButtons.size(); ++i)
         {
             const int count = 2 << i; // 2, 4, 8
             auto& button = repetitionButtons[i];
             button.setButtonText ("x" + juce::String (count));
-            button.setTooltip ("Each of the three sounds plays " + juce::String (count) + " times before the next");
+            button.setTooltip ("Each sound plays " + juce::String (count) + " times before the next");
             button.setConnectedEdges ((i > 0 ? juce::Button::ConnectedOnLeft : 0) | (i + 1 < repetitionButtons.size() ? juce::Button::ConnectedOnRight : 0));
             button.onClick = [this, count] { setRepetitions (count); };
             addAndMakeVisible (button);
@@ -130,7 +133,7 @@ public:
         if (search == nullptr || search->getPhase() == GuidedSearch::Phase::idle || profileName != processor.getProfiles().getSelectedProfileName())
             beginSearch();
         else
-            playTrial (search->getTrial());
+            playArrangement (search->getArrangement());
 
         player.setMode (CalibrationPlayer::Mode::sequence);
         player.setPlaying (true);
@@ -168,7 +171,7 @@ public:
         pause();
     }
 
-    /// See what the player's up to: whether the line has played right through, and which of the three is sounding.
+    /// See what the player's up to: whether the arrangement has played right through, and which sound it's on.
     /// (The timer does this thirty times a second.)
     void poll()
     {
@@ -184,10 +187,10 @@ public:
         }
 
         // The floor slider's moved: the levels are measured from it
-        if (player.getFloorDb() != trialFloor)
-            playTrial (search->getTrial());
+        if (player.getFloorDb() != playingFloor)
+            playArrangement (search->getArrangement());
 
-        // The line's played right through once the sound after its last has started
+        // It's played right through once the sound after its last has started
         if (player.getSequenceBurstsPlayed() > nextSequenceEnd)
         {
             nextSequenceEnd += sequenceLength;
@@ -205,7 +208,7 @@ public:
         repetitions = count <= 2 ? 2 : count <= 4 ? 4 : 8;
         processor.parameters.state.setProperty (idRepetitions, repetitions, nullptr);
         if (search != nullptr && isRunning())
-            playTrial (search->getTrial()); // the same sounds, more or fewer times each
+            playArrangement (search->getArrangement()); // the same sounds, more or fewer times each
         refresh();
     }
 
@@ -249,13 +252,7 @@ public:
         g.setColour (Theme::text);
         g.drawFittedText (instruction, text.removeFromTop (instructionLines * 15), juce::Justification::topLeft, instructionLines, 0.9f);
 
-        if (goalText.isNotEmpty())
-        {
-            text.removeFromTop (3);
-            g.setColour (Theme::accentBright);
-            g.drawFittedText (goalText, text.removeFromTop (30), juce::Justification::topLeft, 2, 0.9f);
-        }
-        else if (search == nullptr)
+        if (search == nullptr)
         {
             // Before a search: how much the points bunch towards the top, beside its three buttons
             g.setColour (Theme::textDim);
@@ -266,7 +263,7 @@ public:
         text.removeFromTop (3);
         g.setColour (Theme::textDim);
         g.setFont (Theme::font (11.5f));
-        g.drawFittedText (prompt, text.removeFromTop (29), juce::Justification::topLeft, 2, 0.9f);
+        g.drawFittedText (prompt, text.removeFromTop (promptLines * 14 + 1), juce::Justification::topLeft, promptLines, 0.9f);
 
         g.setFont (Theme::font (10.5f));
         g.setColour (Theme::textFaint);
@@ -287,7 +284,7 @@ public:
         area.removeFromLeft (10);
 
         // The markers, with how many times each plays under them
-        auto markers = area.removeFromLeft (104);
+        auto markers = area.removeFromLeft (118);
         auto repetitionRow = markers.removeFromBottom (22);
         const int each = repetitionRow.getWidth() / (int) repetitionButtons.size();
         for (auto& button : repetitionButtons)
@@ -296,11 +293,11 @@ public:
         area.removeFromLeft (12);
         textBounds = area;
 
-        // The bias, on the starting screen, sits in the text where the goal would be
+        // The bias, on the starting screen, sits in the text under what it's all about
         biasRow = textBounds.withTrimmedTop (18 + 3 + 3 * 15 + 6).removeFromTop (22);
-        auto biasButtonsArea = biasRow.withTrimmedLeft (118);
+        auto biasButtonsArea = biasRow.withTrimmedLeft (116);
         for (auto& button : biasButtons)
-            button.setBounds (biasButtonsArea.removeFromLeft (38));
+            button.setBounds (biasButtonsArea.removeFromLeft (32));
 
         logButton.setBounds (buttons.removeFromRight (40));
         buttons.removeFromRight (4);
@@ -317,7 +314,8 @@ public:
 
 private:
     using Phase = GuidedSearch::Phase;
-    using Kind = GuidedSearch::Kind;
+    using Dimension = GuidedSearch::Dimension;
+    using Position = GuidedSearch::Position;
 
     static inline const juce::Identifier idRepetitions { "guidedRepetitions" }, idBias { "guidedHighBias" }; // on the state root, not undoable
 
@@ -340,7 +338,7 @@ private:
         callbacks.commit = [this] (const GuidedSearch::Vector& curve) { writeVertices (curve); };
         callbacks.revert = [this] (const GuidedSearch::Vector&) { processor.getUndoManager().undoCurrentTransactionOnly(); };
         callbacks.refine = [this] (int count) { return makeVertices (count); };
-        callbacks.playTrial = [this] (const GuidedSearch::Trial& trial) { playTrial (trial); };
+        callbacks.playArrangement = [this] (const GuidedSearch::Arrangement& arrangement) { playArrangement (arrangement); };
         callbacks.vertexName = [this] (int vertex, int count) { return Format::frequency (vertexFrequency (vertex, count, searchBias)); };
         callbacks.turnStarted = [this] { processor.getUndoManager().beginNewTransaction ("Guided calibration"); };
         callbacks.log = [this] (const juce::var& line) { writeLog (line); };
@@ -420,28 +418,28 @@ private:
         }
     }
 
-    /// A, B, C, B, each as many times as is set. Pan from -1 to 1 is left to right; height is the grid's three
-    /// rows' low cuts, and between; level is from the floor (-1) up to the volume (1).
-    void playTrial (const GuidedSearch::Trial& trial)
+    /// Each sound as many times as is set, then its neighbour. Pan from -1 to 1 is left to right; height is the
+    /// grid's three rows' low cuts, and between; level is from the floor (-1) up to the volume (1).
+    void playArrangement (const GuidedSearch::Arrangement& arrangement)
     {
         std::vector<CalibrationPlayer::SequenceBurst> bursts;
         const float floor = player.getFloorDb();
-        for (const auto& position : trial.bursts (repetitions))
+        for (const auto& position : arrangement.bursts (repetitions))
             bursts.push_back ({ 0.5f * (position.pan + 1.0f), CalibrationPlayer::cutoffForHeight (position.height), floor * 0.5f * (1.0f - position.level) });
         sequenceLength = (int) bursts.size();
         nextSequenceEnd = sequenceLength;
         playingRepetitions = repetitions;
-        trialFloor = floor;
+        playingFloor = floor;
         player.setSequence (bursts);
     }
 
-    /// Which of the three is sounding, or -1
+    /// Which of the arrangement's sounds is playing, or -1
     int activeMarker() const
     {
         if (search == nullptr || ! player.isPlaying() || player.getMode() != CalibrationPlayer::Mode::sequence)
             return -1;
         const int burst = player.getCurrentPosition();
-        return burst < 0 ? -1 : GuidedSearch::Trial::positionAtStep (burst / std::max (1, playingRepetitions));
+        return burst < 0 ? -1 : (burst / std::max (1, playingRepetitions)) % std::max (1, search->getArrangement().size());
     }
 
     //==============================================================================
@@ -459,13 +457,17 @@ private:
         refresh();
     }
 
-    static juce::String kindName (Kind kind) { return kind == Kind::height ? "Height" : kind == Kind::width ? "Width" : "Depth"; }
-
-    static juce::String instructionFor (Kind kind)
+    /// The two sides a layer's between
+    static juce::String sidesOf (Dimension dimension)
     {
-        return kind == Kind::height ? "Make these sounds form a clearly separated vertical line. Keep them at the same depth and left/right position."
-             : kind == Kind::width  ? "Make these sounds form a clearly separated horizontal line. Keep their height and depth consistent."
-                                    : "Make these sounds form a clearly separated front-to-back line. Keep their height and left/right position consistent.";
+        return dimension == Dimension::width ? "left and right" : dimension == Dimension::height ? "low and high" : "far and near";
+    }
+
+    static juce::String positionName (const Position& position)
+    {
+        auto name = [] (float at, const char* low, const char* between, const char* high) { return at <= -0.99f ? low : at >= 0.99f ? high : between; };
+        return juce::String (name (position.height, "Low", "Mid", "High")) + ", " + name (position.pan, "left", "centre", "right")
+               + ", " + name (position.level, "far", "halfway", "near");
     }
 
     void refresh()
@@ -475,19 +477,21 @@ private:
         const bool running = search != nullptr && phase != Phase::idle && phase != Phase::finished;
         const bool settingUp = search == nullptr;
 
-        juce::String newTitle, newBadge, newInstruction, newGoal, newPrompt, newAxes, newStatus;
-        int lines = 3;
+        juce::String newTitle, newBadge, newInstruction, newPrompt, newAxes, newStatus;
+        int lines = 3, newPromptLines = 2;
         if (running)
         {
             const auto& plane = search->getPlane();
-            const auto kind = search->getTrial().kind;
-            const auto check = "Check " + juce::String (search->getValidationIndex() + 1) + " of " + juce::String (search->getNumChecks());
+            const auto& arrangement = search->getArrangement();
+            const auto middle = arrangement.middleDimension();
+            const bool isOrderCheck = search->getValidationIndex() == 0;
 
-            newTitle = (validating ? check + ": " : juce::String()) + kindName (kind) + " trial";
-            newInstruction = instructionFor (kind);
-            newGoal = search->getGoal() == GuidedSearch::Goal::straighten
-                          ? "Straighten: reduce bending or sideways drift without collapsing the separation."
-                          : "Expand: increase separation without introducing noticeable bending or drift.";
+            newTitle = validating ? "Check " + juce::String (search->getValidationIndex() + 1) + " of " + juce::String (search->getNumChecks())
+                                        + (isOrderCheck ? ": another order" : ": more positions")
+                                  : juce::String ("The whole arrangement");
+            newInstruction = "Make the whole arrangement larger and more consistent. Listen for compression, collapse, or distortion anywhere in the arrangement.";
+            lines = 4;
+            newPromptLines = 3;
 
             if (search->isHearingStart())
             {
@@ -497,12 +501,14 @@ private:
             else if (phase == Phase::introducing)
             {
                 newBadge = "LISTEN FIRST";
-                newPrompt = "Get to know the three sounds. The pad unlocks once they've played through.";
+                newPrompt = (middle.has_value() ? "Twelve sounds now: the box, and a layer between " + sidesOf (*middle) + ". "
+                                                : juce::String ("Eight sounds, the corners of a box: left and right, low and high, far and near. "))
+                          + "The pad unlocks once they've played through.";
             }
             else if (phase == Phase::exploring)
             {
                 newBadge = "YOUR TURN";
-                newPrompt = "Drag the dot until the line is as good as you can get it, then let go.";
+                newPrompt = "Drag the dot until the whole arrangement is as good as you can get it, then let go.";
             }
             else if (phase == Phase::settling)
             {
@@ -512,14 +518,20 @@ private:
             else if (phase == Phase::deciding)
             {
                 newBadge = search->hasMoved() ? "BETTER?" : "NO CHANGE";
-                newPrompt = search->hasMoved() ? "Is that better than the starting setting, for this goal?"
+                newPrompt = search->hasMoved() ? "Is the whole arrangement better than with the starting setting?"
                                                : "That's no change. Drag the dot, or skip this one.";
+            }
+            else if (phase == Phase::validatingBefore)
+            {
+                newBadge = "BEFORE";
+                newPrompt = (isOrderCheck || ! middle.has_value() ? juce::String ("The same sounds in another order, to check your change. ")
+                                                                  : "Now with a layer between " + sidesOf (*middle) + ", to check your change. ")
+                          + "First, the starting setting...";
             }
             else
             {
-                newBadge = phase == Phase::validatingBefore ? "BEFORE" : "AFTER";
-                newPrompt = phase == Phase::validatingBefore ? "A different line, to check your change. First, the starting setting..."
-                                                             : "Now with your change. For the same goal, is this line better, the same, or worse?";
+                newBadge = "AFTER";
+                newPrompt = "Now with your change. Is the whole arrangement better, the same, or worse?";
             }
 
             newAxes = "Across: " + plane.uName + "   Up: " + plane.vName;
@@ -527,7 +539,7 @@ private:
                       + "  |  +/-" + juce::String (search->getRangeDb(), search->getRangeDb() < 10.0f ? 2 : 0) + " dB"
                       + "  |  " + juce::String (search->getVertexCount()) + " points"
                       + "  |  pass " + juce::String (search->getPassDone()) + " of " + juce::String (search->getPassSize())
-                      + (search->getCoverageLevel() > 0 ? "  |  finer heights " + juce::String (search->getCoverageLevel()) : juce::String())
+                      + "  |  " + juce::String (arrangement.size()) + " sounds"
                       + (plane.isAdaptive ? "  |  adaptive" : "");
         }
         else if (phase == Phase::finished)
@@ -538,7 +550,7 @@ private:
         else
         {
             newTitle = "Guided calibration (experimental)";
-            newInstruction = "Each turn plays a line of three sounds, tells you what to listen for, and gives you a pad that changes the curve.";
+            newInstruction = "Each turn plays a box of sounds (left and right, low and high, far and near) and gives you a pad that changes the curve.";
             juce::StringArray frequencies;
             for (int i = 0; i < 5; ++i)
                 frequencies.add (Format::frequencyShort (vertexFrequency (i, 5, bias)));
@@ -569,7 +581,7 @@ private:
             biasButtons[i].setToggleState (std::abs (bias - biases[i]) < 0.01f, juce::dontSendNotification);
         }
 
-        // The pad's yours while you're exploring; while a line's being introduced or checked, it isn't
+        // The pad's yours while you're exploring; while an arrangement's being introduced or checked, it isn't
         const bool padIsLive = running && search->canExplore();
         pad.setEnabled (padIsLive);
         pad.setAlpha (padIsLive ? 1.0f : 0.45f);
@@ -577,26 +589,26 @@ private:
             pad.setPosition ({ 0.5f * (search->getPad().x + 1.0f), 0.5f * (search->getPad().y + 1.0f) });
 
         const int marker = activeMarker();
-        const auto kindNow = running ? (int) search->getTrial().kind : -1;
-        if (newTitle != title || newBadge != badge || newInstruction != instruction || newGoal != goalText || newPrompt != prompt
-            || newAxes != axesText || newStatus != statusText || lines != instructionLines || marker != shownMarker || kindNow != shownKind)
+        const auto positionsNow = running ? search->getArrangement().positions() : std::vector<Position>();
+        if (newTitle != title || newBadge != badge || newInstruction != instruction || newPrompt != prompt || newAxes != axesText
+            || newStatus != statusText || lines != instructionLines || newPromptLines != promptLines || marker != shownMarker || positionsNow != shownPositions)
         {
             title = newTitle;
             badge = newBadge;
             instruction = newInstruction;
-            goalText = newGoal;
             prompt = newPrompt;
             axesText = newAxes;
             statusText = newStatus;
             instructionLines = lines;
+            promptLines = newPromptLines;
             shownMarker = marker;
-            shownKind = kindNow;
+            shownPositions = positionsNow;
             repaint();
         }
     }
 
     //==============================================================================
-    // The markers: three dots laid out as the line should sound, with the one that's playing lit
+    // The markers: the box as it should sound, with the sound that's playing lit and named
 
     void paintMarkers (juce::Graphics& g)
     {
@@ -606,48 +618,57 @@ private:
         g.setColour (Theme::border);
         g.drawRoundedRectangle (area.reduced (0.5f), 6.0f, 1.0f);
 
-        g.setFont (Theme::font (9.5f));
-        g.setColour (Theme::textFaint);
-        g.drawText ("what to aim for", area.reduced (4.0f, 3.0f), juce::Justification::centredBottom);
+        const bool isLit = shownMarker >= 0 && shownMarker < (int) shownPositions.size();
+        g.setFont (Theme::font (isLit ? 10.5f : 9.5f));
+        g.setColour (isLit ? Theme::text : Theme::textFaint);
+        g.drawText (isLit ? positionName (shownPositions[(size_t) shownMarker]) : juce::String ("what to aim for"),
+                    area.reduced (4.0f, 3.0f), juce::Justification::centredBottom);
 
-        if (shownKind < 0)
+        if (shownPositions.empty())
         {
-            g.drawFittedText ("Three markers show how each line should sound", area.reduced (10.0f, 18.0f).toNearestInt(), juce::Justification::centred, 3);
+            g.setFont (Theme::font (9.5f));
+            g.setColour (Theme::textFaint);
+            g.drawFittedText ("The dots show where each sound should seem to be", area.reduced (10.0f, 18.0f).toNearestInt(), juce::Justification::centred, 3);
             return;
         }
 
-        // Where the three go, and what they're called: A is the low end of the line, C the high end
-        const auto kind = (Kind) shownKind;
-        const auto inner = area.reduced (16.0f, 16.0f).withTrimmedBottom (12.0f);
-        const auto centre = inner.getCentre();
-        std::array<juce::Point<float>, 3> at;
-        std::array<float, 3> radius { 6.5f, 6.5f, 6.5f };
-        std::array<const char*, 3> names { "", "", "" };
-        if (kind == Kind::height)
+        // The box from in front and a little to one side: what's far is smaller, and up to the right
+        const auto inner = area.reduced (6.0f).withTrimmedBottom (14.0f);
+        const float side = std::min (inner.getWidth(), inner.getHeight());
+        const auto box = juce::Rectangle<float> (side, side).withCentre (inner.getCentre());
+        const float nearHalf = side * 0.29f, farHalf = side * 0.18f, inset = 9.0f;
+        const juce::Point<float> nearCentre { box.getX() + nearHalf + inset, box.getBottom() - nearHalf - inset };
+        const juce::Point<float> farCentre { box.getRight() - farHalf - inset, box.getY() + farHalf + inset };
+        auto nearness = [] (const Position& position) { return 0.5f * (position.level + 1.0f); };
+        auto place = [&] (const Position& position)
         {
-            at = { juce::Point<float> { inner.getX() + 14.0f, inner.getBottom() - 6.0f }, { inner.getX() + 14.0f, centre.y }, { inner.getX() + 14.0f, inner.getY() + 6.0f } };
-            names = { "Low", "Middle", "High" };
-        }
-        else if (kind == Kind::width)
-        {
-            at = { juce::Point<float> { area.getX() + 18.0f, centre.y }, { centre.x, centre.y }, { area.getRight() - 18.0f, centre.y } };
-            names = { "Left", "Middle", "Right" };
-        }
-        else
-        {
-            // Front to back: the far one small and up the page, the near one big and down it
-            at = { juce::Point<float> { inner.getX() + 22.0f, inner.getY() + 6.0f }, { inner.getX() + 16.0f, centre.y }, { inner.getX() + 10.0f, inner.getBottom() - 8.0f } };
-            radius = { 4.0f, 6.0f, 8.5f };
-            names = { "Far", "Middle", "Near" };
-        }
+            const auto centre = farCentre + (nearCentre - farCentre) * nearness (position);
+            const float half = farHalf + (nearHalf - farHalf) * nearness (position);
+            return juce::Point<float> { centre.x + position.pan * half, centre.y - position.height * half };
+        };
 
+        // Its twelve edges: each corner to the ones a step along each dimension
+        auto corner = [] (int index) { return Position { (index & 1) != 0 ? 1.0f : -1.0f, (index & 2) != 0 ? 1.0f : -1.0f, (index & 4) != 0 ? 1.0f : -1.0f }; };
         g.setColour (Theme::zeroLine);
-        g.drawLine ({ at[0], at[2] }, 1.2f);
+        for (int index = 0; index < 8; ++index)
+            for (int bit = 1; bit < 8; bit <<= 1)
+                if ((index & bit) == 0)
+                    g.drawLine ({ place (corner (index)), place (corner (index | bit)) }, 1.0f);
 
-        for (size_t i = 0; i < 3; ++i)
+        // The far ones first, so the near ones are in front; the one that's playing last of all
+        std::vector<int> drawOrder (shownPositions.size());
+        std::iota (drawOrder.begin(), drawOrder.end(), 0);
+        std::stable_sort (drawOrder.begin(), drawOrder.end(), [this] (int a, int b)
         {
-            const bool lit = (int) i == shownMarker;
-            auto dot = juce::Rectangle<float> (radius[i] * 2.0f, radius[i] * 2.0f).withCentre (at[i]);
+            const bool aLit = a == shownMarker, bLit = b == shownMarker;
+            return aLit != bLit ? bLit : shownPositions[(size_t) a].level < shownPositions[(size_t) b].level;
+        });
+        for (int index : drawOrder)
+        {
+            const auto& position = shownPositions[(size_t) index];
+            const float radius = 3.2f + 2.8f * nearness (position);
+            const auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (place (position));
+            const bool lit = index == shownMarker;
             if (lit)
             {
                 g.setColour (Theme::accent.withAlpha (0.35f));
@@ -655,14 +676,6 @@ private:
             }
             g.setColour (lit ? Theme::accentBright : Theme::raisedHover);
             g.fillEllipse (dot);
-
-            g.setColour (lit ? Theme::text : Theme::textDim);
-            g.setFont (Theme::font (10.5f, lit));
-            if (kind == Kind::width) // the ends' names under them, the middle's over it, so they don't run together
-                g.drawText (names[i], juce::Rectangle<float> (60.0f, 14.0f).withCentre ({ at[i].x, at[i].y + (i == 1 ? -18.0f : 18.0f) })
-                                          .constrainedWithin (area.reduced (2.0f)), juce::Justification::centred);
-            else
-                g.drawText (names[i], juce::Rectangle<float> (at[i].x + radius[i] + 7.0f, at[i].y - 7.0f, 60.0f, 14.0f), juce::Justification::centredLeft);
         }
     }
 
@@ -688,7 +701,7 @@ private:
         session->setProperty ("highFrequencyBias", searchBias);
         session->setProperty ("repetitions", repetitions);
         session->setProperty ("notes", "gains are left ear then right, in dB; a vertex t of the way along is 1 - (1 - t)^bias of the way from 20 Hz to 20 kHz in octaves; "
-                                       "a trial's positions are pan, height and level from -1 to 1");
+                                       "an arrangement's positions are pan, height and level from -1 to 1, in the order they're played");
         writeLog (juce::var (session));
     }
 
@@ -706,20 +719,21 @@ private:
     juce::String profileName;
     juce::File logFile;
 
-    int repetitions = 4;       // how many times each of the three sounds plays
+    int repetitions = 4;       // how many times each sound plays before the next
     float bias = 1.5f;         // how much the vertices bunch towards the top, for the next search
     float searchBias = 1.5f;   // and for the one that's going
 
     // What's playing
-    int sequenceLength = 16, nextSequenceEnd = 16, playingRepetitions = 4;
-    float trialFloor = 0.0f;   // what its levels were worked out from
+    int sequenceLength = 32, nextSequenceEnd = 32, playingRepetitions = 4;
+    float playingFloor = 0.0f;   // what its levels were worked out from
 
     XYPad pad;
     juce::TextButton firstButton, secondButton, thirdButton, hearStartButton { "Hear start" }, restartButton { "Start over" }, logButton { "Log" };
     std::array<juce::TextButton, 3> repetitionButtons, biasButtons;
     juce::Rectangle<int> markerArea, textBounds, biasRow;
-    juce::String title, badge, instruction, goalText, prompt, axesText, statusText;
-    int instructionLines = 3, shownMarker = -1, shownKind = -1;
+    juce::String title, badge, instruction, prompt, axesText, statusText;
+    int instructionLines = 3, promptLines = 2, shownMarker = -1;
+    std::vector<Position> shownPositions; // the arrangement that's showing, in the order it plays
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuidedCalibrationView)
 };

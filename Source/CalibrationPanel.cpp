@@ -415,7 +415,7 @@ void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
 
 void CalibrationPanel::updateDepthControls()
 {
-    // Guided mode plays its own frames, at three levels from the floor up: depth and repeats aren't its
+    // Guided mode plays its own arrangements, at levels from the floor up: depth and repeats aren't its
     const bool guided = isGuidedMode();
     for (auto* component : std::initializer_list<juce::Component*> { &depthSlider, &depthLabel, &repeatsSlider, &repeatsLabel, &depthUnitLabel,
                                                                     &depthUnitButtons[0], &depthUnitButtons[1], &depthUnitButtons[2] })

@@ -56,14 +56,14 @@ public:
     enum class Mode { grid = 0, spots = 1, square = 2, sequence = 3 };
 
     /// Sequence mode: a list of bursts to play in order, round and round, each wherever it's put. The guided
-    /// calibration plays its frames this way.
+    /// calibration plays its arrangements this way.
     struct SequenceBurst
     {
         float pan = 0.5f;      // 0 left, 1 right
         double cutoff = 0.0;   // low cut in Hz: 20 or under is none
         float levelDb = 0.0f;  // under the volume
     };
-    static constexpr int maxSequenceLength = 64;
+    static constexpr int maxSequenceLength = 128;
 
     /// Message thread. It starts from the first burst, and the count of bursts played starts again.
     void setSequence (const std::vector<SequenceBurst>& bursts)

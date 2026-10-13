@@ -76,7 +76,7 @@ private:
 
     juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" }, guidedModeButton { "Guided" };
 
-    // Guided mode (experimental): a search that gives you one change at a time to try. It plays its own frames.
+    // Guided mode (experimental): a search that gives you one change at a time to try. It plays its own arrangements.
     GuidedCalibrationView guidedView;
     bool isGuidedMode() const { return mode() == CalibrationPlayer::Mode::sequence; }
 

@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include <map>
+#include <set>
 #include "../Source/CabinEqAudioProcessor.h"
 #include "../Source/FilterChain.h"
 #include "../Source/BandEqCurve.h"
@@ -2424,7 +2425,7 @@ public:
     struct Bench
     {
         GuidedSearch::Vector curve, heard;
-        std::vector<GuidedSearch::Trial> trialsPlayed;
+        std::vector<GuidedSearch::Arrangement> played;
         std::vector<int> refinedTo;
         juce::StringArray events;
         int kept = 0, reverted = 0;
@@ -2454,19 +2455,19 @@ public:
                 refinedTo.push_back (count);
                 return curve;
             };
-            callbacks.playTrial = [this] (const GuidedSearch::Trial& trial) { trialsPlayed.push_back (trial); };
+            callbacks.playArrangement = [this] (const GuidedSearch::Arrangement& arrangement) { played.push_back (arrangement); };
             callbacks.log = [this] (const juce::var& line) { events.add (line["event"].toString()); };
             search = std::make_unique<GuidedSearch> (GuidedSearch::Config(), std::move (callbacks));
         }
 
-        /// Hears a new kind of trial through, if that's what it's waiting for
+        /// Hears a new arrangement through, if that's what it's waiting for
         void listenFirst()
         {
             if (search->getPhase() == GuidedSearch::Phase::introducing)
                 search->framePlayed();
         }
 
-        /// Explores to (x, y), lets go, hears the line out, and says whether it's better
+        /// Explores to (x, y), lets go, hears it out, and says whether it's better
         void choose (float x, float y, bool better)
         {
             listenFirst();
@@ -2497,11 +2498,51 @@ public:
     {
         using Phase = GuidedSearch::Phase;
         using Response = GuidedSearch::Response;
-        using Kind = GuidedSearch::Kind;
-        using Goal = GuidedSearch::Goal;
-        using Position = GuidedSearch::Trial::Position;
+        using Dimension = GuidedSearch::Dimension;
+        using Position = GuidedSearch::Position;
+        using Arrangement = GuidedSearch::Arrangement;
 
-        beginTest ("It starts with five vertices, the planes in the order given, the widest range, and a height trial");
+        // The eight corners, however they're ordered
+        auto corners = []
+        {
+            std::vector<Position> all;
+            for (float level : { -1.0f, 1.0f })
+                for (float height : { -1.0f, 1.0f })
+                    for (float pan : { -1.0f, 1.0f })
+                        all.push_back ({ pan, height, level });
+            return all;
+        };
+        auto contains = [] (const std::vector<Position>& positions, const Position& position)
+        {
+            return std::find (positions.begin(), positions.end(), position) != positions.end();
+        };
+        auto hasEveryCorner = [&] (const Arrangement& arrangement)
+        {
+            const auto positions = arrangement.positions();
+            for (const auto& corner : corners())
+                if (! contains (positions, corner))
+                    return false;
+            return true;
+        };
+        auto sameSounds = [&] (const Arrangement& a, const Arrangement& b)
+        {
+            const auto first = a.positions(), second = b.positions();
+            if (first.size() != second.size())
+                return false;
+            for (const auto& position : first)
+                if (! contains (second, position))
+                    return false;
+            return true;
+        };
+        auto withLayerBetween = [] (Dimension dimension, float at)
+        {
+            Arrangement arrangement;
+            arrangement.layers[(size_t) dimension] = { -1.0f, at, 1.0f };
+            arrangement.order = { dimension, (Dimension) (((int) dimension + 1) % 3), (Dimension) (((int) dimension + 2) % 3) };
+            return arrangement;
+        };
+
+        beginTest ("It starts with five vertices, the planes in the order given, the widest range, and the corners of a box");
         {
             Bench bench;
             bench.search->begin();
@@ -2509,7 +2550,7 @@ public:
             expectEquals (bench.search->getVertexCount(), 5);
             expectWithinAbsoluteError (bench.search->getRangeDb(), 30.0f, 0.001f);
             expectEquals (bench.search->getNumStructuredPlanes(), 13, "4 of (C, C next), 5 of (C, D), 4 of (D, D next)");
-            expectEquals (bench.search->getPassSize(), 13 * 3, "a pass is every plane on every kind of trial");
+            expectEquals (bench.search->getPassSize(), 13, "a pass is every plane once");
 
             // Left ear's five gains, then the right's. C is both ears; D is left up, right down.
             const auto& planes = bench.search->getStructuredPlanes();
@@ -2522,29 +2563,110 @@ public:
             expect (planes[9].v == GuidedSearch::Vector { 0, 0, 0, 0, 1,  0, 0, 0, 0, -1 });
 
             expectEquals (bench.search->getPlane().structuredIndex, 0);
-            expect (bench.search->getGoal() == Goal::straighten, "the first pass is to straighten");
-            const auto& trial = bench.search->getTrial();
-            expect (trial.kind == Kind::height, "one line: three heights...");
-            expect (trial.positions[0] == Position { 0, -1, 0 } && trial.positions[1] == Position { 0, 0, 0 } && trial.positions[2] == Position { 0, 1, 0 },
-                    "...over the whole span, in the middle, at the middle level");
-            expectEquals ((int) bench.trialsPlayed.size(), 1, "and it's playing");
+            const auto& arrangement = bench.search->getArrangement();
+            expectEquals (arrangement.size(), 8, "what you judge is all three dimensions at once: two layers of each");
+            expect (! arrangement.middleDimension().has_value());
+            expect (hasEveryCorner (arrangement), "left and right, low and high, far and near");
+            expectEquals ((int) bench.played.size(), 1, "and it's playing");
         }
 
-        beginTest ("A trial plays A, B, C, B, each as many times as asked");
+        beginTest ("An arrangement goes from each sound to a neighbour, one step along one dimension, all the way round");
         {
-            GuidedSearch::Trial trial;
-            trial.kind = Kind::width;
-            trial.positions = { Position { -1, 0.5f, 0 }, Position { 0, 0.5f, 0 }, Position { 1, 0.5f, 0 } };
-            const auto bursts = trial.bursts (4);
-            expectEquals ((int) bursts.size(), 16);
-            for (int i = 0; i < 16; ++i)
-                expect (bursts[(size_t) i] == trial.positions[(size_t) (i < 4 ? 0 : i < 8 ? 1 : i < 12 ? 2 : 1)], "burst " + juce::String (i));
-            expectEquals ((int) trial.bursts (2).size(), 8);
-            expectEquals ((int) trial.bursts (8).size(), 32);
-            expectEquals (GuidedSearch::Trial::positionAtStep (3), 1, "the fourth step is the middle again");
+            const Arrangement box;
+            const std::vector<Position> expected { { -1, -1, -1 }, { 1, -1, -1 }, { 1, 1, -1 }, { -1, 1, -1 },   // pan, height, level: round the far side...
+                                                   { -1, 1, 1 }, { 1, 1, 1 }, { 1, -1, 1 }, { -1, -1, 1 } };     // ...and back round the near one
+            expect (box.positions() == expected);
+
+            // Every arrangement there is: the corners in each order, and a layer between in each dimension, each way round
+            std::vector<Arrangement> all;
+            for (int turn = 0; turn < 3; ++turn)
+            {
+                Arrangement cornersOnly;
+                cornersOnly.order = { (Dimension) turn, (Dimension) ((turn + 1) % 3), (Dimension) ((turn + 2) % 3) };
+                all.push_back (cornersOnly);
+                for (float at : { 0.0f, -0.5f, 0.5f })
+                {
+                    all.push_back (withLayerBetween ((Dimension) turn, at));
+                    all.push_back (all.back().reordered());
+                }
+            }
+            for (const auto& arrangement : all)
+            {
+                const auto positions = arrangement.positions();
+                const bool hasMiddle = arrangement.middleDimension().has_value();
+                expectEquals ((int) positions.size(), hasMiddle ? 12 : 8);
+                expectEquals (arrangement.size(), (int) positions.size());
+                expect (hasEveryCorner (arrangement), "the corners are always there");
+
+                std::array<int, 3> changes {};
+                for (size_t i = 0; i < positions.size(); ++i)
+                {
+                    const auto& from = positions[i];
+                    const auto& to = positions[(i + 1) % positions.size()]; // the last goes back to the first
+                    int changed = 0;
+                    for (auto dimension : { Dimension::width, Dimension::height, Dimension::depth })
+                    {
+                        if (from.along (dimension) == to.along (dimension))
+                            continue;
+                        ++changed;
+                        ++changes[(size_t) dimension];
+                        const auto& layers = arrangement.layersOf (dimension);
+                        const auto fromLayer = std::find (layers.begin(), layers.end(), from.along (dimension)) - layers.begin();
+                        const auto toLayer = std::find (layers.begin(), layers.end(), to.along (dimension)) - layers.begin();
+                        expectEquals ((int) std::abs (fromLayer - toLayer), 1, "to the next layer, not past one");
+                    }
+                    expectEquals (changed, 1, "one dimension changes between a sound and the next");
+                    for (size_t j = i + 1; j < positions.size(); ++j)
+                        expect (! (positions[i] == positions[j]), "and each sound's there once");
+                }
+                expectEquals (changes[(size_t) arrangement.order[0]], hasMiddle ? 8 : 4, "the first dimension changes most");
+                expectEquals (changes[(size_t) arrangement.order[1]], 2);
+                expectEquals (changes[(size_t) arrangement.order[2]], 2);
+                if (hasMiddle)
+                    expect (arrangement.order[0] == *arrangement.middleDimension(), "which the one with a layer between has to be");
+
+                // Another order is the same sounds
+                const auto other = arrangement.reordered();
+                expect (sameSounds (arrangement, other) && ! (other.positions() == positions));
+            }
+
+            // Each sound as many times as asked before the next
+            const auto bursts = box.bursts (4);
+            expectEquals ((int) bursts.size(), 32);
+            for (int i = 0; i < 32; ++i)
+                expect (bursts[(size_t) i] == expected[(size_t) (i / 4)], "burst " + juce::String (i));
+            expectEquals ((int) box.bursts (2).size(), 16);
+            expectLessOrEqual ((int) withLayerBetween (Dimension::height, 0.0f).bursts (8).size(), CalibrationPlayer::maxSequenceLength,
+                               "the longest there is, twelve sounds eight times each, fits in what the player can hold");
         }
 
-        beginTest ("A kind of trial plays once through before the pad does anything, the first time it comes up");
+        beginTest ("The dimension that changes most goes round from turn to turn, and the order stays put through a turn");
+        {
+            Bench bench;
+            bench.search->begin();
+            bench.listenFirst();
+            const auto first = bench.search->getArrangement();
+            expect (first.order[0] == Dimension::width);
+
+            // Dragging, letting go, hearing where it started: always the same sounds in the same order
+            bench.search->padMoved ({ 0.2f, 0.1f });
+            bench.search->padReleased();
+            bench.search->setHearingStart (true);
+            bench.search->setHearingStart (false);
+            bench.search->framePlayed();
+            for (const auto& played : bench.played)
+                expect (played == first);
+
+            bench.skip();
+            expect (bench.search->getArrangement().order[0] == Dimension::height, "the next turn, another dimension has the most comparisons");
+            expect (sameSounds (bench.search->getArrangement(), first), "of the same eight sounds");
+            bench.skip();
+            expect (bench.search->getArrangement().order[0] == Dimension::depth);
+            bench.skip();
+            expect (bench.search->getArrangement() == first, "and round again");
+        }
+
+        beginTest ("The arrangement plays once through before the pad does anything, the first time it comes up");
         {
             Bench bench;
             bench.search->begin();
@@ -2557,27 +2679,8 @@ public:
             bench.search->padMoved ({ 0.5f, 0.0f });
             expectWithinAbsoluteError (bench.heard[3], 15.0f, 0.001f);
 
-            // The kinds come round in turn: width, then depth, each introduced; then height again, which isn't
             bench.skip();
-            expect (bench.search->getTrial().kind == Kind::width && bench.search->getPhase() == Phase::introducing);
-            bench.search->framePlayed();
-            bench.skip();
-            expect (bench.search->getTrial().kind == Kind::depth && bench.search->getPhase() == Phase::introducing);
-            bench.search->framePlayed();
-            bench.skip();
-            expect (bench.search->getTrial().kind == Kind::height && bench.search->getPhase() == Phase::exploring, "you know this one");
-
-            // A width trial's three are left, middle and right; a depth trial's are three levels
-            Bench kinds;
-            kinds.search->begin();
-            kinds.skip();
-            const auto width = kinds.search->getTrial();
-            expect (width.positions[0].pan == -1.0f && width.positions[1].pan == 0.0f && width.positions[2].pan == 1.0f);
-            expect (width.positions[0].height == width.positions[2].height && width.positions[0].level == width.positions[2].level, "at one height and level");
-            kinds.skip();
-            const auto depth = kinds.search->getTrial();
-            expect (depth.positions[0].level == -1.0f && depth.positions[1].level == 0.0f && depth.positions[2].level == 1.0f);
-            expect (depth.positions[0].pan == depth.positions[2].pan && depth.positions[0].height == depth.positions[2].height, "at one pan and height");
+            expect (bench.search->getPhase() == Phase::exploring, "you know these sounds now, in whatever order");
         }
 
         beginTest ("The pad previews from the turn's starting curve, by the range along each axis");
@@ -2595,30 +2698,31 @@ public:
             expect (bench.curve == GuidedSearch::Vector { 1, 2, 3, 4, 5,  1, 2, 3, 4, 5 }, "and nothing's kept yet");
         }
 
-        beginTest ("A choice has to be heard out, and then hold up on the other two kinds of trial, to be kept");
+        beginTest ("A choice has to be heard out, and then hold up in another order and with more positions, to be kept");
         {
             Bench bench;
             bench.search->begin();
             bench.listenFirst();
+            const auto turn = bench.search->getArrangement();
 
             bench.search->padMoved ({ 0.5f, 0.0f });
             expect (! bench.search->canChoose(), "not while you're still dragging");
             bench.search->padReleased();
             expect (bench.search->getPhase() == Phase::settling);
-            expect (! bench.search->canChoose(), "nor until the line's played once through with it standing still");
+            expect (! bench.search->canChoose(), "nor until it's all played once through with it standing still");
             bench.search->framePlayed();
             expect (bench.search->canChoose());
 
             bench.search->choose (true);
             expect (bench.search->getPhase() == Phase::validatingBefore, "first the starting curve...");
             expect (bench.heard == bench.search->getStart());
-            expect (bench.search->getTrial().kind == Kind::width, "...on another kind of line: a height trial's first check is a width trial");
-            expect (bench.search->getGoal() == Goal::straighten, "with the same goal");
-            const auto firstCheck = bench.search->getTrial();
+            const auto firstCheck = bench.search->getArrangement();
+            expect (sameSounds (firstCheck, turn) && ! (firstCheck == turn), "...on the same sounds in another order: still every dimension at once");
+            expect (bench.search->getTurnArrangement() == turn);
             expect (! bench.search->canRespond(), "no answering before the change has been heard against it");
             bench.search->framePlayed();
             expect (bench.search->getPhase() == Phase::validatingAfter, "then the change...");
-            expect (bench.search->getTrial() == firstCheck, "...on exactly the same sounds");
+            expect (bench.search->getArrangement() == firstCheck, "...on exactly the same sounds, in the same order");
             expectWithinAbsoluteError (bench.heard[3], 15.0f, 0.001f);
             expect (bench.search->canRespond());
             bench.search->framePlayed();
@@ -2626,7 +2730,9 @@ public:
 
             bench.search->respond (Response::same);
             expect (bench.search->getPhase() == Phase::validatingBefore, "a second check...");
-            expect (bench.search->getTrial().kind == Kind::depth, "...on the third kind");
+            const auto secondCheck = bench.search->getArrangement();
+            expect (secondCheck.middleDimension().has_value() && secondCheck.size() == 12, "...with positions the choice wasn't made on: a layer between");
+            expect (hasEveryCorner (secondCheck), "as well as the corners, not instead of them");
             expectEquals (bench.search->getValidationIndex(), 1);
             expectEquals (bench.kept, 0);
             bench.check (Response::better);
@@ -2645,7 +2751,7 @@ public:
             expectEquals (bench.reverted, 1, "back to the curve it started from");
             expect (bench.curve == GuidedSearch::Vector (10, 0.0f));
             expectEquals (bench.search->getPlane().structuredIndex, 1, "on to the next structured plane");
-            expect (bench.search->getTrial().kind == Kind::width, "and the next kind of trial");
+            expect (bench.search->getPhase() == Phase::exploring);
 
             bench.choose (0.3f, 0.0f, false);
             expectEquals (bench.search->getPlane().structuredIndex, 2);
@@ -2658,11 +2764,11 @@ public:
         {
             Bench bench;
             bench.search->begin();
-            const auto trial = bench.search->getTrial();
+            const auto arrangement = bench.search->getArrangement();
             bench.keep (1.0f, 0.2f);
             expectEquals (bench.search->getPlane().structuredIndex, 0, "the same plane");
             expect (! bench.search->getPlane().isAdaptive);
-            expect (bench.search->getTrial() == trial, "on the same line");
+            expect (bench.search->getArrangement() == arrangement, "with the same sounds in the same order");
             expectWithinAbsoluteError (bench.search->getStart()[3], 30.0f, 0.001f, "from where it got to");
             expectWithinAbsoluteError (bench.search->getRangeDb(), 30.0f, 0.001f, "at the same range");
             expect (bench.search->getPad() == juce::Point<float>(), "with the pad back in the middle");
@@ -2682,7 +2788,7 @@ public:
             expectWithinAbsoluteError (GuidedSearch::largest (plane.v), 1.0f, 1.0e-5f);
             // Used so far: both ears at the fourth and fifth (the first plane). Of the rest, the next in the queue is the third.
             expect (plane.v == GuidedSearch::Vector { 0, 0, 1, 0, 0,  0, 0, 1, 0, 0 }, "the least-used direction, by the queue's order: both ears at the third vertex");
-            expect (bench.search->getTrial().kind == Kind::height, "on the kind of line that showed the improvement");
+            expectEquals (bench.search->getArrangement().size(), 8, "still judged on the whole arrangement");
 
             // Continue the movement: left undoes it, right goes further
             bench.search->padMoved ({ -0.5f, 0.0f });
@@ -2737,7 +2843,7 @@ public:
             Bench bench;
             bench.search->begin();
             bench.search->setHearingStart (true);
-            expect (! bench.search->isHearingStart(), "not while a line's being introduced");
+            expect (! bench.search->isHearingStart(), "not while the arrangement's being introduced");
             bench.listenFirst();
 
             bench.search->padMoved ({ 0.5f, 0.0f });
@@ -2767,18 +2873,18 @@ public:
             expect (! bench.search->isHearingStart(), "the checks play before and after by themselves");
         }
 
-        beginTest ("Passes come in pairs, to straighten and then to spread; with nothing kept, finer heights, then half the range, then more vertices");
+        beginTest ("A pass is every plane once; with nothing kept, a layer between, then nearer each side, then half the range, then more vertices");
         {
             Bench bench;
             bench.search->begin();
 
             // Say "no better" to everything
-            using Stage = std::tuple<int, float, int>; // vertices, range, how fine the heights are
+            using Stage = std::tuple<int, float, int>; // vertices, range, how many positions the arrangement's up to
             std::vector<std::pair<Stage, int>> stages;
             auto key = [&bench] { return Stage { bench.search->getVertexCount(), bench.search->getRangeDb(), bench.search->getCoverageLevel() }; };
             auto last = key();
             int turns = 0, guard = 0;
-            std::set<std::pair<int, int>> firstPass, secondPass; // plane and kind
+            std::set<int> firstPass;
             while (bench.search->getPhase() != Phase::finished && ++guard < 20000)
             {
                 if (key() != last)
@@ -2788,92 +2894,115 @@ public:
                     turns = 0;
                 }
                 ++turns;
-                if (stages.empty() && turns <= 78)
-                {
-                    const std::pair<int, int> planeAndKind { bench.search->getPlane().structuredIndex, (int) bench.search->getTrial().kind };
-                    (turns <= 39 ? firstPass : secondPass).insert (planeAndKind);
-                    expect (bench.search->getGoal() == (turns <= 39 ? Goal::straighten : Goal::expand), "turn " + juce::String (turns));
-                }
+                if (stages.empty())
+                    firstPass.insert (bench.search->getPlane().structuredIndex);
                 bench.skip();
             }
             stages.push_back ({ last, turns });
 
-            expectEquals ((int) firstPass.size(), 39, "the first pass had every plane on every kind of trial, once each, to straighten");
-            expectEquals ((int) secondPass.size(), 39, "and the second the same, to spread");
+            expectEquals ((int) firstPass.size(), 13, "the first pass had every plane, once each");
             const std::vector<std::pair<Stage, int>> expected {
-                { { 5, 30.0f, 0 }, 78 }, { { 5, 30.0f, 1 }, 78 }, { { 5, 30.0f, 2 }, 78 }, // finer heights before a smaller range
-                { { 5, 15.0f, 2 }, 78 }, { { 5, 7.5f, 2 }, 78 }, { { 5, 3.75f, 2 }, 78 },
-                { { 9, 15.0f, 2 }, 150 }, { { 9, 7.5f, 2 }, 150 }, { { 9, 3.75f, 2 }, 150 },
-                { { 17, 15.0f, 2 }, 294 }, { { 17, 7.5f, 2 }, 294 }, { { 17, 3.75f, 2 }, 294 } };
+                { { 5, 30.0f, 0 }, 13 }, { { 5, 30.0f, 1 }, 13 }, { { 5, 30.0f, 2 }, 13 }, // more positions before a smaller range
+                { { 5, 15.0f, 2 }, 13 }, { { 5, 7.5f, 2 }, 13 }, { { 5, 3.75f, 2 }, 13 },
+                { { 9, 15.0f, 2 }, 25 }, { { 9, 7.5f, 2 }, 25 }, { { 9, 3.75f, 2 }, 25 },
+                { { 17, 15.0f, 2 }, 49 }, { { 17, 7.5f, 2 }, 49 }, { { 17, 3.75f, 2 }, 49 } };
             expectEquals ((int) stages.size(), (int) expected.size());
             for (size_t i = 0; i < std::min (stages.size(), expected.size()); ++i)
                 expect (stages[i] == expected[i], "stage " + juce::String ((int) i) + ": " + juce::String (std::get<0> (stages[i].first)) + " vertices, +/-"
-                                                    + juce::String (std::get<1> (stages[i].first)) + " dB, heights " + juce::String (std::get<2> (stages[i].first))
+                                                    + juce::String (std::get<1> (stages[i].first)) + " dB, coverage " + juce::String (std::get<2> (stages[i].first))
                                                     + ", " + juce::String (stages[i].second) + " turns");
             expect (bench.refinedTo == std::vector<int> { 5, 9, 17 });
             expect (bench.search->getPhase() == Phase::finished);
             expectEquals (bench.kept, 0);
         }
 
-        beginTest ("Something kept in a pair of passes keeps the heights and the range as they are for another pair");
+        beginTest ("Something kept in a pass keeps the arrangement and the range as they are for another pass");
         {
             Bench bench;
             bench.search->begin();
-            bench.keep (0.3f, 0.0f); // one improvement, early on
+            bench.keep (0.3f, 0.0f); // one improvement, on the first plane
             int structuredTurns = 0, guard = 0;
-            while (structuredTurns < 78 + 40 && ++guard < 2000)
+            auto skipStructured = [&] (int upTo)
             {
-                if (! bench.search->getPlane().isAdaptive)
-                    ++structuredTurns;
-                bench.skip();
-            }
-            expectEquals (bench.search->getCoverageLevel(), 0, "well into the next pair, nothing's changed");
+                while (structuredTurns < upTo && ++guard < 2000)
+                {
+                    if (! bench.search->getPlane().isAdaptive)
+                        ++structuredTurns;
+                    bench.skip();
+                }
+            };
+            skipStructured (20); // the rest of that pass, and well into the next
+            expectEquals (bench.search->getCoverageLevel(), 0, "nothing's changed");
             expectWithinAbsoluteError (bench.search->getRangeDb(), 30.0f, 0.001f);
-            while (structuredTurns < 78 * 2 + 5 && ++guard < 2000)
-            {
-                if (! bench.search->getPlane().isAdaptive)
-                    ++structuredTurns;
-                bench.skip();
-            }
-            expectEquals (bench.search->getCoverageLevel(), 1, "that pair kept nothing: now the heights get finer");
+            skipStructured (27);
+            expectEquals (bench.search->getCoverageLevel(), 1, "that pass kept nothing: now there's a layer between");
             expectWithinAbsoluteError (bench.search->getRangeDb(), 30.0f, 0.001f, "before the range gets smaller");
         }
 
-        beginTest ("Finer heights: halves and then quarters of the span are added, the whole span stays in turn, and the other trials hold the new heights");
+        beginTest ("A layer between: each dimension has it in turn, the corners stay, and later it's nearer one side or the other too");
         {
             Bench bench;
             bench.search->begin();
-            using Triple = std::array<float, 3>;
-            expect (bench.search->getHeightTriples() == std::vector<Triple> { { -1, 0, 1 } });
-            expect (bench.search->getHeldHeights() == std::vector<float> { -1, 0, 1 });
-
             int guard = 0;
             while (bench.search->getCoverageLevel() == 0 && ++guard < 500)
                 bench.skip();
-            expect (bench.search->getHeightTriples() == std::vector<Triple> { { -1, 0, 1 }, { -1, -0.5f, 0 }, { 0, 0.5f, 1 } }, "each half, with the whole span kept");
-            expect (bench.search->getHeldHeights() == std::vector<float> { -1, -0.5f, 0, 0.5f, 1 });
+            expect (bench.search->getPhase() == Phase::introducing, "twelve sounds are new: they play once through first");
+            bench.listenFirst();
 
-            // Over a pass, the height trials go round all three, and the others hold every height
-            std::set<Triple> heightsPlayed;
-            std::set<float> heightsHeld;
-            for (int turn = 0; turn < 39; ++turn)
+            std::set<int> dimensions;
+            for (int turn = 0; turn < 3; ++turn)
             {
-                const auto trial = bench.search->getTrial();
-                if (trial.kind == Kind::height)
-                    heightsPlayed.insert ({ trial.positions[0].height, trial.positions[1].height, trial.positions[2].height });
-                else
-                    heightsHeld.insert (trial.positions[0].height);
+                const auto arrangement = bench.search->getArrangement();
+                expectEquals (arrangement.size(), 12, "three layers of one dimension, two of the others");
+                expect (hasEveryCorner (arrangement), "the box is still all there round it");
+                if (const auto middle = arrangement.middleDimension())
+                {
+                    dimensions.insert ((int) *middle);
+                    expect (arrangement.layersOf (*middle) == std::vector<float> { -1.0f, 0.0f, 1.0f }, "halfway between");
+                    expect (arrangement.order[0] == *middle);
+                }
+                expect (bench.search->getPhase() == Phase::exploring);
                 bench.skip();
             }
-            expectEquals ((int) heightsPlayed.size(), 3, "all three sets of heights came round");
-            expect (heightsPlayed.count ({ -1, 0, 1 }) == 1, "the whole span among them");
-            expect (heightsHeld == std::set<float> { -1, -0.5f, 0, 0.5f, 1 }, "width and depth trials held each height, the new ones too");
+            expectEquals ((int) dimensions.size(), 3, "width, height and depth each had the layer between");
 
             while (bench.search->getCoverageLevel() == 1 && ++guard < 1000)
                 bench.skip();
-            expectEquals ((int) bench.search->getHeightTriples().size(), 7, "then each quarter as well");
-            expectEquals ((int) bench.search->getHeldHeights().size(), 9);
+            expectEquals (bench.search->getCoverageLevel(), 2);
             expectWithinAbsoluteError (bench.search->getRangeDb(), 30.0f, 0.001f, "all before the range is touched");
+            std::set<std::pair<int, float>> layers;
+            for (int turn = 0; turn < 9; ++turn)
+            {
+                const auto arrangement = bench.search->getArrangement();
+                if (const auto middle = arrangement.middleDimension())
+                    layers.insert ({ (int) *middle, arrangement.layersOf (*middle)[1] });
+                expect (hasEveryCorner (arrangement));
+                bench.skip();
+            }
+            expectEquals ((int) layers.size(), 9, "each dimension's had it halfway, nearer its low side, and nearer its high side");
+            expect (layers.count ({ (int) Dimension::height, -0.5f }) == 1 && layers.count ({ (int) Dimension::depth, 0.5f }) == 1);
+        }
+
+        beginTest ("With a layer between already, a choice is checked in another order, and with the layer in another dimension");
+        {
+            Bench bench;
+            bench.search->begin();
+            int guard = 0;
+            while (bench.search->getCoverageLevel() == 0 && ++guard < 500)
+                bench.skip();
+            const auto turn = bench.search->getArrangement();
+            bench.choose (0.4f, 0.0f, true);
+
+            const auto firstCheck = bench.search->getArrangement();
+            expect (sameSounds (firstCheck, turn) && ! (firstCheck == turn), "the same twelve, in another order");
+            expect (firstCheck.middleDimension() == turn.middleDimension());
+            bench.check (Response::same);
+            const auto secondCheck = bench.search->getArrangement();
+            expect (secondCheck.middleDimension().has_value() && secondCheck.middleDimension() != turn.middleDimension(),
+                    "then positions it wasn't made on: the layer between is in another dimension");
+            expect (hasEveryCorner (secondCheck));
+            bench.check (Response::better);
+            expectEquals (bench.kept, 1);
         }
 
         beginTest ("Broad directions carry over to finer vertices, and everything's logged");
@@ -2914,7 +3043,7 @@ public:
                 }
         }
 
-        beginTest ("In the app: it redraws the curve through five points, plays each line, and a preview is heard but not kept");
+        beginTest ("In the app: it redraws the curve through five points, plays the arrangement, and a preview is heard but not kept");
         {
             CabinEqAudioProcessor processor;
             processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
@@ -2947,9 +3076,9 @@ public:
 
             auto& player = processor.getCalibration();
             expect (player.isPlaying() && player.getMode() == CalibrationPlayer::Mode::sequence);
-            player.setRate (CalibrationPlayer::maxRate); // so a line doesn't take long to play through
+            player.setRate (CalibrationPlayer::maxRate); // so it doesn't take long to play through
 
-            // Plays sound until this many more of the line's sounds have started
+            // Plays sound until this many more of the arrangement's sounds have started
             auto playBursts = [&] (int count)
             {
                 const int target = player.getSequenceBurstsPlayed() + count;
@@ -2982,15 +3111,15 @@ public:
                 return;
             const auto* search = view.getSearch();
 
-            // The first line plays once through before the pad does anything: A, B, C, B, four times each
+            // The arrangement plays once through before the pad does anything: eight sounds, four times each
             expect (search->getPhase() == GuidedSearch::Phase::introducing);
             expect (! pad->isEnabled(), "the pad's locked while you listen");
-            playBursts (16);
+            playBursts (32);
             view.poll();
-            expect (search->getPhase() == GuidedSearch::Phase::introducing, "sixteen sounds started isn't the last one finished");
+            expect (search->getPhase() == GuidedSearch::Phase::introducing, "thirty-two sounds started isn't the last one finished");
             playBursts (1);
             view.poll();
-            expect (search->getPhase() == GuidedSearch::Phase::exploring, "once the line's played through, the pad's yours");
+            expect (search->getPhase() == GuidedSearch::Phase::exploring, "once it's all played through, the pad's yours");
             expect (pad->isEnabled());
 
             // Drag the pad: the first plane's across is both ears at the fourth vertex
@@ -3006,15 +3135,15 @@ public:
             expect (! search->isHearingStart());
             expectWithinAbsoluteError (profile.getBandProfile().getPoints()[3].gain, startGain + 15.0f, 0.01f);
 
-            // More repetitions: the same line, each sound eight times
+            // More repetitions: the same sounds, each eight times
             view.setRepetitions (8);
             expectEquals (view.getRepetitions(), 8);
             pad->onGestureEnd();
             expect (search->getPhase() == GuidedSearch::Phase::settling);
-            playBursts (17);
+            playBursts (33);
             view.poll();
             expect (search->getPhase() == GuidedSearch::Phase::settling, "it's twice as long now");
-            playBursts (16);
+            playBursts (32);
             view.poll();
             expect (search->getPhase() == GuidedSearch::Phase::deciding);
             view.setRepetitions (4);
@@ -3023,11 +3152,7 @@ public:
             for (int skipped = 0; skipped < 4; ++skipped)
                 expect (press (skipped == 0 ? "No better" : "Skip"), "a turn can be skipped");
             expectWithinAbsoluteError (profile.getBandProfile().getPoints()[3].gain, startGain, 0.01f, "what wasn't kept is gone");
-            if (search->getPhase() == GuidedSearch::Phase::introducing)
-            {
-                playBursts (17);
-                view.poll();
-            }
+            expect (search->getPhase() == GuidedSearch::Phase::exploring, "the sounds are known by now");
 
             // All the way up: 30 dB more in the left ear and 30 less in the right, with nothing clipped
             pad->onChange ({ 0.5f, 1.0f });
@@ -3174,35 +3299,41 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
                 if (auto* found = dynamic_cast<XYPad*> (child))
                     pad = found;
 
-            // "width" and "depth" skip on to the second and third turns, which are those kinds of trial
-            for (int skips = stage == "width" ? 1 : stage == "depth" ? 2 : 0; skips > 0; --skips)
+            auto click = [view] (const juce::String& text)
+            {
                 for (auto* child : view->getChildren())
-                    if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->getButtonText() == "Skip")
+                    if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->getButtonText() == text)
                     {
                         button->onClick();
-                        break;
+                        return;
                     }
+            };
 
-            playBursts (stage == "intro" ? 6 : stage == "width" ? 2 : stage == "depth" ? 10 : 17); // partway through a line, or right through it
+            // "middle" skips on a pass, to where the arrangement has a layer between two of its sides
+            for (int skips = stage == "middle" ? 13 : 0; skips > 0; --skips)
+                click ("Skip");
+
+            playBursts (stage == "intro" ? 6 : stage == "middle" ? 22 : 33); // partway through, or right through it
             view->poll();
-            if (stage != "intro" && stage != "width" && stage != "depth" && pad != nullptr)
+            if (stage != "intro" && stage != "middle" && pad != nullptr)
             {
                 pad->onChange ({ 0.7f, 0.35f });
                 playBursts (10);
                 view->poll();
-                if (stage == "check")
+                if (stage == "check" || stage == "check2")
                 {
                     pad->onGestureEnd();
-                    playBursts (17);
+                    playBursts (33);
                     view->poll();
-                    for (auto* child : view->getChildren())
-                        if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->getButtonText() == "Better")
-                        {
-                            button->onClick();
-                            break;
-                        }
-                    playBursts (22); // before has played; now after
+                    click ("Better");
+                    playBursts (38); // before has played; now after
                     view->poll();
+                    if (stage == "check2")
+                    {
+                        click ("Same");
+                        playBursts (14); // the second check's before
+                        view->poll();
+                    }
                 }
             }
             juce::MessageManager::getInstance()->runDispatchLoopUntil (50);

@@ -71,27 +71,34 @@ loads the VST3 to EQ everything the Mac plays.
   (or click elsewhere on the field to bring it there; the arrow keys nudge it), and drag its bottom right corner to
   resize it about its centre. Its dots play in reading order.
 - **Calibration, Guided mode** (experimental; the panel's fourth mode): a search that gives you one change to the
-  curve at a time, and one thing to listen for.
+  curve at a time, and judges it on a whole arrangement of sounds: left and right, low and high, far and near, all
+  at once. (It never plays one of those by itself: a change that straightens the height can squash the depth, and
+  you'd not hear it.)
   - **Before you start**, choose the high-frequency bias: how much the curve's points bunch towards the top. A point
     a fraction t of the way along is 1 - (1 - t)^bias of the way from 20 Hz to 20 kHz, in octaves. 1 is evenly spaced
     (20, 112, 632, 3.6k, 20k); 1.5, the default, is 20, 225, 1.7k, 8.4k, 20k; 2 is more so. Play then redraws your
     curve through those 5 points (each ear's curve as close as 5 points allow; it's one undo step). A search keeps
     its bias; Start over ends it, so you can choose again.
-  - **Each turn is one trial**: a line of three sounds, played A, B, C, B round and round, each 2, 4 or 8 times
-    (4 to start). A Height trial's three differ in height (their low cut), a Width trial's in pan, and a Depth
-    trial's in level; the other two are held still. Three markers show how the line should sound (what to aim
-    for, not a measurement), and the one that's playing lights up. Beside them is what to listen for ("Make these
-    sounds form a clearly separated vertical line...") and the goal, which a whole pass shares: **Straighten**
-    (reduce bending or sideways drift without collapsing the separation) or **Expand** (increase separation without
-    introducing bending or drift).
-  - **Listen first**: the first time each kind of trial comes up, it plays once through before the pad does anything.
+  - **Each turn plays a box of sounds**: two layers across (pan: left and right), two up (the low cut: the grid's
+    bottom and top rows', about 112 Hz and 3.6 kHz) and two deep (level: the floor, and the volume), so its eight
+    corners. It goes from each sound to a neighbour, one step along one dimension at a time, round and round, each
+    sound 2, 4 or 8 times (4 to start) before the next. One dimension changes at every other step, one within each
+    half of the round and one between the halves; which is which goes round from turn to turn, so that none of them
+    always has the easiest comparisons, and the order stays as it is through a turn. A drawing of the box shows where
+    each sound should seem to be (what to aim for, not a measurement): what's far is smaller, and the one that's
+    playing lights up and is named under it ("High, left, near").
+  - **One thing to listen for**, every turn: "Make the whole arrangement larger and more consistent. Listen for
+    compression, collapse, or distortion anywhere in the arrangement."
+  - **Listen first**: the first time the box comes up, and the first time it has twelve sounds, it plays once
+    through before the pad does anything.
   - **Then drag the pad**. It makes two changes at once, named under the instructions, by up to the range (+/-30 dB
     to start) each way from the middle, which is no change. You hear it, and see it on the graph. **Hear start**
     plays the setting the turn began with, without losing where the dot is.
-  - **Let go**, and the line plays once through with your choice. Then say whether it's **Better**, or **Skip** it.
-  - **A better one is checked** on the other two kinds of trial, each announced as its own trial with the same
-    goal: it plays with the starting setting (BEFORE), then your change (AFTER), until you answer Better, Same or
-    Worse. It's kept only if it's worse on neither. A turn is one undo step; a change that isn't kept is undone.
+  - **Let go**, and it all plays once through with your choice. Then say whether it's **Better**, or **Skip** it.
+  - **A better one is checked** twice, on the whole arrangement both times: the same sounds in another order, and
+    then with more positions (a layer between two of the box's sides, where the turn hadn't one). Each check plays
+    with the starting setting (BEFORE), then your change (AFTER), until you answer Better, Same or Worse. It's kept
+    only if it's worse on neither. A turn is one undo step; a change that isn't kept is undone.
 
   What comes next depends on what happened. A kept change at the pad's edge gets the same pad and sounds again,
   recentred, to go further. Any other kept change gets a pad whose across is that change (left undoes it, right goes
@@ -99,13 +106,12 @@ loads the VST3 to EQ everything the Mac plays.
   running, it's back to the list. Anything not kept moves on down the list: neighbouring points together, each point
   with its difference between the ears, and neighbouring differences, from the highest point to the lowest.
 
-  A pass is everything on the list with each kind of trial. Passes come in pairs, one to straighten and one to
-  expand. What's held still in a trial comes round in turn, and so do the heights: at first a Height trial's three
-  span everything (the grid's three rows' low cuts). After a pair of passes with nothing kept, each half of the span
-  is added, then each quarter, with the whole span still coming round, and Width and Depth trials holding the new
-  heights too. Only after that does the range halve (30, 15, 7.5, 3.75 dB), and after the smallest, the points
+  A pass is everything on the list, once. After a pass with nothing kept, the box gets a layer between two of its
+  sides: three layers of one dimension (across, up and deep taking it in turn) and so twelve sounds, with the corners
+  always there. At first the layer's halfway; after another pass with nothing kept, it's nearer one side or the
+  other as well. Only after that does the range halve (30, 15, 7.5, 3.75 dB), and after the smallest, the points
   double (5, 9, 17), keeping the ones there were, and it starts on them at +/-15 dB. Speed, Attack, Release, Volume
-  and Floor (the quietest of a Depth trial's three levels) are the panel's own sliders. Everything tried, and what
+  and Floor (the level of the box's far side) are the panel's own sliders. Everything tried, and what
   you answered, is written to a file in `~/Library/Application Support/CabinEQ/Guided calibration` (the Log
   button shows it). The search is `GuidedSearch.h`, which knows nothing of audio; `GuidedCalibrationView.h` joins
   it to the curve and the player.

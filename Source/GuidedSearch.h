@@ -4,9 +4,10 @@
     GuidedSearch.h
 
     Experimental: a guided way to calibrate. Each turn it gives you a plane to
-    explore with a pad, plays one line of three sounds while you do, and keeps what
-    you choose only if it holds up against the curve you started the turn from on
-    the other two kinds of line.
+    explore with a pad, plays a whole arrangement of sounds while you do (left
+    and right, low and high, far and near, all at once), and keeps what you
+    choose only if it holds up against the curve you started the turn from when
+    the arrangement's played in another order, and with more positions in it.
 
     The curve is a vector: each vertex's gain in the left ear, then each one's in
     the right. A plane is two directions in that vector, u and v, and the pad at
@@ -24,33 +25,36 @@
         (C i, D i)     a region's level, and its difference between the ears
         (D i, D i+1)   neighbouring ear differences
 
-    A turn is one trial: a line of three sounds, A, B and C, played A, B, C, B
-    round and round. A height trial's three differ in height (their low cut), a
-    width trial's in pan, a depth trial's in level; the other two are held. The
-    first time a kind of trial comes up, it plays once through before the pad
-    does anything, so you know what you're listening to. Each turn has a goal,
-    which the whole pass shares: to straighten the line, or to spread it out.
+    What you judge is never one dimension by itself. An arrangement is a box of
+    sounds: two layers across (pan), two up (the low cut) and two deep (level), so
+    its eight corners; and it's played by going from each to a neighbour, one
+    step along one dimension at a time, round and round. One dimension changes at
+    every other step, one within each half of the round and one between the
+    halves, and which is which goes round from turn to turn, so that none of them
+    always has the easiest comparisons. The order stays as it is through a turn.
+    The first time an arrangement comes up, it plays once through before the pad
+    does anything.
 
     After a choice that holds up:
-        if it touched the pad's edge, the same plane and trial again, recentred;
+        if it touched the pad's edge, the same plane and arrangement again, recentred;
         otherwise an adaptive plane: across is that movement (continue it or undo
         it), up is the least-used direction that isn't nearly parallel to it,
         with its part along the movement taken out.
     After one that doesn't, or no improvement: the next structured plane.
     After two adaptive turns running: one structured turn.
 
-    A pass is every structured plane on every kind of trial; adaptive turns are
-    extra. Passes come in pairs, one to straighten and one to spread. After a pair
-    with nothing kept, the height trials get finer: their three heights were the
-    whole span, then each half of it is added, then each quarter (and the heights
-    held in width and depth trials come from the same set). Only when they're as
-    fine as they go does the range halve; when it's under the smallest range, the
-    vertices double (5, 9, 17), keeping the curve.
+    A pass is every structured plane once; adaptive turns are extra. After a pass
+    with nothing kept, the arrangement gets a layer between two of its sides:
+    three layers along one dimension, which goes round from turn to turn, and so
+    twelve sounds. First the layer's halfway; after another such pass it's nearer
+    one side or the other as well. The corners are always there. Only when
+    that's as fine as it goes does the range halve; when it's under the smallest
+    range, the vertices double (5, 9, 17), keeping the curve.
 
     This class is only the controller. It knows nothing of audio or the profile:
-    it's given callbacks to read the vertices, preview and commit a curve, play a
-    trial, and refine the vertices, and it's told what happens (the pad moved, the
-    line finished playing, what you answered).
+    it's given callbacks to read the vertices, preview and commit a curve, play an
+    arrangement, and refine the vertices, and it's told what happens (the pad
+    moved, the arrangement finished playing, what you answered).
 
   ==============================================================================
 */
@@ -59,45 +63,98 @@
 
 #include <JuceHeader.h>
 #include <numeric>
-#include <set>
 
 class GuidedSearch
 {
 public:
     using Vector = std::vector<float>;
 
-    enum class Kind { height = 0, width = 1, depth = 2 };
-    enum class Goal { straighten = 0, expand = 1 };
+    enum class Dimension { width = 0, height = 1, depth = 2 };
+
+    /// Where a sound is: its pan, its height (how high its low cut is) and its level, each from -1 to 1
+    struct Position
+    {
+        float pan = 0.0f, height = 0.0f, level = 0.0f;
+
+        float& along (Dimension dimension)      { return dimension == Dimension::width ? pan : dimension == Dimension::height ? height : level; }
+        float along (Dimension dimension) const { return dimension == Dimension::width ? pan : dimension == Dimension::height ? height : level; }
+        bool operator== (const Position& other) const { return pan == other.pan && height == other.height && level == other.level; }
+    };
 
     //==============================================================================
-    /// A line of three sounds, each a pan, a height and a level from -1 to 1. One of the three differs along the
-    /// line; the other two are held.
-    struct Trial
+    /// A box of sounds, and the order they're played in
+    struct Arrangement
     {
-        struct Position
+        /// Where each dimension's layers are, lowest first: its two ends, or those with one between
+        std::array<std::vector<float>, 3> layers { { { -1.0f, 1.0f }, { -1.0f, 1.0f }, { -1.0f, 1.0f } } };
+
+        /// The dimension that changes at every other step (the only one that can have a layer between its ends),
+        /// the one that changes within each half of the round, and the one that changes between the halves
+        std::array<Dimension, 3> order { Dimension::width, Dimension::height, Dimension::depth };
+
+        const std::vector<float>& layersOf (Dimension dimension) const { return layers[(size_t) dimension]; }
+        int size() const { return (int) (layers[0].size() * layers[1].size() * layers[2].size()); }
+
+        /// The dimension with a layer between its ends, if there is one
+        std::optional<Dimension> middleDimension() const
         {
-            float pan = 0.0f, height = 0.0f, level = 0.0f;
-            bool operator== (const Position& other) const { return pan == other.pan && height == other.height && level == other.level; }
-        };
+            for (auto dimension : { Dimension::width, Dimension::height, Dimension::depth })
+                if (layersOf (dimension).size() > 2)
+                    return dimension;
+            return std::nullopt;
+        }
 
-        Kind kind = Kind::height;
-        std::array<Position, 3> positions {}; // A, the low end; B, the middle; C, the high end
-
-        /// Which of the three plays at each of the four steps: A, B, C, B
-        static constexpr int numSteps = 4;
-        static int positionAtStep (int step) { return step % numSteps == 3 ? 1 : step % numSteps; }
-
-        /// A, B, C, B, each this many times
-        std::vector<Position> bursts (int repetitions) const
+        /// Every sound once, each a neighbour of the last (and the first of the last): one step along one dimension.
+        /// Out along the first dimension at the second's low end and back at its high end, at the third's low end;
+        /// then the same backwards at the third's high end.
+        std::vector<Position> positions() const
         {
+            const auto& first = layersOf (order[0]);
+            const auto& second = layersOf (order[1]);
+            const auto& third = layersOf (order[2]);
+            jassert (second.size() == 2 && third.size() == 2);
+
+            std::vector<std::pair<size_t, size_t>> ring;
+            for (size_t i = 0; i < first.size(); ++i)
+                ring.push_back ({ i, 0 });
+            for (size_t i = first.size(); i-- > 0;)
+                ring.push_back ({ i, 1 });
+
             std::vector<Position> all;
-            for (int step = 0; step < numSteps; ++step)
-                for (int repeat = 0; repeat < repetitions; ++repeat)
-                    all.push_back (positions[(size_t) positionAtStep (step)]);
+            for (size_t half = 0; half < 2; ++half)
+                for (size_t step = 0; step < ring.size(); ++step)
+                {
+                    const auto [i, j] = ring[half == 0 ? step : ring.size() - 1 - step];
+                    Position position;
+                    position.along (order[0]) = first[i];
+                    position.along (order[1]) = second[j];
+                    position.along (order[2]) = third[half];
+                    all.push_back (position);
+                }
             return all;
         }
 
-        bool operator== (const Trial& other) const { return kind == other.kind && positions == other.positions; }
+        /// Each sound this many times before the next
+        std::vector<Position> bursts (int repetitions) const
+        {
+            std::vector<Position> all;
+            for (const auto& position : positions())
+                all.insert (all.end(), (size_t) std::max (1, repetitions), position);
+            return all;
+        }
+
+        /// The same sounds, played in another order
+        Arrangement reordered() const
+        {
+            auto other = *this;
+            if (middleDimension().has_value())
+                std::swap (other.order[1], other.order[2]); // the one with three layers has to stay first
+            else
+                other.order = { order[1], order[2], order[0] };
+            return other;
+        }
+
+        bool operator== (const Arrangement& other) const { return layers == other.layers && order == other.order; }
     };
 
     struct Plane
@@ -118,12 +175,9 @@ public:
         float nearlyParallel = 0.95f;     // cosine similarity above this is no use as a second axis
         int adaptiveTurnsBeforeStructured = 2;
 
-        /// The heights a height trial's three sounds are at, each level of coverage adding finer ones to the last
-        std::vector<std::vector<std::array<float, 3>>> heightTriples {
-            { { -1.0f, 0.0f, 1.0f } },
-            { { -1.0f, -0.5f, 0.0f }, { 0.0f, 0.5f, 1.0f } },
-            { { -1.0f, -0.75f, -0.5f }, { -0.5f, -0.25f, 0.0f }, { 0.0f, 0.25f, 0.5f }, { 0.5f, 0.75f, 1.0f } }
-        };
+        /// Where the layer between a dimension's two ends can be, for each level of coverage: none to begin with
+        /// (just the corners), then halfway, then nearer one end or the other as well
+        std::vector<std::vector<float>> middleLayers { {}, { 0.0f }, { 0.0f, -0.5f, 0.5f } };
     };
 
     struct Callbacks
@@ -133,13 +187,13 @@ public:
         std::function<void (const Vector&)> commit;              // keep this one
         std::function<void (const Vector&)> revert;              // back to this one, the turn's start
         std::function<Vector (int vertexCount)> refine;          // make the curve this many vertices, keeping its shape
-        std::function<void (const Trial&)> playTrial;            // from its first sound, round and round
+        std::function<void (const Arrangement&)> playArrangement; // from its first sound, round and round
         std::function<juce::String (int vertex, int vertexCount)> vertexName; // "632 Hz", for naming directions
         std::function<void()> turnStarted;
         std::function<void (const juce::var&)> log;
     };
 
-    /// introducing: a kind of trial's first time, playing once through before the pad does anything
+    /// introducing: an arrangement's first time, playing once through before the pad does anything
     enum class Phase { idle, introducing, exploring, settling, deciding, validatingBefore, validatingAfter, finished };
     enum class Response { better, same, worse };
 
@@ -147,12 +201,9 @@ public:
     GuidedSearch (Config configToUse, Callbacks callbacksToUse)
         : config (std::move (configToUse)), callbacks (std::move (callbacksToUse))
     {
-        // Where the held pan and level come from, turn by turn: the middle first, then round the corners and edges
-        spots = { { 0.0f, 0.0f }, { -1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f }, { 1.0f, -1.0f },
-                  { 0.0f, -1.0f }, { 0.0f, 1.0f }, { -1.0f, 0.0f }, { 1.0f, 0.0f } };
     }
 
-    /// Starts from the curve as it is, at the coarsest vertices, the widest range and the plainest trials
+    /// Starts from the curve as it is, at the coarsest vertices, the widest range and just the corners
     void begin()
     {
         levelIndex = 0;
@@ -160,12 +211,10 @@ public:
         directions.clear();
         turnNumber = 0;
         introduced = {};
-        goal = Goal::straighten;
-        keptInRound = false;
-        planeCursor = kindCursor = spotCursor = tripleCursor = heldHeightCursor = 0;
+        coverageLevel = 0;
+        planeCursor = arrangementCursor = checkCursor = 0;
         callbacks.refine (config.vertexCounts[0]); // the curve as it is, through the coarsest vertices
         setVertexCount (config.vertexCounts[0], {});
-        setCoverageLevel (0);
         log ("begin", {});
         startPass();
         startStructuredTurn();
@@ -175,9 +224,8 @@ public:
     // What's happening, for whatever's showing it
     Phase getPhase() const               { return phase; }
     const Plane& getPlane() const        { return plane; }
-    const Trial& getTrial() const        { return playingTrial; } // what's playing: the turn's own, or a check's
-    const Trial& getTurnTrial() const    { return turnTrial; }
-    Goal getGoal() const                 { return turnGoal; }     // the same through a turn's checks
+    const Arrangement& getArrangement() const     { return playing; } // what's playing: the turn's own, or a check's
+    const Arrangement& getTurnArrangement() const { return turnArrangement; }
     float getRangeDb() const             { return range; }
     int getVertexCount() const           { return numVertices; }
     juce::Point<float> getPad() const    { return pad; }
@@ -185,17 +233,16 @@ public:
     int getValidationIndex() const       { return validationIndex; }
     int getNumChecks() const             { return 2; }
     int getNumStructuredPlanes() const   { return (int) structuredPlanes.size(); }
-    int getPassSize() const              { return (int) structuredPlanes.size() * 3; }
+    int getPassSize() const              { return (int) structuredPlanes.size(); }
     int getPassDone() const              { return passDone; }
     int getCoverageLevel() const         { return coverageLevel; }
-    const std::vector<std::array<float, 3>>& getHeightTriples() const { return activeTriples; }
-    const std::vector<float>& getHeldHeights() const { return heldHeights; }
+    int getNumCoverageLevels() const     { return (int) config.middleLayers.size(); }
     const Vector& getStart() const       { return start; }
     Vector getCandidate() const          { return previewAt (pad); }
     bool hasMoved() const                { return std::abs (pad.x) > 1.0e-4f || std::abs (pad.y) > 1.0e-4f; }
     bool isHearingStart() const          { return hearingStart; }
 
-    /// Whether the pad does anything: not while a trial's being introduced, or a choice is being checked
+    /// Whether the pad does anything: not while an arrangement's being introduced, or a choice is being checked
     bool canExplore() const              { return phase == Phase::exploring || phase == Phase::settling || phase == Phase::deciding; }
     /// Whether you can say yet that the choice is better: it's had its one complete time through, and it's a change
     bool canChoose() const               { return phase == Phase::deciding && hasMoved() && ! hearingStart; }
@@ -221,20 +268,20 @@ public:
         if (phase != Phase::exploring)
         {
             phase = Phase::exploring;
-            play (turnTrial);
+            play (turnArrangement);
         }
         hearingStart = false; // dragging is for hearing the change
         pad = { juce::jlimit (-1.0f, 1.0f, at.x), juce::jlimit (-1.0f, 1.0f, at.y) };
         callbacks.preview (previewAt (pad));
     }
 
-    /// Let go: the line plays once right through with the choice, standing still, before it can be called better
+    /// Let go: the arrangement plays once right through with the choice, standing still, before it can be called better
     void padReleased()
     {
         if (phase != Phase::exploring)
             return;
         phase = Phase::settling;
-        play (turnTrial);
+        play (turnArrangement);
     }
 
     /// Hear the curve the turn started from, without losing where the pad is. Turning it off again gives the
@@ -248,16 +295,16 @@ public:
         if (! hearingStart && phase != Phase::exploring)
         {
             phase = Phase::settling;
-            play (turnTrial);
+            play (turnArrangement);
         }
     }
 
-    /// The line that's playing has played right through
+    /// The arrangement that's playing has played right through
     void framePlayed()
     {
         if (phase == Phase::introducing)
         {
-            introduced[(size_t) turnTrial.kind] = true;
+            setIntroduced (turnArrangement);
             phase = Phase::exploring;
         }
         else if (phase == Phase::settling)
@@ -267,22 +314,22 @@ public:
         }
         else if (phase == Phase::validatingBefore)
         {
-            introduced[(size_t) playingTrial.kind] = true; // heard with the curve standing still
+            setIntroduced (playing); // heard with the curve standing still
             phase = Phase::validatingAfter;
             callbacks.preview (candidate);
-            play (playingTrial);
+            play (playing);
         }
         else if (phase == Phase::validatingAfter)
         {
             heardAfter = true;
             phase = Phase::validatingBefore;
             callbacks.preview (start);
-            play (playingTrial);
+            play (playing);
         }
     }
 
-    /// "It's better" goes on to check it on the other two kinds of trial; "it's not" (or skipping the turn) drops
-    /// it and moves to the next structured plane
+    /// "It's better" goes on to check it: on the same sounds in another order, and then on more positions.
+    /// "It's not" (or skipping the turn) drops it and moves to the next structured plane.
     void choose (bool isBetter)
     {
         if (phase != Phase::introducing && ! canExplore())
@@ -299,14 +346,12 @@ public:
         responses.clear();
         validationIndex = 0;
 
-        // The other two kinds, each its own trial, with the same sounds for its before and its after
-        validationTrials.clear();
-        for (int step = 1; step <= 2; ++step)
-            validationTrials.push_back (makeTrial ((Kind) (((int) turnTrial.kind + step) % 3)));
+        // Both are the whole arrangement again, never a part of it, each with the same sounds for its before and after
+        checks = { turnArrangement.reordered(), withMorePositions (turnArrangement) };
         startValidation();
     }
 
-    /// Against the starting curve on this trial, the change is...
+    /// Against the starting curve on this check, the change is...
     void respond (Response response)
     {
         if (! canRespond())
@@ -316,7 +361,7 @@ public:
         {
             finishTurn (false); // kept only if it's worse on neither
         }
-        else if (++validationIndex < (int) validationTrials.size())
+        else if (++validationIndex < (int) checks.size())
         {
             startValidation();
         }
@@ -529,63 +574,73 @@ private:
     }
 
     //==============================================================================
-    // Trials
+    // Arrangements
 
-    /// The height trials' heights up to this level of coverage, coarsest first, so the whole span stays in turn
-    /// with the finer ones; and every height among them, for width and depth trials to hold
-    void setCoverageLevel (int level)
+    static Dimension dimensionAt (int index) { return (Dimension) (((index % 3) + 3) % 3); }
+
+    /// The box with a layer between the ends of one dimension, which then has to be the one that changes most
+    static Arrangement withMiddleLayer (Dimension dimension, float at, bool otherWayRound)
     {
-        coverageLevel = juce::jlimit (0, (int) config.heightTriples.size() - 1, level);
-        activeTriples.clear();
-        std::set<float> heights;
-        for (int i = 0; i <= coverageLevel; ++i)
-            for (const auto& triple : config.heightTriples[(size_t) i])
-            {
-                activeTriples.push_back (triple);
-                heights.insert (triple.begin(), triple.end());
-            }
-        heldHeights.assign (heights.begin(), heights.end());
+        Arrangement arrangement;
+        arrangement.layers[(size_t) dimension] = { -1.0f, at, 1.0f };
+        arrangement.order = { dimension, dimensionAt ((int) dimension + (otherWayRound ? 2 : 1)), dimensionAt ((int) dimension + (otherWayRound ? 1 : 2)) };
+        return arrangement;
     }
 
-    /// The next trial of a kind: its line across the whole span (or, for heights, the next three heights in
-    /// turn), with what it holds still taken from the next spot and the next height in turn
-    Trial makeTrial (Kind kind)
+    /// The next arrangement to explore with. Just the corners, to begin with, each dimension taking its turn as
+    /// the one that changes most; then with a layer between, each dimension taking its turn to have it, and the
+    /// places it can be coming round after that.
+    Arrangement nextArrangement()
     {
-        const auto spot = spots[(size_t) spotCursor];
-        spotCursor = (spotCursor + 1) % (int) spots.size();
-        const std::array<float, 3> span { -1.0f, 0.0f, 1.0f };
-
-        Trial trial;
-        trial.kind = kind;
-        if (kind == Kind::height)
+        const int turn = arrangementCursor++;
+        const auto& middles = config.middleLayers[(size_t) coverageLevel];
+        if (middles.empty())
         {
-            const auto heights = activeTriples[(size_t) tripleCursor % activeTriples.size()];
-            ++tripleCursor;
-            for (size_t i = 0; i < 3; ++i)
-                trial.positions[i] = { spot.first, heights[i], spot.second };
+            Arrangement corners;
+            corners.order = { dimensionAt (turn), dimensionAt (turn + 1), dimensionAt (turn + 2) };
+            return corners;
         }
-        else
-        {
-            const float height = heldHeights[(size_t) heldHeightCursor % heldHeights.size()];
-            ++heldHeightCursor;
-            for (size_t i = 0; i < 3; ++i)
-                trial.positions[i] = kind == Kind::width ? Trial::Position { span[i], height, spot.second }
-                                                         : Trial::Position { spot.first, height, span[i] };
-        }
-        return trial;
+        const int round = turn / 3;
+        return withMiddleLayer (dimensionAt (turn), middles[(size_t) round % middles.size()], round % 2 == 1);
     }
+
+    /// For checking a choice on positions it wasn't made with: a layer between the ends of a dimension that
+    /// hasn't got one, the dimensions (and the places the layer can be) taking it in turn
+    Arrangement withMorePositions (const Arrangement& arrangement)
+    {
+        std::vector<Dimension> candidates;
+        for (auto dimension : { Dimension::width, Dimension::height, Dimension::depth })
+            if (arrangement.middleDimension() != dimension)
+                candidates.push_back (dimension);
+
+        const int turn = checkCursor++;
+        const auto& middles = config.middleLayers[(size_t) std::max (coverageLevel, firstLevelWithMiddles())];
+        const float at = middles.empty() ? 0.0f : middles[(size_t) (turn / (int) candidates.size()) % middles.size()];
+        return withMiddleLayer (candidates[(size_t) turn % candidates.size()], at, false);
+    }
+
+    int firstLevelWithMiddles() const
+    {
+        for (int level = 0; level < (int) config.middleLayers.size(); ++level)
+            if (! config.middleLayers[(size_t) level].empty())
+                return level;
+        return 0;
+    }
+
+    /// Which you've heard once through: just the corners, and with a layer between
+    bool isIntroduced (const Arrangement& arrangement) const { return introduced[arrangement.middleDimension().has_value() ? 1 : 0]; }
+    void setIntroduced (const Arrangement& arrangement)      { introduced[arrangement.middleDimension().has_value() ? 1 : 0] = true; }
 
     //==============================================================================
     // Turns
 
     void startPass()
     {
-        covered.assign (structuredPlanes.size() * 3, false);
         passDone = 0;
         keptInPass = false;
     }
 
-    /// The next structured plane, on a kind of trial it's not had this pass
+    /// The next structured plane, with the next arrangement
     void startStructuredTurn()
     {
         if (passDone >= getPassSize())
@@ -598,54 +653,39 @@ private:
         planeCursor = (planeCursor + 1) % (int) structuredPlanes.size();
         ++directions[(size_t) planeDirections[planeIndex].first].uses;
         ++directions[(size_t) planeDirections[planeIndex].second].uses;
-
-        // The first kind from where we are that this plane hasn't had
-        Kind kind = Kind::height;
-        for (int step = 0; step < 3; ++step)
-        {
-            const int candidateKind = (kindCursor + step) % 3;
-            if (! covered[planeIndex * 3 + (size_t) candidateKind])
-            {
-                covered[planeIndex * 3 + (size_t) candidateKind] = true;
-                ++passDone;
-                kind = (Kind) candidateKind;
-                kindCursor = (candidateKind + 1) % 3;
-                break;
-            }
-        }
-        startTurn (structuredPlanes[planeIndex], makeTrial (kind));
+        ++passDone;
+        startTurn (structuredPlanes[planeIndex], nextArrangement());
     }
 
-    void startTurn (const Plane& planeToExplore, const Trial& trial)
+    void startTurn (const Plane& planeToExplore, const Arrangement& arrangement)
     {
         ++turnNumber;
         plane = planeToExplore;
-        turnTrial = trial;
-        turnGoal = goal;
+        turnArrangement = arrangement;
         start = callbacks.readVertices();
         start.resize ((size_t) numVertices * 2, 0.0f);
         beginTurn();
     }
 
-    /// The turn from its beginning: the pad in the middle, and if this kind of trial is new, once through first
+    /// The turn from its beginning: the pad in the middle, and if this arrangement is new, once through first
     void beginTurn()
     {
         pad = {};
         heardAfter = false;
         hearingStart = false;
         responses.clear();
-        validationTrials.clear();
+        checks.clear();
         validationIndex = 0;
-        phase = introduced[(size_t) turnTrial.kind] ? Phase::exploring : Phase::introducing;
+        phase = isIntroduced (turnArrangement) ? Phase::exploring : Phase::introducing;
         if (callbacks.turnStarted)
             callbacks.turnStarted();
-        play (turnTrial);
+        play (turnArrangement);
     }
 
-    void play (const Trial& trial)
+    void play (const Arrangement& arrangement)
     {
-        playingTrial = trial;
-        callbacks.playTrial (trial);
+        playing = arrangement;
+        callbacks.playArrangement (arrangement);
     }
 
     void startValidation()
@@ -653,7 +693,7 @@ private:
         heardAfter = false;
         phase = Phase::validatingBefore;
         callbacks.preview (start);
-        play (validationTrials[(size_t) validationIndex]);
+        play (checks[(size_t) validationIndex]);
     }
 
     void finishTurn (bool kept)
@@ -688,7 +728,7 @@ private:
             // There may be further to go: the same plane and the same sounds, at the same range, from where it's got to
             if (plane.isAdaptive)
                 ++adaptiveRun;
-            startTurn (plane, turnTrial);
+            startTurn (plane, turnArrangement);
             return;
         }
 
@@ -697,7 +737,7 @@ private:
             if (auto adaptive = adaptivePlaneFrom (movement))
             {
                 ++adaptiveRun;
-                startTurn (*adaptive, makeTrial (turnTrial.kind)); // the kind that showed the improvement
+                startTurn (*adaptive, nextArrangement());
                 return;
             }
         }
@@ -707,35 +747,23 @@ private:
     //==============================================================================
     // Passes, coverage, ranges and refining
 
-    /// Passes come in pairs: one to straighten the lines, then one to spread them. A pair with nothing kept
-    /// means there's nothing more to find like this.
+    /// A pass with nothing kept means there's nothing more to find like this
     void endPass()
     {
-        log ("pass", { { "kept", keptInPass }, { "goal", goal == Goal::straighten ? "straighten" : "expand" } });
-        keptInRound = keptInRound || keptInPass;
-
-        if (goal == Goal::straighten)
-        {
-            goal = Goal::expand;
-        }
-        else
-        {
-            goal = Goal::straighten;
-            if (! keptInRound)
-                lookCloserOrNarrow();
-            keptInRound = false;
-        }
+        log ("pass", { { "kept", keptInPass } });
+        if (! keptInPass)
+            lookCloserOrNarrow();
         if (phase != Phase::finished)
             startPass();
     }
 
-    /// Finer height trials first. Only when those are as fine as they go, a smaller range; and under the smallest
-    /// range, more vertices.
+    /// More positions in the arrangement first. Only when it's as fine as it goes, a smaller range; and under
+    /// the smallest range, more vertices.
     void lookCloserOrNarrow()
     {
-        if (coverageLevel + 1 < (int) config.heightTriples.size())
+        if (coverageLevel + 1 < (int) config.middleLayers.size())
         {
-            setCoverageLevel (coverageLevel + 1);
+            ++coverageLevel;
             log ("coverage", { { "level", coverageLevel } });
             return;
         }
@@ -774,10 +802,11 @@ private:
         return values;
     }
 
-    static juce::var toVar (const Trial& trial)
+    static juce::var toVar (const Arrangement& arrangement)
     {
-        juce::Array<juce::var> positions;
-        for (const auto& position : trial.positions)
+        static const char* const names[] { "width", "height", "depth" };
+        juce::Array<juce::var> positions, order;
+        for (const auto& position : arrangement.positions())
         {
             auto* object = new juce::DynamicObject();
             object->setProperty ("pan", position.pan);
@@ -785,8 +814,16 @@ private:
             object->setProperty ("level", position.level);
             positions.add (juce::var (object));
         }
+        for (auto dimension : arrangement.order)
+            order.add (names[(size_t) dimension]);
+
         auto* object = new juce::DynamicObject();
-        object->setProperty ("kind", trial.kind == Kind::height ? "height" : trial.kind == Kind::width ? "width" : "depth");
+        object->setProperty ("order", order);
+        if (const auto middle = arrangement.middleDimension())
+        {
+            object->setProperty ("middleLayer", names[(size_t) *middle]);
+            object->setProperty ("middleLayerAt", arrangement.layersOf (*middle)[1]);
+        }
         object->setProperty ("positions", positions);
         return juce::var (object);
     }
@@ -810,11 +847,11 @@ private:
     {
         if (! callbacks.log)
             return;
-        juce::Array<juce::var> answered, checks;
+        juce::Array<juce::var> answered, checked;
         for (auto response : responses)
             answered.add (response == Response::better ? "better" : response == Response::same ? "same" : "worse");
-        for (const auto& trial : validationTrials)
-            checks.add (toVar (trial));
+        for (const auto& arrangement : checks)
+            checked.add (toVar (arrangement));
 
         auto* object = new juce::DynamicObject();
         object->setProperty ("event", "turn");
@@ -822,19 +859,18 @@ private:
         object->setProperty ("vertices", numVertices);
         object->setProperty ("rangeDb", range);
         object->setProperty ("coverage", coverageLevel);
-        object->setProperty ("goal", turnGoal == Goal::straighten ? "straighten" : "expand");
         object->setProperty ("adaptive", plane.isAdaptive);
         object->setProperty ("structuredPlane", plane.structuredIndex);
         object->setProperty ("uName", plane.uName);
         object->setProperty ("vName", plane.vName);
         object->setProperty ("u", toVar (plane.u));
         object->setProperty ("v", toVar (plane.v));
-        object->setProperty ("trial", toVar (turnTrial));
+        object->setProperty ("arrangement", toVar (turnArrangement));
         object->setProperty ("start", toVar (start));
         object->setProperty ("x", pad.x);
         object->setProperty ("y", pad.y);
         object->setProperty ("chosen", toVar (chosen));
-        object->setProperty ("checks", checks);
+        object->setProperty ("checks", checked);
         object->setProperty ("validation", answered);
         object->setProperty ("kept", kept);
         callbacks.log (juce::var (object));
@@ -851,19 +887,14 @@ private:
     int numVertices = 0, levelIndex = 0;
     float range = 30.0f;
 
-    // Trials: what's held still comes round in turn
-    std::vector<std::pair<float, float>> spots;        // a held pan and a held level
-    std::vector<std::array<float, 3>> activeTriples;   // height trials' three heights
-    std::vector<float> heldHeights;                    // the heights width and depth trials hold
+    // Arrangements: what goes round from turn to turn
     int coverageLevel = 0;
-    int spotCursor = 0, tripleCursor = 0, heldHeightCursor = 0, kindCursor = 0;
-    std::array<bool, 3> introduced {};                 // which kinds of trial have been heard once through
+    int arrangementCursor = 0, checkCursor = 0;
+    std::array<bool, 2> introduced {}; // heard once through: just the corners, and with a layer between
 
     // Passes
-    Goal goal = Goal::straighten;
-    std::vector<bool> covered; // plane by kind, this pass
     int passDone = 0, planeCursor = 0;
-    bool keptInPass = false, keptInRound = false;
+    bool keptInPass = false;
     int adaptiveRun = 0;
     int nextDirectionOrder = 0;
 
@@ -871,11 +902,10 @@ private:
     Phase phase = Phase::idle;
     int turnNumber = 0;
     Plane plane;
-    Trial turnTrial, playingTrial;
-    Goal turnGoal = Goal::straighten;
+    Arrangement turnArrangement, playing;
     Vector start, candidate;
     juce::Point<float> pad;
-    std::vector<Trial> validationTrials;
+    std::vector<Arrangement> checks;
     std::vector<Response> responses;
     int validationIndex = 0;
     bool heardAfter = false, hearingStart = false;
