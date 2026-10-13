@@ -1429,6 +1429,34 @@ public:
             expectWithinAbsoluteError (fresh.getTopLine(), 4.5f, 0.001f, "and so do the bursts' bottom edges");
         }
 
+        beginTest ("The grid goes up to 12 rows of 18, and any of them can be picked out");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::grid);
+            player.setGrid (99, 99);
+            expectEquals (CalibrationPlayer::maxRows, 12);
+            expectEquals (CalibrationPlayer::maxColumns, 18);
+
+            // The very last dot, and one from each stretch of the selection's bits
+            const std::set<int> picked { 5, 70, 130, 12 * 18 - 1 };
+            player.setSelection (picked);
+            expect (player.getSelection() == picked);
+            expect (player.isSelected (215) && ! player.isSelected (214));
+
+            player.setRate (CalibrationPlayer::maxRate);
+            player.setPlaying (true);
+            std::set<int> played;
+            juce::AudioBuffer<float> buffer (2, (int) (sampleRate / CalibrationPlayer::maxRate));
+            for (int burst = 0; burst < 8; ++burst)
+            {
+                buffer.clear();
+                player.process (buffer);
+                played.insert (player.getCurrentPosition());
+            }
+            expect (played == picked, "only the picked ones play, all the way to the last");
+        }
+
         beginTest ("The depth can work on each dot, each row, or the whole cycle");
         {
             using Unit = CalibrationPlayer::DepthUnit;
@@ -2428,6 +2456,11 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
     }
     processor.getProfiles().addProfile ("HD 600 (AutoEQ)");
     processor.parameters.state.setProperty ("showCalibration", showCalibration, nullptr);
+    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_FULL_GRID", {}).isNotEmpty())
+    {
+        processor.parameters.state.setProperty ("calibrationRows", CalibrationPlayer::maxRows, nullptr);
+        processor.parameters.state.setProperty ("calibrationColumns", CalibrationPlayer::maxColumns, nullptr);
+    }
     if (const auto mode = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_MODE", {}); mode.isNotEmpty())
         processor.parameters.state.setProperty ("calibrationMode", mode.getIntValue(), nullptr);
     if (const auto noise = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_NOISE", {}); noise.isNotEmpty())

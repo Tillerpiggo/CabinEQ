@@ -42,8 +42,8 @@
 class CalibrationPlayer
 {
 public:
-    static constexpr int maxRows = 8;
-    static constexpr int maxColumns = 12;
+    static constexpr int maxRows = 12;
+    static constexpr int maxColumns = 18;
     static constexpr int defaultRows = 3;
     static constexpr int defaultColumns = 5;
     static constexpr int maxDepth = 5;
@@ -192,14 +192,12 @@ public:
     /// The positions to play; none selected means all of them.
     void setSelection (const std::set<int>& positions)
     {
-        juce::uint64 low = 0, high = 0;
+        std::array<juce::uint64, selectionWords> bits {};
         for (int position : positions)
-        {
-            if (position >= 0 && position < 64)        low |= (juce::uint64) 1 << position;
-            else if (position >= 64 && position < 128) high |= (juce::uint64) 1 << (position - 64);
-        }
-        selectedLow = low;
-        selectedHigh = high;
+            if (position >= 0 && position < selectionWords * 64)
+                bits[(size_t) position / 64] |= (juce::uint64) 1 << (position % 64);
+        for (size_t word = 0; word < bits.size(); ++word)
+            selected[word] = bits[word];
     }
 
     std::set<int> getSelection() const
@@ -213,10 +211,9 @@ public:
 
     bool isSelected (int position) const noexcept
     {
-        if (position < 0 || position >= 128)
+        if (position < 0 || position >= selectionWords * 64)
             return false;
-        const auto bits = position < 64 ? selectedLow.load() : selectedHigh.load();
-        return ((bits >> (position % 64)) & 1) != 0;
+        return ((selected[(size_t) position / 64].load() >> (position % 64)) & 1) != 0;
     }
 
     /// The high-pass cutoff for a row (0 is the top): the rows' lines cut 20 Hz to 20 kHz into rows + 1 sections.
@@ -613,7 +610,9 @@ private:
     double sampleRate = 48000.0;
 
     std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 }, depthRepeats { 1 }, depthUnit { (int) DepthUnit::row };
-    std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
+    // Which positions are picked out: a bit each, in words the audio thread can read without waiting
+    static constexpr int selectionWords = (maxRows * maxColumns + 63) / 64;
+    std::array<std::atomic<juce::uint64>, (size_t) selectionWords> selected {};
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
     std::atomic<float> releaseMs { defaultReleaseMs }, attackMs { defaultAttackMs };
