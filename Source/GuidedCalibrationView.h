@@ -18,7 +18,7 @@
                      A turn is one undo step; a choice that isn't kept is undone.
       an arrangement is a box of sounds for the calibration player: its corners
                      (and, later, a layer between two of its sides), each played
-                     2, 4 or 8 times before its neighbour, round and round. Pan
+                     2, 4 or 8 times before the next, in reading order. Pan
                      is from left to right, height is the low cut (the grid's
                      three rows', and between them), level is from the floor up
                      to the volume.
@@ -418,7 +418,7 @@ private:
         }
     }
 
-    /// Each sound as many times as is set, then its neighbour. Pan from -1 to 1 is left to right; height is the
+    /// Each sound as many times as is set, then the next. Pan from -1 to 1 is left to right; height is the
     /// grid's three rows' low cuts, and between; level is from the floor (-1) up to the volume (1).
     void playArrangement (const GuidedSearch::Arrangement& arrangement)
     {
@@ -502,7 +502,7 @@ private:
             {
                 newBadge = "LISTEN FIRST";
                 newPrompt = (middle.has_value() ? "Twelve sounds now: the box, and a layer between " + sidesOf (*middle) + ". "
-                                                : juce::String ("Eight sounds, the corners of a box: left and right, low and high, far and near. "))
+                                                : juce::String ("The corners of a box: its near side read like a page, then its far side. "))
                           + "The pad unlocks once they've played through.";
             }
             else if (phase == Phase::exploring)
@@ -524,7 +524,7 @@ private:
             else if (phase == Phase::validatingBefore)
             {
                 newBadge = "BEFORE";
-                newPrompt = (isOrderCheck || ! middle.has_value() ? juce::String ("The same sounds in another order, to check your change. ")
+                newPrompt = (isOrderCheck || ! middle.has_value() ? juce::String ("The same sounds, down each side's columns this time, to check your change. ")
                                                                   : "Now with a layer between " + sidesOf (*middle) + ", to check your change. ")
                           + "First, the starting setting...";
             }

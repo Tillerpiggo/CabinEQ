@@ -2538,7 +2538,6 @@ public:
         {
             Arrangement arrangement;
             arrangement.layers[(size_t) dimension] = { -1.0f, at, 1.0f };
-            arrangement.order = { dimension, (Dimension) (((int) dimension + 1) % 3), (Dimension) (((int) dimension + 2) % 3) };
             return arrangement;
         };
 
@@ -2570,64 +2569,54 @@ public:
             expectEquals ((int) bench.played.size(), 1, "and it's playing");
         }
 
-        beginTest ("An arrangement goes from each sound to a neighbour, one step along one dimension, all the way round");
+        beginTest ("An arrangement's read like a book: the near side first, each side along its rows from the top, each row from the left");
         {
             const Arrangement box;
-            const std::vector<Position> expected { { -1, -1, -1 }, { 1, -1, -1 }, { 1, 1, -1 }, { -1, 1, -1 },   // pan, height, level: round the far side...
-                                                   { -1, 1, 1 }, { 1, 1, 1 }, { 1, -1, 1 }, { -1, -1, 1 } };     // ...and back round the near one
+            const std::vector<Position> expected { { -1, 1, 1 }, { 1, 1, 1 }, { -1, -1, 1 }, { 1, -1, 1 },         // pan, height, level: the near side...
+                                                   { -1, 1, -1 }, { 1, 1, -1 }, { -1, -1, -1 }, { 1, -1, -1 } };   // ...then the far one
             expect (box.positions() == expected);
 
-            // Every arrangement there is: the corners in each order, and a layer between in each dimension, each way round
-            std::vector<Arrangement> all;
-            for (int turn = 0; turn < 3; ++turn)
-            {
-                Arrangement cornersOnly;
-                cornersOnly.order = { (Dimension) turn, (Dimension) ((turn + 1) % 3), (Dimension) ((turn + 2) % 3) };
-                all.push_back (cornersOnly);
+            // A layer between low and high is a row between: six to a side
+            const std::vector<Position> withRow { { -1, 1, 1 }, { 1, 1, 1 }, { -1, 0, 1 }, { 1, 0, 1 }, { -1, -1, 1 }, { 1, -1, 1 },
+                                                  { -1, 1, -1 }, { 1, 1, -1 }, { -1, 0, -1 }, { 1, 0, -1 }, { -1, -1, -1 }, { 1, -1, -1 } };
+            expect (withLayerBetween (Dimension::height, 0.0f).positions() == withRow);
+            // One between left and right makes each row three long
+            const auto withColumn = withLayerBetween (Dimension::width, 0.5f).positions();
+            expect (withColumn[0] == Position { -1, 1, 1 } && withColumn[1] == Position { 0.5f, 1, 1 } && withColumn[2] == Position { 1, 1, 1 }
+                    && withColumn[3] == Position { -1, -1, 1 });
+            // And one between far and near is a whole side between them
+            const auto withSide = withLayerBetween (Dimension::depth, 0.0f).positions();
+            expect (withSide[3] == Position { 1, -1, 1 } && withSide[4] == Position { -1, 1, 0 } && withSide[8] == Position { -1, 1, -1 });
+
+            // Every arrangement there is: the corners, and a layer between in each dimension, wherever it can be
+            std::vector<Arrangement> all { box };
+            for (auto dimension : { Dimension::width, Dimension::height, Dimension::depth })
                 for (float at : { 0.0f, -0.5f, 0.5f })
-                {
-                    all.push_back (withLayerBetween ((Dimension) turn, at));
-                    all.push_back (all.back().reordered());
-                }
-            }
+                    all.push_back (withLayerBetween (dimension, at));
             for (const auto& arrangement : all)
             {
                 const auto positions = arrangement.positions();
-                const bool hasMiddle = arrangement.middleDimension().has_value();
-                expectEquals ((int) positions.size(), hasMiddle ? 12 : 8);
+                expectEquals ((int) positions.size(), arrangement.middleDimension().has_value() ? 12 : 8);
                 expectEquals (arrangement.size(), (int) positions.size());
                 expect (hasEveryCorner (arrangement), "the corners are always there");
-
-                std::array<int, 3> changes {};
-                for (size_t i = 0; i < positions.size(); ++i)
+                for (size_t i = 0; i + 1 < positions.size(); ++i)
                 {
                     const auto& from = positions[i];
-                    const auto& to = positions[(i + 1) % positions.size()]; // the last goes back to the first
-                    int changed = 0;
-                    for (auto dimension : { Dimension::width, Dimension::height, Dimension::depth })
-                    {
-                        if (from.along (dimension) == to.along (dimension))
-                            continue;
-                        ++changed;
-                        ++changes[(size_t) dimension];
-                        const auto& layers = arrangement.layersOf (dimension);
-                        const auto fromLayer = std::find (layers.begin(), layers.end(), from.along (dimension)) - layers.begin();
-                        const auto toLayer = std::find (layers.begin(), layers.end(), to.along (dimension)) - layers.begin();
-                        expectEquals ((int) std::abs (fromLayer - toLayer), 1, "to the next layer, not past one");
-                    }
-                    expectEquals (changed, 1, "one dimension changes between a sound and the next");
-                    for (size_t j = i + 1; j < positions.size(); ++j)
-                        expect (! (positions[i] == positions[j]), "and each sound's there once");
+                    const auto& to = positions[i + 1];
+                    expect (to.level < from.level
+                            || (to.level == from.level && (to.height < from.height || (to.height == from.height && to.pan > from.pan))),
+                            "reading order: on to the right, else down a row, else back a side");
                 }
-                expectEquals (changes[(size_t) arrangement.order[0]], hasMiddle ? 8 : 4, "the first dimension changes most");
-                expectEquals (changes[(size_t) arrangement.order[1]], 2);
-                expectEquals (changes[(size_t) arrangement.order[2]], 2);
-                if (hasMiddle)
-                    expect (arrangement.order[0] == *arrangement.middleDimension(), "which the one with a layer between has to be");
 
-                // Another order is the same sounds
+                // Another order is the same sounds, down each side's columns, and still a side at a time
                 const auto other = arrangement.reordered();
                 expect (sameSounds (arrangement, other) && ! (other.positions() == positions));
+                expect (other.reordered() == arrangement);
+                const auto columns = other.positions();
+                expect (columns[0] == positions[0], "from the same corner");
+                expect (columns[1].pan == columns[0].pan && columns[1].height < columns[0].height, "then the one under it");
+                for (size_t i = 0; i + 1 < columns.size(); ++i)
+                    expect (columns[i + 1].level <= columns[i].level);
             }
 
             // Each sound as many times as asked before the next
@@ -2640,13 +2629,13 @@ public:
                                "the longest there is, twelve sounds eight times each, fits in what the player can hold");
         }
 
-        beginTest ("The dimension that changes most goes round from turn to turn, and the order stays put through a turn");
+        beginTest ("The order's the same every turn, and all through a turn");
         {
             Bench bench;
             bench.search->begin();
             bench.listenFirst();
             const auto first = bench.search->getArrangement();
-            expect (first.order[0] == Dimension::width);
+            expect (first == Arrangement(), "the box, in reading order");
 
             // Dragging, letting go, hearing where it started: always the same sounds in the same order
             bench.search->padMoved ({ 0.2f, 0.1f });
@@ -2657,13 +2646,11 @@ public:
             for (const auto& played : bench.played)
                 expect (played == first);
 
-            bench.skip();
-            expect (bench.search->getArrangement().order[0] == Dimension::height, "the next turn, another dimension has the most comparisons");
-            expect (sameSounds (bench.search->getArrangement(), first), "of the same eight sounds");
-            bench.skip();
-            expect (bench.search->getArrangement().order[0] == Dimension::depth);
-            bench.skip();
-            expect (bench.search->getArrangement() == first, "and round again");
+            for (int turn = 0; turn < 4; ++turn)
+            {
+                bench.skip();
+                expect (bench.search->getArrangement() == first, "so you always know where you are in it");
+            }
         }
 
         beginTest ("The arrangement plays once through before the pad does anything, the first time it comes up");
@@ -2717,7 +2704,7 @@ public:
             expect (bench.search->getPhase() == Phase::validatingBefore, "first the starting curve...");
             expect (bench.heard == bench.search->getStart());
             const auto firstCheck = bench.search->getArrangement();
-            expect (sameSounds (firstCheck, turn) && ! (firstCheck == turn), "...on the same sounds in another order: still every dimension at once");
+            expect (sameSounds (firstCheck, turn) && firstCheck.readsDownColumns, "...on the same sounds in another order, down the columns: still every dimension at once");
             expect (bench.search->getTurnArrangement() == turn);
             expect (! bench.search->canRespond(), "no answering before the change has been heard against it");
             bench.search->framePlayed();
@@ -2959,7 +2946,7 @@ public:
                 {
                     dimensions.insert ((int) *middle);
                     expect (arrangement.layersOf (*middle) == std::vector<float> { -1.0f, 0.0f, 1.0f }, "halfway between");
-                    expect (arrangement.order[0] == *middle);
+                    expect (! arrangement.readsDownColumns, "still in reading order");
                 }
                 expect (bench.search->getPhase() == Phase::exploring);
                 bench.skip();

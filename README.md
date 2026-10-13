@@ -81,12 +81,11 @@ loads the VST3 to EQ everything the Mac plays.
     its bias; Start over ends it, so you can choose again.
   - **Each turn plays a box of sounds**: two layers across (pan: left and right), two up (the low cut: the grid's
     bottom and top rows', about 112 Hz and 3.6 kHz) and two deep (level: the floor, and the volume), so its eight
-    corners. It goes from each sound to a neighbour, one step along one dimension at a time, round and round, each
-    sound 2, 4 or 8 times (4 to start) before the next. One dimension changes at every other step, one within each
-    half of the round and one between the halves; which is which goes round from turn to turn, so that none of them
-    always has the easiest comparisons, and the order stays as it is through a turn. A drawing of the box shows where
-    each sound should seem to be (what to aim for, not a measurement): what's far is smaller, and the one that's
-    playing lights up and is named under it ("High, left, near").
+    corners. It's read like a book, round and round: the near side first, along its top row from left to right and
+    then its bottom row, and then the far side the same way; each sound 2, 4 or 8 times (4 to start) before the
+    next. That's the order every turn. A drawing of the box shows where each sound should seem to be (what to aim
+    for, not a measurement): what's far is smaller, and the one that's playing lights up and is named under it
+    ("High, left, near").
   - **One thing to listen for**, every turn: "Make the whole arrangement larger and more consistent. Listen for
     compression, collapse, or distortion anywhere in the arrangement."
   - **Listen first**: the first time the box comes up, and the first time it has twelve sounds, it plays once
@@ -95,8 +94,9 @@ loads the VST3 to EQ everything the Mac plays.
     to start) each way from the middle, which is no change. You hear it, and see it on the graph. **Hear start**
     plays the setting the turn began with, without losing where the dot is.
   - **Let go**, and it all plays once through with your choice. Then say whether it's **Better**, or **Skip** it.
-  - **A better one is checked** twice, on the whole arrangement both times: the same sounds in another order, and
-    then with more positions (a layer between two of the box's sides, where the turn hadn't one). Each check plays
+  - **A better one is checked** twice, on the whole arrangement both times: the same sounds in another order (down
+    each side's columns, not along its rows), and then with more positions (a layer between two of the box's sides,
+    where the turn hadn't one). Each check plays
     with the starting setting (BEFORE), then your change (AFTER), until you answer Better, Same or Worse. It's kept
     only if it's worse on neither. A turn is one undo step; a change that isn't kept is undone.
 
@@ -108,7 +108,7 @@ loads the VST3 to EQ everything the Mac plays.
 
   A pass is everything on the list, once. After a pass with nothing kept, the box gets a layer between two of its
   sides: three layers of one dimension (across, up and deep taking it in turn) and so twelve sounds, with the corners
-  always there. At first the layer's halfway; after another pass with nothing kept, it's nearer one side or the
+  always there, and still in reading order (a third column, a third row, or a third side between the other two). At first the layer's halfway; after another pass with nothing kept, it's nearer one side or the
   other as well. Only after that does the range halve (30, 15, 7.5, 3.75 dB), and after the smallest, the points
   double (5, 9, 17), keeping the ones there were, and it starts on them at +/-15 dB. Speed, Attack, Release, Volume
   and Floor (the level of the box's far side) are the panel's own sliders. Everything tried, and what

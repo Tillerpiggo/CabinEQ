@@ -27,13 +27,11 @@
 
     What you judge is never one dimension by itself. An arrangement is a box of
     sounds: two layers across (pan), two up (the low cut) and two deep (level), so
-    its eight corners; and it's played by going from each to a neighbour, one
-    step along one dimension at a time, round and round. One dimension changes at
-    every other step, one within each half of the round and one between the
-    halves, and which is which goes round from turn to turn, so that none of them
-    always has the easiest comparisons. The order stays as it is through a turn.
-    The first time an arrangement comes up, it plays once through before the pad
-    does anything.
+    its eight corners. It's read like a book, round and round: the nearest side
+    first, along its top row from left to right and then its bottom row, and then
+    the far side the same way. That's the order every turn, so you always know
+    where you are in it. The first time an arrangement comes up, it plays once
+    through before the pad does anything.
 
     After a choice that holds up:
         if it touched the pad's edge, the same plane and arrangement again, recentred;
@@ -88,9 +86,9 @@ public:
         /// Where each dimension's layers are, lowest first: its two ends, or those with one between
         std::array<std::vector<float>, 3> layers { { { -1.0f, 1.0f }, { -1.0f, 1.0f }, { -1.0f, 1.0f } } };
 
-        /// The dimension that changes at every other step (the only one that can have a layer between its ends),
-        /// the one that changes within each half of the round, and the one that changes between the halves
-        std::array<Dimension, 3> order { Dimension::width, Dimension::height, Dimension::depth };
+        /// Each side's read along its rows, as a page is. For checking a choice in another order, it's read down
+        /// its columns instead.
+        bool readsDownColumns = false;
 
         const std::vector<float>& layersOf (Dimension dimension) const { return layers[(size_t) dimension]; }
         int size() const { return (int) (layers[0].size() * layers[1].size() * layers[2].size()); }
@@ -104,33 +102,30 @@ public:
             return std::nullopt;
         }
 
-        /// Every sound once, each a neighbour of the last (and the first of the last): one step along one dimension.
-        /// Out along the first dimension at the second's low end and back at its high end, at the third's low end;
-        /// then the same backwards at the third's high end.
+        /// Every sound once, in reading order: from the nearest side to the farthest, each from its top row to
+        /// its bottom one, each row from left to right
         std::vector<Position> positions() const
         {
-            const auto& first = layersOf (order[0]);
-            const auto& second = layersOf (order[1]);
-            const auto& third = layersOf (order[2]);
-            jassert (second.size() == 2 && third.size() == 2);
-
-            std::vector<std::pair<size_t, size_t>> ring;
-            for (size_t i = 0; i < first.size(); ++i)
-                ring.push_back ({ i, 0 });
-            for (size_t i = first.size(); i-- > 0;)
-                ring.push_back ({ i, 1 });
+            const auto& pans = layersOf (Dimension::width);
+            const auto& heights = layersOf (Dimension::height);
+            const auto& levels = layersOf (Dimension::depth);
 
             std::vector<Position> all;
-            for (size_t half = 0; half < 2; ++half)
-                for (size_t step = 0; step < ring.size(); ++step)
+            for (auto level = levels.rbegin(); level != levels.rend(); ++level)
+            {
+                if (readsDownColumns)
                 {
-                    const auto [i, j] = ring[half == 0 ? step : ring.size() - 1 - step];
-                    Position position;
-                    position.along (order[0]) = first[i];
-                    position.along (order[1]) = second[j];
-                    position.along (order[2]) = third[half];
-                    all.push_back (position);
+                    for (float pan : pans)
+                        for (auto height = heights.rbegin(); height != heights.rend(); ++height)
+                            all.push_back ({ pan, *height, *level });
                 }
+                else
+                {
+                    for (auto height = heights.rbegin(); height != heights.rend(); ++height)
+                        for (float pan : pans)
+                            all.push_back ({ pan, *height, *level });
+                }
+            }
             return all;
         }
 
@@ -143,18 +138,15 @@ public:
             return all;
         }
 
-        /// The same sounds, played in another order
+        /// The same sounds, played in another order: down each side's columns, not along its rows (or back again)
         Arrangement reordered() const
         {
             auto other = *this;
-            if (middleDimension().has_value())
-                std::swap (other.order[1], other.order[2]); // the one with three layers has to stay first
-            else
-                other.order = { order[1], order[2], order[0] };
+            other.readsDownColumns = ! readsDownColumns;
             return other;
         }
 
-        bool operator== (const Arrangement& other) const { return layers == other.layers && order == other.order; }
+        bool operator== (const Arrangement& other) const { return layers == other.layers && readsDownColumns == other.readsDownColumns; }
     };
 
     struct Plane
@@ -328,7 +320,7 @@ public:
         }
     }
 
-    /// "It's better" goes on to check it: on the same sounds in another order, and then on more positions.
+    /// "It's better" goes on to check it: on the same sounds read down their columns, and then on more positions.
     /// "It's not" (or skipping the turn) drops it and moves to the next structured plane.
     void choose (bool isBetter)
     {
@@ -578,30 +570,23 @@ private:
 
     static Dimension dimensionAt (int index) { return (Dimension) (((index % 3) + 3) % 3); }
 
-    /// The box with a layer between the ends of one dimension, which then has to be the one that changes most
-    static Arrangement withMiddleLayer (Dimension dimension, float at, bool otherWayRound)
+    /// The box with a layer between the ends of one dimension
+    static Arrangement withMiddleLayer (Dimension dimension, float at)
     {
         Arrangement arrangement;
         arrangement.layers[(size_t) dimension] = { -1.0f, at, 1.0f };
-        arrangement.order = { dimension, dimensionAt ((int) dimension + (otherWayRound ? 2 : 1)), dimensionAt ((int) dimension + (otherWayRound ? 1 : 2)) };
         return arrangement;
     }
 
-    /// The next arrangement to explore with. Just the corners, to begin with, each dimension taking its turn as
-    /// the one that changes most; then with a layer between, each dimension taking its turn to have it, and the
-    /// places it can be coming round after that.
+    /// The next arrangement to explore with. Just the corners, to begin with; then with a layer between, each
+    /// dimension taking its turn to have it, and the places it can be coming round after that.
     Arrangement nextArrangement()
     {
-        const int turn = arrangementCursor++;
         const auto& middles = config.middleLayers[(size_t) coverageLevel];
         if (middles.empty())
-        {
-            Arrangement corners;
-            corners.order = { dimensionAt (turn), dimensionAt (turn + 1), dimensionAt (turn + 2) };
-            return corners;
-        }
-        const int round = turn / 3;
-        return withMiddleLayer (dimensionAt (turn), middles[(size_t) round % middles.size()], round % 2 == 1);
+            return {};
+        const int turn = arrangementCursor++;
+        return withMiddleLayer (dimensionAt (turn), middles[(size_t) (turn / 3) % middles.size()]);
     }
 
     /// For checking a choice on positions it wasn't made with: a layer between the ends of a dimension that
@@ -616,7 +601,7 @@ private:
         const int turn = checkCursor++;
         const auto& middles = config.middleLayers[(size_t) std::max (coverageLevel, firstLevelWithMiddles())];
         const float at = middles.empty() ? 0.0f : middles[(size_t) (turn / (int) candidates.size()) % middles.size()];
-        return withMiddleLayer (candidates[(size_t) turn % candidates.size()], at, false);
+        return withMiddleLayer (candidates[(size_t) turn % candidates.size()], at);
     }
 
     int firstLevelWithMiddles() const
@@ -805,7 +790,7 @@ private:
     static juce::var toVar (const Arrangement& arrangement)
     {
         static const char* const names[] { "width", "height", "depth" };
-        juce::Array<juce::var> positions, order;
+        juce::Array<juce::var> positions;
         for (const auto& position : arrangement.positions())
         {
             auto* object = new juce::DynamicObject();
@@ -814,11 +799,9 @@ private:
             object->setProperty ("level", position.level);
             positions.add (juce::var (object));
         }
-        for (auto dimension : arrangement.order)
-            order.add (names[(size_t) dimension]);
 
         auto* object = new juce::DynamicObject();
-        object->setProperty ("order", order);
+        object->setProperty ("read", arrangement.readsDownColumns ? "down columns" : "along rows");
         if (const auto middle = arrangement.middleDimension())
         {
             object->setProperty ("middleLayer", names[(size_t) *middle]);
