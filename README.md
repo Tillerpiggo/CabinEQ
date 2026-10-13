@@ -71,28 +71,44 @@ loads the VST3 to EQ everything the Mac plays.
   (or click elsewhere on the field to bring it there; the arrow keys nudge it), and drag its bottom right corner to
   resize it about its centre. Its dots play in reading order.
 - **Calibration, Guided mode** (experimental; the panel's fourth mode): a search that gives you one change to the
-  curve at a time. Press Play and it redraws the curve through 5 points, evenly spaced in octaves from 20 Hz to
-  20 kHz (each ear's curve kept as close as 5 points allow; it's one undo step). Then, each turn:
-  1. A pad sets two changes at once, named beside it (say, both ears at 3.6 kHz across, and both ears at 20 kHz
-     up), by up to the range (+/-30 dB to start) each way from the middle, which is no change. A frame of twelve
-     bursts plays round and round while you drag: across the pans, up the heights (the grid's three rows' low cuts)
-     and through three levels (from the floor up to the volume), around one of nine spots. You hear the change, and
-     see it on the graph.
-  2. Let go, and the frame plays once right through. Then say whether it's **Better**, or **Skip** it.
-  3. If it's better, it's checked on the next two frames: each plays with the curve as it was (BEFORE), then with
-     your change (AFTER), until you answer Better, Same or Worse. It's kept only if it's worse on neither. A turn
-     is one undo step; a change that isn't kept is undone.
+  curve at a time, and one thing to listen for.
+  - **Before you start**, choose the high-frequency bias: how much the curve's points bunch towards the top. A point
+    a fraction t of the way along is 1 - (1 - t)^bias of the way from 20 Hz to 20 kHz, in octaves. 1 is evenly spaced
+    (20, 112, 632, 3.6k, 20k); 1.5, the default, is 20, 225, 1.7k, 8.4k, 20k; 2 is more so. Play then redraws your
+    curve through those 5 points (each ear's curve as close as 5 points allow; it's one undo step). A search keeps
+    its bias; Start over ends it, so you can choose again.
+  - **Each turn is one trial**: a line of three sounds, played A, B, C, B round and round, each 2, 4 or 8 times
+    (4 to start). A Height trial's three differ in height (their low cut), a Width trial's in pan, and a Depth
+    trial's in level; the other two are held still. Three markers show how the line should sound (what to aim
+    for, not a measurement), and the one that's playing lights up. Beside them is what to listen for ("Make these
+    sounds form a clearly separated vertical line...") and the goal, which a whole pass shares: **Straighten**
+    (reduce bending or sideways drift without collapsing the separation) or **Expand** (increase separation without
+    introducing bending or drift).
+  - **Listen first**: the first time each kind of trial comes up, it plays once through before the pad does anything.
+  - **Then drag the pad**. It makes two changes at once, named under the instructions, by up to the range (+/-30 dB
+    to start) each way from the middle, which is no change. You hear it, and see it on the graph. **Hear start**
+    plays the setting the turn began with, without losing where the dot is.
+  - **Let go**, and the line plays once through with your choice. Then say whether it's **Better**, or **Skip** it.
+  - **A better one is checked** on the other two kinds of trial, each announced as its own trial with the same
+    goal: it plays with the starting setting (BEFORE), then your change (AFTER), until you answer Better, Same or
+    Worse. It's kept only if it's worse on neither. A turn is one undo step; a change that isn't kept is undone.
 
-  What comes next depends on what happened. A kept change at the pad's edge gets the same pad again, recentred, to go
-  further. Any other kept change gets a pad whose across is that change (left undoes it, right goes on) and whose up
-  is whichever change has been tried least, with the first taken out of it; after two of those running, it's back to
-  the list. Anything not kept moves on down the list: neighbouring points together, each point with its difference
-  between the ears, and neighbouring differences, from the highest point to the lowest. Once everything on the list
-  has had every frame with nothing kept, it tries frames at in-between spots; if those find nothing either, the range
-  halves (30, 15, 7.5, 3.75 dB), and after the smallest, the points double (5, 9, 17) and it starts on them at
-  +/-15 dB. Everything tried, and what you answered, is written to a file in
-  `~/Library/Application Support/CabinEQ/Guided calibration` (the Log button shows it). The search is
-  `GuidedSearch.h`, which knows nothing of audio; `GuidedCalibrationView.h` joins it to the curve and the player.
+  What comes next depends on what happened. A kept change at the pad's edge gets the same pad and sounds again,
+  recentred, to go further. Any other kept change gets a pad whose across is that change (left undoes it, right goes
+  on) and whose up is whichever change has been tried least, with the first taken out of it; after two of those
+  running, it's back to the list. Anything not kept moves on down the list: neighbouring points together, each point
+  with its difference between the ears, and neighbouring differences, from the highest point to the lowest.
+
+  A pass is everything on the list with each kind of trial. Passes come in pairs, one to straighten and one to
+  expand. What's held still in a trial comes round in turn, and so do the heights: at first a Height trial's three
+  span everything (the grid's three rows' low cuts). After a pair of passes with nothing kept, each half of the span
+  is added, then each quarter, with the whole span still coming round, and Width and Depth trials holding the new
+  heights too. Only after that does the range halve (30, 15, 7.5, 3.75 dB), and after the smallest, the points
+  double (5, 9, 17), keeping the ones there were, and it starts on them at +/-15 dB. Speed, Attack, Release, Volume
+  and Floor (the quietest of a Depth trial's three levels) are the panel's own sliders. Everything tried, and what
+  you answered, is written to a file in `~/Library/Application Support/CabinEQ/Guided calibration` (the Log
+  button shows it). The search is `GuidedSearch.h`, which knows nothing of audio; `GuidedCalibrationView.h` joins
+  it to the curve and the player.
 - **Calibration noise**: it falls 4.5 dB an octave (pink noise falls 3), and every burst is that same noise, cut off
   lower or higher, so the bursts' bottom edges fall 4.5 dB an octave from one burst to the next as well.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),

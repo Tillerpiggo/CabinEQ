@@ -63,7 +63,7 @@ public:
         double cutoff = 0.0;   // low cut in Hz: 20 or under is none
         float levelDb = 0.0f;  // under the volume
     };
-    static constexpr int maxSequenceLength = 16;
+    static constexpr int maxSequenceLength = 64;
 
     /// Message thread. It starts from the first burst, and the count of bursts played starts again.
     void setSequence (const std::vector<SequenceBurst>& bursts)
