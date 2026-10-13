@@ -39,7 +39,7 @@ namespace CalibrationSettings
     /// "On graph" unless you've picked the grid
     inline CalibrationPlayer::Mode getMode (const juce::ValueTree& state)
     {
-        return (CalibrationPlayer::Mode) juce::jlimit (0, 2, (int) state.getProperty (idMode, 0));
+        return (CalibrationPlayer::Mode) juce::jlimit (0, 3, (int) state.getProperty (idMode, 0));
     }
 
     inline int getSpotCount (const juce::ValueTree& state)

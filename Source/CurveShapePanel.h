@@ -30,6 +30,7 @@ class XYPad : public juce::Component,
 public:
     std::function<void()> onGestureStart;
     std::function<void (juce::Point<float>)> onChange;
+    std::function<void()> onGestureEnd;
     std::function<void()> onReset; // double-click
 
     juce::String topLabel, bottomLabel, leftLabel, rightLabel;
@@ -100,7 +101,12 @@ public:
 
     void mouseEnter (const juce::MouseEvent&) override { repaint(); }
     void mouseExit (const juce::MouseEvent&) override  { repaint(); }
-    void mouseUp (const juce::MouseEvent&) override    { repaint(); }
+    void mouseUp (const juce::MouseEvent&) override
+    {
+        if (onGestureEnd)
+            onGestureEnd();
+        repaint();
+    }
 
 private:
     juce::Rectangle<float> padArea() const { return getLocalBounds().toFloat().reduced (12.0f); }

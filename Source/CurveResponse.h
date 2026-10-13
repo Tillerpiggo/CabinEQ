@@ -33,7 +33,7 @@ struct CurvePoint
 
     static constexpr float minFreq = 20.0f, maxFreq = 20000.0f;
     static constexpr float minGain = -30.0f, maxGain = 30.0f;
-    static constexpr float maxFreqSplit = 2.0f, maxGainSplit = 24.0f;
+    static constexpr float maxFreqSplit = 2.0f, maxGainSplit = 60.0f; // so each ear can be 30 dB either side of the point
 
     bool differsBetweenEars() const { return freqSplit != 0.0f || gainSplit != 0.0f; }
 

@@ -53,7 +53,44 @@ public:
     static constexpr int maxSpots = 4;
     static constexpr int maxPanSteps = 5;
 
-    enum class Mode { grid = 0, spots = 1, square = 2 };
+    enum class Mode { grid = 0, spots = 1, square = 2, sequence = 3 };
+
+    /// Sequence mode: a list of bursts to play in order, round and round, each wherever it's put. The guided
+    /// calibration plays its frames this way.
+    struct SequenceBurst
+    {
+        float pan = 0.5f;      // 0 left, 1 right
+        double cutoff = 0.0;   // low cut in Hz: 20 or under is none
+        float levelDb = 0.0f;  // under the volume
+    };
+    static constexpr int maxSequenceLength = 16;
+
+    /// Message thread. It starts from the first burst, and the count of bursts played starts again.
+    void setSequence (const std::vector<SequenceBurst>& bursts)
+    {
+        const int length = std::min ((int) bursts.size(), maxSequenceLength);
+        sequenceLength = 0; // nothing plays from a half-written list
+        for (int i = 0; i < length; ++i)
+        {
+            sequencePan[(size_t) i] = bursts[(size_t) i].pan;
+            sequenceCutoff[(size_t) i] = bursts[(size_t) i].cutoff;
+            sequenceLevelDb[(size_t) i] = bursts[(size_t) i].levelDb;
+        }
+        ++sequenceGeneration;
+        sequenceLength = length;
+    }
+
+    /// How many bursts of the sequence set last have started
+    int getSequenceBurstsPlayed() const
+    {
+        const auto progress = sequenceProgress.load();
+        return (int) (progress >> 32) == sequenceGeneration.load() ? (int) (progress & 0xffffffff) : 0;
+    }
+
+    float getFloorDb() const { return floorDb.load(); }
+
+    /// The low cut for a height from -1 (the grid's bottom row of three) to 1 (its top row), and anywhere between
+    static double cutoffForHeight (float height) { return 20.0 * std::pow (1000.0, (2.0 + (double) height) / 4.0); }
 
     /// Square mode: a square of 2 x 2 or 3 x 3 dots that you put anywhere on a field. Across the field is from
     /// your left ear to your right; up it is the low cut, from none at the bottom to 20 kHz at the top. All of
@@ -354,135 +391,166 @@ private:
     void trigger() noexcept
     {
         const auto modeNow = (Mode) mode.load();
-        const bool spots = modeNow == Mode::spots;
-        const auto square = getSquare();
-        const int rows = numRows.load(), columns = numColumns.load();
-        const int panPositions = spots ? panSteps.load() : 1;
+        float pan = 0.5f;      // where it is between the ears: 0 left, 1 right
+        double cutoff = 0.0;   // its low cut, in Hz: 0 for none
+        float levelDb = 0.0f;  // how far under the volume it plays
 
-        // Everything plays a row at a time: a grid's or a square's own rows, and for spots, a row each, with
-        // a place for each pan step
-        const int rowCount = spots ? spotCount.load() : modeNow == Mode::square ? square.size : rows;
-        const int rowLength = spots ? panPositions : modeNow == Mode::square ? square.size : columns;
-
-        // Only the grid has positions you pick out
-        bool anySelected = false;
-        for (int p = 0; modeNow == Mode::grid && p < rowCount * rowLength && ! anySelected; ++p)
-            anySelected = isSelected (p);
-
-        auto nextInRow = [&] (int row, int after)
+        if (modeNow == Mode::sequence)
         {
-            for (int column = after + 1; column < rowLength; ++column)
-                if (! anySelected || isSelected (row * rowLength + column))
-                    return column;
-            return -1;
-        };
-        auto nextRowWithSomething = [&] (int after)
-        {
-            for (int step = 1; step <= rowCount; ++step)
-                if (const int row = (std::max (after, -1) + step) % rowCount; nextInRow (row, -1) >= 0)
-                    return row;
-            return 0;
-        };
-
-        // Starting out, or the row it was on has gone (or has nothing selected in it now)
-        const int depthRuns = depth.load(), repeats = depthRepeats.load();
-        if (seqRow < 0 || seqRow >= rowCount || nextInRow (seqRow, -1) < 0)
-        {
-            seqRow = nextRowWithSomething (seqRow < rowCount ? seqRow : -1);
-            seqColumn = -1;
-            depthLevel = 0;
-            depthRepeat = 0;
-        }
-
-        if (seqColumn < 0)
-        {
-            seqColumn = std::max (0, nextInRow (seqRow, -1)); // the very first one
-        }
-        else
-        {
-            // What would play next, in reading order
-            int nextRow = seqRow, nextColumn = nextInRow (seqRow, seqColumn);
-            const bool rowEnded = nextColumn < 0;
-            if (rowEnded)
+            // The bursts it's been given, in order, round and round
+            const int length = sequenceLength.load();
+            if (length <= 0)
+                return;
+            if (const int generation = sequenceGeneration.load(); generation != playingGeneration)
             {
-                nextRow = nextRowWithSomething (seqRow);
-                nextColumn = std::max (0, nextInRow (nextRow, -1));
+                playingGeneration = generation;
+                sequenceIndex = 0;
+                sequencePlayed = 0;
             }
-            const bool cycleEnded = rowEnded && nextRow <= seqRow;
-
-            // The unit the depth works on (a dot, a row, or the whole cycle) has just played. It plays again at
-            // this level until it's had its repeats, then a level louder, and after the loudest, it moves on.
-            const auto unit = (DepthUnit) depthUnit.load();
-            if (unit == DepthUnit::dot || (unit == DepthUnit::row && rowEnded) || (unit == DepthUnit::cycle && cycleEnded))
-            {
-                bool movesOn = false;
-                if (++depthRepeat >= repeats)
-                {
-                    depthRepeat = 0;
-                    if (++depthLevel >= depthRuns)
-                    {
-                        depthLevel = 0;
-                        movesOn = true;
-                    }
-                }
-
-                if (! movesOn)
-                {
-                    // Back to the start of the unit
-                    if (unit == DepthUnit::dot && (! anySelected || isSelected (seqRow * rowLength + seqColumn)))
-                    {
-                        nextRow = seqRow;
-                        nextColumn = seqColumn;
-                    }
-                    else if (unit == DepthUnit::row)
-                    {
-                        nextRow = seqRow;
-                        nextColumn = std::max (0, nextInRow (seqRow, -1));
-                    }
-                    else if (unit == DepthUnit::cycle)
-                    {
-                        nextRow = nextRowWithSomething (-1);
-                        nextColumn = std::max (0, nextInRow (nextRow, -1));
-                    }
-                }
-            }
-            seqRow = nextRow;
-            seqColumn = nextColumn;
-        }
-        depthLevel = std::min (depthLevel, depthRuns - 1); // if the depth's come down
-
-        const int position = spots ? seqRow : seqRow * rowLength + seqColumn;
-        const int repeat = seqColumn; // for a spot, which pan position it's at
-        currentPosition = position;
-
-        // Where it is between the ears (0 = left, 1 = right), and where its low cut is
-        float pan;
-        double cutoff;
-        if (spots)
-        {
-            // Left to right across the range
-            const float low = panLow.load(), high = panHigh.load();
-            const int panIndex = repeat;
-            const float spread = panPositions > 1 ? low + (high - low) * (float) panIndex / (float) (panPositions - 1)
-                                                  : 0.5f * (low + high);
-            pan = 0.5f * (spread + 1.0f);
-            cutoff = spotFrequency[(size_t) position].load();
-            if (cutoff <= 20.0)
-                cutoff = 0.0;
-        }
-        else if (modeNow == Mode::square)
-        {
-            const auto dot = square.dot (position);
-            pan = juce::jlimit (0.0f, 1.0f, dot.x);
-            cutoff = Square::cutoffAt (dot.y);
+            const auto index = (size_t) (sequenceIndex % length);
+            pan = juce::jlimit (0.0f, 1.0f, sequencePan[index].load());
+            cutoff = sequenceCutoff[index].load();
             if (cutoff <= 20.5)
                 cutoff = 0.0;
+            levelDb = sequenceLevelDb[index].load();
+            currentPosition = (int) index;
+            sequenceIndex = ((int) index + 1) % length;
+            sequenceProgress = ((juce::int64) playingGeneration << 32) | (juce::int64) (++sequencePlayed);
         }
         else
         {
-            const int row = position / columns, column = position % columns;
-            pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
-            cutoff = cutoffForRow (row, rows);
+            const bool spots = modeNow == Mode::spots;
+            const auto square = getSquare();
+            const int rows = numRows.load(), columns = numColumns.load();
+            const int panPositions = spots ? panSteps.load() : 1;
+
+            // Everything plays a row at a time: a grid's or a square's own rows, and for spots, a row each, with
+            // a place for each pan step
+            const int rowCount = spots ? spotCount.load() : modeNow == Mode::square ? square.size : rows;
+            const int rowLength = spots ? panPositions : modeNow == Mode::square ? square.size : columns;
+
+            // Only the grid has positions you pick out
+            bool anySelected = false;
+            for (int p = 0; modeNow == Mode::grid && p < rowCount * rowLength && ! anySelected; ++p)
+                anySelected = isSelected (p);
+
+            auto nextInRow = [&] (int row, int after)
+            {
+                for (int column = after + 1; column < rowLength; ++column)
+                    if (! anySelected || isSelected (row * rowLength + column))
+                        return column;
+                return -1;
+            };
+            auto nextRowWithSomething = [&] (int after)
+            {
+                for (int step = 1; step <= rowCount; ++step)
+                    if (const int row = (std::max (after, -1) + step) % rowCount; nextInRow (row, -1) >= 0)
+                        return row;
+                return 0;
+            };
+
+            // Starting out, or the row it was on has gone (or has nothing selected in it now)
+            const int depthRuns = depth.load(), repeats = depthRepeats.load();
+            if (seqRow < 0 || seqRow >= rowCount || nextInRow (seqRow, -1) < 0)
+            {
+                seqRow = nextRowWithSomething (seqRow < rowCount ? seqRow : -1);
+                seqColumn = -1;
+                depthLevel = 0;
+                depthRepeat = 0;
+            }
+
+            if (seqColumn < 0)
+            {
+                seqColumn = std::max (0, nextInRow (seqRow, -1)); // the very first one
+            }
+            else
+            {
+                // What would play next, in reading order
+                int nextRow = seqRow, nextColumn = nextInRow (seqRow, seqColumn);
+                const bool rowEnded = nextColumn < 0;
+                if (rowEnded)
+                {
+                    nextRow = nextRowWithSomething (seqRow);
+                    nextColumn = std::max (0, nextInRow (nextRow, -1));
+                }
+                const bool cycleEnded = rowEnded && nextRow <= seqRow;
+
+                // The unit the depth works on (a dot, a row, or the whole cycle) has just played. It plays again at
+                // this level until it's had its repeats, then a level louder, and after the loudest, it moves on.
+                const auto unit = (DepthUnit) depthUnit.load();
+                if (unit == DepthUnit::dot || (unit == DepthUnit::row && rowEnded) || (unit == DepthUnit::cycle && cycleEnded))
+                {
+                    bool movesOn = false;
+                    if (++depthRepeat >= repeats)
+                    {
+                        depthRepeat = 0;
+                        if (++depthLevel >= depthRuns)
+                        {
+                            depthLevel = 0;
+                            movesOn = true;
+                        }
+                    }
+
+                    if (! movesOn)
+                    {
+                        // Back to the start of the unit
+                        if (unit == DepthUnit::dot && (! anySelected || isSelected (seqRow * rowLength + seqColumn)))
+                        {
+                            nextRow = seqRow;
+                            nextColumn = seqColumn;
+                        }
+                        else if (unit == DepthUnit::row)
+                        {
+                            nextRow = seqRow;
+                            nextColumn = std::max (0, nextInRow (seqRow, -1));
+                        }
+                        else if (unit == DepthUnit::cycle)
+                        {
+                            nextRow = nextRowWithSomething (-1);
+                            nextColumn = std::max (0, nextInRow (nextRow, -1));
+                        }
+                    }
+                }
+                seqRow = nextRow;
+                seqColumn = nextColumn;
+            }
+            depthLevel = std::min (depthLevel, depthRuns - 1); // if the depth's come down
+
+            const int position = spots ? seqRow : seqRow * rowLength + seqColumn;
+            const int repeat = seqColumn; // for a spot, which pan position it's at
+            currentPosition = position;
+
+            // Where it is between the ears (0 = left, 1 = right), and where its low cut is
+            if (spots)
+            {
+                // Left to right across the range
+                const float low = panLow.load(), high = panHigh.load();
+                const int panIndex = repeat;
+                const float spread = panPositions > 1 ? low + (high - low) * (float) panIndex / (float) (panPositions - 1)
+                                                      : 0.5f * (low + high);
+                pan = 0.5f * (spread + 1.0f);
+                cutoff = spotFrequency[(size_t) position].load();
+                if (cutoff <= 20.0)
+                    cutoff = 0.0;
+            }
+            else if (modeNow == Mode::square)
+            {
+                const auto dot = square.dot (position);
+                pan = juce::jlimit (0.0f, 1.0f, dot.x);
+                cutoff = Square::cutoffAt (dot.y);
+                if (cutoff <= 20.5)
+                    cutoff = 0.0;
+            }
+            else
+            {
+                const int row = position / columns, column = position % columns;
+                pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
+                cutoff = cutoffForRow (row, rows);
+            }
+
+            // Quietest first: each level is a step up, from the floor to full level
+            if (depthRuns > 1)
+                levelDb = floorDb.load() * (float) (depthRuns - 1 - depthLevel) / (float) (depthRuns - 1);
         }
 
         // Take a free voice, or the quietest one
@@ -516,9 +584,7 @@ private:
         // Up (or down) for every octave this burst's lowest frequency is above 20 Hz, to put it on the top line
         voice->peak *= juce::Decibels::decibelsToGain (burstBoostDbPerOctave() * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
 
-        // Quietest first: each time round all the positions is a step up, from the floor to full level
-        if (depthRuns > 1)
-            voice->peak *= juce::Decibels::decibelsToGain (floorDb.load() * (float) (depthRuns - 1 - depthLevel) / (float) (depthRuns - 1));
+        voice->peak *= juce::Decibels::decibelsToGain (levelDb);
 
         voice->age = 0;
         voice->active = true;
@@ -631,6 +697,11 @@ private:
     std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };
     std::array<std::atomic<float>, maxSpots> spotFrequency { 200.0f, 1000.0f, 5000.0f, 12000.0f };
     std::atomic<float> panLow { 0.0f }, panHigh { 0.0f };
+    std::array<std::atomic<float>, maxSequenceLength> sequencePan {}, sequenceLevelDb {};
+    std::array<std::atomic<double>, maxSequenceLength> sequenceCutoff {};
+    std::atomic<int> sequenceLength { 0 }, sequenceGeneration { 0 };
+    std::atomic<juce::int64> sequenceProgress { 0 }; // which sequence (its generation), and how many of its bursts have started
+    int playingGeneration = 0, sequenceIndex = 0, sequencePlayed = 0; // the audio thread's
     std::atomic<int> squareSize { 3 };
     std::atomic<float> squareX { 0.5f }, squareY { 0.5f }, squareWidth { 0.5f }, squareHeight { 0.5f };
     std::atomic<bool> playing { false };

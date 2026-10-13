@@ -26,7 +26,7 @@ namespace
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
-    : processor (p), player (p.getCalibration())
+    : processor (p), player (p.getCalibration()), guidedView (p)
 {
     auto& state = processor.parameters.state;
 
@@ -99,9 +99,21 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     playButton.setClickingTogglesState (true);
     playButton.onClick = [this]
     {
-        player.setPlaying (playButton.getToggleState());
+        // Guided mode starts (or carries on) its search; the others just play
+        if (! isGuidedMode())
+            player.setPlaying (playButton.getToggleState());
+        else if (playButton.getToggleState())
+            guidedView.start();
+        else
+            guidedView.pause();
         updateButtons();
     };
+    guidedView.onPlayingChanged = [this]
+    {
+        playButton.setToggleState (player.isPlaying(), juce::dontSendNotification);
+        updateButtons();
+    };
+    addChildComponent (guidedView);
     allButton.onClick = [this]
     {
         player.setSelection ({});
@@ -141,7 +153,9 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     setDepthUnit ((CalibrationPlayer::DepthUnit) juce::jlimit (0, 2, (int) state.getProperty (idDepthUnit, (int) CalibrationPlayer::DepthUnit::row)));
 
     // Spots on the EQ graph, the grid, or a square to drag about
-    for (auto* button : { &spotsModeButton, &gridModeButton, &squareModeButton })
+    guidedModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::sequence); };
+    guidedModeButton.setTooltip ("Experimental: a guided search. It gives you one change to the curve at a time to try by ear, and keeps the ones that hold up.");
+    for (auto* button : { &spotsModeButton, &gridModeButton, &squareModeButton, &guidedModeButton })
     {
         button->setClickingTogglesState (false);
         addAndMakeVisible (*button);
@@ -216,6 +230,7 @@ CalibrationPanel::~CalibrationPanel()
 
 void CalibrationPanel::stop()
 {
+    guidedView.leave();
     player.setPlaying (false);
     playButton.setToggleState (false, juce::dontSendNotification);
     updateButtons();
@@ -339,6 +354,14 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
 
 void CalibrationPanel::setMode (CalibrationPlayer::Mode mode)
 {
+    // Leaving guided mode stops its search's playing, and drops whatever it was trying that hadn't been kept;
+    // coming to it starts with nothing playing
+    if (isGuidedMode() != (mode == CalibrationPlayer::Mode::sequence))
+    {
+        guidedView.leave();
+        player.setPlaying (false);
+        playButton.setToggleState (false, juce::dontSendNotification);
+    }
     CalibrationSettings::setMode (processor.parameters.state, player, mode);
     refreshSpots();
     resized();
@@ -349,7 +372,10 @@ void CalibrationPanel::setMode (CalibrationPlayer::Mode mode)
 
 void CalibrationPanel::refreshSpots()
 {
-    const bool spots = isShowingSpots(), square = isSquareMode(), grid = ! spots && ! square;
+    const bool spots = isShowingSpots(), square = isSquareMode(), guided = isGuidedMode(), grid = ! spots && ! square && ! guided;
+    guidedModeButton.setToggleState (guided, juce::dontSendNotification);
+    guidedView.setVisible (guided);
+    updateDepthControls();
     const int count = CalibrationSettings::getSpotCount (processor.parameters.state);
 
     gridModeButton.setToggleState (grid, juce::dontSendNotification);
@@ -387,6 +413,23 @@ void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
         depthUnitButtons[i].setToggleState ((int) i == (int) unit, juce::dontSendNotification);
 }
 
+void CalibrationPanel::updateDepthControls()
+{
+    // Guided mode plays its own frames, at three levels from the floor up: depth and repeats aren't its
+    const bool guided = isGuidedMode();
+    for (auto* component : std::initializer_list<juce::Component*> { &depthSlider, &depthLabel, &repeatsSlider, &repeatsLabel, &depthUnitLabel,
+                                                                    &depthUnitButtons[0], &depthUnitButtons[1], &depthUnitButtons[2] })
+        component->setEnabled (! guided);
+
+    // Otherwise the floor is the quietest level, so it means nothing with a depth of one
+    const bool hasRange = guided || depthSlider.getValue() > 1.0;
+    floorSlider.setEnabled (hasRange);
+    floorLabel.setEnabled (hasRange);
+    floorSlider.setTooltip (guided ? "The quietest of the three levels a guided frame plays at, as dB below the volume. The middle one is halfway."
+                            : hasRange ? "The quietest level a row plays at, as dB below the volume. Each level after it is a step louder, up to the volume."
+                                       : "Turn the depth up to play each row at several levels; this sets the quietest of them");
+}
+
 void CalibrationPanel::applySettings()
 {
     player.setGrid (rows(), columns());
@@ -394,13 +437,7 @@ void CalibrationPanel::applySettings()
     player.setDepth ((int) depthSlider.getValue());
     player.setFloorDb ((float) floorSlider.getValue());
     player.setDepthRepeats ((int) repeatsSlider.getValue());
-
-    // The floor is the quietest level, so it means nothing with a depth of one
-    const bool hasRange = depthSlider.getValue() > 1.0;
-    floorSlider.setEnabled (hasRange);
-    floorLabel.setEnabled (hasRange);
-    floorSlider.setTooltip (hasRange ? "The quietest level a row plays at, as dB below the volume. Each level after it is a step louder, up to the volume."
-                                     : "Turn the depth up to play each row at several levels; this sets the quietest of them");
+    updateDepthControls();
     player.setRate ((float) speedSlider.getValue());
     player.setReleaseMs ((float) releaseSlider.getValue());
     player.setAttackMs ((float) attackSlider.getValue());
@@ -468,7 +505,7 @@ int CalibrationPanel::positionAt (juce::Point<float> point) const
 
 void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
 {
-    if (isShowingSpots())
+    if (isShowingSpots() || isGuidedMode())
         return;
 
     if (isSquareMode())
@@ -534,7 +571,7 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
 
 void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
 {
-    if (isShowingSpots())
+    if (isShowingSpots() || isGuidedMode())
         return;
 
     if (isSquareMode())
@@ -580,7 +617,7 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
 
 bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
 {
-    if (isShowingSpots())
+    if (isShowingSpots() || isGuidedMode())
         return false;
 
     if (isSquareMode())
@@ -660,6 +697,8 @@ void CalibrationPanel::mouseUp (const juce::MouseEvent&)
 
 void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
 {
+    if (isGuidedMode())
+        return;
     if (isSquareMode())
     {
         setMouseCursor (squareHandle().contains (event.position) ? juce::MouseCursor::BottomRightCornerResizeCursor
@@ -730,6 +769,9 @@ void CalibrationPanel::paint (juce::Graphics& g)
         return;
     }
 
+    if (isGuidedMode())
+        return; // its view draws itself
+
     if (isSquareMode())
     {
         paintSquareMode (g);
@@ -797,6 +839,8 @@ void CalibrationPanel::resized()
     gridModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
     header.removeFromLeft (4);
     squareModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
+    header.removeFromLeft (4);
+    guidedModeButton.setBounds (header.removeFromLeft (72).withSizeKeepingCentre (72, 26));
 
 
     area.removeFromBottom (10);
@@ -826,6 +870,7 @@ void CalibrationPanel::resized()
 
     // Spots mode: how many, the pan range, and which one's playing
     spotsArea = area;
+    guidedView.setBounds (area.withTrimmedRight (10).withTrimmedBottom (2));
     {
         auto spots = area.withTrimmedRight (10);
         auto countRow = spots.removeFromTop (30);

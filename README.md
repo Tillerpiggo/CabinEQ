@@ -70,6 +70,29 @@ loads the VST3 to EQ everything the Mac plays.
   right, and up it is the low cut, from none at the bottom (20 Hz) to 20 kHz at the top. Drag the square to move it
   (or click elsewhere on the field to bring it there; the arrow keys nudge it), and drag its bottom right corner to
   resize it about its centre. Its dots play in reading order.
+- **Calibration, Guided mode** (experimental; the panel's fourth mode): a search that gives you one change to the
+  curve at a time. Press Play and it redraws the curve through 5 points, evenly spaced in octaves from 20 Hz to
+  20 kHz (each ear's curve kept as close as 5 points allow; it's one undo step). Then, each turn:
+  1. A pad sets two changes at once, named beside it (say, both ears at 3.6 kHz across, and both ears at 20 kHz
+     up), by up to the range (+/-30 dB to start) each way from the middle, which is no change. A frame of twelve
+     bursts plays round and round while you drag: across the pans, up the heights (the grid's three rows' low cuts)
+     and through three levels (from the floor up to the volume), around one of nine spots. You hear the change, and
+     see it on the graph.
+  2. Let go, and the frame plays once right through. Then say whether it's **Better**, or **Skip** it.
+  3. If it's better, it's checked on the next two frames: each plays with the curve as it was (BEFORE), then with
+     your change (AFTER), until you answer Better, Same or Worse. It's kept only if it's worse on neither. A turn
+     is one undo step; a change that isn't kept is undone.
+
+  What comes next depends on what happened. A kept change at the pad's edge gets the same pad again, recentred, to go
+  further. Any other kept change gets a pad whose across is that change (left undoes it, right goes on) and whose up
+  is whichever change has been tried least, with the first taken out of it; after two of those running, it's back to
+  the list. Anything not kept moves on down the list: neighbouring points together, each point with its difference
+  between the ears, and neighbouring differences, from the highest point to the lowest. Once everything on the list
+  has had every frame with nothing kept, it tries frames at in-between spots; if those find nothing either, the range
+  halves (30, 15, 7.5, 3.75 dB), and after the smallest, the points double (5, 9, 17) and it starts on them at
+  +/-15 dB. Everything tried, and what you answered, is written to a file in
+  `~/Library/Application Support/CabinEQ/Guided calibration` (the Log button shows it). The search is
+  `GuidedSearch.h`, which knows nothing of audio; `GuidedCalibrationView.h` joins it to the curve and the player.
 - **Calibration noise**: it falls 4.5 dB an octave (pink noise falls 3), and every burst is that same noise, cut off
   lower or higher, so the bursts' bottom edges fall 4.5 dB an octave from one burst to the next as well.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),

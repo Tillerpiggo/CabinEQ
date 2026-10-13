@@ -2414,6 +2414,474 @@ public:
     }
 };
 
+//==============================================================================
+class GuidedSearchTests : public juce::UnitTest
+{
+public:
+    GuidedSearchTests() : juce::UnitTest ("Guided calibration", "CabinEQ") {}
+
+    /// A curve for the search to work on, and a record of what it asked for
+    struct Bench
+    {
+        GuidedSearch::Vector curve, heard;
+        std::vector<GuidedSearch::Frame> framesPlayed;
+        std::vector<int> refinedTo;
+        juce::StringArray events;
+        int kept = 0, reverted = 0;
+        std::unique_ptr<GuidedSearch> search;
+
+        Bench()
+        {
+            GuidedSearch::Callbacks callbacks;
+            callbacks.readVertices = [this] { return curve; };
+            callbacks.preview = [this] (const GuidedSearch::Vector& v) { heard = v; };
+            callbacks.commit = [this] (const GuidedSearch::Vector& v) { curve = heard = v; ++kept; };
+            callbacks.revert = [this] (const GuidedSearch::Vector& v) { heard = v; ++reverted; };
+            callbacks.refine = [this] (int count)
+            {
+                // Each new vertex between two old ones takes their average, as a curve through them would nearly
+                const int before = (int) curve.size() / 2;
+                GuidedSearch::Vector finer ((size_t) count * 2, 0.0f);
+                for (int ear = 0; ear < 2 && before > 1; ++ear)
+                    for (int i = 0; i < count; ++i)
+                    {
+                        const float at = (float) i * (float) (before - 1) / (float) (count - 1);
+                        const int below = std::min ((int) at, before - 2);
+                        finer[(size_t) (ear * count + i)] = curve[(size_t) (ear * before + below)] * (1.0f - (at - (float) below))
+                                                          + curve[(size_t) (ear * before + below + 1)] * (at - (float) below);
+                    }
+                curve = finer;
+                refinedTo.push_back (count);
+                return curve;
+            };
+            callbacks.playFrame = [this] (const GuidedSearch::Frame& frame) { framesPlayed.push_back (frame); };
+            callbacks.log = [this] (const juce::var& line) { events.add (line["event"].toString()); };
+            search = std::make_unique<GuidedSearch> (GuidedSearch::Config(), std::move (callbacks));
+        }
+
+        /// Explores to (x, y), lets go, hears the frame out, and says whether it's better
+        void choose (float x, float y, bool better)
+        {
+            search->padMoved ({ x, y });
+            search->padReleased();
+            search->framePlayed();
+            search->choose (better);
+        }
+
+        /// Hears before and after on a check frame, and answers
+        void check (GuidedSearch::Response response)
+        {
+            search->framePlayed(); // before has played: now after
+            search->respond (response);
+        }
+
+        void keep (float x, float y)
+        {
+            choose (x, y, true);
+            check (GuidedSearch::Response::better);
+            check (GuidedSearch::Response::same);
+        }
+    };
+
+    void runTest() override
+    {
+        using Phase = GuidedSearch::Phase;
+        using Response = GuidedSearch::Response;
+
+        beginTest ("It starts with five vertices, the planes in the order given, and the widest range");
+        {
+            Bench bench;
+            bench.search->begin();
+            expect (bench.refinedTo == std::vector<int> { 5 }, "the curve's made five vertices");
+            expectEquals (bench.search->getVertexCount(), 5);
+            expectWithinAbsoluteError (bench.search->getRangeDb(), 30.0f, 0.001f);
+            expectEquals (bench.search->getNumStructuredPlanes(), 13, "4 of (C, C next), 5 of (C, D), 4 of (D, D next)");
+            expectEquals (bench.search->getSweepSize(), 13 * 9, "every plane on every frame");
+
+            // Left ear's five gains, then the right's. C is both ears; D is left up, right down.
+            const auto& planes = bench.search->getStructuredPlanes();
+            expect (planes[0].u == GuidedSearch::Vector { 0, 0, 0, 1, 0,  0, 0, 0, 1, 0 }, "first: both ears at the fourth vertex...");
+            expect (planes[0].v == GuidedSearch::Vector { 0, 0, 0, 0, 1,  0, 0, 0, 0, 1 }, "...with both ears at the fifth, the highest pair");
+            expect (planes[3].u == GuidedSearch::Vector { 1, 0, 0, 0, 0,  1, 0, 0, 0, 0 }, "down to the lowest pair");
+            expect (planes[4].u == GuidedSearch::Vector { 0, 0, 0, 0, 1,  0, 0, 0, 0, 1 }, "then each vertex's level...");
+            expect (planes[4].v == GuidedSearch::Vector { 0, 0, 0, 0, 1,  0, 0, 0, 0, -1 }, "...with its difference between the ears, from the highest");
+            expect (planes[9].u == GuidedSearch::Vector { 0, 0, 0, 1, 0,  0, 0, 0, -1, 0 }, "then neighbouring differences");
+            expect (planes[9].v == GuidedSearch::Vector { 0, 0, 0, 0, 1,  0, 0, 0, 0, -1 });
+
+            expect (bench.search->getPhase() == Phase::exploring);
+            expectEquals (bench.search->getPlane().structuredIndex, 0);
+            expectEquals ((int) bench.framesPlayed.size(), 1, "and its frame's playing");
+        }
+
+        beginTest ("A frame is three lines of four bursts through one spot of pan, height and level");
+        {
+            const auto bursts = GuidedSearch::Frame { 1.0f, -1.0f }.bursts();
+            auto is = [&bursts] (size_t i, float pan, float height, float level)
+            {
+                return bursts[i].pan == pan && bursts[i].height == height && bursts[i].level == level;
+            };
+            expect (is (0, -1, 1, -1) && is (1, 0, 1, -1) && is (2, 1, 1, -1) && is (3, 0, 1, -1), "across the pans: low, middle, high, middle");
+            expect (is (4, 1, -1, -1) && is (5, 1, 0, -1) && is (6, 1, 1, -1) && is (7, 1, 0, -1), "up the heights");
+            expect (is (8, 1, -1, -1) && is (9, 1, -1, 0) && is (10, 1, -1, 1) && is (11, 1, -1, 0), "through the levels");
+        }
+
+        beginTest ("The pad previews from the turn's starting curve, by the range along each axis");
+        {
+            Bench bench;
+            bench.curve = { 1, 2, 3, 4, 5,  1, 2, 3, 4, 5 };
+            bench.search->begin();
+            bench.curve = { 1, 2, 3, 4, 5,  1, 2, 3, 4, 5 }; // (begin made it five vertices; put it back as it was)
+            bench.search->padMoved ({ 0.5f, -1.0f });
+            expect (bench.heard == GuidedSearch::Vector { 1, 2, 3, 19, -25,  1, 2, 3, 19, -25 }, "half the range up one axis, all of it down the other");
+            bench.search->padMoved ({ 0.1f, 0.0f });
+            expect (bench.heard == GuidedSearch::Vector { 1, 2, 3, 7, 5,  1, 2, 3, 7, 5 }, "from the start each time, not from where the pad was");
+            expect (bench.curve == GuidedSearch::Vector { 1, 2, 3, 4, 5,  1, 2, 3, 4, 5 }, "and nothing's kept yet");
+        }
+
+        beginTest ("A choice has to be heard out, and then hold up on the next two frames, to be kept");
+        {
+            Bench bench;
+            bench.search->begin();
+            const auto turnFrame = bench.search->getFrame();
+
+            bench.search->padMoved ({ 0.5f, 0.0f });
+            expect (! bench.search->canChoose(), "not while you're still dragging");
+            bench.search->padReleased();
+            expect (bench.search->getPhase() == Phase::settling);
+            expect (! bench.search->canChoose(), "nor until a whole frame's played with it standing still");
+            bench.search->framePlayed();
+            expect (bench.search->canChoose());
+
+            bench.search->choose (true);
+            expect (bench.search->getPhase() == Phase::validatingBefore, "first the starting curve...");
+            expect (bench.heard == bench.search->getStart());
+            expect (! (bench.search->getFrame() == turnFrame), "...on the next frame, not the one you explored on");
+            const auto firstCheck = bench.search->getFrame();
+            expect (! bench.search->canRespond(), "no answering before the change has been heard against it");
+            bench.search->framePlayed();
+            expect (bench.search->getPhase() == Phase::validatingAfter, "then the change");
+            expectWithinAbsoluteError (bench.heard[3], 15.0f, 0.001f);
+            expect (bench.search->canRespond());
+            bench.search->framePlayed();
+            expect (bench.search->getPhase() == Phase::validatingBefore && bench.search->canRespond(), "and round again until you answer");
+
+            bench.search->respond (Response::same);
+            expect (bench.search->getPhase() == Phase::validatingBefore, "a second check...");
+            expect (! (bench.search->getFrame() == firstCheck) && ! (bench.search->getFrame() == turnFrame), "...on the frame after that");
+            expectEquals (bench.kept, 0);
+            bench.check (Response::better);
+            expectEquals (bench.kept, 1, "worse on neither: kept");
+            expectWithinAbsoluteError (bench.curve[3], 15.0f, 0.001f);
+        }
+
+        beginTest ("Worse on either check, or no better to begin with, and it's dropped for the next structured plane");
+        {
+            Bench bench;
+            bench.search->begin();
+            bench.choose (0.5f, 0.5f, true);
+            bench.check (Response::better);
+            bench.check (Response::worse);
+            expectEquals (bench.kept, 0);
+            expectEquals (bench.reverted, 1, "back to the curve it started from");
+            expect (bench.curve == GuidedSearch::Vector (10, 0.0f));
+            expectEquals (bench.search->getPlane().structuredIndex, 1, "on to the next structured plane");
+
+            bench.choose (0.3f, 0.0f, false);
+            expectEquals (bench.search->getPlane().structuredIndex, 2);
+            bench.search->choose (false); // skipped without even moving
+            expectEquals (bench.search->getPlane().structuredIndex, 3);
+            expectEquals (bench.kept, 0);
+        }
+
+        beginTest ("A kept choice that touched the pad's edge gets the same plane again, recentred");
+        {
+            Bench bench;
+            bench.search->begin();
+            bench.keep (1.0f, 0.2f);
+            expectEquals (bench.search->getPlane().structuredIndex, 0, "the same plane");
+            expect (! bench.search->getPlane().isAdaptive);
+            expectWithinAbsoluteError (bench.search->getStart()[3], 30.0f, 0.001f, "from where it got to");
+            expectWithinAbsoluteError (bench.search->getRangeDb(), 30.0f, 0.001f, "at the same range");
+            expect (bench.search->getPad() == juce::Point<float>(), "with the pad back in the middle");
+            bench.search->padMoved ({ 1.0f, 0.0f });
+            expectWithinAbsoluteError (bench.heard[3], 60.0f, 0.001f, "so it can go on past the range");
+        }
+
+        beginTest ("A kept choice inside the pad makes an adaptive plane: the movement, and the least-used direction apart from it");
+        {
+            Bench bench;
+            bench.search->begin();
+            bench.keep (0.5f, 0.25f); // 15 dB at the fourth vertex and 7.5 at the fifth, in both ears
+            const auto& plane = bench.search->getPlane();
+            expect (plane.isAdaptive);
+            expect (plane.u == GuidedSearch::Vector { 0, 0, 0, 1, 0.5f,  0, 0, 0, 1, 0.5f }, "across is that movement, its largest entry 1");
+            expectWithinAbsoluteError (GuidedSearch::dot (plane.u, plane.v), 0.0f, 1.0e-4f, "up has nothing of it left in");
+            expectWithinAbsoluteError (GuidedSearch::largest (plane.v), 1.0f, 1.0e-5f);
+            // Used so far: both ears at the fourth and fifth (the first plane). Of the rest, the next in the queue is the third.
+            expect (plane.v == GuidedSearch::Vector { 0, 0, 1, 0, 0,  0, 0, 1, 0, 0 }, "the least-used direction, by the queue's order: both ears at the third vertex");
+
+            // Continue the movement: left undoes it, right goes further
+            bench.search->padMoved ({ -0.5f, 0.0f });
+            expectWithinAbsoluteError (bench.heard[3], 0.0f, 0.001f, "left on the pad undoes it");
+
+            bench.keep (0.2f, 0.4f);
+            expect (bench.search->getPlane().isAdaptive, "a second adaptive turn");
+            bench.keep (0.2f, 0.4f);
+            expect (! bench.search->getPlane().isAdaptive, "after two running, a structured one");
+            expectEquals (bench.search->getPlane().structuredIndex, 1, "the next in the queue");
+        }
+
+        beginTest ("After two adaptive turns running the next is structured, even if the last touched the edge");
+        {
+            Bench bench;
+            bench.search->begin();
+            bench.keep (0.5f, 0.25f);
+            expect (bench.search->getPlane().isAdaptive);
+            bench.keep (1.0f, 0.0f); // at the edge: the same adaptive plane again, which is the second running
+            expect (bench.search->getPlane().isAdaptive);
+            bench.keep (1.0f, 0.0f); // at the edge again, but that's two
+            expect (! bench.search->getPlane().isAdaptive);
+            expectEquals (bench.search->getPlane().structuredIndex, 1);
+        }
+
+        beginTest ("The other axis: least used first, then the queue's order, and never one nearly parallel to the movement");
+        {
+            using Direction = GuidedSearch::Direction;
+            const GuidedSearch::Vector movement { 1.0f, 0.5f, 0.0f };
+            std::vector<Direction> pool { { { 1.0f, 0.55f, 0.0f }, "nearly the movement", 0, 0 },
+                                          { { 0.0f, 1.0f, 0.0f }, "second", 1, 1 },
+                                          { { 0.0f, 0.0f, 1.0f }, "third", 0, 3 },
+                                          { { 0.0f, 1.0f, 1.0f }, "fourth", 0, 2 } };
+            expectGreaterThan (GuidedSearch::cosine (movement, pool[0].vector), 0.95f);
+            expectEquals (GuidedSearch::leastUsedIndependent (movement, pool, 0.95f), 3, "not the nearly parallel one; of the unused, the earlier in the queue");
+            pool[3].uses = 1;
+            expectEquals (GuidedSearch::leastUsedIndependent (movement, pool, 0.95f), 2, "fewer uses comes first");
+            pool[2].uses = 2;
+            expectEquals (GuidedSearch::leastUsedIndependent (movement, pool, 0.95f), 1, "equally used: the queue's order");
+            expectEquals (GuidedSearch::leastUsedIndependent (movement, { pool[0] }, 0.95f), -1, "none, if they're all nearly parallel");
+
+            // Its part along the movement is taken out, and what's left has a largest entry of 1
+            const auto apart = GuidedSearch::apartFrom (pool[1].vector, movement);
+            expectWithinAbsoluteError (GuidedSearch::dot (apart, movement), 0.0f, 1.0e-5f);
+            expectWithinAbsoluteError (GuidedSearch::largest (apart), 1.0f, 1.0e-5f);
+            expect (apart == GuidedSearch::Vector { -0.5f, 1.0f, 0.0f });
+            expect (GuidedSearch::apartFrom (movement, movement).empty(), "nothing's left of the movement itself");
+        }
+
+        beginTest ("An ear difference that no plane's had yet is the least used");
+        {
+            Bench bench;
+            bench.search->begin();
+            bench.choose (0.0f, 0.0f, false); // skip to the second plane: both ears at the third and fourth vertices
+            bench.choose (0.0f, 0.0f, false);
+            bench.choose (0.0f, 0.0f, false);
+            bench.choose (0.0f, 0.0f, false); // the fifth: both ears at the top vertex, with its ear difference
+            bench.keep (0.5f, 0.0f);          // just both ears at the top vertex
+            const auto& plane = bench.search->getPlane();
+            expect (plane.isAdaptive);
+            expectLessThan (std::abs (GuidedSearch::cosine (plane.u, plane.v)), 0.01f);
+            expect (plane.vName.startsWith ("left over right at"), "the least used: an ear difference that no plane's had yet");
+        }
+
+        beginTest ("Sweeps with nothing kept: an audit in between, then half the range, then more vertices, then it's finished");
+        {
+            Bench bench;
+            bench.search->begin();
+
+            // Say "no better" to everything
+            std::vector<std::tuple<int, float, int, bool>> stages; // vertices, range, turns there, audit
+            int turns = 0, guard = 0;
+            auto key = [&bench] { return std::tuple { bench.search->getVertexCount(), bench.search->getRangeDb(), bench.search->isAuditing() }; };
+            auto last = key();
+            std::set<std::pair<int, int>> seen; // plane and frame, in the first sweep
+            while (bench.search->getPhase() != Phase::finished && ++guard < 20000)
+            {
+                if (key() != last)
+                {
+                    stages.push_back ({ std::get<0> (last), std::get<1> (last), turns, std::get<2> (last) });
+                    last = key();
+                    turns = 0;
+                }
+                ++turns;
+                if (stages.empty())
+                {
+                    const auto frame = bench.search->getFrame();
+                    seen.insert ({ bench.search->getPlane().structuredIndex, (int) ((frame.a + 1.0f) * 3.0f + frame.b + 1.0f) });
+                    expect (! frame.isAudit);
+                }
+                else if (bench.search->isAuditing())
+                {
+                    expect (bench.search->getFrame().isAudit, "an audit's frames are the ones in between");
+                }
+                bench.search->choose (false);
+            }
+            stages.push_back ({ std::get<0> (last), std::get<1> (last), turns, std::get<2> (last) });
+
+            expectEquals ((int) seen.size(), 13 * 9, "the first sweep had every plane on every frame, once each");
+            const std::vector<std::tuple<int, float, int, bool>> expected {
+                { 5, 30.0f, 117, false }, { 5, 30.0f, 13, true },
+                { 5, 15.0f, 117, false }, { 5, 15.0f, 13, true },
+                { 5, 7.5f, 117, false },  { 5, 7.5f, 13, true },
+                { 5, 3.75f, 117, false }, { 5, 3.75f, 13, true },
+                { 9, 15.0f, 225, false }, { 9, 15.0f, 25, true },
+                { 9, 7.5f, 225, false },  { 9, 7.5f, 25, true },
+                { 9, 3.75f, 225, false }, { 9, 3.75f, 25, true },
+                { 17, 15.0f, 441, false }, { 17, 15.0f, 49, true },
+                { 17, 7.5f, 441, false },  { 17, 7.5f, 49, true },
+                { 17, 3.75f, 441, false }, { 17, 3.75f, 49, true } };
+            expectEquals ((int) stages.size(), (int) expected.size());
+            for (size_t i = 0; i < std::min (stages.size(), expected.size()); ++i)
+                expect (stages[i] == expected[i], "stage " + juce::String ((int) i) + ": " + juce::String (std::get<0> (stages[i])) + " vertices, +/-"
+                                                    + juce::String (std::get<1> (stages[i])) + " dB, " + juce::String (std::get<2> (stages[i])) + " turns");
+            expect (bench.refinedTo == std::vector<int> { 5, 9, 17 });
+            expect (bench.search->getPhase() == Phase::finished);
+            expectEquals (bench.kept, 0);
+        }
+
+        beginTest ("Something kept in a sweep keeps the range; kept in the audit, it keeps it too");
+        {
+            Bench bench;
+            bench.search->begin();
+            bench.keep (0.3f, 0.0f); // one improvement, early in the sweep
+            int guard = 0;
+            bool sawAudit = false;
+            float rangeAfterSweep = 0.0f;
+            int structuredTurns = 0;
+            while (++guard < 1000)
+            {
+                if (bench.search->isAuditing())
+                    sawAudit = true;
+                if (! bench.search->getPlane().isAdaptive && ++structuredTurns > 117 + 5)
+                {
+                    rangeAfterSweep = bench.search->getRangeDb();
+                    break;
+                }
+                bench.search->choose (false);
+            }
+            expect (! sawAudit, "no audit after a sweep that kept something");
+            expectWithinAbsoluteError (rangeAfterSweep, 30.0f, 0.001f, "and the range stays");
+
+            Bench audited;
+            audited.search->begin();
+            guard = 0;
+            while (! audited.search->isAuditing() && ++guard < 1000)
+                audited.search->choose (false);
+            audited.keep (0.3f, 0.0f); // found in the audit
+            guard = 0;
+            while (audited.search->isAuditing() && ++guard < 1000)
+                audited.search->choose (false);
+            expectWithinAbsoluteError (audited.search->getRangeDb(), 30.0f, 0.001f, "the audit found something: the range stays");
+        }
+
+        beginTest ("Broad directions carry over to finer vertices, and everything's logged");
+        {
+            Bench bench;
+            bench.search->begin();
+            int guard = 0;
+            while (bench.search->getVertexCount() == 5 && ++guard < 5000)
+                bench.search->choose (false);
+            expectEquals (bench.search->getVertexCount(), 9);
+
+            // "Both ears at the lowest of five" is now a slope down over the first three of nine
+            bool found = false;
+            for (const auto& direction : bench.search->getDirections())
+                found |= direction.vector == GuidedSearch::Vector { 1, 0.5f, 0, 0, 0, 0, 0, 0, 0,  1, 0.5f, 0, 0, 0, 0, 0, 0, 0 };
+            expect (found, "an earlier direction, as the coordinated change to the finer vertices it now is");
+            expectEquals (bench.search->getNumStructuredPlanes(), 8 + 9 + 8);
+
+            expect (bench.events.contains ("begin") && bench.events.contains ("turn") && bench.events.contains ("sweep")
+                    && bench.events.contains ("audit") && bench.events.contains ("range") && bench.events.contains ("refined"));
+        }
+
+        beginTest ("In the app: it redraws the curve through five points, plays its frames, and a preview is heard but not kept");
+        {
+            CabinEqAudioProcessor processor;
+            processor.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+            processor.prepareToPlay (sampleRate, blockSize);
+            auto profile = processor.getSelectedProfile();
+            profile.setBandsOn (false), profile.setCurveOn (true);
+            profile.setPoints ({ { 0, 100.0f, 4.0f }, { 1, 1000.0f, 0.0f, 0.0f, 6.0f }, { 2, 9000.0f, -3.0f } });
+            const auto before = profile.getBandProfile();
+
+            GuidedCalibrationView view (processor);
+            view.setBounds (0, 0, 560, 200);
+            view.start();
+
+            const auto points = profile.getBandProfile().getPoints();
+            expectEquals ((int) points.size(), 5);
+            if (points.size() == 5)
+            {
+                expectWithinAbsoluteError (points[0].freq, 20.0f, 0.01f);
+                expectWithinAbsoluteError (points[2].freq, 632.5f, 1.0f, "evenly spaced in octaves");
+                expectWithinAbsoluteError (points[4].freq, 20000.0f, 1.0f);
+                for (const auto& point : points)
+                {
+                    const auto ears = profile.getBandProfile();
+                    expectWithinAbsoluteError (ears.sharedDbAt (point.freq, 0), before.sharedDbAt (point.freq, 0), 0.01f, "each ear's curve is where it was, at the vertices");
+                    expectWithinAbsoluteError (ears.sharedDbAt (point.freq, 1), before.sharedDbAt (point.freq, 1), 0.01f);
+                }
+            }
+
+            auto& player = processor.getCalibration();
+            expect (player.isPlaying() && player.getMode() == CalibrationPlayer::Mode::sequence);
+            juce::AudioBuffer<float> buffer (2, (int) sampleRate);
+            buffer.clear();
+            player.process (buffer);
+            expectGreaterThan (player.getSequenceBurstsPlayed(), 0, "its frame is playing");
+            expectGreaterThan (buffer.getMagnitude (0, buffer.getNumSamples()), 0.0f);
+
+            // Drag the pad: the first plane's across is both ears at the fourth vertex
+            XYPad* pad = nullptr;
+            for (auto* child : view.getChildren())
+                if (auto* found = dynamic_cast<XYPad*> (child))
+                    pad = found;
+            expect (pad != nullptr);
+            if (pad != nullptr && points.size() == 5)
+            {
+                const float startGain = points[3].gain;
+                pad->onChange ({ 0.75f, 0.5f }); // halfway to the right: +15 dB
+                expectWithinAbsoluteError (profile.getBandProfile().getPoints()[3].gain, startGain + 15.0f, 0.01f, "you hear (and see) the preview");
+                view.restart();
+                expectWithinAbsoluteError (profile.getBandProfile().getPoints()[3].gain, startGain, 0.01f, "but it's not kept unless it holds up");
+
+
+                // Skip to the fifth plane: both ears at the top vertex, with its difference between the ears
+                auto press = [&view] (const juce::String& text)
+                {
+                    for (auto* child : view.getChildren())
+                        if (auto* button = dynamic_cast<juce::TextButton*> (child))
+                            if (button->getButtonText() == text && button->isEnabled() && button->isVisible())
+                            {
+                                button->onClick();
+                                return true;
+                            }
+                    return false;
+                };
+                for (int skipped = 0; skipped < 4; ++skipped)
+                    expect (press ("Skip"), "a turn can be skipped without trying anything");
+
+                // All the way up: 30 dB more in the left ear and 30 less in the right, with nothing clipped
+                pad->onChange ({ 0.5f, 1.0f });
+                auto top = profile.getBandProfile().getPoints()[4];
+                expectWithinAbsoluteError (top.gainSplit, 60.0f, 0.01f, "the ears can be the whole range apart, each way");
+                expectWithinAbsoluteError (top.forEar (0).gain - top.forEar (1).gain, 60.0f, 0.01f);
+                expectWithinAbsoluteError (top.gain, points[4].gain, 0.01f, "with the level between them where it was");
+
+                // Leaving partway through a turn (another mode, or hiding the panel) puts the curve back
+                view.leave();
+                expectWithinAbsoluteError (profile.getBandProfile().getPoints()[4].gainSplit, points[4].gainSplit, 0.01f, "what was being tried isn't kept");
+                expect (! player.isPlaying());
+                view.start();
+                expect (player.isPlaying(), "and the search carries on from that turn");
+                expectEquals ((int) profile.getBandProfile().getPoints().size(), 5);
+            }
+            view.pause();
+            expect (! player.isPlaying());
+        }
+    }
+};
+
+static GuidedSearchTests guidedSearchTests;
 static FilterResponseTests filterResponseTests;
 static CurveTests curveTests;
 static CalibrationPanelTests calibrationPanelTests;
@@ -2428,6 +2896,7 @@ static PresetFileTests presetFileTests;
 /// Renders the editor with a demo profile to a PNG, to check the UI without clicking around.
 static int writeSnapshot (const juce::File& file, int width, int height, bool channelSpecific, bool showCalibration, bool spotsMode, bool zoomed, bool curveMode, bool split, bool bothLayers, bool editBands)
 {
+    GuidedCalibrationView::shouldWriteLog = false;
     CabinEqAudioProcessor processor;
     auto profile = processor.getSelectedProfile();
     profile.setBands ({ Band::withQ (0, 32.0f, 0.0f, 0.71f, Band::Type::both, Band::Shape::lowCut),
@@ -2495,6 +2964,29 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         }
         return nullptr;
     };
+    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_MODE", {}) == "3")
+    {
+        // Guided mode, a turn in, with the pad moved
+        std::function<GuidedCalibrationView* (juce::Component&)> findGuided = [&] (juce::Component& parent) -> GuidedCalibrationView*
+        {
+            for (auto* child : parent.getChildren())
+            {
+                if (auto* view = dynamic_cast<GuidedCalibrationView*> (child))
+                    return view;
+                if (auto* found = findGuided (*child))
+                    return found;
+            }
+            return nullptr;
+        };
+        if (auto* view = findGuided (*editor))
+        {
+            view->start();
+            for (auto* child : view->getChildren())
+                if (auto* pad = dynamic_cast<XYPad*> (child))
+                    pad->onChange ({ 0.7f, 0.35f });
+            juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
+        }
+    }
     if (auto* graph = dynamic_cast<CabinPeqGraph*> (findGraph (*editor)))
     {
         if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_SHAPE", {}).isNotEmpty())
@@ -2591,6 +3083,7 @@ int main (int argc, char** argv)
                               argc >= 6 && juce::String (argv[5]).contains ("editbands"));
 
     CabinEqProfileManager::shouldBackUpOldState = false;
+    GuidedCalibrationView::shouldWriteLog = false;
 
     juce::UnitTestRunner runner;
     runner.setAssertOnFailure (false);

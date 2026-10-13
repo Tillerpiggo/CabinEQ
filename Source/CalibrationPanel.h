@@ -23,6 +23,7 @@
 #include <JuceHeader.h>
 #include "CabinEqAudioProcessor.h"
 #include "ValueField.h"
+#include "GuidedCalibrationView.h"
 
 class CalibrationPanel : public juce::Component,
                          private juce::Timer
@@ -68,11 +69,16 @@ private:
     std::array<juce::TextButton, 3> depthUnitButtons; // what the depth works on: each dot, each row, or the whole cycle
     juce::Label depthUnitLabel;
     void setDepthUnit (CalibrationPlayer::DepthUnit unit);
+    void updateDepthControls(); // which of depth, repeats and the floor mean anything in this mode
     juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider, attackSlider, releaseSlider, floorSlider;
     juce::Label volumeLabel, depthLabel, speedLabel, attackLabel, releaseLabel, floorLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;
 
-    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" };
+    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" }, guidedModeButton { "Guided" };
+
+    // Guided mode (experimental): a search that gives you one change at a time to try. It plays its own frames.
+    GuidedCalibrationView guidedView;
+    bool isGuidedMode() const { return mode() == CalibrationPlayer::Mode::sequence; }
 
     // Drag mode: a square of dots you put anywhere on the field (the grid's area). Across is pan; up is the low cut.
     std::array<juce::TextButton, 2> squareSizeButtons; // 2 x 2 and 3 x 3
