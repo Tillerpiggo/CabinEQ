@@ -1450,6 +1450,34 @@ public:
             expect (processor.getCalibration().getHeights() == Heights (Spacing::mels, 150.0f, 6000.0f), "the pins too");
         }
 
+        beginTest ("The noise's slope and top line are sliders again, both -4.5 dB an octave to start, and kept");
+        {
+            CabinEqAudioProcessor processor;
+            {
+                CalibrationPanel panel (processor);
+                panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+                expectWithinAbsoluteError (processor.getCalibration().getSlope(), 4.5f, 0.001f);
+                expectWithinAbsoluteError (processor.getCalibration().getTopLine(), 4.5f, 0.001f);
+                std::vector<juce::Slider*> found;
+                for (auto* child : panel.getChildren())
+                    if (auto* slider = dynamic_cast<juce::Slider*> (child); slider != nullptr && slider->getTextFromValue (4.5) == "-4.5 dB/oct")
+                        found.push_back (slider);
+                expectEquals ((int) found.size(), 2, "a slope and a top line");
+                if (found.size() == 2)
+                {
+                    expect (found[0]->isVisible() && found[1]->isVisible() && found[1]->getBottom() <= CalibrationPanel::preferredHeight, "both on the panel");
+                    found[0]->setValue (6.0, juce::sendNotificationSync);
+                    found[1]->setValue (3.0, juce::sendNotificationSync);
+                    expectWithinAbsoluteError (processor.getCalibration().getSlope(), 6.0f, 0.001f);
+                    expectWithinAbsoluteError (processor.getCalibration().getTopLine(), 3.0f, 0.001f);
+                }
+            }
+            processor.getCalibration().setSlope (4.5f);
+            CalibrationPanel again (processor);
+            expectWithinAbsoluteError (processor.getCalibration().getSlope(), 6.0f, 0.001f, "kept with the other settings");
+            expectWithinAbsoluteError (processor.getCalibration().getTopLine(), 3.0f, 0.001f);
+        }
+
         beginTest ("Positions across can bunch towards the middle or the sides, and there are three pan laws");
         {
             using Spacing = CalibrationPlayer::PanSpacing;

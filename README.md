@@ -132,8 +132,11 @@ loads the VST3 to EQ everything the Mac plays.
   in each ear), Linear (a straight crossfade: the middle is 6 dB down, and sounds quieter) or dB (every step across is
   the same number of dB between the ears, up to 30 dB at the ends, so hard left is still faintly in your right ear).
   On the graph, the law applies but the spacing doesn't: its pan range is your own.
-- **Calibration noise**: it falls 4.5 dB an octave (pink noise falls 3), and every burst is that same noise, cut off
-  lower or higher, so the bursts' bottom edges fall 4.5 dB an octave from one burst to the next as well.
+- **Calibration noise**: two sliders at the bottom of the panel, both -4.5 dB an octave to start (double-click one
+  for that again). **Slope** is how fast each burst falls away above its lowest frequency (pink noise falls 3).
+  **Top line** is how fast the bursts' bottom edges fall from one burst to the next: each burst is turned up or down
+  by its lowest frequency to put it on that line. With the two the same, as they start, every burst is that same
+  noise cut off lower or higher, at the same level.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),
   each playing from its frequency (a sharp low cut) up to 20 kHz. They show on the EQ graph as dashed
   lines with chips along the bottom: drag the lowest or highest spot to spread them out from (or in

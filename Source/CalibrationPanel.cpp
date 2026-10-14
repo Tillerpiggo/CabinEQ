@@ -23,6 +23,7 @@ namespace
     const juce::Identifier idFloor { "calibrationFloor" };
     const juce::Identifier idRepeats { "calibrationDepthRepeats" };
     const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
+    const juce::Identifier idSlope { "calibrationNoiseSlope" }, idTopLine { "calibrationNoiseTopLine" }; // new names: older saved ones aren't brought back
 }
 
 //==============================================================================
@@ -208,6 +209,22 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
                  (double) state.getProperty (idFloor, CalibrationPlayer::defaultFloorDb));
     floorSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + " dB"; };
     setUpLabel (floorLabel, "Floor");
+
+    // The noise the bursts are made of: how fast each falls away, and how fast their bottom edges fall from one to the next
+    for (auto [slider, label, name, id] : { std::tuple { &slopeSlider, &slopeLabel, "Slope", idSlope }, std::tuple { &topLineSlider, &topLineLabel, "Top line", idTopLine } })
+    {
+        setUpSlider (*slider, juce::Slider::LinearHorizontal, CalibrationPlayer::pinkDbPerOctave, CalibrationPlayer::maxSlopeDbPerOctave, 0.1,
+                     (double) state.getProperty (id, 4.5));
+        slider->setDoubleClickReturnValue (true, 4.5);
+        slider->textFromValueFunction = [] (double v) { return "-" + juce::String (v, 1) + " dB/oct"; };
+        slider->valueFromTextFunction = [] (const juce::String& text) { return std::abs (text.getDoubleValue()); };
+        slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 76, 20);
+        slider->updateText();
+        setUpLabel (*label, name);
+    }
+    slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency, in dB an octave. -3 is pink noise. Double-click for -4.5.");
+    topLineSlider.setTooltip ("How fast the bursts' bottom edges fall from one burst to the next: each burst's volume is set to put it on this line. "
+                              "The same as the slope means every burst plays at the same level. Double-click for -4.5.");
     for (auto* slider : { &volumeSlider, &depthSlider, &speedSlider, &releaseSlider, &attackSlider, &floorSlider })
         slider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
     speedSlider.updateText();
@@ -661,6 +678,8 @@ void CalibrationPanel::applySettings()
     player.setRate ((float) speedSlider.getValue());
     player.setReleaseMs ((float) releaseSlider.getValue());
     player.setAttackMs ((float) attackSlider.getValue());
+    player.setSlope ((float) slopeSlider.getValue());
+    player.setTopLine ((float) topLineSlider.getValue());
 
     // Forget selected positions that aren't on the grid any more
     auto selection = player.getSelection();
@@ -679,6 +698,8 @@ void CalibrationPanel::applySettings()
     state.setProperty (idSpeed, speedSlider.getValue(), nullptr);
     state.setProperty (idRelease, releaseSlider.getValue(), nullptr);
     state.setProperty (idAttack, attackSlider.getValue(), nullptr);
+    state.setProperty (idSlope, slopeSlider.getValue(), nullptr);
+    state.setProperty (idTopLine, topLineSlider.getValue(), nullptr);
 
     updateButtons();
     repaint();
@@ -1085,7 +1106,7 @@ void CalibrationPanel::resized()
     controls.removeFromLeft (20);
     const std::vector<std::pair<juce::Slider*, juce::Label*>> rows { { &volumeSlider, &volumeLabel }, { &speedSlider, &speedLabel }, { &attackSlider, &attackLabel },
                                                                     { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &repeatsSlider, &repeatsLabel },
-                                                                    { &floorSlider, &floorLabel } };
+                                                                    { &floorSlider, &floorLabel }, { &slopeSlider, &slopeLabel }, { &topLineSlider, &topLineLabel } };
     const int rowHeight = std::min (30, controls.getHeight() / ((int) rows.size() + 1)); // and one for what the depth works on
     for (auto [slider, label] : rows)
     {

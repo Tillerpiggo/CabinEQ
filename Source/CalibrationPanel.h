@@ -46,7 +46,7 @@ public:
     void mouseMove (const juce::MouseEvent&) override;
     void mouseExit (const juce::MouseEvent&) override;
 
-    static constexpr int preferredHeight = 260;
+    static constexpr int preferredHeight = 312;
     juce::Rectangle<int> getFieldArea() const { return gridArea; } // where the grid, or Drag mode's field, is
 
 private:
@@ -72,6 +72,8 @@ private:
     void updateDepthControls(); // which of depth, repeats and the floor mean anything in this mode
     juce::Slider rowsSlider, columnsSlider, volumeSlider, depthSlider, speedSlider, attackSlider, releaseSlider, floorSlider;
     juce::Label volumeLabel, depthLabel, speedLabel, attackLabel, releaseLabel, floorLabel;
+    juce::Slider slopeSlider, topLineSlider; // the noise: how fast a burst falls away, and how fast their bottom edges do
+    juce::Label slopeLabel, topLineLabel;
     juce::Rectangle<int> rowsCaption, columnsCaption;
 
     juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" }, guidedModeButton { "Guided" };
