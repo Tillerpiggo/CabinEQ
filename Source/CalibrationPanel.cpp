@@ -233,8 +233,8 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     const char* edgeNames[] { "Fixed", "Oct", "Mel" };
     const char* edgeTips[] {
         "Every burst goes up to the low pass below (or 20 kHz, with it off)",
-        "Each burst is a band: its top is this many octaves above its low cut, so it moves up with it",
-        "Each burst is a band this many mels wide, as pitch is heard: narrow in octaves up high, wide down low"
+        "Each burst is a band this many octaves wide, centred on its height, so the whole band moves with it",
+        "Each burst is a band this many mels wide, centred on its height, as pitch is heard: narrow in octaves up high, wide down low"
     };
     for (size_t i = 0; i < topEdgeButtons.size(); ++i)
     {
@@ -702,8 +702,8 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
         lowPassSlider.textFromValueFunction = [] (double v) { return juce::String (v, 2) + " oct"; };
         lowPassSlider.valueFromTextFunction = [] (const juce::String& text) { return text.getDoubleValue(); };
         lowPassSlider.setValue (player.getBandOctaves(), juce::dontSendNotification);
-        lowPassSlider.setTooltip ("How wide each burst's band is, in octaves: its top is this far above its low cut (48 dB an octave at both edges). "
-                                  "Wide, the higher bursts' tops are past 20 kHz, so they play right up to the top.");
+        lowPassSlider.setTooltip ("How wide each burst's band is, in octaves, centred on its height (48 dB an octave at both edges). Wide, the lowest "
+                                  "bursts' low cuts are under 20 Hz, so their tops come down with them, and the highest bursts' tops are past 20 kHz.");
         lowPassLabel.setText ("Width", juce::dontSendNotification);
     }
     else
@@ -715,7 +715,7 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
         lowPassSlider.valueFromTextFunction = [] (const juce::String& text) { return text.getDoubleValue(); };
         lowPassSlider.setValue (player.getBandMels(), juce::dontSendNotification);
         lowPassSlider.setTooltip ("How wide each burst's band is, in mels (1000 mels is about 1 kHz): the same width to the ear wherever it is, "
-                                  "so it's narrow in octaves up high and wide down low. Wide, the higher bursts' tops are past 20 kHz, so they play right up to the top.");
+                                  "centred on its height, so it's narrow in octaves up high and wide down low. Wide, the lowest bursts' low cuts are under 20 Hz and the highest bursts' tops past 20 kHz.");
         lowPassLabel.setText ("Width", juce::dontSendNotification);
     }
     lowPassSlider.updateText();

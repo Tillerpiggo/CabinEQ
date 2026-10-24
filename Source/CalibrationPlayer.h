@@ -144,12 +144,13 @@ public:
     float getLowPass() const          { return lowPass.load(); }
     bool isLowPassing() const         { return getTopEdge() == TopEdge::fixed && lowPass.load() < maxLowPass - 0.5f; }
 
-    /// Where each burst's top is. Fixed: the low pass above, the same for every burst (off, at 20 kHz). Octaves
-    /// and mels: each burst is a band, its top that far above its own low cut, so it moves up with it; a band
-    /// so many mels wide is narrow in octaves up high and wide down low, as pitch is heard.
+    /// Where each burst's top is. Fixed: the low pass above, the same for every burst (off, at 20 kHz), with the
+    /// burst's height its low cut. Octaves and mels: each burst is a band that wide, centred on its height, so the
+    /// whole band moves with it: the lowest ones' low cuts can be under 20 Hz (none at all), and their tops come
+    /// down with them; the highest ones' tops can be over 20 kHz. A band so many mels wide is narrow in octaves
+    /// up high and wide down low, as pitch is heard.
     enum class TopEdge { fixed = 0, octaves = 1, mels = 2 };
-    /// Up to the whole range: 10 octaves, or about 3800 mels, from 20 Hz is 20 kHz. A wide band's top goes past
-    /// 20 kHz for the higher bursts, which then play right up to the top, as with no band at all.
+    /// Up to the whole range: 10 octaves, or about 3800 mels, from 20 Hz is 20 kHz
     static constexpr float minBandOctaves = 0.25f, maxBandOctaves = 10.0f, defaultBandOctaves = 2.0f;
     static constexpr float minBandMels = 50.0f, maxBandMels = 3800.0f, defaultBandMels = 500.0f;
     void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 2, (int) edge); }
@@ -159,14 +160,30 @@ public:
     void setBandMels (float mels)           { bandMels = juce::jlimit (minBandMels, maxBandMels, mels); }
     float getBandMels() const               { return bandMels.load(); }
 
-    /// A burst's top, for its low cut (20 Hz or under is none), or 0 if it hasn't one but 20 kHz
-    static double bandTop (double lowCut, TopEdge edge, float octaves, float mels)
+    /// A burst's low cut and top for its height's frequency: 0 for either means it hasn't one (it's under 20 Hz,
+    /// or over 20 kHz). Fixed is the height's frequency as the low cut, and no top of its own.
+    struct BandEdges { double low = 0.0, top = 0.0; };
+    static BandEdges bandEdges (double frequency, TopEdge edge, float octaves, float mels)
     {
-        const double bottom = std::max (20.0, lowCut);
-        const double top = edge == TopEdge::octaves ? bottom * std::pow (2.0, (double) octaves)
-                         : edge == TopEdge::mels    ? fromMels (toMels (bottom) + (double) mels)
-                                                    : 0.0;
-        return top >= 20000.0 ? 0.0 : top;
+        if (edge == TopEdge::fixed)
+            return { frequency > 20.0 ? frequency : 0.0, 0.0 };
+        const double centre = std::max (20.0, frequency);
+        BandEdges edges;
+        if (edge == TopEdge::octaves)
+        {
+            edges.low = centre * std::pow (2.0, -0.5 * (double) octaves);
+            edges.top = centre * std::pow (2.0, 0.5 * (double) octaves);
+        }
+        else
+        {
+            edges.low = toMels (centre) - 0.5 * (double) mels > 0.0 ? fromMels (toMels (centre) - 0.5 * (double) mels) : 0.0;
+            edges.top = fromMels (toMels (centre) + 0.5 * (double) mels);
+        }
+        if (edges.low <= 20.0)
+            edges.low = 0.0;
+        if (edges.top >= 20000.0)
+            edges.top = 0.0;
+        return edges;
     }
 
     /// Everything about the heights: how they're spaced, and between what. Unpinned, they're between 20 Hz and
@@ -777,12 +794,14 @@ private:
 
         // Pink noise has the same power in every octave, so cutting some octaves off makes it
         // quieter; make up for that so every row (or spot) is as loud.
-        cutoff = std::min (cutoff, FilterDesign::maxFrequency (sampleRate) * 0.9);
+        // As a band, its height is the band's middle: its low cut and its top are either side
+        const auto edges = bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels());
+        cutoff = std::min (edges.low, FilterDesign::maxFrequency (sampleRate) * 0.9);
         voice->bandLimited = cutoff > 0.0;
         voice->peak = 1.0f;
 
-        // Its top, if it's a band: a sharp low-pass that far above its low cut
-        double top = bandTop (cutoff, getTopEdge(), getBandOctaves(), getBandMels());
+        // Its top, if it's a band: a sharp low-pass
+        double top = edges.top;
         if (top > FilterDesign::maxFrequency (sampleRate) * 0.9)
             top = 0.0;
         voice->topLimited = top > 0.0;

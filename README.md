@@ -127,11 +127,12 @@ loads the VST3 to EQ everything the Mac plays.
 - **Calibration tops** (Top, and the slider under it, at the bottom of the panel): where each burst stops at the
   top. **Fixed**, as it starts: the slider is a low pass, 48 dB an octave, on everything the calibration plays, from
   100 Hz up, and all the way up (20 kHz) is off; levels aren't made up for what it takes away. **Oct**: each burst
-  is a band, its top this many octaves above its own low cut (2 to start, 0.25 to 10), so the band moves up with the
-  height. **Mel**: the band is this many mels wide (500 to start, 50 to 3800; 1000 mels is about 1 kHz): the same
-  width to the ear wherever it is, so narrow in octaves up high and wide down low. A band's level is made up for
-  the octaves it leaves out, as a low cut's is. Wide bands reach past 20 kHz for the higher bursts: their tops are out
-  of range, so those play right up to the top, and only the lower bursts are bands. None of it touches the EQ or your music.
+  is a band this many octaves wide (2 to start, 0.25 to 10), centred on its height, so the whole band moves with it.
+  **Mel**: the band is this many mels wide (500 to start, 50 to 3800; 1000 mels is about 1 kHz), centred the same
+  way: the same width to the ear wherever it is, so narrow in octaves up high and wide down low. With a wide band,
+  the lowest bursts' low cuts are under 20 Hz (so they have none, and their tops come down with their heights) and
+  the highest bursts' tops are past 20 kHz (so they play to the top). A band's level is made up for the octaves it
+  leaves out, as a low cut's is. Grid row labels are the bands' middles. None of it touches the EQ or your music.
 - **Calibration pan** (the Pan button beside those; it's lit when either isn't the usual): two choices for the grid,
   Drag mode and the guided arrangements. **Spacing** is where positions across go: Even (the default), Centre
   (bunched towards the middle, where small differences are easiest to hear: halfway out becomes a quarter of the way
