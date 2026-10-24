@@ -142,7 +142,30 @@ public:
     static constexpr float minLowPass = 100.0f, maxLowPass = 20000.0f;
     void setLowPass (float frequency) { lowPass = juce::jlimit (minLowPass, maxLowPass, frequency); }
     float getLowPass() const          { return lowPass.load(); }
-    bool isLowPassing() const         { return lowPass.load() < maxLowPass - 0.5f; }
+    bool isLowPassing() const         { return getTopEdge() == TopEdge::fixed && lowPass.load() < maxLowPass - 0.5f; }
+
+    /// Where each burst's top is. Fixed: the low pass above, the same for every burst (off, at 20 kHz). Octaves
+    /// and mels: each burst is a band, its top that far above its own low cut, so it moves up with it; a band
+    /// so many mels wide is narrow in octaves up high and wide down low, as pitch is heard.
+    enum class TopEdge { fixed = 0, octaves = 1, mels = 2 };
+    static constexpr float minBandOctaves = 0.25f, maxBandOctaves = 6.0f, defaultBandOctaves = 2.0f;
+    static constexpr float minBandMels = 50.0f, maxBandMels = 2000.0f, defaultBandMels = 500.0f;
+    void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 2, (int) edge); }
+    TopEdge getTopEdge() const              { return (TopEdge) topEdge.load(); }
+    void setBandOctaves (float octaves)     { bandOctaves = juce::jlimit (minBandOctaves, maxBandOctaves, octaves); }
+    float getBandOctaves() const            { return bandOctaves.load(); }
+    void setBandMels (float mels)           { bandMels = juce::jlimit (minBandMels, maxBandMels, mels); }
+    float getBandMels() const               { return bandMels.load(); }
+
+    /// A burst's top, for its low cut (20 Hz or under is none), or 0 if it hasn't one but 20 kHz
+    static double bandTop (double lowCut, TopEdge edge, float octaves, float mels)
+    {
+        const double bottom = std::max (20.0, lowCut);
+        const double top = edge == TopEdge::octaves ? bottom * std::pow (2.0, (double) octaves)
+                         : edge == TopEdge::mels    ? fromMels (toMels (bottom) + (double) mels)
+                                                    : 0.0;
+        return top >= 20000.0 ? 0.0 : top;
+    }
 
     /// Everything about the heights: how they're spaced, and between what. Unpinned, they're between 20 Hz and
     /// 20 kHz with room left at both ends (three rows are a quarter, a half and three quarters of the way up).
@@ -489,7 +512,7 @@ public:
                 {
                     noise = voice.pink.next();
                 }
-                const float sample = voice.bandLimited ? voice.filter (noise) : noise;
+                const float sample = voice.bandLimited || voice.topLimited ? voice.filter (noise) : noise;
                 l += sample * envelope * voice.leftGain;
                 r += sample * envelope * voice.rightGain;
             }
@@ -555,13 +578,19 @@ private:
         int age = 0;
         PinkNoise pink;
         size_t noiseIndex = 0;
+        bool topLimited = false;
+        std::array<Biquad, 4> topStages; // a sharp low-pass, when it's a band
         float peak = 0, leftGain = 0, rightGain = 0;
         std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
 
         float filter (float x) noexcept
         {
-            for (auto& stage : stages)
-                x = stage.process (x);
+            if (bandLimited)
+                for (auto& stage : stages)
+                    x = stage.process (x);
+            if (topLimited)
+                for (auto& stage : topStages)
+                    x = stage.process (x);
             return x;
         }
     };
@@ -749,15 +778,26 @@ private:
         cutoff = std::min (cutoff, FilterDesign::maxFrequency (sampleRate) * 0.9);
         voice->bandLimited = cutoff > 0.0;
         voice->peak = 1.0f;
-        if (voice->bandLimited)
+
+        // Its top, if it's a band: a sharp low-pass that far above its low cut
+        double top = bandTop (cutoff, getTopEdge(), getBandOctaves(), getBandMels());
+        if (top > FilterDesign::maxFrequency (sampleRate) * 0.9)
+            top = 0.0;
+        voice->topLimited = top > 0.0;
+        if (voice->topLimited)
+            for (size_t i = 0; i < voice->topStages.size(); ++i)
+                voice->topStages[i] = Biquad { FilterDesign::design (Band::Shape::highCut, top, 0.0, butterworthQs[i], sampleRate) };
+
+        if (voice->bandLimited || voice->topLimited)
         {
-            const double octavesLeft = std::log2 (20000.0 / cutoff), octavesAll = std::log2 (20000.0 / 20.0);
+            const double octavesLeft = std::log2 ((voice->topLimited ? top : 20000.0) / std::max (20.0, cutoff)), octavesAll = std::log2 (20000.0 / 20.0);
             voice->peak = (float) std::sqrt (octavesAll / std::max (0.5, octavesLeft));
 
             // Butterworth: four biquads with these Qs make a flat 8th-order high-pass
             const auto& qs = butterworthQs;
-            for (size_t i = 0; i < voice->stages.size(); ++i)
-                voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
+            if (voice->bandLimited)
+                for (size_t i = 0; i < voice->stages.size(); ++i)
+                    voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
         }
 
         // Up (or down) for every octave this burst's lowest frequency is above 20 Hz, to put it on the top line
@@ -884,7 +924,8 @@ private:
     int depthLevel = 0;  // which level the row's being played at: 0 is the quietest
     int depthRepeat = 0; // how many times it's been played at that level
     PinkNoise pinkSource { juce::Random (42) };
-    std::atomic<float> lowPass { maxLowPass };
+    std::atomic<float> lowPass { maxLowPass }, bandOctaves { defaultBandOctaves }, bandMels { defaultBandMels };
+    std::atomic<int> topEdge { (int) TopEdge::fixed };
     float designedLowPass = 0.0f;                // audio thread
     std::array<std::array<Biquad, 4>, 2> lowPassStages {}; // left and right
     juce::Random noiseStarts { 7 }; // where in the tilted noise each burst starts: audio thread

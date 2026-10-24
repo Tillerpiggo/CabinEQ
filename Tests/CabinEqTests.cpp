@@ -1510,6 +1510,44 @@ public:
             expectLessThan (highEnergy (8000.0f), open);
         }
 
+        beginTest ("Each burst can be a band: its top a set number of octaves or mels above its low cut");
+        {
+            using Edge = CalibrationPlayer::TopEdge;
+            expectEquals (CalibrationPlayer::bandTop (500.0, Edge::fixed, 2.0f, 500.0f), 0.0, "fixed: no top of its own");
+            expectWithinAbsoluteError (CalibrationPlayer::bandTop (500.0, Edge::octaves, 2.0f, 500.0f), 2000.0, 0.01, "two octaves up");
+            expectWithinAbsoluteError (CalibrationPlayer::bandTop (0.0, Edge::octaves, 2.0f, 500.0f), 80.0, 0.01, "from 20 Hz, with no low cut");
+            expectEquals (CalibrationPlayer::bandTop (8000.0, Edge::octaves, 2.0f, 500.0f), 0.0, "and none if it'd be past 20 kHz");
+            const double low = CalibrationPlayer::bandTop (200.0, Edge::mels, 2.0f, 500.0f), high = CalibrationPlayer::bandTop (4000.0, Edge::mels, 2.0f, 500.0f);
+            expectWithinAbsoluteError (CalibrationPlayer::toMels (low) - CalibrationPlayer::toMels (200.0), 500.0, 0.01, "500 mels up");
+            expectGreaterThan (std::log2 (low / 200.0), std::log2 (high / 4000.0), "wider in octaves down low than up high");
+
+            // What plays: a band two octaves up from 632 Hz has little above 5 kHz; fixed has plenty
+            auto highEnergy = [] (Edge edge)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setGrid (1, 1); // one row: halfway, 632 Hz
+                player.setTopEdge (edge);
+                player.setBandOctaves (2.0f);
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) (0.5 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                FilterChain highPass;
+                highPass.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, 5000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::lowCut));
+                highPass.setBands (cuts);
+                highPass.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                highPass.process (block);
+                return buffer.getRMSLevel (0, 0, buffer.getNumSamples()) + buffer.getRMSLevel (1, 0, buffer.getNumSamples());
+            };
+            expectLessThan (highEnergy (Edge::octaves) * 20.0f, highEnergy (Edge::fixed));
+        }
+
         beginTest ("Each burst has noise of its own: two playing at once, one in each ear, have nothing in common");
         {
             for (float slope : { 3.0f, 4.5f }) // plain pink, made as it goes, and the tilted noise it loops

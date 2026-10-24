@@ -23,7 +23,8 @@ namespace
     const juce::Identifier idFloor { "calibrationFloor" };
     const juce::Identifier idRepeats { "calibrationDepthRepeats" };
     const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
-    const juce::Identifier idLowPass { "calibrationLowPass" };
+    const juce::Identifier idLowPass { "calibrationLowPass" }, idTopEdge { "calibrationTopEdge" },
+                           idBandOctaves { "calibrationBandOctaves" }, idBandMels { "calibrationBandMels" };
     const juce::Identifier idSlope { "calibrationNoiseSlope" }, idTopLine { "calibrationNoiseTopLine" }; // new names: older saved ones aren't brought back
 }
 
@@ -225,17 +226,30 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     }
     setUpSlider (lowPassSlider, juce::Slider::LinearHorizontal, CalibrationPlayer::minLowPass, CalibrationPlayer::maxLowPass, 1.0,
                  (double) state.getProperty (idLowPass, CalibrationPlayer::maxLowPass));
-    lowPassSlider.setSkewFactorFromMidPoint (2000.0);
-    lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::maxLowPass);
-    lowPassSlider.textFromValueFunction = [] (double v) { return v >= CalibrationPlayer::maxLowPass - 0.5 ? juce::String ("Off") : Format::frequency (v); };
-    lowPassSlider.valueFromTextFunction = [] (const juce::String& text)
-    {
-        return text.trim().equalsIgnoreCase ("off") ? (double) CalibrationPlayer::maxLowPass : Format::parseFrequency (text).value_or (CalibrationPlayer::maxLowPass);
-    };
     lowPassSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 76, 20);
-    lowPassSlider.updateText();
-    lowPassSlider.setTooltip ("A sharp low-pass (48 dB an octave) on all the calibration sounds: nothing above it plays. All the way up is off. Double-click for off.");
     setUpLabel (lowPassLabel, "Low pass");
+
+    // Where the bursts' tops are: all at one low pass, or each a band that far above its own low cut
+    const char* edgeNames[] { "Fixed", "Oct", "Mel" };
+    const char* edgeTips[] {
+        "Every burst goes up to the low pass below (or 20 kHz, with it off)",
+        "Each burst is a band: its top is this many octaves above its low cut, so it moves up with it",
+        "Each burst is a band this many mels wide, as pitch is heard: narrow in octaves up high, wide down low"
+    };
+    for (size_t i = 0; i < topEdgeButtons.size(); ++i)
+    {
+        auto& button = topEdgeButtons[i];
+        button.setButtonText (edgeNames[i]);
+        button.setTooltip (edgeTips[i]);
+        button.setConnectedEdges ((i > 0 ? juce::Button::ConnectedOnLeft : 0) | (i + 1 < topEdgeButtons.size() ? juce::Button::ConnectedOnRight : 0));
+        button.onClick = [this, i] { setTopEdge ((CalibrationPlayer::TopEdge) i); };
+        addAndMakeVisible (button);
+    }
+    setUpLabel (topEdgeLabel, "Top");
+    player.setLowPass ((float) (double) state.getProperty (idLowPass, CalibrationPlayer::maxLowPass));
+    player.setBandOctaves ((float) (double) state.getProperty (idBandOctaves, CalibrationPlayer::defaultBandOctaves));
+    player.setBandMels ((float) (double) state.getProperty (idBandMels, CalibrationPlayer::defaultBandMels));
+    setTopEdge ((CalibrationPlayer::TopEdge) juce::jlimit (0, 2, (int) state.getProperty (idTopEdge, 0)));
 
     slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency, in dB an octave. -3 is pink noise. Double-click for -4.5.");
     topLineSlider.setTooltip ("How fast the bursts' bottom edges fall from one burst to the next: each burst's volume is set to put it on this line. "
@@ -657,6 +671,55 @@ void CalibrationPanel::showHeightPins()
     box.setLookAndFeel (&getLookAndFeel());
 }
 
+void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
+{
+    player.setTopEdge (edge);
+    processor.parameters.state.setProperty (idTopEdge, (int) edge, nullptr);
+    for (size_t i = 0; i < topEdgeButtons.size(); ++i)
+        topEdgeButtons[i].setToggleState ((int) i == (int) edge, juce::dontSendNotification);
+
+    // The slider under it is the low pass, or the band's width, each with its own value kept
+    using Edge = CalibrationPlayer::TopEdge;
+    if (edge == Edge::fixed)
+    {
+        lowPassSlider.setRange (CalibrationPlayer::minLowPass, CalibrationPlayer::maxLowPass, 1.0);
+        lowPassSlider.setSkewFactorFromMidPoint (2000.0);
+        lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::maxLowPass);
+        lowPassSlider.textFromValueFunction = [] (double v) { return v >= CalibrationPlayer::maxLowPass - 0.5 ? juce::String ("Off") : Format::frequency (v); };
+        lowPassSlider.valueFromTextFunction = [] (const juce::String& text)
+        {
+            return text.trim().equalsIgnoreCase ("off") ? (double) CalibrationPlayer::maxLowPass : Format::parseFrequency (text).value_or (CalibrationPlayer::maxLowPass);
+        };
+        lowPassSlider.setValue (player.getLowPass(), juce::dontSendNotification);
+        lowPassSlider.setTooltip ("A sharp low-pass (48 dB an octave) on all the calibration sounds: nothing above it plays. All the way up is off. Double-click for off.");
+        lowPassLabel.setText ("Low pass", juce::dontSendNotification);
+    }
+    else if (edge == Edge::octaves)
+    {
+        lowPassSlider.setRange (CalibrationPlayer::minBandOctaves, CalibrationPlayer::maxBandOctaves, 0.05);
+        lowPassSlider.setSkewFactor (1.0);
+        lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultBandOctaves);
+        lowPassSlider.textFromValueFunction = [] (double v) { return juce::String (v, 2) + " oct"; };
+        lowPassSlider.valueFromTextFunction = [] (const juce::String& text) { return text.getDoubleValue(); };
+        lowPassSlider.setValue (player.getBandOctaves(), juce::dontSendNotification);
+        lowPassSlider.setTooltip ("How wide each burst's band is, in octaves: its top is this far above its low cut (48 dB an octave at both edges)");
+        lowPassLabel.setText ("Width", juce::dontSendNotification);
+    }
+    else
+    {
+        lowPassSlider.setRange (CalibrationPlayer::minBandMels, CalibrationPlayer::maxBandMels, 10.0);
+        lowPassSlider.setSkewFactorFromMidPoint (500.0);
+        lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultBandMels);
+        lowPassSlider.textFromValueFunction = [] (double v) { return juce::String (juce::roundToInt (v)) + " mel"; };
+        lowPassSlider.valueFromTextFunction = [] (const juce::String& text) { return text.getDoubleValue(); };
+        lowPassSlider.setValue (player.getBandMels(), juce::dontSendNotification);
+        lowPassSlider.setTooltip ("How wide each burst's band is, in mels (1000 mels is about 1 kHz): the same width to the ear wherever it is, "
+                                  "so it's narrow in octaves up high and wide down low");
+        lowPassLabel.setText ("Width", juce::dontSendNotification);
+    }
+    lowPassSlider.updateText();
+}
+
 void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
 {
     player.setDepthUnit (unit);
@@ -694,7 +757,11 @@ void CalibrationPanel::applySettings()
     player.setReleaseMs ((float) releaseSlider.getValue());
     player.setAttackMs ((float) attackSlider.getValue());
     player.setSlope ((float) slopeSlider.getValue());
-    player.setLowPass ((float) lowPassSlider.getValue());
+    const auto edge = player.getTopEdge();
+    const float topValue = (float) lowPassSlider.getValue();
+    if (edge == CalibrationPlayer::TopEdge::fixed)        player.setLowPass (topValue);
+    else if (edge == CalibrationPlayer::TopEdge::octaves) player.setBandOctaves (topValue);
+    else                                                  player.setBandMels (topValue);
     player.setTopLine ((float) topLineSlider.getValue());
 
     // Forget selected positions that aren't on the grid any more
@@ -715,7 +782,9 @@ void CalibrationPanel::applySettings()
     state.setProperty (idRelease, releaseSlider.getValue(), nullptr);
     state.setProperty (idAttack, attackSlider.getValue(), nullptr);
     state.setProperty (idSlope, slopeSlider.getValue(), nullptr);
-    state.setProperty (idLowPass, lowPassSlider.getValue(), nullptr);
+    state.setProperty (idLowPass, player.getLowPass(), nullptr);
+    state.setProperty (idBandOctaves, player.getBandOctaves(), nullptr);
+    state.setProperty (idBandMels, player.getBandMels(), nullptr);
     state.setProperty (idTopLine, topLineSlider.getValue(), nullptr);
 
     updateButtons();
@@ -1125,7 +1194,7 @@ void CalibrationPanel::resized()
                                                                     { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &repeatsSlider, &repeatsLabel },
                                                                     { &floorSlider, &floorLabel }, { &slopeSlider, &slopeLabel }, { &topLineSlider, &topLineLabel },
                                                                     { &lowPassSlider, &lowPassLabel } };
-    const int rowHeight = std::min (30, controls.getHeight() / ((int) rows.size() + 1)); // and one for what the depth works on
+    const int rowHeight = std::min (30, controls.getHeight() / ((int) rows.size() + 2)); // and what the depth works on, and the tops
     for (auto [slider, label] : rows)
     {
         if (slider == &floorSlider)
@@ -1136,6 +1205,17 @@ void CalibrationPanel::resized()
             row = row.withSizeKeepingCentre (row.getWidth(), std::min (24, rowHeight - 2)).withTrimmedRight (2);
             const int each = row.getWidth() / (int) depthUnitButtons.size();
             for (auto& button : depthUnitButtons)
+                button.setBounds (row.removeFromLeft (each));
+        }
+
+        if (slider == &lowPassSlider)
+        {
+            // Fixed | Oct | Mel, over the slider it sets the meaning of
+            auto row = controls.removeFromTop (rowHeight);
+            topEdgeLabel.setBounds (row.removeFromLeft (64));
+            row = row.withSizeKeepingCentre (row.getWidth(), std::min (24, rowHeight - 2)).withTrimmedRight (2);
+            const int each = row.getWidth() / (int) topEdgeButtons.size();
+            for (auto& button : topEdgeButtons)
                 button.setBounds (row.removeFromLeft (each));
         }
 
