@@ -137,6 +137,13 @@ public:
 
     static constexpr float defaultPinLow = 100.0f, defaultPinHigh = 10000.0f;
 
+    /// A sharp low-pass on all the calibration sounds (8th-order Butterworth, like each burst's low cut), for
+    /// hearing them without their top. At maxLowPass or above it's off.
+    static constexpr float minLowPass = 100.0f, maxLowPass = 20000.0f;
+    void setLowPass (float frequency) { lowPass = juce::jlimit (minLowPass, maxLowPass, frequency); }
+    float getLowPass() const          { return lowPass.load(); }
+    bool isLowPassing() const         { return lowPass.load() < maxLowPass - 0.5f; }
+
     /// Everything about the heights: how they're spaced, and between what. Unpinned, they're between 20 Hz and
     /// 20 kHz with room left at both ends (three rows are a quarter, a half and three quarters of the way up).
     /// Pinned, the bottom is exactly `low` and the top exactly `high`, with the rest spaced between them.
@@ -421,6 +428,17 @@ public:
         }
         const std::vector<float>* tilted = isTilted() && ! tiltedNoise.empty() ? &tiltedNoise : nullptr;
 
+        // The low-pass, designed again when it's moved; its state carries on, so moving it doesn't click
+        const bool lowPassing = isLowPassing();
+        if (lowPassing && lowPass.load() != designedLowPass)
+        {
+            designedLowPass = lowPass.load();
+            const double frequency = std::min ((double) designedLowPass, FilterDesign::maxFrequency (sampleRate) * 0.9);
+            for (size_t i = 0; i < lowPassStages[0].size(); ++i)
+                for (auto& ear : lowPassStages)
+                    ear[i].c = FilterDesign::design (Band::Shape::highCut, frequency, 0.0, butterworthQs[i], sampleRate);
+        }
+
         const int attackSamples = std::max (1, (int) (attackMs.load() * 0.001 * sampleRate));
 
         // The release falls 60 dB (6.9 time constants) in the time asked for; never faster than 1 ms, so "0" doesn't click
@@ -476,6 +494,14 @@ public:
                 r += sample * envelope * voice.rightGain;
             }
 
+            if (lowPassing)
+            {
+                for (auto& stage : lowPassStages[0])
+                    l = stage.process (l);
+                for (auto& stage : lowPassStages[1])
+                    r = stage.process (r);
+            }
+
             left[i] += l * gain;
             if (numChannels > 1)
                 right[i] += r * gain;
@@ -485,6 +511,8 @@ public:
     }
 
 private:
+    static constexpr double butterworthQs[] { 0.5098, 0.6013, 0.9000, 2.5629 }; // its four sections, for 8th order
+
     struct Biquad
     {
         FilterDesign::Biquad c;
@@ -727,7 +755,7 @@ private:
             voice->peak = (float) std::sqrt (octavesAll / std::max (0.5, octavesLeft));
 
             // Butterworth: four biquads with these Qs make a flat 8th-order high-pass
-            const double qs[] { 0.5098, 0.6013, 0.9000, 2.5629 };
+            const auto& qs = butterworthQs;
             for (size_t i = 0; i < voice->stages.size(); ++i)
                 voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
         }
@@ -856,5 +884,8 @@ private:
     int depthLevel = 0;  // which level the row's being played at: 0 is the quietest
     int depthRepeat = 0; // how many times it's been played at that level
     PinkNoise pinkSource { juce::Random (42) };
+    std::atomic<float> lowPass { maxLowPass };
+    float designedLowPass = 0.0f;                // audio thread
+    std::array<std::array<Biquad, 4>, 2> lowPassStages {}; // left and right
     juce::Random noiseStarts { 7 }; // where in the tilted noise each burst starts: audio thread
 };

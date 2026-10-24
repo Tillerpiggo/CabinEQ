@@ -1478,6 +1478,38 @@ public:
             expectWithinAbsoluteError (processor.getCalibration().getTopLine(), 3.0f, 0.001f);
         }
 
+        beginTest ("A sharp low-pass on the calibration takes away what's above it, and is off all the way up");
+        {
+            // How much of a burst with no low cut is above 4 kHz: high-pass what came out steeply there
+            auto highEnergy = [] (float lowPass)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::square);
+                player.setSquare ({ 2, 0.5f, 0.04f, 0.08f, 0.08f }); // at the bottom of the field: barely any low cut
+                player.setLowPass (lowPass);
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) (0.5 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                FilterChain highPass;
+                highPass.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, 4000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::lowCut));
+                highPass.setBands (cuts);
+                highPass.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                highPass.process (block);
+                return buffer.getRMSLevel (0, 0, buffer.getNumSamples()) + buffer.getRMSLevel (1, 0, buffer.getNumSamples());
+            };
+            expect (! CalibrationPlayer().isLowPassing(), "off to begin with");
+            const float open = highEnergy (CalibrationPlayer::maxLowPass), cut = highEnergy (1000.0f);
+            expectGreaterThan (open, 0.0f);
+            expectLessThan (cut * 100.0f, open, "at 1 kHz, almost nothing's left above 4");
+            expectLessThan (highEnergy (8000.0f), open);
+        }
+
         beginTest ("Each burst has noise of its own: two playing at once, one in each ear, have nothing in common");
         {
             for (float slope : { 3.0f, 4.5f }) // plain pink, made as it goes, and the tilted noise it loops

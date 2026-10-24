@@ -23,6 +23,7 @@ namespace
     const juce::Identifier idFloor { "calibrationFloor" };
     const juce::Identifier idRepeats { "calibrationDepthRepeats" };
     const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
+    const juce::Identifier idLowPass { "calibrationLowPass" };
     const juce::Identifier idSlope { "calibrationNoiseSlope" }, idTopLine { "calibrationNoiseTopLine" }; // new names: older saved ones aren't brought back
 }
 
@@ -222,6 +223,20 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         slider->updateText();
         setUpLabel (*label, name);
     }
+    setUpSlider (lowPassSlider, juce::Slider::LinearHorizontal, CalibrationPlayer::minLowPass, CalibrationPlayer::maxLowPass, 1.0,
+                 (double) state.getProperty (idLowPass, CalibrationPlayer::maxLowPass));
+    lowPassSlider.setSkewFactorFromMidPoint (2000.0);
+    lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::maxLowPass);
+    lowPassSlider.textFromValueFunction = [] (double v) { return v >= CalibrationPlayer::maxLowPass - 0.5 ? juce::String ("Off") : Format::frequency (v); };
+    lowPassSlider.valueFromTextFunction = [] (const juce::String& text)
+    {
+        return text.trim().equalsIgnoreCase ("off") ? (double) CalibrationPlayer::maxLowPass : Format::parseFrequency (text).value_or (CalibrationPlayer::maxLowPass);
+    };
+    lowPassSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 76, 20);
+    lowPassSlider.updateText();
+    lowPassSlider.setTooltip ("A sharp low-pass (48 dB an octave) on all the calibration sounds: nothing above it plays. All the way up is off. Double-click for off.");
+    setUpLabel (lowPassLabel, "Low pass");
+
     slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency, in dB an octave. -3 is pink noise. Double-click for -4.5.");
     topLineSlider.setTooltip ("How fast the bursts' bottom edges fall from one burst to the next: each burst's volume is set to put it on this line. "
                               "The same as the slope means every burst plays at the same level. Double-click for -4.5.");
@@ -679,6 +694,7 @@ void CalibrationPanel::applySettings()
     player.setReleaseMs ((float) releaseSlider.getValue());
     player.setAttackMs ((float) attackSlider.getValue());
     player.setSlope ((float) slopeSlider.getValue());
+    player.setLowPass ((float) lowPassSlider.getValue());
     player.setTopLine ((float) topLineSlider.getValue());
 
     // Forget selected positions that aren't on the grid any more
@@ -699,6 +715,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idRelease, releaseSlider.getValue(), nullptr);
     state.setProperty (idAttack, attackSlider.getValue(), nullptr);
     state.setProperty (idSlope, slopeSlider.getValue(), nullptr);
+    state.setProperty (idLowPass, lowPassSlider.getValue(), nullptr);
     state.setProperty (idTopLine, topLineSlider.getValue(), nullptr);
 
     updateButtons();
@@ -1106,7 +1123,8 @@ void CalibrationPanel::resized()
     controls.removeFromLeft (20);
     const std::vector<std::pair<juce::Slider*, juce::Label*>> rows { { &volumeSlider, &volumeLabel }, { &speedSlider, &speedLabel }, { &attackSlider, &attackLabel },
                                                                     { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &repeatsSlider, &repeatsLabel },
-                                                                    { &floorSlider, &floorLabel }, { &slopeSlider, &slopeLabel }, { &topLineSlider, &topLineLabel } };
+                                                                    { &floorSlider, &floorLabel }, { &slopeSlider, &slopeLabel }, { &topLineSlider, &topLineLabel },
+                                                                    { &lowPassSlider, &lowPassLabel } };
     const int rowHeight = std::min (30, controls.getHeight() / ((int) rows.size() + 1)); // and one for what the depth works on
     for (auto [slider, label] : rows)
     {

@@ -124,6 +124,9 @@ loads the VST3 to EQ everything the Mac plays.
   heights to them: the bottom row is then exactly the bottom frequency and the top row exactly the top one, with the
   rest spaced between as Log, Mel or Hz says (a single row is halfway). Drag mode's field runs from one to the other,
   and so do the guided heights. Unpinned, they're spread between 20 Hz and 20 kHz with room left at both ends.
+- **Calibration low pass** (the last slider in the panel): a sharp low-pass, 48 dB an octave, on everything the
+  calibration plays, from 100 Hz up; all the way up (20 kHz) is off, as it starts. It doesn't touch the EQ or your
+  music, and the bursts' levels aren't made up for what it takes away.
 - **Calibration pan** (the Pan button beside those; it's lit when either isn't the usual): two choices for the grid,
   Drag mode and the guided arrangements. **Spacing** is where positions across go: Even (the default), Centre
   (bunched towards the middle, where small differences are easiest to hear: halfway out becomes a quarter of the way
