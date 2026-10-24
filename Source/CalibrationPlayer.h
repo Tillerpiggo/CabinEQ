@@ -148,8 +148,10 @@ public:
     /// and mels: each burst is a band, its top that far above its own low cut, so it moves up with it; a band
     /// so many mels wide is narrow in octaves up high and wide down low, as pitch is heard.
     enum class TopEdge { fixed = 0, octaves = 1, mels = 2 };
-    static constexpr float minBandOctaves = 0.25f, maxBandOctaves = 6.0f, defaultBandOctaves = 2.0f;
-    static constexpr float minBandMels = 50.0f, maxBandMels = 2000.0f, defaultBandMels = 500.0f;
+    /// Up to the whole range: 10 octaves, or about 3800 mels, from 20 Hz is 20 kHz. A wide band's top goes past
+    /// 20 kHz for the higher bursts, which then play right up to the top, as with no band at all.
+    static constexpr float minBandOctaves = 0.25f, maxBandOctaves = 10.0f, defaultBandOctaves = 2.0f;
+    static constexpr float minBandMels = 50.0f, maxBandMels = 3800.0f, defaultBandMels = 500.0f;
     void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 2, (int) edge); }
     TopEdge getTopEdge() const              { return (TopEdge) topEdge.load(); }
     void setBandOctaves (float octaves)     { bandOctaves = juce::jlimit (minBandOctaves, maxBandOctaves, octaves); }

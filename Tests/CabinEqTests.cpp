@@ -1517,6 +1517,16 @@ public:
             expectWithinAbsoluteError (CalibrationPlayer::bandTop (500.0, Edge::octaves, 2.0f, 500.0f), 2000.0, 0.01, "two octaves up");
             expectWithinAbsoluteError (CalibrationPlayer::bandTop (0.0, Edge::octaves, 2.0f, 500.0f), 80.0, 0.01, "from 20 Hz, with no low cut");
             expectEquals (CalibrationPlayer::bandTop (8000.0, Edge::octaves, 2.0f, 500.0f), 0.0, "and none if it'd be past 20 kHz");
+            // A wide band: the low rows of three are bands, and the top one's top is out of range
+            {
+                CalibrationPlayer player;
+                player.setBandOctaves (100.0f);
+                expectWithinAbsoluteError (player.getBandOctaves(), 10.0f, 0.001f, "up to the whole range");
+                player.setBandMels (100000.0f);
+                expectGreaterThan (CalibrationPlayer::toMels (20.0) + player.getBandMels(), CalibrationPlayer::toMels (19000.0), "in mels too");
+            }
+            expectWithinAbsoluteError (CalibrationPlayer::bandTop (CalibrationPlayer::cutoffForRow (2, 3), Edge::octaves, 6.0f, 0.0f), 7198.0, 1.0, "112 Hz, six octaves up");
+            expectEquals (CalibrationPlayer::bandTop (CalibrationPlayer::cutoffForRow (0, 3), Edge::octaves, 6.0f, 0.0f), 0.0);
             const double low = CalibrationPlayer::bandTop (200.0, Edge::mels, 2.0f, 500.0f), high = CalibrationPlayer::bandTop (4000.0, Edge::mels, 2.0f, 500.0f);
             expectWithinAbsoluteError (CalibrationPlayer::toMels (low) - CalibrationPlayer::toMels (200.0), 500.0, 0.01, "500 mels up");
             expectGreaterThan (std::log2 (low / 200.0), std::log2 (high / 4000.0), "wider in octaves down low than up high");

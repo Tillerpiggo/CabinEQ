@@ -697,24 +697,25 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
     else if (edge == Edge::octaves)
     {
         lowPassSlider.setRange (CalibrationPlayer::minBandOctaves, CalibrationPlayer::maxBandOctaves, 0.05);
-        lowPassSlider.setSkewFactor (1.0);
+        lowPassSlider.setSkewFactorFromMidPoint (3.0);
         lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultBandOctaves);
         lowPassSlider.textFromValueFunction = [] (double v) { return juce::String (v, 2) + " oct"; };
         lowPassSlider.valueFromTextFunction = [] (const juce::String& text) { return text.getDoubleValue(); };
         lowPassSlider.setValue (player.getBandOctaves(), juce::dontSendNotification);
-        lowPassSlider.setTooltip ("How wide each burst's band is, in octaves: its top is this far above its low cut (48 dB an octave at both edges)");
+        lowPassSlider.setTooltip ("How wide each burst's band is, in octaves: its top is this far above its low cut (48 dB an octave at both edges). "
+                                  "Wide, the higher bursts' tops are past 20 kHz, so they play right up to the top.");
         lowPassLabel.setText ("Width", juce::dontSendNotification);
     }
     else
     {
         lowPassSlider.setRange (CalibrationPlayer::minBandMels, CalibrationPlayer::maxBandMels, 10.0);
-        lowPassSlider.setSkewFactorFromMidPoint (500.0);
+        lowPassSlider.setSkewFactorFromMidPoint (800.0);
         lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultBandMels);
         lowPassSlider.textFromValueFunction = [] (double v) { return juce::String (juce::roundToInt (v)) + " mel"; };
         lowPassSlider.valueFromTextFunction = [] (const juce::String& text) { return text.getDoubleValue(); };
         lowPassSlider.setValue (player.getBandMels(), juce::dontSendNotification);
         lowPassSlider.setTooltip ("How wide each burst's band is, in mels (1000 mels is about 1 kHz): the same width to the ear wherever it is, "
-                                  "so it's narrow in octaves up high and wide down low");
+                                  "so it's narrow in octaves up high and wide down low. Wide, the higher bursts' tops are past 20 kHz, so they play right up to the top.");
         lowPassLabel.setText ("Width", juce::dontSendNotification);
     }
     lowPassSlider.updateText();
