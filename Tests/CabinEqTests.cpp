@@ -1478,6 +1478,43 @@ public:
             expectWithinAbsoluteError (processor.getCalibration().getTopLine(), 3.0f, 0.001f);
         }
 
+        beginTest ("Each burst has noise of its own: two playing at once, one in each ear, have nothing in common");
+        {
+            for (float slope : { 3.0f, 4.5f }) // plain pink, made as it goes, and the tilted noise it loops
+            {
+                CalibrationPlayer player;
+                player.setSlope (slope);
+                player.setTopLine (slope);
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setGrid (1, 2); // hard left, then hard right
+                player.setRate (CalibrationPlayer::maxRate);
+                player.setReleaseMs (2000.0f);
+                player.setPlaying (true);
+
+                // Past the first two bursts' starts, both ringing: compare the ears
+                juce::AudioBuffer<float> buffer (2, (int) (0.05 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                player.setPlaying (false);
+                juce::AudioBuffer<float> later (2, (int) (0.3 * sampleRate));
+                later.clear();
+                player.process (later);
+
+                double both = 0.0, left = 0.0, right = 0.0;
+                for (int i = 0; i < later.getNumSamples(); ++i)
+                {
+                    const double l = later.getSample (0, i), r = later.getSample (1, i);
+                    both += l * r;
+                    left += l * l;
+                    right += r * r;
+                }
+                expectGreaterThan (left, 0.0);
+                expectGreaterThan (right, 0.0);
+                expectLessThan (std::abs (both / std::sqrt (left * right)), 0.1, "slope " + juce::String (slope) + ": they'd be the same sound if they shared noise");
+            }
+        }
+
         beginTest ("Positions across can bunch towards the middle or the sides, and there are three pan laws");
         {
             using Spacing = CalibrationPlayer::PanSpacing;

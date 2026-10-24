@@ -136,7 +136,8 @@ loads the VST3 to EQ everything the Mac plays.
   for that again). **Slope** is how fast each burst falls away above its lowest frequency (pink noise falls 3).
   **Top line** is how fast the bursts' bottom edges fall from one burst to the next: each burst is turned up or down
   by its lowest frequency to put it on that line. With the two the same, as they start, every burst is that same
-  noise cut off lower or higher, at the same level.
+  noise cut off lower or higher, at the same level. Every burst has noise of its own (its own pink generator, or its own
+  random place in the looped tilted noise), so bursts that overlap never add up as one sound, comb, or cancel.
 - **Calibration on the graph** (the panel's "On graph" mode; the grid is the default): 3 spots (or 2 or 4),
   each playing from its frequency (a sharp low cut) up to 20 kHz. They show on the EQ graph as dashed
   lines with chips along the bottom: drag the lowest or highest spot to spread them out from (or in

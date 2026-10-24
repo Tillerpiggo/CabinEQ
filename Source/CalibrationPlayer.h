@@ -266,9 +266,11 @@ public:
             pendingNoise.clear();
             hasPending = false;
         }
-        tiltedIndex = 0;
-        for (auto& voice : voices)
-            voice.active = false;
+        for (size_t i = 0; i < voices.size(); ++i)
+        {
+            voices[i].active = false;
+            voices[i].pink = PinkNoise { juce::Random ((juce::int64) (1000 + i)) }; // each its own, and the same each time
+        }
         samplesUntilNext = 0;
         seqRow = seqColumn = -1;
         depthLevel = depthRepeat = 0;
@@ -415,8 +417,6 @@ public:
             {
                 std::swap (tiltedNoise, pendingNoise); // the old one's freed by the message thread, later
                 hasPending = false;
-                if (tiltedIndex >= tiltedNoise.size())
-                    tiltedIndex = 0;
             }
         }
         const std::vector<float>* tilted = isTilted() && ! tiltedNoise.empty() ? &tiltedNoise : nullptr;
@@ -439,17 +439,6 @@ public:
                 samplesUntilNext = interval; // sped up mid-wait
             }
 
-            float noise;
-            if (tilted != nullptr)
-            {
-                noise = (*tilted)[tiltedIndex];
-                if (++tiltedIndex >= tilted->size())
-                    tiltedIndex = 0;
-            }
-            else
-            {
-                noise = nextPink();
-            }
             float l = 0.0f, r = 0.0f;
             for (auto& voice : voices)
             {
@@ -470,6 +459,18 @@ public:
                     continue;
                 }
 
+                // Each burst has noise of its own, so two that overlap don't add up as one sound (or cancel)
+                float noise;
+                if (tilted != nullptr)
+                {
+                    if (voice.noiseIndex >= tilted->size())
+                        voice.noiseIndex = 0;
+                    noise = (*tilted)[voice.noiseIndex++];
+                }
+                else
+                {
+                    noise = voice.pink.next();
+                }
                 const float sample = voice.bandLimited ? voice.filter (noise) : noise;
                 l += sample * envelope * voice.leftGain;
                 r += sample * envelope * voice.rightGain;
@@ -497,10 +498,35 @@ private:
         }
     };
 
+    /// Paul Kellet's pink noise, scaled to 0 dB RMS (its raw RMS is about 1.74), so the level is the burst's RMS
+    struct PinkNoise
+    {
+        juce::Random random;
+        float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+
+        float next() noexcept
+        {
+            const float white = random.nextFloat() * 2.0f - 1.0f;
+            b0 = 0.99886f * b0 + white * 0.0555179f;
+            b1 = 0.99332f * b1 + white * 0.0750759f;
+            b2 = 0.96900f * b2 + white * 0.1538520f;
+            b3 = 0.86650f * b3 + white * 0.3104856f;
+            b4 = 0.55000f * b4 + white * 0.5329522f;
+            b5 = -0.7616f * b5 - white * 0.0168980f;
+            const float pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362f;
+            b6 = white * 0.115926f;
+            return pink * (1.0f / 1.745f);
+        }
+    };
+
+    /// A burst. Each has its own noise: its own pink generator, or its own place in the looped tilted noise,
+    /// somewhere random each time it plays.
     struct Voice
     {
         bool active = false, bandLimited = false;
         int age = 0;
+        PinkNoise pink;
+        size_t noiseIndex = 0;
         float peak = 0, leftGain = 0, rightGain = 0;
         std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
 
@@ -711,6 +737,7 @@ private:
 
         voice->peak *= juce::Decibels::decibelsToGain (levelDb);
 
+        voice->noiseIndex = (size_t) noiseStarts.nextInt (1 << noiseOrder);
         voice->age = 0;
         voice->active = true;
     }
@@ -783,20 +810,8 @@ private:
         return data;
     }
 
-    /// Paul Kellet's pink noise, scaled to 0 dB RMS (its raw RMS is about 1.74), so the level is the burst's RMS
-    float nextPink() noexcept
-    {
-        const float white = random.nextFloat() * 2.0f - 1.0f;
-        b0 = 0.99886f * b0 + white * 0.0555179f;
-        b1 = 0.99332f * b1 + white * 0.0750759f;
-        b2 = 0.96900f * b2 + white * 0.1538520f;
-        b3 = 0.86650f * b3 + white * 0.3104856f;
-        b4 = 0.55000f * b4 + white * 0.5329522f;
-        b5 = -0.7616f * b5 - white * 0.0168980f;
-        const float pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362f;
-        b6 = white * 0.115926f;
-        return pink * (1.0f / 1.745f);
-    }
+    /// Pink noise for making the tilted noise from (the bursts have their own)
+    float nextPink() noexcept { return pinkSource.next(); }
 
     double sampleRate = 48000.0;
 
@@ -812,7 +827,6 @@ private:
 
     // The tilted noise the audio thread plays, and the next one, made on the message thread
     std::vector<float> tiltedNoise;
-    size_t tiltedIndex = 0;
     juce::CriticalSection buildLock; // makers only: never the audio thread
     std::vector<float> pinkSpectrum, octavesAbove20;
     float builtTilt = 0.0f;
@@ -841,6 +855,6 @@ private:
     int seqRow = -1, seqColumn = -1; // where it's playing: the row, and the place along it
     int depthLevel = 0;  // which level the row's being played at: 0 is the quietest
     int depthRepeat = 0; // how many times it's been played at that level
-    juce::Random random { 42 };
-    float b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    PinkNoise pinkSource { juce::Random (42) };
+    juce::Random noiseStarts { 7 }; // where in the tilted noise each burst starts: audio thread
 };
