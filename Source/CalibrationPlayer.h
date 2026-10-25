@@ -137,12 +137,16 @@ public:
 
     static constexpr float defaultPinLow = 100.0f, defaultPinHigh = 10000.0f;
 
-    /// A sharp low-pass on all the calibration sounds (8th-order Butterworth, like each burst's low cut), for
-    /// hearing them without their top. At maxLowPass or above it's off.
-    static constexpr float minLowPass = 100.0f, maxLowPass = 20000.0f;
-    void setLowPass (float frequency) { lowPass = juce::jlimit (minLowPass, maxLowPass, frequency); }
-    float getLowPass() const          { return lowPass.load(); }
-    bool isLowPassing() const         { return getTopEdge() == TopEdge::fixed && lowPass.load() < maxLowPass - 0.5f; }
+    /// A band pass on top of whatever's playing, in every mode: a sharp low cut and a sharp low-pass (8th-order
+    /// Butterworth each, like a burst's own cuts) on all the calibration sounds together. At minHighPass the low
+    /// cut is off, and at maxLowPass the low-pass is.
+    static constexpr float minHighPass = 20.0f, minLowPass = 20.0f, maxLowPass = 20000.0f;
+    void setLowPass (float frequency)  { lowPass = juce::jlimit (minLowPass, maxLowPass, frequency); }
+    float getLowPass() const           { return lowPass.load(); }
+    bool isLowPassing() const          { return lowPass.load() < maxLowPass - 0.5f; }
+    void setHighPass (float frequency) { highPass = juce::jlimit (minHighPass, maxLowPass, frequency); }
+    float getHighPass() const          { return highPass.load(); }
+    bool isHighPassing() const         { return highPass.load() > minHighPass + 0.05f; }
 
     /// Where each burst's top is. Fixed: the low pass above, the same for every burst (off, at 20 kHz), with the
     /// burst's height its low cut. Octaves and mels: each burst is a band that wide, centred on its height, so the
@@ -500,8 +504,8 @@ public:
         }
         const std::vector<float>* tilted = isTilted() && ! tiltedNoise.empty() ? &tiltedNoise : nullptr;
 
-        // The low-pass, designed again when it's moved; its state carries on, so moving it doesn't click
-        const bool lowPassing = isLowPassing();
+        // The band pass, designed again when it's moved; its state carries on, so moving it doesn't click
+        const bool lowPassing = isLowPassing(), highPassing = isHighPassing();
         if (lowPassing && lowPass.load() != designedLowPass)
         {
             designedLowPass = lowPass.load();
@@ -509,6 +513,14 @@ public:
             for (size_t i = 0; i < lowPassStages[0].size(); ++i)
                 for (auto& ear : lowPassStages)
                     ear[i].c = FilterDesign::design (Band::Shape::highCut, frequency, 0.0, butterworthQs[i], sampleRate);
+        }
+        if (highPassing && highPass.load() != designedHighPass)
+        {
+            designedHighPass = highPass.load();
+            const double frequency = std::min ((double) designedHighPass, FilterDesign::maxFrequency (sampleRate) * 0.9);
+            for (size_t i = 0; i < highPassStages[0].size(); ++i)
+                for (auto& ear : highPassStages)
+                    ear[i].c = FilterDesign::design (Band::Shape::lowCut, frequency, 0.0, butterworthQs[i], sampleRate);
         }
 
         const int attackSamples = std::max (1, (int) (attackMs.load() * 0.001 * sampleRate));
@@ -566,6 +578,13 @@ public:
                 r += sample * envelope * voice.rightGain;
             }
 
+            if (highPassing)
+            {
+                for (auto& stage : highPassStages[0])
+                    l = stage.process (l);
+                for (auto& stage : highPassStages[1])
+                    r = stage.process (r);
+            }
             if (lowPassing)
             {
                 for (auto& stage : lowPassStages[0])
@@ -977,6 +996,9 @@ private:
     int depthLevel = 0;  // which level the row's being played at: 0 is the quietest
     int depthRepeat = 0; // how many times it's been played at that level
     PinkNoise pinkSource { juce::Random (42) };
+    std::atomic<float> highPass { minHighPass };
+    float designedHighPass = 0.0f;              // audio thread
+    std::array<std::array<Biquad, 4>, 2> highPassStages {};
     std::atomic<float> lowPass { maxLowPass }, bandOctaves { defaultBandOctaves }, bandMels { defaultBandMels };
     std::atomic<int> topEdge { (int) TopEdge::fixed };
     float designedLowPass = 0.0f;                // audio thread

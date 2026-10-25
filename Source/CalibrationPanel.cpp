@@ -23,6 +23,7 @@ namespace
     const juce::Identifier idFloor { "calibrationFloor" };
     const juce::Identifier idRepeats { "calibrationDepthRepeats" };
     const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
+    const juce::Identifier idHighPass { "calibrationHighPass" };
     const juce::Identifier idLowPass { "calibrationLowPass" }, idTopEdge { "calibrationTopEdge" },
                            idBandOctaves { "calibrationBandOctaves" }, idBandMels { "calibrationBandMels" };
     const juce::Identifier idSlope { "calibrationNoiseSlope" }, idTopLine { "calibrationNoiseTopLine" }; // new names: older saved ones aren't brought back
@@ -224,10 +225,27 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         slider->updateText();
         setUpLabel (*label, name);
     }
-    setUpSlider (lowPassSlider, juce::Slider::LinearHorizontal, CalibrationPlayer::minLowPass, CalibrationPlayer::maxLowPass, 1.0,
-                 (double) state.getProperty (idLowPass, CalibrationPlayer::maxLowPass));
+    setUpSlider (lowPassSlider, juce::Slider::LinearHorizontal, CalibrationPlayer::minBandOctaves, CalibrationPlayer::maxBandOctaves, 0.05,
+                 CalibrationPlayer::defaultBandOctaves);
     lowPassSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 76, 20);
-    setUpLabel (lowPassLabel, "Low pass");
+    setUpLabel (lowPassLabel, "Width");
+
+    // A band pass on top of whatever's playing: drag the left thumb for its low cut, the right for its low-pass
+    bandPassSlider.setSliderStyle (juce::Slider::TwoValueHorizontal);
+    bandPassSlider.setRange (CalibrationPlayer::minHighPass, CalibrationPlayer::maxLowPass, 1.0);
+    bandPassSlider.setSkewFactorFromMidPoint (632.0);
+    bandPassSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+    bandPassSlider.setMinAndMaxValues ((double) state.getProperty (idHighPass, CalibrationPlayer::minHighPass),
+                                       (double) state.getProperty (idLowPass, CalibrationPlayer::maxLowPass), juce::dontSendNotification);
+    bandPassSlider.setTooltip ("A band pass on top of whatever the calibration's playing, 48 dB an octave at each end: the left thumb is its low cut, "
+                               "the right its low-pass. All the way out at either end is off.");
+    bandPassSlider.onValueChange = [this] { applySettings(); };
+    addAndMakeVisible (bandPassSlider);
+    setUpLabel (bandPassLabel, "Band pass");
+    bandPassText.setFont (Theme::font (12.0f));
+    bandPassText.setColour (juce::Label::textColourId, Theme::text);
+    bandPassText.setJustificationType (juce::Justification::centredRight);
+    addAndMakeVisible (bandPassText);
 
     // Where the bursts' tops are: all at one low pass, or each a band that far above its own low cut
     const char* edgeNames[] { "Fixed", "Oct", "Mel" };
@@ -246,7 +264,8 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         addAndMakeVisible (button);
     }
     setUpLabel (topEdgeLabel, "Top");
-    player.setLowPass ((float) (double) state.getProperty (idLowPass, CalibrationPlayer::maxLowPass));
+    player.setLowPass ((float) bandPassSlider.getMaxValue());
+    player.setHighPass ((float) bandPassSlider.getMinValue());
     player.setBandOctaves ((float) (double) state.getProperty (idBandOctaves, CalibrationPlayer::defaultBandOctaves));
     player.setBandMels ((float) (double) state.getProperty (idBandMels, CalibrationPlayer::defaultBandMels));
     setTopEdge ((CalibrationPlayer::TopEdge) juce::jlimit (0, 2, (int) state.getProperty (idTopEdge, 0)));
@@ -678,21 +697,14 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
     for (size_t i = 0; i < topEdgeButtons.size(); ++i)
         topEdgeButtons[i].setToggleState ((int) i == (int) edge, juce::dontSendNotification);
 
-    // The slider under it is the low pass, or the band's width, each with its own value kept
+    // The slider under it is the band's width, in octaves or mels, each with its own value kept. Fixed has no band.
     using Edge = CalibrationPlayer::TopEdge;
+    lowPassSlider.setEnabled (edge != Edge::fixed);
+    lowPassLabel.setEnabled (edge != Edge::fixed);
     if (edge == Edge::fixed)
     {
-        lowPassSlider.setRange (CalibrationPlayer::minLowPass, CalibrationPlayer::maxLowPass, 1.0);
-        lowPassSlider.setSkewFactorFromMidPoint (2000.0);
-        lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::maxLowPass);
-        lowPassSlider.textFromValueFunction = [] (double v) { return v >= CalibrationPlayer::maxLowPass - 0.5 ? juce::String ("Off") : Format::frequency (v); };
-        lowPassSlider.valueFromTextFunction = [] (const juce::String& text)
-        {
-            return text.trim().equalsIgnoreCase ("off") ? (double) CalibrationPlayer::maxLowPass : Format::parseFrequency (text).value_or (CalibrationPlayer::maxLowPass);
-        };
-        lowPassSlider.setValue (player.getLowPass(), juce::dontSendNotification);
-        lowPassSlider.setTooltip ("A sharp low-pass (48 dB an octave) on all the calibration sounds: nothing above it plays. All the way up is off. Double-click for off.");
-        lowPassLabel.setText ("Low pass", juce::dontSendNotification);
+        lowPassSlider.textFromValueFunction = [] (double) { return juce::String ("-"); };
+        lowPassSlider.setTooltip ("Fixed: each burst runs from its height up to the top. Choose Oct or Mel to make each a band, and set how wide here.");
     }
     else if (edge == Edge::octaves)
     {
@@ -719,6 +731,15 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
         lowPassLabel.setText ("Width", juce::dontSendNotification);
     }
     lowPassSlider.updateText();
+}
+
+void CalibrationPanel::updateBandPassText()
+{
+    const bool high = player.isHighPassing(), low = player.isLowPassing();
+    bandPassText.setText (! high && ! low ? juce::String ("Off")
+                          : (high ? Format::frequencyShort (player.getHighPass()) : juce::String ("20")) + " - "
+                                + (low ? Format::frequencyShort (player.getLowPass()) : juce::String ("20k")),
+                          juce::dontSendNotification);
 }
 
 void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
@@ -760,9 +781,11 @@ void CalibrationPanel::applySettings()
     player.setSlope ((float) slopeSlider.getValue());
     const auto edge = player.getTopEdge();
     const float topValue = (float) lowPassSlider.getValue();
-    if (edge == CalibrationPlayer::TopEdge::fixed)        player.setLowPass (topValue);
-    else if (edge == CalibrationPlayer::TopEdge::octaves) player.setBandOctaves (topValue);
-    else                                                  player.setBandMels (topValue);
+    if (edge == CalibrationPlayer::TopEdge::octaves)   player.setBandOctaves (topValue);
+    else if (edge == CalibrationPlayer::TopEdge::mels) player.setBandMels (topValue);
+    player.setHighPass ((float) bandPassSlider.getMinValue());
+    player.setLowPass ((float) bandPassSlider.getMaxValue());
+    updateBandPassText();
     player.setTopLine ((float) topLineSlider.getValue());
 
     // Forget selected positions that aren't on the grid any more
@@ -784,6 +807,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idAttack, attackSlider.getValue(), nullptr);
     state.setProperty (idSlope, slopeSlider.getValue(), nullptr);
     state.setProperty (idLowPass, player.getLowPass(), nullptr);
+    state.setProperty (idHighPass, player.getHighPass(), nullptr);
     state.setProperty (idBandOctaves, player.getBandOctaves(), nullptr);
     state.setProperty (idBandMels, player.getBandMels(), nullptr);
     state.setProperty (idTopLine, topLineSlider.getValue(), nullptr);
@@ -1194,7 +1218,7 @@ void CalibrationPanel::resized()
     const std::vector<std::pair<juce::Slider*, juce::Label*>> rows { { &volumeSlider, &volumeLabel }, { &speedSlider, &speedLabel }, { &attackSlider, &attackLabel },
                                                                     { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &repeatsSlider, &repeatsLabel },
                                                                     { &floorSlider, &floorLabel }, { &slopeSlider, &slopeLabel }, { &topLineSlider, &topLineLabel },
-                                                                    { &lowPassSlider, &lowPassLabel } };
+                                                                    { &lowPassSlider, &lowPassLabel }, { &bandPassSlider, &bandPassLabel } };
     const int rowHeight = std::min (30, controls.getHeight() / ((int) rows.size() + 2)); // and what the depth works on, and the tops
     for (auto [slider, label] : rows)
     {
@@ -1222,6 +1246,8 @@ void CalibrationPanel::resized()
 
         auto row = controls.removeFromTop (rowHeight);
         label->setBounds (row.removeFromLeft (64));
+        if (slider == &bandPassSlider)
+            bandPassText.setBounds (row.removeFromRight (76));
         slider->setBounds (row.withSizeKeepingCentre (row.getWidth(), std::min (28, rowHeight)));
     }
 

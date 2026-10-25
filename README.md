@@ -124,9 +124,12 @@ loads the VST3 to EQ everything the Mac plays.
   heights to them: the bottom row is then exactly the bottom frequency and the top row exactly the top one, with the
   rest spaced between as Log, Mel or Hz says (a single row is halfway). Drag mode's field runs from one to the other,
   and so do the guided heights. Unpinned, they're spread between 20 Hz and 20 kHz with room left at both ends.
-- **Calibration tops** (Top, and the slider under it, at the bottom of the panel): where each burst stops at the
-  top. **Fixed**, as it starts: the slider is a low pass, 48 dB an octave, on everything the calibration plays, from
-  100 Hz up, and all the way up (20 kHz) is off; levels aren't made up for what it takes away. **Oct**: each burst
+- **Calibration band pass** (the two-thumb slider at the bottom of the panel): a band pass on top of whatever the
+  calibration's playing, in every mode: the left thumb is a sharp low cut and the right a sharp low-pass, 48 dB an
+  octave each, from 20 Hz to 20 kHz. All the way out at either end is off, as they start; the text beside it says
+  what's passing. Levels aren't made up for what it takes away, and it doesn't touch the EQ or your music.
+- **Calibration tops** (Top, and the Width slider under it): where each burst stops at the top. **Fixed**, as it
+  starts: each burst runs from its height up to the top (Width does nothing). **Oct**: each burst
   is a band this many octaves wide (2 to start, 0.25 to 10), centred on its height, so the whole band moves with it.
   **Mel**: the band is this many mels wide (500 to start, 50 to 3800; 1000 mels is about 1 kHz), centred the same
   way: the same width to the ear wherever it is, so narrow in octaves up high and wide down low. The heights reach half a band past each end: at the very bottom, a band's top is the bottom

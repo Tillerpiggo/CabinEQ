@@ -1510,6 +1510,41 @@ public:
             expectLessThan (highEnergy (8000.0f), open);
         }
 
+        beginTest ("The band pass's low cut takes away what's below it, whatever's playing");
+        {
+            auto lowEnergy = [] (float highPass)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::square);
+                player.setSquare ({ 2, 0.5f, 0.04f, 0.08f, 0.08f }); // barely any low cut of their own
+                player.setHighPass (highPass);
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) (0.5 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                FilterChain lowPass;
+                lowPass.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, 300.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::highCut));
+                lowPass.setBands (cuts);
+                lowPass.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                lowPass.process (block);
+                return buffer.getRMSLevel (0, 0, buffer.getNumSamples()) + buffer.getRMSLevel (1, 0, buffer.getNumSamples());
+            };
+            expect (! CalibrationPlayer().isHighPassing(), "off to begin with");
+            expectLessThan (lowEnergy (2000.0f) * 100.0f, lowEnergy (CalibrationPlayer::minHighPass), "at 2 kHz, almost nothing's left under 300 Hz");
+
+            // And both ends at once, on a band of its own
+            CalibrationPlayer player;
+            player.setHighPass (500.0f);
+            player.setLowPass (4000.0f);
+            player.setTopEdge (CalibrationPlayer::TopEdge::octaves);
+            expect (player.isHighPassing() && player.isLowPassing(), "the band pass doesn't care what the bursts are");
+        }
+
         beginTest ("Each burst can be a band a set number of octaves or mels wide, centred on its height");
         {
             using Edge = CalibrationPlayer::TopEdge;

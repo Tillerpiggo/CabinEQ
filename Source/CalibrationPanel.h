@@ -46,7 +46,7 @@ public:
     void mouseMove (const juce::MouseEvent&) override;
     void mouseExit (const juce::MouseEvent&) override;
 
-    static constexpr int preferredHeight = 364;
+    static constexpr int preferredHeight = 390;
     juce::Rectangle<int> getFieldArea() const { return gridArea; } // where the grid, or Drag mode's field, is
 
 private:
@@ -74,8 +74,11 @@ private:
     juce::Label volumeLabel, depthLabel, speedLabel, attackLabel, releaseLabel, floorLabel;
     juce::Slider slopeSlider, topLineSlider; // the noise: how fast a burst falls away, and how fast their bottom edges do
     juce::Label slopeLabel, topLineLabel;
-    juce::Slider lowPassSlider; // a sharp low-pass on everything the calibration plays, or how wide each burst's band is
+    juce::Slider lowPassSlider; // how wide each burst's band is, in octaves or mels
     juce::Label lowPassLabel;
+    juce::Slider bandPassSlider; // a band pass on top of everything: its low cut and its low-pass, two thumbs
+    juce::Label bandPassLabel, bandPassText;
+    void updateBandPassText();
     std::array<juce::TextButton, 3> topEdgeButtons; // where the bursts' tops are: fixed, or a band in octaves or mels
     juce::Label topEdgeLabel;
     void setTopEdge (CalibrationPlayer::TopEdge edge);
