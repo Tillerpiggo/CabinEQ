@@ -70,6 +70,14 @@ loads the VST3 to EQ everything the Mac plays.
   right, and up it is the low cut, from none at the bottom (20 Hz) to 20 kHz at the top. Drag the square to move it
   (or click elsewhere on the field to bring it there; the arrow keys nudge it), and drag its bottom right corner to
   resize it about its centre. Its dots play in reading order.
+- **Calibration, Range mode** (the panel's fourth mode): choose a range with the two-thumb Range slider (100 Hz to
+  10 kHz to start). It's split into a bottom, a middle and a top, each a sharp band (48 dB an octave at both
+  edges), so everything plays inside the range; the Middle slider is how much of the range, in octaves, the middle
+  takes (50% to start, in the middle of it), with the top and bottom sharing the rest. They play top, middle, bottom,
+  round and round, drawn on the left as tall as their shares with the one playing lit. Panning is optional: Pan and
+  Pan steps (shared with On graph) play each band at that many positions across the pan range, left to right, before
+  the next. The noise is the panel's Slope and Top line (-4.5 dB an octave each, to start); depth, repeats and the
+  band pass work as everywhere else, and Heights, Pin and Top don't apply.
 - **Calibration, Guided mode** (experimental; the panel's fourth mode): a search that gives you one change to the
   curve at a time, and judges it on a whole arrangement of sounds: left and right, low and high, far and near, all
   at once. (It never plays one of those by itself: a change that straightens the height can squash the depth, and

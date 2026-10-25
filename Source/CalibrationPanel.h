@@ -84,7 +84,16 @@ private:
     void setTopEdge (CalibrationPlayer::TopEdge edge);
     juce::Rectangle<int> rowsCaption, columnsCaption;
 
-    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" }, guidedModeButton { "Guided" };
+    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" }, guidedModeButton { "Guided" }, rangeModeButton { "Range" };
+
+    // Range mode: a range you choose, as a bottom, a middle and a top, played top to bottom
+    juce::Slider rangeSlider;  // the range, two thumbs
+    juce::Slider middleSlider; // the middle's share of it
+    juce::Label rangeLabel, middleLabel;
+    juce::Rectangle<int> rangeBars; // the three bands, drawn with the one playing lit
+    bool isRangeMode() const { return mode() == CalibrationPlayer::Mode::range; }
+    void applyRange();
+    void paintRangeMode (juce::Graphics&);
 
     // How the low cuts are spaced up the grid, Drag mode's field and the guided arrangements: in octaves, mels or Hz
     std::array<juce::TextButton, 3> spacingButtons;

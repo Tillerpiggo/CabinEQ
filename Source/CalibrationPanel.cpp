@@ -396,6 +396,36 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         addChildComponent (button);
     }
     gridModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::grid); };
+    rangeModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::range); };
+    rangeModeButton.setTooltip ("A range you choose, split into a bottom, a middle and a top, each sharply band-passed, played top to bottom");
+    rangeModeButton.setClickingTogglesState (false);
+    addAndMakeVisible (rangeModeButton);
+
+    rangeSlider.setSliderStyle (juce::Slider::TwoValueHorizontal);
+    rangeSlider.setRange (20.0, 20000.0, 1.0);
+    rangeSlider.setSkewFactorFromMidPoint (632.0);
+    rangeSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+    rangeSlider.setMinAndMaxValues (player.getRangeLow(), player.getRangeHigh(), juce::dontSendNotification);
+    rangeSlider.setTooltip ("The range: everything plays inside it, as a bottom, a middle and a top, each a sharp band");
+    rangeSlider.onValueChange = [this] { applyRange(); };
+    addChildComponent (rangeSlider);
+    middleSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    middleSlider.setRange (CalibrationPlayer::minRangeMiddle * 100.0, CalibrationPlayer::maxRangeMiddle * 100.0, 1.0);
+    middleSlider.setValue (player.getRangeMiddle() * 100.0, juce::dontSendNotification);
+    middleSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultRangeMiddle * 100.0);
+    middleSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 60, 20);
+    middleSlider.textFromValueFunction = [] (double v) { return juce::String (juce::roundToInt (v)) + "%"; };
+    middleSlider.updateText();
+    middleSlider.setTooltip ("How much of the range (in octaves) the middle takes, in the middle of it; the top and bottom share the rest. Double-click for 50%.");
+    middleSlider.onValueChange = [this] { applyRange(); };
+    addChildComponent (middleSlider);
+    for (auto [label, text] : { std::pair { &rangeLabel, "Range" }, std::pair { &middleLabel, "Middle" } })
+    {
+        label->setText (text, juce::dontSendNotification);
+        label->setFont (Theme::font (12.0f));
+        label->setColour (juce::Label::textColourId, Theme::textDim);
+        addChildComponent (*label);
+    }
     spotsModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::spots); };
     spotsModeButton.setTooltip ("Play 2 to 4 spots that you place on the EQ graph, for lining up with bands exactly");
 
@@ -606,7 +636,11 @@ void CalibrationPanel::setMode (CalibrationPlayer::Mode mode)
 
 void CalibrationPanel::refreshSpots()
 {
-    const bool spots = isShowingSpots(), square = isSquareMode(), guided = isGuidedMode(), grid = ! spots && ! square && ! guided;
+    const bool spots = isShowingSpots(), square = isSquareMode(), guided = isGuidedMode(), range = isRangeMode(),
+               grid = ! spots && ! square && ! guided && ! range;
+    rangeModeButton.setToggleState (range, juce::dontSendNotification);
+    for (auto* component : std::initializer_list<juce::Component*> { &rangeSlider, &middleSlider, &rangeLabel, &middleLabel })
+        component->setVisible (range);
     guidedModeButton.setToggleState (guided, juce::dontSendNotification);
     guidedView.setVisible (guided);
     updateDepthControls();
@@ -629,20 +663,27 @@ void CalibrationPanel::refreshSpots()
     for (auto* component : std::initializer_list<juce::Component*> { &rowsSlider, &columnsSlider })
         component->setVisible (grid);
     for (auto* component : std::initializer_list<juce::Component*> { &spotsPan, &panStepsSlider, &panStepsLabel })
-        component->setVisible (spots);
+        component->setVisible (spots || range);
 
     // On the graph you put the spots where you like, so there's nothing to space
     const auto spacing = (int) player.getHeightSpacing();
     for (size_t i = 0; i < spacingButtons.size(); ++i)
     {
         spacingButtons[i].setToggleState ((int) i == spacing, juce::dontSendNotification);
-        spacingButtons[i].setEnabled (! spots);
+        spacingButtons[i].setEnabled (! spots && ! range); // the range's bands are their own
     }
-    pinButton.setEnabled (! spots);
+    pinButton.setEnabled (! spots && ! range);
     pinButton.setToggleState (player.getHeights().pinned, juce::dontSendNotification);
     panButton.setToggleState (player.getPanSpacing() != CalibrationPlayer::PanSpacing::even || player.getPanLaw() != CalibrationPlayer::PanLaw::power,
                               juce::dontSendNotification); // lit when it's not the usual
-    spacingLabel.setEnabled (! spots);
+    spacingLabel.setEnabled (! spots && ! range);
+
+    // The range's bands have tops of their own
+    for (auto* component : std::initializer_list<juce::Component*> { &topEdgeButtons[0], &topEdgeButtons[1], &topEdgeButtons[2], &topEdgeLabel })
+        component->setEnabled (! range);
+    const bool hasWidth = ! range && player.getTopEdge() != CalibrationPlayer::TopEdge::fixed;
+    lowPassSlider.setEnabled (hasWidth);
+    lowPassLabel.setEnabled (hasWidth);
 
     const auto pan = CalibrationSettings::getPanRange (processor.parameters.state);
     if (! spotsPan.isMouseButtonDown())
@@ -650,6 +691,45 @@ void CalibrationPanel::refreshSpots()
         spotsPan.setMinAndMaxValues (pan.getStart(), pan.getEnd(), juce::dontSendNotification);
     }
     updateButtons();
+}
+
+void CalibrationPanel::applyRange()
+{
+    CalibrationSettings::setRange (processor.parameters.state, player, (float) rangeSlider.getMinValue(), (float) rangeSlider.getMaxValue(),
+                                   (float) middleSlider.getValue() / 100.0f);
+    repaint();
+}
+
+void CalibrationPanel::paintRangeMode (juce::Graphics& g)
+{
+    g.setColour (Theme::textDim);
+    g.setFont (Theme::font (12.0f));
+    g.drawText (Format::frequencyShort (player.getRangeLow()) + " - " + Format::frequencyShort (player.getRangeHigh()) + " Hz",
+                rangeSlider.getBounds().translated (rangeSlider.getWidth() + 8, 0).withWidth (110), juce::Justification::centredLeft);
+    g.drawText ("Pan", spotsPan.getBounds().translated (-60, 0).withWidth (56), juce::Justification::centredLeft);
+    g.drawText (CalibrationSettings::describePanRange (CalibrationSettings::getPanRange (processor.parameters.state)),
+                spotsPan.getBounds().translated (spotsPan.getWidth() + 8, 0).withWidth (110), juce::Justification::centredLeft);
+
+    // The three bands, top first, each as tall as its share of the range, with the one that's playing lit
+    if (rangeBars.isEmpty())
+        return;
+    const auto edges = CalibrationPlayer::rangeEdges (player.getRangeLow(), player.getRangeHigh(), player.getRangeMiddle());
+    const double octaves = std::log2 (edges[3] / edges[0]);
+    auto bar = rangeBars.toFloat();
+    const char* names[] { "Top", "Middle", "Bottom" };
+    for (int row = 0; row < 3; ++row)
+    {
+        const size_t below = (size_t) (2 - row);
+        const float share = (float) (std::log2 (edges[below + 1] / edges[below]) / octaves);
+        auto band = bar.removeFromTop (rangeBars.getHeight() * share);
+        const bool lit = player.isPlaying() && shownPosition == row;
+        g.setColour (lit ? Theme::accent.withAlpha (0.55f) : Theme::raisedHover.withAlpha (0.7f));
+        g.fillRoundedRectangle (band.withWidth (44.0f).reduced (0.0f, 1.0f), 4.0f);
+        g.setColour (lit ? Theme::text : Theme::textDim);
+        g.setFont (Theme::font (11.5f, lit));
+        g.drawText (juce::String (names[row]) + "  " + Format::frequencyShort (edges[below]) + " - " + Format::frequencyShort (edges[below + 1]),
+                    band.withTrimmedLeft (54.0f).toNearestInt(), juce::Justification::centredLeft);
+    }
 }
 
 void CalibrationPanel::setHeightSpacing (CalibrationPlayer::HeightSpacing spacing)
@@ -699,8 +779,8 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
 
     // The slider under it is the band's width, in octaves or mels, each with its own value kept. Fixed has no band.
     using Edge = CalibrationPlayer::TopEdge;
-    lowPassSlider.setEnabled (edge != Edge::fixed);
-    lowPassLabel.setEnabled (edge != Edge::fixed);
+    lowPassSlider.setEnabled (edge != Edge::fixed && ! isRangeMode());
+    lowPassLabel.setEnabled (edge != Edge::fixed && ! isRangeMode());
     if (edge == Edge::fixed)
     {
         lowPassSlider.textFromValueFunction = [] (double) { return juce::String ("-"); };
@@ -862,7 +942,7 @@ int CalibrationPanel::positionAt (juce::Point<float> point) const
 
 void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
 {
-    if (isShowingSpots() || isGuidedMode())
+    if (isShowingSpots() || isGuidedMode() || isRangeMode())
         return;
 
     if (isSquareMode())
@@ -928,7 +1008,7 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
 
 void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
 {
-    if (isShowingSpots() || isGuidedMode())
+    if (isShowingSpots() || isGuidedMode() || isRangeMode())
         return;
 
     if (isSquareMode())
@@ -974,7 +1054,7 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
 
 bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
 {
-    if (isShowingSpots() || isGuidedMode())
+    if (isShowingSpots() || isGuidedMode() || isRangeMode())
         return false;
 
     if (isSquareMode())
@@ -1129,6 +1209,12 @@ void CalibrationPanel::paint (juce::Graphics& g)
     if (isGuidedMode())
         return; // its view draws itself
 
+    if (isRangeMode())
+    {
+        paintRangeMode (g);
+        return;
+    }
+
     if (isSquareMode())
     {
         paintSquareMode (g);
@@ -1191,24 +1277,23 @@ void CalibrationPanel::resized()
     if (allButton.isVisible())
         allButton.setBounds (header.removeFromRight (78).withSizeKeepingCentre (78, 26));
 
-    header.removeFromLeft (100); // the title
-    spotsModeButton.setBounds (header.removeFromLeft (84).withSizeKeepingCentre (84, 26));
-    header.removeFromLeft (4);
-    gridModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
-    header.removeFromLeft (4);
-    squareModeButton.setBounds (header.removeFromLeft (64).withSizeKeepingCentre (64, 26));
-    header.removeFromLeft (4);
-    guidedModeButton.setBounds (header.removeFromLeft (72).withSizeKeepingCentre (72, 26));
+    header.removeFromLeft (96); // the title
+    for (auto [button, width] : { std::pair { &spotsModeButton, 76 }, std::pair { &gridModeButton, 50 }, std::pair { &squareModeButton, 52 },
+                                  std::pair { &rangeModeButton, 60 }, std::pair { &guidedModeButton, 64 } })
+    {
+        button->setBounds (header.removeFromLeft (width).withSizeKeepingCentre (width, 26));
+        header.removeFromLeft (3);
+    }
 
     // How the heights are spaced, if there's room for it: its label goes first when there isn't much
     header.removeFromLeft (8);
-    const int spacingWidth = 3 * 34, labelWidth = 48, pinWidth = 38, panWidth = 48;
+    const int spacingWidth = 3 * 32, labelWidth = 48, pinWidth = 36, panWidth = 46;
     const bool fitsButtons = header.getWidth() >= spacingWidth + pinWidth + panWidth,
                fitsLabel = header.getWidth() >= spacingWidth + pinWidth + panWidth + labelWidth;
     spacingLabel.setBounds (fitsLabel ? header.removeFromLeft (labelWidth).withSizeKeepingCentre (labelWidth, 26) : juce::Rectangle<int>());
     auto spacingRow = fitsButtons ? header.removeFromLeft (spacingWidth).withSizeKeepingCentre (spacingWidth, 24) : juce::Rectangle<int>();
     for (auto& button : spacingButtons)
-        button.setBounds (fitsButtons ? spacingRow.removeFromLeft (34) : juce::Rectangle<int>());
+        button.setBounds (fitsButtons ? spacingRow.removeFromLeft (32) : juce::Rectangle<int>());
     pinButton.setBounds (fitsButtons ? header.removeFromLeft (pinWidth).withTrimmedLeft (4).withSizeKeepingCentre (pinWidth - 4, 24) : juce::Rectangle<int>());
     panButton.setBounds (fitsButtons ? header.removeFromLeft (panWidth).withTrimmedLeft (10).withSizeKeepingCentre (panWidth - 10, 24) : juce::Rectangle<int>());
 
@@ -1264,17 +1349,26 @@ void CalibrationPanel::resized()
         }
         spots.removeFromTop (12);
 
-        auto panRow = spots.removeFromTop (30).withTrimmedLeft (40);
-        spotsPan.setBounds (panRow.withWidth (std::min (panRow.getWidth() - 130, 320)).withSizeKeepingCentre (std::min (panRow.getWidth() - 130, 320), 28));
-        spots.removeFromTop (14);
-        spotDots = spots.removeFromTop (22).withTrimmedLeft (2);
-    }
+        // Range mode has its range and its middle where the spot counts are
+        auto ranged = area.withTrimmedRight (10);
+        auto slidersWidth = [] (juce::Rectangle<int> row) { return std::min (row.getWidth() - 130, 320); };
+        for (auto [slider, label] : { std::pair { &rangeSlider, &rangeLabel }, std::pair { &middleSlider, &middleLabel } })
+        {
+            auto row = ranged.removeFromTop (30);
+            label->setBounds (row.removeFromLeft (60));
+            slider->setBounds (row.withWidth (slidersWidth (row) + (slider == &middleSlider ? 60 : 0)).withSizeKeepingCentre (slidersWidth (row) + (slider == &middleSlider ? 60 : 0), 28));
+        }
+        if (isRangeMode())
+            spots = ranged;
 
-    // Pan steps sits under depth, which it stacks with
-    {
-        auto row = controls.removeFromTop (36);
-        panStepsLabel.setBounds (row.removeFromLeft (64));
-        panStepsSlider.setBounds (row.withSizeKeepingCentre (row.getWidth(), 28));
+        auto panRow = spots.removeFromTop (30).withTrimmedLeft (isRangeMode() ? 60 : 40);
+        spotsPan.setBounds (panRow.withWidth (slidersWidth (panRow)).withSizeKeepingCentre (slidersWidth (panRow), 28));
+        auto stepsRow = spots.removeFromTop (30);
+        panStepsLabel.setBounds (stepsRow.removeFromLeft (60));
+        panStepsSlider.setBounds (stepsRow.withWidth (slidersWidth (stepsRow) + 60).withSizeKeepingCentre (slidersWidth (stepsRow) + 60, 28));
+        spots.removeFromTop (10);
+        spotDots = spots.removeFromTop (22).withTrimmedLeft (2);
+        rangeBars = ranged.withTrimmedTop (74).withTrimmedBottom (6).withWidth (260); // under the pan rows
     }
 
     // Rows slider up the left, then the rows' cutoffs, then the grid, with columns along the bottom

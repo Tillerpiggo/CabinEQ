@@ -53,7 +53,33 @@ public:
     static constexpr int maxSpots = 4;
     static constexpr int maxPanSteps = 5;
 
-    enum class Mode { grid = 0, spots = 1, square = 2, sequence = 3 };
+    enum class Mode { grid = 0, spots = 1, square = 2, sequence = 3, range = 4 };
+
+    /// Range mode: a range you choose, split into a bottom, a middle and a top, each a sharp band (48 dB an
+    /// octave at both edges), played top to bottom, round and round, so everything it plays is inside the range.
+    /// The middle takes this share of the range, in octaves, in the middle of it; the top and the bottom split
+    /// what's left. It shares the spots' pan range and pan steps: each band plays at that many positions across
+    /// it, left to right, before the next.
+    static constexpr float defaultRangeLow = 100.0f, defaultRangeHigh = 10000.0f, defaultRangeMiddle = 0.5f;
+    static constexpr float minRangeMiddle = 0.05f, maxRangeMiddle = 0.95f;
+    void setRange (float low, float high, float middle)
+    {
+        low = juce::jlimit (20.0f, 20000.0f, low);
+        high = juce::jlimit (20.0f, 20000.0f, high);
+        rangeLow = std::min (low, high);
+        rangeHigh = std::max (std::max (low, high), std::min (low, high) * 1.01f);
+        rangeMiddle = juce::jlimit (minRangeMiddle, maxRangeMiddle, middle);
+    }
+    float getRangeLow() const    { return rangeLow.load(); }
+    float getRangeHigh() const   { return rangeHigh.load(); }
+    float getRangeMiddle() const { return rangeMiddle.load(); }
+
+    /// The three bands' edges, from the bottom up: the range's bottom, the middle's bottom, its top, the range's top
+    static std::array<double, 4> rangeEdges (double low, double high, double middle)
+    {
+        const double outside = 0.5 * (1.0 - middle) * std::log2 (high / low); // each of the top and bottom, in octaves
+        return { low, low * std::pow (2.0, outside), high * std::pow (2.0, -outside), high };
+    }
 
     /// Sequence mode: a list of bursts to play in order, round and round, each wherever it's put. The guided
     /// calibration plays its arrangements this way.
@@ -666,6 +692,7 @@ private:
     void trigger() noexcept
     {
         const auto modeNow = (Mode) mode.load();
+        std::optional<BandEdges> rangeBand; // range mode's bands are their own
         float pan = 0.5f;      // where it is between the ears: 0 left, 1 right
         double cutoff = 0.0;   // its low cut, in Hz: 0 for none
         float levelDb = 0.0f;  // how far under the volume it plays
@@ -694,15 +721,16 @@ private:
         }
         else
         {
-            const bool spots = modeNow == Mode::spots;
+            const bool spots = modeNow == Mode::spots, range = modeNow == Mode::range;
+            const bool panned = spots || range; // across the pan range, in its steps
             const auto square = getSquare();
             const int rows = numRows.load(), columns = numColumns.load();
-            const int panPositions = spots ? panSteps.load() : 1;
+            const int panPositions = panned ? panSteps.load() : 1;
 
-            // Everything plays a row at a time: a grid's or a square's own rows, and for spots, a row each, with
-            // a place for each pan step
-            const int rowCount = spots ? spotCount.load() : modeNow == Mode::square ? square.size : rows;
-            const int rowLength = spots ? panPositions : modeNow == Mode::square ? square.size : columns;
+            // Everything plays a row at a time: a grid's or a square's own rows, and for spots and the range's
+            // bands, a row each, with a place for each pan step
+            const int rowCount = spots ? spotCount.load() : range ? 3 : modeNow == Mode::square ? square.size : rows;
+            const int rowLength = panned ? panPositions : modeNow == Mode::square ? square.size : columns;
 
             // Only the grid has positions you pick out
             bool anySelected = false;
@@ -791,12 +819,12 @@ private:
             }
             depthLevel = std::min (depthLevel, depthRuns - 1); // if the depth's come down
 
-            const int position = spots ? seqRow : seqRow * rowLength + seqColumn;
-            const int repeat = seqColumn; // for a spot, which pan position it's at
+            const int position = panned ? seqRow : seqRow * rowLength + seqColumn;
+            const int repeat = seqColumn; // for a spot or a band, which pan position it's at
             currentPosition = position;
 
             // Where it is between the ears (0 = left, 1 = right), and where its low cut is
-            if (spots)
+            if (panned)
             {
                 // Left to right across the range
                 const float low = panLow.load(), high = panHigh.load();
@@ -804,9 +832,19 @@ private:
                 const float spread = panPositions > 1 ? low + (high - low) * (float) panIndex / (float) (panPositions - 1)
                                                       : 0.5f * (low + high);
                 pan = 0.5f * (spread + 1.0f);
-                cutoff = spotFrequency[(size_t) position].load();
-                if (cutoff <= 20.0)
-                    cutoff = 0.0;
+                if (range)
+                {
+                    // Top, middle, bottom: row 0 is the top band
+                    const auto edges = rangeEdges (rangeLow.load(), rangeHigh.load(), rangeMiddle.load());
+                    const size_t below = (size_t) (2 - juce::jlimit (0, 2, position));
+                    rangeBand = BandEdges { edges[below] > 20.0 ? edges[below] : 0.0, edges[below + 1] < 20000.0 ? edges[below + 1] : 0.0 };
+                }
+                else
+                {
+                    cutoff = spotFrequency[(size_t) position].load();
+                    if (cutoff <= 20.0)
+                        cutoff = 0.0;
+                }
             }
             else if (modeNow == Mode::square)
             {
@@ -837,7 +875,7 @@ private:
         }
 
         // Across: spaced as asked (except on the graph, where the range is your own), then into each ear by the pan law
-        if (modeNow != Mode::spots)
+        if (modeNow != Mode::spots && modeNow != Mode::range)
             pan = spacedPan (pan, (PanSpacing) panSpacing.load());
         std::tie (voice->leftGain, voice->rightGain) = panGains (pan, (PanLaw) panLaw.load());
 
@@ -845,7 +883,8 @@ private:
         // quieter; make up for that so every row (or spot) is as loud.
         // As a band, its height is the band's middle: its low cut and its top are either side
         const auto heightsNow = getHeights();
-        const auto edges = modeNow == Mode::spots ? bandEdgesAround (cutoff) // a spot's frequency is your own: the band's just around it
+        const auto edges = rangeBand.has_value()    ? *rangeBand
+                         : modeNow == Mode::spots ? bandEdgesAround (cutoff) // a spot's frequency is your own: the band's just around it
                                                   : bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels(), heightsNow.bottom(), heightsNow.top());
         cutoff = std::min (edges.low, FilterDesign::maxFrequency (sampleRate) * 0.9);
         voice->bandLimited = cutoff > 0.0;
@@ -996,6 +1035,7 @@ private:
     int depthLevel = 0;  // which level the row's being played at: 0 is the quietest
     int depthRepeat = 0; // how many times it's been played at that level
     PinkNoise pinkSource { juce::Random (42) };
+    std::atomic<float> rangeLow { defaultRangeLow }, rangeHigh { defaultRangeHigh }, rangeMiddle { defaultRangeMiddle };
     std::atomic<float> highPass { minHighPass };
     float designedHighPass = 0.0f;              // audio thread
     std::array<std::array<Biquad, 4>, 2> highPassStages {};

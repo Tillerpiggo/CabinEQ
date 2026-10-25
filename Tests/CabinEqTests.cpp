@@ -1510,6 +1510,69 @@ public:
             expectLessThan (highEnergy (8000.0f), open);
         }
 
+        beginTest ("Range mode: a range split into a top, a middle and a bottom, played top to bottom, all inside the range");
+        {
+            const auto edges = CalibrationPlayer::rangeEdges (100.0, 6400.0, 0.5); // six octaves
+            expectWithinAbsoluteError (edges[0], 100.0, 0.001);
+            expectWithinAbsoluteError (edges[1], 100.0 * std::pow (2.0, 1.5), 0.01, "the middle is half the octaves, in the middle: the bottom's an octave and a half");
+            expectWithinAbsoluteError (edges[2], 6400.0 / std::pow (2.0, 1.5), 0.01);
+            expectWithinAbsoluteError (edges[3], 6400.0, 0.001);
+
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::range);
+            player.setRange (400.0f, 3200.0f, 0.5f);
+            player.setPanSteps (1);
+            player.setRate (10.0f);
+            player.setReleaseMs (60.0f);
+            player.setPlaying (true);
+
+            // Top, middle, bottom, round again
+            std::vector<int> order;
+            juce::AudioBuffer<float> buffer (2, (int) (0.1 * sampleRate));
+            juce::AudioBuffer<float> all (2, (int) (0.1 * sampleRate) * 12);
+            for (int burst = 0; burst < 12; ++burst)
+            {
+                buffer.clear();
+                player.process (buffer);
+                order.push_back (player.getCurrentPosition());
+                for (int channel = 0; channel < 2; ++channel)
+                    all.copyFrom (channel, burst * buffer.getNumSamples(), buffer, channel, 0, buffer.getNumSamples());
+            }
+            expect (std::vector<int> (order.begin(), order.begin() + 6) == std::vector<int> { 0, 1, 2, 0, 1, 2 }, "top, middle, bottom");
+
+            // Nothing much outside 400 Hz to 3.2 kHz
+            auto energyThrough = [&all] (Band::Shape shape, float frequency)
+            {
+                auto copy = all;
+                FilterChain filter;
+                filter.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, frequency, 0.0f, 0.7071f, Band::Type::both, shape));
+                filter.setBands (cuts);
+                filter.reset();
+                juce::dsp::AudioBlock<float> block (copy);
+                filter.process (block);
+                return copy.getRMSLevel (0, 0, copy.getNumSamples());
+            };
+            const float total = all.getRMSLevel (0, 0, all.getNumSamples());
+            expectGreaterThan (total, 0.0f);
+            expectLessThan (energyThrough (Band::Shape::highCut, 150.0f) * 30.0f, total, "little under the range");
+            expectLessThan (energyThrough (Band::Shape::lowCut, 9000.0f) * 30.0f, total, "and little over it");
+
+            // Kept with the other settings
+            CabinEqAudioProcessor processor;
+            CalibrationSettings::setRange (processor.parameters.state, processor.getCalibration(), 3000.0f, 200.0f, 0.3f);
+            processor.getCalibration().setRange (20.0f, 20000.0f, 0.5f);
+            CalibrationSettings::apply (processor.parameters.state, processor.getCalibration());
+            expectWithinAbsoluteError (processor.getCalibration().getRangeLow(), 200.0f, 0.01f, "the lower is the bottom");
+            expectWithinAbsoluteError (processor.getCalibration().getRangeHigh(), 3000.0f, 0.01f);
+            expectWithinAbsoluteError (processor.getCalibration().getRangeMiddle(), 0.3f, 0.001f);
+            processor.parameters.state.setProperty (CalibrationSettings::idMode, 4, nullptr);
+            expect (CalibrationSettings::getMode (processor.parameters.state) == CalibrationPlayer::Mode::range);
+        }
+
         beginTest ("The band pass's low cut takes away what's below it, whatever's playing");
         {
             auto lowEnergy = [] (float highPass)

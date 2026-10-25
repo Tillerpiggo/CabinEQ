@@ -23,6 +23,7 @@ namespace CalibrationSettings
     inline const juce::Identifier idPanHigh { "calibrationPanHigh" };
     inline const juce::Identifier idPanSteps { "calibrationPanSteps" };
     inline const juce::Identifier idHeightSpacing { "calibrationHeightSpacing" };
+    inline const juce::Identifier idRangeLow { "calibrationRangeLow" }, idRangeHigh { "calibrationRangeHigh" }, idRangeMiddle { "calibrationRangeMiddle" };
     inline const juce::Identifier idPanSpacing { "calibrationPanSpacing" }, idPanLaw { "calibrationPanLaw" };
     inline const juce::Identifier idHeightsPinned { "calibrationHeightsPinned" }, idHeightLow { "calibrationHeightLow" }, idHeightHigh { "calibrationHeightHigh" };
     inline const juce::Identifier idSquareSize { "calibrationSquareSize" }, idSquareX { "calibrationSquareX" }, idSquareY { "calibrationSquareY" },
@@ -42,7 +43,7 @@ namespace CalibrationSettings
     /// "On graph" unless you've picked the grid
     inline CalibrationPlayer::Mode getMode (const juce::ValueTree& state)
     {
-        return (CalibrationPlayer::Mode) juce::jlimit (0, 3, (int) state.getProperty (idMode, 0));
+        return (CalibrationPlayer::Mode) juce::jlimit (0, 4, (int) state.getProperty (idMode, 0));
     }
 
     inline int getSpotCount (const juce::ValueTree& state)
@@ -100,10 +101,21 @@ namespace CalibrationSettings
         player.setPanSteps (getPanSteps (state));
         player.setSquare (getSquare (state));
         player.setHeightSpacing (getHeightSpacing (state));
+        player.setRange (state.getProperty (idRangeLow, CalibrationPlayer::defaultRangeLow), state.getProperty (idRangeHigh, CalibrationPlayer::defaultRangeHigh),
+                         state.getProperty (idRangeMiddle, CalibrationPlayer::defaultRangeMiddle));
         player.setPanSpacing ((CalibrationPlayer::PanSpacing) juce::jlimit (0, 2, (int) state.getProperty (idPanSpacing, 0)));
         player.setPanLaw ((CalibrationPlayer::PanLaw) juce::jlimit (0, 2, (int) state.getProperty (idPanLaw, 0)));
         player.setHeightPins (state.getProperty (idHeightsPinned, false), state.getProperty (idHeightLow, CalibrationPlayer::defaultPinLow),
                               state.getProperty (idHeightHigh, CalibrationPlayer::defaultPinHigh));
+    }
+
+    /// Range mode's range, and the middle's share of it, saved as the player has them
+    inline void setRange (juce::ValueTree state, CalibrationPlayer& player, float low, float high, float middle)
+    {
+        player.setRange (low, high, middle);
+        state.setProperty (idRangeLow, player.getRangeLow(), nullptr);
+        state.setProperty (idRangeHigh, player.getRangeHigh(), nullptr);
+        state.setProperty (idRangeMiddle, player.getRangeMiddle(), nullptr);
     }
 
     inline void setPanSpacing (juce::ValueTree state, CalibrationPlayer& player, CalibrationPlayer::PanSpacing spacing)
