@@ -1014,9 +1014,12 @@ void CabinPeqGraph::drawSpectrum (juce::Graphics& g)
     path.lineTo (plot.getRight(), plot.getBottom());
     path.closeSubPath();
 
-    g.setGradientFill (juce::ColourGradient (Theme::spectrum.withAlpha (0.55f), 0.0f, plot.getY(),
-                                             Theme::spectrum.withAlpha (0.15f), 0.0f, plot.getBottom(), false));
+    // A flat fill with its top edge drawn: a gradient filling a path is slow for Core Graphics to draw, and this
+    // is drawn thirty times a second
+    g.setColour (Theme::spectrum.withAlpha (0.26f));
     g.fillPath (path);
+    g.setColour (Theme::spectrum.withAlpha (0.5f));
+    g.strokePath (path, juce::PathStrokeType (1.0f));
 }
 
 juce::Path CabinPeqGraph::pathFor (const std::function<float (float)>& dbAt) const

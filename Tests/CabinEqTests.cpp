@@ -3902,6 +3902,42 @@ int main (int argc, char** argv)
     if (argc >= 3 && juce::String (argv[1]) == "--check-import")
         return checkImport (juce::File (juce::String (argv[2])));
 
+    if (argc >= 2 && juce::String (argv[1]) == "--bench-calibration")
+    {
+        // How long the calibration player takes, as a share of real time, playing as hard as it can
+        using Edge = CalibrationPlayer::TopEdge;
+        for (auto [name, mode, edge, slope, bandPass] : { std::tuple { "grid fixed", CalibrationPlayer::Mode::grid, Edge::fixed, 4.5f, false },
+                                                          std::tuple { "grid fixed pink", CalibrationPlayer::Mode::grid, Edge::fixed, 3.0f, false },
+                                                          std::tuple { "grid auto", CalibrationPlayer::Mode::grid, Edge::segments, 4.5f, false },
+                                                          std::tuple { "grid oct", CalibrationPlayer::Mode::grid, Edge::octaves, 4.5f, false },
+                                                          std::tuple { "grid auto + band pass", CalibrationPlayer::Mode::grid, Edge::segments, 4.5f, true },
+                                                          std::tuple { "range", CalibrationPlayer::Mode::range, Edge::fixed, 4.5f, false } })
+        {
+            for (float rate : { 2.5f, 64.0f })
+            {
+                CalibrationPlayer player;
+                player.setSlope (slope);
+                player.setTopLine (slope);
+                player.prepare (48000.0);
+                player.setMode (mode);
+                player.setTopEdge (edge);
+                player.setGrid (3, 5);
+                player.setRate (rate);
+                player.setReleaseMs (1500.0f);
+                if (bandPass) { player.setHighPass (200.0f); player.setLowPass (8000.0f); }
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, 512);
+                for (int i = 0; i < 200; ++i) { buffer.clear(); player.process (buffer); } // warm up and fill the voices
+                const int blocks = 940; // 10 s
+                const auto start = juce::Time::getHighResolutionTicks();
+                for (int i = 0; i < blocks; ++i) { buffer.clear(); player.process (buffer); }
+                const double seconds = juce::Time::highResolutionTicksToSeconds (juce::Time::getHighResolutionTicks() - start);
+                std::cout << name << " @" << rate << "/s: " << juce::String (100.0 * seconds / 10.0, 2) << "% of real time" << std::endl;
+            }
+        }
+        return 0;
+    }
+
     if (argc >= 3 && juce::String (argv[1]) == "--snapshot")
         return writeSnapshot (juce::File (argv[2]), argc >= 5 ? juce::String (argv[3]).getIntValue() : 1080,
                               argc >= 5 ? juce::String (argv[4]).getIntValue() : 680,
