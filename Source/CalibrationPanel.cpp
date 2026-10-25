@@ -248,11 +248,13 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     addAndMakeVisible (bandPassText);
 
     // Where the bursts' tops are: all at one low pass, or each a band that far above its own low cut
-    const char* edgeNames[] { "Fixed", "Oct", "Mel" };
+    const char* edgeNames[] { "Fixed", "Oct", "Mel", "Auto" };
     const char* edgeTips[] {
         "Every burst goes up to the low pass below (or 20 kHz, with it off)",
         "Each burst is a band this many octaves wide, centred on its height, so the whole band moves with it",
-        "Each burst is a band this many mels wide, centred on its height, as pitch is heard: narrow in octaves up high, wide down low"
+        "Each burst is a band this many mels wide, centred on its height, as pitch is heard: narrow in octaves up high, wide down low",
+        "The grid's rows split the spectrum (20 Hz to 20 kHz, or what's pinned) into as many bands as there are rows, side by side "
+        "with no overlap, evenly in the Heights spacing; each row plays its own. Elsewhere it's as Fixed."
     };
     for (size_t i = 0; i < topEdgeButtons.size(); ++i)
     {
@@ -268,7 +270,7 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     player.setHighPass ((float) bandPassSlider.getMinValue());
     player.setBandOctaves ((float) (double) state.getProperty (idBandOctaves, CalibrationPlayer::defaultBandOctaves));
     player.setBandMels ((float) (double) state.getProperty (idBandMels, CalibrationPlayer::defaultBandMels));
-    setTopEdge ((CalibrationPlayer::TopEdge) juce::jlimit (0, 2, (int) state.getProperty (idTopEdge, 0)));
+    setTopEdge ((CalibrationPlayer::TopEdge) juce::jlimit (0, 3, (int) state.getProperty (idTopEdge, 0)));
 
     slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency, in dB an octave. -3 is pink noise. Double-click for -4.5.");
     topLineSlider.setTooltip ("How fast the bursts' bottom edges fall from one burst to the next: each burst's volume is set to put it on this line. "
@@ -679,9 +681,9 @@ void CalibrationPanel::refreshSpots()
     spacingLabel.setEnabled (! spots && ! range);
 
     // The range's bands have tops of their own
-    for (auto* component : std::initializer_list<juce::Component*> { &topEdgeButtons[0], &topEdgeButtons[1], &topEdgeButtons[2], &topEdgeLabel })
+    for (auto* component : std::initializer_list<juce::Component*> { &topEdgeButtons[0], &topEdgeButtons[1], &topEdgeButtons[2], &topEdgeButtons[3], &topEdgeLabel })
         component->setEnabled (! range);
-    const bool hasWidth = ! range && player.getTopEdge() != CalibrationPlayer::TopEdge::fixed;
+    const bool hasWidth = ! range && (player.getTopEdge() == CalibrationPlayer::TopEdge::octaves || player.getTopEdge() == CalibrationPlayer::TopEdge::mels);
     lowPassSlider.setEnabled (hasWidth);
     lowPassLabel.setEnabled (hasWidth);
 
@@ -779,12 +781,14 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
 
     // The slider under it is the band's width, in octaves or mels, each with its own value kept. Fixed has no band.
     using Edge = CalibrationPlayer::TopEdge;
-    lowPassSlider.setEnabled (edge != Edge::fixed && ! isRangeMode());
-    lowPassLabel.setEnabled (edge != Edge::fixed && ! isRangeMode());
-    if (edge == Edge::fixed)
+    const bool hasWidth = (edge == Edge::octaves || edge == Edge::mels) && ! isRangeMode();
+    lowPassSlider.setEnabled (hasWidth);
+    lowPassLabel.setEnabled (hasWidth);
+    if (edge == Edge::fixed || edge == Edge::segments)
     {
         lowPassSlider.textFromValueFunction = [] (double) { return juce::String ("-"); };
-        lowPassSlider.setTooltip ("Fixed: each burst runs from its height up to the top. Choose Oct or Mel to make each a band, and set how wide here.");
+        lowPassSlider.setTooltip (edge == Edge::fixed ? "Fixed: each burst runs from its height up to the top. Choose Oct or Mel to make each a band, and set how wide here."
+                                                      : "Auto: the grid's rows set the bands' widths themselves, one band each");
     }
     else if (edge == Edge::octaves)
     {
@@ -1230,7 +1234,10 @@ void CalibrationPanel::paint (juce::Graphics& g)
     // Each row's low cut
     for (int row = 0; row < rows(); ++row)
     {
-        const double cutoff = CalibrationPlayer::cutoffForRow (row, rows(), player.getHeights());
+        // Each row's low cut: with Auto, where its segment starts
+        const double cutoff = player.getTopEdge() == CalibrationPlayer::TopEdge::segments
+                                  ? std::max (20.0, CalibrationPlayer::rowSegment (row, rows(), player.getHeights()).low)
+                                  : CalibrationPlayer::cutoffForRow (row, rows(), player.getHeights());
         const auto text = cutoff >= 10000.0 ? juce::String (juce::roundToInt (cutoff / 1000.0)) + "k"
                         : cutoff >= 1000.0 ? juce::String (cutoff / 1000.0, 1) + "k"
                                            : juce::String (juce::roundToInt (cutoff));

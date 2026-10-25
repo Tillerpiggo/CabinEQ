@@ -1510,6 +1510,66 @@ public:
             expectLessThan (highEnergy (8000.0f), open);
         }
 
+        beginTest ("Auto: the grid's rows split the spectrum into as many bands as there are rows, side by side");
+        {
+            using Heights = CalibrationPlayer::Heights;
+            const Heights heights;
+            for (int rows : { 1, 3, 7 })
+            {
+                double expectedLow = 0.0;
+                for (int row = rows - 1; row >= 0; --row) // from the bottom up
+                {
+                    const auto band = CalibrationPlayer::rowSegment (row, rows, heights);
+                    if (row == rows - 1)
+                        expect (band.low == 0.0, "the bottom one has no low cut");
+                    else
+                        expectWithinAbsoluteError (band.low, expectedLow, 0.01, "each starts where the one below stops");
+                    if (row == 0)
+                        expect (band.top == 0.0, "and the top one plays to the top");
+                    else
+                        expectWithinAbsoluteError (std::log2 (band.top / std::max (20.0, band.low)), std::log2 (1000.0) / rows, 1.0e-6, "evenly, in octaves");
+                    expectedLow = band.top;
+                }
+            }
+            const auto hertz = CalibrationPlayer::rowSegment (1, 2, Heights (CalibrationPlayer::HeightSpacing::hertz));
+            expectWithinAbsoluteError (hertz.top, 10010.0, 0.01, "or in Hz, with the Hz spacing");
+            const auto pinned = CalibrationPlayer::rowSegment (0, 2, Heights (CalibrationPlayer::HeightSpacing::octaves, 100.0f, 10000.0f));
+            expectWithinAbsoluteError (pinned.low, 1000.0, 0.01, "between what's pinned");
+            expectWithinAbsoluteError (pinned.top, 10000.0, 0.01);
+
+            // Elsewhere it's as Fixed
+            const auto elsewhere = CalibrationPlayer::bandEdges (500.0, CalibrationPlayer::TopEdge::segments, 2.0f, 500.0f);
+            expect (elsewhere.low == 500.0 && elsewhere.top == 0.0);
+
+            // What plays: two rows, the bottom has little over 632 Hz, the top little under it
+            auto playRow = [] (int row, Band::Shape shape)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setTopEdge (CalibrationPlayer::TopEdge::segments);
+                player.setGrid (2, 1);
+                player.setSelection ({ row });
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) (0.4 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                const float total = buffer.getRMSLevel (0, 0, buffer.getNumSamples());
+                FilterChain filter;
+                filter.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, shape == Band::Shape::lowCut ? 2500.0f : 160.0f, 0.0f, 0.7071f, Band::Type::both, shape));
+                filter.setBands (cuts);
+                filter.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                filter.process (block);
+                return buffer.getRMSLevel (0, 0, buffer.getNumSamples()) / std::max (1.0e-9f, total);
+            };
+            expectLessThan (playRow (1, Band::Shape::lowCut), 0.05f, "the bottom row has almost nothing two octaves over its top");
+            expectLessThan (playRow (0, Band::Shape::highCut), 0.05f, "and the top almost nothing two octaves under its bottom");
+        }
+
         beginTest ("Range mode: a range split into a top, a middle and a bottom, played top to bottom, all inside the range");
         {
             const auto edges = CalibrationPlayer::rangeEdges (100.0, 6400.0, 0.5); // six octaves

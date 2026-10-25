@@ -179,11 +179,13 @@ public:
     /// whole band moves with it: the lowest ones' low cuts can be under 20 Hz (none at all), and their tops come
     /// down with them; the highest ones' tops can be over 20 kHz. A band so many mels wide is narrow in octaves
     /// up high and wide down low, as pitch is heard.
-    enum class TopEdge { fixed = 0, octaves = 1, mels = 2 };
+    enum class TopEdge { fixed = 0, octaves = 1, mels = 2, segments = 3 };
+    struct BandEdges { double low = 0.0, top = 0.0; }; // a burst's low cut and top: 0 for either is none
     /// Up to the whole range: 10 octaves, or about 3800 mels, from 20 Hz is 20 kHz
     static constexpr float minBandOctaves = 0.25f, maxBandOctaves = 10.0f, defaultBandOctaves = 2.0f;
     static constexpr float minBandMels = 50.0f, maxBandMels = 3800.0f, defaultBandMels = 500.0f;
-    void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 2, (int) edge); }
+    void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 3, (int) edge); }
+
     TopEdge getTopEdge() const              { return (TopEdge) topEdge.load(); }
     void setBandOctaves (float octaves)     { bandOctaves = juce::jlimit (minBandOctaves, maxBandOctaves, octaves); }
     float getBandOctaves() const            { return bandOctaves.load(); }
@@ -197,10 +199,9 @@ public:
     /// by half the band's width each way: the bottom of the range is where the band's top is the bottom
     /// frequency, so the lowest bursts are only their lowest frequencies, and the top of the range is where the
     /// band's low cut is the top frequency. A height between is the same way along, in octaves or mels.
-    struct BandEdges { double low = 0.0, top = 0.0; };
     static BandEdges bandEdges (double frequency, TopEdge edge, float octaves, float mels, double bottom = 20.0, double top = 20000.0)
     {
-        if (edge == TopEdge::fixed)
+        if (edge == TopEdge::fixed || edge == TopEdge::segments)
             return { frequency > 20.0 ? frequency : 0.0, 0.0 };
 
         // In octaves or mels, whichever the band's measured in
@@ -227,7 +228,7 @@ public:
     BandEdges bandEdgesAround (double frequency) const
     {
         const auto edge = getTopEdge();
-        if (edge == TopEdge::fixed)
+        if (edge == TopEdge::fixed || edge == TopEdge::segments)
             return bandEdges (frequency, edge, 0.0f, 0.0f);
         const double centre = std::max (20.0, frequency);
         BandEdges edges;
@@ -486,6 +487,17 @@ public:
     }
 
     /// The high-pass cutoff for a row (0 is the top): the rows' lines cut 20 Hz to 20 kHz into rows + 1 sections.
+    /// Segments (the grid's): its rows split the heights' range (20 Hz to 20 kHz, or what's pinned) into as
+    /// many bands as there are rows, side by side with no overlap and nothing left out, evenly in the heights'
+    /// spacing; each row plays its own. Elsewhere, it's as Fixed.
+    static BandEdges rowSegment (int row, int rows, const Heights& heights)
+    {
+        rows = std::max (1, rows);
+        const double low = frequencyAtHeight ((double) (rows - 1 - row) / (double) rows, heights);
+        const double high = frequencyAtHeight ((double) (rows - row) / (double) rows, heights);
+        return { low > 20.5 ? low : 0.0, high < 19999.0 ? high : 0.0 };
+    }
+
     /// With the heights pinned, the bottom row is at the bottom and the top row at the top (and one row is halfway).
     static double cutoffForRow (int row, int rows, const Heights& heights = Heights())
     {
@@ -859,6 +871,8 @@ private:
                 const int row = position / columns, column = position % columns;
                 pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
                 cutoff = cutoffForRow (row, rows, getHeights());
+                if (getTopEdge() == TopEdge::segments)
+                    rangeBand = rowSegment (row, rows, getHeights());
             }
 
             // Quietest first: each level is a step up, from the floor to full level

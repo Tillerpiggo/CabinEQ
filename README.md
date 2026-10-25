@@ -145,7 +145,10 @@ loads the VST3 to EQ everything the Mac plays.
   height between the same way along, in octaves or mels. So the low bursts are only their lowest frequencies, with
   no low cut and a top that comes down with the height, and the high bursts play right up to the top. (Spots on the
   graph get a band centred on their own frequency.) A band's level is made up for the octaves it
-  leaves out, as a low cut's is. Grid row labels are the heights, not the bands' edges. None of it touches the EQ or your music.
+  leaves out, as a low cut's is. **Auto** (the grid's): its rows split the spectrum (20 Hz to 20 kHz, or what's
+  pinned) into as many bands as there are rows, side by side with no overlap and nothing left out, evenly in the
+  Heights spacing, and each row plays its own; the row labels are where each band starts. Elsewhere, Auto is as
+  Fixed. Grid row labels are the heights, not the bands' edges. None of it touches the EQ or your music.
 - **Calibration pan** (the Pan button beside those; it's lit when either isn't the usual): two choices for the grid,
   Drag mode and the guided arrangements. **Spacing** is where positions across go: Even (the default), Centre
   (bunched towards the middle, where small differences are easiest to hear: halfway out becomes a quarter of the way
