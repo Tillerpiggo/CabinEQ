@@ -1520,26 +1520,35 @@ public:
             };
             expect (edges (500.0, Edge::fixed, 2.0f, 500.0f) == std::pair { 500.0, 0.0 }, "fixed: the height's the low cut, and no top of its own");
             expect (edges (10.0, Edge::fixed, 2.0f, 500.0f) == std::pair { 0.0, 0.0 }, "and 20 Hz or under is no cut");
-            expectWithinAbsoluteError (edges (1000.0, Edge::octaves, 2.0f, 500.0f).first, 500.0, 0.01, "an octave below...");
-            expectWithinAbsoluteError (edges (1000.0, Edge::octaves, 2.0f, 500.0f).second, 2000.0, 0.01, "...to an octave above");
-            const auto low = edges (100.0, Edge::octaves, 6.0f, 500.0f);
-            expect (low.first == 0.0, "down low, the low cut's under 20 Hz: none at all");
-            expectWithinAbsoluteError (low.second, 800.0, 0.01, "and the top comes down with the height");
-            expect (edges (12000.0, Edge::octaves, 2.0f, 500.0f).second == 0.0, "up high, the top's past 20 kHz: none");
-            // A wide band: the low rows of three are bands, and the top one's top is out of range
-            {
-                CalibrationPlayer player;
-                player.setBandOctaves (100.0f);
-                expectWithinAbsoluteError (player.getBandOctaves(), 10.0f, 0.001f, "up to the whole range");
-                player.setBandMels (100000.0f);
-                expectGreaterThan (CalibrationPlayer::toMels (20.0) + player.getBandMels(), CalibrationPlayer::toMels (19000.0), "in mels too");
-            }
-            expectWithinAbsoluteError (edges (CalibrationPlayer::cutoffForRow (2, 3), Edge::octaves, 6.0f, 0.0f).second, 899.8, 1.0, "112 Hz, three octaves up");
-            expect (edges (CalibrationPlayer::cutoffForRow (0, 3), Edge::octaves, 6.0f, 0.0f).second == 0.0, "3.6 kHz's top is out of range");
+            // The heights reach half a band past each end: at the bottom, the band's top is the bottom
+            const auto atBottom = edges (20.0, Edge::octaves, 2.0f, 500.0f);
+            expect (atBottom.first == 0.0, "no low cut down there");
+            expectWithinAbsoluteError (atBottom.second, 20.0, 0.01, "and its top is 20 Hz");
+            const auto atTop = edges (20000.0, Edge::octaves, 2.0f, 500.0f);
+            expectWithinAbsoluteError (atTop.first, 20000.0, 1.0, "at the top, the low cut's 20 kHz");
+            expect (atTop.second == 0.0);
+            const auto middle = edges (632.456, Edge::octaves, 2.0f, 500.0f);
+            expectWithinAbsoluteError (middle.first, 316.23, 0.1, "halfway, the band's middle is halfway: an octave either side");
+            expectWithinAbsoluteError (middle.second, 1264.9, 0.1);
+            const auto somewhere = edges (3000.0, Edge::octaves, 2.0f, 500.0f);
+            expectWithinAbsoluteError (std::log2 (somewhere.second / somewhere.first), 2.0, 1.0e-6, "always that wide");
+
+            // So with a wide band, the lowest of three rows is only its lowest frequencies
+            const auto lowestRow = edges (CalibrationPlayer::cutoffForRow (2, 3), Edge::octaves, 6.0f, 0.0f);
+            expect (lowestRow.first == 0.0);
+            expectWithinAbsoluteError (lowestRow.second, 20.0 * std::pow (2.0, -3.0 + 0.25 * (std::log2 (1000.0) + 6.0) + 3.0), 0.5, "its top is low");
+            expectLessThan (lowestRow.second, 400.0);
+            expect (edges (CalibrationPlayer::cutoffForRow (0, 3), Edge::octaves, 6.0f, 0.0f).second == 0.0, "and the top one plays to the top");
+
+            // Pinned, the same about your own two
+            expectWithinAbsoluteError (CalibrationPlayer::bandEdges (100.0, Edge::octaves, 2.0f, 0.0f, 100.0, 10000.0).top, 100.0, 0.01);
+            expectWithinAbsoluteError (CalibrationPlayer::bandEdges (10000.0, Edge::octaves, 2.0f, 0.0f, 100.0, 10000.0).low, 10000.0, 0.5);
+
+            // In mels: the same width to the ear, so wider in octaves down low than up high
             const auto lowMels = edges (400.0, Edge::mels, 2.0f, 500.0f), highMels = edges (4000.0, Edge::mels, 2.0f, 500.0f);
             expectWithinAbsoluteError (CalibrationPlayer::toMels (lowMels.second) - CalibrationPlayer::toMels (lowMels.first), 500.0, 0.01, "500 mels wide");
-            expectWithinAbsoluteError (CalibrationPlayer::toMels (lowMels.second) - CalibrationPlayer::toMels (400.0), 250.0, 0.01, "half of it either side");
-            expectGreaterThan (std::log2 (lowMels.second / lowMels.first), std::log2 (highMels.second / highMels.first), "wider in octaves down low than up high");
+            expectGreaterThan (std::log2 (lowMels.second / lowMels.first), std::log2 (highMels.second / highMels.first));
+            expectWithinAbsoluteError (edges (20.0, Edge::mels, 2.0f, 500.0f).second, 20.0, 0.01, "and its bottom's top is 20 Hz too");
 
             // What plays: a band two octaves wide around 632 Hz has little above 5 kHz; fixed has plenty
             auto highEnergy = [] (Edge edge)

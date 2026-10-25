@@ -162,27 +162,57 @@ public:
 
     /// A burst's low cut and top for its height's frequency: 0 for either means it hasn't one (it's under 20 Hz,
     /// or over 20 kHz). Fixed is the height's frequency as the low cut, and no top of its own.
+    ///
+    /// As a band, the heights reach further than the bottom and top (`bottom` and `top`, the heights' own range)
+    /// by half the band's width each way: the bottom of the range is where the band's top is the bottom
+    /// frequency, so the lowest bursts are only their lowest frequencies, and the top of the range is where the
+    /// band's low cut is the top frequency. A height between is the same way along, in octaves or mels.
     struct BandEdges { double low = 0.0, top = 0.0; };
-    static BandEdges bandEdges (double frequency, TopEdge edge, float octaves, float mels)
+    static BandEdges bandEdges (double frequency, TopEdge edge, float octaves, float mels, double bottom = 20.0, double top = 20000.0)
     {
         if (edge == TopEdge::fixed)
             return { frequency > 20.0 ? frequency : 0.0, 0.0 };
-        const double centre = std::max (20.0, frequency);
+
+        // In octaves or mels, whichever the band's measured in
+        const bool inOctaves = edge == TopEdge::octaves;
+        const double width = inOctaves ? (double) octaves : (double) mels;
+        auto toUnit = [inOctaves] (double f) { return inOctaves ? std::log2 (std::max (1.0e-6, f)) : toMels (std::max (0.0, f)); };
+        auto fromUnit = [inOctaves] (double u) { return inOctaves ? std::pow (2.0, u) : fromMels (u); };
+
+        const double low = toUnit (bottom), high = toUnit (std::max (top, bottom * 1.001));
+        const double along = juce::jlimit (0.0, 1.0, (toUnit (juce::jlimit (bottom, top, frequency)) - low) / (high - low));
+        const double centre = (low - 0.5 * width) + along * (high - low + width);
+
         BandEdges edges;
-        if (edge == TopEdge::octaves)
-        {
-            edges.low = centre * std::pow (2.0, -0.5 * (double) octaves);
-            edges.top = centre * std::pow (2.0, 0.5 * (double) octaves);
-        }
-        else
-        {
-            edges.low = toMels (centre) - 0.5 * (double) mels > 0.0 ? fromMels (toMels (centre) - 0.5 * (double) mels) : 0.0;
-            edges.top = fromMels (toMels (centre) + 0.5 * (double) mels);
-        }
+        edges.low = fromUnit (centre - 0.5 * width);
+        edges.top = fromUnit (centre + 0.5 * width);
         if (edges.low <= 20.0)
             edges.low = 0.0;
         if (edges.top >= 20000.0)
             edges.top = 0.0;
+        return edges;
+    }
+
+    /// A band of the width set, centred on a frequency (for spots, whose frequencies are where you put them)
+    BandEdges bandEdgesAround (double frequency) const
+    {
+        const auto edge = getTopEdge();
+        if (edge == TopEdge::fixed)
+            return bandEdges (frequency, edge, 0.0f, 0.0f);
+        const double centre = std::max (20.0, frequency);
+        BandEdges edges;
+        if (edge == TopEdge::octaves)
+        {
+            edges.low = centre * std::pow (2.0, -0.5 * (double) getBandOctaves());
+            edges.top = centre * std::pow (2.0, 0.5 * (double) getBandOctaves());
+        }
+        else
+        {
+            edges.low = fromMels (toMels (centre) - 0.5 * (double) getBandMels());
+            edges.top = fromMels (toMels (centre) + 0.5 * (double) getBandMels());
+        }
+        if (edges.low <= 20.0) edges.low = 0.0;
+        if (edges.top >= 20000.0) edges.top = 0.0;
         return edges;
     }
 
@@ -795,7 +825,9 @@ private:
         // Pink noise has the same power in every octave, so cutting some octaves off makes it
         // quieter; make up for that so every row (or spot) is as loud.
         // As a band, its height is the band's middle: its low cut and its top are either side
-        const auto edges = bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels());
+        const auto heightsNow = getHeights();
+        const auto edges = modeNow == Mode::spots ? bandEdgesAround (cutoff) // a spot's frequency is your own: the band's just around it
+                                                  : bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels(), heightsNow.bottom(), heightsNow.top());
         cutoff = std::min (edges.low, FilterDesign::maxFrequency (sampleRate) * 0.9);
         voice->bandLimited = cutoff > 0.0;
         voice->peak = 1.0f;
