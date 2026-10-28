@@ -25,7 +25,7 @@ namespace
     const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
     const juce::Identifier idHighPass { "calibrationHighPass" };
     const juce::Identifier idLowPass { "calibrationLowPass" }, idTopEdge { "calibrationTopEdge2" }, // a new name: everyone starts at Slide
-                           idBandOctaves { "calibrationBandOctaves" }, idBandMels { "calibrationBandMels" };
+                           idBandOctaves { "calibrationBandOctaves" }, idTiltRange { "calibrationTiltRange" }, idBandMels { "calibrationBandMels" };
     const juce::Identifier idSlope { "calibrationNoiseSlope" }, idTopLine { "calibrationNoiseTopLine" }; // new names: older saved ones aren't brought back
 }
 
@@ -250,8 +250,8 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     // Where the bursts' tops are: all at one low pass, or each a band that far above its own low cut
     // The buttons in order, and which each is
     const CalibrationPlayer::TopEdge edgeOrder[] { CalibrationPlayer::TopEdge::window, CalibrationPlayer::TopEdge::fixed, CalibrationPlayer::TopEdge::octaves,
-                                                   CalibrationPlayer::TopEdge::mels, CalibrationPlayer::TopEdge::segments };
-    const char* edgeNames[] { "Slide", "Cut", "Oct", "Mel", "Auto" };
+                                                   CalibrationPlayer::TopEdge::mels, CalibrationPlayer::TopEdge::segments, CalibrationPlayer::TopEdge::tilt };
+    const char* edgeNames[] { "Slide", "Cut", "Oct", "Mel", "Auto", "Tilt" };
     const char* edgeTips[] {
         "One window as wide as the whole spectrum, slid up and down it by the height, evenly in the Heights spacing: the middle is everything, "
         "lower is the low end with its top coming down, higher is the high end with its bottom going up. A sliver of the bottom at the very bottom, "
@@ -260,7 +260,9 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         "Each burst is a band this many octaves wide, centred on its height, so the whole band moves with it",
         "Each burst is a band this many mels wide, centred on its height, as pitch is heard: narrow in octaves up high, wide down low",
         "The grid's rows split the spectrum (20 Hz to 20 kHz, or what's pinned) into as many bands as there are rows, side by side "
-        "with no overlap, evenly in the Heights spacing; each row plays its own. Elsewhere it's as Cut."
+        "with no overlap, evenly in the Heights spacing; each row plays its own. Elsewhere it's as Cut.",
+        "No cuts: the height tilts the slope. The middle is the noise as it is, the whole spectrum; lower falls faster with 20 Hz held, so it's "
+        "darker and quieter; higher falls slower with 20 kHz held, so it's brighter and quieter. The slider under it is how far it tilts at the ends."
     };
     for (size_t i = 0; i < topEdgeButtons.size(); ++i)
     {
@@ -276,7 +278,8 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     player.setHighPass ((float) bandPassSlider.getMinValue());
     player.setBandOctaves ((float) (double) state.getProperty (idBandOctaves, CalibrationPlayer::defaultBandOctaves));
     player.setBandMels ((float) (double) state.getProperty (idBandMels, CalibrationPlayer::defaultBandMels));
-    setTopEdge ((CalibrationPlayer::TopEdge) juce::jlimit (0, 4, (int) state.getProperty (idTopEdge, (int) CalibrationPlayer::TopEdge::window)));
+    player.setTiltRange ((float) (double) state.getProperty (idTiltRange, CalibrationPlayer::defaultTilt));
+    setTopEdge ((CalibrationPlayer::TopEdge) juce::jlimit (0, 5, (int) state.getProperty (idTopEdge, (int) CalibrationPlayer::TopEdge::window)));
 
     slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency, in dB an octave. -3 is pink noise. Double-click for -4.5.");
     topLineSlider.setTooltip ("How fast the bursts' bottom edges fall from one burst to the next: each burst's volume is set to put it on this line. "
@@ -687,9 +690,10 @@ void CalibrationPanel::refreshSpots()
     spacingLabel.setEnabled (! spots && ! range);
 
     // The range's bands have tops of their own
-    for (auto* component : std::initializer_list<juce::Component*> { &topEdgeButtons[0], &topEdgeButtons[1], &topEdgeButtons[2], &topEdgeButtons[3], &topEdgeButtons[4], &topEdgeLabel })
+    for (auto* component : std::initializer_list<juce::Component*> { &topEdgeButtons[0], &topEdgeButtons[1], &topEdgeButtons[2], &topEdgeButtons[3], &topEdgeButtons[4], &topEdgeButtons[5], &topEdgeLabel })
         component->setEnabled (! range);
-    const bool hasWidth = ! range && (player.getTopEdge() == CalibrationPlayer::TopEdge::octaves || player.getTopEdge() == CalibrationPlayer::TopEdge::mels);
+    const auto edgeNow = player.getTopEdge();
+    const bool hasWidth = ! range && (edgeNow == CalibrationPlayer::TopEdge::octaves || edgeNow == CalibrationPlayer::TopEdge::mels || edgeNow == CalibrationPlayer::TopEdge::tilt);
     lowPassSlider.setEnabled (hasWidth);
     lowPassLabel.setEnabled (hasWidth);
 
@@ -782,13 +786,13 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
 {
     player.setTopEdge (edge);
     processor.parameters.state.setProperty (idTopEdge, (int) edge, nullptr);
-    const int buttonFor[] { 1, 2, 3, 4, 0 }; // which button each edge is: Slide is first
+    const int buttonFor[] { 1, 2, 3, 4, 0, 5 }; // which button each edge is: Slide is first
     for (size_t i = 0; i < topEdgeButtons.size(); ++i)
         topEdgeButtons[i].setToggleState ((int) i == buttonFor[(size_t) edge], juce::dontSendNotification);
 
     // The slider under it is the band's width, in octaves or mels, each with its own value kept. Fixed has no band.
     using Edge = CalibrationPlayer::TopEdge;
-    const bool hasWidth = (edge == Edge::octaves || edge == Edge::mels) && ! isRangeMode();
+    const bool hasWidth = (edge == Edge::octaves || edge == Edge::mels || edge == Edge::tilt) && ! isRangeMode();
     lowPassSlider.setEnabled (hasWidth);
     lowPassLabel.setEnabled (hasWidth);
     if (edge == Edge::fixed || edge == Edge::segments || edge == Edge::window)
@@ -797,6 +801,17 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
         lowPassSlider.setTooltip (edge == Edge::fixed    ? "Cut: each burst runs from its height up to the top. Choose Oct or Mel to make each a band, and set how wide here."
                                   : edge == Edge::window ? "Slide: the window's as wide as the whole range of heights"
                                                          : "Auto: the grid's rows set the bands' widths themselves, one band each");
+    }
+    else if (edge == Edge::tilt)
+    {
+        lowPassSlider.setRange (CalibrationPlayer::minTilt, CalibrationPlayer::maxTiltDbPerOctave, 0.1);
+        lowPassSlider.setSkewFactor (1.0);
+        lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultTilt);
+        lowPassSlider.textFromValueFunction = [] (double v) { return "+/-" + juce::String (v, 1) + " dB/oct"; };
+        lowPassSlider.valueFromTextFunction = [] (const juce::String& text) { return std::abs (text.retainCharacters ("0123456789.").getDoubleValue()); };
+        lowPassSlider.setValue (player.getTiltRange(), juce::dontSendNotification);
+        lowPassSlider.setTooltip ("How far the slope tilts at the lowest and highest heights, in dB an octave on top of the noise's own. Double-click for 6.");
+        lowPassLabel.setText ("Tilt", juce::dontSendNotification);
     }
     else if (edge == Edge::octaves)
     {
@@ -875,6 +890,7 @@ void CalibrationPanel::applySettings()
     const float topValue = (float) lowPassSlider.getValue();
     if (edge == CalibrationPlayer::TopEdge::octaves)   player.setBandOctaves (topValue);
     else if (edge == CalibrationPlayer::TopEdge::mels) player.setBandMels (topValue);
+    else if (edge == CalibrationPlayer::TopEdge::tilt) player.setTiltRange (topValue);
     player.setHighPass ((float) bandPassSlider.getMinValue());
     player.setLowPass ((float) bandPassSlider.getMaxValue());
     updateBandPassText();
@@ -902,6 +918,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idHighPass, player.getHighPass(), nullptr);
     state.setProperty (idBandOctaves, player.getBandOctaves(), nullptr);
     state.setProperty (idBandMels, player.getBandMels(), nullptr);
+    state.setProperty (idTiltRange, player.getTiltRange(), nullptr);
     state.setProperty (idTopLine, topLineSlider.getValue(), nullptr);
 
     updateButtons();

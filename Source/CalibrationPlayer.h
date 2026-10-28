@@ -183,12 +183,46 @@ public:
     /// evenly in the heights' spacing. Halfway, it's everything; below, its top comes down and it's the low end
     /// of the spectrum, a sliver of it at the very bottom; above, its bottom goes up, so the highest is a sliver
     /// of the top. The low cut and the high cut are one sound moving up and down.
-    enum class TopEdge { fixed = 0, octaves = 1, mels = 2, segments = 3, window = 4 };
+    ///
+    /// Tilt: no cuts at all, but the slope. The middle height is the noise as it is (-4.5 dB an octave, full
+    /// spectrum); lower, it falls faster, still as loud at 20 Hz, so it's darker and quieter; higher, it falls
+    /// slower (or rises), still as loud at 20 kHz, so it's brighter and quieter. The ends of the heights are
+    /// maxTilt dB an octave either way.
+    enum class TopEdge { fixed = 0, octaves = 1, mels = 2, segments = 3, window = 4, tilt = 5 };
+    static constexpr float minTilt = 0.5f, maxTiltDbPerOctave = 12.0f, defaultTilt = 6.0f;
+    void setTiltRange (float dbPerOctave) { tiltRange = juce::jlimit (minTilt, maxTiltDbPerOctave, dbPerOctave); }
+    float getTiltRange() const            { return tiltRange.load(); }
+
+    /// A tilt of the slope by this many dB an octave from 20 Hz to 20 kHz, as a cascade of one shelf an octave: a
+    /// steeper fall (negative) keeps 20 Hz where it was, and a shallower one (positive) keeps 20 kHz.
+    static constexpr int tiltSections = 10;
+    static std::array<FilterDesign::Biquad, tiltSections> tiltFilter (double dbPerOctave, double sampleRate)
+    {
+        std::array<FilterDesign::Biquad, tiltSections> sections;
+        const double octaves = std::log2 (1000.0), each = octaves / tiltSections;
+        for (int k = 0; k < tiltSections; ++k)
+        {
+            const double frequency = std::min (20.0 * std::pow (2.0, each * (k + 0.5)), FilterDesign::maxFrequency (sampleRate) * 0.95);
+            sections[(size_t) k] = dbPerOctave < 0.0 ? FilterDesign::design (Band::Shape::highShelf, frequency, dbPerOctave * each, 0.6, sampleRate)
+                                                     : FilterDesign::design (Band::Shape::lowShelf, frequency, -dbPerOctave * each, 0.6, sampleRate);
+        }
+
+        // The shelves' edges leak a little onto the end that's held: put it back exactly where it was
+        const double pivot = dbPerOctave < 0.0 ? 20.0 : std::min (20000.0, sampleRate * 0.45);
+        double error = 0.0;
+        for (const auto& section : sections)
+            error += FilterDesign::magnitudeDb (section, pivot, sampleRate);
+        const double correction = juce::Decibels::decibelsToGain (-error);
+        sections[0].b0 *= correction;
+        sections[0].b1 *= correction;
+        sections[0].b2 *= correction;
+        return sections;
+    }
     struct BandEdges { double low = 0.0, top = 0.0; }; // a burst's low cut and top: 0 for either is none
     /// Up to the whole range: 10 octaves, or about 3800 mels, from 20 Hz is 20 kHz
     static constexpr float minBandOctaves = 0.25f, maxBandOctaves = 10.0f, defaultBandOctaves = 2.0f;
     static constexpr float minBandMels = 50.0f, maxBandMels = 3800.0f, defaultBandMels = 500.0f;
-    void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 4, (int) edge); }
+    void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 5, (int) edge); }
 
     TopEdge getTopEdge() const              { return (TopEdge) topEdge.load(); }
     void setBandOctaves (float octaves)     { bandOctaves = juce::jlimit (minBandOctaves, maxBandOctaves, octaves); }
@@ -206,7 +240,7 @@ public:
     static BandEdges bandEdges (double frequency, TopEdge edge, float octaves, float mels, double bottom = 20.0, double top = 20000.0,
                                 HeightSpacing spacing = HeightSpacing::octaves)
     {
-        if (edge == TopEdge::fixed || edge == TopEdge::segments)
+        if (edge == TopEdge::fixed || edge == TopEdge::segments || edge == TopEdge::tilt)
             return { frequency > 20.0 ? frequency : 0.0, 0.0 };
 
         // In octaves, mels or Hz: the band's own measure, or for a window, the heights'
@@ -235,7 +269,7 @@ public:
     BandEdges bandEdgesAround (double frequency) const
     {
         const auto edge = getTopEdge();
-        if (edge == TopEdge::fixed || edge == TopEdge::segments || edge == TopEdge::window)
+        if (edge == TopEdge::fixed || edge == TopEdge::segments || edge == TopEdge::window || edge == TopEdge::tilt)
             return bandEdges (frequency, TopEdge::fixed, 0.0f, 0.0f); // a spot's just its own low cut
         const double centre = std::max (20.0, frequency);
         BandEdges edges;
@@ -618,7 +652,7 @@ public:
                 {
                     noise = voice.pink.next();
                 }
-                const float sample = voice.bandLimited || voice.topLimited ? voice.filter (noise) : noise;
+                const float sample = voice.bandLimited || voice.topLimited || voice.tilted ? voice.filter (noise) : noise;
                 l += sample * envelope * voice.leftGain;
                 r += sample * envelope * voice.rightGain;
             }
@@ -691,7 +725,8 @@ private:
         int age = 0;
         PinkNoise pink;
         size_t noiseIndex = 0;
-        bool topLimited = false;
+        bool topLimited = false, tilted = false;
+        std::array<Biquad, tiltSections> tiltStages; // Tilt's shelves
         std::array<Biquad, 4> topStages; // a sharp low-pass, when it's a band
         float peak = 0, leftGain = 0, rightGain = 0;
         std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
@@ -700,6 +735,9 @@ private:
         {
             if (bandLimited)
                 for (auto& stage : stages)
+                    x = stage.process (x);
+            if (tilted)
+                for (auto& stage : tiltStages)
                     x = stage.process (x);
             if (topLimited)
                 for (auto& stage : topStages)
@@ -904,12 +942,31 @@ private:
         // quieter; make up for that so every row (or spot) is as loud.
         // As a band, its height is the band's middle: its low cut and its top are either side
         const auto heightsNow = getHeights();
+
+        // Tilt has no cuts: its height is a slope
+        std::optional<double> tiltAmount;
+        if (getTopEdge() == TopEdge::tilt && modeNow != Mode::spots && modeNow != Mode::range)
+        {
+            const double along = cutoff > 0.0 ? heightOfFrequency (cutoff, heightsNow) : 0.0;
+            tiltAmount = (2.0 * along - 1.0) * (double) getTiltRange();
+            rangeBand = BandEdges {};
+        }
+
         const auto edges = rangeBand.has_value()    ? *rangeBand
                          : modeNow == Mode::spots ? bandEdgesAround (cutoff) // a spot's frequency is your own: the band's just around it
                                                   : bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels(), heightsNow.bottom(), heightsNow.top(), heightsNow.spacing);
         cutoff = std::min (edges.low, FilterDesign::maxFrequency (sampleRate) * 0.9);
         voice->bandLimited = cutoff > 0.0;
         voice->peak = 1.0f;
+
+        // Tilting the slope, by its height: the middle's as it is
+        voice->tilted = tiltAmount.has_value() && std::abs (*tiltAmount) > 0.01;
+        if (voice->tilted)
+        {
+            const auto sections = tiltFilter (*tiltAmount, sampleRate);
+            for (size_t i = 0; i < sections.size(); ++i)
+                voice->tiltStages[i] = Biquad { sections[i] };
+        }
 
         // Its top, if it's a band: a sharp low-pass
         double top = edges.top;
@@ -1062,6 +1119,7 @@ private:
     std::array<std::array<Biquad, 4>, 2> highPassStages {};
     std::atomic<float> lowPass { maxLowPass }, bandOctaves { defaultBandOctaves }, bandMels { defaultBandMels };
     std::atomic<int> topEdge { (int) TopEdge::window };
+    std::atomic<float> tiltRange { defaultTilt };
     float designedLowPass = 0.0f;                // audio thread
     std::array<std::array<Biquad, 4>, 2> lowPassStages {}; // left and right
     juce::Random noiseStarts { 7 }; // where in the tilted noise each burst starts: audio thread

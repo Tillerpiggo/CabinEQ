@@ -142,7 +142,11 @@ loads the VST3 to EQ everything the Mac plays.
   and it's the low end, a sliver of the bottom at the very bottom; higher, its bottom goes up, a sliver of the top at
   the very top. The low cut and the high cut are one sound moving. (Three rows: up to 632 Hz, everything, and from
   632 Hz up.) **Cut**: each burst is its height as a low cut, up to the top (as it used to be). Width does nothing
-  for either. **Oct**: each burst
+  for either. **Tilt**: no cuts at all; the height tilts the slope instead. The middle height is the noise as it is
+  (-4.5 dB an octave, the whole spectrum); lower, it falls faster with 20 Hz held where it was, so it's darker and
+  quieter; higher, it falls slower (or rises) with 20 kHz held, so it's brighter and quieter. The slider under it
+  (Tilt, +/-6 dB an octave to start, up to 12) is how far the lowest and highest heights tilt, on top of the noise's
+  own slope; the tilt is a cascade of one shelf an octave. **Oct**: each burst
   is a band this many octaves wide (2 to start, 0.25 to 10), centred on its height, so the whole band moves with it.
   **Mel**: the band is this many mels wide (500 to start, 50 to 3800; 1000 mels is about 1 kHz), centred the same
   way: the same width to the ear wherever it is, so narrow in octaves up high and wide down low. The heights reach half a band past each end: at the very bottom, a band's top is the bottom

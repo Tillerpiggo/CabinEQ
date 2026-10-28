@@ -1512,6 +1512,55 @@ public:
             expectLessThan (highEnergy (8000.0f), open);
         }
 
+        beginTest ("Tilt: the height tilts the slope, holding 20 Hz going down and 20 kHz going up");
+        {
+            auto response = [] (double tilt, double frequency)
+            {
+                double db = 0.0;
+                for (const auto& section : CalibrationPlayer::tiltFilter (tilt, sampleRate))
+                    db += FilterDesign::magnitudeDb (section, frequency, sampleRate);
+                return db;
+            };
+            // Darker: 20 Hz held, then falling 3 dB an octave more
+            expectWithinAbsoluteError (response (-3.0, 20.0), 0.0, 0.01, "20 Hz exactly where it was");
+            for (double frequency : { 100.0, 632.0, 4000.0 })
+                expectWithinAbsoluteError (response (-3.0, frequency), -3.0 * std::log2 (frequency / 20.0), 1.5, "falling 3 dB an octave more at " + juce::String (frequency));
+            expectWithinAbsoluteError (response (-3.0, 16000.0), -3.0 * std::log2 (16000.0 / 20.0), 2.0);
+            // Brighter: 20 kHz held, rising 3 dB an octave on the way up
+            expectWithinAbsoluteError (response (3.0, 18000.0), 0.0, 0.8, "20 kHz where it was");
+            for (double frequency : { 100.0, 632.0, 4000.0 })
+                expectWithinAbsoluteError (response (3.0, frequency), -3.0 * std::log2 (20000.0 / frequency), 1.5, "and quieter going down, at " + juce::String (frequency));
+
+            // What plays: three rows: the top brighter than the middle, the bottom darker, the middle as the noise is
+            auto brightness = [] (int row)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::grid);
+                player.setTopEdge (CalibrationPlayer::TopEdge::tilt);
+                player.setGrid (3, 1);
+                player.setSelection ({ row });
+                player.setPlaying (true);
+                juce::AudioBuffer<float> buffer (2, (int) (0.5 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                auto highs = buffer;
+                FilterChain filter;
+                filter.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, 3000.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::lowCut));
+                filter.setBands (cuts);
+                filter.reset();
+                juce::dsp::AudioBlock<float> block (highs);
+                filter.process (block);
+                return highs.getRMSLevel (0, 0, highs.getNumSamples()) / std::max (1.0e-9f, buffer.getRMSLevel (0, 0, buffer.getNumSamples()));
+            };
+            const float top = brightness (0), middle = brightness (1), bottom = brightness (2);
+            expectGreaterThan (top, middle * 2.0f, "the top row's brighter");
+            expectGreaterThan (middle, bottom * 2.0f, "and the bottom darker");
+        }
+
         beginTest ("Slide: one window as wide as the spectrum, slid up and down it, is what plays to begin with");
         {
             using Edge = CalibrationPlayer::TopEdge;
@@ -3939,7 +3988,9 @@ int main (int argc, char** argv)
                                                           std::tuple { "grid auto", CalibrationPlayer::Mode::grid, Edge::segments, 4.5f, false },
                                                           std::tuple { "grid oct", CalibrationPlayer::Mode::grid, Edge::octaves, 4.5f, false },
                                                           std::tuple { "grid auto + band pass", CalibrationPlayer::Mode::grid, Edge::segments, 4.5f, true },
-                                                          std::tuple { "range", CalibrationPlayer::Mode::range, Edge::fixed, 4.5f, false } })
+                                                          std::tuple { "range", CalibrationPlayer::Mode::range, Edge::fixed, 4.5f, false },
+                                                          std::tuple { "grid slide", CalibrationPlayer::Mode::grid, Edge::window, 4.5f, false },
+                                                          std::tuple { "grid tilt", CalibrationPlayer::Mode::grid, Edge::tilt, 4.5f, false } })
         {
             for (float rate : { 2.5f, 64.0f })
             {

@@ -79,7 +79,7 @@ private:
     juce::Slider bandPassSlider; // a band pass on top of everything: its low cut and its low-pass, two thumbs
     juce::Label bandPassLabel, bandPassText;
     void updateBandPassText();
-    std::array<juce::TextButton, 5> topEdgeButtons; // where the bursts' tops are: fixed, a band in octaves or mels, or the grid's segments
+    std::array<juce::TextButton, 6> topEdgeButtons; // where the bursts' tops are: fixed, a band in octaves or mels, or the grid's segments
     juce::Label topEdgeLabel;
     void setTopEdge (CalibrationPlayer::TopEdge edge);
     juce::Rectangle<int> rowsCaption, columnsCaption;
