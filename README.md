@@ -136,8 +136,13 @@ loads the VST3 to EQ everything the Mac plays.
   calibration's playing, in every mode: the left thumb is a sharp low cut and the right a sharp low-pass, 48 dB an
   octave each, from 20 Hz to 20 kHz. All the way out at either end is off, as they start; the text beside it says
   what's passing. Levels aren't made up for what it takes away, and it doesn't touch the EQ or your music.
-- **Calibration tops** (Top, and the Width slider under it): where each burst stops at the top. **Fixed**, as it
-  starts: each burst runs from its height up to the top (Width does nothing). **Oct**: each burst
+- **Calibration tops** (Top, and the Width slider under it): where each burst starts and stops. **Slide**, as it
+  starts: one window as wide as the whole range of heights (20 Hz to 20 kHz, or what's pinned), slid up and down it
+  by the height, evenly in the Heights spacing. The middle height is everything; lower, the window's top comes down
+  and it's the low end, a sliver of the bottom at the very bottom; higher, its bottom goes up, a sliver of the top at
+  the very top. The low cut and the high cut are one sound moving. (Three rows: up to 632 Hz, everything, and from
+  632 Hz up.) **Cut**: each burst is its height as a low cut, up to the top (as it used to be). Width does nothing
+  for either. **Oct**: each burst
   is a band this many octaves wide (2 to start, 0.25 to 10), centred on its height, so the whole band moves with it.
   **Mel**: the band is this many mels wide (500 to start, 50 to 3800; 1000 mels is about 1 kHz), centred the same
   way: the same width to the ear wherever it is, so narrow in octaves up high and wide down low. The heights reach half a band past each end: at the very bottom, a band's top is the bottom
@@ -148,7 +153,7 @@ loads the VST3 to EQ everything the Mac plays.
   leaves out, as a low cut's is. **Auto** (the grid's): its rows split the spectrum (20 Hz to 20 kHz, or what's
   pinned) into as many bands as there are rows, side by side with no overlap and nothing left out, evenly in the
   Heights spacing, and each row plays its own; the row labels are where each band starts. Elsewhere, Auto is as
-  Fixed. Grid row labels are the heights, not the bands' edges. None of it touches the EQ or your music.
+  Cut. Grid row labels are the heights, not the bands' edges. None of it touches the EQ or your music.
 - **Calibration pan** (the Pan button beside those; it's lit when either isn't the usual): two choices for the grid,
   Drag mode and the guided arrangements. **Spacing** is where positions across go: Even (the default), Centre
   (bunched towards the middle, where small differences are easiest to hear: halfway out becomes a quarter of the way

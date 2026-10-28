@@ -179,12 +179,16 @@ public:
     /// whole band moves with it: the lowest ones' low cuts can be under 20 Hz (none at all), and their tops come
     /// down with them; the highest ones' tops can be over 20 kHz. A band so many mels wide is narrow in octaves
     /// up high and wide down low, as pitch is heard.
-    enum class TopEdge { fixed = 0, octaves = 1, mels = 2, segments = 3 };
+    /// Slide (the default): one window as wide as the whole range of heights, slid up and down it by the height,
+    /// evenly in the heights' spacing. Halfway, it's everything; below, its top comes down and it's the low end
+    /// of the spectrum, a sliver of it at the very bottom; above, its bottom goes up, so the highest is a sliver
+    /// of the top. The low cut and the high cut are one sound moving up and down.
+    enum class TopEdge { fixed = 0, octaves = 1, mels = 2, segments = 3, window = 4 };
     struct BandEdges { double low = 0.0, top = 0.0; }; // a burst's low cut and top: 0 for either is none
     /// Up to the whole range: 10 octaves, or about 3800 mels, from 20 Hz is 20 kHz
     static constexpr float minBandOctaves = 0.25f, maxBandOctaves = 10.0f, defaultBandOctaves = 2.0f;
     static constexpr float minBandMels = 50.0f, maxBandMels = 3800.0f, defaultBandMels = 500.0f;
-    void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 3, (int) edge); }
+    void setTopEdge (TopEdge edge)          { topEdge = juce::jlimit (0, 4, (int) edge); }
 
     TopEdge getTopEdge() const              { return (TopEdge) topEdge.load(); }
     void setBandOctaves (float octaves)     { bandOctaves = juce::jlimit (minBandOctaves, maxBandOctaves, octaves); }
@@ -199,27 +203,30 @@ public:
     /// by half the band's width each way: the bottom of the range is where the band's top is the bottom
     /// frequency, so the lowest bursts are only their lowest frequencies, and the top of the range is where the
     /// band's low cut is the top frequency. A height between is the same way along, in octaves or mels.
-    static BandEdges bandEdges (double frequency, TopEdge edge, float octaves, float mels, double bottom = 20.0, double top = 20000.0)
+    static BandEdges bandEdges (double frequency, TopEdge edge, float octaves, float mels, double bottom = 20.0, double top = 20000.0,
+                                HeightSpacing spacing = HeightSpacing::octaves)
     {
         if (edge == TopEdge::fixed || edge == TopEdge::segments)
             return { frequency > 20.0 ? frequency : 0.0, 0.0 };
 
-        // In octaves or mels, whichever the band's measured in
-        const bool inOctaves = edge == TopEdge::octaves;
-        const double width = inOctaves ? (double) octaves : (double) mels;
-        auto toUnit = [inOctaves] (double f) { return inOctaves ? std::log2 (std::max (1.0e-6, f)) : toMels (std::max (0.0, f)); };
-        auto fromUnit = [inOctaves] (double u) { return inOctaves ? std::pow (2.0, u) : fromMels (u); };
+        // In octaves, mels or Hz: the band's own measure, or for a window, the heights'
+        enum class Unit { octaves, mels, hertz };
+        const auto unit = edge == TopEdge::octaves ? Unit::octaves : edge == TopEdge::mels ? Unit::mels
+                        : spacing == HeightSpacing::mels ? Unit::mels : spacing == HeightSpacing::hertz ? Unit::hertz : Unit::octaves;
+        auto toUnit = [unit] (double f) { return unit == Unit::octaves ? std::log2 (std::max (1.0e-6, f)) : unit == Unit::mels ? toMels (std::max (0.0, f)) : f; };
+        auto fromUnit = [unit] (double u) { return unit == Unit::octaves ? std::pow (2.0, u) : unit == Unit::mels ? fromMels (u) : u; };
 
         const double low = toUnit (bottom), high = toUnit (std::max (top, bottom * 1.001));
+        const double width = edge == TopEdge::window ? high - low : edge == TopEdge::octaves ? (double) octaves : (double) mels;
         const double along = juce::jlimit (0.0, 1.0, (toUnit (juce::jlimit (bottom, top, frequency)) - low) / (high - low));
         const double centre = (low - 0.5 * width) + along * (high - low + width);
 
         BandEdges edges;
         edges.low = fromUnit (centre - 0.5 * width);
         edges.top = fromUnit (centre + 0.5 * width);
-        if (edges.low <= 20.0)
+        if (edges.low <= 20.5) // (a hair over, from rounding, is still none)
             edges.low = 0.0;
-        if (edges.top >= 20000.0)
+        if (edges.top >= 19999.0)
             edges.top = 0.0;
         return edges;
     }
@@ -228,8 +235,8 @@ public:
     BandEdges bandEdgesAround (double frequency) const
     {
         const auto edge = getTopEdge();
-        if (edge == TopEdge::fixed || edge == TopEdge::segments)
-            return bandEdges (frequency, edge, 0.0f, 0.0f);
+        if (edge == TopEdge::fixed || edge == TopEdge::segments || edge == TopEdge::window)
+            return bandEdges (frequency, TopEdge::fixed, 0.0f, 0.0f); // a spot's just its own low cut
         const double centre = std::max (20.0, frequency);
         BandEdges edges;
         if (edge == TopEdge::octaves)
@@ -899,7 +906,7 @@ private:
         const auto heightsNow = getHeights();
         const auto edges = rangeBand.has_value()    ? *rangeBand
                          : modeNow == Mode::spots ? bandEdgesAround (cutoff) // a spot's frequency is your own: the band's just around it
-                                                  : bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels(), heightsNow.bottom(), heightsNow.top());
+                                                  : bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels(), heightsNow.bottom(), heightsNow.top(), heightsNow.spacing);
         cutoff = std::min (edges.low, FilterDesign::maxFrequency (sampleRate) * 0.9);
         voice->bandLimited = cutoff > 0.0;
         voice->peak = 1.0f;
@@ -1054,7 +1061,7 @@ private:
     float designedHighPass = 0.0f;              // audio thread
     std::array<std::array<Biquad, 4>, 2> highPassStages {};
     std::atomic<float> lowPass { maxLowPass }, bandOctaves { defaultBandOctaves }, bandMels { defaultBandMels };
-    std::atomic<int> topEdge { (int) TopEdge::fixed };
+    std::atomic<int> topEdge { (int) TopEdge::window };
     float designedLowPass = 0.0f;                // audio thread
     std::array<std::array<Biquad, 4>, 2> lowPassStages {}; // left and right
     juce::Random noiseStarts { 7 }; // where in the tilted noise each burst starts: audio thread

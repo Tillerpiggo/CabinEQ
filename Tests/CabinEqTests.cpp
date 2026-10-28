@@ -1389,6 +1389,7 @@ public:
             {
                 CalibrationPlayer player;
                 player.prepare (sampleRate);
+                player.setTopEdge (CalibrationPlayer::TopEdge::fixed); // its height as a low cut, up to the top
                 player.setMode (CalibrationPlayer::Mode::grid);
                 player.setHeightSpacing (spacing);
                 player.setGrid (3, 1);
@@ -1485,6 +1486,7 @@ public:
             {
                 CalibrationPlayer player;
                 player.prepare (sampleRate);
+                player.setTopEdge (CalibrationPlayer::TopEdge::fixed); // its height as a low cut, up to the top
                 player.setMode (CalibrationPlayer::Mode::square);
                 player.setSquare ({ 2, 0.5f, 0.04f, 0.08f, 0.08f }); // at the bottom of the field: barely any low cut
                 player.setLowPass (lowPass);
@@ -1508,6 +1510,28 @@ public:
             expectGreaterThan (open, 0.0f);
             expectLessThan (cut * 100.0f, open, "at 1 kHz, almost nothing's left above 4");
             expectLessThan (highEnergy (8000.0f), open);
+        }
+
+        beginTest ("Slide: one window as wide as the spectrum, slid up and down it, is what plays to begin with");
+        {
+            using Edge = CalibrationPlayer::TopEdge;
+            expect (CalibrationPlayer().getTopEdge() == Edge::window, "the default");
+            auto slide = [] (double frequency, CalibrationPlayer::HeightSpacing spacing = CalibrationPlayer::HeightSpacing::octaves)
+            {
+                return CalibrationPlayer::bandEdges (frequency, Edge::window, 0.0f, 0.0f, 20.0, 20000.0, spacing);
+            };
+            const auto middle = slide (632.456);
+            expect (middle.low == 0.0 && middle.top == 0.0, "halfway, it's everything");
+            const auto low = slide (CalibrationPlayer::cutoffForRow (2, 3)), high = slide (CalibrationPlayer::cutoffForRow (0, 3));
+            expect (low.low == 0.0 && high.top == 0.0, "the bottom row is only the low end, the top only the high end");
+            expectWithinAbsoluteError (low.top, 632.456, 0.5, "a quarter of the way up, its top's halfway...");
+            expectWithinAbsoluteError (high.low, 632.456, 0.5, "...and three quarters of the way, its bottom is: the same sound, moved");
+            expectWithinAbsoluteError (slide (20.0).top, 20.0, 0.01, "at the very bottom, a sliver of the bottom");
+            expectWithinAbsoluteError (slide (20000.0).low, 20000.0, 1.0, "at the very top, a sliver of the top");
+
+            // In mels with the Mel spacing: the window moves evenly in mels
+            const auto melLow = slide (CalibrationPlayer::cutoffForRow (2, 3, CalibrationPlayer::HeightSpacing::mels), CalibrationPlayer::HeightSpacing::mels);
+            expectWithinAbsoluteError (melLow.top, CalibrationPlayer::cutoffForRow (1, 3, CalibrationPlayer::HeightSpacing::mels), 0.5);
         }
 
         beginTest ("Auto: the grid's rows split the spectrum into as many bands as there are rows, side by side");
@@ -1743,6 +1767,7 @@ public:
                 player.setSlope (slope);
                 player.setTopLine (slope);
                 player.prepare (sampleRate);
+                player.setTopEdge (CalibrationPlayer::TopEdge::fixed); // its height as a low cut, up to the top
                 player.setMode (CalibrationPlayer::Mode::grid);
                 player.setGrid (1, 2); // hard left, then hard right
                 player.setRate (CalibrationPlayer::maxRate);
@@ -1834,6 +1859,7 @@ public:
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
+                player.setTopEdge (CalibrationPlayer::TopEdge::fixed); // its height as a low cut, up to the top
             player.setMode (CalibrationPlayer::Mode::grid);
             player.setGrid (1, 2);
             player.setDepth (3);
@@ -1863,6 +1889,7 @@ public:
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
+                player.setTopEdge (CalibrationPlayer::TopEdge::fixed); // its height as a low cut, up to the top
             player.setMode (CalibrationPlayer::Mode::grid);
             player.setGrid (2, 2);
             player.setDepth (2);
@@ -2087,6 +2114,7 @@ public:
             {
                 CalibrationPlayer player;
                 player.prepare (sampleRate);
+                player.setTopEdge (CalibrationPlayer::TopEdge::fixed); // its height as a low cut, up to the top
                 player.setMode (CalibrationPlayer::Mode::grid);
                 player.setGrid (1, 1);
                 player.setRate (CalibrationPlayer::minRate);
