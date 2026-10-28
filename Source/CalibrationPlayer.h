@@ -190,6 +190,12 @@ public:
     /// maxTilt dB an octave either way.
     enum class TopEdge { fixed = 0, octaves = 1, mels = 2, segments = 3, window = 4, tilt = 5 };
     static constexpr float minTilt = 0.5f, maxTiltDbPerOctave = 12.0f, defaultTilt = 6.0f;
+
+    /// Slide's window, as a share of the range of heights: 1 is all of it. Narrower, the middle height is a band
+    /// round the middle rather than everything, and the ends are smaller slivers; wider, more of each end plays.
+    static constexpr float minWindowWidth = 0.05f, maxWindowWidth = 2.0f, defaultWindowWidth = 1.0f;
+    void setWindowWidth (float share) { windowWidth = juce::jlimit (minWindowWidth, maxWindowWidth, share); }
+    float getWindowWidth() const      { return windowWidth.load(); }
     void setTiltRange (float dbPerOctave) { tiltRange = juce::jlimit (minTilt, maxTiltDbPerOctave, dbPerOctave); }
     float getTiltRange() const            { return tiltRange.load(); }
 
@@ -238,7 +244,7 @@ public:
     /// frequency, so the lowest bursts are only their lowest frequencies, and the top of the range is where the
     /// band's low cut is the top frequency. A height between is the same way along, in octaves or mels.
     static BandEdges bandEdges (double frequency, TopEdge edge, float octaves, float mels, double bottom = 20.0, double top = 20000.0,
-                                HeightSpacing spacing = HeightSpacing::octaves)
+                                HeightSpacing spacing = HeightSpacing::octaves, float windowWidth = 1.0f)
     {
         if (edge == TopEdge::fixed || edge == TopEdge::segments || edge == TopEdge::tilt)
             return { frequency > 20.0 ? frequency : 0.0, 0.0 };
@@ -251,7 +257,7 @@ public:
         auto fromUnit = [unit] (double u) { return unit == Unit::octaves ? std::pow (2.0, u) : unit == Unit::mels ? fromMels (u) : u; };
 
         const double low = toUnit (bottom), high = toUnit (std::max (top, bottom * 1.001));
-        const double width = edge == TopEdge::window ? high - low : edge == TopEdge::octaves ? (double) octaves : (double) mels;
+        const double width = edge == TopEdge::window ? (high - low) * (double) windowWidth : edge == TopEdge::octaves ? (double) octaves : (double) mels;
         const double along = juce::jlimit (0.0, 1.0, (toUnit (juce::jlimit (bottom, top, frequency)) - low) / (high - low));
         const double centre = (low - 0.5 * width) + along * (high - low + width);
 
@@ -954,7 +960,8 @@ private:
 
         const auto edges = rangeBand.has_value()    ? *rangeBand
                          : modeNow == Mode::spots ? bandEdgesAround (cutoff) // a spot's frequency is your own: the band's just around it
-                                                  : bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels(), heightsNow.bottom(), heightsNow.top(), heightsNow.spacing);
+                                                  : bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels(), heightsNow.bottom(), heightsNow.top(), heightsNow.spacing,
+                                                              getWindowWidth());
         cutoff = std::min (edges.low, FilterDesign::maxFrequency (sampleRate) * 0.9);
         voice->bandLimited = cutoff > 0.0;
         voice->peak = 1.0f;
@@ -1119,7 +1126,7 @@ private:
     std::array<std::array<Biquad, 4>, 2> highPassStages {};
     std::atomic<float> lowPass { maxLowPass }, bandOctaves { defaultBandOctaves }, bandMels { defaultBandMels };
     std::atomic<int> topEdge { (int) TopEdge::window };
-    std::atomic<float> tiltRange { defaultTilt };
+    std::atomic<float> tiltRange { defaultTilt }, windowWidth { defaultWindowWidth };
     float designedLowPass = 0.0f;                // audio thread
     std::array<std::array<Biquad, 4>, 2> lowPassStages {}; // left and right
     juce::Random noiseStarts { 7 }; // where in the tilted noise each burst starts: audio thread

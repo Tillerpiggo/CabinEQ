@@ -136,12 +136,15 @@ loads the VST3 to EQ everything the Mac plays.
   calibration's playing, in every mode: the left thumb is a sharp low cut and the right a sharp low-pass, 48 dB an
   octave each, from 20 Hz to 20 kHz. All the way out at either end is off, as they start; the text beside it says
   what's passing. Levels aren't made up for what it takes away, and it doesn't touch the EQ or your music.
-- **Calibration tops** (Top, and the Width slider under it): where each burst starts and stops. **Slide**, as it
-  starts: one window as wide as the whole range of heights (20 Hz to 20 kHz, or what's pinned), slid up and down it
-  by the height, evenly in the Heights spacing. The middle height is everything; lower, the window's top comes down
-  and it's the low end, a sliver of the bottom at the very bottom; higher, its bottom goes up, a sliver of the top at
-  the very top. The low cut and the high cut are one sound moving. (Three rows: up to 632 Hz, everything, and from
-  632 Hz up.) **Cut**: each burst is its height as a low cut, up to the top (as it used to be). Width does nothing
+- **Calibration window** (Width, at the bottom of the panel): each burst is a window that slides up and down the
+  spectrum with its height (Slide): as wide as the whole range of heights (20 Hz to 20 kHz, or what's pinned) to
+  start, evenly in the Heights spacing. The middle height is everything; lower, the window's top comes down and it's
+  the low end, a sliver of the bottom at the very bottom; higher, its bottom goes up, a sliver of the top at the very
+  top. The low cut and the high cut are one sound moving. (Three rows: up to 632 Hz, everything, and from 632 Hz
+  up.) **Width** is the window as a share of the range, 5% to 200% (100% to start; double-click for it): narrower,
+  the middle is a band round the middle and the ends are smaller slivers; wider, more of each end plays. With the
+  Log spacing it's shown in octaves too. A window's level is made up for the octaves it leaves out.
+- **Other tops** (hidden for now: the code's still there, and a Top row comes back if its buttons are shown): **Cut**: each burst is its height as a low cut, up to the top (as it used to be). Width does nothing
   for either. **Tilt**: no cuts at all; the height tilts the slope instead. The middle height is the noise as it is
   (-4.5 dB an octave, the whole spectrum); lower, it falls faster with 20 Hz held where it was, so it's darker and
   quieter; higher, it falls slower (or rises) with 20 kHz held, so it's brighter and quieter. The slider under it

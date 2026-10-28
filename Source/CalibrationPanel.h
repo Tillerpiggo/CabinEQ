@@ -46,7 +46,7 @@ public:
     void mouseMove (const juce::MouseEvent&) override;
     void mouseExit (const juce::MouseEvent&) override;
 
-    static constexpr int preferredHeight = 390;
+    static constexpr int preferredHeight = 364;
     juce::Rectangle<int> getFieldArea() const { return gridArea; } // where the grid, or Drag mode's field, is
 
 private:

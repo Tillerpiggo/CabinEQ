@@ -25,7 +25,7 @@ namespace
     const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
     const juce::Identifier idHighPass { "calibrationHighPass" };
     const juce::Identifier idLowPass { "calibrationLowPass" }, idTopEdge { "calibrationTopEdge2" }, // a new name: everyone starts at Slide
-                           idBandOctaves { "calibrationBandOctaves" }, idTiltRange { "calibrationTiltRange" }, idBandMels { "calibrationBandMels" };
+                           idBandOctaves { "calibrationBandOctaves" }, idTiltRange { "calibrationTiltRange" }, idWindowWidth { "calibrationWindowWidth" }, idBandMels { "calibrationBandMels" };
     const juce::Identifier idSlope { "calibrationNoiseSlope" }, idTopLine { "calibrationNoiseTopLine" }; // new names: older saved ones aren't brought back
 }
 
@@ -271,15 +271,17 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         button.setTooltip (edgeTips[i]);
         button.setConnectedEdges ((i > 0 ? juce::Button::ConnectedOnLeft : 0) | (i + 1 < topEdgeButtons.size() ? juce::Button::ConnectedOnRight : 0));
         button.onClick = [this, edge = edgeOrder[i]] { setTopEdge (edge); };
-        addAndMakeVisible (button);
+        addChildComponent (button); // hidden for now: Slide is the only one, with its width under it
     }
     setUpLabel (topEdgeLabel, "Top");
+    topEdgeLabel.setVisible (false);
     player.setLowPass ((float) bandPassSlider.getMaxValue());
     player.setHighPass ((float) bandPassSlider.getMinValue());
     player.setBandOctaves ((float) (double) state.getProperty (idBandOctaves, CalibrationPlayer::defaultBandOctaves));
     player.setBandMels ((float) (double) state.getProperty (idBandMels, CalibrationPlayer::defaultBandMels));
     player.setTiltRange ((float) (double) state.getProperty (idTiltRange, CalibrationPlayer::defaultTilt));
-    setTopEdge ((CalibrationPlayer::TopEdge) juce::jlimit (0, 5, (int) state.getProperty (idTopEdge, (int) CalibrationPlayer::TopEdge::window)));
+    player.setWindowWidth ((float) (double) state.getProperty (idWindowWidth, CalibrationPlayer::defaultWindowWidth));
+    setTopEdge (CalibrationPlayer::TopEdge::window); // the others are hidden, so it's always Slide
 
     slopeSlider.setTooltip ("How fast each burst falls away above its lowest frequency, in dB an octave. -3 is pink noise. Double-click for -4.5.");
     topLineSlider.setTooltip ("How fast the bursts' bottom edges fall from one burst to the next: each burst's volume is set to put it on this line. "
@@ -693,9 +695,11 @@ void CalibrationPanel::refreshSpots()
     for (auto* component : std::initializer_list<juce::Component*> { &topEdgeButtons[0], &topEdgeButtons[1], &topEdgeButtons[2], &topEdgeButtons[3], &topEdgeButtons[4], &topEdgeButtons[5], &topEdgeLabel })
         component->setEnabled (! range);
     const auto edgeNow = player.getTopEdge();
-    const bool hasWidth = ! range && (edgeNow == CalibrationPlayer::TopEdge::octaves || edgeNow == CalibrationPlayer::TopEdge::mels || edgeNow == CalibrationPlayer::TopEdge::tilt);
+    const bool hasWidth = ! range && (edgeNow == CalibrationPlayer::TopEdge::octaves || edgeNow == CalibrationPlayer::TopEdge::mels || edgeNow == CalibrationPlayer::TopEdge::tilt
+                                      || edgeNow == CalibrationPlayer::TopEdge::window);
     lowPassSlider.setEnabled (hasWidth);
     lowPassLabel.setEnabled (hasWidth);
+    lowPassSlider.updateText(); // its octaves follow the heights
 
     const auto pan = CalibrationSettings::getPanRange (processor.parameters.state);
     if (! spotsPan.isMouseButtonDown())
@@ -792,15 +796,33 @@ void CalibrationPanel::setTopEdge (CalibrationPlayer::TopEdge edge)
 
     // The slider under it is the band's width, in octaves or mels, each with its own value kept. Fixed has no band.
     using Edge = CalibrationPlayer::TopEdge;
-    const bool hasWidth = (edge == Edge::octaves || edge == Edge::mels || edge == Edge::tilt) && ! isRangeMode();
+    const bool hasWidth = (edge == Edge::octaves || edge == Edge::mels || edge == Edge::tilt || edge == Edge::window) && ! isRangeMode();
     lowPassSlider.setEnabled (hasWidth);
     lowPassLabel.setEnabled (hasWidth);
-    if (edge == Edge::fixed || edge == Edge::segments || edge == Edge::window)
+    if (edge == Edge::window)
+    {
+        lowPassSlider.setRange (CalibrationPlayer::minWindowWidth * 100.0, CalibrationPlayer::maxWindowWidth * 100.0, 1.0);
+        lowPassSlider.setSkewFactorFromMidPoint (100.0);
+        lowPassSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultWindowWidth * 100.0);
+        lowPassSlider.textFromValueFunction = [this] (double v)
+        {
+            // As a share of the range, and in octaves when the heights are
+            const auto heights = player.getHeights();
+            const double octaves = std::log2 (heights.top() / heights.bottom()) * v / 100.0;
+            return juce::String (juce::roundToInt (v)) + "%" + (heights.spacing == CalibrationPlayer::HeightSpacing::octaves ? "  " + juce::String (octaves, 1) + " oct" : juce::String());
+        };
+        lowPassSlider.valueFromTextFunction = [] (const juce::String& text) { return text.retainCharacters ("0123456789.").getDoubleValue(); };
+        lowPassSlider.setValue (player.getWindowWidth() * 100.0, juce::dontSendNotification);
+        lowPassSlider.setTooltip ("How wide each burst's window is, as a share of the whole range of heights (100% is all of it): it slides up and down "
+                                  "with the height. Narrower, the middle is a band round the middle and the ends are smaller slivers; wider, more of "
+                                  "each end plays. Double-click for 100%.");
+        lowPassLabel.setText ("Width", juce::dontSendNotification);
+    }
+    else if (edge == Edge::fixed || edge == Edge::segments)
     {
         lowPassSlider.textFromValueFunction = [] (double) { return juce::String ("-"); };
-        lowPassSlider.setTooltip (edge == Edge::fixed    ? "Cut: each burst runs from its height up to the top. Choose Oct or Mel to make each a band, and set how wide here."
-                                  : edge == Edge::window ? "Slide: the window's as wide as the whole range of heights"
-                                                         : "Auto: the grid's rows set the bands' widths themselves, one band each");
+        lowPassSlider.setTooltip (edge == Edge::fixed ? "Cut: each burst runs from its height up to the top. Choose Oct or Mel to make each a band, and set how wide here."
+                                                      : "Auto: the grid's rows set the bands' widths themselves, one band each");
     }
     else if (edge == Edge::tilt)
     {
@@ -891,6 +913,7 @@ void CalibrationPanel::applySettings()
     if (edge == CalibrationPlayer::TopEdge::octaves)   player.setBandOctaves (topValue);
     else if (edge == CalibrationPlayer::TopEdge::mels) player.setBandMels (topValue);
     else if (edge == CalibrationPlayer::TopEdge::tilt) player.setTiltRange (topValue);
+    else if (edge == CalibrationPlayer::TopEdge::window) player.setWindowWidth (topValue / 100.0f);
     player.setHighPass ((float) bandPassSlider.getMinValue());
     player.setLowPass ((float) bandPassSlider.getMaxValue());
     updateBandPassText();
@@ -919,6 +942,7 @@ void CalibrationPanel::applySettings()
     state.setProperty (idBandOctaves, player.getBandOctaves(), nullptr);
     state.setProperty (idBandMels, player.getBandMels(), nullptr);
     state.setProperty (idTiltRange, player.getTiltRange(), nullptr);
+    state.setProperty (idWindowWidth, player.getWindowWidth(), nullptr);
     state.setProperty (idTopLine, topLineSlider.getValue(), nullptr);
 
     updateButtons();
@@ -1336,7 +1360,7 @@ void CalibrationPanel::resized()
                                                                     { &releaseSlider, &releaseLabel }, { &depthSlider, &depthLabel }, { &repeatsSlider, &repeatsLabel },
                                                                     { &floorSlider, &floorLabel }, { &slopeSlider, &slopeLabel }, { &topLineSlider, &topLineLabel },
                                                                     { &lowPassSlider, &lowPassLabel }, { &bandPassSlider, &bandPassLabel } };
-    const int rowHeight = std::min (30, controls.getHeight() / ((int) rows.size() + 2)); // and what the depth works on, and the tops
+    const int rowHeight = std::min (30, controls.getHeight() / ((int) rows.size() + 1)); // and what the depth works on
     for (auto [slider, label] : rows)
     {
         if (slider == &floorSlider)
@@ -1350,7 +1374,7 @@ void CalibrationPanel::resized()
                 button.setBounds (row.removeFromLeft (each));
         }
 
-        if (slider == &lowPassSlider)
+        if (slider == &lowPassSlider && topEdgeButtons[0].isVisible())
         {
             // Fixed | Oct | Mel, over the slider it sets the meaning of
             auto row = controls.removeFromTop (rowHeight);

@@ -1451,6 +1451,28 @@ public:
             expect (processor.getCalibration().getHeights() == Heights (Spacing::mels, 150.0f, 6000.0f), "the pins too");
         }
 
+        beginTest ("The panel: Slide, with its width under it and nothing else to choose");
+        {
+            CabinEqAudioProcessor processor;
+            CalibrationPanel panel (processor);
+            panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+            expect (processor.getCalibration().getTopEdge() == CalibrationPlayer::TopEdge::window);
+            juce::Slider* width = nullptr;
+            for (auto* child : panel.getChildren())
+            {
+                if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && (button->getButtonText() == "Cut" || button->getButtonText() == "Tilt"))
+                    expect (! button->isVisible(), "the other tops are hidden");
+                if (auto* slider = dynamic_cast<juce::Slider*> (child); slider != nullptr && slider->getTextFromValue (100.0).contains ("oct"))
+                    width = slider;
+            }
+            expect (width != nullptr && width->isEnabled() && width->isVisible(), "the width's there to set");
+            if (width != nullptr)
+            {
+                width->setValue (40.0, juce::sendNotificationSync);
+                expectWithinAbsoluteError (processor.getCalibration().getWindowWidth(), 0.4f, 0.001f);
+            }
+        }
+
         beginTest ("The noise's slope and top line are sliders again, both -4.5 dB an octave to start, and kept");
         {
             CabinEqAudioProcessor processor;
@@ -1577,6 +1599,20 @@ public:
             expectWithinAbsoluteError (high.low, 632.456, 0.5, "...and three quarters of the way, its bottom is: the same sound, moved");
             expectWithinAbsoluteError (slide (20.0).top, 20.0, 0.01, "at the very bottom, a sliver of the bottom");
             expectWithinAbsoluteError (slide (20000.0).low, 20000.0, 1.0, "at the very top, a sliver of the top");
+
+            // Narrower: the middle is a band round the middle, and the ends are smaller slivers
+            auto narrow = [] (double frequency) { return CalibrationPlayer::bandEdges (frequency, Edge::window, 0.0f, 0.0f, 20.0, 20000.0,
+                                                                                         CalibrationPlayer::HeightSpacing::octaves, 0.5f); };
+            const double octaves = std::log2 (1000.0);
+            const auto narrowMiddle = narrow (632.456);
+            expectWithinAbsoluteError (std::log2 (narrowMiddle.top / narrowMiddle.low), octaves * 0.5, 1.0e-6, "half the range wide");
+            expectWithinAbsoluteError (narrow (20.0).top, 20.0, 0.01, "still a sliver at the very bottom");
+            {
+                CalibrationPlayer player;
+                expectWithinAbsoluteError (player.getWindowWidth(), 1.0f, 1.0e-6f, "all of it, to begin with");
+                player.setWindowWidth (10.0f);
+                expectWithinAbsoluteError (player.getWindowWidth(), CalibrationPlayer::maxWindowWidth, 1.0e-6f);
+            }
 
             // In mels with the Mel spacing: the window moves evenly in mels
             const auto melLow = slide (CalibrationPlayer::cutoffForRow (2, 3, CalibrationPlayer::HeightSpacing::mels), CalibrationPlayer::HeightSpacing::mels);
