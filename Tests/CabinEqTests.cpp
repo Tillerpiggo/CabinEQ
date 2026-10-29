@@ -1882,6 +1882,108 @@ public:
             }
         }
 
+        beginTest ("Constant: everything plays at once, steadily, each with noise of its own, and fades out when it stops");
+        {
+            auto render = [] (CalibrationPlayer& player, double seconds)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (seconds * sampleRate));
+                buffer.clear();
+                for (int start = 0; start < buffer.getNumSamples(); start += 512)
+                {
+                    juce::AudioBuffer<float> block (buffer.getArrayOfWritePointers(), 2, start, std::min (512, buffer.getNumSamples() - start));
+                    player.process (block);
+                }
+                return buffer;
+            };
+            auto power = [] (const juce::AudioBuffer<float>& buffer, int from, int to)
+            {
+                double sum = 0.0;
+                for (int channel = 0; channel < 2; ++channel)
+                    for (int i = from; i < to; ++i)
+                        sum += (double) buffer.getSample (channel, i) * buffer.getSample (channel, i);
+                return sum / (double) (to - from);
+            };
+
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::grid);
+            player.setGrid (3, 5);
+            player.setConstant (true);
+            player.setPlaying (true);
+            expect (player.isHolding());
+            auto all = render (player, 1.0);
+            for (int position = 0; position < 15; ++position)
+                expect (player.isHeld (position), "every position, at once");
+            expect (! player.isHeld (15));
+            expectEquals (player.getCurrentPosition(), -1, "nothing's playing in turn");
+
+            // Steady: no envelope, so every stretch of it is as loud as the next
+            // (in long stretches: most of its power's near 20 Hz, which takes a while to even out)
+            const int tenth = (int) (0.1 * sampleRate);
+            const double first = power (all, 2 * tenth, 6 * tenth), second = power (all, 6 * tenth, 10 * tenth);
+            expectGreaterThan (first, 0.0);
+            expectWithinAbsoluteError (juce::Decibels::gainToDecibels (std::sqrt (second / first)), 0.0, 1.5);
+
+            // Picking some out holds just those; all fifteen together are about as loud as one
+            player.setSelection ({ 7 });
+            auto one = render (player, 0.6);
+            expect (player.isHeld (7) && ! player.isHeld (0) && ! player.isHeld (14), "just what's selected");
+            const double ratio = power (one, tenth * 3, tenth * 6) / power (all, tenth * 3, tenth * 6);
+            expectWithinAbsoluteError (juce::Decibels::gainToDecibels (std::sqrt (ratio)), 0.0, 3.0, "turned down by how many there are");
+
+            // Stopping fades it out quickly, with no tail
+            player.setPlaying (false);
+            auto after = render (player, 0.2);
+            expect (! player.isHeld (7));
+            expectLessThan (power (after, tenth, 2 * tenth), power (all, 2 * tenth, 6 * tenth) * 1.0e-6, "60 dB down soon after");
+
+            // Hard left and hard right at once have nothing in common
+            player.setSelection ({});
+            player.setGrid (1, 2);
+            player.setPlaying (true);
+            auto ears = render (player, 2.0);
+            double both = 0.0, left = 0.0, right = 0.0;
+            for (int i = tenth; i < ears.getNumSamples(); ++i)
+            {
+                const double l = ears.getSample (0, i), r = ears.getSample (1, i);
+                both += l * r;
+                left += l * l;
+                right += r * r;
+            }
+            expectGreaterThan (left, 0.0);
+            expectGreaterThan (right, 0.0);
+            expectLessThan (std::abs (both / std::sqrt (left * right)), 0.1, "they'd be one sound if they shared noise");
+
+            // Guided mode plays its arrangements in turn regardless
+            player.setMode (CalibrationPlayer::Mode::sequence);
+            expect (! player.isHolding());
+        }
+
+        beginTest ("The panel: Constant holds everything, is kept, and leaves the timing controls with nothing to do");
+        {
+            CabinEqAudioProcessor processor;
+            CalibrationPanel panel (processor);
+            panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+            juce::TextButton* constant = nullptr;
+            for (auto* child : panel.getChildren())
+                if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->getButtonText() == "Hold")
+                    constant = button;
+            expect (constant != nullptr && constant->isVisible() && ! constant->getBounds().isEmpty());
+            expect (! processor.getCalibration().isConstant(), "off to begin with");
+            if (constant != nullptr)
+            {
+                constant->setToggleState (true, juce::dontSendNotification);
+                constant->onClick();
+                expect (processor.getCalibration().isConstant());
+                expect ((bool) processor.parameters.state.getProperty ("calibrationConstant", false), "kept");
+                for (auto* child : panel.getChildren())
+                    if (auto* slider = dynamic_cast<juce::Slider*> (child); slider != nullptr && slider->getTextFromValue (2.5).contains (" / s"))
+                        expect (! slider->isEnabled(), "the speed means nothing held");
+                CalibrationPanel again (processor);
+                expect (processor.getCalibration().isConstant(), "back on in a new panel");
+            }
+        }
+
         beginTest ("Positions across can bunch towards the middle or the sides, and there are three pan laws");
         {
             using Spacing = CalibrationPlayer::PanSpacing;
@@ -4026,17 +4128,23 @@ int main (int argc, char** argv)
                                                           std::tuple { "grid auto + band pass", CalibrationPlayer::Mode::grid, Edge::segments, 4.5f, true },
                                                           std::tuple { "range", CalibrationPlayer::Mode::range, Edge::fixed, 4.5f, false },
                                                           std::tuple { "grid slide", CalibrationPlayer::Mode::grid, Edge::window, 4.5f, false },
-                                                          std::tuple { "grid tilt", CalibrationPlayer::Mode::grid, Edge::tilt, 4.5f, false } })
+                                                          std::tuple { "grid tilt", CalibrationPlayer::Mode::grid, Edge::tilt, 4.5f, false },
+                                                          std::tuple { "constant 3x5", CalibrationPlayer::Mode::grid, Edge::window, 4.5f, false },
+                                                          std::tuple { "constant 12x18", CalibrationPlayer::Mode::grid, Edge::window, 4.5f, false } })
         {
+            const bool constant = juce::String (name).startsWith ("constant");
             for (float rate : { 2.5f, 64.0f })
             {
+                if (constant && rate > 2.5f)
+                    continue; // it has no rate
                 CalibrationPlayer player;
                 player.setSlope (slope);
                 player.setTopLine (slope);
                 player.prepare (48000.0);
                 player.setMode (mode);
                 player.setTopEdge (edge);
-                player.setGrid (3, 5);
+                player.setGrid (juce::String (name).contains ("12x18") ? 12 : 3, juce::String (name).contains ("12x18") ? 18 : 5);
+                player.setConstant (constant);
                 player.setRate (rate);
                 player.setReleaseMs (1500.0f);
                 if (bandPass) { player.setHighPass (200.0f); player.setLowPass (8000.0f); }

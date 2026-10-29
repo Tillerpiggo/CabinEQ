@@ -64,6 +64,13 @@ private:
     CalibrationPlayer& player;
 
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
+    juce::TextButton constantButton { "Hold" }; // everything at once, held, rather than bursts in turn
+    std::array<bool, CalibrationPlayer::maxRows * CalibrationPlayer::maxColumns> shownHeld {};
+    /// Whether a position's lit: the one playing, or with Constant, any it's holding
+    bool isSounding (int position) const
+    {
+        return player.isPlaying() && (player.isHolding() ? player.isHeld (position) : position == shownPosition);
+    }
     juce::Slider repeatsSlider; // how many times a row plays at each depth level
     juce::Label repeatsLabel;
     std::array<juce::TextButton, 3> depthUnitButtons; // what the depth works on: each dot, each row, or the whole cycle

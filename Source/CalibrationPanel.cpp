@@ -23,6 +23,7 @@ namespace
     const juce::Identifier idFloor { "calibrationFloor" };
     const juce::Identifier idRepeats { "calibrationDepthRepeats" };
     const juce::Identifier idDepthUnit { "calibrationDepthUnit" };
+    const juce::Identifier idConstant { "calibrationConstant" };
     const juce::Identifier idHighPass { "calibrationHighPass" };
     const juce::Identifier idLowPass { "calibrationLowPass" }, idTopEdge { "calibrationTopEdge2" }, // a new name: everyone starts at Slide
                            idBandOctaves { "calibrationBandOctaves" }, idTiltRange { "calibrationTiltRange" }, idWindowWidth { "calibrationWindowWidth" }, idBandMels { "calibrationBandMels" };
@@ -329,7 +330,21 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     allButton.setTooltip ("Go back to playing every position in turn");
     closeButton.onClick = [this] { if (onCloseClicked) onCloseClicked(); };
 
-    for (auto* button : { &playButton, &allButton, &closeButton })
+    // Hold (Constant): everything at once, held, rather than bursts in turn
+    constantButton.setClickingTogglesState (true);
+    constantButton.setToggleState (state.getProperty (idConstant, false), juce::dontSendNotification);
+    player.setConstant (constantButton.getToggleState());
+    constantButton.setTooltip ("Constant: play every position at once, as steady noise with no envelope, each with its own noise, "
+                               "rather than a burst at a time. All of them together are about as loud as one.");
+    constantButton.onClick = [this]
+    {
+        player.setConstant (constantButton.getToggleState());
+        processor.parameters.state.setProperty (idConstant, constantButton.getToggleState(), nullptr); // not undoable, like the rest
+        updateDepthControls();
+        repaint();
+    };
+
+    for (auto* button : { &playButton, &allButton, &closeButton, &constantButton })
         addAndMakeVisible (button);
 
     // How many times a row plays at each depth level
@@ -618,7 +633,7 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
     for (int position = 0; position < square.size * square.size; ++position)
     {
         auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (toPanel (square.dot (position)));
-        const bool isCurrent = position == shownPosition;
+        const bool isCurrent = isSounding (position);
         if (isCurrent)
         {
             g.setColour (Theme::accent.withAlpha (0.3f));
@@ -738,7 +753,7 @@ void CalibrationPanel::paintRangeMode (juce::Graphics& g)
         const size_t below = (size_t) (2 - row);
         const float share = (float) (std::log2 (edges[below + 1] / edges[below]) / octaves);
         auto band = bar.removeFromTop (rangeBars.getHeight() * share);
-        const bool lit = player.isPlaying() && shownPosition == row;
+        const bool lit = isSounding (row);
         g.setColour (lit ? Theme::accent.withAlpha (0.55f) : Theme::raisedHover.withAlpha (0.7f));
         g.fillRoundedRectangle (band.withWidth (44.0f).reduced (0.0f, 1.0f), 4.0f);
         g.setColour (lit ? Theme::text : Theme::textDim);
@@ -881,14 +896,18 @@ void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
 
 void CalibrationPanel::updateDepthControls()
 {
-    // Guided mode plays its own arrangements, at levels from the floor up: depth and repeats aren't its
-    const bool guided = isGuidedMode();
+    // Guided mode plays its own arrangements, at levels from the floor up: depth and repeats aren't its.
+    // Constant holds everything at full level, with no envelope, so none of the timing or levels mean anything.
+    const bool guided = isGuidedMode(), constant = constantButton.getToggleState() && ! guided;
+    constantButton.setEnabled (! guided);
     for (auto* component : std::initializer_list<juce::Component*> { &depthSlider, &depthLabel, &repeatsSlider, &repeatsLabel, &depthUnitLabel,
                                                                     &depthUnitButtons[0], &depthUnitButtons[1], &depthUnitButtons[2] })
-        component->setEnabled (! guided);
+        component->setEnabled (! guided && ! constant);
+    for (auto* component : std::initializer_list<juce::Component*> { &speedSlider, &speedLabel, &attackSlider, &attackLabel, &releaseSlider, &releaseLabel })
+        component->setEnabled (! constant);
 
     // Otherwise the floor is the quietest level, so it means nothing with a depth of one
-    const bool hasRange = guided || depthSlider.getValue() > 1.0;
+    const bool hasRange = ! constant && (guided || depthSlider.getValue() > 1.0);
     floorSlider.setEnabled (hasRange);
     floorLabel.setEnabled (hasRange);
     floorSlider.setTooltip (guided ? "The quietest of the three levels a guided frame plays at, as dB below the volume. The middle one is halfway."
@@ -967,6 +986,17 @@ void CalibrationPanel::timerCallback()
     if (current != shownPosition)
     {
         shownPosition = current;
+        repaint();
+    }
+
+    // Constant lights everything it's holding
+    std::array<bool, CalibrationPlayer::maxRows * CalibrationPlayer::maxColumns> held {};
+    if (player.isHolding())
+        for (size_t i = 0; i < held.size(); ++i)
+            held[i] = player.isHeld ((int) i);
+    if (held != shownHeld)
+    {
+        shownHeld = held;
         repaint();
     }
 
@@ -1232,7 +1262,7 @@ void CalibrationPanel::paint (juce::Graphics& g)
         {
             auto chip = spotDots.withWidth (spotDots.getHeight()).translated (i * (spotDots.getHeight() + 10), 0).toFloat();
             const auto colour = CalibrationSettings::spotColour (i);
-            const bool isPlaying = player.isPlaying() && shownPosition == i;
+            const bool isPlaying = isSounding (i);
             if (isPlaying)
             {
                 g.setColour (colour.withAlpha (0.3f));
@@ -1303,7 +1333,7 @@ void CalibrationPanel::paint (juce::Graphics& g)
     {
         const auto centre = centreOf (position);
         auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);
-        const bool isCurrent = position == shownPosition;
+        const bool isCurrent = isSounding (position);
 
         if (isCurrent)
         {
@@ -1330,6 +1360,8 @@ void CalibrationPanel::resized()
     header.removeFromRight (8);
     playButton.setBounds (header.removeFromRight (70).withSizeKeepingCentre (70, 26));
     header.removeFromRight (8);
+    constantButton.setBounds (header.removeFromRight (54).withSizeKeepingCentre (54, 26));
+    header.removeFromRight (6);
     if (allButton.isVisible())
         allButton.setBounds (header.removeFromRight (78).withSizeKeepingCentre (78, 26));
 

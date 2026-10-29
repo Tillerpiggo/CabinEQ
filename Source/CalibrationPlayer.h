@@ -27,6 +27,9 @@
     share a pan range: with more than one pan step, each spot plays at that many
     positions across it, left to right, before the next spot plays.
 
+    Constant plays everything that would play in turn all at once instead, as steady noise with no
+    envelope: each position its own noise, held until it stops.
+
     The setters can be called from any thread; process() is for the audio thread.
 
   ==============================================================================
@@ -428,6 +431,12 @@ public:
             voices[i].active = false;
             voices[i].pink = PinkNoise { juce::Random ((juce::int64) (1000 + i)) }; // each its own, and the same each time
         }
+        for (size_t i = 0; i < held.size(); ++i)
+        {
+            held[i].active = false;
+            held[i].pink = PinkNoise { juce::Random ((juce::int64) (5000 + i)) };
+        }
+        heldCount = 0;
         samplesUntilNext = 0;
         seqRow = seqColumn = -1;
         depthLevel = depthRepeat = 0;
@@ -476,6 +485,20 @@ public:
     void setReleaseMs (float milliseconds) { releaseMs = juce::jlimit (0.0f, maxReleaseMs, milliseconds); }
     /// How long each burst takes to rise to full level. Longer is softer; 0 starts at full level.
     void setAttackMs (float milliseconds) { attackMs = juce::jlimit (0.0f, maxAttackMs, milliseconds); }
+
+    /// Constant: everything plays at once, held, with no envelope, rather than a burst at a time. Each position
+    /// keeps its own noise, and each is turned down by the square root of how many there are, so all of them
+    /// together are about as loud as one. Not in guided mode, which plays its arrangements in turn.
+    void setConstant (bool shouldHold)   { constant = shouldHold; }
+    bool isConstant() const              { return constant.load(); }
+    bool isHolding() const               { return playing.load() && constant.load() && getMode() != Mode::sequence; }
+    /// While holding, whether this position (as getCurrentPosition() would give it) is one of those playing
+    bool isHeld (int position) const noexcept
+    {
+        if (position < 0 || position >= selectionWords * 64)
+            return false;
+        return ((heldPositions[(size_t) position / 64].load() >> (position % 64)) & 1) != 0;
+    }
 
     void setMode (Mode newMode)          { mode = (int) newMode; }
     Mode getMode() const                 { return (Mode) mode.load(); }
@@ -555,13 +578,16 @@ public:
     }
 
     /// The position that played most recently, or -1 when stopped.
-    int getCurrentPosition() const      { return playing ? currentPosition.load() : -1; }
+    int getCurrentPosition() const      { return playing && ! isHolding() ? currentPosition.load() : -1; }
 
     /// Audio thread. Adds the bursts to whatever's in the buffer, before the EQ.
     void process (juce::AudioBuffer<float>& buffer) noexcept
     {
         const bool isPlaying = playing.load();
-        bool anyVoice = false;
+        const bool holding = isHolding();
+        if (holding || heldCount > 0)
+            updateHeld (holding);
+        bool anyVoice = heldCount > 0;
         for (const auto& voice : voices)
             anyVoice |= voice.active;
         if (! isPlaying && ! anyVoice)
@@ -616,7 +642,7 @@ public:
 
         for (int i = 0; i < buffer.getNumSamples(); ++i)
         {
-            if (isPlaying && --samplesUntilNext <= 0)
+            if (isPlaying && ! holding && --samplesUntilNext <= 0)
             {
                 trigger();
                 samplesUntilNext = interval;
@@ -658,9 +684,45 @@ public:
                 {
                     noise = voice.pink.next();
                 }
-                const float sample = voice.bandLimited || voice.topLimited || voice.tilted ? voice.filter (noise) : noise;
+                const float sample = voice.filter.process (noise);
                 l += sample * envelope * voice.leftGain;
                 r += sample * envelope * voice.rightGain;
+            }
+
+            // Constant: each held noise into its row's band, then each band through its filter, once an ear
+            if (heldCount > 0)
+            {
+                for (auto& band : heldBands)
+                    band.left = band.right = 0.0f;
+                for (int k = 0; k < heldCount; ++k)
+                {
+                    auto& noise = held[(size_t) k];
+                    if (! noise.active)
+                        continue;
+                    noise.leftGain += (noise.targetLeft - noise.leftGain) * heldSmoothing;
+                    noise.rightGain += (noise.targetRight - noise.rightGain) * heldSmoothing;
+                    float value;
+                    if (tilted != nullptr)
+                    {
+                        if (noise.noiseIndex >= tilted->size())
+                            noise.noiseIndex = 0;
+                        value = (*tilted)[noise.noiseIndex++];
+                    }
+                    else
+                    {
+                        value = noise.pink.next();
+                    }
+                    auto& band = heldBands[(size_t) noise.band];
+                    band.left += value * noise.leftGain;
+                    band.right += value * noise.rightGain;
+                }
+                for (auto& band : heldBands)
+                {
+                    if (! band.active)
+                        continue;
+                    l += band.ears[0].process (band.left);
+                    r += band.ears[1].process (band.right);
+                }
             }
 
             if (highPassing)
@@ -723,21 +785,54 @@ private:
         }
     };
 
-    /// A burst. Each has its own noise: its own pink generator, or its own place in the looped tilted noise,
-    /// somewhere random each time it plays.
-    struct Voice
+    /// Where a burst is, before it's turned into a sound: its pan (0 left, 1 right), its low cut (0 for none),
+    /// how far under the volume it plays, and a band of its own if it has one
+    struct Burst
     {
-        bool active = false, bandLimited = false;
-        int age = 0;
-        PinkNoise pink;
-        size_t noiseIndex = 0;
-        bool topLimited = false, tilted = false;
+        int position = -1;
+        float pan = 0.5f;
+        double cutoff = 0.0;
+        float levelDb = 0.0f;
+        std::optional<BandEdges> rangeBand;
+    };
+
+    /// What a burst sounds like: its gain into each ear, its level, and its band (0 for an edge it hasn't)
+    struct Sound
+    {
+        float leftGain = 0, rightGain = 0, peak = 1;
+        double cutoff = 0.0, top = 0.0;
+        std::optional<double> tilt; // Tilt's slope, if it's tilted
+    };
+
+    /// A burst's band: a sharp low cut, Tilt's shelves, and a sharp low-pass, whichever it has
+    struct Filter
+    {
+        bool bandLimited = false, topLimited = false, tilted = false;
+        std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
         std::array<Biquad, tiltSections> tiltStages; // Tilt's shelves
         std::array<Biquad, 4> topStages; // a sharp low-pass, when it's a band
-        float peak = 0, leftGain = 0, rightGain = 0;
-        std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
 
-        float filter (float x) noexcept
+        /// New coefficients; the state carries on, so redesigning one that's playing doesn't click
+        void design (const Sound& sound, double rate) noexcept
+        {
+            bandLimited = sound.cutoff > 0.0;
+            if (bandLimited)
+                for (size_t i = 0; i < stages.size(); ++i)
+                    stages[i].c = FilterDesign::design (Band::Shape::lowCut, sound.cutoff, 0.0, butterworthQs[i], rate);
+            tilted = sound.tilt.has_value();
+            if (tilted)
+            {
+                const auto sections = tiltFilter (*sound.tilt, rate);
+                for (size_t i = 0; i < sections.size(); ++i)
+                    tiltStages[i].c = sections[i];
+            }
+            topLimited = sound.top > 0.0;
+            if (topLimited)
+                for (size_t i = 0; i < topStages.size(); ++i)
+                    topStages[i].c = FilterDesign::design (Band::Shape::highCut, sound.top, 0.0, butterworthQs[i], rate);
+        }
+
+        float process (float x) noexcept
         {
             if (bandLimited)
                 for (auto& stage : stages)
@@ -752,13 +847,40 @@ private:
         }
     };
 
+    /// A burst. Each has its own noise: its own pink generator, or its own place in the looped tilted noise,
+    /// somewhere random each time it plays.
+    struct Voice
+    {
+        bool active = false;
+        int age = 0;
+        PinkNoise pink;
+        size_t noiseIndex = 0;
+        float peak = 0, leftGain = 0, rightGain = 0;
+        Filter filter;
+    };
+
+    /// Constant's noises, one for each position playing, each with its own noise. A row's all go through the
+    /// same band, so they share its filter: they're added up first, and filtered once for each ear.
+    struct HeldNoise
+    {
+        bool active = false;
+        int band = 0; // its row
+        PinkNoise pink;
+        size_t noiseIndex = 0;
+        float leftGain = 0, rightGain = 0, targetLeft = 0, targetRight = 0; // gliding to the targets, so changes don't click
+    };
+    struct HeldBand
+    {
+        bool active = false;
+        std::array<Filter, 2> ears;
+        Sound designed;
+        float left = 0, right = 0; // this sample's noise, before the filter
+    };
+
     void trigger() noexcept
     {
         const auto modeNow = (Mode) mode.load();
-        std::optional<BandEdges> rangeBand; // range mode's bands are their own
-        float pan = 0.5f;      // where it is between the ears: 0 left, 1 right
-        double cutoff = 0.0;   // its low cut, in Hz: 0 for none
-        float levelDb = 0.0f;  // how far under the volume it plays
+        Burst burst;
 
         if (modeNow == Mode::sequence)
         {
@@ -773,27 +895,21 @@ private:
                 sequencePlayed = 0;
             }
             const auto index = (size_t) (sequenceIndex % length);
-            pan = juce::jlimit (0.0f, 1.0f, sequencePan[index].load());
-            cutoff = sequenceCutoff[index].load();
-            if (cutoff <= 20.5)
-                cutoff = 0.0;
-            levelDb = sequenceLevelDb[index].load();
+            burst.pan = juce::jlimit (0.0f, 1.0f, sequencePan[index].load());
+            burst.cutoff = sequenceCutoff[index].load();
+            if (burst.cutoff <= 20.5)
+                burst.cutoff = 0.0;
+            burst.levelDb = sequenceLevelDb[index].load();
             currentPosition = (int) index;
             sequenceIndex = ((int) index + 1) % length;
             sequenceProgress = ((juce::int64) playingGeneration << 32) | (juce::int64) (++sequencePlayed);
         }
         else
         {
-            const bool spots = modeNow == Mode::spots, range = modeNow == Mode::range;
-            const bool panned = spots || range; // across the pan range, in its steps
-            const auto square = getSquare();
-            const int rows = numRows.load(), columns = numColumns.load();
-            const int panPositions = panned ? panSteps.load() : 1;
+            const bool panned = modeNow == Mode::spots || modeNow == Mode::range; // across the pan range, in its steps
 
-            // Everything plays a row at a time: a grid's or a square's own rows, and for spots and the range's
-            // bands, a row each, with a place for each pan step
-            const int rowCount = spots ? spotCount.load() : range ? 3 : modeNow == Mode::square ? square.size : rows;
-            const int rowLength = panned ? panPositions : modeNow == Mode::square ? square.size : columns;
+            // Everything plays a row at a time
+            const auto [rowCount, rowLength] = layout (modeNow);
 
             // Only the grid has positions you pick out
             bool anySelected = false;
@@ -885,50 +1001,11 @@ private:
             const int position = panned ? seqRow : seqRow * rowLength + seqColumn;
             const int repeat = seqColumn; // for a spot or a band, which pan position it's at
             currentPosition = position;
-
-            // Where it is between the ears (0 = left, 1 = right), and where its low cut is
-            if (panned)
-            {
-                // Left to right across the range
-                const float low = panLow.load(), high = panHigh.load();
-                const int panIndex = repeat;
-                const float spread = panPositions > 1 ? low + (high - low) * (float) panIndex / (float) (panPositions - 1)
-                                                      : 0.5f * (low + high);
-                pan = 0.5f * (spread + 1.0f);
-                if (range)
-                {
-                    // Top, middle, bottom: row 0 is the top band
-                    const auto edges = rangeEdges (rangeLow.load(), rangeHigh.load(), rangeMiddle.load());
-                    const size_t below = (size_t) (2 - juce::jlimit (0, 2, position));
-                    rangeBand = BandEdges { edges[below] > 20.0 ? edges[below] : 0.0, edges[below + 1] < 20000.0 ? edges[below + 1] : 0.0 };
-                }
-                else
-                {
-                    cutoff = spotFrequency[(size_t) position].load();
-                    if (cutoff <= 20.0)
-                        cutoff = 0.0;
-                }
-            }
-            else if (modeNow == Mode::square)
-            {
-                const auto dot = square.dot (position);
-                pan = juce::jlimit (0.0f, 1.0f, dot.x);
-                cutoff = Square::cutoffAt (dot.y, getHeights());
-                if (cutoff <= 20.5)
-                    cutoff = 0.0;
-            }
-            else
-            {
-                const int row = position / columns, column = position % columns;
-                pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
-                cutoff = cutoffForRow (row, rows, getHeights());
-                if (getTopEdge() == TopEdge::segments)
-                    rangeBand = rowSegment (row, rows, getHeights());
-            }
+            burst = burstAt (modeNow, position, repeat);
 
             // Quietest first: each level is a step up, from the floor to full level
             if (depthRuns > 1)
-                levelDb = floorDb.load() * (float) (depthRuns - 1 - depthLevel) / (float) (depthRuns - 1);
+                burst.levelDb = floorDb.load() * (float) (depthRuns - 1 - depthLevel) / (float) (depthRuns - 1);
         }
 
         // Take a free voice, or the quietest one
@@ -939,10 +1016,89 @@ private:
             if (candidate.peak < voice->peak) voice = &candidate;
         }
 
+        const auto sound = soundOf (modeNow, burst);
+        voice->leftGain = sound.leftGain;
+        voice->rightGain = sound.rightGain;
+        voice->peak = sound.peak;
+        voice->filter = {}; // a new burst, from silence
+        voice->filter.design (sound, sampleRate);
+        voice->noiseIndex = (size_t) noiseStarts.nextInt (1 << noiseOrder);
+        voice->age = 0;
+        voice->active = true;
+    }
+
+    /// How many rows there are to play, and how many places along each: a grid's or a square's own rows, and for
+    /// spots and the range's bands, a row each, with a place for each pan step
+    std::pair<int, int> layout (Mode modeNow) const noexcept
+    {
+        const bool panned = modeNow == Mode::spots || modeNow == Mode::range;
+        const int square = squareSize.load();
+        const int rowCount = modeNow == Mode::spots ? spotCount.load() : modeNow == Mode::range ? 3 : modeNow == Mode::square ? square : numRows.load();
+        const int rowLength = panned ? panSteps.load() : modeNow == Mode::square ? square : numColumns.load();
+        return { rowCount, rowLength };
+    }
+
+    /// Where a position is (for spots and the range's bands, the row, with `repeat` its pan step): its pan,
+    /// its low cut, and a band of its own if it has one
+    Burst burstAt (Mode modeNow, int position, int repeat) const noexcept
+    {
+        Burst burst;
+        burst.position = position;
+        const bool panned = modeNow == Mode::spots || modeNow == Mode::range;
+        if (panned)
+        {
+            // Left to right across the range
+            const int panPositions = panSteps.load();
+            const float low = panLow.load(), high = panHigh.load();
+            const float spread = panPositions > 1 ? low + (high - low) * (float) repeat / (float) (panPositions - 1)
+                                                  : 0.5f * (low + high);
+            burst.pan = 0.5f * (spread + 1.0f);
+            if (modeNow == Mode::range)
+            {
+                // Top, middle, bottom: row 0 is the top band
+                const auto edges = rangeEdges (rangeLow.load(), rangeHigh.load(), rangeMiddle.load());
+                const size_t below = (size_t) (2 - juce::jlimit (0, 2, position));
+                burst.rangeBand = BandEdges { edges[below] > 20.0 ? edges[below] : 0.0, edges[below + 1] < 20000.0 ? edges[below + 1] : 0.0 };
+            }
+            else
+            {
+                burst.cutoff = spotFrequency[(size_t) juce::jlimit (0, maxSpots - 1, position)].load();
+                if (burst.cutoff <= 20.0)
+                    burst.cutoff = 0.0;
+            }
+        }
+        else if (modeNow == Mode::square)
+        {
+            const auto dot = getSquare().dot (position);
+            burst.pan = juce::jlimit (0.0f, 1.0f, dot.x);
+            burst.cutoff = Square::cutoffAt (dot.y, getHeights());
+            if (burst.cutoff <= 20.5)
+                burst.cutoff = 0.0;
+        }
+        else
+        {
+            const int rows = numRows.load(), columns = numColumns.load();
+            const int row = position / columns, column = position % columns;
+            burst.pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
+            burst.cutoff = cutoffForRow (row, rows, getHeights());
+            if (getTopEdge() == TopEdge::segments)
+                burst.rangeBand = rowSegment (row, rows, getHeights());
+        }
+        return burst;
+    }
+
+    /// What a burst sounds like: into each ear by the pan law, its band, and its level
+    Sound soundOf (Mode modeNow, Burst burst) const noexcept
+    {
+        Sound sound;
+        double cutoff = burst.cutoff;
+        auto rangeBand = burst.rangeBand;
+
         // Across: spaced as asked (except on the graph, where the range is your own), then into each ear by the pan law
+        float pan = burst.pan;
         if (modeNow != Mode::spots && modeNow != Mode::range)
             pan = spacedPan (pan, (PanSpacing) panSpacing.load());
-        std::tie (voice->leftGain, voice->rightGain) = panGains (pan, (PanLaw) panLaw.load());
+        std::tie (sound.leftGain, sound.rightGain) = panGains (pan, (PanLaw) panLaw.load());
 
         // Pink noise has the same power in every octave, so cutting some octaves off makes it
         // quieter; make up for that so every row (or spot) is as loud.
@@ -963,47 +1119,114 @@ private:
                                                   : bandEdges (cutoff, getTopEdge(), getBandOctaves(), getBandMels(), heightsNow.bottom(), heightsNow.top(), heightsNow.spacing,
                                                               getWindowWidth());
         cutoff = std::min (edges.low, FilterDesign::maxFrequency (sampleRate) * 0.9);
-        voice->bandLimited = cutoff > 0.0;
-        voice->peak = 1.0f;
+        sound.cutoff = cutoff > 0.0 ? cutoff : 0.0;
 
         // Tilting the slope, by its height: the middle's as it is
-        voice->tilted = tiltAmount.has_value() && std::abs (*tiltAmount) > 0.01;
-        if (voice->tilted)
-        {
-            const auto sections = tiltFilter (*tiltAmount, sampleRate);
-            for (size_t i = 0; i < sections.size(); ++i)
-                voice->tiltStages[i] = Biquad { sections[i] };
-        }
+        if (tiltAmount.has_value() && std::abs (*tiltAmount) > 0.01)
+            sound.tilt = *tiltAmount;
 
         // Its top, if it's a band: a sharp low-pass
         double top = edges.top;
         if (top > FilterDesign::maxFrequency (sampleRate) * 0.9)
             top = 0.0;
-        voice->topLimited = top > 0.0;
-        if (voice->topLimited)
-            for (size_t i = 0; i < voice->topStages.size(); ++i)
-                voice->topStages[i] = Biquad { FilterDesign::design (Band::Shape::highCut, top, 0.0, butterworthQs[i], sampleRate) };
+        sound.top = top > 0.0 ? top : 0.0;
 
-        if (voice->bandLimited || voice->topLimited)
+        if (sound.cutoff > 0.0 || sound.top > 0.0)
         {
-            const double octavesLeft = std::log2 ((voice->topLimited ? top : 20000.0) / std::max (20.0, cutoff)), octavesAll = std::log2 (20000.0 / 20.0);
-            voice->peak = (float) std::sqrt (octavesAll / std::max (0.5, octavesLeft));
-
-            // Butterworth: four biquads with these Qs make a flat 8th-order high-pass
-            const auto& qs = butterworthQs;
-            if (voice->bandLimited)
-                for (size_t i = 0; i < voice->stages.size(); ++i)
-                    voice->stages[i] = Biquad { FilterDesign::design (Band::Shape::lowCut, cutoff, 0.0, qs[i], sampleRate) };
+            const double octavesLeft = std::log2 ((sound.top > 0.0 ? top : 20000.0) / std::max (20.0, cutoff)), octavesAll = std::log2 (20000.0 / 20.0);
+            sound.peak = (float) std::sqrt (octavesAll / std::max (0.5, octavesLeft));
         }
 
         // Up (or down) for every octave this burst's lowest frequency is above 20 Hz, to put it on the top line
-        voice->peak *= juce::Decibels::decibelsToGain (burstBoostDbPerOctave() * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
+        sound.peak *= juce::Decibels::decibelsToGain (burstBoostDbPerOctave() * (float) std::log2 (std::max (20.0, cutoff) / 20.0));
+        sound.peak *= juce::Decibels::decibelsToGain (burst.levelDb);
+        return sound;
+    }
 
-        voice->peak *= juce::Decibels::decibelsToGain (levelDb);
+    /// Audio thread, once a block: what Constant holds now. Everything that would play in turn (only what's
+    /// selected, on a grid with some selected) gets a noise of its own; those it had that aren't wanted fade out.
+    void updateHeld (bool holding) noexcept
+    {
+        heldSmoothing = 1.0f - (float) std::exp (-1.0 / (0.015 * sampleRate)); // 15 ms
+        const auto modeNow = (Mode) mode.load();
+        const auto [rowCount, rowLength] = layout (modeNow);
+        const bool panned = modeNow == Mode::spots || modeNow == Mode::range;
 
-        voice->noiseIndex = (size_t) noiseStarts.nextInt (1 << noiseOrder);
-        voice->age = 0;
-        voice->active = true;
+        bool anySelected = false;
+        for (int p = 0; holding && modeNow == Mode::grid && p < rowCount * rowLength && ! anySelected; ++p)
+            anySelected = isSelected (p);
+        auto wanted = [&] (int row, int column) { return ! anySelected || isSelected (row * rowLength + column); };
+
+        int count = 0;
+        for (int row = 0; holding && row < rowCount; ++row)
+            for (int column = 0; column < rowLength; ++column)
+                count += wanted (row, column) ? 1 : 0;
+        count = std::min (count, (int) held.size());
+        const float share = count > 0 ? 1.0f / std::sqrt ((float) count) : 0.0f;
+
+        std::array<juce::uint64, selectionWords> positions {};
+        std::array<bool, maxRows> bandUsed {};
+        int k = 0;
+        for (int row = 0; holding && row < rowCount && row < maxRows; ++row)
+        {
+            bool bandDesigned = false;
+            for (int column = 0; column < rowLength && k < count; ++column)
+            {
+                if (! wanted (row, column))
+                    continue;
+                const int position = panned ? row : row * rowLength + column;
+                const auto sound = soundOf (modeNow, burstAt (modeNow, position, column));
+                if (position < selectionWords * 64)
+                    positions[(size_t) position / 64] |= (juce::uint64) 1 << (position % 64);
+
+                // The row's band, designed again only when it's changed
+                auto& band = heldBands[(size_t) row];
+                if (! bandDesigned)
+                {
+                    const bool changed = ! band.active || band.designed.cutoff != sound.cutoff || band.designed.top != sound.top || band.designed.tilt != sound.tilt;
+                    if (! band.active)
+                        band.ears = {}; // starting from silence
+                    if (changed)
+                        for (auto& ear : band.ears)
+                            ear.design (sound, sampleRate);
+                    band.designed = sound;
+                    band.active = true;
+                    bandDesigned = true;
+                }
+
+                auto& noise = held[(size_t) k++];
+                if (! noise.active)
+                {
+                    noise.leftGain = noise.rightGain = 0.0f; // fading in
+                    noise.noiseIndex = (size_t) noiseStarts.nextInt (1 << noiseOrder);
+                    noise.active = true;
+                }
+                noise.band = row;
+                noise.targetLeft = sound.leftGain * sound.peak * share;
+                noise.targetRight = sound.rightGain * sound.peak * share;
+            }
+        }
+
+        // The rest fade out, and once they're silent, they're done
+        int last = k;
+        for (int i = k; i < heldCount; ++i)
+        {
+            auto& noise = held[(size_t) i];
+            noise.targetLeft = noise.targetRight = 0.0f;
+            if (noise.active && std::abs (noise.leftGain) + std::abs (noise.rightGain) < 1.0e-5f)
+                noise.active = false;
+            if (noise.active)
+                last = i + 1;
+        }
+        for (int i = 0; i < last; ++i)
+            if (held[(size_t) i].active)
+                bandUsed[(size_t) held[(size_t) i].band] = true;
+        for (size_t b = 0; b < heldBands.size(); ++b)
+            heldBands[b].active = bandUsed[b];
+        heldCount = last;
+
+        for (size_t word = 0; word < positions.size(); ++word)
+            heldPositions[word] = positions[word];
     }
 
     /// How far the noise wanted now is tilted beyond pink, in dB an octave
@@ -1110,8 +1333,15 @@ private:
     int playingGeneration = 0, sequenceIndex = 0, sequencePlayed = 0; // the audio thread's
     std::atomic<int> squareSize { 3 };
     std::atomic<float> squareX { 0.5f }, squareY { 0.5f }, squareWidth { 0.5f }, squareHeight { 0.5f };
-    std::atomic<bool> playing { false };
+    std::atomic<bool> playing { false }, constant { false };
     std::atomic<int> currentPosition { -1 };
+    std::array<std::atomic<juce::uint64>, (size_t) selectionWords> heldPositions {}; // what Constant's holding, written by the audio thread
+
+    // Audio thread: Constant's noises, and their rows' bands
+    std::array<HeldNoise, maxRows * maxColumns> held {};
+    std::array<HeldBand, maxRows> heldBands {};
+    int heldCount = 0; // how far into `held` there's anything playing
+    float heldSmoothing = 0.01f;
 
     // Audio thread
     std::array<Voice, 64> voices {}; // enough for the fastest bursts to ring for a second each before the quietest is reused

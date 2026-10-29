@@ -144,6 +144,11 @@ loads the VST3 to EQ everything the Mac plays.
   up.) **Width** is the window as a share of the range, 5% to 200% (100% to start; double-click for it): narrower,
   the middle is a band round the middle and the ends are smaller slivers; wider, more of each end plays. With the
   Log spacing it's shown in octaves too. A window's level is made up for the octaves it leaves out.
+- **Hold** (beside Play): plays every position at once, as steady noise with no envelope, until you stop it, rather
+  than a burst at a time. Each position has its own noise, so they don't add up as one sound or cancel, and each is
+  turned down by the square root of how many there are, so all of them together are about as loud as one. On a grid
+  with positions selected, it holds just those. Speed, attack, release, depth and repeats do nothing while it's on.
+  Not in Guided mode, which plays its arrangements in turn.
 - **Other tops** (hidden for now: the code's still there, and a Top row comes back if its buttons are shown): **Cut**: each burst is its height as a low cut, up to the top (as it used to be). Width does nothing
   for either. **Tilt**: no cuts at all; the height tilts the slope instead. The middle height is the noise as it is
   (-4.5 dB an octave, the whole spectrum); lower, it falls faster with 20 Hz held where it was, so it's darker and
