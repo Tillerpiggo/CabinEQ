@@ -423,6 +423,22 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         };
         addChildComponent (button);
     }
+    lineModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::line); };
+    lineModeButton.setTooltip ("Draw a line on the field: a point goes back and forth along it, and the bursts play wherever it's got to. "
+                               "Across is from your left ear to your right, and up is higher.");
+    lineModeButton.setClickingTogglesState (false);
+    addAndMakeVisible (lineModeButton);
+    lineSweepSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    lineSweepSlider.setRange (CalibrationPlayer::minLineSweep, CalibrationPlayer::maxLineSweep, 0.05);
+    lineSweepSlider.setSkewFactorFromMidPoint (4.0);
+    lineSweepSlider.setValue (player.getLineSweep(), juce::dontSendNotification);
+    lineSweepSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultLineSweep);
+    lineSweepSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 96, 20);
+    lineSweepSlider.textFromValueFunction = [] (double v) { return juce::String (v, v < 10.0 ? 2 : 1) + " s a sweep"; };
+    lineSweepSlider.updateText();
+    lineSweepSlider.setTooltip ("How long the point takes to go from one end of the line to the other. Double-click for 4 s.");
+    lineSweepSlider.onValueChange = [this] { CalibrationSettings::setLineSweep (processor.parameters.state, player, (float) lineSweepSlider.getValue()); };
+    addChildComponent (lineSweepSlider);
     gridModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::grid); };
     rangeModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::range); };
     rangeModeButton.setTooltip ("A range you choose, split into a bottom, a middle and a top, each sharply band-passed, played top to bottom");
@@ -567,15 +583,17 @@ void CalibrationPanel::startPlaying()
     updateButtons();
 }
 
-void CalibrationPanel::paintSquareMode (juce::Graphics& g)
+void CalibrationPanel::paintField (juce::Graphics& g, const juce::String& hint)
 {
     const auto field = gridArea.toFloat();
     g.setFont (Theme::font (10.5f));
     g.setColour (Theme::textFaint);
     g.drawText ("Left", gridArea.getX(), gridArea.getBottom() + 4, 60, 14, juce::Justification::centredLeft);
     g.drawText ("Right", gridArea.getRight() - 60, gridArea.getBottom() + 4, 60, 14, juce::Justification::centredRight);
-    g.drawText ("Drag the square to move it, and its corner to resize it. Higher up is a higher low cut.",
-                gridArea.getX(), gridArea.getBottom() + 22, gridArea.getWidth(), 28, juce::Justification::centredLeft, true);
+    if (lineSweepSlider.isVisible())
+        g.drawText ("Sweep", columnsCaption, juce::Justification::centredRight); // its slider's where the columns are
+    else if (hint.isNotEmpty())
+        g.drawText (hint, gridArea.getX(), gridArea.getBottom() + 22, gridArea.getWidth(), 28, juce::Justification::centredLeft, true);
 
     g.setColour (Theme::panel);
     g.fillRoundedRectangle (field.expanded (6.0f), Theme::cornerRadius);
@@ -607,7 +625,12 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
             g.drawHorizontalLine ((int) y, field.getX(), field.getRight());
         }
     }
+}
 
+void CalibrationPanel::paintSquareMode (juce::Graphics& g)
+{
+    paintField (g, "Drag the square to move it, and its corner to resize it. Higher up is a higher low cut.");
+    const auto field = gridArea.toFloat();
     juce::Graphics::ScopedSaveState clip (g);
     g.reduceClipRegion (field.expanded (6.0f).toNearestInt());
 
@@ -644,6 +667,62 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
     }
 }
 
+void CalibrationPanel::setLine (CalibrationPlayer::Line line)
+{
+    CalibrationSettings::setLine (processor.parameters.state, player, line);
+    repaint();
+}
+
+CalibrationPanel::LineDrag CalibrationPanel::lineHitAt (juce::Point<float> onPanel) const
+{
+    const auto line = player.getLine();
+    const auto start = toPanel (line.start()), end = toPanel (line.end());
+    if (onPanel.getDistanceFrom (end) <= 10.0f)
+        return LineDrag::end; // the end first, so a line drawn from a click can be dragged out of it
+    if (onPanel.getDistanceFrom (start) <= 10.0f)
+        return LineDrag::start;
+    juce::Point<float> nearest;
+    if (juce::Line<float> (start, end).getDistanceFromPoint (onPanel, nearest) <= 7.0f)
+        return LineDrag::move;
+    return LineDrag::none;
+}
+
+void CalibrationPanel::paintLineMode (juce::Graphics& g)
+{
+    paintField (g, {});
+    juce::Graphics::ScopedSaveState clip (g);
+    g.reduceClipRegion (gridArea.expanded (12));
+    g.setColour (Theme::textFaint);
+    g.setFont (Theme::font (10.5f));
+    g.drawText ("Drag to draw a line, and drag its ends or the line to move them", gridArea.reduced (8, 4).removeFromTop (16), juce::Justification::centredLeft, true);
+
+    const auto line = player.getLine();
+    const auto start = toPanel (line.start()), end = toPanel (line.end());
+    const auto hover = lineDrag != LineDrag::none ? lineDrag : lineHitAt (getMouseXYRelative().toFloat());
+    g.setColour (Theme::accent.withAlpha (hover == LineDrag::move ? 0.85f : 0.55f));
+    g.drawLine ({ start, end }, hover == LineDrag::move ? 2.5f : 2.0f);
+    for (auto [point, which] : { std::pair { start, LineDrag::start }, std::pair { end, LineDrag::end } })
+    {
+        const float radius = hover == which ? 6.5f : 5.0f;
+        g.setColour (Theme::raisedHover.brighter (0.25f));
+        g.fillEllipse (juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (point));
+        g.setColour (Theme::accent.withAlpha (0.8f));
+        g.drawEllipse (juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (point), 1.2f);
+    }
+
+    // The point, where it's got to
+    if (player.isPlaying())
+    {
+        const auto point = toPanel (line.at (player.getLineAlong()));
+        const float radius = 7.0f;
+        auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (point);
+        g.setColour (Theme::accent.withAlpha (0.3f));
+        g.fillEllipse (dot.expanded (radius * 0.9f));
+        g.setColour (Theme::accentBright);
+        g.fillEllipse (dot);
+    }
+}
+
 void CalibrationPanel::setMode (CalibrationPlayer::Mode mode)
 {
     // Leaving guided mode stops its search's playing, and drops whatever it was trying that hadn't been kept;
@@ -664,8 +743,10 @@ void CalibrationPanel::setMode (CalibrationPlayer::Mode mode)
 
 void CalibrationPanel::refreshSpots()
 {
-    const bool spots = isShowingSpots(), square = isSquareMode(), guided = isGuidedMode(), range = isRangeMode(),
-               grid = ! spots && ! square && ! guided && ! range;
+    const bool spots = isShowingSpots(), square = isSquareMode(), guided = isGuidedMode(), range = isRangeMode(), line = isLineMode(),
+               grid = ! spots && ! square && ! guided && ! range && ! line;
+    lineModeButton.setToggleState (line, juce::dontSendNotification);
+    lineSweepSlider.setVisible (line);
     rangeModeButton.setToggleState (range, juce::dontSendNotification);
     for (auto* component : std::initializer_list<juce::Component*> { &rangeSlider, &middleSlider, &rangeLabel, &middleLabel })
         component->setVisible (range);
@@ -1002,6 +1083,8 @@ void CalibrationPanel::timerCallback()
 
     if (isShowingSpots())
         refreshSpots(); // pick up drags on the graph
+    if (isLineMode() && player.isPlaying())
+        repaint (gridArea.expanded (16)); // the point going along the line
 }
 
 //==============================================================================
@@ -1027,6 +1110,25 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
 {
     if (isShowingSpots() || isGuidedMode() || isRangeMode())
         return;
+
+    if (isLineMode())
+    {
+        // An end moves that end, the line moves all of it, and anywhere else on the field starts a new one there
+        lineDrag = lineHitAt (event.position);
+        grabbedLine = player.getLine();
+        lineGrab = toField (event.position);
+        if (lineDrag == LineDrag::none && gridArea.toFloat().expanded (6.0f).contains (event.position))
+        {
+            setLine ({ lineGrab.x, lineGrab.y, lineGrab.x, lineGrab.y });
+            lineDrag = LineDrag::end;
+        }
+        if (lineDrag != LineDrag::none)
+        {
+            grabKeyboardFocus();
+            startPlaying();
+        }
+        return;
+    }
 
     if (isSquareMode())
     {
@@ -1094,6 +1196,37 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
     if (isShowingSpots() || isGuidedMode() || isRangeMode())
         return;
 
+    if (isLineMode())
+    {
+        const auto at = toField (event.position);
+        auto line = player.getLine();
+        if (lineDrag == LineDrag::start)
+        {
+            line.x1 = at.x;
+            line.y1 = at.y;
+        }
+        else if (lineDrag == LineDrag::end)
+        {
+            line.x2 = at.x;
+            line.y2 = at.y;
+        }
+        else if (lineDrag == LineDrag::move)
+        {
+            // All of it, as far as it goes and still stays on the field
+            auto offset = at - lineGrab;
+            const auto& from = grabbedLine;
+            offset.x = juce::jlimit (-std::min (from.x1, from.x2), 1.0f - std::max (from.x1, from.x2), offset.x);
+            offset.y = juce::jlimit (-std::min (from.y1, from.y2), 1.0f - std::max (from.y1, from.y2), offset.y);
+            line = { from.x1 + offset.x, from.y1 + offset.y, from.x2 + offset.x, from.y2 + offset.y };
+        }
+        else
+        {
+            return;
+        }
+        setLine (line);
+        return;
+    }
+
     if (isSquareMode())
     {
         auto square = player.getSquare();
@@ -1139,6 +1272,23 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
 {
     if (isShowingSpots() || isGuidedMode() || isRangeMode())
         return false;
+
+    if (isLineMode())
+    {
+        // Arrows move the line, as long as it stays on the field; with Shift, a small step
+        const float step = key.getModifiers().isShiftDown() ? 0.005f : 0.025f;
+        juce::Point<float> offset;
+        if (key.getKeyCode() == juce::KeyPress::upKey)         offset.y = step;
+        else if (key.getKeyCode() == juce::KeyPress::downKey)  offset.y = -step;
+        else if (key.getKeyCode() == juce::KeyPress::leftKey)  offset.x = -step;
+        else if (key.getKeyCode() == juce::KeyPress::rightKey) offset.x = step;
+        else return false;
+        auto line = player.getLine();
+        offset.x = juce::jlimit (-std::min (line.x1, line.x2), 1.0f - std::max (line.x1, line.x2), offset.x);
+        offset.y = juce::jlimit (-std::min (line.y1, line.y2), 1.0f - std::max (line.y1, line.y2), offset.y);
+        setLine ({ line.x1 + offset.x, line.y1 + offset.y, line.x2 + offset.x, line.y2 + offset.y });
+        return true;
+    }
 
     if (isSquareMode())
     {
@@ -1212,6 +1362,7 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
 void CalibrationPanel::mouseUp (const juce::MouseEvent&)
 {
     squareDrag = SquareDrag::none;
+    lineDrag = LineDrag::none;
     repaint();
 }
 
@@ -1219,6 +1370,15 @@ void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
 {
     if (isGuidedMode())
         return;
+    if (isLineMode())
+    {
+        const auto hit = lineHitAt (event.position);
+        setMouseCursor (hit == LineDrag::move ? juce::MouseCursor::DraggingHandCursor
+                        : hit != LineDrag::none ? juce::MouseCursor::PointingHandCursor
+                        : gridArea.toFloat().contains (event.position) ? juce::MouseCursor::CrosshairCursor : juce::MouseCursor::NormalCursor);
+        repaint (gridArea.expanded (12));
+        return;
+    }
     if (isSquareMode())
     {
         setMouseCursor (squareHandle().contains (event.position) ? juce::MouseCursor::BottomRightCornerResizeCursor
@@ -1304,6 +1464,12 @@ void CalibrationPanel::paint (juce::Graphics& g)
         return;
     }
 
+    if (isLineMode())
+    {
+        paintLineMode (g);
+        return;
+    }
+
     // Which way is which, and what the axis sliders are
     g.setFont (Theme::font (10.5f));
     g.drawText ("Left", gridArea.getX(), gridArea.getBottom() + 4, 60, 14, juce::Justification::centredLeft);
@@ -1358,16 +1524,16 @@ void CalibrationPanel::resized()
     auto header = area.removeFromTop (36);
     closeButton.setBounds (header.removeFromRight (60).withSizeKeepingCentre (60, 26));
     header.removeFromRight (8);
-    playButton.setBounds (header.removeFromRight (70).withSizeKeepingCentre (70, 26));
-    header.removeFromRight (8);
-    constantButton.setBounds (header.removeFromRight (54).withSizeKeepingCentre (54, 26));
+    playButton.setBounds (header.removeFromRight (62).withSizeKeepingCentre (62, 26));
+    header.removeFromRight (6);
+    constantButton.setBounds (header.removeFromRight (50).withSizeKeepingCentre (50, 26));
     header.removeFromRight (6);
     if (allButton.isVisible())
         allButton.setBounds (header.removeFromRight (78).withSizeKeepingCentre (78, 26));
 
     header.removeFromLeft (96); // the title
-    for (auto [button, width] : { std::pair { &spotsModeButton, 76 }, std::pair { &gridModeButton, 50 }, std::pair { &squareModeButton, 52 },
-                                  std::pair { &rangeModeButton, 60 }, std::pair { &guidedModeButton, 64 } })
+    for (auto [button, width] : { std::pair { &spotsModeButton, 70 }, std::pair { &gridModeButton, 46 }, std::pair { &squareModeButton, 48 },
+                                  std::pair { &lineModeButton, 44 }, std::pair { &rangeModeButton, 54 }, std::pair { &guidedModeButton, 58 } })
     {
         button->setBounds (header.removeFromLeft (width).withSizeKeepingCentre (width, 26));
         header.removeFromLeft (3);
@@ -1472,6 +1638,7 @@ void CalibrationPanel::resized()
     for (size_t i = 0; i < squareSizeButtons.size(); ++i)
         squareSizeButtons[i].setBounds (rowsStrip.getX(), gridArea.getY() - 4 + (int) i * 30, rowsStrip.getWidth() - 2, 26);
     columnsSlider.setBounds (juce::Rectangle<int> (gridArea.getX() - 6, columnsStrip.getY(), gridArea.getWidth() + 12, 28));
+    lineSweepSlider.setBounds (columnsSlider.getBounds()); // Line mode's, where the columns are
 
     // Captions in the corner the two sliders leave free
     rowsCaption = juce::Rectangle<int> (rowsStrip.getX(), gridArea.getBottom() + 4, rowsStrip.getWidth(), 14);

@@ -27,6 +27,10 @@
     share a pan range: with more than one pan step, each spot plays at that many
     positions across it, left to right, before the next spot plays.
 
+    In line mode it plays along a straight line you draw on the field (across is pan, up is height, as in
+    Drag mode): a point travels back and forth along it, end to end in the sweep time, and each burst plays
+    wherever the point has got to. Held, it's one noise gliding along the line.
+
     Constant plays everything that would play in turn all at once instead, as steady noise with no
     envelope: each position its own noise, held until it stops.
 
@@ -56,7 +60,7 @@ public:
     static constexpr int maxSpots = 4;
     static constexpr int maxPanSteps = 5;
 
-    enum class Mode { grid = 0, spots = 1, square = 2, sequence = 3, range = 4 };
+    enum class Mode { grid = 0, spots = 1, square = 2, sequence = 3, range = 4, line = 5 };
 
     /// Range mode: a range you choose, split into a bottom, a middle and a top, each a sharp band (48 dB an
     /// octave at both edges), played top to bottom, round and round, so everything it plays is inside the range.
@@ -396,6 +400,33 @@ public:
     };
     static constexpr float minSquareSide = 0.08f;
 
+    /// Line mode's line, on the field as Drag mode's square is: (0, 0) the bottom left, (1, 1) the top right
+    struct Line
+    {
+        float x1 = 0.15f, y1 = 0.25f, x2 = 0.85f, y2 = 0.75f;
+        juce::Point<float> start() const { return { x1, y1 }; }
+        juce::Point<float> end() const   { return { x2, y2 }; }
+        /// The point this far along it, 0 at its start and 1 at its end
+        juce::Point<float> at (float along) const { return start() + (end() - start()) * along; }
+        bool operator== (const Line& other) const { return x1 == other.x1 && y1 == other.y1 && x2 == other.x2 && y2 == other.y2; }
+    };
+    /// Kept on the field
+    void setLine (Line line)
+    {
+        lineX1 = juce::jlimit (0.0f, 1.0f, line.x1);
+        lineY1 = juce::jlimit (0.0f, 1.0f, line.y1);
+        lineX2 = juce::jlimit (0.0f, 1.0f, line.x2);
+        lineY2 = juce::jlimit (0.0f, 1.0f, line.y2);
+    }
+    Line getLine() const { return { lineX1.load(), lineY1.load(), lineX2.load(), lineY2.load() }; }
+
+    /// How long the point takes to go from one end of the line to the other
+    static constexpr float minLineSweep = 0.25f, maxLineSweep = 30.0f, defaultLineSweep = 4.0f;
+    void setLineSweep (float seconds) { lineSweep = juce::jlimit (minLineSweep, maxLineSweep, seconds); }
+    float getLineSweep() const        { return lineSweep.load(); }
+    /// How far along the line the point is now, 0 to 1
+    float getLineAlong() const        { return lineAlong.load(); }
+
     /// Keeps it a sensible size and wholly on the field
     void setSquare (Square square)
     {
@@ -437,6 +468,8 @@ public:
             held[i].pink = PinkNoise { juce::Random ((juce::int64) (5000 + i)) };
         }
         heldCount = 0;
+        linePhase = 0.0;
+        lineAlong = 0.0f;
         samplesUntilNext = 0;
         seqRow = seqColumn = -1;
         depthLevel = depthRepeat = 0;
@@ -636,12 +669,23 @@ public:
 
         const int attackSamples = std::max (1, (int) (attackMs.load() * 0.001 * sampleRate));
 
+        // Line mode's point: there and back is 2, an end in each sweep
+        const bool onLine = isPlaying && (Mode) mode.load() == Mode::line;
+        const double lineStep = 1.0 / ((double) lineSweep.load() * sampleRate);
+
         // The release falls 60 dB (6.9 time constants) in the time asked for; never faster than 1 ms, so "0" doesn't click
         const double releaseSeconds = std::max (0.001, (double) releaseMs.load() * 0.001);
         const float releaseCoefficient = (float) std::exp (-6.908 / (releaseSeconds * sampleRate));
 
         for (int i = 0; i < buffer.getNumSamples(); ++i)
         {
+            if (onLine)
+            {
+                linePhase += lineStep;
+                if (linePhase >= 2.0)
+                    linePhase -= 2.0;
+            }
+
             if (isPlaying && ! holding && --samplesUntilNext <= 0)
             {
                 trigger();
@@ -746,6 +790,7 @@ public:
             else
                 left[i] += r * gain;
         }
+        lineAlong = (float) lineAlongNow();
     }
 
 private:
@@ -1033,6 +1078,8 @@ private:
     {
         const bool panned = modeNow == Mode::spots || modeNow == Mode::range;
         const int square = squareSize.load();
+        if (modeNow == Mode::line)
+            return { 1, 1 }; // just the point, wherever it is
         const int rowCount = modeNow == Mode::spots ? spotCount.load() : modeNow == Mode::range ? 3 : modeNow == Mode::square ? square : numRows.load();
         const int rowLength = panned ? panSteps.load() : modeNow == Mode::square ? square : numColumns.load();
         return { rowCount, rowLength };
@@ -1067,6 +1114,15 @@ private:
                     burst.cutoff = 0.0;
             }
         }
+        else if (modeNow == Mode::line)
+        {
+            // Wherever the point's got to
+            const auto point = getLine().at ((float) lineAlongNow());
+            burst.pan = juce::jlimit (0.0f, 1.0f, point.x);
+            burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, point.y), getHeights());
+            if (burst.cutoff <= 20.5)
+                burst.cutoff = 0.0;
+        }
         else if (modeNow == Mode::square)
         {
             const auto dot = getSquare().dot (position);
@@ -1086,6 +1142,9 @@ private:
         }
         return burst;
     }
+
+    /// Audio thread: how far along the line the point is, going there and coming back
+    double lineAlongNow() const noexcept { return linePhase < 1.0 ? linePhase : 2.0 - linePhase; }
 
     /// What a burst sounds like: into each ear by the pan law, its band, and its level
     Sound soundOf (Mode modeNow, Burst burst) const noexcept
@@ -1342,6 +1401,9 @@ private:
     std::array<HeldBand, maxRows> heldBands {};
     int heldCount = 0; // how far into `held` there's anything playing
     float heldSmoothing = 0.01f;
+
+    std::atomic<float> lineX1 { 0.15f }, lineY1 { 0.25f }, lineX2 { 0.85f }, lineY2 { 0.75f }, lineSweep { defaultLineSweep }, lineAlong { 0.0f };
+    double linePhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
 
     // Audio thread
     std::array<Voice, 64> voices {}; // enough for the fastest bursts to ring for a second each before the quietest is reused

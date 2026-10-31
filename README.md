@@ -70,7 +70,13 @@ loads the VST3 to EQ everything the Mac plays.
   right, and up it is the low cut, from none at the bottom (20 Hz) to 20 kHz at the top. Drag the square to move it
   (or click elsewhere on the field to bring it there; the arrow keys nudge it), and drag its bottom right corner to
   resize it about its centre. Its dots play in reading order.
-- **Calibration, Range mode** (the panel's fourth mode): choose a range with the two-thumb Range slider (100 Hz to
+- **Calibration, Line mode** (after Drag): draw a straight line on the same field (across is pan, up is height, by
+  the Heights spacing and the calibration's band settings, as in Drag mode). Drag anywhere to draw a new one, drag
+  either end to move it, drag the line to move all of it, or nudge it with the arrow keys. A point goes back and
+  forth along it, end to end in the **Sweep** time (0.25 to 30 s, 4 s to start; double-click for it), and each
+  burst plays wherever the point has got to, at the panel's speed, attack and release. With Hold, it's one steady
+  noise gliding along the line instead.
+- **Calibration, Range mode** (the panel's fifth mode): choose a range with the two-thumb Range slider (100 Hz to
   10 kHz to start). It's split into a bottom, a middle and a top, each a sharp band (48 dB an octave at both
   edges), so everything plays inside the range; the Middle slider is how much of the range, in octaves, the middle
   takes (50% to start, in the middle of it), with the top and bottom sharing the rest. They play top, middle, bottom,
@@ -148,7 +154,7 @@ loads the VST3 to EQ everything the Mac plays.
   than a burst at a time. Each position has its own noise, so they don't add up as one sound or cancel, and each is
   turned down by the square root of how many there are, so all of them together are about as loud as one. On a grid
   with positions selected, it holds just those. Speed, attack, release, depth and repeats do nothing while it's on.
-  Not in Guided mode, which plays its arrangements in turn.
+  Not in Guided mode, which plays its arrangements in turn. In Line mode it's one noise moving along the line.
 - **Other tops** (hidden for now: the code's still there, and a Top row comes back if its buttons are shown): **Cut**: each burst is its height as a low cut, up to the top (as it used to be). Width does nothing
   for either. **Tilt**: no cuts at all; the height tilts the slope instead. The middle height is the noise as it is
   (-4.5 dB an octave, the whole spectrum); lower, it falls faster with 20 Hz held where it was, so it's darker and

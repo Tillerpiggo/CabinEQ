@@ -1959,6 +1959,96 @@ public:
             expect (! player.isHolding());
         }
 
+        beginTest ("Line mode: a point goes back and forth along a line on the field, and plays wherever it's got to");
+        {
+            auto render = [] (CalibrationPlayer& player, double seconds)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (seconds * sampleRate));
+                buffer.clear();
+                for (int start = 0; start < buffer.getNumSamples(); start += 480)
+                {
+                    juce::AudioBuffer<float> block (buffer.getArrayOfWritePointers(), 2, start, std::min (480, buffer.getNumSamples() - start));
+                    player.process (block);
+                }
+                return buffer;
+            };
+            auto earsDb = [] (const juce::AudioBuffer<float>& buffer, double from, double to) // right over left
+            {
+                const int a = (int) (from * sampleRate), n = (int) ((to - from) * sampleRate);
+                return juce::Decibels::gainToDecibels (buffer.getRMSLevel (1, a, n) / std::max (1.0e-9f, buffer.getRMSLevel (0, a, n)));
+            };
+
+            for (bool hold : { false, true })
+            {
+                const juce::String what = hold ? "held: " : "bursts: ";
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setMode (CalibrationPlayer::Mode::line);
+                player.setLine ({ 0.0f, 0.5f, 1.0f, 0.5f }); // left to right, halfway up
+                player.setLineSweep (1.0f);
+                player.setRate (40.0f);
+                player.setAttackMs (1.0f);
+                player.setReleaseMs (20.0f);
+                player.setConstant (hold);
+                player.setPlaying (true);
+                expect (player.isHolding() == hold);
+
+                auto there = render (player, 1.0);
+                expectWithinAbsoluteError (player.getLineAlong(), 1.0f, 0.01f, what + "at the far end after a sweep");
+                expectLessThan (earsDb (there, 0.02, 0.12), -10.0f, what + "starting on the left");
+                expectGreaterThan (earsDb (there, 0.88, 0.98), 10.0f, what + "and ending on the right");
+                expectWithinAbsoluteError (earsDb (there, 0.45, 0.55), 0.0f, 4.0f, what + "through the middle");
+                auto back = render (player, 0.75);
+                expectWithinAbsoluteError (player.getLineAlong(), 0.25f, 0.01f, what + "and back again");
+                expectLessThan (earsDb (back, 0.6, 0.72), -3.0f, what + "a third of the way from the left again");
+            }
+
+            // Up is higher, by the heights, as in Drag mode: the bottom has much more low end than the top
+            auto lowEnd = [&] (float y)
+            {
+                CalibrationPlayer player;
+                player.prepare (sampleRate);
+                player.setTopEdge (CalibrationPlayer::TopEdge::fixed);
+                player.setMode (CalibrationPlayer::Mode::line);
+                player.setLine ({ 0.5f, y, 0.5f, y });
+                player.setConstant (true);
+                player.setPlaying (true);
+                auto buffer = render (player, 0.5);
+                FilterChain filter;
+                filter.prepare (sampleRate);
+                std::vector<Band> cuts;
+                for (int i = 0; i < 4; ++i)
+                    cuts.push_back (Band::withQ (i, 200.0f, 0.0f, 0.7071f, Band::Type::both, Band::Shape::highCut));
+                filter.setBands (cuts);
+                filter.reset();
+                juce::dsp::AudioBlock<float> block (buffer);
+                filter.process (block);
+                return buffer.getRMSLevel (0, (int) (0.2 * sampleRate), (int) (0.3 * sampleRate));
+            };
+            expectGreaterThan (lowEnd (0.1f), lowEnd (0.8f) * 30.0f);
+
+            // Kept with the rest, on the field
+            CabinEqAudioProcessor processor;
+            auto& state = processor.parameters.state;
+            CalibrationSettings::setLine (state, processor.getCalibration(), { -0.5f, 0.2f, 0.7f, 1.4f });
+            CalibrationSettings::setLineSweep (state, processor.getCalibration(), 9.0f);
+            processor.getCalibration().setLine ({});
+            processor.getCalibration().setLineSweep (1.0f);
+            CalibrationSettings::apply (state, processor.getCalibration());
+            expect (processor.getCalibration().getLine() == CalibrationPlayer::Line { 0.0f, 0.2f, 0.7f, 1.0f }, "on the field");
+            expectWithinAbsoluteError (processor.getCalibration().getLineSweep(), 9.0f, 0.001f);
+            CalibrationSettings::setMode (state, processor.getCalibration(), CalibrationPlayer::Mode::line);
+            expect (CalibrationSettings::getMode (state) == CalibrationPlayer::Mode::line);
+
+            CalibrationPanel panel (processor);
+            panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+            bool sweepShown = false;
+            for (auto* child : panel.getChildren())
+                if (auto* slider = dynamic_cast<juce::Slider*> (child); slider != nullptr && slider->getTextFromValue (4.0).contains ("sweep"))
+                    sweepShown = slider->isVisible() && ! slider->getBounds().isEmpty();
+            expect (sweepShown, "its sweep's there to set");
+        }
+
         beginTest ("The panel: Constant holds everything, is kept, and leaves the timing controls with nothing to do");
         {
             CabinEqAudioProcessor processor;

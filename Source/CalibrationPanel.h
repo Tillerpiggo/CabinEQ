@@ -91,7 +91,19 @@ private:
     void setTopEdge (CalibrationPlayer::TopEdge edge);
     juce::Rectangle<int> rowsCaption, columnsCaption;
 
-    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" }, guidedModeButton { "Guided" }, rangeModeButton { "Range" };
+    juce::TextButton gridModeButton { "Grid" }, spotsModeButton { "On graph" }, squareModeButton { "Drag" }, guidedModeButton { "Guided" }, rangeModeButton { "Range" }, lineModeButton { "Line" };
+
+    // Line mode: a line you draw on the field, with a point going back and forth along it
+    juce::Slider lineSweepSlider; // how long the point takes from one end to the other
+    enum class LineDrag { none, start, end, move };
+    LineDrag lineDrag = LineDrag::none;
+    juce::Point<float> lineGrab; // where on the field the line was grabbed, when moving all of it
+    CalibrationPlayer::Line grabbedLine;
+    bool isLineMode() const { return mode() == CalibrationPlayer::Mode::line; }
+    LineDrag lineHitAt (juce::Point<float> onPanel) const; // which bit of the line is there, if any
+    void setLine (CalibrationPlayer::Line line);
+    void paintLineMode (juce::Graphics&);
+    void paintField (juce::Graphics&, const juce::String& hint); // Drag mode's and Line mode's field, with the heights up its side
 
     // Range mode: a range you choose, as a bottom, a middle and a top, played top to bottom
     juce::Slider rangeSlider;  // the range, two thumbs

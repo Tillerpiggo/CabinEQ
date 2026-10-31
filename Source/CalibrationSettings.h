@@ -28,6 +28,8 @@ namespace CalibrationSettings
     inline const juce::Identifier idHeightsPinned { "calibrationHeightsPinned" }, idHeightLow { "calibrationHeightLow" }, idHeightHigh { "calibrationHeightHigh" };
     inline const juce::Identifier idSquareSize { "calibrationSquareSize" }, idSquareX { "calibrationSquareX" }, idSquareY { "calibrationSquareY" },
                                   idSquareWidth { "calibrationSquareWidth" }, idSquareHeight { "calibrationSquareHeight" };
+    inline const juce::Identifier idLineX1 { "calibrationLineX1" }, idLineY1 { "calibrationLineY1" }, idLineX2 { "calibrationLineX2" }, idLineY2 { "calibrationLineY2" },
+                                  idLineSweep { "calibrationLineSweep" };
 
     constexpr float minFrequency = 20.0f, maxFrequency = 16000.0f;
 
@@ -43,7 +45,7 @@ namespace CalibrationSettings
     /// "On graph" unless you've picked the grid
     inline CalibrationPlayer::Mode getMode (const juce::ValueTree& state)
     {
-        return (CalibrationPlayer::Mode) juce::jlimit (0, 4, (int) state.getProperty (idMode, 0));
+        return (CalibrationPlayer::Mode) juce::jlimit (0, 5, (int) state.getProperty (idMode, 0));
     }
 
     inline int getSpotCount (const juce::ValueTree& state)
@@ -89,6 +91,34 @@ namespace CalibrationSettings
         return square;
     }
 
+    /// Line mode's line
+    inline CalibrationPlayer::Line getLine (const juce::ValueTree& state)
+    {
+        CalibrationPlayer::Line line;
+        line.x1 = state.getProperty (idLineX1, line.x1);
+        line.y1 = state.getProperty (idLineY1, line.y1);
+        line.x2 = state.getProperty (idLineX2, line.x2);
+        line.y2 = state.getProperty (idLineY2, line.y2);
+        return line;
+    }
+
+    /// Saves the line as the player has it, kept on the field
+    inline void setLine (juce::ValueTree state, CalibrationPlayer& player, CalibrationPlayer::Line line)
+    {
+        player.setLine (line);
+        line = player.getLine();
+        state.setProperty (idLineX1, line.x1, nullptr);
+        state.setProperty (idLineY1, line.y1, nullptr);
+        state.setProperty (idLineX2, line.x2, nullptr);
+        state.setProperty (idLineY2, line.y2, nullptr);
+    }
+
+    inline void setLineSweep (juce::ValueTree state, CalibrationPlayer& player, float seconds)
+    {
+        player.setLineSweep (seconds);
+        state.setProperty (idLineSweep, player.getLineSweep(), nullptr);
+    }
+
     /// Hands everything in the state to the player
     inline void apply (const juce::ValueTree& state, CalibrationPlayer& player)
     {
@@ -100,6 +130,8 @@ namespace CalibrationSettings
         player.setPanRange (pan.getStart(), pan.getEnd());
         player.setPanSteps (getPanSteps (state));
         player.setSquare (getSquare (state));
+        player.setLine (getLine (state));
+        player.setLineSweep (state.getProperty (idLineSweep, CalibrationPlayer::defaultLineSweep));
         player.setHeightSpacing (getHeightSpacing (state));
         player.setRange (state.getProperty (idRangeLow, CalibrationPlayer::defaultRangeLow), state.getProperty (idRangeHigh, CalibrationPlayer::defaultRangeHigh),
                          state.getProperty (idRangeMiddle, CalibrationPlayer::defaultRangeMiddle));
