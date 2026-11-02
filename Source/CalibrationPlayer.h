@@ -380,25 +380,45 @@ public:
     /// Square mode: a square of 2 x 2 or 3 x 3 dots that you put anywhere on a field. Across the field is from
     /// your left ear to your right; up it is the low cut, from none at the bottom to 20 kHz at the top. All of
     /// these are fractions of the field: (0, 0) is its bottom left.
+    ///
+    /// Or, as a line, three dots on a straight line through its centre that you turn about in three dimensions:
+    /// its two ends and its middle. Where they are on the field is where they play, and how near you they've
+    /// turned is how loud: nearer is louder, farther quieter, and its middle is just as loud however it's turned.
     struct Square
     {
         int size = 3;                    // dots along each side
         float x = 0.5f, y = 0.5f;        // its centre
         float width = 0.5f, height = 0.5f;
+        bool line = false;               // a line of three dots instead
+        float length = 0.6f;             // the line's, end to end, in the field's own units
+        float dirX = 1.0f, dirY = 0.0f, dirZ = 0.0f; // which way it points, from its first end to its last: z is toward you
 
-        /// Where a dot is on the field, in reading order from the top left
+        /// How many dots it has
+        int count() const { return line ? 3 : size * size; }
+
+        /// Where a dot is on the field, in reading order from the top left; on a line, its first end, its middle, then its last end
         juce::Point<float> dot (int position) const
         {
+            if (line)
+            {
+                const float along = 0.5f * length * (float) (juce::jlimit (0, 2, position) - 1);
+                return { x + dirX * along, y + dirY * along };
+            }
             const int row = position / size, column = position % size;
             const float across = size > 1 ? (float) column / (float) (size - 1) - 0.5f : 0.0f;
             const float down = size > 1 ? (float) row / (float) (size - 1) - 0.5f : 0.0f;
             return { x + across * width, y - down * height };
         }
 
+        /// How near you a dot is, in the field's units: 0 for its middle (and every dot of a square), up to half its length toward you
+        float depth (int position) const { return line ? 0.5f * length * dirZ * (float) (juce::jlimit (0, 2, position) - 1) : 0.0f; }
+
         /// A dot's low cut, in Hz: 20 Hz at the bottom of the field, which is none at all, to 20 kHz at the top
         static double cutoffAt (float fieldY, const Heights& heights = Heights()) { return frequencyAtHeight ((double) fieldY, heights); }
     };
     static constexpr float minSquareSide = 0.08f;
+    /// How much louder a line's dot is for each of the field's widths it's turned toward you (and quieter away)
+    static constexpr float depthDbPerField = 18.0f;
 
     /// Line mode's line, on the field as Drag mode's square is: (0, 0) the bottom left, (1, 1) the top right
     struct Line
@@ -431,17 +451,43 @@ public:
     void setSquare (Square square)
     {
         square.size = square.size <= 2 ? 2 : 3;
+        if (square.line)
+        {
+            // Pointing somewhere, and as long as still fits on the field however it points
+            const float norm = std::sqrt (square.dirX * square.dirX + square.dirY * square.dirY + square.dirZ * square.dirZ);
+            if (! (norm > 1.0e-6f))
+                square.dirX = 1.0f, square.dirY = square.dirZ = 0.0f;
+            else
+                square.dirX /= norm, square.dirY /= norm, square.dirZ /= norm;
+            square.length = juce::jlimit (minSquareSide, 1.0f, square.length);
+            square.length = std::min ({ square.length, 1.0f / std::max (1.0e-6f, std::abs (square.dirX)), 1.0f / std::max (1.0e-6f, std::abs (square.dirY)) });
+            const float across = 0.5f * square.length * std::abs (square.dirX), up = 0.5f * square.length * std::abs (square.dirY);
+            square.x = juce::jlimit (across, 1.0f - across, square.x);
+            square.y = juce::jlimit (up, 1.0f - up, square.y);
+        }
         square.width = juce::jlimit (minSquareSide, 1.0f, square.width);
         square.height = juce::jlimit (minSquareSide, 1.0f, square.height);
-        square.x = juce::jlimit (square.width * 0.5f, 1.0f - square.width * 0.5f, square.x);
-        square.y = juce::jlimit (square.height * 0.5f, 1.0f - square.height * 0.5f, square.y);
+        if (! square.line)
+        {
+            square.x = juce::jlimit (square.width * 0.5f, 1.0f - square.width * 0.5f, square.x);
+            square.y = juce::jlimit (square.height * 0.5f, 1.0f - square.height * 0.5f, square.y);
+        }
         squareSize = square.size;
+        squareLine = square.line;
+        squareLength = square.length;
+        squareDirX = square.dirX;
+        squareDirY = square.dirY;
+        squareDirZ = square.dirZ;
         squareX = square.x;
         squareY = square.y;
         squareWidth = square.width;
         squareHeight = square.height;
     }
-    Square getSquare() const { return { squareSize.load(), squareX.load(), squareY.load(), squareWidth.load(), squareHeight.load() }; }
+    Square getSquare() const
+    {
+        return { squareSize.load(), squareX.load(), squareY.load(), squareWidth.load(), squareHeight.load(),
+                 squareLine.load(), squareLength.load(), squareDirX.load(), squareDirY.load(), squareDirZ.load() };
+    }
     static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest time round, below the volume
 
     void prepare (double newSampleRate)
@@ -1050,7 +1096,7 @@ private:
 
             // Quietest first: each level is a step up, from the floor to full level
             if (depthRuns > 1)
-                burst.levelDb = floorDb.load() * (float) (depthRuns - 1 - depthLevel) / (float) (depthRuns - 1);
+                burst.levelDb += floorDb.load() * (float) (depthRuns - 1 - depthLevel) / (float) (depthRuns - 1);
         }
 
         // Take a free voice, or the quietest one
@@ -1080,6 +1126,8 @@ private:
         const int square = squareSize.load();
         if (modeNow == Mode::line)
             return { 1, 1 }; // just the point, wherever it is
+        if (modeNow == Mode::square && squareLine.load())
+            return { 1, 3 }; // a line's three dots, in a row
         const int rowCount = modeNow == Mode::spots ? spotCount.load() : modeNow == Mode::range ? 3 : modeNow == Mode::square ? square : numRows.load();
         const int rowLength = panned ? panSteps.load() : modeNow == Mode::square ? square : numColumns.load();
         return { rowCount, rowLength };
@@ -1125,9 +1173,11 @@ private:
         }
         else if (modeNow == Mode::square)
         {
-            const auto dot = getSquare().dot (position);
+            const auto square = getSquare();
+            const auto dot = square.dot (position);
             burst.pan = juce::jlimit (0.0f, 1.0f, dot.x);
-            burst.cutoff = Square::cutoffAt (dot.y, getHeights());
+            burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, dot.y), getHeights());
+            burst.levelDb = depthDbPerField * square.depth (position); // nearer is louder
             if (burst.cutoff <= 20.5)
                 burst.cutoff = 0.0;
         }
@@ -1392,6 +1442,8 @@ private:
     int playingGeneration = 0, sequenceIndex = 0, sequencePlayed = 0; // the audio thread's
     std::atomic<int> squareSize { 3 };
     std::atomic<float> squareX { 0.5f }, squareY { 0.5f }, squareWidth { 0.5f }, squareHeight { 0.5f };
+    std::atomic<bool> squareLine { false };
+    std::atomic<float> squareLength { 0.6f }, squareDirX { 1.0f }, squareDirY { 0.0f }, squareDirZ { 0.0f };
     std::atomic<bool> playing { false }, constant { false };
     std::atomic<int> currentPosition { -1 };
     std::array<std::atomic<juce::uint64>, (size_t) selectionWords> heldPositions {}; // what Constant's holding, written by the audio thread

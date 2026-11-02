@@ -27,7 +27,9 @@ namespace CalibrationSettings
     inline const juce::Identifier idPanSpacing { "calibrationPanSpacing" }, idPanLaw { "calibrationPanLaw" };
     inline const juce::Identifier idHeightsPinned { "calibrationHeightsPinned" }, idHeightLow { "calibrationHeightLow" }, idHeightHigh { "calibrationHeightHigh" };
     inline const juce::Identifier idSquareSize { "calibrationSquareSize" }, idSquareX { "calibrationSquareX" }, idSquareY { "calibrationSquareY" },
-                                  idSquareWidth { "calibrationSquareWidth" }, idSquareHeight { "calibrationSquareHeight" };
+                                  idSquareWidth { "calibrationSquareWidth" }, idSquareHeight { "calibrationSquareHeight" },
+                                  idSquareLine { "calibrationSquareLine" }, idSquareLength { "calibrationSquareLength" },
+                                  idSquareDirX { "calibrationSquareDirX" }, idSquareDirY { "calibrationSquareDirY" }, idSquareDirZ { "calibrationSquareDirZ" };
     inline const juce::Identifier idLineX1 { "calibrationLineX1" }, idLineY1 { "calibrationLineY1" }, idLineX2 { "calibrationLineX2" }, idLineY2 { "calibrationLineY2" },
                                   idLineSweep { "calibrationLineSweep" };
 
@@ -88,6 +90,11 @@ namespace CalibrationSettings
         square.y = state.getProperty (idSquareY, square.y);
         square.width = state.getProperty (idSquareWidth, square.width);
         square.height = state.getProperty (idSquareHeight, square.height);
+        square.line = state.getProperty (idSquareLine, square.line);
+        square.length = state.getProperty (idSquareLength, square.length);
+        square.dirX = state.getProperty (idSquareDirX, square.dirX);
+        square.dirY = state.getProperty (idSquareDirY, square.dirY);
+        square.dirZ = state.getProperty (idSquareDirZ, square.dirZ);
         return square;
     }
 
@@ -188,6 +195,11 @@ namespace CalibrationSettings
         state.setProperty (idSquareY, square.y, nullptr);
         state.setProperty (idSquareWidth, square.width, nullptr);
         state.setProperty (idSquareHeight, square.height, nullptr);
+        state.setProperty (idSquareLine, square.line, nullptr);
+        state.setProperty (idSquareLength, square.length, nullptr);
+        state.setProperty (idSquareDirX, square.dirX, nullptr);
+        state.setProperty (idSquareDirY, square.dirY, nullptr);
+        state.setProperty (idSquareDirZ, square.dirZ, nullptr);
     }
 
     inline void setSpotFrequency (juce::ValueTree state, CalibrationPlayer& player, int index, float frequency)

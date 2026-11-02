@@ -70,6 +70,18 @@ loads the VST3 to EQ everything the Mac plays.
   right, and up it is the low cut, from none at the bottom (20 Hz) to 20 kHz at the top. Drag the square to move it
   (or click elsewhere on the field to bring it there; the arrow keys nudge it), and drag its bottom right corner to
   resize it about its centre. Its dots play in reading order.
+  **3D**, beside the sizes, is instead a straight line of three dots, its two ends and its middle, that turns about
+  in three dimensions. Drag the field around it to turn it like a trackball (Alt+arrows turn it a step), drag the
+  line to move it, and drag an end to move that end (the other mirrors it round the middle, as near you as it was).
+  Where each dot is on the field is where it plays; how far it's turned toward you is how loud, 18 dB louder for a
+  whole field's width nearer (and quieter away), so the middle is always as loud. Nearer dots are drawn bigger, and
+  each end shows its dB. Double-click to lay it flat again.
+  **3D**, beside the sizes, is instead a straight line of three dots, its two ends and its middle, that turns about
+  in three dimensions. Drag the field around it to turn it like a trackball (Alt+arrows turn it a step), drag the
+  line to move it, and drag an end to move that end (the other mirrors it round the middle, as near you as it was).
+  Where each dot is on the field is where it plays; how far it's turned toward you is how loud, 18 dB louder for a
+  whole field's width nearer (and quieter away), so the middle is always as loud. Nearer dots are drawn bigger, and
+  each end shows its dB. Double-click to lay it flat again.
 - **Calibration, Line mode** (after Drag): draw a straight line on the same field (across is pan, up is height, by
   the Heights spacing and the calibration's band settings, as in Drag mode). Drag anywhere to draw a new one, drag
   either end to move it, drag the line to move all of it, or nudge it with the arrow keys. A point goes back and

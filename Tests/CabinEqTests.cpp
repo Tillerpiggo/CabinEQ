@@ -2770,7 +2770,85 @@ public:
             // Arrows nudge it
             dragPanel.keyPressed (juce::KeyPress (juce::KeyPress::rightKey));
             expectGreaterThan (dragPlayer.getSquare().x, 0.5f);
+
+            // As a 3D line: dragging the field beside it turns it toward you, and its ends move them
+            CalibrationPlayer::Square line;
+            line.line = true;
+            line.length = 0.6f;
+            CalibrationSettings::setSquare (state, dragPlayer, line);
+            dragPanel.resized();
+            const float across = std::min (field.getWidth(), field.getHeight());
+            dragFromTo (onField (0.5f, 0.15f), onField (0.5f, 0.15f).translated (across / 6.0f, 0.0f)); // a sixth of a half turn: 30 degrees
+            auto turned = dragPlayer.getSquare();
+            expectWithinAbsoluteError (turned.dirX, std::cos (juce::MathConstants<float>::pi / 6.0f), 0.01f, "turned about the up axis");
+            expectWithinAbsoluteError (turned.dirZ, -std::sin (juce::MathConstants<float>::pi / 6.0f), 0.01f, "its last end away from you");
+            expectWithinAbsoluteError (turned.dirY, 0.0f, 0.001f);
+            expectWithinAbsoluteError (turned.length, 0.6f, 0.001f, "turning doesn't stretch it");
+            expectLessThan (turned.depth (2), 0.0f);
+            expectWithinAbsoluteError ((float) state.getProperty (CalibrationSettings::idSquareDirZ), turned.dirZ, 0.001f, "which way it points is saved");
+
+            // Its last end, dragged up: it points up as well, and still as far back
+            const auto lastEnd = dragPanel.getFieldArea().toFloat();
+            const auto endAt = onField (turned.dot (2).x, turned.dot (2).y);
+            dragFromTo (endAt, endAt.translated (0.0f, -0.2f * lastEnd.getHeight()));
+            const auto moved = dragPlayer.getSquare();
+            expectWithinAbsoluteError (moved.dot (2).y, turned.dot (2).y + 0.2f, 0.01f, "the end follows the mouse");
+            expectWithinAbsoluteError (moved.depth (2), turned.depth (2), 0.001f, "as far back as it was");
+            expectWithinAbsoluteError (moved.dot (1).y, 0.5f, 0.001f, "its middle stays put");
+
+            // Double-clicking lays it flat again
+            dragPanel.mouseDoubleClick (mouse (onField (0.5f, 0.15f), onField (0.5f, 0.15f), false));
+            expectWithinAbsoluteError (dragPlayer.getSquare().dirZ, 0.0f, 0.001f);
             dragPanel.stop();
+        }
+
+        beginTest ("Drag mode's 3D line: its three dots play where they are on the field, nearer you louder");
+        {
+            CalibrationPlayer::Square line;
+            line.line = true;
+            line.length = 0.8f;
+            line.y = 0.85f; // high, so little of the noise is down where it wanders
+            line.dirX = 0.6f; line.dirY = 0.0f; line.dirZ = 0.8f; // its last end out toward you
+            expectEquals (line.count(), 3);
+            expectWithinAbsoluteError (line.dot (0).x, 0.5f - 0.24f, 0.001f, "its first end");
+            expectWithinAbsoluteError (line.dot (1).x, 0.5f, 0.001f, "its middle");
+            expectWithinAbsoluteError (line.depth (2), 0.32f, 0.001f, "its last end, near you");
+            expectWithinAbsoluteError (line.depth (1), 0.0f, 0.001f);
+
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::square);
+            player.setSquare (line);
+            player.setReleaseMs (100.0f);
+            player.setRate (1.0f / 0.3f);
+            player.setPlaying (true);
+            std::vector<int> positions;
+            std::array<double, 3> power {};
+            for (int burst = 0; burst < 15; ++burst) // round five times, to even out the noise
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (0.3 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                const int position = player.getCurrentPosition();
+                positions.push_back (position);
+                for (int channel = 0; channel < 2; ++channel)
+                    power[(size_t) juce::jlimit (0, 2, position)] += juce::square ((double) buffer.getRMSLevel (channel, 0, buffer.getNumSamples()));
+            }
+            expect (std::vector<int> (positions.begin(), positions.begin() + 4) == std::vector<int> { 0, 1, 2, 0 }, "its two ends and its middle, then round again");
+            const float nearer = (float) juce::Decibels::gainToDecibels (std::sqrt (power[2] / power[1])), farther = (float) juce::Decibels::gainToDecibels (std::sqrt (power[0] / power[1]));
+            const float expected = CalibrationPlayer::depthDbPerField * 0.32f;
+            expectWithinAbsoluteError (nearer, expected, 2.0f, "the near end louder by its depth");
+            expectWithinAbsoluteError (farther, -expected, 2.0f, "the far end quieter");
+
+            // However it points, it stays on the field
+            line.dirX = 0.0f; line.dirY = 1.0f; line.dirZ = 0.0f;
+            line.length = 3.0f;
+            line.y = 0.9f;
+            player.setSquare (line);
+            const auto kept = player.getSquare();
+            expectWithinAbsoluteError (kept.length, 1.0f, 0.001f);
+            expectWithinAbsoluteError (kept.dot (2).y, 1.0f, 0.001f, "its top end at the top");
+            expectWithinAbsoluteError (kept.dot (0).y, 0.0f, 0.001f);
         }
     }
 };
@@ -4016,6 +4094,16 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         processor.parameters.state.setProperty (CalibrationSettings::idHeightSpacing, spacing.getIntValue(), nullptr); // 0 octaves, 1 mels, 2 Hz
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_PINNED", {}).isNotEmpty())
         processor.parameters.state.setProperty (CalibrationSettings::idHeightsPinned, true, nullptr);
+    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_LINE3D", {}).isNotEmpty())
+    {
+        // Drag mode's 3D line, turned partly toward you
+        auto& state = processor.parameters.state;
+        state.setProperty (CalibrationSettings::idSquareLine, true, nullptr);
+        state.setProperty (CalibrationSettings::idSquareLength, 0.7f, nullptr);
+        state.setProperty (CalibrationSettings::idSquareDirX, 0.75f, nullptr);
+        state.setProperty (CalibrationSettings::idSquareDirY, 0.35f, nullptr);
+        state.setProperty (CalibrationSettings::idSquareDirZ, 0.56f, nullptr);
+    }
     if (const auto noise = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_NOISE", {}); noise.isNotEmpty())
         processor.parameters.state.setProperty ("calibrationNoise", noise.getIntValue(), nullptr);
     if (zoomed)

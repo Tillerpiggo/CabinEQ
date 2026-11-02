@@ -44,6 +44,7 @@ public:
     void mouseUp (const juce::MouseEvent&) override;
     bool keyPressed (const juce::KeyPress&) override; // arrows move the selection, Shift+arrows grow it
     void mouseMove (const juce::MouseEvent&) override;
+    void mouseDoubleClick (const juce::MouseEvent&) override; // turns Drag mode's line back flat
     void mouseExit (const juce::MouseEvent&) override;
 
     static constexpr int preferredHeight = 364;
@@ -129,10 +130,15 @@ private:
     bool isGuidedMode() const { return mode() == CalibrationPlayer::Mode::sequence; }
 
     // Drag mode: a square of dots you put anywhere on the field (the grid's area). Across is pan; up is the low cut.
-    std::array<juce::TextButton, 2> squareSizeButtons; // 2 x 2 and 3 x 3
-    enum class SquareDrag { none, move, resize };
+    // Or a line of three dots that turns about in three dimensions: dragging the field away from it turns it
+    std::array<juce::TextButton, 3> squareSizeButtons; // 2 x 2, 3 x 3, and the 3D line
+    enum class SquareDrag { none, move, resize, firstEnd, lastEnd, turn };
     SquareDrag squareDrag = SquareDrag::none;
     juce::Point<float> squareGrab; // from the square's centre to where it was grabbed, on the field
+    juce::Point<float> turnFrom;   // where a turn started, on the panel
+    CalibrationPlayer::Square grabbedSquare; // as it was when it was grabbed
+    SquareDrag squareHitAt (juce::Point<float> onPanel) const;
+    static CalibrationPlayer::Square turned (CalibrationPlayer::Square square, float right, float up); // turned by this far, in radians
     CalibrationPlayer::Mode mode() const;
     bool isSquareMode() const { return mode() == CalibrationPlayer::Mode::square; }
     juce::Point<float> toPanel (juce::Point<float> onField) const;
@@ -141,6 +147,7 @@ private:
     juce::Rectangle<float> squareHandle() const;  // the corner that resizes it
     void setSquare (CalibrationPlayer::Square square);
     void paintSquareMode (juce::Graphics&);
+    void paintSquareLine (juce::Graphics&); // the 3D line, its dots bigger the nearer you they are
     void startPlaying();
     std::array<juce::TextButton, CalibrationPlayer::maxSpots - 1> spotCountButtons; // 2, 3 and 4 spots
     juce::Slider spotsPan;       // the pan range they all share, with two thumbs

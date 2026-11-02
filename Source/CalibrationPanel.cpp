@@ -411,14 +411,19 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     squareModeButton.setTooltip ("A square of dots you drag anywhere: across is from your left ear to your right, and up is a higher low cut");
     for (size_t i = 0; i < squareSizeButtons.size(); ++i)
     {
-        const int size = (int) i + 2;
+        const bool isLine = i == 2;
+        const int size = isLine ? 3 : (int) i + 2;
         auto& button = squareSizeButtons[i];
-        button.setButtonText (juce::String (size) + " x " + juce::String (size));
-        button.setTooltip (juce::String (size * size) + " dots, " + juce::String (size) + " along each side");
-        button.onClick = [this, size]
+        button.setButtonText (isLine ? juce::String ("3D") : juce::String (size) + " x " + juce::String (size));
+        button.setTooltip (isLine ? juce::String ("A line of three dots, its ends and its middle, that you turn about in three dimensions: "
+                                                  "drag the field around it to turn it. Turned toward you is louder, away quieter.")
+                                  : juce::String (size * size) + " dots, " + juce::String (size) + " along each side");
+        button.onClick = [this, size, isLine]
         {
             auto square = player.getSquare();
-            square.size = size;
+            square.line = isLine;
+            if (! isLine)
+                square.size = size;
             setSquare (square);
         };
         addChildComponent (button);
@@ -566,6 +571,42 @@ juce::Rectangle<float> CalibrationPanel::squareHandle() const
     return juce::Rectangle<float> (16.0f, 16.0f).withCentre (squareOutline().getBottomRight().translated (-2.0f, -2.0f));
 }
 
+CalibrationPanel::SquareDrag CalibrationPanel::squareHitAt (juce::Point<float> onPanel) const
+{
+    const auto square = player.getSquare();
+    if (! square.line)
+        return squareHandle().contains (onPanel) ? SquareDrag::resize : squareOutline().contains (onPanel) ? SquareDrag::move : SquareDrag::none;
+
+    // A line: its ends, then the line, then the field around it, which turns it
+    const auto first = toPanel (square.dot (0)), last = toPanel (square.dot (2));
+    if (onPanel.getDistanceFrom (last) <= 10.0f)
+        return SquareDrag::lastEnd;
+    if (onPanel.getDistanceFrom (first) <= 10.0f)
+        return SquareDrag::firstEnd;
+    juce::Point<float> nearest;
+    if (juce::Line<float> (first, last).getDistanceFromPoint (onPanel, nearest) <= 9.0f)
+        return SquareDrag::move;
+    return gridArea.toFloat().expanded (6.0f).contains (onPanel) ? SquareDrag::turn : SquareDrag::none;
+}
+
+CalibrationPlayer::Square CalibrationPanel::turned (CalibrationPlayer::Square square, float right, float up)
+{
+    // About the axis across the way it's dragged, so its near side follows the mouse, by how far it's dragged
+    const float angle = std::sqrt (right * right + up * up);
+    if (angle < 1.0e-6f)
+        return square;
+    const float ax = -up / angle, ay = right / angle; // and no z: the axis is in the field's plane
+    const float c = std::cos (angle), sn = std::sin (angle);
+    const float vx = square.dirX, vy = square.dirY, vz = square.dirZ;
+    const float dot = ax * vx + ay * vy;
+    // Rodrigues: v cos + (a x v) sin + a (a . v)(1 - cos)
+    const float crossX = ay * vz, crossY = -ax * vz, crossZ = ax * vy - ay * vx;
+    square.dirX = vx * c + crossX * sn + ax * dot * (1.0f - c);
+    square.dirY = vy * c + crossY * sn + ay * dot * (1.0f - c);
+    square.dirZ = vz * c + crossZ * sn;
+    return square;
+}
+
 void CalibrationPanel::setSquare (CalibrationPlayer::Square square)
 {
     CalibrationSettings::setSquare (processor.parameters.state, player, square);
@@ -629,10 +670,18 @@ void CalibrationPanel::paintField (juce::Graphics& g, const juce::String& hint)
 
 void CalibrationPanel::paintSquareMode (juce::Graphics& g)
 {
-    paintField (g, "Drag the square to move it, and its corner to resize it. Higher up is a higher low cut.");
+    const auto square = player.getSquare();
+    paintField (g, square.line ? "Drag the line or its ends to move them, and the field around it to turn it. Nearer is bigger and louder."
+                               : "Drag the square to move it, and its corner to resize it. Higher up is a higher low cut.");
     const auto field = gridArea.toFloat();
     juce::Graphics::ScopedSaveState clip (g);
     g.reduceClipRegion (field.expanded (6.0f).toNearestInt());
+
+    if (square.line)
+    {
+        paintSquareLine (g);
+        return;
+    }
 
     // The square, its corner, and its dots
     const auto outline = squareOutline();
@@ -651,9 +700,8 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
     }
     g.strokePath (grip, juce::PathStrokeType (1.3f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
-    const auto square = player.getSquare();
     const float radius = 6.0f;
-    for (int position = 0; position < square.size * square.size; ++position)
+    for (int position = 0; position < square.count(); ++position)
     {
         auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (toPanel (square.dot (position)));
         const bool isCurrent = isSounding (position);
@@ -664,6 +712,56 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
         }
         g.setColour (isCurrent ? Theme::accentBright : Theme::raisedHover.brighter (0.15f));
         g.fillEllipse (dot);
+    }
+}
+
+void CalibrationPanel::paintSquareLine (juce::Graphics& g)
+{
+    const auto square = player.getSquare();
+    const auto first = toPanel (square.dot (0)), last = toPanel (square.dot (2));
+    const auto hover = squareDrag != SquareDrag::none ? squareDrag : squareHitAt (getMouseXYRelative().toFloat());
+
+    // Its far end fainter than its near one
+    const float nearness = juce::jlimit (-1.0f, 1.0f, 2.0f * square.depth (2)); // its last end's, -1 (far away) to 1
+    const float lineAlpha = hover == SquareDrag::move ? 0.9f : 0.6f;
+    g.setGradientFill (juce::ColourGradient (Theme::accent.withAlpha (lineAlpha * (0.6f - 0.4f * nearness)), first,
+                                             Theme::accent.withAlpha (lineAlpha * (0.6f + 0.4f * nearness)), last, false));
+    g.drawLine ({ first, last }, hover == SquareDrag::move ? 2.5f : 2.0f);
+
+    // Its dots, the farthest first so the nearer go over them: bigger the nearer you they are
+    std::array<int, 3> order { 0, 1, 2 };
+    std::sort (order.begin(), order.end(), [&square] (int a, int b) { return square.depth (a) < square.depth (b); });
+    for (int position : order)
+    {
+        const float depth = square.depth (position);
+        const bool isEnd = position != 1;
+        const bool isHot = (position == 0 && hover == SquareDrag::firstEnd) || (position == 2 && hover == SquareDrag::lastEnd);
+        const float radius = juce::jlimit (3.0f, 11.0f, 6.0f * (1.0f + 1.4f * depth)) + (isHot ? 1.5f : 0.0f);
+        const auto centre = toPanel (square.dot (position));
+        auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);
+        const bool isCurrent = isSounding (position);
+        if (isCurrent)
+        {
+            g.setColour (Theme::accent.withAlpha (0.3f));
+            g.fillEllipse (dot.expanded (radius * 0.9f));
+        }
+        g.setColour (isCurrent ? Theme::accentBright : Theme::raisedHover.brighter (0.15f + 0.25f * juce::jlimit (0.0f, 1.0f, 2.0f * depth + 0.5f)));
+        g.fillEllipse (dot);
+        if (isEnd)
+        {
+            g.setColour (Theme::accent.withAlpha (isHot ? 0.95f : 0.7f));
+            g.drawEllipse (dot, 1.2f);
+
+            // How much louder (or quieter) it is for being turned toward you (or away)
+            const float db = CalibrationPlayer::depthDbPerField * depth;
+            if (std::abs (db) >= 0.5f)
+            {
+                g.setColour (Theme::textFaint);
+                g.setFont (Theme::font (10.0f));
+                g.drawText ((db > 0.0f ? "+" : "") + juce::String (db, 1) + " dB", juce::Rectangle<float> (60.0f, 14.0f).withPosition (centre.x + radius + 4.0f, centre.y - radius - 12.0f),
+                            juce::Justification::centredLeft, false);
+            }
+        }
     }
 }
 
@@ -761,7 +859,8 @@ void CalibrationPanel::refreshSpots()
     for (size_t i = 0; i < squareSizeButtons.size(); ++i)
     {
         squareSizeButtons[i].setVisible (square);
-        squareSizeButtons[i].setToggleState (player.getSquare().size == (int) i + 2, juce::dontSendNotification);
+        const auto shape = player.getSquare();
+        squareSizeButtons[i].setToggleState (i == 2 ? shape.line : ! shape.line && shape.size == (int) i + 2, juce::dontSendNotification);
     }
     for (int i = 0; i < (int) spotCountButtons.size(); ++i)
     {
@@ -1132,6 +1231,21 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
 
     if (isSquareMode())
     {
+        // A line: its ends move them, the line all of it, and the field around it turns it
+        grabbedSquare = player.getSquare();
+        if (grabbedSquare.line)
+        {
+            squareDrag = squareHitAt (event.position);
+            squareGrab = toField (event.position) - juce::Point<float> (grabbedSquare.x, grabbedSquare.y);
+            turnFrom = event.position;
+            if (squareDrag != SquareDrag::none)
+            {
+                grabKeyboardFocus();
+                startPlaying();
+            }
+            return;
+        }
+
         // The corner resizes it; anywhere else on the field moves it, bringing it to the mouse first if it's elsewhere
         squareDrag = SquareDrag::none;
         if (squareHandle().contains (event.position))
@@ -1231,6 +1345,43 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
     {
         auto square = player.getSquare();
         const auto at = toField (event.position);
+        if (square.line)
+        {
+            // From how it was when it was grabbed, so nothing it lost to the field's edges along the way stays lost
+            square = grabbedSquare;
+            if (squareDrag == SquareDrag::move)
+            {
+                square.x = at.x - squareGrab.x;
+                square.y = at.y - squareGrab.y;
+            }
+            else if (squareDrag == SquareDrag::firstEnd || squareDrag == SquareDrag::lastEnd)
+            {
+                // That end to the mouse, and the other the same way round its middle, still as near you as it was
+                const float sign = squareDrag == SquareDrag::lastEnd ? 1.0f : -1.0f;
+                const float toX = sign * (at.x - square.x), toY = sign * (at.y - square.y), toZ = 0.5f * square.length * square.dirZ;
+                const float half = std::sqrt (toX * toX + toY * toY + toZ * toZ);
+                if (half > 1.0e-4f)
+                {
+                    square.length = 2.0f * half;
+                    square.dirX = toX / half;
+                    square.dirY = toY / half;
+                    square.dirZ = toZ / half;
+                }
+            }
+            else if (squareDrag == SquareDrag::turn)
+            {
+                // Half a turn for dragging as far as the field is wide (or high, if it's less)
+                const float across = (float) std::max (1, std::min (gridArea.getWidth(), gridArea.getHeight()));
+                const auto moved = event.position - turnFrom;
+                square = turned (square, juce::MathConstants<float>::pi * moved.x / across, -juce::MathConstants<float>::pi * moved.y / across);
+            }
+            else
+            {
+                return;
+            }
+            setSquare (square);
+            return;
+        }
         if (squareDrag == SquareDrag::move)
         {
             square.x = at.x - squareGrab.x;
@@ -1292,9 +1443,21 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
 
     if (isSquareMode())
     {
-        // Arrows move the square; with Shift, a small step
+        // Arrows move the square; with Shift, a small step. With Alt, they turn a line
         const float step = key.getModifiers().isShiftDown() ? 0.005f : 0.025f;
         auto square = player.getSquare();
+        if (square.line && key.getModifiers().isAltDown())
+        {
+            const float angle = juce::degreesToRadians (key.getModifiers().isShiftDown() ? 1.0f : 5.0f);
+            float right = 0.0f, up = 0.0f;
+            if (key.getKeyCode() == juce::KeyPress::upKey)         up = angle;
+            else if (key.getKeyCode() == juce::KeyPress::downKey)  up = -angle;
+            else if (key.getKeyCode() == juce::KeyPress::leftKey)  right = -angle;
+            else if (key.getKeyCode() == juce::KeyPress::rightKey) right = angle;
+            else return false;
+            setSquare (turned (square, right, up));
+            return true;
+        }
         if (key.getKeyCode() == juce::KeyPress::upKey)         square.y += step;
         else if (key.getKeyCode() == juce::KeyPress::downKey)  square.y -= step;
         else if (key.getKeyCode() == juce::KeyPress::leftKey)  square.x -= step;
@@ -1366,6 +1529,21 @@ void CalibrationPanel::mouseUp (const juce::MouseEvent&)
     repaint();
 }
 
+void CalibrationPanel::mouseDoubleClick (const juce::MouseEvent& event)
+{
+    // Drag mode's line, laid back flat across the field, as long as it was
+    if (! isSquareMode() || ! player.getSquare().line || squareHitAt (event.position) == SquareDrag::none)
+        return;
+    auto square = player.getSquare();
+    const float flat = std::sqrt (square.dirX * square.dirX + square.dirY * square.dirY);
+    if (flat > 0.05f)
+        square.dirX /= flat, square.dirY /= flat;
+    else
+        square.dirX = 1.0f, square.dirY = 0.0f;
+    square.dirZ = 0.0f;
+    setSquare (square);
+}
+
 void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
 {
     if (isGuidedMode())
@@ -1381,8 +1559,11 @@ void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
     }
     if (isSquareMode())
     {
-        setMouseCursor (squareHandle().contains (event.position) ? juce::MouseCursor::BottomRightCornerResizeCursor
-                        : squareOutline().contains (event.position) ? juce::MouseCursor::DraggingHandCursor
+        const auto hit = squareHitAt (event.position);
+        setMouseCursor (hit == SquareDrag::resize ? juce::MouseCursor::BottomRightCornerResizeCursor
+                        : hit == SquareDrag::move ? juce::MouseCursor::DraggingHandCursor
+                        : hit == SquareDrag::firstEnd || hit == SquareDrag::lastEnd ? juce::MouseCursor::PointingHandCursor
+                        : hit == SquareDrag::turn ? juce::MouseCursor::UpDownLeftRightResizeCursor
                         : gridArea.toFloat().contains (event.position) ? juce::MouseCursor::PointingHandCursor : juce::MouseCursor::NormalCursor);
         repaint (gridArea.expanded (8));
         return;
