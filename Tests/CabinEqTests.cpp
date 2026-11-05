@@ -2240,7 +2240,7 @@ public:
             expect (played == picked, "only the picked ones play, all the way to the last");
         }
 
-        beginTest ("The depth can work on each dot, each row, or the whole cycle");
+        beginTest ("The depth can work on each dot, each row, each column, or the whole cycle");
         {
             using Unit = CalibrationPlayer::DepthUnit;
             // A 2 x 2 grid, two levels. Returns the order, and which bursts were the loud ones.
@@ -2285,6 +2285,10 @@ public:
             auto [rows, rowsLoud] = play (Unit::row, 1, 9);
             expect (rows == std::vector<int> { 0, 1, 0, 1, 2, 3, 2, 3, 0 }, "row: each row at both levels before the next row");
             expect (rowsLoud == std::vector<bool> { false, false, true, true, false, false, true, true, false });
+
+            auto [columns, columnsLoud] = play (Unit::column, 1, 9);
+            expect (columns == std::vector<int> { 0, 2, 0, 2, 1, 3, 1, 3, 0 }, "column: down each column, at both levels before the next column");
+            expect (columnsLoud == std::vector<bool> { false, false, true, true, false, false, true, true, false });
 
             auto [cycle, cycleLoud] = play (Unit::cycle, 1, 9);
             expect (cycle == std::vector<int> { 0, 1, 2, 3, 0, 1, 2, 3, 0 }, "cycle: every dot at one level, then every dot at the next");

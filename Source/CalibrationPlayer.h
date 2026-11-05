@@ -523,9 +523,10 @@ public:
 
     void setDepth (int newDepth)        { depth = juce::jlimit (1, maxDepth, newDepth); }
     /// What the depth works on: what plays at each level in turn before the next thing does. A dot, a row
-    /// (for spots, a spot across its pan steps), or the whole cycle of every position.
-    enum class DepthUnit { dot = 0, row = 1, cycle = 2 };
-    void setDepthUnit (DepthUnit unit)  { depthUnit = juce::jlimit (0, 2, (int) unit); }
+    /// (for spots, a spot across its pan steps), a column (which goes column by column, down each, instead of
+    /// row by row; for spots, a pan step down every spot), or the whole cycle of every position.
+    enum class DepthUnit { dot = 0, row = 1, cycle = 2, column = 3 };
+    void setDepthUnit (DepthUnit unit)  { depthUnit = juce::jlimit (0, 3, (int) unit); }
     DepthUnit getDepthUnit() const      { return (DepthUnit) depthUnit.load(); }
 
     /// How many times that plays at each level before it goes up one
@@ -1007,26 +1008,38 @@ private:
             for (int p = 0; modeNow == Mode::grid && p < rowCount * rowLength && ! anySelected; ++p)
                 anySelected = isSelected (p);
 
-            auto nextInRow = [&] (int row, int after)
+            // By columns, it goes down each column in turn rather than along each row: seqRow is then the column
+            // it's on, and seqColumn how far down it. Everything below is in those terms: a line, and along it.
+            const auto unit = (DepthUnit) depthUnit.load();
+            const bool byColumn = unit == DepthUnit::column;
+            const int lineCount = byColumn ? rowLength : rowCount, lineLength = byColumn ? rowCount : rowLength;
+            auto positionOf = [&] (int line, int along) { return byColumn ? along * rowLength + line : line * rowLength + along; };
+
+            auto nextInRow = [&] (int line, int after)
             {
-                for (int column = after + 1; column < rowLength; ++column)
-                    if (! anySelected || isSelected (row * rowLength + column))
-                        return column;
+                for (int along = after + 1; along < lineLength; ++along)
+                    if (! anySelected || isSelected (positionOf (line, along)))
+                        return along;
                 return -1;
             };
             auto nextRowWithSomething = [&] (int after)
             {
-                for (int step = 1; step <= rowCount; ++step)
-                    if (const int row = (std::max (after, -1) + step) % rowCount; nextInRow (row, -1) >= 0)
-                        return row;
+                for (int step = 1; step <= lineCount; ++step)
+                    if (const int line = (std::max (after, -1) + step) % lineCount; nextInRow (line, -1) >= 0)
+                        return line;
                 return 0;
             };
 
-            // Starting out, or the row it was on has gone (or has nothing selected in it now)
+            // Starting out, or the line it was on has gone (or has nothing selected in it now), or it's changed which way it goes
             const int depthRuns = depth.load(), repeats = depthRepeats.load();
-            if (seqRow < 0 || seqRow >= rowCount || nextInRow (seqRow, -1) < 0)
+            if (byColumn != seqByColumn)
             {
-                seqRow = nextRowWithSomething (seqRow < rowCount ? seqRow : -1);
+                seqByColumn = byColumn;
+                seqRow = seqColumn = -1;
+            }
+            if (seqRow < 0 || seqRow >= lineCount || nextInRow (seqRow, -1) < 0)
+            {
+                seqRow = nextRowWithSomething (seqRow < lineCount ? seqRow : -1);
                 seqColumn = -1;
                 depthLevel = 0;
                 depthRepeat = 0;
@@ -1038,7 +1051,7 @@ private:
             }
             else
             {
-                // What would play next, in reading order
+                // What would play next, in order
                 int nextRow = seqRow, nextColumn = nextInRow (seqRow, seqColumn);
                 const bool rowEnded = nextColumn < 0;
                 if (rowEnded)
@@ -1048,10 +1061,9 @@ private:
                 }
                 const bool cycleEnded = rowEnded && nextRow <= seqRow;
 
-                // The unit the depth works on (a dot, a row, or the whole cycle) has just played. It plays again at
-                // this level until it's had its repeats, then a level louder, and after the loudest, it moves on.
-                const auto unit = (DepthUnit) depthUnit.load();
-                if (unit == DepthUnit::dot || (unit == DepthUnit::row && rowEnded) || (unit == DepthUnit::cycle && cycleEnded))
+                // The unit the depth works on (a dot, a row or column, or the whole cycle) has just played. It plays again
+                // at this level until it's had its repeats, then a level louder, and after the loudest, it moves on.
+                if (unit == DepthUnit::dot || ((unit == DepthUnit::row || byColumn) && rowEnded) || (unit == DepthUnit::cycle && cycleEnded))
                 {
                     bool movesOn = false;
                     if (++depthRepeat >= repeats)
@@ -1067,12 +1079,12 @@ private:
                     if (! movesOn)
                     {
                         // Back to the start of the unit
-                        if (unit == DepthUnit::dot && (! anySelected || isSelected (seqRow * rowLength + seqColumn)))
+                        if (unit == DepthUnit::dot && (! anySelected || isSelected (positionOf (seqRow, seqColumn))))
                         {
                             nextRow = seqRow;
                             nextColumn = seqColumn;
                         }
-                        else if (unit == DepthUnit::row)
+                        else if (unit == DepthUnit::row || byColumn)
                         {
                             nextRow = seqRow;
                             nextColumn = std::max (0, nextInRow (seqRow, -1));
@@ -1089,8 +1101,9 @@ private:
             }
             depthLevel = std::min (depthLevel, depthRuns - 1); // if the depth's come down
 
-            const int position = panned ? seqRow : seqRow * rowLength + seqColumn;
-            const int repeat = seqColumn; // for a spot or a band, which pan position it's at
+            const int row = byColumn ? seqColumn : seqRow, column = byColumn ? seqRow : seqColumn;
+            const int position = panned ? row : row * rowLength + column;
+            const int repeat = column; // for a spot or a band, which pan position it's at
             currentPosition = position;
             burst = burstAt (modeNow, position, repeat);
 
@@ -1460,7 +1473,8 @@ private:
     // Audio thread
     std::array<Voice, 64> voices {}; // enough for the fastest bursts to ring for a second each before the quietest is reused
     int samplesUntilNext = 0;
-    int seqRow = -1, seqColumn = -1; // where it's playing: the row, and the place along it
+    int seqRow = -1, seqColumn = -1; // where it's playing: the row, and the place along it (by columns, the column, and how far down)
+    bool seqByColumn = false;
     int depthLevel = 0;  // which level the row's being played at: 0 is the quietest
     int depthRepeat = 0; // how many times it's been played at that level
     PinkNoise pinkSource { juce::Random (42) };

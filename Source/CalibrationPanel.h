@@ -74,7 +74,9 @@ private:
     }
     juce::Slider repeatsSlider; // how many times a row plays at each depth level
     juce::Label repeatsLabel;
-    std::array<juce::TextButton, 3> depthUnitButtons; // what the depth works on: each dot, each row, or the whole cycle
+    std::array<juce::TextButton, 4> depthUnitButtons; // what the depth works on: each dot, each row, each column, or the whole cycle
+    static constexpr std::array<CalibrationPlayer::DepthUnit, 4> depthUnitShown { CalibrationPlayer::DepthUnit::dot, CalibrationPlayer::DepthUnit::row,
+                                                                                  CalibrationPlayer::DepthUnit::column, CalibrationPlayer::DepthUnit::cycle };
     juce::Label depthUnitLabel;
     void setDepthUnit (CalibrationPlayer::DepthUnit unit);
     void updateDepthControls(); // which of depth, repeats and the floor mean anything in this mode
