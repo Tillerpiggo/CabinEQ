@@ -445,6 +445,18 @@ public:
     void setLineSweep (float seconds) { lineSweep = juce::jlimit (minLineSweep, maxLineSweep, seconds); }
     float getLineSweep() const        { return lineSweep.load(); }
 
+    /// How loud each end of the line is, in dB from the volume: pushed toward you or back. Between them it goes evenly, in dB.
+    static constexpr float minLineLevelDb = -24.0f, maxLineLevelDb = 12.0f;
+    void setLineLevels (float startDb, float endDb)
+    {
+        lineStartDb = juce::jlimit (minLineLevelDb, maxLineLevelDb, startDb);
+        lineEndDb = juce::jlimit (minLineLevelDb, maxLineLevelDb, endDb);
+    }
+    float getLineStartDb() const { return lineStartDb.load(); }
+    float getLineEndDb() const   { return lineEndDb.load(); }
+    /// The level this far along it
+    float lineLevelAt (float along) const { return lineStartDb.load() + (lineEndDb.load() - lineStartDb.load()) * along; }
+
     /// Or, in steps, the line divided into this many positions, both its ends among them, played one at a time there
     /// and back (the ends once each way): a row of dots, so the depth, repeats and On each work on them as on the grid
     static constexpr int minLineSteps = 2, maxLineSteps = 24, defaultLineSteps = 8;
@@ -1203,6 +1215,7 @@ private:
                 along = lineStepAlong (burst.position);
             }
             const auto point = getLine().at (along);
+            burst.levelDb = lineLevelAt (along);
             burst.pan = juce::jlimit (0.0f, 1.0f, point.x);
             burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, point.y), getHeights());
             if (burst.cutoff <= 20.5)
@@ -1494,6 +1507,7 @@ private:
 
     std::atomic<float> lineX1 { 0.15f }, lineY1 { 0.25f }, lineX2 { 0.85f }, lineY2 { 0.75f }, lineSweep { defaultLineSweep }, lineAlong { 0.0f };
     std::atomic<bool> lineStepped { false };
+    std::atomic<float> lineStartDb { 0.0f }, lineEndDb { 0.0f };
     std::atomic<int> lineSteps { defaultLineSteps };
     double linePhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
 

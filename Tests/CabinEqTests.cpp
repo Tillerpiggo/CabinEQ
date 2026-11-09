@@ -2112,9 +2112,70 @@ public:
                 expect (player.isHeld (position));
             expect (! player.isHeld (4));
 
+            // Each end as loud as asked, faded evenly in dB between: a start 12 dB down is that much quieter than the end
+            player.setConstant (false);
+            player.setLineSteps (2);
+            player.setDepthRepeats (1);
+            player.setLine ({ 0.0f, 0.85f, 1.0f, 0.85f }); // high, so little of the noise is down where it wanders
+            player.setLineLevels (-12.0f, 0.0f);
+            expectWithinAbsoluteError (player.lineLevelAt (0.5f), -6.0f, 0.001f, "halfway, halfway in dB");
+            for (int warmUp = 0; warmUp < 4; ++warmUp) // past the held noise fading out
+            {
+                juce::AudioBuffer<float> block (2, (int) (0.2 * sampleRate));
+                player.process (block);
+            }
+            std::array<double, 2> power {};
+            for (int burst = 0; burst < 16; ++burst)
+            {
+                juce::AudioBuffer<float> block (2, (int) (0.2 * sampleRate));
+                block.clear();
+                player.process (block);
+                for (int channel = 0; channel < 2; ++channel)
+                    power[(size_t) juce::jlimit (0, 1, player.getCurrentPosition())] += juce::square ((double) block.getRMSLevel (channel, 0, block.getNumSamples()));
+            }
+            expectWithinAbsoluteError ((float) juce::Decibels::gainToDecibels (std::sqrt (power[0] / power[1])), -12.0f, 2.0f, "the start 12 dB under the end");
+            player.setLineLevels (-99.0f, 99.0f);
+            expectEquals (player.getLineStartDb(), CalibrationPlayer::minLineLevelDb);
+            expectEquals (player.getLineEndDb(), CalibrationPlayer::maxLineLevelDb);
+
             // Kept
             CabinEqAudioProcessor processor;
             auto& state = processor.parameters.state;
+            CalibrationSettings::setLineLevels (state, processor.getCalibration(), -6.0f, 3.0f);
+            processor.getCalibration().setLineLevels (0.0f, 0.0f);
+            CalibrationSettings::apply (state, processor.getCalibration());
+            expectWithinAbsoluteError (processor.getCalibration().getLineStartDb(), -6.0f, 0.001f, "its levels kept");
+            expectWithinAbsoluteError (processor.getCalibration().getLineEndDb(), 3.0f, 0.001f);
+
+            // From the panel: Shift-dragging an end up pushes it forward, louder, and leaves it where it is
+            {
+                CalibrationSettings::setMode (state, processor.getCalibration(), CalibrationPlayer::Mode::line);
+                CalibrationSettings::setLine (state, processor.getCalibration(), { 0.2f, 0.5f, 0.8f, 0.5f });
+                CalibrationSettings::setLineLevels (state, processor.getCalibration(), 0.0f, 0.0f);
+                CalibrationPanel panel (processor);
+                panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+                const auto field = panel.getFieldArea().toFloat();
+                const juce::Point<float> end (field.getX() + 0.8f * field.getWidth(), field.getBottom() - 0.5f * field.getHeight());
+                auto mouse = [&panel] (juce::Point<float> at, juce::Point<float> down, bool shift)
+                {
+                    return juce::MouseEvent (juce::Desktop::getInstance().getMainMouseSource(), at,
+                                             juce::ModifierKeys (juce::ModifierKeys::leftButtonModifier | (shift ? juce::ModifierKeys::shiftModifier : 0)),
+                                             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, &panel, &panel, juce::Time::getCurrentTime(), down, juce::Time::getCurrentTime(), 1, false);
+                };
+                panel.mouseDown (mouse (end, end, true));
+                panel.mouseDrag (mouse (end.translated (0.0f, -40.0f), end, true));
+                panel.mouseUp (mouse (end.translated (0.0f, -40.0f), end, true));
+                expectWithinAbsoluteError (processor.getCalibration().getLineEndDb(), 5.0f, 0.01f, "40 pixels up, 5 dB louder");
+                expectWithinAbsoluteError (processor.getCalibration().getLineStartDb(), 0.0f, 0.001f, "the other end as it was");
+                expectWithinAbsoluteError (processor.getCalibration().getLine().y2, 0.5f, 0.001f, "and the end hasn't moved");
+                bool sliderShows = false;
+                for (auto* child : panel.getChildren())
+                    if (auto* slider = dynamic_cast<juce::Slider*> (child); slider != nullptr && slider->isVisible() && slider->getSliderStyle() == juce::Slider::LinearVertical)
+                        sliderShows = sliderShows || std::abs (slider->getValue() - 5.0) < 0.01;
+                expect (sliderShows, "and its slider shows it");
+                panel.stop();
+            }
+
             CalibrationSettings::setLineStepped (state, processor.getCalibration(), true);
             CalibrationSettings::setLineSteps (state, processor.getCalibration(), 99);
             processor.getCalibration().setLineStepped (false);
@@ -4177,6 +4238,8 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
     {
         processor.parameters.state.setProperty (CalibrationSettings::idLineStepped, true, nullptr);
         processor.parameters.state.setProperty (CalibrationSettings::idLineSteps, steps.getIntValue(), nullptr);
+        processor.parameters.state.setProperty (CalibrationSettings::idLineStartDb, -9.0f, nullptr);
+        processor.parameters.state.setProperty (CalibrationSettings::idLineEndDb, 4.0f, nullptr);
     }
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_LINE3D", {}).isNotEmpty())
     {

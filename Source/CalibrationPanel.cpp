@@ -477,6 +477,23 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         repaint (gridArea.expanded (16));
     };
     addChildComponent (lineStepsSlider);
+
+    // How loud each end of the line is, faded evenly between
+    for (size_t i = 0; i < lineLevelSliders.size(); ++i)
+    {
+        auto& slider = lineLevelSliders[i];
+        slider.setSliderStyle (juce::Slider::LinearVertical);
+        slider.setRange (CalibrationPlayer::minLineLevelDb, CalibrationPlayer::maxLineLevelDb, 0.1);
+        slider.setValue (i == 0 ? player.getLineStartDb() : player.getLineEndDb(), juce::dontSendNotification);
+        slider.setDoubleClickReturnValue (true, 0.0);
+        slider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+        slider.setPopupDisplayEnabled (true, true, this);
+        slider.textFromValueFunction = [] (double v) { return (v > 0.04 ? "+" : "") + juce::String (v, 1) + " dB"; };
+        slider.setTooltip (juce::String (i == 0 ? "How loud the line's start is" : "How loud the line's end is")
+                           + ", faded evenly to the other along it. Shift-drag an end on the field to push it forward or back too. Double-click for 0 dB.");
+        slider.onValueChange = [this] { setLineLevels ((float) lineLevelSliders[0].getValue(), (float) lineLevelSliders[1].getValue()); };
+        addChildComponent (slider);
+    }
     gridModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::grid); };
     rangeModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::range); };
     rangeModeButton.setTooltip ("A range you choose, split into a bottom, a middle and a top, each sharply band-passed, played top to bottom");
@@ -664,6 +681,15 @@ void CalibrationPanel::paintField (juce::Graphics& g, const juce::String& hint)
     g.setColour (Theme::textFaint);
     g.drawText ("Left", gridArea.getX(), gridArea.getBottom() + 4, 60, 14, juce::Justification::centredLeft);
     g.drawText ("Right", gridArea.getRight() - 60, gridArea.getBottom() + 4, 60, 14, juce::Justification::centredRight);
+    if (lineLevelSliders[0].isVisible())
+    {
+        // Under the ends' levels
+        g.setFont (Theme::font (9.5f));
+        auto caption = lineLevelSliders[0].getBounds().getUnion (lineLevelSliders[1].getBounds()).withY (gridArea.getBottom() + 8).withHeight (14);
+        g.drawText ("Start", caption.removeFromLeft (caption.getWidth() / 2), juce::Justification::centred);
+        g.drawText ("End", caption, juce::Justification::centred);
+        g.setFont (Theme::font (10.5f));
+    }
     if (lineSweepSlider.isVisible() || lineStepsSlider.isVisible())
         g.drawText (lineStepsSlider.isVisible() ? "Positions" : "Sweep", columnsCaption, juce::Justification::centredRight); // its slider's where the columns are
     else if (hint.isNotEmpty())
@@ -804,6 +830,14 @@ void CalibrationPanel::setLine (CalibrationPlayer::Line line)
     repaint();
 }
 
+void CalibrationPanel::setLineLevels (float startDb, float endDb)
+{
+    CalibrationSettings::setLineLevels (processor.parameters.state, player, startDb, endDb);
+    lineLevelSliders[0].setValue (player.getLineStartDb(), juce::dontSendNotification);
+    lineLevelSliders[1].setValue (player.getLineEndDb(), juce::dontSendNotification);
+    repaint();
+}
+
 CalibrationPanel::LineDrag CalibrationPanel::lineHitAt (juce::Point<float> onPanel) const
 {
     const auto line = player.getLine();
@@ -825,20 +859,29 @@ void CalibrationPanel::paintLineMode (juce::Graphics& g)
     g.reduceClipRegion (gridArea.expanded (12));
     g.setColour (Theme::textFaint);
     g.setFont (Theme::font (10.5f));
-    g.drawText ("Drag to draw a line, and drag its ends or the line to move them", gridArea.reduced (8, 4).removeFromTop (16), juce::Justification::centredLeft, true);
+    g.drawText ("Drag to draw a line; drag its ends or the line to move them. Shift-drag up or down: louder or quieter.", gridArea.reduced (8, 4).removeFromTop (16), juce::Justification::centredLeft, true);
 
     const auto line = player.getLine();
     const auto start = toPanel (line.start()), end = toPanel (line.end());
     const auto hover = lineDrag != LineDrag::none ? lineDrag : lineHitAt (getMouseXYRelative().toFloat());
     g.setColour (Theme::accent.withAlpha (hover == LineDrag::move ? 0.85f : 0.55f));
     g.drawLine ({ start, end }, hover == LineDrag::move ? 2.5f : 2.0f);
-    for (auto [point, which] : { std::pair { start, LineDrag::start }, std::pair { end, LineDrag::end } })
+    for (auto [point, which, db] : { std::tuple { start, LineDrag::start, player.getLineStartDb() }, std::tuple { end, LineDrag::end, player.getLineEndDb() } })
     {
-        const float radius = hover == which ? 6.5f : 5.0f;
+        // Bigger the louder (pushed toward you), smaller the quieter
+        const bool isHot = hover == which || (which == LineDrag::start ? hover == LineDrag::startLevel : hover == LineDrag::endLevel) || hover == LineDrag::bothLevels;
+        const float radius = juce::jlimit (2.5f, 10.0f, 5.0f + 0.2f * db) + (isHot ? 1.5f : 0.0f);
         g.setColour (Theme::raisedHover.brighter (0.25f));
         g.fillEllipse (juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (point));
         g.setColour (Theme::accent.withAlpha (0.8f));
         g.drawEllipse (juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (point), 1.2f);
+        if (std::abs (db) >= 0.05f)
+        {
+            g.setColour (Theme::textFaint);
+            g.setFont (Theme::font (10.0f));
+            g.drawText ((db > 0.0f ? "+" : "") + juce::String (db, 1) + " dB", juce::Rectangle<float> (60.0f, 14.0f).withPosition (point.x + radius + 4.0f, point.y - radius - 12.0f),
+                        juce::Justification::centredLeft, false);
+        }
     }
 
     // In steps, its positions, lit as they play
@@ -900,6 +943,11 @@ void CalibrationPanel::refreshSpots()
     const bool stepped = player.isLineStepped();
     lineSweepSlider.setVisible (line && ! stepped);
     lineStepsSlider.setVisible (line && stepped);
+    for (auto& slider : lineLevelSliders)
+        slider.setVisible (line);
+    lineLevelSliders[0].setValue (player.getLineStartDb(), juce::dontSendNotification);
+    lineLevelSliders[1].setValue (player.getLineEndDb(), juce::dontSendNotification);
+    lineStepsSlider.setValue (player.getLineSteps(), juce::dontSendNotification);
     for (size_t i = 0; i < lineStyleButtons.size(); ++i)
     {
         lineStyleButtons[i].setVisible (line);
@@ -1286,6 +1334,17 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
         lineDrag = lineHitAt (event.position);
         grabbedLine = player.getLine();
         lineGrab = toField (event.position);
+        grabbedStartDb = player.getLineStartDb();
+        grabbedEndDb = player.getLineEndDb();
+        if (event.mods.isShiftDown())
+        {
+            // Shift pushes an end (or the line, both of them) forward or back, instead of moving it
+            lineDrag = lineDrag == LineDrag::start ? LineDrag::startLevel : lineDrag == LineDrag::end ? LineDrag::endLevel
+                     : lineDrag == LineDrag::move ? LineDrag::bothLevels : LineDrag::none;
+            if (lineDrag != LineDrag::none)
+                startPlaying();
+            return;
+        }
         if (lineDrag == LineDrag::none && gridArea.toFloat().expanded (6.0f).contains (event.position))
         {
             setLine ({ lineGrab.x, lineGrab.y, lineGrab.x, lineGrab.y });
@@ -1383,6 +1442,14 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
     if (isLineMode())
     {
         const auto at = toField (event.position);
+        if (lineDrag == LineDrag::startLevel || lineDrag == LineDrag::endLevel || lineDrag == LineDrag::bothLevels)
+        {
+            // Up pushes it toward you, louder: 1 dB every 8 pixels
+            const float db = -(float) event.getDistanceFromDragStartY() / 8.0f;
+            setLineLevels (lineDrag != LineDrag::endLevel ? grabbedStartDb + db : grabbedStartDb,
+                           lineDrag != LineDrag::startLevel ? grabbedEndDb + db : grabbedEndDb);
+            return;
+        }
         auto line = player.getLine();
         if (lineDrag == LineDrag::start)
         {
@@ -1621,7 +1688,8 @@ void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
     if (isLineMode())
     {
         const auto hit = lineHitAt (event.position);
-        setMouseCursor (hit == LineDrag::move ? juce::MouseCursor::DraggingHandCursor
+        setMouseCursor (hit != LineDrag::none && event.mods.isShiftDown() ? juce::MouseCursor::UpDownResizeCursor
+                        : hit == LineDrag::move ? juce::MouseCursor::DraggingHandCursor
                         : hit != LineDrag::none ? juce::MouseCursor::PointingHandCursor
                         : gridArea.toFloat().contains (event.position) ? juce::MouseCursor::CrosshairCursor : juce::MouseCursor::NormalCursor);
         repaint (gridArea.expanded (12));
@@ -1891,6 +1959,13 @@ void CalibrationPanel::resized()
     columnsSlider.setBounds (juce::Rectangle<int> (gridArea.getX() - 6, columnsStrip.getY(), gridArea.getWidth() + 12, 28));
     lineSweepSlider.setBounds (columnsSlider.getBounds()); // Line mode's, where the columns are
     lineStepsSlider.setBounds (columnsSlider.getBounds());
+    {
+        // The ends' levels, side by side under Glide and Steps, captioned under the field
+        const int top = gridArea.getY() - 4 + 2 * 30 + 6;
+        auto strip = juce::Rectangle<int> (rowsStrip.getX(), top, rowsStrip.getWidth() - 2, gridArea.getBottom() - top + 4);
+        lineLevelSliders[0].setBounds (strip.removeFromLeft (strip.getWidth() / 2));
+        lineLevelSliders[1].setBounds (strip);
+    }
     for (size_t i = 0; i < lineStyleButtons.size(); ++i) // and Glide or Steps where the square's sizes are
         lineStyleButtons[i].setBounds (squareSizeButtons[i].getBounds());
 

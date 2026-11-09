@@ -92,6 +92,10 @@ loads the VST3 to EQ everything the Mac plays.
   ends once each way. They're a row of dots, so Repeats sets how many times each position plays before the next
   (picking Steps sets On each to Dot for that), and Depth, Floor and the other On each choices work as on the grid.
   With Hold, every position plays at once.
+  Each end of the line has a level (-24 to +12 dB, 0 to start), faded evenly in dB along the line, gliding or in
+  steps, held or not: set them with the **Start** and **End** sliders beside the field, or Shift-drag an end on the
+  field up to push it forward (louder) or down to push it back (quieter), 1 dB every 8 pixels. Shift-dragging the
+  line pushes both ends together. A louder end is drawn bigger, with its level beside it. Double-click a slider for 0 dB.
 - **Calibration, Range mode** (the panel's fifth mode): choose a range with the two-thumb Range slider (100 Hz to
   10 kHz to start). It's split into a bottom, a middle and a top, each a sharp band (48 dB an octave at both
   edges), so everything plays inside the range; the Middle slider is how much of the range, in octaves, the middle

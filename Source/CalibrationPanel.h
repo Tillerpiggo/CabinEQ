@@ -102,7 +102,10 @@ private:
     std::array<juce::TextButton, 2> lineStyleButtons; // Glide and Steps
     juce::Slider lineStepsSlider; // how many positions
     void setLineStepped (bool stepped);
-    enum class LineDrag { none, start, end, move };
+    enum class LineDrag { none, start, end, move, startLevel, endLevel, bothLevels }; // with Shift, pushing them forward or back
+    std::array<juce::Slider, 2> lineLevelSliders; // how loud its start and its end are
+    float grabbedStartDb = 0.0f, grabbedEndDb = 0.0f;
+    void setLineLevels (float startDb, float endDb);
     LineDrag lineDrag = LineDrag::none;
     juce::Point<float> lineGrab; // where on the field the line was grabbed, when moving all of it
     CalibrationPlayer::Line grabbedLine;
