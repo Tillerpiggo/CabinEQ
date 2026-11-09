@@ -87,7 +87,11 @@ loads the VST3 to EQ everything the Mac plays.
   either end to move it, drag the line to move all of it, or nudge it with the arrow keys. A point goes back and
   forth along it, end to end in the **Sweep** time (0.25 to 30 s, 4 s to start; double-click for it), and each
   burst plays wherever the point has got to, at the panel's speed, attack and release. With Hold, it's one steady
-  noise gliding along the line instead.
+  noise gliding along the line instead. That's **Glide**; **Steps**, beside it, divides the line into evenly spaced
+  **Positions** (2 to 24, 8 to start; both ends are positions) and plays them one at a time, there and back, the
+  ends once each way. They're a row of dots, so Repeats sets how many times each position plays before the next
+  (picking Steps sets On each to Dot for that), and Depth, Floor and the other On each choices work as on the grid.
+  With Hold, every position plays at once.
 - **Calibration, Range mode** (the panel's fifth mode): choose a range with the two-thumb Range slider (100 Hz to
   10 kHz to start). It's split into a bottom, a middle and a top, each a sharp band (48 dB an octave at both
   edges), so everything plays inside the range; the Middle slider is how much of the range, in octaves, the middle

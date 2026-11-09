@@ -31,7 +31,7 @@ namespace CalibrationSettings
                                   idSquareLine { "calibrationSquareLine" }, idSquareLength { "calibrationSquareLength" },
                                   idSquareDirX { "calibrationSquareDirX" }, idSquareDirY { "calibrationSquareDirY" }, idSquareDirZ { "calibrationSquareDirZ" };
     inline const juce::Identifier idLineX1 { "calibrationLineX1" }, idLineY1 { "calibrationLineY1" }, idLineX2 { "calibrationLineX2" }, idLineY2 { "calibrationLineY2" },
-                                  idLineSweep { "calibrationLineSweep" };
+                                  idLineSweep { "calibrationLineSweep" }, idLineStepped { "calibrationLineStepped" }, idLineSteps { "calibrationLineSteps" };
 
     constexpr float minFrequency = 20.0f, maxFrequency = 16000.0f;
 
@@ -126,6 +126,18 @@ namespace CalibrationSettings
         state.setProperty (idLineSweep, player.getLineSweep(), nullptr);
     }
 
+    /// Line mode in steps (or gliding), and how many
+    inline void setLineStepped (juce::ValueTree state, CalibrationPlayer& player, bool stepped)
+    {
+        player.setLineStepped (stepped);
+        state.setProperty (idLineStepped, stepped, nullptr);
+    }
+    inline void setLineSteps (juce::ValueTree state, CalibrationPlayer& player, int steps)
+    {
+        player.setLineSteps (steps);
+        state.setProperty (idLineSteps, player.getLineSteps(), nullptr);
+    }
+
     /// Hands everything in the state to the player
     inline void apply (const juce::ValueTree& state, CalibrationPlayer& player)
     {
@@ -139,6 +151,8 @@ namespace CalibrationSettings
         player.setSquare (getSquare (state));
         player.setLine (getLine (state));
         player.setLineSweep (state.getProperty (idLineSweep, CalibrationPlayer::defaultLineSweep));
+        player.setLineStepped (state.getProperty (idLineStepped, false));
+        player.setLineSteps (state.getProperty (idLineSteps, CalibrationPlayer::defaultLineSteps));
         player.setHeightSpacing (getHeightSpacing (state));
         player.setRange (state.getProperty (idRangeLow, CalibrationPlayer::defaultRangeLow), state.getProperty (idRangeHigh, CalibrationPlayer::defaultRangeHigh),
                          state.getProperty (idRangeMiddle, CalibrationPlayer::defaultRangeMiddle));

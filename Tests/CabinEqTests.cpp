@@ -2047,6 +2047,81 @@ public:
                 if (auto* slider = dynamic_cast<juce::Slider*> (child); slider != nullptr && slider->getTextFromValue (4.0).contains ("sweep"))
                     sweepShown = slider->isVisible() && ! slider->getBounds().isEmpty();
             expect (sweepShown, "its sweep's there to set");
+
+            // Steps, from the panel: the positions slider instead, and On each goes to Dot
+            juce::TextButton* steps = nullptr;
+            for (auto* child : panel.getChildren())
+                if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->getButtonText() == "Steps")
+                    steps = button;
+            expect (steps != nullptr && steps->isVisible() && ! steps->getBounds().isEmpty(), "Steps is there to pick");
+            if (steps != nullptr)
+            {
+                processor.getCalibration().setDepthUnit (CalibrationPlayer::DepthUnit::row);
+                steps->onClick();
+                expect (processor.getCalibration().isLineStepped());
+                expect (processor.getCalibration().getDepthUnit() == CalibrationPlayer::DepthUnit::dot, "each position its repeats before the next");
+                expect ((bool) state.getProperty (CalibrationSettings::idLineStepped, false), "kept");
+                bool positionsShown = false, sweepHidden = true;
+                for (auto* child : panel.getChildren())
+                    if (auto* slider = dynamic_cast<juce::Slider*> (child); slider != nullptr)
+                    {
+                        if (slider->getTextFromValue (8.0).contains ("positions"))
+                            positionsShown = slider->isVisible() && ! slider->getBounds().isEmpty();
+                        if (slider->getTextFromValue (4.0).contains ("sweep"))
+                            sweepHidden = ! slider->isVisible();
+                    }
+                expect (positionsShown && sweepHidden, "how many positions, in place of the sweep");
+            }
+            panel.stop();
+        }
+
+        beginTest ("Line mode in steps: its positions one at a time, there and back, each its repeats before the next");
+        {
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::line);
+            player.setLine ({ 0.0f, 0.5f, 1.0f, 0.5f });
+            player.setLineStepped (true);
+            player.setLineSteps (4);
+            player.setDepthUnit (CalibrationPlayer::DepthUnit::dot);
+            player.setDepthRepeats (2);
+            player.setReleaseMs (50.0f);
+            player.setRate (1.0f / 0.2f);
+            player.setPlaying (true);
+            std::vector<int> positions;
+            std::vector<float> rightOverLeft;
+            for (int burst = 0; burst < 14; ++burst)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (0.2 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                positions.push_back (player.getCurrentPosition());
+                rightOverLeft.push_back (juce::Decibels::gainToDecibels (buffer.getRMSLevel (1, 0, buffer.getNumSamples()) / std::max (1.0e-9f, buffer.getRMSLevel (0, 0, buffer.getNumSamples()))));
+            }
+            expect (positions == std::vector<int> { 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 1, 1, 0, 0 }, "there and back, twice each, the ends once each way");
+            expectLessThan (rightOverLeft[0], -10.0f, "its start on the left");
+            expectGreaterThan (rightOverLeft[6], 10.0f, "its end on the right");
+            expectWithinAbsoluteError (player.lineStepAlong (1), 1.0f / 3.0f, 0.001f, "evenly along");
+
+            // Held, every position at once
+            player.setConstant (true);
+            juce::AudioBuffer<float> buffer (2, 4800);
+            buffer.clear();
+            player.process (buffer);
+            for (int position = 0; position < 4; ++position)
+                expect (player.isHeld (position));
+            expect (! player.isHeld (4));
+
+            // Kept
+            CabinEqAudioProcessor processor;
+            auto& state = processor.parameters.state;
+            CalibrationSettings::setLineStepped (state, processor.getCalibration(), true);
+            CalibrationSettings::setLineSteps (state, processor.getCalibration(), 99);
+            processor.getCalibration().setLineStepped (false);
+            processor.getCalibration().setLineSteps (5);
+            CalibrationSettings::apply (state, processor.getCalibration());
+            expect (processor.getCalibration().isLineStepped());
+            expectEquals (processor.getCalibration().getLineSteps(), CalibrationPlayer::maxLineSteps);
         }
 
         beginTest ("The panel: Constant holds everything, is kept, and leaves the timing controls with nothing to do");
@@ -4098,6 +4173,11 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         processor.parameters.state.setProperty (CalibrationSettings::idHeightSpacing, spacing.getIntValue(), nullptr); // 0 octaves, 1 mels, 2 Hz
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_PINNED", {}).isNotEmpty())
         processor.parameters.state.setProperty (CalibrationSettings::idHeightsPinned, true, nullptr);
+    if (const auto steps = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_LINE_STEPS", {}); steps.isNotEmpty())
+    {
+        processor.parameters.state.setProperty (CalibrationSettings::idLineStepped, true, nullptr);
+        processor.parameters.state.setProperty (CalibrationSettings::idLineSteps, steps.getIntValue(), nullptr);
+    }
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_LINE3D", {}).isNotEmpty())
     {
         // Drag mode's 3D line, turned partly toward you

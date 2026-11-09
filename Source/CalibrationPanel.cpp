@@ -448,6 +448,35 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     lineSweepSlider.setTooltip ("How long the point takes to go from one end of the line to the other. Double-click for 4 s.");
     lineSweepSlider.onValueChange = [this] { CalibrationSettings::setLineSweep (processor.parameters.state, player, (float) lineSweepSlider.getValue()); };
     addChildComponent (lineSweepSlider);
+
+    // Line mode's point gliding along, or stepping from position to position
+    for (size_t i = 0; i < lineStyleButtons.size(); ++i)
+    {
+        const bool stepped = i == 1;
+        auto& button = lineStyleButtons[i];
+        button.setButtonText (stepped ? "Steps" : "Glide");
+        button.setTooltip (stepped ? "The line divided into positions, its ends among them, played one at a time there and back. "
+                                     "Repeats sets how many times each plays (with On each on Dot) before the next."
+                                   : "A point gliding back and forth along the line, the bursts playing wherever it's got to");
+        button.setClickingTogglesState (false);
+        button.onClick = [this, stepped] { setLineStepped (stepped); };
+        addChildComponent (button);
+    }
+    lineStepsSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    lineStepsSlider.setRange (CalibrationPlayer::minLineSteps, CalibrationPlayer::maxLineSteps, 1.0);
+    lineStepsSlider.setValue (player.getLineSteps(), juce::dontSendNotification);
+    lineStepsSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultLineSteps);
+    lineStepsSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 96, 20);
+    lineStepsSlider.textFromValueFunction = [] (double v) { return juce::String ((int) v) + " positions"; };
+    lineStepsSlider.updateText();
+    lineStepsSlider.setTooltip ("How many positions the line's divided into, both its ends among them. Double-click for "
+                                + juce::String (CalibrationPlayer::defaultLineSteps) + ".");
+    lineStepsSlider.onValueChange = [this]
+    {
+        CalibrationSettings::setLineSteps (processor.parameters.state, player, (int) lineStepsSlider.getValue());
+        repaint (gridArea.expanded (16));
+    };
+    addChildComponent (lineStepsSlider);
     gridModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::grid); };
     rangeModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::range); };
     rangeModeButton.setTooltip ("A range you choose, split into a bottom, a middle and a top, each sharply band-passed, played top to bottom");
@@ -635,8 +664,8 @@ void CalibrationPanel::paintField (juce::Graphics& g, const juce::String& hint)
     g.setColour (Theme::textFaint);
     g.drawText ("Left", gridArea.getX(), gridArea.getBottom() + 4, 60, 14, juce::Justification::centredLeft);
     g.drawText ("Right", gridArea.getRight() - 60, gridArea.getBottom() + 4, 60, 14, juce::Justification::centredRight);
-    if (lineSweepSlider.isVisible())
-        g.drawText ("Sweep", columnsCaption, juce::Justification::centredRight); // its slider's where the columns are
+    if (lineSweepSlider.isVisible() || lineStepsSlider.isVisible())
+        g.drawText (lineStepsSlider.isVisible() ? "Positions" : "Sweep", columnsCaption, juce::Justification::centredRight); // its slider's where the columns are
     else if (hint.isNotEmpty())
         g.drawText (hint, gridArea.getX(), gridArea.getBottom() + 22, gridArea.getWidth(), 28, juce::Justification::centredLeft, true);
 
@@ -812,8 +841,28 @@ void CalibrationPanel::paintLineMode (juce::Graphics& g)
         g.drawEllipse (juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (point), 1.2f);
     }
 
+    // In steps, its positions, lit as they play
+    if (player.isLineStepped())
+    {
+        const int steps = player.getLineSteps();
+        for (int position = 0; position < steps; ++position)
+        {
+            const auto centre = toPanel (line.at (player.lineStepAlong (position)));
+            const bool isCurrent = isSounding (position);
+            const float radius = isCurrent ? 6.0f : 3.5f;
+            auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);
+            if (isCurrent)
+            {
+                g.setColour (Theme::accent.withAlpha (0.3f));
+                g.fillEllipse (dot.expanded (radius * 0.9f));
+            }
+            g.setColour (isCurrent ? Theme::accentBright : Theme::raisedHover.brighter (0.35f));
+            g.fillEllipse (dot);
+        }
+    }
+
     // The point, where it's got to
-    if (player.isPlaying())
+    else if (player.isPlaying())
     {
         const auto point = toPanel (line.at (player.getLineAlong()));
         const float radius = 7.0f;
@@ -848,7 +897,14 @@ void CalibrationPanel::refreshSpots()
     const bool spots = isShowingSpots(), square = isSquareMode(), guided = isGuidedMode(), range = isRangeMode(), line = isLineMode(),
                grid = ! spots && ! square && ! guided && ! range && ! line;
     lineModeButton.setToggleState (line, juce::dontSendNotification);
-    lineSweepSlider.setVisible (line);
+    const bool stepped = player.isLineStepped();
+    lineSweepSlider.setVisible (line && ! stepped);
+    lineStepsSlider.setVisible (line && stepped);
+    for (size_t i = 0; i < lineStyleButtons.size(); ++i)
+    {
+        lineStyleButtons[i].setVisible (line);
+        lineStyleButtons[i].setToggleState ((i == 1) == stepped, juce::dontSendNotification);
+    }
     rangeModeButton.setToggleState (range, juce::dontSendNotification);
     for (auto* component : std::initializer_list<juce::Component*> { &rangeSlider, &middleSlider, &rangeLabel, &middleLabel })
         component->setVisible (range);
@@ -1068,6 +1124,16 @@ void CalibrationPanel::updateBandPassText()
                           : (high ? Format::frequencyShort (player.getHighPass()) : juce::String ("20")) + " - "
                                 + (low ? Format::frequencyShort (player.getLowPass()) : juce::String ("20k")),
                           juce::dontSendNotification);
+}
+
+void CalibrationPanel::setLineStepped (bool stepped)
+{
+    CalibrationSettings::setLineStepped (processor.parameters.state, player, stepped);
+    if (stepped)
+        setDepthUnit (CalibrationPlayer::DepthUnit::dot); // so the repeats play each position that many times before the next
+    refreshSpots();
+    resized();
+    repaint();
 }
 
 void CalibrationPanel::setDepthUnit (CalibrationPlayer::DepthUnit unit)
@@ -1824,6 +1890,9 @@ void CalibrationPanel::resized()
         squareSizeButtons[i].setBounds (rowsStrip.getX(), gridArea.getY() - 4 + (int) i * 30, rowsStrip.getWidth() - 2, 26);
     columnsSlider.setBounds (juce::Rectangle<int> (gridArea.getX() - 6, columnsStrip.getY(), gridArea.getWidth() + 12, 28));
     lineSweepSlider.setBounds (columnsSlider.getBounds()); // Line mode's, where the columns are
+    lineStepsSlider.setBounds (columnsSlider.getBounds());
+    for (size_t i = 0; i < lineStyleButtons.size(); ++i) // and Glide or Steps where the square's sizes are
+        lineStyleButtons[i].setBounds (squareSizeButtons[i].getBounds());
 
     // Captions in the corner the two sliders leave free
     rowsCaption = juce::Rectangle<int> (rowsStrip.getX(), gridArea.getBottom() + 4, rowsStrip.getWidth(), 14);

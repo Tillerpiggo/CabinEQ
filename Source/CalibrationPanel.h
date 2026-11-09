@@ -98,6 +98,10 @@ private:
 
     // Line mode: a line you draw on the field, with a point going back and forth along it
     juce::Slider lineSweepSlider; // how long the point takes from one end to the other
+    // Or in steps: the line divided into positions, played one at a time there and back
+    std::array<juce::TextButton, 2> lineStyleButtons; // Glide and Steps
+    juce::Slider lineStepsSlider; // how many positions
+    void setLineStepped (bool stepped);
     enum class LineDrag { none, start, end, move };
     LineDrag lineDrag = LineDrag::none;
     juce::Point<float> lineGrab; // where on the field the line was grabbed, when moving all of it

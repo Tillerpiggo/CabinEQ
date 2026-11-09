@@ -444,6 +444,20 @@ public:
     static constexpr float minLineSweep = 0.25f, maxLineSweep = 30.0f, defaultLineSweep = 4.0f;
     void setLineSweep (float seconds) { lineSweep = juce::jlimit (minLineSweep, maxLineSweep, seconds); }
     float getLineSweep() const        { return lineSweep.load(); }
+
+    /// Or, in steps, the line divided into this many positions, both its ends among them, played one at a time there
+    /// and back (the ends once each way): a row of dots, so the depth, repeats and On each work on them as on the grid
+    static constexpr int minLineSteps = 2, maxLineSteps = 24, defaultLineSteps = 8;
+    void setLineStepped (bool stepped) { lineStepped = stepped; }
+    bool isLineStepped() const         { return lineStepped.load(); }
+    void setLineSteps (int steps)      { lineSteps = juce::jlimit (minLineSteps, maxLineSteps, steps); }
+    int getLineSteps() const           { return lineSteps.load(); }
+    /// Where a position is along the line, 0 at its start and 1 at its end
+    float lineStepAlong (int position) const
+    {
+        const int steps = lineSteps.load();
+        return (float) juce::jlimit (0, steps - 1, position) / (float) (steps - 1);
+    }
     /// How far along the line the point is now, 0 to 1
     float getLineAlong() const        { return lineAlong.load(); }
 
@@ -1104,8 +1118,8 @@ private:
             const int row = byColumn ? seqColumn : seqRow, column = byColumn ? seqRow : seqColumn;
             const int position = panned ? row : row * rowLength + column;
             const int repeat = column; // for a spot or a band, which pan position it's at
-            currentPosition = position;
             burst = burstAt (modeNow, position, repeat);
+            currentPosition = burst.position; // on the way back along a line in steps, the position it's at again
 
             // Quietest first: each level is a step up, from the floor to full level
             if (depthRuns > 1)
@@ -1133,10 +1147,13 @@ private:
 
     /// How many rows there are to play, and how many places along each: a grid's or a square's own rows, and for
     /// spots and the range's bands, a row each, with a place for each pan step
-    std::pair<int, int> layout (Mode modeNow) const noexcept
+    /// In steps, the line's a row there and back; held, a row for each position, each with its own band
+    std::pair<int, int> layout (Mode modeNow, bool holding = false) const noexcept
     {
         const bool panned = modeNow == Mode::spots || modeNow == Mode::range;
         const int square = squareSize.load();
+        if (modeNow == Mode::line && lineStepped.load())
+            return holding ? std::pair { lineSteps.load(), 1 } : std::pair { 1, 2 * lineSteps.load() - 2 };
         if (modeNow == Mode::line)
             return { 1, 1 }; // just the point, wherever it is
         if (modeNow == Mode::square && squareLine.load())
@@ -1177,8 +1194,15 @@ private:
         }
         else if (modeNow == Mode::line)
         {
-            // Wherever the point's got to
-            const auto point = getLine().at ((float) lineAlongNow());
+            // Wherever the point's got to; in steps, the position this is, going there or coming back
+            float along = (float) lineAlongNow();
+            if (lineStepped.load())
+            {
+                const int steps = lineSteps.load();
+                burst.position = position < steps ? position : 2 * steps - 2 - position;
+                along = lineStepAlong (burst.position);
+            }
+            const auto point = getLine().at (along);
             burst.pan = juce::jlimit (0.0f, 1.0f, point.x);
             burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, point.y), getHeights());
             if (burst.cutoff <= 20.5)
@@ -1271,7 +1295,7 @@ private:
     {
         heldSmoothing = 1.0f - (float) std::exp (-1.0 / (0.015 * sampleRate)); // 15 ms
         const auto modeNow = (Mode) mode.load();
-        const auto [rowCount, rowLength] = layout (modeNow);
+        const auto [rowCount, rowLength] = layout (modeNow, true);
         const bool panned = modeNow == Mode::spots || modeNow == Mode::range;
 
         bool anySelected = false;
@@ -1287,9 +1311,9 @@ private:
         const float share = count > 0 ? 1.0f / std::sqrt ((float) count) : 0.0f;
 
         std::array<juce::uint64, selectionWords> positions {};
-        std::array<bool, maxRows> bandUsed {};
+        std::array<bool, maxHeldBands> bandUsed {};
         int k = 0;
-        for (int row = 0; holding && row < rowCount && row < maxRows; ++row)
+        for (int row = 0; holding && row < rowCount && row < maxHeldBands; ++row)
         {
             bool bandDesigned = false;
             for (int column = 0; column < rowLength && k < count; ++column)
@@ -1463,11 +1487,14 @@ private:
 
     // Audio thread: Constant's noises, and their rows' bands
     std::array<HeldNoise, maxRows * maxColumns> held {};
-    std::array<HeldBand, maxRows> heldBands {};
+    static constexpr int maxHeldBands = std::max (maxRows, maxLineSteps); // a row each, or a position each along a line in steps
+    std::array<HeldBand, maxHeldBands> heldBands {};
     int heldCount = 0; // how far into `held` there's anything playing
     float heldSmoothing = 0.01f;
 
     std::atomic<float> lineX1 { 0.15f }, lineY1 { 0.25f }, lineX2 { 0.85f }, lineY2 { 0.75f }, lineSweep { defaultLineSweep }, lineAlong { 0.0f };
+    std::atomic<bool> lineStepped { false };
+    std::atomic<int> lineSteps { defaultLineSteps };
     double linePhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
 
     // Audio thread
