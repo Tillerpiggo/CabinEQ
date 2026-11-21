@@ -70,6 +70,10 @@ loads the VST3 to EQ everything the Mac plays.
   right, and up it is the low cut, from none at the bottom (20 Hz) to 20 kHz at the top. Drag the square to move it
   (or click elsewhere on the field to bring it there; the arrow keys nudge it), and drag its bottom right corner to
   resize it about its centre. Its dots play in reading order.
+  With a 2 x 2 or 3 x 3, **Path** makes the square travel back and forth along a line while it plays. Drag on the
+  field to draw the line, drag its ends, or nudge it with the arrow keys. **Travel** is its constant speed (0.02 to 2
+  field widths a second, 0.25 to start), so a longer line takes longer. Its bursts play wherever the square has got
+  to; with Hold, all its dots glide along together. Turn Path off to leave the square there, and to resize it.
   **3D**, beside the sizes, is instead a straight line of three dots, its two ends and its middle, that turns about
   in three dimensions. Drag the field around it to turn it like a trackball (Alt+arrows turn it a step), drag the
   line to move it, and drag an end to move that end (the other mirrors it round the middle, as near you as it was).

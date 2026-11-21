@@ -514,6 +514,44 @@ public:
         return { squareSize.load(), squareX.load(), squareY.load(), squareWidth.load(), squareHeight.load(),
                  squareLine.load(), squareLength.load(), squareDirX.load(), squareDirY.load(), squareDirZ.load() };
     }
+
+    /// Drag mode's square can travel back and forth along a line of its own, at a constant speed: its centre goes from
+    /// one end to the other, in the field's widths a second, so a longer line takes longer. Not for the 3D line.
+    static constexpr float minSquarePathSpeed = 0.02f, maxSquarePathSpeed = 2.0f, defaultSquarePathSpeed = 0.25f;
+    void setSquarePathOn (bool shouldTravel)
+    {
+        squarePathOn = shouldTravel;
+        restartSquarePath();
+    }
+    bool isSquarePathOn() const { return squarePathOn.load(); }
+    bool isSquareTravelling() const { return squarePathOn.load() && ! squareLine.load(); }
+    void setSquarePath (Line path)
+    {
+        squarePathX1 = juce::jlimit (0.0f, 1.0f, path.x1);
+        squarePathY1 = juce::jlimit (0.0f, 1.0f, path.y1);
+        squarePathX2 = juce::jlimit (0.0f, 1.0f, path.x2);
+        squarePathY2 = juce::jlimit (0.0f, 1.0f, path.y2);
+    }
+    Line getSquarePath() const { return { squarePathX1.load(), squarePathY1.load(), squarePathX2.load(), squarePathY2.load() }; }
+    /// Its line, with the ends kept where the whole square still fits on the field at its size now
+    Line getKeptSquarePath() const
+    {
+        const float across = 0.5f * squareWidth.load(), up = 0.5f * squareHeight.load();
+        const auto path = getSquarePath();
+        return { juce::jlimit (across, 1.0f - across, path.x1), juce::jlimit (up, 1.0f - up, path.y1),
+                 juce::jlimit (across, 1.0f - across, path.x2), juce::jlimit (up, 1.0f - up, path.y2) };
+    }
+    void setSquarePathSpeed (float speed) { squarePathSpeed = juce::jlimit (minSquarePathSpeed, maxSquarePathSpeed, speed); }
+    float getSquarePathSpeed() const      { return squarePathSpeed.load(); }
+    /// Back to the line's start
+    void restartSquarePath()
+    {
+        squarePathRestart = true;
+        squarePathAlong = 0.0f;
+    }
+    /// The square as it is now, wherever it's travelled to
+    Square getMovingSquare() const { return squareAlong (squarePathAlong.load()); }
+
     static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest time round, below the volume
 
     void prepare (double newSampleRate)
@@ -542,6 +580,8 @@ public:
         heldCount = 0;
         linePhase = 0.0;
         lineAlong = 0.0f;
+        squarePathPhase = 0.0;
+        squarePathAlong = 0.0f;
         samplesUntilNext = 0;
         seqRow = seqColumn = -1;
         depthLevel = depthRepeat = 0;
@@ -689,6 +729,8 @@ public:
     /// Audio thread. Adds the bursts to whatever's in the buffer, before the EQ.
     void process (juce::AudioBuffer<float>& buffer) noexcept
     {
+        if (squarePathRestart.exchange (false))
+            squarePathPhase = 0.0;
         const bool isPlaying = playing.load();
         const bool holding = isHolding();
         if (holding || heldCount > 0)
@@ -746,6 +788,12 @@ public:
         const bool onLine = isPlaying && (Mode) mode.load() == Mode::line;
         const double lineStep = 1.0 / ((double) lineSweep.load() * sampleRate);
 
+        // Drag mode's square, the same way, at a constant speed however long its line is
+        const bool onSquarePath = isPlaying && (Mode) mode.load() == Mode::square && isSquareTravelling();
+        const auto squarePath = getKeptSquarePath();
+        const double squarePathLength = squarePath.start().getDistanceFrom (squarePath.end());
+        const double squarePathStep = squarePathLength > 1.0e-4 ? (double) squarePathSpeed.load() / (squarePathLength * sampleRate) : 0.0;
+
         // The release falls 60 dB (6.9 time constants) in the time asked for; never faster than 1 ms, so "0" doesn't click
         const double releaseSeconds = std::max (0.001, (double) releaseMs.load() * 0.001);
         const float releaseCoefficient = (float) std::exp (-6.908 / (releaseSeconds * sampleRate));
@@ -757,6 +805,12 @@ public:
                 linePhase += lineStep;
                 if (linePhase >= 2.0)
                     linePhase -= 2.0;
+            }
+            if (onSquarePath)
+            {
+                squarePathPhase += squarePathStep;
+                if (squarePathPhase >= 2.0)
+                    squarePathPhase -= 2.0;
             }
 
             if (isPlaying && ! holding && --samplesUntilNext <= 0)
@@ -864,6 +918,7 @@ public:
                 left[i] += r * gain;
         }
         lineAlong = (float) lineAlongNow();
+        squarePathAlong = (float) squareAlongNow();
     }
 
 private:
@@ -1223,7 +1278,7 @@ private:
         }
         else if (modeNow == Mode::square)
         {
-            const auto square = getSquare();
+            const auto square = squareAlong ((float) squareAlongNow());
             const auto dot = square.dot (position);
             burst.pan = juce::jlimit (0.0f, 1.0f, dot.x);
             burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, dot.y), getHeights());
@@ -1245,6 +1300,20 @@ private:
 
     /// Audio thread: how far along the line the point is, going there and coming back
     double lineAlongNow() const noexcept { return linePhase < 1.0 ? linePhase : 2.0 - linePhase; }
+    double squareAlongNow() const noexcept { return squarePathPhase < 1.0 ? squarePathPhase : 2.0 - squarePathPhase; }
+
+    /// The square with its centre this far along its line, if it's travelling
+    Square squareAlong (float along) const noexcept
+    {
+        auto square = getSquare();
+        if (isSquareTravelling())
+        {
+            const auto centre = getKeptSquarePath().at (along);
+            square.x = centre.x;
+            square.y = centre.y;
+        }
+        return square;
+    }
 
     /// What a burst sounds like: into each ear by the pan law, its band, and its level
     Sound soundOf (Mode modeNow, Burst burst) const noexcept
@@ -1508,6 +1577,10 @@ private:
     std::atomic<float> lineX1 { 0.15f }, lineY1 { 0.25f }, lineX2 { 0.85f }, lineY2 { 0.75f }, lineSweep { defaultLineSweep }, lineAlong { 0.0f };
     std::atomic<bool> lineStepped { false };
     std::atomic<float> lineStartDb { 0.0f }, lineEndDb { 0.0f };
+    std::atomic<bool> squarePathOn { false }, squarePathRestart { false };
+    std::atomic<float> squarePathX1 { 0.25f }, squarePathY1 { 0.5f }, squarePathX2 { 0.75f }, squarePathY2 { 0.5f },
+                       squarePathSpeed { defaultSquarePathSpeed }, squarePathAlong { 0.0f };
+    double squarePathPhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
     std::atomic<int> lineSteps { defaultLineSteps };
     double linePhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
 

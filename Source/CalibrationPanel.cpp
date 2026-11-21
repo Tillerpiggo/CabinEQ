@@ -432,6 +432,22 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         };
         addChildComponent (button);
     }
+    squarePathButton.setTooltip ("The square travels back and forth along a line at a constant speed. While it's on, drag on the field to draw the line, "
+                                 "or drag its ends. Turning it off leaves the square where it's got to.");
+    squarePathButton.setClickingTogglesState (false);
+    squarePathButton.onClick = [this] { setSquarePathOn (! player.isSquarePathOn()); };
+    addChildComponent (squarePathButton);
+    squarePathSpeedSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    squarePathSpeedSlider.setRange (CalibrationPlayer::minSquarePathSpeed, CalibrationPlayer::maxSquarePathSpeed, 0.01);
+    squarePathSpeedSlider.setSkewFactorFromMidPoint (CalibrationPlayer::defaultSquarePathSpeed);
+    squarePathSpeedSlider.setValue (player.getSquarePathSpeed(), juce::dontSendNotification);
+    squarePathSpeedSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultSquarePathSpeed);
+    squarePathSpeedSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 96, 20);
+    squarePathSpeedSlider.textFromValueFunction = [] (double v) { return juce::String (v, 2) + " widths/sec"; };
+    squarePathSpeedSlider.updateText();
+    squarePathSpeedSlider.setTooltip ("How fast the square travels, in the field's widths a second, so a longer line takes longer. Double-click for 0.25.");
+    squarePathSpeedSlider.onValueChange = [this] { CalibrationSettings::setSquarePathSpeed (processor.parameters.state, player, (float) squarePathSpeedSlider.getValue()); };
+    addChildComponent (squarePathSpeedSlider);
     lineModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::line); };
     lineModeButton.setTooltip ("Draw a line on the field: a point goes back and forth along it, and the bursts play wherever it's got to. "
                                "Across is from your left ear to your right, and up is higher.");
@@ -610,7 +626,7 @@ juce::Point<float> CalibrationPanel::toField (juce::Point<float> onPanel) const
 
 juce::Rectangle<float> CalibrationPanel::squareOutline() const
 {
-    const auto square = player.getSquare();
+    const auto square = player.getMovingSquare();
     const auto topLeft = toPanel ({ square.x - square.width * 0.5f, square.y + square.height * 0.5f });
     const auto bottomRight = toPanel ({ square.x + square.width * 0.5f, square.y - square.height * 0.5f });
     return juce::Rectangle<float> (topLeft, bottomRight).expanded (15.0f);
@@ -624,6 +640,16 @@ juce::Rectangle<float> CalibrationPanel::squareHandle() const
 CalibrationPanel::SquareDrag CalibrationPanel::squareHitAt (juce::Point<float> onPanel) const
 {
     const auto square = player.getSquare();
+    if (player.isSquareTravelling())
+    {
+        // Its line's ends, and anywhere else on the field starts a new line
+        const auto path = player.getKeptSquarePath();
+        if (onPanel.getDistanceFrom (toPanel (path.end())) <= 10.0f)
+            return SquareDrag::pathEnd;
+        if (onPanel.getDistanceFrom (toPanel (path.start())) <= 10.0f)
+            return SquareDrag::pathStart;
+        return gridArea.toFloat().expanded (6.0f).contains (onPanel) ? SquareDrag::pathNew : SquareDrag::none;
+    }
     if (! square.line)
         return squareHandle().contains (onPanel) ? SquareDrag::resize : squareOutline().contains (onPanel) ? SquareDrag::move : SquareDrag::none;
 
@@ -655,6 +681,32 @@ CalibrationPlayer::Square CalibrationPanel::turned (CalibrationPlayer::Square sq
     square.dirY = vy * c + crossY * sn + ay * dot * (1.0f - c);
     square.dirZ = vz * c + crossZ * sn;
     return square;
+}
+
+void CalibrationPanel::setSquarePathOn (bool shouldTravel)
+{
+    auto& state = processor.parameters.state;
+    if (shouldTravel)
+    {
+        // The first time, a line from where the square is toward the far side of the field
+        if (! state.hasProperty (CalibrationSettings::idSquarePathX1))
+        {
+            const auto square = player.getSquare();
+            const float farSide = square.x <= 0.5f ? 1.0f - square.width * 0.5f : square.width * 0.5f;
+            CalibrationSettings::setSquarePath (state, player, { square.x, square.y, farSide, square.y });
+        }
+    }
+    else
+    {
+        // It stays where it's got to
+        const auto moved = player.getMovingSquare();
+        CalibrationSettings::setSquarePathOn (state, player, false);
+        setSquare (moved);
+        return;
+    }
+    CalibrationSettings::setSquarePathOn (state, player, true);
+    refreshSpots();
+    repaint();
 }
 
 void CalibrationPanel::setSquare (CalibrationPlayer::Square square)
@@ -690,8 +742,8 @@ void CalibrationPanel::paintField (juce::Graphics& g, const juce::String& hint)
         g.drawText ("End", caption, juce::Justification::centred);
         g.setFont (Theme::font (10.5f));
     }
-    if (lineSweepSlider.isVisible() || lineStepsSlider.isVisible())
-        g.drawText (lineStepsSlider.isVisible() ? "Positions" : "Sweep", columnsCaption, juce::Justification::centredRight); // its slider's where the columns are
+    if (lineSweepSlider.isVisible() || lineStepsSlider.isVisible() || squarePathSpeedSlider.isVisible())
+        g.drawText (squarePathSpeedSlider.isVisible() ? "Travel" : lineStepsSlider.isVisible() ? "Positions" : "Sweep", columnsCaption, juce::Justification::centredRight); // its slider's where the columns are
     else if (hint.isNotEmpty())
         g.drawText (hint, gridArea.getX(), gridArea.getBottom() + 22, gridArea.getWidth(), 28, juce::Justification::centredLeft, true);
 
@@ -727,9 +779,33 @@ void CalibrationPanel::paintField (juce::Graphics& g, const juce::String& hint)
     }
 }
 
+void CalibrationPanel::paintSquarePath (juce::Graphics& g)
+{
+    g.setColour (Theme::textFaint);
+    g.setFont (Theme::font (10.5f));
+    g.drawText ("Drag to draw the line the square travels along, or drag its ends. Turn Path off to resize the square.",
+                gridArea.reduced (8, 4).removeFromTop (16), juce::Justification::centredLeft, true);
+
+    const auto path = player.getKeptSquarePath();
+    const auto start = toPanel (path.start()), end = toPanel (path.end());
+    const auto hover = squareDrag != SquareDrag::none ? squareDrag : squareHitAt (getMouseXYRelative().toFloat());
+    g.setColour (Theme::accent.withAlpha (0.55f));
+    g.drawLine ({ start, end }, 2.0f);
+    for (auto [point, which] : { std::pair { start, SquareDrag::pathStart }, std::pair { end, SquareDrag::pathEnd } })
+    {
+        const float radius = hover == which ? 6.5f : 5.0f;
+        const auto handle = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (point);
+        g.setColour (Theme::raisedHover.brighter (0.25f));
+        g.fillEllipse (handle);
+        g.setColour (Theme::accent.withAlpha (0.8f));
+        g.drawEllipse (handle, 1.2f);
+    }
+}
+
 void CalibrationPanel::paintSquareMode (juce::Graphics& g)
 {
-    const auto square = player.getSquare();
+    const auto square = player.getMovingSquare();
+    const bool travelling = player.isSquareTravelling();
     paintField (g, square.line ? "Drag the line or its ends to move them, and the field around it to turn it. Nearer is bigger and louder."
                                : "Drag the square to move it, and its corner to resize it. Higher up is a higher low cut.");
     const auto field = gridArea.toFloat();
@@ -742,9 +818,12 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
         return;
     }
 
+    if (travelling)
+        paintSquarePath (g);
+
     // The square, its corner, and its dots
     const auto outline = squareOutline();
-    const bool isHot = squareDrag != SquareDrag::none || outline.contains (getMouseXYRelative().toFloat());
+    const bool isHot = ! travelling && (squareDrag != SquareDrag::none || outline.contains (getMouseXYRelative().toFloat()));
     g.setColour (Theme::accent.withAlpha (isHot ? 0.10f : 0.06f));
     g.fillRoundedRectangle (outline, 8.0f);
     g.setColour (Theme::accent.withAlpha (isHot ? 0.8f : 0.45f));
@@ -757,7 +836,8 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
         grip.startNewSubPath (corner.x - inset - 3.0f, corner.y - 3.0f);
         grip.lineTo (corner.x - 3.0f, corner.y - inset - 3.0f);
     }
-    g.strokePath (grip, juce::PathStrokeType (1.3f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    if (! travelling)
+        g.strokePath (grip, juce::PathStrokeType (1.3f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
     const float radius = 6.0f;
     for (int position = 0; position < square.count(); ++position)
@@ -968,6 +1048,10 @@ void CalibrationPanel::refreshSpots()
     {
         squareSizeButtons[i].setVisible (square);
         const auto shape = player.getSquare();
+        squarePathButton.setVisible (square && ! shape.line);
+        squarePathButton.setToggleState (player.isSquarePathOn(), juce::dontSendNotification);
+        squarePathSpeedSlider.setVisible (square && ! shape.line && player.isSquarePathOn());
+        squarePathSpeedSlider.setValue (player.getSquarePathSpeed(), juce::dontSendNotification);
         squareSizeButtons[i].setToggleState (i == 2 ? shape.line : ! shape.line && shape.size == (int) i + 2, juce::dontSendNotification);
     }
     for (int i = 0; i < (int) spotCountButtons.size(); ++i)
@@ -1300,7 +1384,7 @@ void CalibrationPanel::timerCallback()
 
     if (isShowingSpots())
         refreshSpots(); // pick up drags on the graph
-    if (isLineMode() && player.isPlaying())
+    if ((isLineMode() || (isSquareMode() && player.isSquareTravelling())) && player.isPlaying())
         repaint (gridArea.expanded (16)); // the point going along the line
 }
 
@@ -1371,6 +1455,26 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
             {
                 grabKeyboardFocus();
                 startPlaying();
+            }
+            return;
+        }
+
+        // Travelling: an end moves that end, and anywhere else on the field starts a new line there
+        if (player.isSquareTravelling())
+        {
+            squareDrag = squareHitAt (event.position);
+            if (squareDrag == SquareDrag::pathNew)
+            {
+                const auto at = toField (event.position);
+                CalibrationSettings::setSquarePath (processor.parameters.state, player, { at.x, at.y, at.x, at.y });
+                player.restartSquarePath();
+                squareDrag = SquareDrag::pathEnd;
+            }
+            if (squareDrag != SquareDrag::none)
+            {
+                grabKeyboardFocus();
+                startPlaying();
+                repaint();
             }
             return;
         }
@@ -1482,6 +1586,15 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
     {
         auto square = player.getSquare();
         const auto at = toField (event.position);
+        if (squareDrag == SquareDrag::pathStart || squareDrag == SquareDrag::pathEnd)
+        {
+            auto path = player.getKeptSquarePath();
+            (squareDrag == SquareDrag::pathStart ? path.x1 : path.x2) = at.x;
+            (squareDrag == SquareDrag::pathStart ? path.y1 : path.y2) = at.y;
+            CalibrationSettings::setSquarePath (processor.parameters.state, player, path);
+            repaint();
+            return;
+        }
         if (square.line)
         {
             // From how it was when it was grabbed, so nothing it lost to the field's edges along the way stays lost
@@ -1583,6 +1696,24 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
         // Arrows move the square; with Shift, a small step. With Alt, they turn a line
         const float step = key.getModifiers().isShiftDown() ? 0.005f : 0.025f;
         auto square = player.getSquare();
+        if (player.isSquareTravelling())
+        {
+            // Its line instead, as long as the square still fits at both ends
+            juce::Point<float> offset;
+            if (key.getKeyCode() == juce::KeyPress::upKey)         offset.y = step;
+            else if (key.getKeyCode() == juce::KeyPress::downKey)  offset.y = -step;
+            else if (key.getKeyCode() == juce::KeyPress::leftKey)  offset.x = -step;
+            else if (key.getKeyCode() == juce::KeyPress::rightKey) offset.x = step;
+            else return false;
+            const auto path = player.getKeptSquarePath();
+            const float across = square.width * 0.5f, up = square.height * 0.5f;
+            offset.x = juce::jlimit (across - std::min (path.x1, path.x2), 1.0f - across - std::max (path.x1, path.x2), offset.x);
+            offset.y = juce::jlimit (up - std::min (path.y1, path.y2), 1.0f - up - std::max (path.y1, path.y2), offset.y);
+            CalibrationSettings::setSquarePath (processor.parameters.state, player,
+                                                { path.x1 + offset.x, path.y1 + offset.y, path.x2 + offset.x, path.y2 + offset.y });
+            repaint();
+            return true;
+        }
         if (square.line && key.getModifiers().isAltDown())
         {
             const float angle = juce::degreesToRadians (key.getModifiers().isShiftDown() ? 1.0f : 5.0f);
@@ -1698,7 +1829,9 @@ void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
     if (isSquareMode())
     {
         const auto hit = squareHitAt (event.position);
-        setMouseCursor (hit == SquareDrag::resize ? juce::MouseCursor::BottomRightCornerResizeCursor
+        setMouseCursor (hit == SquareDrag::pathNew ? juce::MouseCursor::CrosshairCursor
+                        : hit == SquareDrag::pathStart || hit == SquareDrag::pathEnd ? juce::MouseCursor::PointingHandCursor
+                        : hit == SquareDrag::resize ? juce::MouseCursor::BottomRightCornerResizeCursor
                         : hit == SquareDrag::move ? juce::MouseCursor::DraggingHandCursor
                         : hit == SquareDrag::firstEnd || hit == SquareDrag::lastEnd ? juce::MouseCursor::PointingHandCursor
                         : hit == SquareDrag::turn ? juce::MouseCursor::UpDownLeftRightResizeCursor
@@ -1959,6 +2092,8 @@ void CalibrationPanel::resized()
     columnsSlider.setBounds (juce::Rectangle<int> (gridArea.getX() - 6, columnsStrip.getY(), gridArea.getWidth() + 12, 28));
     lineSweepSlider.setBounds (columnsSlider.getBounds()); // Line mode's, where the columns are
     lineStepsSlider.setBounds (columnsSlider.getBounds());
+    squarePathSpeedSlider.setBounds (columnsSlider.getBounds());
+    squarePathButton.setBounds (squareSizeButtons[2].getBounds().translated (0, 36)); // under the shapes
     {
         // The ends' levels, side by side under Glide and Steps, captioned under the field
         const int top = gridArea.getY() - 4 + 2 * 30 + 6;

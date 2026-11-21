@@ -2075,6 +2075,94 @@ public:
             panel.stop();
         }
 
+        beginTest ("Drag mode's square travels back and forth along a line at a constant speed");
+        {
+            auto run = [] (CalibrationPlayer& player, double seconds)
+            {
+                juce::AudioBuffer<float> buffer (2, 480);
+                for (int block = 0; block < (int) std::round (seconds * sampleRate / 480.0); ++block)
+                {
+                    buffer.clear();
+                    player.process (buffer);
+                }
+            };
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::square);
+            player.setSquare ({ 2, 0.5f, 0.5f, 0.2f, 0.2f });
+            player.setSquarePath ({ 0.1f, 0.5f, 0.9f, 0.5f }); // its start's as far left as a square this wide fits
+            player.setSquarePathSpeed (0.5f);
+            player.setSquarePathOn (true);
+            player.setPlaying (true);
+
+            run (player, 0.4);
+            expectWithinAbsoluteError (player.getMovingSquare().x, 0.3f, 0.005f, "0.5 widths a second, for 0.4 s");
+            expectWithinAbsoluteError (player.getMovingSquare().dot (0).x, 0.2f, 0.005f, "its dots go with it");
+            run (player, 1.2);
+            expectWithinAbsoluteError (player.getMovingSquare().x, 0.9f, 0.005f, "at the far end");
+            run (player, 0.4);
+            expectWithinAbsoluteError (player.getMovingSquare().x, 0.7f, 0.005f, "and on its way back");
+
+            // Twice as long a line takes twice as long: the speed's the same
+            player.setSquarePath ({ 0.1f, 0.5f, 0.5f, 0.5f });
+            player.restartSquarePath();
+            run (player, 0.4);
+            expectWithinAbsoluteError (player.getMovingSquare().x, 0.3f, 0.005f, "just as fast along a shorter line");
+
+            // Its ends keep the whole square on the field; the 3D line doesn't travel
+            player.setSquarePath ({ 0.0f, 0.0f, 1.0f, 1.0f });
+            expect (player.getKeptSquarePath() == CalibrationPlayer::Line { 0.1f, 0.1f, 0.9f, 0.9f });
+            auto line = player.getSquare();
+            line.line = true;
+            player.setSquare (line);
+            expect (! player.isSquareTravelling());
+            expectWithinAbsoluteError (player.getMovingSquare().x, 0.5f, 0.001f);
+
+            // From the panel: Path on, draw a new line, turn it off and it stays where it got to
+            CabinEqAudioProcessor processor;
+            auto& state = processor.parameters.state;
+            auto& panelPlayer = processor.getCalibration();
+            CalibrationSettings::setMode (state, panelPlayer, CalibrationPlayer::Mode::square);
+            CalibrationSettings::setSquare (state, panelPlayer, { 2, 0.5f, 0.5f, 0.2f, 0.2f });
+            CalibrationPanel panel (processor);
+            panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+            juce::TextButton* path = nullptr;
+            for (auto* child : panel.getChildren())
+                if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->getButtonText() == "Path")
+                    path = button;
+            expect (path != nullptr && path->isVisible() && ! path->getBounds().isEmpty(), "Path is there to pick");
+            if (path != nullptr)
+            {
+                path->onClick();
+                expect (panelPlayer.isSquarePathOn());
+                expectWithinAbsoluteError (panelPlayer.getSquarePath().x1, 0.5f, 0.001f, "the first line starts where the square is");
+                const auto field = panel.getFieldArea().toFloat();
+                auto onField = [field] (float x, float y) { return juce::Point<float> (field.getX() + x * field.getWidth(), field.getBottom() - y * field.getHeight()); };
+                auto mouse = [&panel] (juce::Point<float> at, juce::Point<float> down)
+                {
+                    return juce::MouseEvent (juce::Desktop::getInstance().getMainMouseSource(), at, juce::ModifierKeys::leftButtonModifier,
+                                             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, &panel, &panel, juce::Time::getCurrentTime(), down, juce::Time::getCurrentTime(), 1, false);
+                };
+                const auto from = onField (0.2f, 0.3f), to = onField (0.7f, 0.8f);
+                panel.mouseDown (mouse (from, from));
+                panel.mouseDrag (mouse (to, from));
+                panel.mouseUp (mouse (to, from));
+                const auto drawn = panelPlayer.getKeptSquarePath();
+                expectWithinAbsoluteError (drawn.x1, 0.2f, 0.01f, "drawn from where it was pressed");
+                expectWithinAbsoluteError (drawn.y2, 0.8f, 0.01f, "to where it was let go");
+                expectWithinAbsoluteError ((float) state.getProperty (CalibrationSettings::idSquarePathX2), 0.7f, 0.01f, "and kept");
+                panelPlayer.prepare (sampleRate);
+                panelPlayer.setPlaying (true);
+                run (panelPlayer, 0.4);
+                const auto got = panelPlayer.getMovingSquare();
+                path->onClick();
+                expect (! panelPlayer.isSquarePathOn());
+                expectWithinAbsoluteError (panelPlayer.getSquare().x, got.x, 0.001f, "turned off, it stays where it's got to");
+                expectWithinAbsoluteError (panelPlayer.getSquare().y, got.y, 0.001f);
+            }
+            panel.stop();
+        }
+
         beginTest ("Line mode in steps: its positions one at a time, there and back, each its repeats before the next");
         {
             CalibrationPlayer player;
@@ -4234,6 +4322,18 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         processor.parameters.state.setProperty (CalibrationSettings::idHeightSpacing, spacing.getIntValue(), nullptr); // 0 octaves, 1 mels, 2 Hz
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_PINNED", {}).isNotEmpty())
         processor.parameters.state.setProperty (CalibrationSettings::idHeightsPinned, true, nullptr);
+    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_SQUARE_PATH", {}).isNotEmpty())
+    {
+        auto& state = processor.parameters.state;
+        state.setProperty (CalibrationSettings::idSquareSize, 2, nullptr);
+        state.setProperty (CalibrationSettings::idSquareWidth, 0.25f, nullptr);
+        state.setProperty (CalibrationSettings::idSquareHeight, 0.25f, nullptr);
+        state.setProperty (CalibrationSettings::idSquarePathOn, true, nullptr);
+        state.setProperty (CalibrationSettings::idSquarePathX1, 0.2f, nullptr);
+        state.setProperty (CalibrationSettings::idSquarePathY1, 0.25f, nullptr);
+        state.setProperty (CalibrationSettings::idSquarePathX2, 0.8f, nullptr);
+        state.setProperty (CalibrationSettings::idSquarePathY2, 0.7f, nullptr);
+    }
     if (const auto steps = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_LINE_STEPS", {}); steps.isNotEmpty())
     {
         processor.parameters.state.setProperty (CalibrationSettings::idLineStepped, true, nullptr);
