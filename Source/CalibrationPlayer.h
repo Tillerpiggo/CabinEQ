@@ -552,6 +552,25 @@ public:
     /// The square as it is now, wherever it's travelled to
     Square getMovingSquare() const { return squareAlong (squarePathAlong.load()); }
 
+    /// How far forward or back Drag mode's shape is, in dB from the volume: one level where it sits, or, travelling,
+    /// one for each end of its line, going evenly between them in dB
+    void setSquareLevel (float db) { squareLevelDb = juce::jlimit (minLineLevelDb, maxLineLevelDb, db); }
+    float getSquareLevel() const   { return squareLevelDb.load(); }
+    void setSquarePathLevels (float startDb, float endDb)
+    {
+        squarePathStartDb = juce::jlimit (minLineLevelDb, maxLineLevelDb, startDb);
+        squarePathEndDb = juce::jlimit (minLineLevelDb, maxLineLevelDb, endDb);
+    }
+    float getSquarePathStartDb() const { return squarePathStartDb.load(); }
+    float getSquarePathEndDb() const   { return squarePathEndDb.load(); }
+    float squareLevelAt (float along) const noexcept
+    {
+        return isSquareTravelling() ? squarePathStartDb.load() + (squarePathEndDb.load() - squarePathStartDb.load()) * along
+                                    : squareLevelDb.load();
+    }
+    /// Its level now, wherever it's travelled to
+    float getMovingSquareLevel() const { return squareLevelAt (squarePathAlong.load()); }
+
     static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest time round, below the volume
 
     void prepare (double newSampleRate)
@@ -1278,11 +1297,12 @@ private:
         }
         else if (modeNow == Mode::square)
         {
-            const auto square = squareAlong ((float) squareAlongNow());
+            const auto along = (float) squareAlongNow();
+            const auto square = squareAlong (along);
             const auto dot = square.dot (position);
             burst.pan = juce::jlimit (0.0f, 1.0f, dot.x);
             burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, dot.y), getHeights());
-            burst.levelDb = depthDbPerField * square.depth (position); // nearer is louder
+            burst.levelDb = squareLevelAt (along) + depthDbPerField * square.depth (position); // nearer is louder
             if (burst.cutoff <= 20.5)
                 burst.cutoff = 0.0;
         }
@@ -1579,7 +1599,8 @@ private:
     std::atomic<float> lineStartDb { 0.0f }, lineEndDb { 0.0f };
     std::atomic<bool> squarePathOn { false }, squarePathRestart { false };
     std::atomic<float> squarePathX1 { 0.25f }, squarePathY1 { 0.5f }, squarePathX2 { 0.75f }, squarePathY2 { 0.5f },
-                       squarePathSpeed { defaultSquarePathSpeed }, squarePathAlong { 0.0f };
+                       squarePathSpeed { defaultSquarePathSpeed }, squarePathAlong { 0.0f },
+                       squareLevelDb { 0.0f }, squarePathStartDb { 0.0f }, squarePathEndDb { 0.0f };
     double squarePathPhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
     std::atomic<int> lineSteps { defaultLineSteps };
     double linePhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back

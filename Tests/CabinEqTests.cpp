@@ -2163,6 +2163,106 @@ public:
             panel.stop();
         }
 
+        beginTest ("Drag mode's level: the square pushed forward or back, and each end of its path, faded along it");
+        {
+            auto heldPower = [] (CalibrationPlayer& player)
+            {
+                // Past any fade from what it was before, then a long average, as it's noise
+                for (int block = 0; block < 100; ++block)
+                {
+                    juce::AudioBuffer<float> buffer (2, 480);
+                    buffer.clear();
+                    player.process (buffer);
+                }
+                double power = 0.0;
+                for (int block = 0; block < 200; ++block)
+                {
+                    juce::AudioBuffer<float> buffer (2, 480);
+                    buffer.clear();
+                    player.process (buffer);
+                    for (int channel = 0; channel < 2; ++channel)
+                        power += juce::square ((double) buffer.getRMSLevel (channel, 0, buffer.getNumSamples()));
+                }
+                return (float) (10.0 * std::log10 (power));
+            };
+            CalibrationPlayer player;
+            player.prepare (sampleRate);
+            player.setMode (CalibrationPlayer::Mode::square);
+            player.setSquare ({ 2, 0.5f, 0.7f, 0.2f, 0.2f });
+            player.setConstant (true);
+            player.setPlaying (true);
+            const float full = heldPower (player);
+            player.setSquareLevel (-12.0f);
+            expectWithinAbsoluteError (heldPower (player) - full, -12.0f, 1.5f, "the square pushed back is quieter");
+            player.setSquareLevel (0.0f);
+
+            // Travelling, very slowly so it stays by its start: that end's level, not the square's
+            player.setSquareLevel (6.0f);
+            player.setSquarePath ({ 0.1f, 0.7f, 0.9f, 0.7f });
+            player.setSquarePathSpeed (CalibrationPlayer::minSquarePathSpeed);
+            player.setSquarePathLevels (-12.0f, 0.0f);
+            player.setSquarePathOn (true);
+            expectWithinAbsoluteError (heldPower (player) - full, -12.0f, 2.0f, "at its start, its start's level");
+            expectWithinAbsoluteError (player.squareLevelAt (0.5f), -6.0f, 0.001f, "halfway, halfway between");
+            expectWithinAbsoluteError (player.squareLevelAt (1.0f), 0.0f, 0.001f);
+            player.setSquarePathLevels (-99.0f, 99.0f);
+            expectEquals (player.getSquarePathStartDb(), CalibrationPlayer::minLineLevelDb);
+            expectEquals (player.getSquarePathEndDb(), CalibrationPlayer::maxLineLevelDb);
+
+            // From the panel: Shift-drag the square, then each end of its path, and turning Path off keeps its level
+            CabinEqAudioProcessor processor;
+            auto& state = processor.parameters.state;
+            auto& panelPlayer = processor.getCalibration();
+            CalibrationSettings::setMode (state, panelPlayer, CalibrationPlayer::Mode::square);
+            CalibrationSettings::setSquare (state, panelPlayer, { 2, 0.5f, 0.5f, 0.2f, 0.2f });
+            CalibrationPanel panel (processor);
+            panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
+            const auto field = panel.getFieldArea().toFloat();
+            auto onField = [field] (float x, float y) { return juce::Point<float> (field.getX() + x * field.getWidth(), field.getBottom() - y * field.getHeight()); };
+            auto shiftDrag = [&panel] (juce::Point<float> from, float pixelsUp)
+            {
+                const juce::ModifierKeys mods (juce::ModifierKeys::leftButtonModifier | juce::ModifierKeys::shiftModifier);
+                auto mouse = [&panel, mods, from] (juce::Point<float> at)
+                {
+                    return juce::MouseEvent (juce::Desktop::getInstance().getMainMouseSource(), at, mods, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                                             &panel, &panel, juce::Time::getCurrentTime(), from, juce::Time::getCurrentTime(), 1, false);
+                };
+                const auto to = from.translated (0.0f, -pixelsUp);
+                panel.mouseDown (mouse (from));
+                panel.mouseDrag (mouse (to));
+                panel.mouseUp (mouse (to));
+            };
+            const auto before = panelPlayer.getSquare();
+            shiftDrag (onField (0.5f, 0.5f), -48.0f);
+            expectWithinAbsoluteError (panelPlayer.getSquare().x, before.x, 0.001f, "Shift-dragging doesn't move it");
+            expectWithinAbsoluteError (panelPlayer.getSquare().y, before.y, 0.001f);
+            expectWithinAbsoluteError (panelPlayer.getSquareLevel(), -6.0f, 0.01f, "48 pixels down, 6 dB back");
+            expectWithinAbsoluteError ((float) state.getProperty (CalibrationSettings::idSquareLevelDb), -6.0f, 0.01f, "and kept");
+
+            juce::TextButton* path = nullptr;
+            for (auto* child : panel.getChildren())
+                if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->getButtonText() == "Path")
+                    path = button;
+            expect (path != nullptr);
+            if (path != nullptr)
+            {
+                path->onClick();
+                expectWithinAbsoluteError (panelPlayer.getSquarePathStartDb(), -6.0f, 0.01f, "its first path starts as loud as it was");
+                expectWithinAbsoluteError (panelPlayer.getSquarePathEndDb(), -6.0f, 0.01f);
+                const auto kept = panelPlayer.getKeptSquarePath();
+                shiftDrag (onField (kept.x2, kept.y2), 24.0f);
+                expectWithinAbsoluteError (panelPlayer.getSquarePathEndDb(), -3.0f, 0.01f, "Shift-dragging its end pushes just that");
+                expectWithinAbsoluteError (panelPlayer.getSquarePathStartDb(), -6.0f, 0.01f);
+                shiftDrag (onField (kept.x1, kept.y1), -24.0f);
+                expectWithinAbsoluteError (panelPlayer.getSquarePathStartDb(), -9.0f, 0.01f, "and its start");
+                expectWithinAbsoluteError (panelPlayer.getSquarePathEndDb(), -3.0f, 0.01f);
+                expect (panelPlayer.getKeptSquarePath() == kept, "without moving them");
+                path->onClick();
+                expectWithinAbsoluteError (panelPlayer.getSquareLevel(), -9.0f, 0.01f, "turned off, it stays as loud as it had got");
+            }
+            panel.stop();
+        }
+
         beginTest ("Line mode in steps: its positions one at a time, there and back, each its repeats before the next");
         {
             CalibrationPlayer player;
@@ -4333,6 +4433,8 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         state.setProperty (CalibrationSettings::idSquarePathY1, 0.25f, nullptr);
         state.setProperty (CalibrationSettings::idSquarePathX2, 0.8f, nullptr);
         state.setProperty (CalibrationSettings::idSquarePathY2, 0.7f, nullptr);
+        state.setProperty (CalibrationSettings::idSquarePathStartDb, -9.0f, nullptr);
+        state.setProperty (CalibrationSettings::idSquarePathEndDb, 4.0f, nullptr);
     }
     if (const auto steps = juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_LINE_STEPS", {}); steps.isNotEmpty())
     {

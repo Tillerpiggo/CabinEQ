@@ -448,6 +448,18 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     squarePathSpeedSlider.setTooltip ("How fast the square travels, in the field's widths a second, so a longer line takes longer. Double-click for 0.25.");
     squarePathSpeedSlider.onValueChange = [this] { CalibrationSettings::setSquarePathSpeed (processor.parameters.state, player, (float) squarePathSpeedSlider.getValue()); };
     addChildComponent (squarePathSpeedSlider);
+    for (auto& slider : squareLevelSliders)
+    {
+        slider.setSliderStyle (juce::Slider::LinearVertical);
+        slider.setRange (CalibrationPlayer::minLineLevelDb, CalibrationPlayer::maxLineLevelDb, 0.1);
+        slider.setDoubleClickReturnValue (true, 0.0);
+        slider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+        slider.setPopupDisplayEnabled (true, true, this);
+        slider.textFromValueFunction = [] (double v) { return (v > 0.04 ? "+" : "") + juce::String (v, 1) + " dB"; };
+        slider.setTooltip ("How far forward (louder) or back (quieter) it is. Shift-drag on the field to push it too. Double-click for 0 dB.");
+        slider.onValueChange = [this] { setSquareLevels ((float) squareLevelSliders[0].getValue(), (float) squareLevelSliders[1].getValue()); };
+        addChildComponent (slider);
+    }
     lineModeButton.onClick = [this] { setMode (CalibrationPlayer::Mode::line); };
     lineModeButton.setTooltip ("Draw a line on the field: a point goes back and forth along it, and the bursts play wherever it's got to. "
                                "Across is from your left ear to your right, and up is higher.");
@@ -688,19 +700,23 @@ void CalibrationPanel::setSquarePathOn (bool shouldTravel)
     auto& state = processor.parameters.state;
     if (shouldTravel)
     {
-        // The first time, a line from where the square is toward the far side of the field
+        // The first time, a line from where the square is toward the far side of the field, as loud as it is
         if (! state.hasProperty (CalibrationSettings::idSquarePathX1))
         {
             const auto square = player.getSquare();
             const float farSide = square.x <= 0.5f ? 1.0f - square.width * 0.5f : square.width * 0.5f;
             CalibrationSettings::setSquarePath (state, player, { square.x, square.y, farSide, square.y });
         }
+        if (! state.hasProperty (CalibrationSettings::idSquarePathStartDb))
+            CalibrationSettings::setSquarePathLevels (state, player, player.getSquareLevel(), player.getSquareLevel());
     }
     else
     {
-        // It stays where it's got to
+        // It stays where it's got to, and as loud as it had got
         const auto moved = player.getMovingSquare();
+        const float level = player.getMovingSquareLevel();
         CalibrationSettings::setSquarePathOn (state, player, false);
+        CalibrationSettings::setSquareLevel (state, player, level);
         setSquare (moved);
         return;
     }
@@ -714,6 +730,35 @@ void CalibrationPanel::setSquare (CalibrationPlayer::Square square)
     CalibrationSettings::setSquare (processor.parameters.state, player, square);
     refreshSpots();
     repaint();
+}
+
+void CalibrationPanel::setSquareLevels (float startDb, float endDb)
+{
+    auto& state = processor.parameters.state;
+    if (player.isSquareTravelling())
+        CalibrationSettings::setSquarePathLevels (state, player, startDb, endDb);
+    else
+        CalibrationSettings::setSquareLevel (state, player, startDb);
+    const bool travelling = player.isSquareTravelling();
+    squareLevelSliders[0].setValue (travelling ? player.getSquarePathStartDb() : player.getSquareLevel(), juce::dontSendNotification);
+    squareLevelSliders[1].setValue (player.getSquarePathEndDb(), juce::dontSendNotification);
+    repaint();
+}
+
+void CalibrationPanel::layoutSquareLevels()
+{
+    // Under Path: one slider, or side by side for the two ends of its line
+    const int top = squarePathButton.getBottom() + 6;
+    auto strip = juce::Rectangle<int> (squarePathButton.getX(), top, squarePathButton.getWidth(), std::max (0, gridArea.getBottom() + 4 - top));
+    if (player.isSquareTravelling())
+    {
+        squareLevelSliders[0].setBounds (strip.removeFromLeft (strip.getWidth() / 2));
+        squareLevelSliders[1].setBounds (strip);
+    }
+    else
+    {
+        squareLevelSliders[0].setBounds (strip);
+    }
 }
 
 void CalibrationPanel::startPlaying()
@@ -740,6 +785,21 @@ void CalibrationPanel::paintField (juce::Graphics& g, const juce::String& hint)
         auto caption = lineLevelSliders[0].getBounds().getUnion (lineLevelSliders[1].getBounds()).withY (gridArea.getBottom() + 8).withHeight (14);
         g.drawText ("Start", caption.removeFromLeft (caption.getWidth() / 2), juce::Justification::centred);
         g.drawText ("End", caption, juce::Justification::centred);
+        g.setFont (Theme::font (10.5f));
+    }
+    if (squareLevelSliders[0].isVisible())
+    {
+        g.setFont (Theme::font (9.5f));
+        auto caption = squareLevelSliders[0].getBounds().withY (gridArea.getBottom() + 8).withHeight (14);
+        if (squareLevelSliders[1].isVisible())
+        {
+            g.drawText ("Start", caption, juce::Justification::centred);
+            g.drawText ("End", squareLevelSliders[1].getBounds().withY (caption.getY()).withHeight (14), juce::Justification::centred);
+        }
+        else
+        {
+            g.drawText ("Level", caption, juce::Justification::centred);
+        }
         g.setFont (Theme::font (10.5f));
     }
     if (lineSweepSlider.isVisible() || lineStepsSlider.isVisible() || squarePathSpeedSlider.isVisible())
@@ -783,7 +843,7 @@ void CalibrationPanel::paintSquarePath (juce::Graphics& g)
 {
     g.setColour (Theme::textFaint);
     g.setFont (Theme::font (10.5f));
-    g.drawText ("Drag to draw the line the square travels along, or drag its ends. Turn Path off to resize the square.",
+    g.drawText ("Drag to draw its line, or drag the ends. Shift-drag an end up or down: louder or quieter.",
                 gridArea.reduced (8, 4).removeFromTop (16), juce::Justification::centredLeft, true);
 
     const auto path = player.getKeptSquarePath();
@@ -791,14 +851,24 @@ void CalibrationPanel::paintSquarePath (juce::Graphics& g)
     const auto hover = squareDrag != SquareDrag::none ? squareDrag : squareHitAt (getMouseXYRelative().toFloat());
     g.setColour (Theme::accent.withAlpha (0.55f));
     g.drawLine ({ start, end }, 2.0f);
-    for (auto [point, which] : { std::pair { start, SquareDrag::pathStart }, std::pair { end, SquareDrag::pathEnd } })
+    for (auto [point, which, levelDrag, db] : { std::tuple { start, SquareDrag::pathStart, SquareDrag::startLevel, player.getSquarePathStartDb() },
+                                                std::tuple { end, SquareDrag::pathEnd, SquareDrag::endLevel, player.getSquarePathEndDb() } })
     {
-        const float radius = hover == which ? 6.5f : 5.0f;
+        // Bigger the louder (pushed toward you), smaller the quieter
+        const bool isHot = hover == which || hover == levelDrag || hover == SquareDrag::bothLevels;
+        const float radius = juce::jlimit (2.5f, 10.0f, 5.0f + 0.2f * db) + (isHot ? 1.5f : 0.0f);
         const auto handle = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (point);
         g.setColour (Theme::raisedHover.brighter (0.25f));
         g.fillEllipse (handle);
         g.setColour (Theme::accent.withAlpha (0.8f));
         g.drawEllipse (handle, 1.2f);
+        if (std::abs (db) >= 0.05f)
+        {
+            g.setColour (Theme::textFaint);
+            g.setFont (Theme::font (10.0f));
+            g.drawText ((db > 0.0f ? "+" : "") + juce::String (db, 1) + " dB", juce::Rectangle<float> (60.0f, 14.0f).withPosition (point.x + radius + 4.0f, point.y - radius - 12.0f),
+                        juce::Justification::centredLeft, false);
+        }
     }
 }
 
@@ -806,8 +876,8 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
 {
     const auto square = player.getMovingSquare();
     const bool travelling = player.isSquareTravelling();
-    paintField (g, square.line ? "Drag the line or its ends to move them, and the field around it to turn it. Nearer is bigger and louder."
-                               : "Drag the square to move it, and its corner to resize it. Higher up is a higher low cut.");
+    paintField (g, square.line ? "Drag the line or its ends to move them, and the field to turn it. Shift-drag up or down: louder or quieter."
+                               : "Drag the square to move it, and its corner to resize it. Shift-drag up or down: louder or quieter.");
     const auto field = gridArea.toFloat();
     juce::Graphics::ScopedSaveState clip (g);
     g.reduceClipRegion (field.expanded (6.0f).toNearestInt());
@@ -839,7 +909,15 @@ void CalibrationPanel::paintSquareMode (juce::Graphics& g)
     if (! travelling)
         g.strokePath (grip, juce::PathStrokeType (1.3f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
-    const float radius = 6.0f;
+    // Bigger the nearer you it's pushed, with how far along its top, between the dots
+    const float levelDb = player.getMovingSquareLevel();
+    if (std::abs (levelDb) >= 0.05f)
+    {
+        g.setColour (Theme::textDim);
+        g.setFont (Theme::font (10.0f));
+        g.drawText ((levelDb > 0.0f ? "+" : "") + juce::String (levelDb, 1) + " dB", outline.reduced (6.0f, 3.0f).removeFromTop (14.0f), juce::Justification::centred, false);
+    }
+    const float radius = juce::jlimit (3.0f, 10.0f, 6.0f + 0.2f * levelDb);
     for (int position = 0; position < square.count(); ++position)
     {
         auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (toPanel (square.dot (position)));
@@ -892,7 +970,7 @@ void CalibrationPanel::paintSquareLine (juce::Graphics& g)
             g.drawEllipse (dot, 1.2f);
 
             // How much louder (or quieter) it is for being turned toward you (or away)
-            const float db = CalibrationPlayer::depthDbPerField * depth;
+            const float db = player.getSquareLevel() + CalibrationPlayer::depthDbPerField * depth;
             if (std::abs (db) >= 0.5f)
             {
                 g.setColour (Theme::textFaint);
@@ -1052,6 +1130,12 @@ void CalibrationPanel::refreshSpots()
         squarePathButton.setToggleState (player.isSquarePathOn(), juce::dontSendNotification);
         squarePathSpeedSlider.setVisible (square && ! shape.line && player.isSquarePathOn());
         squarePathSpeedSlider.setValue (player.getSquarePathSpeed(), juce::dontSendNotification);
+        const bool travelling = square && player.isSquareTravelling();
+        squareLevelSliders[0].setVisible (square);
+        squareLevelSliders[1].setVisible (travelling);
+        squareLevelSliders[0].setValue (player.isSquareTravelling() ? player.getSquarePathStartDb() : player.getSquareLevel(), juce::dontSendNotification);
+        squareLevelSliders[1].setValue (player.getSquarePathEndDb(), juce::dontSendNotification);
+        layoutSquareLevels();
         squareSizeButtons[i].setToggleState (i == 2 ? shape.line : ! shape.line && shape.size == (int) i + 2, juce::dontSendNotification);
     }
     for (int i = 0; i < (int) spotCountButtons.size(); ++i)
@@ -1444,8 +1528,26 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
 
     if (isSquareMode())
     {
-        // A line: its ends move them, the line all of it, and the field around it turns it
+        // Shift pushes it forward or back instead of moving it: an end of its path that end, anywhere else all of it
         grabbedSquare = player.getSquare();
+        if (event.mods.isShiftDown())
+        {
+            squareDrag = SquareDrag::none;
+            if (gridArea.toFloat().expanded (6.0f).contains (event.position))
+            {
+                const bool travelling = player.isSquareTravelling();
+                const auto hit = squareHitAt (event.position);
+                squareDrag = ! travelling ? SquareDrag::level : hit == SquareDrag::pathStart ? SquareDrag::startLevel
+                           : hit == SquareDrag::pathEnd ? SquareDrag::endLevel : SquareDrag::bothLevels;
+                grabbedStartDb = travelling ? player.getSquarePathStartDb() : player.getSquareLevel();
+                grabbedEndDb = player.getSquarePathEndDb();
+                grabKeyboardFocus();
+                startPlaying();
+            }
+            return;
+        }
+
+        // A line: its ends move them, the line all of it, and the field around it turns it
         if (grabbedSquare.line)
         {
             squareDrag = squareHitAt (event.position);
@@ -1584,6 +1686,14 @@ void CalibrationPanel::mouseDrag (const juce::MouseEvent& event)
 
     if (isSquareMode())
     {
+        if (squareDrag == SquareDrag::level || squareDrag == SquareDrag::startLevel || squareDrag == SquareDrag::endLevel || squareDrag == SquareDrag::bothLevels)
+        {
+            // Up pushes it toward you, louder: 1 dB every 8 pixels
+            const float db = -(float) event.getDistanceFromDragStartY() / 8.0f;
+            setSquareLevels (squareDrag != SquareDrag::endLevel ? grabbedStartDb + db : grabbedStartDb,
+                             squareDrag == SquareDrag::endLevel || squareDrag == SquareDrag::bothLevels ? grabbedEndDb + db : grabbedEndDb);
+            return;
+        }
         auto square = player.getSquare();
         const auto at = toField (event.position);
         if (squareDrag == SquareDrag::pathStart || squareDrag == SquareDrag::pathEnd)
@@ -1829,7 +1939,8 @@ void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
     if (isSquareMode())
     {
         const auto hit = squareHitAt (event.position);
-        setMouseCursor (hit == SquareDrag::pathNew ? juce::MouseCursor::CrosshairCursor
+        setMouseCursor (event.mods.isShiftDown() && gridArea.toFloat().expanded (6.0f).contains (event.position) ? juce::MouseCursor::UpDownResizeCursor
+                        : hit == SquareDrag::pathNew ? juce::MouseCursor::CrosshairCursor
                         : hit == SquareDrag::pathStart || hit == SquareDrag::pathEnd ? juce::MouseCursor::PointingHandCursor
                         : hit == SquareDrag::resize ? juce::MouseCursor::BottomRightCornerResizeCursor
                         : hit == SquareDrag::move ? juce::MouseCursor::DraggingHandCursor
@@ -2094,6 +2205,7 @@ void CalibrationPanel::resized()
     lineStepsSlider.setBounds (columnsSlider.getBounds());
     squarePathSpeedSlider.setBounds (columnsSlider.getBounds());
     squarePathButton.setBounds (squareSizeButtons[2].getBounds().translated (0, 36)); // under the shapes
+    layoutSquareLevels();
     {
         // The ends' levels, side by side under Glide and Steps, captioned under the field
         const int top = gridArea.getY() - 4 + 2 * 30 + 6;

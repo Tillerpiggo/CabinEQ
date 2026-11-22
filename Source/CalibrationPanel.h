@@ -141,7 +141,11 @@ private:
     // Drag mode: a square of dots you put anywhere on the field (the grid's area). Across is pan; up is the low cut.
     // Or a line of three dots that turns about in three dimensions: dragging the field away from it turns it
     std::array<juce::TextButton, 3> squareSizeButtons; // 2 x 2, 3 x 3, and the 3D line
-    enum class SquareDrag { none, move, resize, firstEnd, lastEnd, turn, pathStart, pathEnd, pathNew };
+    enum class SquareDrag { none, move, resize, firstEnd, lastEnd, turn, pathStart, pathEnd, pathNew, level, startLevel, endLevel, bothLevels };
+    // How far forward or back it is: one level, or one for each end of its path
+    std::array<juce::Slider, 2> squareLevelSliders;
+    void setSquareLevels (float startDb, float endDb);
+    void layoutSquareLevels();
     // Or the square travelling back and forth along a line you draw, at a constant speed
     juce::TextButton squarePathButton { "Path" };
     juce::Slider squarePathSpeedSlider;
