@@ -1496,15 +1496,13 @@ void CalibrationPanel::timerCallback()
 
     if (isShowingSpots())
         refreshSpots(); // pick up drags on the graph
-    if ((isLineMode() || isShowingGridCells() || (isSquareMode() && player.isSquareTravelling())) && player.isPlaying())
+    if ((isLineMode() || (isSquareMode() && player.isSquareTravelling())) && player.isPlaying())
         repaint (gridArea.expanded (16)); // the point going along the line
 }
 
 //==============================================================================
 juce::Point<float> CalibrationPanel::centreOf (int position) const
 {
-    if (isShowingGridCells())
-        return toPanel (player.gridCellCentre (position));
     const int row = position / columns(), column = position % columns();
     const float cellWidth = (float) gridArea.getWidth() / (float) columns();
     const float cellHeight = (float) gridArea.getHeight() / (float) rows();
@@ -1516,15 +1514,6 @@ int CalibrationPanel::positionAt (juce::Point<float> point) const
 {
     if (! gridArea.toFloat().contains (point))
         return -1;
-    if (isShowingGridCells())
-    {
-        // The nearest 2 x 2
-        const auto at = toField (point);
-        const float size = player.getGridCellSize(), span = std::max (1.0e-3f, 1.0f - size);
-        const int nearColumn = juce::jlimit (0, columns() - 1, juce::roundToInt ((at.x - 0.5f * size) / span * (float) (columns() - 1)));
-        const int nearRow = juce::jlimit (0, rows() - 1, juce::roundToInt ((1.0f - 0.5f * size - at.y) / span * (float) (rows() - 1)));
-        return nearRow * columns() + nearColumn;
-    }
     const int column = juce::jlimit (0, columns() - 1, (int) ((point.x - (float) gridArea.getX()) / (float) gridArea.getWidth() * (float) columns()));
     const int row = juce::jlimit (0, rows() - 1, (int) ((point.y - (float) gridArea.getY()) / (float) gridArea.getHeight() * (float) rows()));
     return row * columns() + column;
@@ -2100,31 +2089,6 @@ void CalibrationPanel::paint (juce::Graphics& g)
 
     for (int position = 0; position < count; ++position)
     {
-        if (isShowingGridCells())
-        {
-            // Its 2 x 2, the dot that's sounding lit (all four, held)
-            const bool isOn = isSounding (position), isPicked = player.isSelected (position);
-            const auto outline = juce::Rectangle<float> (toPanel (player.gridCellDot (position, 0)), toPanel (player.gridCellDot (position, 3)));
-            g.setColour (Theme::accent.withAlpha (isOn ? 0.14f : position == hoverPosition ? 0.09f : 0.04f));
-            g.fillRoundedRectangle (outline, 4.0f);
-            g.setColour (isPicked ? Theme::text : Theme::accent.withAlpha (isOn ? 0.75f : 0.28f));
-            g.drawRoundedRectangle (outline, 4.0f, isPicked ? 1.5f : 1.0f);
-            const float dotRadius = std::min (radius, 5.0f);
-            for (int inner = 0; inner < 4; ++inner)
-            {
-                const bool isLit = isOn && (player.isHolding() || player.getCurrentGridDot() == inner);
-                auto circle = juce::Rectangle<float> (dotRadius * 2.0f, dotRadius * 2.0f).withCentre (toPanel (player.gridCellDot (position, inner)));
-                if (isLit)
-                {
-                    g.setColour (Theme::accent.withAlpha (0.3f));
-                    g.fillEllipse (circle.expanded (dotRadius * 0.9f));
-                }
-                g.setColour (isLit ? Theme::accentBright : position == hoverPosition ? Theme::textDim : Theme::raisedHover.brighter (0.15f));
-                g.fillEllipse (circle);
-            }
-            continue;
-        }
-
         const auto centre = centreOf (position);
         auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);
         const bool isCurrent = isSounding (position);

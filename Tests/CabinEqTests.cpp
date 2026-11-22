@@ -2358,7 +2358,7 @@ public:
                 expect (player.isHeld (position));
             expectGreaterThan (buffer.getRMSLevel (0, 2400, 2400), 0.0f);
 
-            // From the panel: its button, and a click picks the nearest 2 x 2
+            // From the panel: its button, and the grid's dots stay where they are, each picking its 2 x 2
             CabinEqAudioProcessor processor;
             auto& state = processor.parameters.state;
             auto& panelPlayer = processor.getCalibration();
@@ -2377,8 +2377,7 @@ public:
                 cells->onClick();
                 expect (panelPlayer.isGridCellsOn() && (bool) state.getProperty (CalibrationSettings::idGridCellsOn), "on, and kept");
                 const auto field = panel.getFieldArea().toFloat();
-                const auto centre = panelPlayer.gridCellCentre (4);
-                const juce::Point<float> at (field.getX() + centre.x * field.getWidth(), field.getBottom() - centre.y * field.getHeight());
+                const juce::Point<float> at (field.getX() + field.getWidth() * 0.5f, field.getY() + field.getHeight() * 0.75f); // the bottom row's middle dot
                 panel.mouseDown (juce::MouseEvent (juce::Desktop::getInstance().getMainMouseSource(), at, juce::ModifierKeys::leftButtonModifier,
                                                    0.0f, 0.0f, 0.0f, 0.0f, 0.0f, &panel, &panel, juce::Time::getCurrentTime(), at, juce::Time::getCurrentTime(), 1, false));
                 expect (panelPlayer.getSelection() == std::set<int> { 4 }, "clicking one picks it");
