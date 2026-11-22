@@ -146,11 +146,10 @@ private:
     std::array<juce::Slider, 2> squareLevelSliders;
     void setSquareLevels (float startDb, float endDb);
     void layoutSquareLevels();
-    // Or a grid of 2 x 2s: how many across, how many up, and how big each is
-    juce::TextButton squareGridButton { "Grid" };
-    std::array<juce::Slider, 3> squareGridSliders;
-    void setSquareGridOn (bool shouldGrid);
-    void paintSquareGrid (juce::Graphics& g);
+    // Grid mode's positions each a 2 x 2, and how big
+    juce::TextButton gridCellsButton { "2 x 2" };
+    juce::Slider gridCellSizeSlider;
+    bool isShowingGridCells() const { return mode() == CalibrationPlayer::Mode::grid && player.isGridCellsOn(); }
     // Or the square travelling back and forth along a line you draw, at a constant speed
     juce::TextButton squarePathButton { "Path" };
     juce::Slider squarePathSpeedSlider;

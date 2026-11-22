@@ -2297,81 +2297,91 @@ public:
             panel.stop();
         }
 
-        beginTest ("Drag mode's grid of 2 x 2s: the outermost touch the edges, and how many is independent of their size");
+        beginTest ("The grid's positions as 2 x 2s: the outermost touch the edges, and a repeat repeats all four dots");
         {
             CalibrationPlayer player;
             player.prepare (sampleRate);
-            player.setMode (CalibrationPlayer::Mode::square);
-            player.setSquare ({ 2, 0.5f, 0.5f, 0.2f, 0.2f });
-            player.setSquareGridOn (true);
-            player.setSquareGrid (3, 2);
+            player.setMode (CalibrationPlayer::Mode::grid);
+            player.setGrid (2, 3);
+            player.setGridCellsOn (true);
             for (float size : { 0.1f, 0.2f, 0.45f })
             {
-                player.setSquareGridSize (size);
-                expectWithinAbsoluteError (player.squareGridCell (0).dot (0).x, 0.0f, 0.001f, "its first touches the left");
-                expectWithinAbsoluteError (player.squareGridCell (0).dot (0).y, 1.0f, 0.001f, "and the top");
-                expectWithinAbsoluteError (player.squareGridCell (5).dot (3).x, 1.0f, 0.001f, "its last touches the right");
-                expectWithinAbsoluteError (player.squareGridCell (5).dot (3).y, 0.0f, 0.001f, "and the bottom");
-                expectWithinAbsoluteError (player.squareGridCell (1).x, 0.5f, 0.001f, "evenly between");
+                player.setGridCellSize (size);
+                expectWithinAbsoluteError (player.gridCellDot (0, 0).x, 0.0f, 0.001f, "its first touches the left");
+                expectWithinAbsoluteError (player.gridCellDot (0, 0).y, 1.0f, 0.001f, "and the top");
+                expectWithinAbsoluteError (player.gridCellDot (5, 3).x, 1.0f, 0.001f, "its last touches the right");
+                expectWithinAbsoluteError (player.gridCellDot (5, 3).y, 0.0f, 0.001f, "and the bottom");
+                expectWithinAbsoluteError (player.gridCellCentre (1).x, 0.5f, 0.001f, "evenly between, however big");
             }
-            player.setSquareGridSize (0.2f);
+            player.setGridCellSize (0.2f);
             player.setDepthUnit (CalibrationPlayer::DepthUnit::dot);
-            player.setDepthRepeats (1);
+            player.setDepthRepeats (2);
             player.setReleaseMs (50.0f);
             player.setRate (1.0f / 0.2f);
             player.setPlaying (true);
-            std::vector<int> positions;
-            for (int burst = 0; burst < 9; ++burst)
+            std::vector<int> positions, dots;
+            for (int burst = 0; burst < 10; ++burst)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (0.2 * sampleRate));
+                buffer.clear();
+                player.process (buffer);
+                positions.push_back (player.getCurrentPosition());
+                dots.push_back (player.getCurrentGridDot());
+            }
+            expect (positions == std::vector<int> { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 }, "twice through its 2 x 2 before the next");
+            expect (dots == std::vector<int> { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1 }, "all four dots each time");
+
+            // Only what's selected plays
+            player.setPlaying (false);
+            player.setDepthRepeats (1);
+            player.setSelection ({ 4 });
+            player.setPlaying (true);
+            positions.clear();
+            for (int burst = 0; burst < 5; ++burst)
             {
                 juce::AudioBuffer<float> buffer (2, (int) (0.2 * sampleRate));
                 buffer.clear();
                 player.process (buffer);
                 positions.push_back (player.getCurrentPosition());
             }
-            expect (positions == std::vector<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, "each 2 x 2's four dots, then the next");
+            expect (positions == std::vector<int> (5, 4));
+            player.setSelection ({});
 
-            // Held: every dot of every 2 x 2, even the biggest grid
-            player.setSquareGrid (CalibrationPlayer::maxSquareGrid, CalibrationPlayer::maxSquareGrid);
+            // Held: all of them, even on the biggest grid
+            player.setGrid (CalibrationPlayer::maxRows, CalibrationPlayer::maxColumns);
             player.setConstant (true);
             juce::AudioBuffer<float> buffer (2, 4800);
             buffer.clear();
             player.process (buffer);
-            const int dots = CalibrationPlayer::maxSquareGrid * CalibrationPlayer::maxSquareGrid * 4;
-            for (int position = 0; position < dots; ++position)
+            const int count = CalibrationPlayer::maxRows * CalibrationPlayer::maxColumns;
+            for (int position = 0; position < count; ++position)
                 expect (player.isHeld (position));
-            expect (! player.isHeld (dots));
             expectGreaterThan (buffer.getRMSLevel (0, 2400, 2400), 0.0f);
 
-            // From the panel: it's Path or Grid, and only for the 2 x 2
+            // From the panel: its button, and a click picks the nearest 2 x 2
             CabinEqAudioProcessor processor;
             auto& state = processor.parameters.state;
             auto& panelPlayer = processor.getCalibration();
-            CalibrationSettings::setMode (state, panelPlayer, CalibrationPlayer::Mode::square);
-            CalibrationSettings::setSquare (state, panelPlayer, { 2, 0.5f, 0.5f, 0.2f, 0.2f });
+            state.setProperty ("calibrationRows", 2, nullptr);
+            state.setProperty ("calibrationColumns", 3, nullptr);
+            CalibrationSettings::setMode (state, panelPlayer, CalibrationPlayer::Mode::grid);
             CalibrationPanel panel (processor);
             panel.setBounds (0, 0, 900, CalibrationPanel::preferredHeight);
-            juce::TextButton* grid = nullptr, * path = nullptr;
+            juce::TextButton* cells = nullptr;
             for (auto* child : panel.getChildren())
-                if (auto* button = dynamic_cast<juce::TextButton*> (child))
-                {
-                    if (button->getButtonText() == "Grid" && button->getBounds().getY() > panel.getFieldArea().getY())
-                        grid = button;
-                    if (button->getButtonText() == "Path")
-                        path = button;
-                }
-            expect (grid != nullptr && path != nullptr && grid->isVisible());
-            if (grid != nullptr && path != nullptr)
+                if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->getButtonText() == "2 x 2" && button->isVisible())
+                    cells = button;
+            expect (cells != nullptr && ! cells->getBounds().isEmpty(), "2 x 2 is there on the grid");
+            if (cells != nullptr)
             {
-                path->onClick();
-                grid->onClick();
-                expect (panelPlayer.isSquareGridded() && ! panelPlayer.isSquarePathOn(), "Grid turns Path off");
-                expect ((bool) state.getProperty (CalibrationSettings::idSquareGridOn), "and it's kept");
-                path->onClick();
-                expect (! panelPlayer.isSquareGridOn() && panelPlayer.isSquarePathOn(), "and Path turns Grid off");
-                path->onClick();
-                grid->onClick();
-                CalibrationSettings::setSquare (state, panelPlayer, { 3, 0.5f, 0.5f, 0.2f, 0.2f });
-                expect (! panelPlayer.isSquareGridded(), "not for the 3 x 3");
+                cells->onClick();
+                expect (panelPlayer.isGridCellsOn() && (bool) state.getProperty (CalibrationSettings::idGridCellsOn), "on, and kept");
+                const auto field = panel.getFieldArea().toFloat();
+                const auto centre = panelPlayer.gridCellCentre (4);
+                const juce::Point<float> at (field.getX() + centre.x * field.getWidth(), field.getBottom() - centre.y * field.getHeight());
+                panel.mouseDown (juce::MouseEvent (juce::Desktop::getInstance().getMainMouseSource(), at, juce::ModifierKeys::leftButtonModifier,
+                                                   0.0f, 0.0f, 0.0f, 0.0f, 0.0f, &panel, &panel, juce::Time::getCurrentTime(), at, juce::Time::getCurrentTime(), 1, false));
+                expect (panelPlayer.getSelection() == std::set<int> { 4 }, "clicking one picks it");
             }
             panel.stop();
         }
@@ -4535,12 +4545,8 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         processor.parameters.state.setProperty (CalibrationSettings::idHeightSpacing, spacing.getIntValue(), nullptr); // 0 octaves, 1 mels, 2 Hz
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_PINNED", {}).isNotEmpty())
         processor.parameters.state.setProperty (CalibrationSettings::idHeightsPinned, true, nullptr);
-    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_SQUARE_GRID", {}).isNotEmpty())
-    {
-        processor.parameters.state.setProperty (CalibrationSettings::idSquareSize, 2, nullptr);
-        processor.parameters.state.setProperty (CalibrationSettings::idSquareGridOn, true, nullptr);
-        processor.parameters.state.setProperty (CalibrationSettings::idSquareGridAcross, 4, nullptr);
-    }
+    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_GRID_CELLS", {}).isNotEmpty())
+        processor.parameters.state.setProperty (CalibrationSettings::idGridCellsOn, true, nullptr);
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_SQUARE_PATH", {}).isNotEmpty())
     {
         auto& state = processor.parameters.state;

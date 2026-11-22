@@ -579,33 +579,6 @@ public:
         return std::sqrt (across * across + up * up + depth * depth);
     }
 
-    /// Or a grid of 2 x 2s, each playing its four dots before the next. How many places there are is yours, and so,
-    /// separately, is the size of each 2 x 2: the places spread evenly so the outermost 2 x 2s touch the field's edges.
-    static constexpr int minSquareGrid = 1, maxSquareGrid = 7, defaultSquareGrid = 3; // 7 x 7 x 4 dots is what Hold can hold
-    static constexpr float defaultSquareGridSize = 0.2f;
-    void setSquareGridOn (bool shouldGrid) { squareGridOn = shouldGrid; }
-    bool isSquareGridOn() const            { return squareGridOn.load(); }
-    bool isSquareGridded() const noexcept  { return squareGridOn.load() && ! squarePathOn.load() && ! squareLine.load() && squareSize.load() == 2; }
-    void setSquareGrid (int across, int up)
-    {
-        squareGridAcross = juce::jlimit (minSquareGrid, maxSquareGrid, across);
-        squareGridUp = juce::jlimit (minSquareGrid, maxSquareGrid, up);
-    }
-    int getSquareGridAcross() const { return squareGridAcross.load(); }
-    int getSquareGridUp() const     { return squareGridUp.load(); }
-    void setSquareGridSize (float size) { squareGridSize = juce::jlimit (minSquareSide, 1.0f, size); }
-    float getSquareGridSize() const     { return squareGridSize.load(); }
-    /// One of the grid's 2 x 2s, in reading order from the top left
-    Square squareGridCell (int cell) const noexcept
-    {
-        const int across = squareGridAcross.load(), up = squareGridUp.load();
-        const float size = squareGridSize.load(), half = 0.5f * size;
-        const int row = juce::jlimit (0, up - 1, cell / across), column = cell % across;
-        const float x = across > 1 ? half + (1.0f - size) * (float) column / (float) (across - 1) : 0.5f;
-        const float y = up > 1 ? 1.0f - half - (1.0f - size) * (float) row / (float) (up - 1) : 0.5f;
-        return { 2, x, y, size, size };
-    }
-
     static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest time round, below the volume
 
     void prepare (double newSampleRate)
@@ -724,6 +697,33 @@ public:
         numRows = juce::jlimit (1, maxRows, rows);
         numColumns = juce::jlimit (1, maxColumns, columns);
     }
+
+    /// Or each of the grid's positions is a 2 x 2, whose four dots play in turn as one: repeating a position, or a row
+    /// of them, repeats its whole 2 x 2. The rows and columns say how many there are and the size how big each is,
+    /// separately: the positions spread evenly so the outermost 2 x 2s touch the field's edges.
+    static constexpr float defaultGridCellSize = 0.2f;
+    void setGridCellsOn (bool shouldUse)  { gridCellsOn = shouldUse; }
+    bool isGridCellsOn() const noexcept   { return gridCellsOn.load(); }
+    void setGridCellSize (float size)     { gridCellSize = juce::jlimit (minSquareSide, 1.0f, size); }
+    float getGridCellSize() const         { return gridCellSize.load(); }
+    /// The middle of a position's 2 x 2, on the field: (0, 0) the bottom left
+    juce::Point<float> gridCellCentre (int position) const noexcept
+    {
+        const int rows = numRows.load(), columns = numColumns.load();
+        const float size = gridCellSize.load(), half = 0.5f * size;
+        const int row = juce::jlimit (0, rows - 1, position / columns), column = position % columns;
+        return { columns > 1 ? half + (1.0f - size) * (float) column / (float) (columns - 1) : 0.5f,
+                 rows > 1 ? 1.0f - half - (1.0f - size) * (float) row / (float) (rows - 1) : 0.5f };
+    }
+    /// One of its four dots, in reading order from the top left
+    juce::Point<float> gridCellDot (int position, int dot) const noexcept
+    {
+        const auto centre = gridCellCentre (position);
+        const float half = 0.5f * gridCellSize.load();
+        return { centre.x + ((dot & 1) != 0 ? half : -half), centre.y + ((dot & 2) != 0 ? -half : half) };
+    }
+    /// Which of its four dots played last
+    int getCurrentGridDot() const noexcept { return currentGridDot.load(); }
 
     void setLevelDb (float db)          { level = juce::Decibels::decibelsToGain (db); }
     void setPlaying (bool shouldPlay)   { playing = shouldPlay; }
@@ -1179,12 +1179,21 @@ private:
                 depthRepeat = 0;
             }
 
+            // A position that's a 2 x 2 plays all four of its dots before anything else happens to it
+            const bool gridCells = modeNow == Mode::grid && gridCellsOn.load();
             if (seqColumn < 0)
             {
                 seqColumn = std::max (0, nextInRow (seqRow, -1)); // the very first one
+                seqGridDot = 0;
+            }
+            else if (gridCells && seqGridDot < 3 && (! anySelected || isSelected (positionOf (seqRow, seqColumn))))
+            {
+                ++seqGridDot;
             }
             else
             {
+                seqGridDot = 0;
+
                 // What would play next, in order
                 int nextRow = seqRow, nextColumn = nextInRow (seqRow, seqColumn);
                 const bool rowEnded = nextColumn < 0;
@@ -1237,7 +1246,8 @@ private:
 
             const int row = byColumn ? seqColumn : seqRow, column = byColumn ? seqRow : seqColumn;
             const int position = panned ? row : row * rowLength + column;
-            const int repeat = column; // for a spot or a band, which pan position it's at
+            const int repeat = gridCells ? seqGridDot : column; // for a spot or a band, which pan position it's at; for a 2 x 2, which dot
+            currentGridDot = seqGridDot;
             burst = burstAt (modeNow, position, repeat);
             currentPosition = burst.position; // on the way back along a line in steps, the position it's at again
 
@@ -1276,12 +1286,8 @@ private:
             return holding ? std::pair { lineSteps.load(), 1 } : std::pair { 1, 2 * lineSteps.load() - 2 };
         if (modeNow == Mode::line)
             return { 1, 1 }; // just the point, wherever it is
-        if (modeNow == Mode::square && isSquareGridded())
-        {
-            // A row for each 2 x 2, so On each's Row is a 2 x 2; held, the field's real rows, as each needs its own band
-            const int across = squareGridAcross.load(), up = squareGridUp.load();
-            return holding ? std::pair { 2 * up, 2 * across } : std::pair { up * across, 4 };
-        }
+        if (modeNow == Mode::grid && holding && gridCellsOn.load())
+            return { 2 * numRows.load(), 2 * numColumns.load() }; // the field's real rows of dots, as each needs its own band
         if (modeNow == Mode::square && squareLine.load())
             return { 1, 3 }; // a line's three dots, in a row
         const int rowCount = modeNow == Mode::spots ? spotCount.load() : modeNow == Mode::range ? 3 : modeNow == Mode::square ? square : numRows.load();
@@ -1338,9 +1344,8 @@ private:
         else if (modeNow == Mode::square)
         {
             const auto along = (float) squareAlongNow();
-            const bool gridded = isSquareGridded();
-            const auto square = gridded ? squareGridCell (position / 4) : squareAlong (along);
-            const auto dot = square.dot (gridded ? position % 4 : position);
+            const auto square = squareAlong (along);
+            const auto dot = square.dot (position);
             burst.pan = juce::jlimit (0.0f, 1.0f, dot.x);
             burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, dot.y), getHeights());
             burst.levelDb = squareLevelAt (along) + depthDbPerField * square.depth (position); // nearer is louder
@@ -1351,6 +1356,15 @@ private:
         {
             const int rows = numRows.load(), columns = numColumns.load();
             const int row = position / columns, column = position % columns;
+            if (gridCellsOn.load())
+            {
+                const auto dot = gridCellDot (position, repeat);
+                burst.pan = juce::jlimit (0.0f, 1.0f, dot.x);
+                burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, dot.y), getHeights());
+                if (burst.cutoff <= 20.5)
+                    burst.cutoff = 0.0;
+                return burst;
+            }
             burst.pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
             burst.cutoff = cutoffForRow (row, rows, getHeights());
             if (getTopEdge() == TopEdge::segments)
@@ -1440,12 +1454,14 @@ private:
         const auto modeNow = (Mode) mode.load();
         const auto [rowCount, rowLength] = layout (modeNow, true);
         const bool panned = modeNow == Mode::spots || modeNow == Mode::range;
-        const bool gridded = modeNow == Mode::square && isSquareGridded();
 
         bool anySelected = false;
-        for (int p = 0; holding && modeNow == Mode::grid && p < rowCount * rowLength && ! anySelected; ++p)
+        const bool gridCells = modeNow == Mode::grid && gridCellsOn.load();
+        for (int p = 0; holding && modeNow == Mode::grid && p < rowCount * rowLength / (gridCells ? 4 : 1) && ! anySelected; ++p)
             anySelected = isSelected (p);
-        auto wanted = [&] (int row, int column) { return ! anySelected || isSelected (row * rowLength + column); };
+        // With 2 x 2s, two rows and two columns of dots are one position
+        auto positionOf = [&] (int row, int column) { return gridCells ? (row / 2) * (rowLength / 2) + column / 2 : row * rowLength + column; };
+        auto wanted = [&] (int row, int column) { return ! anySelected || isSelected (positionOf (row, column)); };
 
         int count = 0;
         for (int row = 0; holding && row < rowCount; ++row)
@@ -1464,9 +1480,8 @@ private:
             {
                 if (! wanted (row, column))
                     continue;
-                const int position = gridded ? ((row / 2) * (rowLength / 2) + column / 2) * 4 + (row % 2) * 2 + column % 2
-                                             : panned ? row : row * rowLength + column;
-                const auto sound = soundOf (modeNow, burstAt (modeNow, position, column));
+                const int position = panned ? row : positionOf (row, column);
+                const auto sound = soundOf (modeNow, burstAt (modeNow, position, gridCells ? (row % 2) * 2 + column % 2 : column));
                 if (position < selectionWords * 64)
                     positions[(size_t) position / 64] |= (juce::uint64) 1 << (position % 64);
 
@@ -1631,7 +1646,7 @@ private:
     std::array<std::atomic<juce::uint64>, (size_t) selectionWords> heldPositions {}; // what Constant's holding, written by the audio thread
 
     // Audio thread: Constant's noises, and their rows' bands
-    std::array<HeldNoise, maxRows * maxColumns> held {};
+    std::array<HeldNoise, maxRows * maxColumns * 4> held {}; // four to a position, when they're 2 x 2s
     static constexpr int maxHeldBands = std::max (maxRows, maxLineSteps); // a row each, or a position each along a line in steps
     std::array<HeldBand, maxHeldBands> heldBands {};
     int heldCount = 0; // how far into `held` there's anything playing
@@ -1644,9 +1659,10 @@ private:
     std::atomic<float> squarePathX1 { 0.25f }, squarePathY1 { 0.5f }, squarePathX2 { 0.75f }, squarePathY2 { 0.5f },
                        squarePathSpeed { defaultSquarePathSpeed }, squarePathAlong { 0.0f },
                        squareLevelDb { 0.0f }, squarePathStartDb { 0.0f }, squarePathEndDb { 0.0f };
-    std::atomic<bool> squareGridOn { false };
-    std::atomic<int> squareGridAcross { defaultSquareGrid }, squareGridUp { defaultSquareGrid };
-    std::atomic<float> squareGridSize { defaultSquareGridSize };
+    std::atomic<bool> gridCellsOn { false };
+    std::atomic<float> gridCellSize { defaultGridCellSize };
+    std::atomic<int> currentGridDot { 0 };
+    int seqGridDot = 0; // audio thread: which of a 2 x 2's dots it's on
     double squarePathPhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
     std::atomic<int> lineSteps { defaultLineSteps };
     double linePhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
