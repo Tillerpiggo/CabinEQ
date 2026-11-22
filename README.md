@@ -76,7 +76,9 @@ loads the VST3 to EQ everything the Mac plays.
   to; with Hold, all its dots glide along together. Turn Path off to leave the square there, and to resize it.
   **Level** pushes the shape forward (louder) or back (quieter), -24 to +12 dB: use its slider, or Shift-drag on the
   field, up for forward, 1 dB every 8 pixels. With Path on it becomes **Start** and **End**: Shift-drag an end to set
-  that end, or anywhere else to push both, and the square fades evenly between them as it travels.
+  that end, or anywhere else to push both, and the square fades evenly between them as it travels. The level counts
+  as a third dimension of the line, 18 dB to a field width, so a bigger difference makes the trip longer at the same
+  **Travel** speed, and a line with both ends in one place still travels through its level.
   **3D**, beside the sizes, is instead a straight line of three dots, its two ends and its middle, that turns about
   in three dimensions. Drag the field around it to turn it like a trackball (Alt+arrows turn it a step), drag the
   line to move it, and drag an end to move that end (the other mirrors it round the middle, as near you as it was).

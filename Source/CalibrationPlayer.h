@@ -570,6 +570,14 @@ public:
     }
     /// Its level now, wherever it's travelled to
     float getMovingSquareLevel() const { return squareLevelAt (squarePathAlong.load()); }
+    /// How long its line is in three dimensions, in field widths: level is depth, at the 3D line's dB per field
+    double getSquarePathLength() const noexcept
+    {
+        const auto path = getKeptSquarePath();
+        const double across = path.x2 - path.x1, up = path.y2 - path.y1,
+                     depth = (squarePathEndDb.load() - squarePathStartDb.load()) / depthDbPerField;
+        return std::sqrt (across * across + up * up + depth * depth);
+    }
 
     static constexpr float minFloorDb = -60.0f, defaultFloorDb = -20.0f; // the quietest time round, below the volume
 
@@ -809,8 +817,7 @@ public:
 
         // Drag mode's square, the same way, at a constant speed however long its line is
         const bool onSquarePath = isPlaying && (Mode) mode.load() == Mode::square && isSquareTravelling();
-        const auto squarePath = getKeptSquarePath();
-        const double squarePathLength = squarePath.start().getDistanceFrom (squarePath.end());
+        const double squarePathLength = getSquarePathLength();
         const double squarePathStep = squarePathLength > 1.0e-4 ? (double) squarePathSpeed.load() / (squarePathLength * sampleRate) : 0.0;
 
         // The release falls 60 dB (6.9 time constants) in the time asked for; never faster than 1 ms, so "0" doesn't click

@@ -2209,6 +2209,40 @@ public:
             expectEquals (player.getSquarePathStartDb(), CalibrationPlayer::minLineLevelDb);
             expectEquals (player.getSquarePathEndDb(), CalibrationPlayer::maxLineLevelDb);
 
+            // Level is a third dimension of the line: 0.4 across and 5.4 dB (0.3 deep) is 0.5 long, so a second at 0.25 is halfway
+            {
+                CalibrationPlayer deep;
+                deep.prepare (sampleRate);
+                deep.setMode (CalibrationPlayer::Mode::square);
+                deep.setSquare ({ 2, 0.5f, 0.5f, 0.2f, 0.2f });
+                deep.setSquarePath ({ 0.3f, 0.5f, 0.7f, 0.5f });
+                deep.setSquarePathLevels (0.0f, 0.3f * CalibrationPlayer::depthDbPerField);
+                deep.setSquarePathSpeed (0.25f);
+                deep.setSquarePathOn (true);
+                deep.setPlaying (true);
+                expectWithinAbsoluteError ((float) deep.getSquarePathLength(), 0.5f, 0.001f);
+                for (int block = 0; block < (int) sampleRate / 480; ++block)
+                {
+                    juce::AudioBuffer<float> buffer (2, 480);
+                    buffer.clear();
+                    deep.process (buffer);
+                }
+                expectWithinAbsoluteError (deep.getMovingSquare().x, 0.5f, 0.005f, "the extra depth slows it across the field");
+
+                // With both ends in one place, it still travels through level alone
+                deep.setSquarePath ({ 0.5f, 0.5f, 0.5f, 0.5f });
+                deep.setSquarePathLevels (0.0f, 9.0f);
+                expectWithinAbsoluteError ((float) deep.getSquarePathLength(), 0.5f, 0.001f);
+                deep.restartSquarePath();
+                for (int block = 0; block < (int) sampleRate / 480; ++block)
+                {
+                    juce::AudioBuffer<float> buffer (2, 480);
+                    buffer.clear();
+                    deep.process (buffer);
+                }
+                expectWithinAbsoluteError (deep.getMovingSquareLevel(), 4.5f, 0.05f, "halfway through its level");
+            }
+
             // From the panel: Shift-drag the square, then each end of its path, and turning Path off keeps its level
             CabinEqAudioProcessor processor;
             auto& state = processor.parameters.state;
