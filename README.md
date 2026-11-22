@@ -79,6 +79,9 @@ loads the VST3 to EQ everything the Mac plays.
   that end, or anywhere else to push both, and the square fades evenly between them as it travels. The level counts
   as a third dimension of the line, 18 dB to a field width, so a bigger difference makes the trip longer at the same
   **Travel** speed, and a line with both ends in one place still travels through its level.
+  With the 2 x 2, **Grid** instead places a 2 x 2 at each of an even grid of positions, playing each one's four dots
+  before the next. **Across** and **Up** (1 to 7) set how many positions there are, and **Size** sets each 2 x 2
+  independently: the positions spread so the outermost 2 x 2s always touch the field's edges. On each's Row is a 2 x 2.
   **3D**, beside the sizes, is instead a straight line of three dots, its two ends and its middle, that turns about
   in three dimensions. Drag the field around it to turn it like a trackball (Alt+arrows turn it a step), drag the
   line to move it, and drag an end to move that end (the other mirrors it round the middle, as near you as it was).

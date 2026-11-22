@@ -36,7 +36,9 @@ namespace CalibrationSettings
                                   idSquarePathOn { "calibrationSquarePathOn" }, idSquarePathX1 { "calibrationSquarePathX1" }, idSquarePathY1 { "calibrationSquarePathY1" },
                                   idSquarePathX2 { "calibrationSquarePathX2" }, idSquarePathY2 { "calibrationSquarePathY2" }, idSquarePathSpeed { "calibrationSquarePathSpeed" },
                                   idSquareLevelDb { "calibrationSquareLevelDb" }, idSquarePathStartDb { "calibrationSquarePathStartDb" },
-                                  idSquarePathEndDb { "calibrationSquarePathEndDb" };
+                                  idSquarePathEndDb { "calibrationSquarePathEndDb" },
+                                  idSquareGridOn { "calibrationSquareGridOn" }, idSquareGridAcross { "calibrationSquareGridAcross" },
+                                  idSquareGridUp { "calibrationSquareGridUp" }, idSquareGridSize { "calibrationSquareGridSize" };
 
     constexpr float minFrequency = 20.0f, maxFrequency = 16000.0f;
 
@@ -185,6 +187,21 @@ namespace CalibrationSettings
         state.setProperty (idSquarePathEndDb, player.getSquarePathEndDb(), nullptr);
     }
 
+    /// Drag mode's grid of 2 x 2s: how many places, and how big each 2 x 2 is
+    inline void setSquareGridOn (juce::ValueTree state, CalibrationPlayer& player, bool shouldGrid)
+    {
+        player.setSquareGridOn (shouldGrid);
+        state.setProperty (idSquareGridOn, shouldGrid, nullptr);
+    }
+    inline void setSquareGrid (juce::ValueTree state, CalibrationPlayer& player, int across, int up, float size)
+    {
+        player.setSquareGrid (across, up);
+        player.setSquareGridSize (size);
+        state.setProperty (idSquareGridAcross, player.getSquareGridAcross(), nullptr);
+        state.setProperty (idSquareGridUp, player.getSquareGridUp(), nullptr);
+        state.setProperty (idSquareGridSize, player.getSquareGridSize(), nullptr);
+    }
+
     /// Hands everything in the state to the player
     inline void apply (const juce::ValueTree& state, CalibrationPlayer& player)
     {
@@ -206,6 +223,10 @@ namespace CalibrationSettings
                                 state.getProperty (idSquarePathX2, squarePath.x2), state.getProperty (idSquarePathY2, squarePath.y2) });
         player.setSquarePathSpeed (state.getProperty (idSquarePathSpeed, CalibrationPlayer::defaultSquarePathSpeed));
         player.setSquareLevel (state.getProperty (idSquareLevelDb, 0.0f));
+        player.setSquareGridOn (state.getProperty (idSquareGridOn, false));
+        player.setSquareGrid (state.getProperty (idSquareGridAcross, CalibrationPlayer::defaultSquareGrid),
+                              state.getProperty (idSquareGridUp, CalibrationPlayer::defaultSquareGrid));
+        player.setSquareGridSize (state.getProperty (idSquareGridSize, CalibrationPlayer::defaultSquareGridSize));
         player.setSquarePathLevels (state.getProperty (idSquarePathStartDb, 0.0f), state.getProperty (idSquarePathEndDb, 0.0f));
         if ((bool) state.getProperty (idSquarePathOn, false) != player.isSquarePathOn())
             player.setSquarePathOn (state.getProperty (idSquarePathOn, false));
