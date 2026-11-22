@@ -1496,13 +1496,15 @@ void CalibrationPanel::timerCallback()
 
     if (isShowingSpots())
         refreshSpots(); // pick up drags on the graph
-    if ((isLineMode() || (isSquareMode() && player.isSquareTravelling())) && player.isPlaying())
+    if ((isLineMode() || isShowingGridCells() || (isSquareMode() && player.isSquareTravelling())) && player.isPlaying())
         repaint (gridArea.expanded (16)); // the point going along the line
 }
 
 //==============================================================================
 juce::Point<float> CalibrationPanel::centreOf (int position) const
 {
+    if (isShowingGridCells())
+        return toPanel (player.gridCellCentre (position)); // where its 2 x 2 really is
     const int row = position / columns(), column = position % columns();
     const float cellWidth = (float) gridArea.getWidth() / (float) columns();
     const float cellHeight = (float) gridArea.getHeight() / (float) rows();
@@ -1514,6 +1516,15 @@ int CalibrationPanel::positionAt (juce::Point<float> point) const
 {
     if (! gridArea.toFloat().contains (point))
         return -1;
+    if (isShowingGridCells())
+    {
+        // The nearest dot, as they're inset by the padding
+        const auto at = toField (point);
+        const float size = player.getGridCellSize(), span = std::max (1.0e-3f, 1.0f - size);
+        const int nearColumn = juce::jlimit (0, columns() - 1, juce::roundToInt ((at.x - 0.5f * size) / span * (float) (columns() - 1)));
+        const int nearRow = juce::jlimit (0, rows() - 1, juce::roundToInt ((1.0f - 0.5f * size - at.y) / span * (float) (rows() - 1)));
+        return nearRow * columns() + nearColumn;
+    }
     const int column = juce::jlimit (0, columns() - 1, (int) ((point.x - (float) gridArea.getX()) / (float) gridArea.getWidth() * (float) columns()));
     const int row = juce::jlimit (0, rows() - 1, (int) ((point.y - (float) gridArea.getY()) / (float) gridArea.getHeight() * (float) rows()));
     return row * columns() + column;
@@ -2084,6 +2095,26 @@ void CalibrationPanel::paint (juce::Graphics& g)
     g.setColour (Theme::panel);
     g.fillRoundedRectangle (gridArea.toFloat().expanded (6.0f), Theme::cornerRadius);
 
+    if (isShowingGridCells())
+    {
+        // The padding: the band round the edge that the dots stay out of, half a 2 x 2 wide, so the corners reach the edge
+        const float half = 0.5f * player.getGridCellSize();
+        const auto inner = juce::Rectangle<float> (toPanel ({ half, 1.0f - half }), toPanel ({ 1.0f - half, half }));
+        juce::Path padding;
+        padding.setUsingNonZeroWinding (false);
+        padding.addRectangle (gridArea.toFloat());
+        padding.addRectangle (inner);
+        g.setColour (Theme::accent.withAlpha (0.07f));
+        g.fillPath (padding);
+        juce::Path edge;
+        edge.addRectangle (inner);
+        juce::Path dashed;
+        const float dashes[] { 4.0f, 4.0f };
+        juce::PathStrokeType (1.0f).createDashedStroke (dashed, edge, dashes, 2);
+        g.setColour (Theme::accent.withAlpha (0.4f));
+        g.fillPath (dashed);
+    }
+
     const int count = rows() * columns();
     const float radius = juce::jlimit (4.0f, 9.0f, std::min ((float) gridArea.getWidth() / (float) columns(), (float) gridArea.getHeight() / (float) rows()) * 0.22f);
 
@@ -2106,6 +2137,34 @@ void CalibrationPanel::paint (juce::Graphics& g)
         {
             g.setColour (Theme::text);
             g.drawEllipse (dot.expanded (3.0f), 1.5f);
+        }
+    }
+
+    // The 2 x 2 of whatever's playing: its outline and four corners, the one sounding now lit (all of them, held)
+    if (isShowingGridCells() && player.isPlaying())
+    {
+        for (int position = 0; position < count; ++position)
+        {
+            if (! isSounding (position))
+                continue;
+            const auto outline = juce::Rectangle<float> (toPanel (player.gridCellDot (position, 0)), toPanel (player.gridCellDot (position, 3)));
+            g.setColour (Theme::accent.withAlpha (0.1f));
+            g.fillRoundedRectangle (outline, 3.0f);
+            g.setColour (Theme::accent.withAlpha (0.7f));
+            g.drawRoundedRectangle (outline, 3.0f, 1.0f);
+            for (int corner = 0; corner < 4; ++corner)
+            {
+                const bool isLit = player.isHolding() || player.getCurrentGridDot() == corner;
+                const float cornerRadius = isLit ? 5.0f : 3.5f;
+                const auto mark = juce::Rectangle<float> (cornerRadius * 2.0f, cornerRadius * 2.0f).withCentre (toPanel (player.gridCellDot (position, corner)));
+                if (isLit)
+                {
+                    g.setColour (Theme::accent.withAlpha (0.3f));
+                    g.fillEllipse (mark.expanded (4.0f));
+                }
+                g.setColour (isLit ? Theme::accentBright : Theme::textDim);
+                g.fillEllipse (mark);
+            }
         }
     }
 }

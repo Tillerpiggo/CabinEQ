@@ -65,7 +65,7 @@ loads the VST3 to EQ everything the Mac plays.
   fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (each row plays that many times before the next row does, a level louder each time),
   repeats (how many times the row plays at each of those levels before going up one), On each (Dot, Row, Col or Cycle: what the depth and
   repeats work on. Dot takes each dot through every level before the next dot; Row, the default, each row; Col goes down each column in turn instead, taking each column through every level before the next (on the graph, a column is one pan step down every spot); Cycle plays every dot at one level, then every dot at the next), and a floor: how far below the volume the quietest level is (-20 dB to start), with the rest climbing evenly from there to the volume. On the graph, each spot (across its pan steps) is a row. Hiding it stops the sound.
-  **2 x 2**, beside the columns slider, makes each dot the centre of a 2 x 2 whose four points play in turn; the grid looks the same. Rows and columns
+  **2 x 2**, beside the columns slider, makes each dot the centre of a 2 x 2 whose four points play in turn. The dots sit at those true centres, the shaded band round the field is the padding that keeps the 2 x 2s on it, and the playing dot shows its four corners, the one sounding lit. Rows and columns
   still set how many there are, and **Size** sets how big each is, independently: the positions spread so the outermost
   2 x 2s always touch the field's edges. A dot is still one unit, so a repeat plays all four points again, and
   Depth, On each and picking dots all work on whole 2 x 2s. Their points use plain low cuts, not Auto's bands.

@@ -4700,6 +4700,19 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
     }
     juce::MessageManager::getInstance()->runDispatchLoopUntil (50);
 
+    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_GRID_CELLS", {}) == "playing")
+    {
+        // One dot held, to show its corners
+        auto& calibration = processor.getCalibration();
+        calibration.prepare (48000.0);
+        calibration.setSelection ({ 7 });
+        calibration.setConstant (true);
+        calibration.setPlaying (true);
+        juce::AudioBuffer<float> block (2, 480);
+        block.clear();
+        calibration.process (block);
+        editor->repaint();
+    }
     auto image = editor->createComponentSnapshot (editor->getLocalBounds(), true, 2.0f);
     juce::PNGImageFormat png;
     file.deleteFile();
