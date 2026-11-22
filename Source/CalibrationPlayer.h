@@ -715,13 +715,15 @@ public:
         return { columns > 1 ? half + (1.0f - size) * (float) column / (float) (columns - 1) : 0.5f,
                  rows > 1 ? 1.0f - half - (1.0f - size) * (float) row / (float) (rows - 1) : 0.5f };
     }
-    /// One of its four dots, in reading order from the top left
-    juce::Point<float> gridCellDot (int position, int dot) const noexcept
+    /// Its 2 x 2: the very same square Drag mode plays
+    Square gridCellSquare (int position) const noexcept
     {
         const auto centre = gridCellCentre (position);
-        const float half = 0.5f * gridCellSize.load();
-        return { centre.x + ((dot & 1) != 0 ? half : -half), centre.y + ((dot & 2) != 0 ? -half : half) };
+        const float size = gridCellSize.load();
+        return { 2, centre.x, centre.y, size, size };
     }
+    /// One of its four dots, in reading order from the top left
+    juce::Point<float> gridCellDot (int position, int dot) const noexcept { return gridCellSquare (position).dot (dot); }
     /// Which of its four dots played last
     int getCurrentGridDot() const noexcept { return currentGridDot.load(); }
 
@@ -1344,13 +1346,7 @@ private:
         else if (modeNow == Mode::square)
         {
             const auto along = (float) squareAlongNow();
-            const auto square = squareAlong (along);
-            const auto dot = square.dot (position);
-            burst.pan = juce::jlimit (0.0f, 1.0f, dot.x);
-            burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, dot.y), getHeights());
-            burst.levelDb = squareLevelAt (along) + depthDbPerField * square.depth (position); // nearer is louder
-            if (burst.cutoff <= 20.5)
-                burst.cutoff = 0.0;
+            playSquareDot (burst, squareAlong (along), position, squareLevelAt (along));
         }
         else
         {
@@ -1358,11 +1354,7 @@ private:
             const int row = position / columns, column = position % columns;
             if (gridCellsOn.load())
             {
-                const auto dot = gridCellDot (position, repeat);
-                burst.pan = juce::jlimit (0.0f, 1.0f, dot.x);
-                burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, dot.y), getHeights());
-                if (burst.cutoff <= 20.5)
-                    burst.cutoff = 0.0;
+                playSquareDot (burst, gridCellSquare (position), repeat, 0.0f);
                 return burst;
             }
             burst.pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
@@ -1371,6 +1363,17 @@ private:
                 burst.rangeBand = rowSegment (row, rows, getHeights());
         }
         return burst;
+    }
+
+    /// A dot of a square, for Drag mode and the grid's 2 x 2s alike: where it is, its low cut, and its level
+    void playSquareDot (Burst& burst, const Square& square, int dot, float levelDb) const noexcept
+    {
+        const auto point = square.dot (dot);
+        burst.pan = juce::jlimit (0.0f, 1.0f, point.x);
+        burst.cutoff = Square::cutoffAt (juce::jlimit (0.0f, 1.0f, point.y), getHeights());
+        burst.levelDb = levelDb + depthDbPerField * square.depth (dot); // nearer is louder
+        if (burst.cutoff <= 20.5)
+            burst.cutoff = 0.0;
     }
 
     /// Audio thread: how far along the line the point is, going there and coming back
