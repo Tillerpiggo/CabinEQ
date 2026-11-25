@@ -51,6 +51,7 @@ class CalibrationPlayer
 public:
     static constexpr int maxRows = 12;
     static constexpr int maxColumns = 18;
+    static constexpr int maxGridPositions = 2 * maxRows * maxColumns; // both layers
     static constexpr int defaultRows = 3;
     static constexpr int defaultColumns = 5;
     static constexpr int maxDepth = 5;
@@ -711,10 +712,20 @@ public:
     {
         const int rows = numRows.load(), columns = numColumns.load();
         const float size = gridCellSize.load(), half = 0.5f * size;
+        position %= std::max (1, rows * columns); // on either layer
         const int row = juce::jlimit (0, rows - 1, position / columns), column = position % columns;
         return { columns > 1 ? half + (1.0f - size) * (float) column / (float) (columns - 1) : 0.5f,
                  rows > 1 ? 1.0f - half - (1.0f - size) * (float) row / (float) (rows - 1) : 0.5f };
     }
+    /// A second layer of the grid behind the first, quieter by its depth, played after it: its positions come after
+    /// the front's, so position (rows x columns) + p is p on the back layer
+    static constexpr float minGridBackDb = -36.0f, defaultGridBackDb = -12.0f;
+    void setGridBackOn (bool shouldUse)  { gridBackOn = shouldUse; }
+    bool isGridBackOn() const noexcept   { return gridBackOn.load(); }
+    int getGridLayers() const noexcept   { return gridBackOn.load() ? 2 : 1; }
+    void setGridBackDb (float db)        { gridBackDb = juce::jlimit (minGridBackDb, 0.0f, db); }
+    float getGridBackDb() const          { return gridBackDb.load(); }
+
     /// Its 2 x 2: the very same square Drag mode plays
     Square gridCellSquare (int position) const noexcept
     {
@@ -745,7 +756,7 @@ public:
     std::set<int> getSelection() const
     {
         std::set<int> positions;
-        for (int position = 0; position < maxRows * maxColumns; ++position)
+        for (int position = 0; position < maxGridPositions; ++position)
             if (isSelected (position))
                 positions.insert (position);
         return positions;
@@ -1289,10 +1300,10 @@ private:
         if (modeNow == Mode::line)
             return { 1, 1 }; // just the point, wherever it is
         if (modeNow == Mode::grid && holding && gridCellsOn.load())
-            return { 2 * numRows.load(), 2 * numColumns.load() }; // the field's real rows of dots, as each needs its own band
+            return { 2 * numRows.load() * getGridLayers(), 2 * numColumns.load() }; // the field's real rows of dots, as each needs its own band
         if (modeNow == Mode::square && squareLine.load())
             return { 1, 3 }; // a line's three dots, in a row
-        const int rowCount = modeNow == Mode::spots ? spotCount.load() : modeNow == Mode::range ? 3 : modeNow == Mode::square ? square : numRows.load();
+        const int rowCount = modeNow == Mode::spots ? spotCount.load() : modeNow == Mode::range ? 3 : modeNow == Mode::square ? square : numRows.load() * (modeNow == Mode::grid ? getGridLayers() : 1);
         const int rowLength = panned ? panSteps.load() : modeNow == Mode::square ? square : numColumns.load();
         return { rowCount, rowLength };
     }
@@ -1351,12 +1362,16 @@ private:
         else
         {
             const int rows = numRows.load(), columns = numColumns.load();
-            const int row = position / columns, column = position % columns;
+            const bool behind = position >= rows * columns; // on the back layer
+            const float layerDb = behind ? gridBackDb.load() : 0.0f;
+            const int onLayer = position % (rows * columns);
+            const int row = onLayer / columns, column = onLayer % columns;
             if (gridCellsOn.load())
             {
-                playSquareDot (burst, gridCellSquare (position), repeat, 0.0f);
+                playSquareDot (burst, gridCellSquare (onLayer), repeat, layerDb);
                 return burst;
             }
+            burst.levelDb = layerDb;
             burst.pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
             burst.cutoff = cutoffForRow (row, rows, getHeights());
             if (getTopEdge() == TopEdge::segments)
@@ -1613,7 +1628,7 @@ private:
 
     std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 }, depthRepeats { 1 }, depthUnit { (int) DepthUnit::row };
     // Which positions are picked out: a bit each, in words the audio thread can read without waiting
-    static constexpr int selectionWords = (maxRows * maxColumns + 63) / 64;
+    static constexpr int selectionWords = (maxGridPositions + 63) / 64;
     std::array<std::atomic<juce::uint64>, (size_t) selectionWords> selected {};
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
@@ -1649,8 +1664,8 @@ private:
     std::array<std::atomic<juce::uint64>, (size_t) selectionWords> heldPositions {}; // what Constant's holding, written by the audio thread
 
     // Audio thread: Constant's noises, and their rows' bands
-    std::array<HeldNoise, maxRows * maxColumns * 4> held {}; // four to a position, when they're 2 x 2s
-    static constexpr int maxHeldBands = std::max (maxRows, maxLineSteps); // a row each, or a position each along a line in steps
+    std::array<HeldNoise, maxGridPositions * 4> held {}; // four to a position, when they're 2 x 2s
+    static constexpr int maxHeldBands = std::max (2 * 2 * maxRows, maxLineSteps); // a row each (two to a 2 x 2, both layers), or a position each along a line in steps
     std::array<HeldBand, maxHeldBands> heldBands {};
     int heldCount = 0; // how far into `held` there's anything playing
     float heldSmoothing = 0.01f;
@@ -1665,6 +1680,8 @@ private:
     std::atomic<bool> gridCellsOn { false };
     std::atomic<float> gridCellSize { defaultGridCellSize };
     std::atomic<int> currentGridDot { 0 };
+    std::atomic<bool> gridBackOn { false };
+    std::atomic<float> gridBackDb { defaultGridBackDb };
     int seqGridDot = 0; // audio thread: which of a 2 x 2's dots it's on
     double squarePathPhase = 0.0; // audio thread: 0 to 1 is there, 1 to 2 back
     std::atomic<int> lineSteps { defaultLineSteps };

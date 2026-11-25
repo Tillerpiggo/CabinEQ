@@ -5,8 +5,8 @@
 
     A grid of positions that play pink noise bursts in reading order, to check the
     EQ by ear. Columns go from your left ear to your right, rows from high (top)
-    to low: each row up cuts off more of the lows. Click positions to play just
-    those (Shift- or Cmd-click, or drag, to pick several), and move them with the
+    to low: each row up cuts off more of the lows. Click positions to turn them on
+    or off and play just those (drag to do several), and move them with the
     arrow keys (Shift+arrow to add the next one). It has its own volume, and a
     depth that plays each position several times, getting louder.
 
@@ -66,7 +66,7 @@ private:
 
     juce::TextButton playButton { "Play" }, allButton { "Play all" }, closeButton { "Hide" };
     juce::TextButton constantButton { "Hold" }; // everything at once, held, rather than bursts in turn
-    std::array<bool, CalibrationPlayer::maxRows * CalibrationPlayer::maxColumns> shownHeld {};
+    std::array<bool, CalibrationPlayer::maxGridPositions> shownHeld {};
     /// Whether a position's lit: the one playing, or with Constant, any it's holding
     bool isSounding (int position) const
     {
@@ -149,6 +149,12 @@ private:
     // Grid mode's positions each a 2 x 2, and how big
     juce::TextButton gridCellsButton { "2 x 2" };
     juce::Slider gridCellSizeSlider;
+    // The grid's second layer, behind: whether it's there, which one you're looking at and picking on, and how far back
+    juce::TextButton gridBackButton { "3D" };
+    std::array<juce::TextButton, 2> gridLayerButtons;
+    juce::Slider gridBackDbSlider;
+    int viewedLayer = 0;
+    int layerOffset() const { return player.isGridBackOn() ? viewedLayer * rows() * columns() : 0; }
     bool isShowingGridCells() const { return mode() == CalibrationPlayer::Mode::grid && player.isGridCellsOn(); }
     // Or the square travelling back and forth along a line you draw, at a constant speed
     juce::TextButton squarePathButton { "Path" };

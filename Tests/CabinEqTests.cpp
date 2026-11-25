@@ -3170,6 +3170,109 @@ public:
         expect (player.isPlaying(), "and it started playing");
         panel.stop();
 
+        beginTest ("Clicks turn grid positions on and off, and a second layer behind plays after the front, quieter");
+        {
+            player.setSelection ({});
+            const auto field = panel.getFieldArea().toFloat();
+            auto click = [&panel, field] (int row, int column)
+            {
+                const juce::Point<float> at (field.getX() + field.getWidth() * ((float) column + 0.5f) / 5.0f, field.getY() + field.getHeight() * ((float) row + 0.5f) / 3.0f);
+                const auto event = juce::MouseEvent (juce::Desktop::getInstance().getMainMouseSource(), at, juce::ModifierKeys::leftButtonModifier, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                                                     &panel, &panel, juce::Time::getCurrentTime(), at, juce::Time::getCurrentTime(), 1, false);
+                panel.mouseDown (event);
+                panel.mouseUp (event);
+            };
+            click (0, 1);
+            click (1, 2);
+            expect (player.getSelection() == std::set<int> { 1, 7 }, "a second click adds, rather than starting over");
+            click (0, 1);
+            expect (player.getSelection() == std::set<int> { 7 }, "and clicking one that's on turns it off");
+
+            juce::TextButton* threeD = nullptr, * back = nullptr;
+            for (auto* child : panel.getChildren())
+                if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->isVisible() && button->getButtonText() == "3D")
+                    threeD = button;
+            expect (threeD != nullptr, "3D is there on the grid");
+            if (threeD != nullptr)
+            {
+                threeD->onClick();
+                expect (player.isGridBackOn() && (bool) processor.parameters.state.getProperty (CalibrationSettings::idGridBackOn), "on, and kept");
+                for (auto* child : panel.getChildren())
+                    if (auto* button = dynamic_cast<juce::TextButton*> (child); button != nullptr && button->isVisible() && button->getButtonText() == "Back")
+                        back = button;
+                expect (back != nullptr, "with Front and Back to pick");
+                if (back != nullptr)
+                {
+                    back->onClick();
+                    click (1, 2);
+                    expect (player.getSelection() == std::set<int> { 7, 22 }, "clicking on the back layer picks its own position");
+                }
+                threeD->onClick();
+            }
+            player.setSelection ({});
+        }
+
+        beginTest ("The back layer: after the front, quieter by its depth, and held with it");
+        {
+            auto heldPower = [] (CalibrationPlayer& p)
+            {
+                for (int block = 0; block < 100; ++block)
+                {
+                    juce::AudioBuffer<float> buffer (2, 480);
+                    buffer.clear();
+                    p.process (buffer);
+                }
+                double power = 0.0;
+                for (int block = 0; block < 200; ++block)
+                {
+                    juce::AudioBuffer<float> buffer (2, 480);
+                    buffer.clear();
+                    p.process (buffer);
+                    for (int channel = 0; channel < 2; ++channel)
+                        power += juce::square ((double) buffer.getRMSLevel (channel, 0, buffer.getNumSamples()));
+                }
+                return (float) (10.0 * std::log10 (power));
+            };
+            CalibrationPlayer layered;
+            layered.prepare (48000.0);
+            layered.setMode (CalibrationPlayer::Mode::grid);
+            layered.setGrid (2, 3);
+            layered.setGridBackOn (true);
+            layered.setDepthUnit (CalibrationPlayer::DepthUnit::dot);
+            layered.setDepthRepeats (1);
+            layered.setReleaseMs (50.0f);
+            layered.setRate (1.0f / 0.2f);
+            layered.setPlaying (true);
+            std::vector<int> positions;
+            for (int burst = 0; burst < 13; ++burst)
+            {
+                juce::AudioBuffer<float> buffer (2, (int) (0.2 * 48000.0));
+                buffer.clear();
+                layered.process (buffer);
+                positions.push_back (layered.getCurrentPosition());
+            }
+            expect (positions == std::vector<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0 }, "the front, then the back");
+
+            layered.setPlaying (false);
+            layered.setConstant (true);
+            layered.setSelection ({ 4 });
+            layered.setPlaying (true);
+            const float front = heldPower (layered);
+            layered.setSelection ({ 10 });
+            expectWithinAbsoluteError (heldPower (layered) - front, CalibrationPlayer::defaultGridBackDb, 1.5f, "the same place behind, 12 dB quieter");
+
+            // Every dot of both layers, held, even as 2 x 2s on the biggest grid
+            layered.setSelection ({});
+            layered.setGridCellsOn (true);
+            layered.setGrid (CalibrationPlayer::maxRows, CalibrationPlayer::maxColumns);
+            juce::AudioBuffer<float> buffer (2, 4800);
+            buffer.clear();
+            layered.process (buffer);
+            for (int position = 0; position < CalibrationPlayer::maxGridPositions; ++position)
+                expect (layered.isHeld (position));
+            expectGreaterThan (buffer.getRMSLevel (0, 2400, 2400), 0.0f);
+        }
+
         beginTest ("Drag mode: a square of dots that you move about the field and resize from its corner");
         {
             CabinEqAudioProcessor dragProcessor;
@@ -4546,6 +4649,8 @@ static int writeSnapshot (const juce::File& file, int width, int height, bool ch
         processor.parameters.state.setProperty (CalibrationSettings::idHeightsPinned, true, nullptr);
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_GRID_CELLS", {}).isNotEmpty())
         processor.parameters.state.setProperty (CalibrationSettings::idGridCellsOn, true, nullptr);
+    if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_GRID_BACK", {}).isNotEmpty())
+        processor.parameters.state.setProperty (CalibrationSettings::idGridBackOn, true, nullptr);
     if (juce::SystemStats::getEnvironmentVariable ("CABINEQ_SNAPSHOT_SQUARE_PATH", {}).isNotEmpty())
     {
         auto& state = processor.parameters.state;

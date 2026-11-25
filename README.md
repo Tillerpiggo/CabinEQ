@@ -57,10 +57,11 @@ loads the VST3 to EQ everything the Mac plays.
   bursts in reading order, through the EQ. Columns go from your left ear to your right. Rows set
   a sharp low cut: n rows draw n lines across 20 Hz to 20 kHz, evenly in octaves, cutting it into
   n + 1 sections, and each row's cut is one of those lines, lowest at the bottom (with 3 rows:
-  about 112 Hz, 632 Hz and 3.6 kHz). Click positions to play just
-  those: Shift- or Cmd-click, or drag across them, to pick several, and move them with the
-  arrow keys (Shift+arrow adds the next one); Play all goes back to every
-  one. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
+  about 112 Hz, 632 Hz and 3.6 kHz). Click a position to turn it on or off, and only those on play (drag across
+  several to do the same to each); move them with the arrow keys (Shift+arrow adds the next one); with none on, or
+  Play all, every one plays. **3D**, above the rows slider, adds a second layer behind the grid, the same rows and
+  columns, quieter by **dB back** (-12 dB to start, 0 to -36) and played after the front one, so Cycle covers both.
+  **Front** and **Back** pick which layer you see and click on; a faint ring shows where the other layer's playing. The rows slider runs up the side of the grid and the columns slider along the bottom. On the
   right are its own volume, a speed (0.5 to 64 bursts a second, 2.5 to start), an attack (how long each burst takes to reach full level: 0 to 200 ms, 4 ms to start; longer is softer), a release (how long each burst takes to
   fade out: 0 ms, which leaves just a tick, up to 3 s; 1.5 s to start), a depth (each row plays that many times before the next row does, a level louder each time),
   repeats (how many times the row plays at each of those levels before going up one), On each (Dot, Row, Col or Cycle: what the depth and

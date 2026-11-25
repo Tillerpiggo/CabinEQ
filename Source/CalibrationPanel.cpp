@@ -451,7 +451,7 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
     gridCellSizeSlider.setRange (CalibrationPlayer::minSquareSide, 1.0, 0.01);
     gridCellSizeSlider.setValue (player.getGridCellSize(), juce::dontSendNotification);
     gridCellSizeSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultGridCellSize);
-    gridCellSizeSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 62, 20);
+    gridCellSizeSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 56, 20);
     gridCellSizeSlider.textFromValueFunction = [] (double v) { return juce::String (juce::roundToInt (v * 100.0)) + "% size"; };
     gridCellSizeSlider.updateText();
     gridCellSizeSlider.setTooltip ("How big each 2 x 2 is, as a share of the field. How many there are stays the same, and the outermost still touch the edges.");
@@ -461,6 +461,36 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
         repaint();
     };
     addChildComponent (gridCellSizeSlider);
+    gridBackButton.setTooltip ("A second layer of the grid behind the first, quieter by its depth, played after it. Front and Back pick which one you see and select on.");
+    gridBackButton.setClickingTogglesState (false);
+    gridBackButton.onClick = [this]
+    {
+        CalibrationSettings::setGridBackOn (processor.parameters.state, player, ! player.isGridBackOn());
+        viewedLayer = player.isGridBackOn() ? viewedLayer : 0;
+        refreshSpots();
+        resized();
+        repaint();
+    };
+    addChildComponent (gridBackButton);
+    for (size_t i = 0; i < gridLayerButtons.size(); ++i)
+    {
+        auto& button = gridLayerButtons[i];
+        button.setButtonText (i == 0 ? "Front" : "Back");
+        button.setTooltip (i == 0 ? "See and select on the front layer" : "See and select on the back layer");
+        button.setClickingTogglesState (false);
+        button.onClick = [this, i] { viewedLayer = (int) i; refreshSpots(); repaint(); };
+        addChildComponent (button);
+    }
+    gridBackDbSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    gridBackDbSlider.setRange (CalibrationPlayer::minGridBackDb, 0.0, 1.0);
+    gridBackDbSlider.setValue (player.getGridBackDb(), juce::dontSendNotification);
+    gridBackDbSlider.setDoubleClickReturnValue (true, CalibrationPlayer::defaultGridBackDb);
+    gridBackDbSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 68, 20);
+    gridBackDbSlider.textFromValueFunction = [] (double v) { return juce::String (juce::roundToInt (v)) + " dB back"; };
+    gridBackDbSlider.updateText();
+    gridBackDbSlider.setTooltip ("How much quieter the back layer is: how far behind the front it sits. Double-click for -12 dB.");
+    gridBackDbSlider.onValueChange = [this] { CalibrationSettings::setGridBackDb (processor.parameters.state, player, (float) gridBackDbSlider.getValue()); };
+    addChildComponent (gridBackDbSlider);
     squarePathSpeedSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     squarePathSpeedSlider.setRange (CalibrationPlayer::minSquarePathSpeed, CalibrationPlayer::maxSquarePathSpeed, 0.01);
     squarePathSpeedSlider.setSkewFactorFromMidPoint (CalibrationPlayer::defaultSquarePathSpeed);
@@ -1148,6 +1178,15 @@ void CalibrationPanel::refreshSpots()
     gridCellsButton.setToggleState (player.isGridCellsOn(), juce::dontSendNotification);
     gridCellSizeSlider.setVisible (grid && player.isGridCellsOn());
     gridCellSizeSlider.setValue (player.getGridCellSize(), juce::dontSendNotification);
+    gridBackButton.setVisible (grid);
+    gridBackButton.setToggleState (player.isGridBackOn(), juce::dontSendNotification);
+    for (size_t i = 0; i < gridLayerButtons.size(); ++i)
+    {
+        gridLayerButtons[i].setVisible (grid && player.isGridBackOn());
+        gridLayerButtons[i].setToggleState ((int) i == viewedLayer, juce::dontSendNotification);
+    }
+    gridBackDbSlider.setVisible (grid && player.isGridBackOn());
+    gridBackDbSlider.setValue (player.getGridBackDb(), juce::dontSendNotification);
     spotsModeButton.setToggleState (spots, juce::dontSendNotification);
     squareModeButton.setToggleState (square, juce::dontSendNotification);
     for (size_t i = 0; i < squareSizeButtons.size(); ++i)
@@ -1435,7 +1474,7 @@ void CalibrationPanel::applySettings()
     // Forget selected positions that aren't on the grid any more
     auto selection = player.getSelection();
     for (auto it = selection.begin(); it != selection.end();)
-        it = *it >= rows() * columns() ? selection.erase (it) : std::next (it);
+        it = *it >= rows() * columns() * player.getGridLayers() ? selection.erase (it) : std::next (it);
     player.setSelection (selection);
 
     // Not undoable: it's how you like to calibrate, not part of the EQ
@@ -1484,7 +1523,7 @@ void CalibrationPanel::timerCallback()
     }
 
     // Constant lights everything it's holding
-    std::array<bool, CalibrationPlayer::maxRows * CalibrationPlayer::maxColumns> held {};
+    std::array<bool, CalibrationPlayer::maxGridPositions> held {};
     if (player.isHolding())
         for (size_t i = 0; i < held.size(); ++i)
             held[i] = player.isHeld ((int) i);
@@ -1503,6 +1542,7 @@ void CalibrationPanel::timerCallback()
 //==============================================================================
 juce::Point<float> CalibrationPanel::centreOf (int position) const
 {
+    position %= std::max (1, rows() * columns()); // the same place on either layer
     if (isShowingGridCells())
         return toPanel (player.gridCellCentre (position)); // where its 2 x 2 really is
     const int row = position / columns(), column = position % columns();
@@ -1523,11 +1563,11 @@ int CalibrationPanel::positionAt (juce::Point<float> point) const
         const float size = player.getGridCellSize(), span = std::max (1.0e-3f, 1.0f - size);
         const int nearColumn = juce::jlimit (0, columns() - 1, juce::roundToInt ((at.x - 0.5f * size) / span * (float) (columns() - 1)));
         const int nearRow = juce::jlimit (0, rows() - 1, juce::roundToInt ((1.0f - 0.5f * size - at.y) / span * (float) (rows() - 1)));
-        return nearRow * columns() + nearColumn;
+        return layerOffset() + nearRow * columns() + nearColumn;
     }
     const int column = juce::jlimit (0, columns() - 1, (int) ((point.x - (float) gridArea.getX()) / (float) gridArea.getWidth() * (float) columns()));
     const int row = juce::jlimit (0, rows() - 1, (int) ((point.y - (float) gridArea.getY()) / (float) gridArea.getHeight() * (float) rows()));
-    return row * columns() + column;
+    return layerOffset() + row * columns() + column;
 }
 
 void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
@@ -1657,18 +1697,14 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
     grabKeyboardFocus(); // so the arrow keys move the selection
     cursor = position;
 
-    // Click selects just this position, Shift- or Cmd-click adds or removes it,
-    // and dragging across positions adds each one
+    // A click turns this position on or off, and dragging on from it does the same to each one it crosses.
+    // With none on, they all play.
     auto selection = player.getSelection();
-    const bool adding = event.mods.isShiftDown() || event.mods.isCommandDown();
-    if (! adding)
-        selection = { position };
-    else if (selection.count (position) > 0)
-        selection.erase (position);
-    else
+    dragAdds = selection.count (position) == 0;
+    if (dragAdds)
         selection.insert (position);
-
-    dragAdds = ! adding || selection.count (position) > 0;
+    else
+        selection.erase (position);
     player.setSelection (selection);
 
     if (! player.isPlaying())
@@ -1891,13 +1927,20 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
     else return false;
 
     auto selection = player.getSelection();
-    if (cursor < 0 || cursor >= rows() * columns())
-        cursor = selection.empty() ? 0 : *selection.begin();
-
-    auto moved = [this, rowStep, columnStep] (int position) -> int
+    // On the layer you're looking at
+    const int offset = layerOffset(), onLayer = rows() * columns();
+    auto isHere = [offset, onLayer] (int position) { return position >= offset && position < offset + onLayer; };
+    if (! isHere (cursor))
     {
-        const int row = position / columns() + rowStep, column = position % columns() + columnStep;
-        return (row < 0 || row >= rows() || column < 0 || column >= columns()) ? -1 : row * columns() + column;
+        cursor = offset;
+        for (int position : selection)
+            if (isHere (position)) { cursor = position; break; }
+    }
+
+    auto moved = [this, rowStep, columnStep, offset] (int position) -> int
+    {
+        const int row = (position - offset) / columns() + rowStep, column = (position - offset) % columns() + columnStep;
+        return (row < 0 || row >= rows() || column < 0 || column >= columns()) ? -1 : offset + row * columns() + column;
     };
 
     if (selection.empty())
@@ -1920,6 +1963,11 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
         std::set<int> shifted;
         for (int position : selection)
         {
+            if (! isHere (position))
+            {
+                shifted.insert (position); // the other layer's stay as they are
+                continue;
+            }
             const int next = moved (position);
             if (next < 0)
                 return true;
@@ -2115,10 +2163,17 @@ void CalibrationPanel::paint (juce::Graphics& g)
         g.fillPath (dashed);
     }
 
-    const int count = rows() * columns();
+    const int count = rows() * columns(), first = layerOffset(), other = player.isGridBackOn() ? (viewedLayer == 0 ? count : -count) : 0;
+    if (player.isGridBackOn())
+    {
+        g.setColour (Theme::textFaint);
+        g.setFont (Theme::font (10.5f));
+        g.drawText (viewedLayer == 0 ? "Front layer" : "Back layer, " + juce::String (player.getGridBackDb(), 1) + " dB",
+                    gridArea.reduced (8, 2).removeFromTop (14), juce::Justification::topRight, false);
+    }
     const float radius = juce::jlimit (4.0f, 9.0f, std::min ((float) gridArea.getWidth() / (float) columns(), (float) gridArea.getHeight() / (float) rows()) * 0.22f);
 
-    for (int position = 0; position < count; ++position)
+    for (int position = first; position < first + count; ++position)
     {
         const auto centre = centreOf (position);
         auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);
@@ -2133,6 +2188,13 @@ void CalibrationPanel::paint (juce::Graphics& g)
         g.setColour (isCurrent ? Theme::accentBright : position == hoverPosition ? Theme::textDim : Theme::raisedHover);
         g.fillEllipse (dot);
 
+        // The other layer's, playing here, as a faint ring
+        if (other != 0 && ! isCurrent && isSounding (position + other))
+        {
+            g.setColour (Theme::accent.withAlpha (0.55f));
+            g.drawEllipse (dot.expanded (1.5f), 1.2f);
+        }
+
         if (player.isSelected (position))
         {
             g.setColour (Theme::text);
@@ -2143,7 +2205,7 @@ void CalibrationPanel::paint (juce::Graphics& g)
     // The 2 x 2 of whatever's playing: its outline and four corners, the one sounding now lit (all of them, held)
     if (isShowingGridCells() && player.isPlaying())
     {
-        for (int position = 0; position < count; ++position)
+        for (int position = first; position < first + count; ++position)
         {
             if (! isSounding (position))
                 continue;
@@ -2283,7 +2345,15 @@ void CalibrationPanel::resized()
     area.removeFromLeft (46);   // the cutoff labels
     gridArea = area.reduced (6);
 
-    rowsSlider.setBounds (juce::Rectangle<int> (rowsStrip.getCentreX() - 14, gridArea.getY() - 6, 28, gridArea.getHeight() + 12));
+    {
+        // On the grid, 3D (and Front and Back, with it on) above the rows slider
+        const int top = gridArea.getY() - 4;
+        gridBackButton.setBounds (rowsStrip.getX(), top, rowsStrip.getWidth() - 2, 26);
+        for (size_t i = 0; i < gridLayerButtons.size(); ++i)
+            gridLayerButtons[i].setBounds (rowsStrip.getX(), top + 30 * ((int) i + 1), rowsStrip.getWidth() - 2, 26);
+        const int sliderTop = top + (player.isGridBackOn() ? 92 : 32);
+        rowsSlider.setBounds (juce::Rectangle<int> (rowsStrip.getCentreX() - 14, sliderTop, 28, gridArea.getBottom() + 6 - sliderTop));
+    }
 
     // Drag mode has its square's size where the rows slider is
     for (size_t i = 0; i < squareSizeButtons.size(); ++i)
@@ -2295,10 +2365,17 @@ void CalibrationPanel::resized()
     {
         // On the grid, the columns share their row with 2 x 2 and its size
         auto strip = columnsSlider.getBounds();
+        // The columns get what's left when there's nothing else, otherwise a share; the rest split what remains
+        auto columnsPart = strip.removeFromLeft (player.isGridCellsOn() || player.isGridBackOn() ? std::max (120, strip.getWidth() / 4) : strip.getWidth() - 58);
+        columnsSlider.setBounds (columnsPart.withTrimmedRight (8));
+        gridCellsButton.setBounds (strip.removeFromLeft (58).reduced (0, 1));
+        strip.removeFromLeft (8);
+        const int extras = (player.isGridCellsOn() ? 1 : 0) + (player.isGridBackOn() ? 1 : 0);
+        const int share = extras > 0 ? strip.getWidth() / extras : 0;
         if (player.isGridCellsOn())
-            gridCellSizeSlider.setBounds (strip.removeFromRight (std::min (220, strip.getWidth() / 3)));
-        gridCellsButton.setBounds (strip.removeFromRight (58).reduced (0, 1));
-        columnsSlider.setBounds (strip.withTrimmedRight (8));
+            gridCellSizeSlider.setBounds (strip.removeFromLeft (share).withTrimmedRight (6));
+        if (player.isGridBackOn())
+            gridBackDbSlider.setBounds (strip);
     }
     squarePathButton.setBounds (squareSizeButtons[2].getBounds().translated (0, 36)); // under the shapes
     layoutSquareLevels();

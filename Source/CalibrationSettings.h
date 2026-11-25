@@ -37,7 +37,8 @@ namespace CalibrationSettings
                                   idSquarePathX2 { "calibrationSquarePathX2" }, idSquarePathY2 { "calibrationSquarePathY2" }, idSquarePathSpeed { "calibrationSquarePathSpeed" },
                                   idSquareLevelDb { "calibrationSquareLevelDb" }, idSquarePathStartDb { "calibrationSquarePathStartDb" },
                                   idSquarePathEndDb { "calibrationSquarePathEndDb" },
-                                  idGridCellsOn { "calibrationGridCellsOn" }, idGridCellSize { "calibrationGridCellSize" };
+                                  idGridCellsOn { "calibrationGridCellsOn" }, idGridCellSize { "calibrationGridCellSize" },
+                                  idGridBackOn { "calibrationGridBackOn" }, idGridBackDb { "calibrationGridBackDb" };
 
     constexpr float minFrequency = 20.0f, maxFrequency = 16000.0f;
 
@@ -198,6 +199,18 @@ namespace CalibrationSettings
         state.setProperty (idGridCellSize, player.getGridCellSize(), nullptr);
     }
 
+    /// The grid's second layer, behind it, and how far
+    inline void setGridBackOn (juce::ValueTree state, CalibrationPlayer& player, bool shouldUse)
+    {
+        player.setGridBackOn (shouldUse);
+        state.setProperty (idGridBackOn, shouldUse, nullptr);
+    }
+    inline void setGridBackDb (juce::ValueTree state, CalibrationPlayer& player, float db)
+    {
+        player.setGridBackDb (db);
+        state.setProperty (idGridBackDb, player.getGridBackDb(), nullptr);
+    }
+
     /// Hands everything in the state to the player
     inline void apply (const juce::ValueTree& state, CalibrationPlayer& player)
     {
@@ -220,6 +233,8 @@ namespace CalibrationSettings
         player.setSquarePathSpeed (state.getProperty (idSquarePathSpeed, CalibrationPlayer::defaultSquarePathSpeed));
         player.setSquareLevel (state.getProperty (idSquareLevelDb, 0.0f));
         player.setGridCellsOn (state.getProperty (idGridCellsOn, false));
+        player.setGridBackOn (state.getProperty (idGridBackOn, false));
+        player.setGridBackDb (state.getProperty (idGridBackDb, CalibrationPlayer::defaultGridBackDb));
         player.setGridCellSize (state.getProperty (idGridCellSize, CalibrationPlayer::defaultGridCellSize));
         player.setSquarePathLevels (state.getProperty (idSquarePathStartDb, 0.0f), state.getProperty (idSquarePathEndDb, 0.0f));
         if ((bool) state.getProperty (idSquarePathOn, false) != player.isSquarePathOn())
