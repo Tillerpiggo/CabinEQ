@@ -16,6 +16,10 @@
 
     If some positions are selected, only those play.
 
+    The grid can have a second, back layer: the same rows and columns, but each burst
+    gets a gentle low-pass, like the shadow of your head on sound from behind. It
+    plays after the whole front layer.
+
     In spots mode it plays 2 to 4 spots instead of the grid, which you place on the EQ
     graph. Each spot plays from its own frequency (a sharp low cut) up to 20 kHz. They
     share a pan range: with more than one pan step, each spot plays at that many
@@ -44,6 +48,9 @@ public:
     static constexpr float minRate = 0.5f, maxRate = 8.0f, defaultRate = 2.5f; // bursts per second
     static constexpr int maxSpots = 4;
     static constexpr int maxPanSteps = 5;
+    static constexpr int maxLayers = 2; // front, and an optional back layer (darker, as from behind)
+    static constexpr int maxPositions = maxRows * maxColumns * maxLayers;
+    static constexpr double backLayerCutoff = 4500.0; // the back layer's low-pass: the head's shadow
 
     enum class Mode { grid = 0, spots = 1 };
     static constexpr float depthStepDb = 10.0f;
@@ -88,6 +95,9 @@ public:
         numColumns = juce::jlimit (1, maxColumns, columns);
     }
 
+    /// 1 or 2 layers. Positions on the back layer come after all of the front layer's.
+    void setLayers (int layers)         { numLayers = juce::jlimit (1, maxLayers, layers); }
+
     void setLevelDb (float db)          { level = juce::Decibels::decibelsToGain (db); }
     void setPlaying (bool shouldPlay)   { playing = shouldPlay; }
     bool isPlaying() const              { return playing; }
@@ -95,20 +105,18 @@ public:
     /// The positions to play; none selected means all of them.
     void setSelection (const std::set<int>& positions)
     {
-        juce::uint64 low = 0, high = 0;
+        std::array<juce::uint64, numWords> words {};
         for (int position : positions)
-        {
-            if (position >= 0 && position < 64)        low |= (juce::uint64) 1 << position;
-            else if (position >= 64 && position < 128) high |= (juce::uint64) 1 << (position - 64);
-        }
-        selectedLow = low;
-        selectedHigh = high;
+            if (position >= 0 && position < maxPositions)
+                words[(size_t) (position / 64)] |= (juce::uint64) 1 << (position % 64);
+        for (size_t i = 0; i < words.size(); ++i)
+            selected[i] = words[i];
     }
 
     std::set<int> getSelection() const
     {
         std::set<int> positions;
-        for (int position = 0; position < maxRows * maxColumns; ++position)
+        for (int position = 0; position < maxPositions; ++position)
             if (isSelected (position))
                 positions.insert (position);
         return positions;
@@ -116,10 +124,9 @@ public:
 
     bool isSelected (int position) const noexcept
     {
-        if (position < 0 || position >= 128)
+        if (position < 0 || position >= maxPositions)
             return false;
-        const auto bits = position < 64 ? selectedLow.load() : selectedHigh.load();
-        return ((bits >> (position % 64)) & 1) != 0;
+        return ((selected[(size_t) (position / 64)].load() >> (position % 64)) & 1) != 0;
     }
 
     /// The high-pass cutoff for a row (0 is the top): the rows' lines cut 20 Hz to 20 kHz into rows + 1 sections.
@@ -186,7 +193,9 @@ public:
                     continue;
                 }
 
-                const float sample = voice.bandLimited ? voice.filter (noise) : noise;
+                float sample = voice.bandLimited ? voice.filter (noise) : noise;
+                if (voice.behind)
+                    sample = voice.shadow.process (sample);
                 l += sample * envelope * voice.leftGain;
                 r += sample * envelope * voice.rightGain;
             }
@@ -219,6 +228,8 @@ private:
         int age = 0;
         float peak = 0, leftGain = 0, rightGain = 0;
         std::array<Biquad, 4> stages; // an 8th-order Butterworth high-pass, for a sharp cut
+        bool behind = false;
+        Biquad shadow; // the back layer's gentle low-pass
 
         float filter (float x) noexcept
         {
@@ -232,7 +243,7 @@ private:
     {
         const bool spots = mode.load() == (int) Mode::spots;
         const int rows = numRows.load(), columns = numColumns.load();
-        const int count = spots ? spotCount.load() : rows * columns;
+        const int count = spots ? spotCount.load() : rows * columns * numLayers.load();
 
         bool anySelected = false;
         for (int p = 0; ! spots && p < count && ! anySelected; ++p)
@@ -266,6 +277,7 @@ private:
         // Where it is between the ears (0 = left, 1 = right), and where its low cut is
         float pan;
         double cutoff;
+        bool behind = false;
         if (spots)
         {
             // Left to right across the range, one pan position per depth run
@@ -280,7 +292,10 @@ private:
         }
         else
         {
-            const int row = position / columns, column = position % columns;
+            const int perLayer = rows * columns;
+            behind = position >= perLayer;
+            const int local = position % perLayer;
+            const int row = local / columns, column = local % columns;
             pan = columns > 1 ? (float) column / (float) (columns - 1) : 0.5f;
             cutoff = cutoffForRow (row, rows);
         }
@@ -316,6 +331,14 @@ private:
         // Quietest first: each repeat is 10 dB louder, ending at full level
         voice->peak *= juce::Decibels::decibelsToGain (-depthStepDb * (float) (depthRuns - 1 - repeat % depthRuns));
 
+        voice->behind = behind;
+        if (behind)
+        {
+            voice->shadow = Biquad { FilterDesign::design (Band::Shape::highCut, std::min (backLayerCutoff, FilterDesign::maxFrequency (sampleRate) * 0.9),
+                                                           0.0, 0.7071, sampleRate) };
+            voice->peak *= juce::Decibels::decibelsToGain (2.0f); // about what the low-pass takes off pink noise
+        }
+
         voice->age = 0;
         voice->active = true;
     }
@@ -340,7 +363,9 @@ private:
     float releaseCoefficient = 0.9999f;
 
     std::atomic<int> numRows { defaultRows }, numColumns { defaultColumns }, depth { 1 };
-    std::atomic<juce::uint64> selectedLow { 0 }, selectedHigh { 0 };
+    static constexpr size_t numWords = (maxPositions + 63) / 64;
+    std::array<std::atomic<juce::uint64>, numWords> selected {};
+    std::atomic<int> numLayers { 1 };
     std::atomic<float> level { juce::Decibels::decibelsToGain (-20.0f) };
     std::atomic<float> rate { defaultRate };
     std::atomic<int> mode { (int) Mode::spots }, spotCount { 3 }, panSteps { 1 };

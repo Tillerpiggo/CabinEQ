@@ -18,6 +18,8 @@ namespace
     const juce::Identifier idLevel { "calibrationLevel" };
     const juce::Identifier idDepth { "calibrationDepth" };
     const juce::Identifier idSpeed { "calibrationSpeed" };
+    const juce::Identifier idLayers { "calibrationLayers" };
+    const juce::Identifier idActiveLayer { "calibrationActiveLayer" };
 }
 
 CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
@@ -88,6 +90,20 @@ CalibrationPanel::CalibrationPanel (CabinEqAudioProcessor& p)
 
     for (auto* button : { &playButton, &allButton, &closeButton })
         addAndMakeVisible (button);
+
+    // An optional back layer, and which layer clicks land on
+    layerCount = juce::jlimit (1, CalibrationPlayer::maxLayers, (int) state.getProperty (idLayers, 1));
+    activeLayer = juce::jlimit (0, layerCount - 1, (int) state.getProperty (idActiveLayer, 0));
+    layersButton.setClickingTogglesState (true);
+    layersButton.setToggleState (layerCount > 1, juce::dontSendNotification);
+    layersButton.setTooltip ("Add a back layer: the same positions, sounding as if from behind you");
+    layersButton.onClick = [this] { setLayers (layersButton.getToggleState() ? 2 : 1); };
+    frontButton.onClick = [this] { setActiveLayer (0); };
+    backButton.onClick = [this] { setActiveLayer (1); };
+    frontButton.setTooltip ("Click positions on the front layer");
+    backButton.setTooltip ("Click positions on the back layer");
+    for (auto* button : { &layersButton, &frontButton, &backButton })
+        addChildComponent (button);
 
     // Spots on the EQ graph, or the grid
     for (auto* button : { &spotsModeButton, &gridModeButton })
@@ -169,6 +185,29 @@ void CalibrationPanel::setMode (CalibrationPlayer::Mode mode)
         onModeChanged();
 }
 
+void CalibrationPanel::setLayers (int newLayers)
+{
+    layerCount = juce::jlimit (1, CalibrationPlayer::maxLayers, newLayers);
+    if (activeLayer >= layerCount)
+        activeLayer = 0;
+    else if (layerCount > 1)
+        activeLayer = 1; // just added the back layer: you probably want to click on it
+    processor.parameters.state.setProperty (idLayers, layerCount, nullptr);
+    processor.parameters.state.setProperty (idActiveLayer, activeLayer, nullptr);
+    refreshSpots();
+    resized();
+    applySettings();
+}
+
+void CalibrationPanel::setActiveLayer (int layer)
+{
+    activeLayer = juce::jlimit (0, layerCount - 1, layer);
+    processor.parameters.state.setProperty (idActiveLayer, activeLayer, nullptr);
+    cursor = -1;
+    refreshSpots();
+    repaint();
+}
+
 void CalibrationPanel::refreshSpots()
 {
     const bool spots = isShowingSpots();
@@ -182,8 +221,13 @@ void CalibrationPanel::refreshSpots()
         spotCountButtons[(size_t) i].setVisible (spots);
     }
 
-    for (auto* component : std::initializer_list<juce::Component*> { &rowsSlider, &columnsSlider })
+    for (auto* component : std::initializer_list<juce::Component*> { &rowsSlider, &columnsSlider, &layersButton })
         component->setVisible (! spots);
+    layersButton.setToggleState (layerCount > 1, juce::dontSendNotification);
+    frontButton.setVisible (! spots && layerCount > 1);
+    backButton.setVisible (! spots && layerCount > 1);
+    frontButton.setToggleState (activeLayer == 0, juce::dontSendNotification);
+    backButton.setToggleState (activeLayer == 1, juce::dontSendNotification);
     for (auto* component : std::initializer_list<juce::Component*> { &spotsPan, &panStepsSlider, &panStepsLabel })
         component->setVisible (spots);
 
@@ -198,6 +242,7 @@ void CalibrationPanel::refreshSpots()
 void CalibrationPanel::applySettings()
 {
     player.setGrid (rows(), columns());
+    player.setLayers (layerCount);
     player.setLevelDb ((float) volumeSlider.getValue());
     player.setDepth ((int) depthSlider.getValue());
     player.setRate ((float) speedSlider.getValue());
@@ -205,7 +250,7 @@ void CalibrationPanel::applySettings()
     // Forget selected positions that aren't on the grid any more
     auto selection = player.getSelection();
     for (auto it = selection.begin(); it != selection.end();)
-        it = *it >= rows() * columns() ? selection.erase (it) : std::next (it);
+        it = *it >= perLayer() * layers() ? selection.erase (it) : std::next (it);
     player.setSelection (selection);
 
     // Not undoable: it's how you like to calibrate, not part of the EQ
@@ -241,22 +286,37 @@ void CalibrationPanel::timerCallback()
 }
 
 //==============================================================================
-juce::Point<float> CalibrationPanel::centreOf (int position) const
+juce::Point<float> CalibrationPanel::layerOffset (int layer) const
+{
+    // The back layer sits up and to the right, as if receding into the screen
+    if (layer == 0 || layers() < 2)
+        return {};
+    return { (float) layerDepth, (float) -layerDepth };
+}
+
+juce::Point<float> CalibrationPanel::centreOf (int position, int layer) const
 {
     const int row = position / columns(), column = position % columns();
     const float cellWidth = (float) gridArea.getWidth() / (float) columns();
     const float cellHeight = (float) gridArea.getHeight() / (float) rows();
-    return { (float) gridArea.getX() + cellWidth * ((float) column + 0.5f),
-             (float) gridArea.getY() + cellHeight * ((float) row + 0.5f) };
+    return juce::Point<float> ((float) gridArea.getX() + cellWidth * ((float) column + 0.5f),
+                               (float) gridArea.getY() + cellHeight * ((float) row + 0.5f)) + layerOffset (layer);
 }
 
+juce::Point<float> CalibrationPanel::centreOf (int position) const
+{
+    return centreOf (position % perLayer(), 0);
+}
+
+/// The position under the point on the layer you're clicking on, counting the front layer's first
 int CalibrationPanel::positionAt (juce::Point<float> point) const
 {
+    point -= layerOffset (activeLayer);
     if (! gridArea.toFloat().contains (point))
         return -1;
     const int column = juce::jlimit (0, columns() - 1, (int) ((point.x - (float) gridArea.getX()) / (float) gridArea.getWidth() * (float) columns()));
     const int row = juce::jlimit (0, rows() - 1, (int) ((point.y - (float) gridArea.getY()) / (float) gridArea.getHeight() * (float) rows()));
-    return row * columns() + column;
+    return activeLayer * perLayer() + row * columns() + column;
 }
 
 void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
@@ -270,18 +330,14 @@ void CalibrationPanel::mouseDown (const juce::MouseEvent& event)
     grabKeyboardFocus(); // so the arrow keys move the selection
     cursor = position;
 
-    // Click selects just this position, Shift- or Cmd-click adds or removes it,
-    // and dragging across positions adds each one
+    // Click toggles this position, and dragging carries on the same way: on, or off
     auto selection = player.getSelection();
-    const bool adding = event.mods.isShiftDown() || event.mods.isCommandDown();
-    if (! adding)
-        selection = { position };
-    else if (selection.count (position) > 0)
+    if (selection.count (position) > 0)
         selection.erase (position);
     else
         selection.insert (position);
 
-    dragAdds = ! adding || selection.count (position) > 0;
+    dragAdds = selection.count (position) > 0;
     player.setSelection (selection);
 
     if (! player.isPlaying())
@@ -321,14 +377,21 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
     else if (key.getKeyCode() == juce::KeyPress::rightKey) columnStep = 1;
     else return false;
 
-    auto selection = player.getSelection();
-    if (cursor < 0 || cursor >= rows() * columns())
-        cursor = selection.empty() ? 0 : *selection.begin();
+    // Keys work on the layer you're clicking on; the other layer's selection stays put
+    const int base = activeLayer * perLayer();
+    const auto all = player.getSelection();
+    std::set<int> selection, otherLayer;
+    for (int position : all)
+        (position >= base && position < base + perLayer() ? selection : otherLayer).insert (position);
 
-    auto moved = [this, rowStep, columnStep] (int position) -> int
+    if (cursor < base || cursor >= base + perLayer())
+        cursor = selection.empty() ? base : *selection.begin();
+
+    auto moved = [this, base, rowStep, columnStep] (int position) -> int
     {
-        const int row = position / columns() + rowStep, column = position % columns() + columnStep;
-        return (row < 0 || row >= rows() || column < 0 || column >= columns()) ? -1 : row * columns() + column;
+        const int local = position - base;
+        const int row = local / columns() + rowStep, column = local % columns() + columnStep;
+        return (row < 0 || row >= rows() || column < 0 || column >= columns()) ? -1 : base + row * columns() + column;
     };
 
     if (selection.empty())
@@ -360,6 +423,7 @@ bool CalibrationPanel::keyPressed (const juce::KeyPress& key)
         cursor = moved (cursor) >= 0 ? moved (cursor) : cursor;
     }
 
+    selection.insert (otherLayer.begin(), otherLayer.end());
     player.setSelection (selection);
     if (! player.isPlaying())
     {
@@ -377,14 +441,14 @@ void CalibrationPanel::mouseMove (const juce::MouseEvent& event)
     {
         hoverPosition = position;
         setMouseCursor (position >= 0 ? juce::MouseCursor::PointingHandCursor : juce::MouseCursor::NormalCursor);
-        repaint (gridArea.expanded (8));
+        repaint (gridArea.expanded (40));
     }
 }
 
 void CalibrationPanel::mouseExit (const juce::MouseEvent&)
 {
     hoverPosition = -1;
-    repaint (gridArea.expanded (8));
+    repaint (gridArea.expanded (40));
 }
 
 //==============================================================================
@@ -448,32 +512,66 @@ void CalibrationPanel::paint (juce::Graphics& g)
         g.drawText (text, gridArea.getX() - 46, (int) centreOf (row * columns()).y - 7, 38, 14, juce::Justification::centredRight);
     }
 
-    g.setColour (Theme::panel);
-    g.fillRoundedRectangle (gridArea.toFloat().expanded (6.0f), Theme::cornerRadius);
-
-    const int count = rows() * columns();
     const float radius = juce::jlimit (4.0f, 9.0f, std::min ((float) gridArea.getWidth() / (float) columns(), (float) gridArea.getHeight() / (float) rows()) * 0.22f);
 
-    for (int position = 0; position < count; ++position)
+    auto drawLayer = [&] (int layer, bool isActive)
     {
-        const auto centre = centreOf (position);
-        auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);
-        const bool isCurrent = position == shownPosition;
-
-        if (isCurrent)
+        const auto offset = layerOffset (layer);
+        auto plate = gridArea.toFloat().expanded (6.0f).translated (offset.x, offset.y);
+        g.setColour (Theme::panel.withAlpha (isActive ? 1.0f : 0.55f));
+        g.fillRoundedRectangle (plate, Theme::cornerRadius);
+        if (layers() > 1)
         {
-            g.setColour (Theme::accent.withAlpha (0.3f));
-            g.fillEllipse (dot.expanded (radius * 0.9f));
+            g.setColour (isActive ? Theme::textFaint : Theme::border);
+            g.drawRoundedRectangle (plate, Theme::cornerRadius, 1.0f);
         }
 
-        g.setColour (isCurrent ? Theme::accentBright : position == hoverPosition ? Theme::textDim : Theme::raisedHover);
-        g.fillEllipse (dot);
-
-        if (player.isSelected (position))
+        const float dim = isActive ? 1.0f : 0.35f;
+        for (int local = 0; local < perLayer(); ++local)
         {
-            g.setColour (Theme::text);
-            g.drawEllipse (dot.expanded (3.0f), 1.5f);
+            const int position = layer * perLayer() + local;
+            const auto centre = centreOf (local, layer);
+            auto dot = juce::Rectangle<float> (radius * 2.0f, radius * 2.0f).withCentre (centre);
+            const bool isCurrent = position == shownPosition;
+
+            if (isCurrent)
+            {
+                g.setColour (Theme::accent.withAlpha (0.3f));
+                g.fillEllipse (dot.expanded (radius * 0.9f));
+            }
+
+            const bool isOn = player.isSelected (position);
+            auto colour = isCurrent ? Theme::accentBright
+                        : position == hoverPosition ? Theme::textDim
+                        : isOn ? Theme::accent
+                        : Theme::raisedHover;
+            g.setColour (isCurrent ? colour : colour.withMultipliedAlpha (dim));
+            g.fillEllipse (dot);
+
+            if (isOn)
+            {
+                g.setColour (Theme::text.withMultipliedAlpha (dim));
+                g.drawEllipse (dot.expanded (3.0f), 1.5f);
+            }
         }
+    };
+
+    if (layers() > 1)
+    {
+        // Edges joining the two layers' corners, so they read as a box
+        const auto offset = layerOffset (1);
+        auto front = gridArea.toFloat().expanded (6.0f);
+        g.setColour (Theme::border);
+        for (auto corner : { front.getTopLeft(), front.getTopRight(), front.getBottomLeft(), front.getBottomRight() })
+            g.drawLine ({ corner, corner + offset }, 1.0f);
+
+        // The active layer goes on top so its dots are clear
+        drawLayer (1 - activeLayer, false);
+        drawLayer (activeLayer, true);
+    }
+    else
+    {
+        drawLayer (0, true);
     }
 }
 
@@ -532,7 +630,17 @@ void CalibrationPanel::resized()
     auto columnsStrip = area.removeFromBottom (28);
     area.removeFromBottom (20); // Left / Right
     area.removeFromLeft (46);   // the cutoff labels
-    gridArea = area.reduced (6);
+    // Layer buttons at the top of the grid's space
+    auto layerRow = area.removeFromTop (30);
+    layersButton.setBounds (layerRow.removeFromLeft (76).withSizeKeepingCentre (76, 24));
+    layerRow.removeFromLeft (8);
+    frontButton.setBounds (layerRow.removeFromLeft (60).withSizeKeepingCentre (60, 24));
+    layerRow.removeFromLeft (4);
+    backButton.setBounds (layerRow.removeFromLeft (60).withSizeKeepingCentre (60, 24));
+
+    // Room for the back layer, up and to the right
+    layerDepth = layerCount > 1 ? juce::jlimit (14, 34, (int) ((float) (area.getHeight() - 12) * 0.22f)) : 0;
+    gridArea = area.reduced (6).withTrimmedTop (layerDepth).withTrimmedRight (layerDepth);
 
     rowsSlider.setBounds (juce::Rectangle<int> (rowsStrip.getCentreX() - 14, gridArea.getY() - 6, 28, gridArea.getHeight() + 12));
     columnsSlider.setBounds (juce::Rectangle<int> (gridArea.getX() - 6, columnsStrip.getY(), gridArea.getWidth() + 12, 28));

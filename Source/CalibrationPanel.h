@@ -5,9 +5,11 @@
 
     A grid of positions that play pink noise bursts in reading order, to check the
     EQ by ear. Columns go from your left ear to your right, rows from high (top)
-    to low: each row up cuts off more of the lows. Click positions to play just
-    those (Shift- or Cmd-click, or drag, to pick several), and move them with the
-    arrow keys (Shift+arrow to add the next one). It has its own volume, and a
+    to low: each row up cuts off more of the lows. Click a position to toggle it
+    (drag to toggle several), and only the toggled ones play; move them with the
+    arrow keys (Shift+arrow to add the next one). "2 layers" adds a back layer, drawn
+    behind the front one in 3D, which sounds as if from behind; Front and Back pick
+    which layer you're clicking on. It has its own volume, and a
     depth that plays each position several times, getting louder.
 
     "On graph", the default, plays 2 to 4 spots instead, each from its base frequency
@@ -44,7 +46,7 @@ public:
     void mouseMove (const juce::MouseEvent&) override;
     void mouseExit (const juce::MouseEvent&) override;
 
-    static constexpr int preferredHeight = 260;
+    static constexpr int preferredHeight = 290;
 
 private:
     void timerCallback() override;
@@ -54,6 +56,12 @@ private:
     void updateButtons();
     int positionAt (juce::Point<float> point) const;
     juce::Point<float> centreOf (int position) const;
+    juce::Point<float> centreOf (int position, int layer) const;
+    juce::Point<float> layerOffset (int layer) const;
+    void setLayers (int layers);
+    void setActiveLayer (int layer);
+    int layers() const { return layerCount; }
+    int perLayer() const { return rows() * columns(); }
     int rows() const { return (int) rowsSlider.getValue(); }
     int columns() const { return (int) columnsSlider.getValue(); }
 
@@ -72,10 +80,13 @@ private:
     juce::Label panStepsLabel;
     juce::Rectangle<int> spotsArea, spotDots;
 
+    juce::TextButton layersButton { "2 layers" }, frontButton { "Front" }, backButton { "Back" };
+    int layerCount = 1, activeLayer = 0, layerDepth = 0;
+
     juce::Rectangle<int> gridArea;
     int hoverPosition = -1, shownPosition = -1;
     int cursor = -1; // where the arrow keys move from: the last position clicked or moved to
-    bool dragAdds = true; // whether dragging across positions selects them or unselects them
+    bool dragAdds = true; // whether dragging across positions toggles them on or off
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CalibrationPanel)
 };
